@@ -1,19 +1,55 @@
-import { FaDiscord, FaGithub } from "react-icons/fa";
-import ShadTooltip from "@/components/common/shadTooltipComponent";
-import { DISCORD_URL, GITHUB_URL } from "@/constants/constants";
-import { useDarkStore } from "@/stores/darkStore";
-import { formatNumber } from "@/utils/utils";
+import { FaDiscord, FaGithub, FaLanguage } from 'react-icons/fa';
+import ShadTooltip from '@/components/common/shadTooltipComponent';
+import { DISCORD_URL, GITHUB_URL } from '@/constants/constants';
+import { useDarkStore } from '@/stores/darkStore';
+import { cn, formatNumber } from '@/utils/utils';
+import AlertDropdown from '@/alerts/alertDropDown';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
+import { Select } from '@/components/ui/select';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { useI18nStore } from '@/stores/i18nStore';
 
 export const LangflowCounts = () => {
   const stars: number | undefined = useDarkStore((state) => state.stars);
   const discordCount: number = useDarkStore((state) => state.discordCount);
 
+  const {lang, setLanguage} = useI18nStore()
+
   return (
-    <div
-      className="flex items-center gap-3"
-      onClick={() => window.open(GITHUB_URL, "_blank")}
-    >
-      <ShadTooltip
+    <div className='flex items-center gap-3'>
+      <DropdownMenu>
+        <DropdownMenuTrigger>
+          <ShadTooltip side='bottom' styleClasses='z-10'>
+            <div className='hit-area-hover flex items-center gap-2 rounded-md p-1 text-muted-foreground'>
+              <FaLanguage className='h-6 w-6' />
+            </div>
+          </ShadTooltip>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent>
+          <DropdownMenuItem className={lang == 'en' ? cn('bg-[hsl(var(--accent))]') : undefined} onClick={() => {
+            if (lang != 'en') {
+              setLanguage('en')
+            }
+          }}>English</DropdownMenuItem>
+          <DropdownMenuItem className={lang == 'zh' ? cn('bg-[hsl(var(--accent))]') : undefined} onClick={() => {
+            if (lang != 'zh') {
+              setLanguage('zh')
+            }
+          }}>中文</DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+
+      {/* <ShadTooltip
         content="Go to GitHub repo"
         side="bottom"
         styleClasses="z-10"
@@ -38,7 +74,7 @@ export const LangflowCounts = () => {
             {formatNumber(discordCount)}
           </span>
         </div>
-      </ShadTooltip>
+      </ShadTooltip> */}
     </div>
   );
 };

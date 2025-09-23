@@ -22,12 +22,16 @@ import {
   HeaderMenuToggle,
 } from "../HeaderMenu";
 import ThemeButtons from "../ThemeButtons";
+import { useTransition } from "react";
+import { useTranslation } from "react-i18next";
 
 export const AccountMenu = () => {
   const version = useDarkStore((state) => state.version);
   const latestVersion = useDarkStore((state) => state.latestVersion);
   const navigate = useCustomNavigate();
   const { mutate: mutationLogout } = useLogout();
+
+  const {t} = useTranslation()
 
   const { isAdmin, autoLogin } = useAuthStore((state) => ({
     isAdmin: state.isAdmin,
@@ -67,7 +71,7 @@ export const AccountMenu = () => {
                   id="menu_version_button"
                   className="text-sm"
                 >
-                  Version
+                  {t('settings.version')}
                 </span>
                 <div
                   className={cn(
@@ -123,7 +127,7 @@ export const AccountMenu = () => {
             </HeaderMenuItemLink>
           </div>
 
-          <div>
+          {/* <div>
             <HeaderMenuItemLink newPage href={GITHUB_URL}>
               <span
                 data-testid="menu_github_button"
@@ -158,7 +162,7 @@ export const AccountMenu = () => {
                 X
               </span>
             </HeaderMenuItemLink>
-          </div>
+          </div> */}
 
           <div className="flex items-center justify-between px-4 py-[6.5px] text-sm">
             <span className="">Theme</span>
