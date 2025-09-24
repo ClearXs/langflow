@@ -2,6 +2,7 @@ import { useUpdateNodeInternals } from "@xyflow/react";
 import { cloneDeep } from "lodash";
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
+import { useTranslation } from "react-i18next";
 import { useShallow } from "zustand/react/shallow";
 import ForwardedIconComponent from "@/components/common/genericIconComponent";
 import ShadTooltip from "@/components/common/shadTooltipComponent";
@@ -75,6 +76,7 @@ function GenericNode({
   xPos?: number;
   yPos?: number;
 }): JSX.Element {
+  const { t } = useTranslation();
   const [borderColor, setBorderColor] = useState<string>("");
   const [loadingUpdate, setLoadingUpdate] = useState(false);
   const [showHiddenOutputs, setShowHiddenOutputs] = useState(false);
@@ -156,10 +158,10 @@ function GenericNode({
 
   if (!data.node!.template) {
     setErrorData({
-      title: `Error in component ${data.node!.display_name}`,
+      title: `${t("common.errorInComponent")} ${data.node!.display_name}`,
       list: [
-        `The component ${data.node!.display_name} has no template.`,
-        `Please contact the developer of the component to fix this issue.`,
+        `${t("common.componentHasNoTemplate")}`,
+        `${t("common.contactDeveloperToFix")}`,
       ],
     });
     takeSnapshot();
@@ -197,10 +199,10 @@ function GenericNode({
             },
             onError: (error) => {
               setErrorData({
-                title: "Error updating Component code",
+                title: t("common.errorUpdatingComponentCode"),
                 list: [
-                  "There was an error updating the Component.",
-                  "If the error persists, please report it on our Discord or GitHub.",
+                  t("common.errorUpdatingComponent"),
+                  t("common.reportErrorOnDiscord"),
                 ],
               });
               console.error(error);

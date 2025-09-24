@@ -1,3 +1,11 @@
+/*
+ * @Author: dengchao dengchao
+ * @Date: 2025-09-23 10:55:29
+ * @LastEditors: dengchao dengchao
+ * @LastEditTime: 2025-09-24 15:32:38
+ * @FilePath: \frontend\src\modals\templatesModal\components\navComponent\index.tsx
+ * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
+ */
 import ForwardedIconComponent from "@/components/common/genericIconComponent";
 import { convertTestName } from "@/components/common/storeCardComponent/utils/convert-test-name";
 import {
@@ -14,10 +22,11 @@ import {
 import { cn } from "@/utils/utils";
 import { useIsMobile } from "../../../../hooks/use-mobile";
 import type { NavProps } from "../../../../types/templates/types";
+import { useTranslation } from "react-i18next";
 
 export function Nav({ categories, currentTab, setCurrentTab }: NavProps) {
   const isMobile = useIsMobile();
-
+  const { t } = useTranslation();
   return (
     <Sidebar collapsible={isMobile ? "icon" : "none"} className="max-w-[230px]">
       <SidebarContent className="gap-0 p-2">
@@ -36,7 +45,7 @@ export function Nav({ categories, currentTab, setCurrentTab }: NavProps) {
               "group-data-[collapsible=icon]:-mt-8 group-data-[collapsible=icon]:opacity-0",
             )}
           >
-            Templates
+            {t("common.templates")}
           </div>
         </div>
 

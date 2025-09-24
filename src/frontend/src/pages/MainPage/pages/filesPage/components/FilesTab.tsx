@@ -5,6 +5,7 @@ import type {
 } from "ag-grid-community";
 import type { AgGridReact } from "ag-grid-react";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import ForwardedIconComponent from "@/components/common/genericIconComponent";
 import ShadTooltip from "@/components/common/shadTooltipComponent";
 import CardsWrapComponent from "@/components/core/cardsWrapComponent";
@@ -46,6 +47,7 @@ const FilesTab = ({
   setQuantitySelected,
   isShiftPressed,
 }: FilesTabProps) => {
+  const { t } = useTranslation();
   const tableRef = useRef<AgGridReact<any>>(null);
   const { data: files } = useGetFilesV2();
   const setErrorData = useAlertStore((state) => state.setErrorData);
@@ -80,12 +82,12 @@ const FilesTab = ({
         files: files,
       });
       setSuccessData({
-        title: `File${filesIds.length > 1 ? "s" : ""} uploaded successfully`,
+        title: filesIds.length > 1 ? t("common.filesUploadedSuccessfully") : t("common.fileUploadedSuccessfully"),
       });
     } catch (error: any) {
       setErrorData({
-        title: "Error uploading file",
-        list: [error.message || "An error occurred while uploading the file"],
+        title: t("common.errorUploadingFile"),
+        list: [error.message || t("common.errorOccurredWhileUploading")],
       });
     }
   };
@@ -113,7 +115,7 @@ const FilesTab = ({
 
   const colDefs: ColDef[] = [
     {
-      headerName: "Name",
+      headerName: t("common.name"),
       field: "name",
       flex: 2,
       headerCheckboxSelection: true,
@@ -157,7 +159,7 @@ const FilesTab = ({
             {params.data.progress !== undefined &&
             params.data.progress === -1 ? (
               <span className="text-xs text-primary">
-                Upload failed,{" "}
+                {t("common.uploadFailed")}{" "}
                 <span
                   className="cursor-pointer text-accent-pink-foreground underline"
                   onClick={(e) => {
@@ -167,7 +169,7 @@ const FilesTab = ({
                     }
                   }}
                 >
-                  try again?
+                  {t("common.tryAgain")}
                 </span>
               </span>
             ) : (
@@ -178,7 +180,7 @@ const FilesTab = ({
       },
     },
     {
-      headerName: "Type",
+      headerName: t("common.type"),
       field: "path",
       flex: 1,
       filter: "agTextColumnFilter",
@@ -190,7 +192,7 @@ const FilesTab = ({
         "text-muted-foreground cursor-text select-text group-[.no-select-cells]:cursor-default group-[.no-select-cells]:select-none",
     },
     {
-      headerName: "Size",
+      headerName: t("common.size"),
       field: "size",
       flex: 1,
       valueFormatter: (params) => {
@@ -201,7 +203,7 @@ const FilesTab = ({
         "text-muted-foreground cursor-text select-text group-[.no-select-cells]:cursor-default group-[.no-select-cells]:select-none",
     },
     {
-      headerName: "Modified",
+      headerName: t("common.modified"),
       field: "updated_at",
       valueFormatter: (params) => {
         return params.data.progress
@@ -269,9 +271,9 @@ const FilesTab = ({
         },
         onError: (error) => {
           setErrorData({
-            title: "Error deleting files",
+            title: t("common.errorDeletingFiles"),
             list: [
-              error.message || "An error occurred while deleting the files",
+              error.message || t("common.errorOccurredWhileDeleting"),
             ],
           });
         },
@@ -281,7 +283,7 @@ const FilesTab = ({
 
   const UploadButtonComponent = useMemo(() => {
     return (
-      <ShadTooltip content="Upload File" side="bottom">
+      <ShadTooltip content={t("common.uploadFile")} side="bottom">
         <Button
           className="!px-3 md:!px-4 md:!pl-3.5"
           onClick={async () => {
@@ -296,12 +298,12 @@ const FilesTab = ({
             className="h-4 w-4"
           />
           <span className="hidden whitespace-nowrap font-semibold md:inline">
-            Upload Files
+            {t("common.uploadFiles")}
           </span>
         </Button>
       </ShadTooltip>
     );
-  }, []);
+  }, [t]);
 
   return (
     <div className="flex h-full flex-col">
@@ -312,7 +314,7 @@ const FilesTab = ({
               icon="Search"
               data-testid="search-store-input"
               type="text"
-              placeholder={`Search files...`}
+              placeholder={t("common.searchFiles")}
               className="mr-2 w-full"
               value={quickFilterText || ""}
               onChange={(event) => {
@@ -387,7 +389,7 @@ const FilesTab = ({
                   )}
                 >
                   <span className="text-xs text-muted-foreground">
-                    {quantitySelected} selected
+                    {quantitySelected} {t("common.selected")}
                   </span>
                   <div className="flex items-center gap-2">
                     <Button
@@ -412,7 +414,7 @@ const FilesTab = ({
                         data-testid="bulk-delete-btn"
                       >
                         <ForwardedIconComponent name="Trash2" />
-                        Delete
+                        {t("common.delete")}
                       </Button>
                     </DeleteConfirmationModal>
                   </div>
@@ -423,13 +425,13 @@ const FilesTab = ({
         ) : (
           <CardsWrapComponent
             onFileDrop={onFileDrop}
-            dragMessage="Drop files to upload"
+            dragMessage={t("common.dropFilesToUpload")}
           >
             <div className="flex h-full w-full flex-col items-center justify-center gap-8 pb-8">
               <div className="flex flex-col items-center gap-2">
-                <h3 className="text-2xl font-semibold">No files</h3>
+                <h3 className="text-2xl font-semibold">{t("common.noFiles")}</h3>
                 <p className="text-lg text-secondary-foreground">
-                  Upload files or import from your preferred cloud.
+                  {t("common.uploadFilesOrImport")}
                 </p>
               </div>
               <div className="flex items-center gap-2">

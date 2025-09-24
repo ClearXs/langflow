@@ -1,3 +1,11 @@
+/*
+ * @Author: dengchao dengchao
+ * @Date: 2025-09-23 10:55:29
+ * @LastEditors: dengchao dengchao
+ * @LastEditTime: 2025-09-24 14:25:00
+ * @FilePath: \frontend\src\modals\deleteConfirmationModal\index.tsx
+ * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
+ */
 import { DialogClose } from "@radix-ui/react-dialog";
 import { Trash2 } from "lucide-react";
 import { Button } from "../../components/ui/button";
@@ -9,7 +17,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "../../components/ui/dialog";
-
+import { useTranslation } from "react-i18next";
 export default function DeleteConfirmationModal({
   children,
   onConfirm,
@@ -27,6 +35,7 @@ export default function DeleteConfirmationModal({
   setOpen?: (open: boolean) => void;
   note?: string;
 }) {
+  const { t } = useTranslation();
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild={!children ? true : asChild} tabIndex={-1}>
@@ -40,15 +49,15 @@ export default function DeleteConfirmationModal({
                 className="h-6 w-6 pr-1 text-foreground"
                 strokeWidth={1.5}
               />
-              <span className="pl-2">Delete</span>
+              <span className="pl-2">{t("common.delete")}</span>
             </div>
           </DialogTitle>
         </DialogHeader>
         <span className="pb-3 text-sm">
-          This will permanently delete the {description ?? "flow"}
-          {note ? " " + note : ""}.<br />
+          {t("common.thisWillPermanentlyDeleteThe")} {description ?? "flow"}
+          {note ? " " + note : ""}{t("common.dot")}<br />
           <br />
-          This can't be undone.
+          {t("common.thisCantBeUndone")}
         </span>
         <DialogFooter>
           <DialogClose asChild>
@@ -58,7 +67,7 @@ export default function DeleteConfirmationModal({
               variant="outline"
               data-testid="btn_cancel_delete_confirmation_modal"
             >
-              Cancel
+              {t("common.cancel")}
             </Button>
           </DialogClose>
           <DialogClose asChild>
@@ -70,7 +79,7 @@ export default function DeleteConfirmationModal({
               }}
               data-testid="btn_delete_delete_confirmation_modal"
             >
-              Delete
+              {t("common.delete")}
             </Button>
           </DialogClose>
         </DialogFooter>

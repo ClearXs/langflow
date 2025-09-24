@@ -1,5 +1,6 @@
 import { Background, Panel } from "@xyflow/react";
 import { memo } from "react";
+import { useTranslation } from "react-i18next";
 import { useShallow } from "zustand/react/shallow";
 import ForwardedIconComponent from "@/components/common/genericIconComponent";
 import CanvasControlButton from "@/components/core/canvasControlsComponent/CanvasControlButton";
@@ -11,7 +12,7 @@ import { ENABLE_NEW_SIDEBAR } from "@/customization/feature-flags";
 import useFlowStore from "@/stores/flowStore";
 import { cn } from "@/utils/utils";
 import { useSearchContext } from "../flowSidebarComponent";
-import { NAV_ITEMS } from "../flowSidebarComponent/components/sidebarSegmentedNav";
+import { getNavItems } from "../flowSidebarComponent/components/sidebarSegmentedNav";
 
 export const MemoizedBackground = memo(() => (
   <Background size={2} gap={20} className="" />
@@ -62,8 +63,11 @@ export const MemoizedCanvasControls = memo(
 );
 
 export const MemoizedSidebarTrigger = memo(() => {
+  const { t } = useTranslation();
   const { open, toggleSidebar, setActiveSection } = useSidebar();
   const { focusSearch, isSearchFocused } = useSearchContext();
+  const navItems = getNavItems(t);
+  
   if (ENABLE_NEW_SIDEBAR) {
     return (
       <Panel
@@ -73,7 +77,7 @@ export const MemoizedSidebarTrigger = memo(() => {
         )}
         position="top-left"
       >
-        {NAV_ITEMS.map((item) => (
+        {navItems.map((item) => (
           <CanvasControlButton
             data-testid={`sidebar-trigger-${item.id}`}
             iconName={item.icon}

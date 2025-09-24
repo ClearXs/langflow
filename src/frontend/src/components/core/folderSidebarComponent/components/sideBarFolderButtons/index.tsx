@@ -49,6 +49,7 @@ import { HeaderButtons } from "./components/header-buttons";
 import { InputEditFolderName } from "./components/input-edit-folder-name";
 import { MCPServerNotice } from "./components/mcp-server-notice";
 import { SelectOptions } from "./components/select-options";
+import { useTranslation } from "react-i18next";
 
 type SideBarFoldersButtonsComponentProps = {
   handleChangeFolder?: (id: string) => void;
@@ -60,6 +61,7 @@ const SideBarFoldersButtonsComponent = ({
   handleDeleteFolder,
   handleFilesClick,
 }: SideBarFoldersButtonsComponentProps) => {
+  const { t } = useTranslation();
   const location = useLocation();
   const pathname = location.pathname;
   const folders = useFolderStore((state) => state.folders);
@@ -138,7 +140,7 @@ const SideBarFoldersButtonsComponent = ({
         if (objects.every((flow) => flow.data?.nodes)) {
           uploadFlow({ files }).then(() => {
             setSuccessData({
-              title: "Uploaded successfully",
+              title: t("common.uploadedSuccessfully"),
             });
           });
         } else {
@@ -150,13 +152,13 @@ const SideBarFoldersButtonsComponent = ({
               {
                 onSuccess: () => {
                   setSuccessData({
-                    title: "Project uploaded successfully.",
+                    title: t("common.projectUploadedSuccessfully"),
                   });
                 },
                 onError: (err) => {
                   console.error(err);
                   setErrorData({
-                    title: `Error on uploading your project, try dragging it into an existing project.`,
+                    title: t("common.errorOnUploadingYourProject"),
                     list: [err["response"]["data"]["message"]],
                   });
                 },
@@ -179,7 +181,7 @@ const SideBarFoldersButtonsComponent = ({
         },
         onError: (e) => {
           setErrorData({
-            title: `An error occurred while downloading your project.`,
+            title: t("common.errorOnDownloadingYourProject"),
           });
         },
       },
@@ -190,14 +192,14 @@ const SideBarFoldersButtonsComponent = ({
     mutateAddFolder(
       {
         data: {
-          name: "New Project",
+          name: t("common.newProject"),
           parent_id: null,
           description: "",
         },
       },
       {
         onSuccess: (folder) => {
-          track("Create New Project");
+          track(t("common.createNewProject"));
           handleChangeFolder!(folder.id);
         },
       },
@@ -478,7 +480,7 @@ const SideBarFoldersButtonsComponent = ({
         <SidebarFooter className="border-t">
           <div className="grid w-full items-center gap-2 p-2">
             {/* TODO: Remove this on cleanup */}
-            {ENABLE_DATASTAX_LANGFLOW && <CustomStoreButton />}{" "}
+            {ENABLE_DATASTAX_LANGFLOW && <CustomStoreButton />}
             {ENABLE_KNOWLEDGE_BASES && (
               <SidebarMenuButton
                 onClick={handleKnowledgeNavigation}
@@ -486,7 +488,7 @@ const SideBarFoldersButtonsComponent = ({
                 className="text-sm"
               >
                 <ForwardedIconComponent name="Library" className="h-4 w-4" />
-                Knowledge
+                {t("common.knowledge")}
               </SidebarMenuButton>
             )}
             <SidebarMenuButton
@@ -495,7 +497,7 @@ const SideBarFoldersButtonsComponent = ({
               className="text-sm"
             >
               <ForwardedIconComponent name="File" className="h-4 w-4" />
-              My Files
+              {t("common.myFiles")}
             </SidebarMenuButton>
           </div>
         </SidebarFooter>

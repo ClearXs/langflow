@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import ForwardedIconComponent from "@/components/common/genericIconComponent";
 import ShadTooltip from "@/components/common/shadTooltipComponent";
 import { Separator } from "@/components/ui/separator";
@@ -21,6 +22,7 @@ interface NavItem {
   tooltip: string;
 }
 
+// 静态版本用于向后兼容
 export const NAV_ITEMS: NavItem[] = [
   {
     id: "search",
@@ -54,10 +56,45 @@ export const NAV_ITEMS: NavItem[] = [
   },
 ];
 
+export const getNavItems = (t: (key: string) => string): NavItem[] => [
+  {
+    id: "search",
+    icon: "search",
+    label: t("common.search"),
+    tooltip: t("common.search"),
+  },
+  {
+    id: "components",
+    icon: "component",
+    label: t("navigation.components"),
+    tooltip: t("navigation.components"),
+  },
+  {
+    id: "mcp",
+    icon: "Mcp",
+    label: t("common.mcp"),
+    tooltip: t("common.mcp"),
+  },
+  {
+    id: "bundles",
+    icon: "blocks",
+    label: t("common.bundles"),
+    tooltip: t("common.bundles"),
+  },
+  {
+    id: "add_note",
+    icon: "sticky-note",
+    label: t("common.stickyNotes"),
+    tooltip: t("common.addStickyNotes"),
+  },
+];
+
 const SidebarSegmentedNav = () => {
+  const { t } = useTranslation();
   const { activeSection, setActiveSection, toggleSidebar, open } = useSidebar();
   const { focusSearch, setSearch } = useSearchContext();
   const [isAddNoteActive, setIsAddNoteActive] = useState(false);
+  const navItems = getNavItems(t);
   const handleAddNote = () => {
     window.dispatchEvent(new Event("lf:start-add-note"));
     setIsAddNoteActive(true);
@@ -72,7 +109,7 @@ const SidebarSegmentedNav = () => {
   return (
     <div className="flex h-full flex-col border-r border-border bg-background">
       <SidebarMenu className="gap-2 py-1">
-        {NAV_ITEMS.map((item) => (
+        {navItems.map((item) => (
           <div key={item.id}>
             {item.id === "add_note" && <Separator className="w-full" />}
             <SidebarMenuItem className="px-1">

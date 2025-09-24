@@ -12,6 +12,7 @@ import { useFolderStore } from "../../../../stores/foldersStore";
 import type { TemplateContentProps } from "../../../../types/templates/types";
 import { updateIds } from "../../../../utils/reactflowUtils";
 import { TemplateCategoryComponent } from "../TemplateCategoryComponent";
+import { useTranslation } from "react-i18next";
 
 export default function TemplateContentComponent({
   currentTab,
@@ -29,7 +30,7 @@ export default function TemplateContentComponent({
   const { folderId } = useParams();
   const myCollectionId = useFolderStore((state) => state.myCollectionId);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
-
+  const { t } = useTranslation();
   const folderIdUrl = folderId ?? myCollectionId;
 
   const fuse = useMemo(
@@ -83,7 +84,7 @@ export default function TemplateContentComponent({
         />
         <Input
           type="search"
-          placeholder="Search..."
+          placeholder={t("common.search")}
           icon={"SearchIcon"}
           data-testid="search-input-template"
           value={searchQuery}
@@ -104,14 +105,14 @@ export default function TemplateContentComponent({
         ) : (
           <div className="flex flex-col items-center justify-center px-4 py-12 text-center">
             <p className="text-sm text-secondary-foreground">
-              No templates found.{" "}
+              {t("common.noTemplatesFound")}
               <a
                 className="cursor-pointer underline underline-offset-4"
                 onClick={handleClearSearch}
               >
-                Clear your search
+                {t("common.clearYourSearch")}
               </a>{" "}
-              and try a different query.
+              {t("common.andTryADifferentQuery")}
             </p>
           </div>
         )}

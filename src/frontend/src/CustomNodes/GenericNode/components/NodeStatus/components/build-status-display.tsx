@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import {
   RUN_TIMESTAMP_PREFIX,
   STATUS_BUILD,
@@ -18,12 +19,15 @@ const TimeStamp = ({ prefix, time }) => (
   </div>
 );
 
-const Duration = ({ duration }) => (
-  <div className="flex items-center text-secondary-foreground">
-    <div>Duration:</div>
-    <div className="ml-1">{duration}</div>
-  </div>
-);
+const Duration = ({ duration }) => {
+  const { t } = useTranslation();
+  return (
+    <div className="flex items-center text-secondary-foreground">
+      <div>{t("common.duration")}</div>
+      <div className="ml-1">{duration}</div>
+    </div>
+  );
+};
 
 const ValidationDetails = ({
   validationString,

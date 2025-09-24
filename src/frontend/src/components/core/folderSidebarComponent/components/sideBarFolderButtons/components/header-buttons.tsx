@@ -1,3 +1,11 @@
+/*
+ * @Author: dengchao dengchao
+ * @Date: 2025-09-23 10:55:28
+ * @LastEditors: dengchao dengchao
+ * @LastEditTime: 2025-09-24 09:50:38
+ * @FilePath: \frontend\src\components\core\folderSidebarComponent\components\sideBarFolderButtons\components\header-buttons.tsx
+ * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
+ */
 import { useEffect, useState } from "react";
 import IconComponent from "@/components/common/genericIconComponent";
 import { SidebarTrigger } from "@/components/ui/sidebar";
@@ -6,6 +14,7 @@ import CustomGetStartedProgress from "@/customization/components/custom-get-star
 import useAuthStore from "@/stores/authStore";
 import { AddFolderButton } from "./add-folder-button";
 import { UploadFolderButton } from "./upload-folder-button";
+import { useTranslation } from "react-i18next";
 
 export const HeaderButtons = ({
   handleUploadFlowsToFolder,
@@ -18,6 +27,7 @@ export const HeaderButtons = ({
   isPending: boolean;
   addNewFolder: () => void;
 }) => {
+  const { t } = useTranslation();
   const userData = useAuthStore((state) => state.userData);
 
   const [isDismissedDialog, setIsDismissedDialog] = useState(
@@ -75,7 +85,7 @@ export const HeaderButtons = ({
           <IconComponent name="PanelLeftClose" className="h-4 w-4" />
         </SidebarTrigger>
 
-        <div className="flex-1 text-sm font-medium">Projects</div>
+        <div className="flex-1 text-sm font-medium">{t("common.projects")}</div>
         <div className="flex items-center gap-1">
           <UploadFolderButton
             onClick={handleUploadFlowsToFolder}

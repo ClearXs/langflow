@@ -209,7 +209,7 @@ export function FlowSidebarComponent({ isLoading }: FlowSidebarComponentProps) {
   const [showBeta, setShowBeta] = useState(showBetaStorage);
   const [showLegacy, setShowLegacy] = useState(showLegacyStorage);
 
-  // Functions to handle state changes with localStorage persistence
+  // 使用 localStorage 持久化处理状态变化的函数
   const handleSetShowBeta = useCallback((value: boolean) => {
     setShowBeta(value);
     setLocalStorage("showBeta", value.toString());
@@ -221,7 +221,7 @@ export function FlowSidebarComponent({ isLoading }: FlowSidebarComponentProps) {
   }, []);
   const [mcpSearchData, setMcpSearchData] = useState<any[]>([]);
 
-  // Create base data that includes MCP category when available
+  // 创建包含 MCP 类别（如果可用）的基础数据
   const baseData = useMemo(() => {
     if (mcpSuccess && mcpServers && data["agents"]?.["MCPTools"]) {
       const mcpComponent = data["agents"]["MCPTools"];

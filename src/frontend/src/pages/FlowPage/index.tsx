@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useBlocker, useParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { useGetFlow } from "@/controllers/API/queries/flows/use-get-flow";
 import { useGetTypes } from "@/controllers/API/queries/flows/use-get-types";
@@ -20,6 +21,7 @@ import {
 import Page from "./components/PageComponent";
 
 export default function FlowPage({ view }: { view?: boolean }): JSX.Element {
+  const { t } = useTranslation();
   const types = useTypesStore((state) => state.types);
 
   useGetTypes({
@@ -61,7 +63,7 @@ export default function FlowPage({ view }: { view?: boolean }): JSX.Element {
       if (proceed) {
         blocker.proceed && blocker.proceed();
         setSuccessData({
-          title: "Flow saved successfully!",
+          title: t("common.flowSavedSuccessfully"),
         });
       }
     }, 1200);
@@ -69,7 +71,7 @@ export default function FlowPage({ view }: { view?: boolean }): JSX.Element {
       if (!autoSaving || saving === false) {
         blocker.proceed && blocker.proceed();
         setSuccessData({
-          title: "Flow saved successfully!",
+          title: t("common.flowSavedSuccessfully"),
         });
       }
       proceed = true;
@@ -125,7 +127,7 @@ export default function FlowPage({ view }: { view?: boolean }): JSX.Element {
 
     return () => {
       setOnFlowPage(false);
-      console.warn("unmounting");
+      console.warn(t("common.unmounting"));
 
       setCurrentFlow(undefined);
     };

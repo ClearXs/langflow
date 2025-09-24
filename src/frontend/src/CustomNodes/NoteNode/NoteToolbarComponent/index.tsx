@@ -1,5 +1,6 @@
 import { cloneDeep } from "lodash";
 import { memo, useCallback, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import ShadTooltip from "@/components/common/shadTooltipComponent";
 import {
   Popover,
@@ -26,6 +27,7 @@ const NoteToolbarComponent = memo(function NoteToolbarComponent({
   data: NoteDataType;
   bgColor: string;
 }) {
+  const { t } = useTranslation();
   const setNoticeData = useAlertStore((state) => state.setNoticeData);
 
   // Combine multiple store selectors into one to reduce re-renders
@@ -51,9 +53,9 @@ const NoteToolbarComponent = memo(function NoteToolbarComponent({
       return customOpenNewTab(data.node?.documentation);
     }
     setNoticeData({
-      title: `${data.id} docs is not available at the moment.`,
+      title: `${data.id} ${t("common.docsNotAvailable")}`,
     });
-  }, [data.node?.documentation, data.id, setNoticeData]);
+  }, [data.node?.documentation, data.id, setNoticeData, t]);
 
   const handleSelectChange = useCallback(
     (event: string) => {
@@ -109,7 +111,7 @@ const NoteToolbarComponent = memo(function NoteToolbarComponent({
     <div className="w-26 noflow nowheel nopan nodelete nodrag h-10">
       <span className="isolate inline-flex rounded-md shadow-sm">
         <Popover>
-          <ShadTooltip content="Pick Color">
+          <ShadTooltip content={t("common.pickColor")}>
             <PopoverTrigger>
               <div>
                 <div
@@ -138,7 +140,7 @@ const NoteToolbarComponent = memo(function NoteToolbarComponent({
 
         <Select onValueChange={handleSelectChange} value="">
           <SelectTrigger>
-            <ShadTooltip content="Show More" side="top">
+            <ShadTooltip content={t("common.showMore")} side="top">
               <div>
                 <div
                   data-testid="more-options-modal"

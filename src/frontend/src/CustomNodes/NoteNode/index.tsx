@@ -1,6 +1,7 @@
 import { NodeResizer } from "@xyflow/react";
 import { debounce } from "lodash";
 import { useMemo, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   COLOR_OPTIONS,
   NOTE_NODE_MAX_HEIGHT,
@@ -26,6 +27,7 @@ function NoteNode({
   data: NoteDataType;
   selected?: boolean;
 }) {
+  const { t } = useTranslation();
   const bgColor =
     Object.keys(COLOR_OPTIONS).find(
       (key) => key === data.node?.template.backgroundColor,
@@ -153,7 +155,7 @@ function NoteNode({
             nodeId={dataId}
             selected={selected}
             description={dataDescription}
-            emptyPlaceholder="Double-click to start typing or enter Markdown..."
+            emptyPlaceholder={t("common.doubleClickToStartTyping")}
             placeholderClassName={cn(
               COLOR_OPTIONS[bgColor] === null ? "" : "dark:!text-background",
               "px-2",

@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
+import { useTranslation } from "react-i18next";
 import { getSpecificClassFromBuildStatus } from "@/CustomNodes/helpers/get-class-from-build-status";
 import { mutateTemplate } from "@/CustomNodes/helpers/mutate-template";
 import useIconStatus from "@/CustomNodes/hooks/use-icons-status";
@@ -57,6 +58,7 @@ export default function NodeStatus({
   isBreakingChange: boolean;
   getValidationStatus: (data) => VertexBuildTypeAPI | null;
 }) {
+  const { t } = useTranslation();
   const nodeId_ = data.node?.flow?.data
     ? (findLastNode(data.node?.flow.data!)?.id ?? nodeId)
     : nodeId;
@@ -318,9 +320,9 @@ export default function NodeStatus({
 
   const getTooltipContent = () => {
     if (BuildStatus.BUILDING === buildStatus && isHovered) {
-      return "Stop build";
+      return t("common.stopBuild");
     }
-    return "Run component";
+    return t("common.runComponent");
   };
 
   const handleClickConnect = () => {
@@ -435,7 +437,7 @@ export default function NodeStatus({
           )}
 
           {nodeAuth && showNode && (
-            <ShadTooltip content={nodeAuth.auth_tooltip || "Connect"}>
+            <ShadTooltip content={nodeAuth.auth_tooltip || t("common.connect")}>
               <div>
                 <Button
                   unstyled

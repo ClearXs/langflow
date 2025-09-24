@@ -12,6 +12,7 @@ import BaseModal from "../baseModal";
 import GetStartedComponent from "./components/GetStartedComponent";
 import { Nav } from "./components/navComponent";
 import TemplateContentComponent from "./components/TemplateContentComponent";
+import { useTranslation } from "react-i18next";
 
 export default function TemplatesModal({
   open,
@@ -21,38 +22,38 @@ export default function TemplatesModal({
   const addFlow = useAddFlow();
   const navigate = useCustomNavigate();
   const { folderId } = useParams();
-
+  const { t } = useTranslation();
   // Define categories and their items
   const categories: Category[] = [
     {
-      title: "Templates",
+      title: t("common.templates"),
       items: [
-        { title: "Get started", icon: "SquarePlay", id: "get-started" },
-        { title: "All templates", icon: "LayoutPanelTop", id: "all-templates" },
+        { title: t("common.getStarted"), icon: "SquarePlay", id: "get-started" },
+        { title: t("common.allTemplates"), icon: "LayoutPanelTop", id: "all-templates" },
       ],
     },
     {
-      title: "Use Cases",
+      title: t("common.useCases"),
       items: [
-        { title: "Assistants", icon: "BotMessageSquare", id: "assistants" },
-        { title: "Classification", icon: "Tags", id: "classification" },
-        { title: "Coding", icon: "TerminalIcon", id: "coding" },
+        { title: t("common.assistants"), icon: "BotMessageSquare", id: "assistants" },
+        { title: t("common.classification"), icon: "Tags", id: "classification" },
+        { title: t("common.coding"), icon: "TerminalIcon", id: "coding" },
         {
-          title: "Content Generation",
+          title: t("common.contentGeneration"),
           icon: "Newspaper",
           id: "content-generation",
         },
-        { title: "Q&A", icon: "Database", id: "q-a" },
-        // { title: "Summarization", icon: "Bot", id: "summarization" },
-        // { title: "Web Scraping", icon: "CodeXml", id: "web-scraping" },
+        { title: t("common.qA"), icon: "Database", id: "q-a" },
+        // { title: t("common.summarization"), icon: "Bot", id: "summarization" },
+        // { title: t("common.webScraping"), icon: "CodeXml", id: "web-scraping" },
       ],
     },
     {
-      title: "Methodology",
+      title: t("common.methodology"),
       items: [
-        { title: "Prompting", icon: "MessagesSquare", id: "chatbots" },
-        { title: "RAG", icon: "Database", id: "rag" },
-        { title: "Agents", icon: "Bot", id: "agents" },
+        { title: t("common.prompting"), icon: "MessagesSquare", id: "chatbots" },
+        { title: t("common.rag"), icon: "Database", id: "rag" },
+        { title: t("common.agents"), icon: "Bot", id: "agents" },
       ],
     },
   ];
@@ -79,9 +80,9 @@ export default function TemplatesModal({
               <BaseModal.Footer>
                 <div className="flex w-full flex-col justify-between gap-4 pb-4 sm:flex-row sm:items-center">
                   <div className="flex flex-col items-start justify-center">
-                    <div className="font-semibold">Start from scratch</div>
+                    <div className="font-semibold">{t("common.startFromScratch")}</div>
                     <div className="text-sm text-muted-foreground">
-                      Begin with a fresh flow to build from scratch.
+                      {t("common.beginWithAFreshFlowToBuildFromScratch")}
                     </div>
                   </div>
                   <Button
@@ -101,7 +102,7 @@ export default function TemplatesModal({
                       name="Plus"
                       className="h-4 w-4 shrink-0"
                     />
-                    Blank Flow
+                    {t("common.blankFlow")}
                   </Button>
                 </div>
               </BaseModal.Footer>
