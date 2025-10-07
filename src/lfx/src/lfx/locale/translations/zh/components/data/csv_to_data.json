@@ -1,0 +1,32 @@
+{
+            "display_name": "加载 CSV",
+            "description": "加载 CSV 文件、从文件路径加载 CSV 或有效的 CSV 字符串，并将其转换为数据列表",
+            "csv_file": {
+                        "display_name": "CSV 文件",
+                        "info": "上传 CSV 文件以转换为数据对象列表"
+            },
+            "csv_path": {
+                        "display_name": "CSV 文件路径",
+                        "info": "提供 CSV 文件的路径作为纯文本"
+            },
+            "csv_string": {
+                        "display_name": "CSV 字符串",
+                        "info": "直接粘贴 CSV 字符串以转换为数据对象列表"
+            },
+            "text_key": {
+                        "display_name": "文本键",
+                        "info": "用于文本列的键。默认为 'text'。"
+            },
+            "outputs": {
+                        "data_list": {
+                                    "display_name": "数据列表"
+                        }
+            },
+            "errors": {
+                        "exactly_one_input": "请提供以下其中之一：CSV 文件、文件路径或 CSV 字符串。",
+                        "must_be_csv": "提供的文件必须是 CSV 文件。",
+                        "empty_csv": "CSV 数据为空。",
+                        "csv_parsing_error": "CSV 解析错误：{error}",
+                        "generic_error": "发生错误：{error}"
+            }
+}

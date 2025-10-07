@@ -1,0 +1,40 @@
+{
+  "display_name": "Regex Extractor",
+  "description": "Extract patterns from text using regular expressions.",
+  "input_text": {
+    "display_name": "Input Text",
+    "info": "The text to analyze with regex patterns."
+  },
+  "pattern": {
+    "display_name": "Regex Pattern",
+    "info": "The regular expression pattern to match. Use capture groups () to extract specific parts."
+  },
+  "outputs": {
+    "data": {
+      "display_name": "Data"
+    },
+    "message": {
+      "display_name": "Message"
+    }
+  },
+  "success": {
+    "matches_extracted": "Successfully extracted {count} matches using pattern '{pattern}'",
+    "text_formatted": "Successfully formatted {count} matches into text (length: {length} characters)"
+  },
+  "warnings": {
+    "empty_pattern": "Regex pattern cannot be empty.",
+    "empty_input_text": "Input text cannot be empty.",
+    "no_matches": "No matches found for the given pattern."
+  },
+  "errors": {
+    "invalid_pattern": "Invalid regex pattern: {error}",
+    "match_processing_failed": "Failed to process match at index {index}: {error}",
+    "extraction_failed": "Regex extraction failed: {error}",
+    "match_formatting_failed": "Failed to format match at index {index}: {error}",
+    "text_formatting_failed": "Failed to format matches as text: {error}"
+  },
+  "messages": {
+    "no_matches_found": "No matches found",
+    "no_valid_matches": "No valid matches to display"
+  }
+}

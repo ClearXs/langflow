@@ -1,0 +1,75 @@
+{
+  "display_name": "网络搜索",
+  "description": "使用各种搜索引擎和API搜索网络。",
+  "query": {
+    "display_name": "搜索查询",
+    "info": "要搜索的查询或关键词。"
+  },
+  "api_key": {
+    "display_name": "API密钥",
+    "info": "所选搜索引擎服务的API密钥。"
+  },
+  "search_engine": {
+    "display_name": "搜索引擎",
+    "info": "用于搜索的搜索引擎API。"
+  },
+  "max_results": {
+    "display_name": "最大结果数",
+    "info": "返回的最大搜索结果数量（1-100）。"
+  },
+  "search_type": {
+    "display_name": "搜索类型",
+    "info": "要执行的搜索类型（网页、图片、新闻、视频、购物）。"
+  },
+  "language": {
+    "display_name": "语言",
+    "info": "搜索结果和界面的语言。"
+  },
+  "country": {
+    "display_name": "国家",
+    "info": "搜索结果聚焦的国家/地区。"
+  },
+  "time_range": {
+    "display_name": "时间范围",
+    "info": "将搜索结果限制在特定时间段内。"
+  },
+  "safe_search": {
+    "display_name": "安全搜索",
+    "info": "启用安全搜索过滤以排除成人内容。"
+  },
+  "include_snippets": {
+    "display_name": "包含摘要",
+    "info": "是否在结果中包含文本摘要/描述。"
+  },
+  "include_metadata": {
+    "display_name": "包含元数据",
+    "info": "是否包含额外的元数据，如域名、日期、缓存URL等。"
+  },
+  "timeout": {
+    "display_name": "超时时间（秒）",
+    "info": "搜索API调用的请求超时时间（秒）。"
+  },
+  "text_key": {
+    "display_name": "文本键",
+    "info": "用于数据对象中文本字段的键（例如，'title'、'snippet'、'url'）。"
+  },
+  "outputs": {
+    "search_results": {
+      "display_name": "搜索结果"
+    },
+    "search_metadata": {
+      "display_name": "搜索元数据"
+    }
+  },
+  "success": {
+    "search_completed": "使用{engine}成功找到{count}个结果"
+  },
+  "errors": {
+    "empty_query": "搜索查询不能为空。",
+    "missing_api_key": "网络搜索需要API密钥。",
+    "invalid_search_engine": "指定了无效的搜索引擎：{engine}",
+    "no_results": "未找到符合查询条件的搜索结果。",
+    "search_error": "执行网络搜索时出错：{error}",
+    "metadata_error": "获取搜索元数据时出错：{error}"
+  }
+}

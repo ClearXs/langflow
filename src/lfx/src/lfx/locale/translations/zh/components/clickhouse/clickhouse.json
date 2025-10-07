@@ -1,0 +1,96 @@
+{
+  "display_name": "ClickHouse",
+  "description": "具有搜索功能的ClickHouse向量存储",
+  "host": {
+    "display_name": "主机",
+    "info": "ClickHouse服务器主机名"
+  },
+  "port": {
+    "display_name": "端口",
+    "info": "ClickHouse服务器端口"
+  },
+  "database": {
+    "display_name": "数据库",
+    "info": "ClickHouse数据库名称"
+  },
+  "table": {
+    "display_name": "表名",
+    "info": "存储向量的表名"
+  },
+  "username": {
+    "display_name": "用户名",
+    "info": "ClickHouse用户名"
+  },
+  "password": {
+    "display_name": "密码",
+    "info": "ClickHouse用户密码"
+  },
+  "index_type": {
+    "display_name": "索引类型",
+    "info": "索引的类型（annoy或vector_similarity）"
+  },
+  "metric": {
+    "display_name": "度量方式",
+    "info": "计算距离的度量方式（angular、euclidean、manhattan、hamming或dot）"
+  },
+  "secure": {
+    "display_name": "使用HTTPS/TLS",
+    "info": "使用https/TLS。这将覆盖从接口或端口参数推断的值。"
+  },
+  "index_param": {
+    "display_name": "索引参数",
+    "info": "索引的参数（例如：'100,L2Distance'）"
+  },
+  "index_query_params": {
+    "display_name": "索引查询参数",
+    "info": "索引的附加查询参数"
+  },
+  "embedding": {
+    "display_name": "嵌入"
+  },
+  "number_of_results": {
+    "display_name": "结果数量",
+    "info": "要返回的结果数量"
+  },
+  "score_threshold": {
+    "display_name": "分数阈值",
+    "info": "搜索结果的最小相似度分数阈值"
+  },
+  "status": {
+    "connecting": "正在连接到ClickHouse...",
+    "preparing_documents": "正在准备文档...",
+    "building_store": "正在构建向量存储...",
+    "searching": "正在搜索文档..."
+  },
+  "success": {
+    "store_created": "向量存储已在表'{table}'中成功创建"
+  },
+  "warnings": {
+    "empty_query": "提供了空的搜索查询"
+  },
+  "errors": {
+    "clickhouse_not_installed": "导入ClickHouse依赖失败。请使用`uv pip install langflow[clickhouse-connect] --pre`安装",
+    "connection_failed": "连接到ClickHouse失败：{error}",
+    "store_creation_failed": "创建向量存储失败：{error}",
+    "search_failed": "搜索失败：{error}"
+  },
+  "logs": {
+    "clickhouse_imported": "ClickHouse包导入成功",
+    "connecting": "正在连接到ClickHouse - 主机：{host}，端口：{port}，数据库：{database}",
+    "connection_successful": "成功连接到ClickHouse，主机：{host}",
+    "document_count": "已准备{count}个文档用于摄取",
+    "index_param_set": "索引参数已设置：{params}",
+    "index_query_params_set": "索引查询参数已设置：{params}",
+    "settings_configured": "设置已配置 - 表：{table}，数据库：{database}，索引类型：{index_type}，度量方式：{metric}",
+    "adding_documents": "正在向向量存储添加{count}个文档。",
+    "creating_from_documents": "正在从{count}个文档创建向量存储 - 表：{table}",
+    "no_documents": "没有要添加到向量存储的文档。",
+    "creating_empty_store": "正在创建空向量存储 - 表：{table}",
+    "search_input": "搜索输入：{query}",
+    "number_of_results": "结果数量：{count}",
+    "score_threshold_set": "分数阈值设置为：{threshold}",
+    "executing_search": "正在执行相似度搜索 - 查询：'{query}'，k：{k}",
+    "retrieved_documents": "检索到的文档：{count}",
+    "search_completed": "搜索完成，共{count}个结果"
+  }
+}

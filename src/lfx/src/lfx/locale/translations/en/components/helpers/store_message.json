@@ -1,0 +1,41 @@
+{
+  "display_name": "Message Store",
+  "description": "Stores a chat message or text into Langflow tables or an external memory.",
+  "message": {
+    "display_name": "Message",
+    "info": "The chat message to be stored."
+  },
+  "memory": {
+    "display_name": "External Memory",
+    "info": "The external memory to store the message. If empty, it will use the Langflow tables."
+  },
+  "sender": {
+    "display_name": "Sender",
+    "info": "The sender of the message. Might be Machine or User. If empty, the current sender parameter will be used."
+  },
+  "sender_name": {
+    "display_name": "Sender Name",
+    "info": "The name of the sender. Might be AI or User. If empty, the current sender parameter will be used."
+  },
+  "session_id": {
+    "display_name": "Session ID",
+    "info": "The session ID of the chat. If empty, the current session ID parameter will be used."
+  },
+  "outputs": {
+    "stored_messages": {
+      "display_name": "Stored Messages"
+    }
+  },
+  "success": {
+    "external_memory_stored": "Message stored in external memory for sender '{sender}' in session '{session_id}'",
+    "langflow_table_stored": "Message stored in Langflow tables for sender '{sender}' in session '{session_id}'",
+    "message_stored": "Message successfully stored for sender '{sender}' in session '{session_id}' (total messages: {total_messages})"
+  },
+  "errors": {
+    "empty_message": "Message is empty. Please provide a message to store.",
+    "external_memory_failed": "Failed to store message in external memory: {error}",
+    "langflow_table_failed": "Failed to store message in Langflow tables: {error}",
+    "no_messages_stored": "No messages were stored. Please ensure that the session ID and sender are properly set.",
+    "unexpected_error": "Unexpected error occurred while storing message: {error}"
+  }
+}

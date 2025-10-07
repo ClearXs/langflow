@@ -1,0 +1,44 @@
+{
+  "display_name": "JSON Cleaner",
+  "description": "Cleans the messy and sometimes incorrect JSON strings produced by LLMs so that they are fully compliant with the JSON spec.",
+  "json_str": {
+    "display_name": "JSON String",
+    "info": "The JSON string to be cleaned."
+  },
+  "remove_control_chars": {
+    "display_name": "Remove Control Characters",
+    "info": "Remove control characters from the JSON string."
+  },
+  "normalize_unicode": {
+    "display_name": "Normalize Unicode",
+    "info": "Normalize Unicode characters in the JSON string."
+  },
+  "validate_json": {
+    "display_name": "Validate JSON",
+    "info": "Validate the JSON string to ensure it is well-formed."
+  },
+  "outputs": {
+    "cleaned_json": {
+      "display_name": "Cleaned JSON String"
+    }
+  },
+  "operations": {
+    "control_chars_removed": "control characters removed",
+    "unicode_normalized": "Unicode normalized",
+    "json_validated": "JSON validated"
+  },
+  "success": {
+    "json_cleaned": "JSON string cleaned successfully",
+    "json_cleaned_with_operations": "JSON string cleaned successfully with operations: {operations}"
+  },
+  "errors": {
+    "import_error": "Could not import the json_repair package. Please install it with `pip install json_repair`.",
+    "empty_input": "JSON string cannot be empty.",
+    "invalid_json_format": "Invalid JSON string: Missing '{' or '}'",
+    "cleaning_failed": "Error cleaning JSON string: {error}",
+    "control_char_removal_failed": "Failed to remove control characters: {error}",
+    "unicode_normalization_failed": "Failed to normalize Unicode characters: {error}",
+    "json_validation_failed": "Invalid JSON string: {error}",
+    "json_validation_error": "JSON validation error: {error}"
+  }
+}

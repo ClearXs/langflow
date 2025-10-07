@@ -1,0 +1,24 @@
+{
+  "display_name": "Cohere语言模型",
+  "description": "使用Cohere LLM生成文本。",
+  "cohere_api_key": {
+    "display_name": "Cohere API密钥",
+    "info": "用于Cohere模型的API密钥。"
+  },
+  "temperature": {
+    "display_name": "温度",
+    "info": "控制随机性。较低的值更确定，较高的值更有创意。"
+  },
+  "status": {
+    "initializing": "正在初始化Cohere语言模型..."
+  },
+  "success": {
+    "model_created": "Cohere语言模型已成功创建，温度：{temperature}"
+  },
+  "errors": {
+    "creation_failed": "创建Cohere语言模型失败。请验证您的API密钥并重试。错误：{error}"
+  },
+  "logs": {
+    "initializing": "正在初始化Cohere语言模型，温度：{temperature}"
+  }
+}

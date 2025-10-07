@@ -1,0 +1,32 @@
+{
+  "display_name": "JSON to Data",
+  "description": "Convert JSON data from file, path, or string to Data objects.",
+  "json_file": {
+    "display_name": "JSON File",
+    "info": "Upload a JSON file to convert to Data objects."
+  },
+  "json_path": {
+    "display_name": "JSON Path",
+    "info": "Path to the JSON file to load."
+  },
+  "json_string": {
+    "display_name": "JSON String",
+    "info": "JSON data as a string to convert to Data objects."
+  },
+  "text_key": {
+    "display_name": "Text Key",
+    "info": "The key to use for the text field in the Data objects."
+  },
+  "outputs": {
+    "data_list": {
+      "display_name": "Data List"
+    }
+  },
+  "errors": {
+    "exactly_one_input": "Please provide exactly one input: either a JSON file, JSON path, or JSON string.",
+    "must_be_json": "The file must have a .json extension.",
+    "empty_json": "The JSON file is empty or contains no valid data.",
+    "json_parsing_error": "Error parsing JSON data: {error}",
+    "generic_error": "An error occurred while processing the JSON: {error}"
+  }
+}

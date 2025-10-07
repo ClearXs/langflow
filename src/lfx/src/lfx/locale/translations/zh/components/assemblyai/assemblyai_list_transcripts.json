@@ -1,0 +1,52 @@
+{
+  "display_name": "AssemblyAI列出转录",
+  "description": "从AssemblyAI检索带有过滤选项的转录列表",
+  "api_key": {
+    "display_name": "Assembly API密钥",
+    "info": "您的AssemblyAI API密钥。您可以从https://www.assemblyai.com/获取"
+  },
+  "limit": {
+    "display_name": "限制",
+    "info": "要检索的最大转录数（默认：20，使用0表示全部）"
+  },
+  "status_filter": {
+    "display_name": "状态筛选",
+    "info": "按转录状态筛选"
+  },
+  "created_on": {
+    "display_name": "创建日期",
+    "info": "仅获取在此日期创建的转录（YYYY-MM-DD）"
+  },
+  "throttled_only": {
+    "display_name": "仅限速",
+    "info": "仅获取被限速的转录，覆盖状态筛选"
+  },
+  "outputs": {
+    "transcript_list": {
+      "display_name": "转录列表"
+    }
+  },
+  "status": {
+    "building_parameters": "正在构建查询参数...",
+    "fetching_all_transcripts": "正在获取所有转录（分页）...",
+    "fetching_transcripts": "正在获取最多{limit}个转录..."
+  },
+  "success": {
+    "transcripts_retrieved": "成功检索{count}个转录"
+  },
+  "errors": {
+    "list_failed": "发生错误：{error}"
+  },
+  "logs": {
+    "limit_set": "限制设置为{limit}",
+    "status_filter_set": "状态筛选设置为'{status}'",
+    "created_on_set": "创建日期筛选设置为'{date}'",
+    "throttled_only_enabled": "仅限速筛选已启用",
+    "fetching_all_pages": "正在获取所有转录页面",
+    "page_fetched": "第{page}页已获取，包含{count}个转录",
+    "all_pages_fetched": "所有{pages}页已获取，共{total}个转录",
+    "fetching_single_page": "正在获取限制为{limit}的单个页面",
+    "single_page_fetched": "页面已获取，包含{count}个转录",
+    "list_error": "列出转录时出错"
+  }
+}

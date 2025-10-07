@@ -1,0 +1,23 @@
+{
+  "display_name": "Current Date",
+  "description": "Returns the current date and time in the selected timezone.",
+  "timezone": {
+    "display_name": "Timezone",
+    "info": "Select the timezone for the current date and time."
+  },
+  "outputs": {
+    "current_date": {
+      "display_name": "Current Date"
+    }
+  },
+  "success": {
+    "current_datetime": "Current date and time in {timezone}: {datetime}"
+  },
+  "info": {
+    "datetime_retrieved": "Successfully retrieved current date and time for timezone: {timezone}"
+  },
+  "errors": {
+    "no_timezone": "Timezone is required. Please select a timezone.",
+    "retrieval_failed": "Error getting current date for timezone '{timezone}': {error}"
+  }
+}

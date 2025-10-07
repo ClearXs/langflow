@@ -1,0 +1,55 @@
+{
+  "display_name": "SearXNG Search [DEPRECATED]",
+  "description": "A component that searches for tools using SearXNG.",
+  "url": {
+    "display_name": "URL",
+    "info": "The base URL of your SearXNG instance (e.g., http://localhost:8080)."
+  },
+  "max_results": {
+    "display_name": "Max Results",
+    "info": "Maximum number of search results to return."
+  },
+  "categories": {
+    "display_name": "Categories",
+    "info": "Search categories to include (e.g., general, images, news)."
+  },
+  "language": {
+    "display_name": "Language",
+    "info": "Language for search results."
+  },
+  "outputs": {
+    "result_tool": {
+      "display_name": "Tool"
+    }
+  },
+  "schema": {
+    "query": {
+      "description": "The query to search for."
+    },
+    "categories": {
+      "description": "The categories to search in."
+    }
+  },
+  "tool_description": "A tool that searches using SearXNG.\nThe available categories are: {categories}",
+  "no_categories_configured": "none configured",
+  "success": {
+    "config_loaded": "SearXNG configuration loaded: {categories} categories, {languages} languages",
+    "tool_created": "SearXNG search tool created for {url} with max {max_results} results"
+  },
+  "warnings": {
+    "empty_query": "Search query is empty. Please provide a search term.",
+    "no_results": "No search results found for query: '{query}'"
+  },
+  "errors": {
+    "connection_failed": "Failed to connect to SearXNG instance at {url}: {error}",
+    "connection_error": "Connection Error",
+    "config_parsing_failed": "Failed to parse SearXNG configuration: {error}",
+    "failed_to_parse": "Failed to parse",
+    "no_categories": "No categories provided for search.",
+    "search_request_failed": "Search request failed with status code: {status}",
+    "search_connection_failed": "Failed to connect to SearXNG for search: {error}",
+    "search_failed": "SearXNG search failed: {error}",
+    "url_required": "SearXNG URL is required. Please provide a valid URL.",
+    "tool_creation_failed": "Failed to create SearXNG search tool: {error}"
+  }
+}

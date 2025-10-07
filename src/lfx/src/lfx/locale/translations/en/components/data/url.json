@@ -1,0 +1,76 @@
+{
+  "display_name": "URL",
+  "description": "Fetch and process data from URLs with support for various content types and HTTP methods.",
+  "urls": {
+    "display_name": "URLs",
+    "info": "Comma-separated list of URLs to fetch data from."
+  },
+  "method": {
+    "display_name": "HTTP Method",
+    "info": "HTTP method to use for the request (GET, POST, PUT, DELETE, PATCH)."
+  },
+  "headers": {
+    "display_name": "Headers",
+    "info": "HTTP headers to include with the request as JSON object. Example: {\"User-Agent\": \"MyBot 1.0\"}"
+  },
+  "body": {
+    "display_name": "Request Body",
+    "info": "Request body content for POST/PUT/PATCH requests. Can be JSON or plain text."
+  },
+  "timeout": {
+    "display_name": "Timeout (seconds)",
+    "info": "Request timeout in seconds."
+  },
+  "follow_redirects": {
+    "display_name": "Follow Redirects",
+    "info": "Whether to automatically follow HTTP redirects."
+  },
+  "verify_ssl": {
+    "display_name": "Verify SSL",
+    "info": "Whether to verify SSL certificates for HTTPS requests."
+  },
+  "content_type": {
+    "display_name": "Content Type",
+    "info": "How to process the response content. 'auto' will detect based on response headers."
+  },
+  "extract_metadata": {
+    "display_name": "Extract Metadata",
+    "info": "Whether to extract metadata from HTML pages (title, meta tags, etc.)."
+  },
+  "extract_links": {
+    "display_name": "Extract Links",
+    "info": "Whether to extract all links from HTML pages."
+  },
+  "max_content_length": {
+    "display_name": "Max Content Length",
+    "info": "Maximum allowed response content length in bytes."
+  },
+  "text_key": {
+    "display_name": "Text Key",
+    "info": "The key to use for the text field in the Data objects."
+  },
+  "outputs": {
+    "data": {
+      "display_name": "URL Data"
+    },
+    "response_info": {
+      "display_name": "Response Info"
+    }
+  },
+  "success": {
+    "fetched_data": "Successfully fetched data from {successful} out of {total} URLs"
+  },
+  "warnings": {
+    "invalid_url": "Invalid URL format: {url}",
+    "request_failed": "Request failed for URL {url}: {error}",
+    "invalid_headers": "Invalid JSON format in headers: {error}",
+    "content_too_large": "Response content ({size} bytes) exceeds maximum allowed size ({max_size} bytes)"
+  },
+  "errors": {
+    "empty_urls": "URLs cannot be empty.",
+    "no_valid_urls": "No valid URLs provided.",
+    "no_successful_requests": "No successful requests were made to any of the provided URLs.",
+    "fetch_error": "Error fetching URL data: {error}",
+    "response_info_error": "Error getting response information: {error}"
+  }
+}

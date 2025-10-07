@@ -1,0 +1,68 @@
+{
+  "display_name": "文本输出",
+  "description": "显示文本输出，支持各种格式选项和流式传输。",
+  "input_value": {
+    "display_name": "输入",
+    "info": "要作为输出显示的文本或数据。"
+  },
+  "template": {
+    "display_name": "模板",
+    "info": "格式化输出的模板字符串。使用{text}作为输入文本的占位符。"
+  },
+  "clean_data": {
+    "display_name": "清理数据",
+    "info": "是否在转换为文本之前清理数据。"
+  },
+  "output_format": {
+    "display_name": "输出格式",
+    "info": "输出显示的格式（文本、markdown、json、html）。"
+  },
+  "preserve_whitespace": {
+    "display_name": "保留空格",
+    "info": "是否在输出中保留前导和尾随空格。"
+  },
+  "max_length": {
+    "display_name": "最大长度",
+    "info": "输出文本的最大长度（0表示无限制）。"
+  },
+  "show_line_numbers": {
+    "display_name": "显示行号",
+    "info": "是否在输出中显示行号。"
+  },
+  "prefix": {
+    "display_name": "前缀",
+    "info": "在输出前添加的文本。"
+  },
+  "suffix": {
+    "display_name": "后缀",
+    "info": "在输出后添加的文本。"
+  },
+  "enable_streaming": {
+    "display_name": "启用流式传输",
+    "info": "是否为生成器输入启用流式输出。"
+  },
+  "outputs": {
+    "text": {
+      "display_name": "文本输出"
+    },
+    "formatted_output": {
+      "display_name": "格式化输出"
+    }
+  },
+  "success": {
+    "text_processed": "文本处理成功（{length}个字符）",
+    "formatted_output_processed": "输出格式化为{format}（{length}个字符）"
+  },
+  "warnings": {
+    "template_error": "应用模板时出错：{error}",
+    "text_truncated": "文本从{original}个字符截断为{limit}个字符"
+  },
+  "errors": {
+    "input_cannot_be_none": "输入值不能为None。",
+    "invalid_max_length": "最大长度不能为负数。",
+    "format_error": "格式化输出为{format}时出错：{error}",
+    "text_output_error": "生成文本输出时出错：{error}",
+    "formatted_output_error": "生成格式化输出时出错：{error}",
+    "output_info_error": "获取输出信息时出错：{error}"
+  }
+}

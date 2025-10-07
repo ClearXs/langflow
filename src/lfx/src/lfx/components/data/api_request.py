@@ -5,6 +5,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 from urllib.parse import parse_qsl, urlencode, urlparse, urlunparse
+import i18n
 
 import aiofiles
 import aiofiles.os as aiofiles_os
@@ -42,8 +43,8 @@ DEFAULT_FIELDS = ["mode"]
 
 
 class APIRequestComponent(Component):
-    display_name = "API Request"
-    description = "Make HTTP requests using URL or cURL commands."
+    display_name = i18n.t('components.data.api_request.display_name')
+    description = i18n.t('components.data.api_request.description')
     documentation: str = "https://docs.langflow.org/components-data#api-request"
     icon = "Globe"
     name = "APIRequest"
@@ -51,18 +52,17 @@ class APIRequestComponent(Component):
     inputs = [
         MessageTextInput(
             name="url_input",
-            display_name="URL",
-            info="Enter the URL for the request.",
+            display_name=i18n.t(
+                'components.data.api_request.url_input.display_name'),
+            info=i18n.t('components.data.api_request.url_input.info'),
             advanced=False,
             tool_mode=True,
         ),
         MultilineInput(
             name="curl_input",
-            display_name="cURL",
-            info=(
-                "Paste a curl command to populate the fields. "
-                "This will fill in the dictionary fields for headers and body."
-            ),
+            display_name=i18n.t(
+                'components.data.api_request.curl_input.display_name'),
+            info=i18n.t('components.data.api_request.curl_input.info'),
             real_time_refresh=True,
             tool_mode=True,
             advanced=True,
@@ -70,41 +70,45 @@ class APIRequestComponent(Component):
         ),
         DropdownInput(
             name="method",
-            display_name="Method",
+            display_name=i18n.t(
+                'components.data.api_request.method.display_name'),
             options=["GET", "POST", "PATCH", "PUT", "DELETE"],
             value="GET",
-            info="The HTTP method to use.",
+            info=i18n.t('components.data.api_request.method.info'),
             real_time_refresh=True,
         ),
         TabInput(
             name="mode",
-            display_name="Mode",
+            display_name=i18n.t(
+                'components.data.api_request.mode.display_name'),
             options=["URL", "cURL"],
             value="URL",
-            info="Enable cURL mode to populate fields from a cURL command.",
+            info=i18n.t('components.data.api_request.mode.info'),
             real_time_refresh=True,
         ),
         DataInput(
             name="query_params",
-            display_name="Query Parameters",
-            info="The query parameters to append to the URL.",
+            display_name=i18n.t(
+                'components.data.api_request.query_params.display_name'),
+            info=i18n.t('components.data.api_request.query_params.info'),
             advanced=True,
         ),
         TableInput(
             name="body",
-            display_name="Body",
-            info="The body to send with the request as a dictionary (for POST, PATCH, PUT).",
+            display_name=i18n.t(
+                'components.data.api_request.body.display_name'),
+            info=i18n.t('components.data.api_request.body.info'),
             table_schema=[
                 {
                     "name": "key",
-                    "display_name": "Key",
+                    "display_name": i18n.t('components.data.api_request.body.table_schema.key.display_name'),
                     "type": "str",
-                    "description": "Parameter name",
+                    "description": i18n.t('components.data.api_request.body.table_schema.key.description'),
                 },
                 {
                     "name": "value",
-                    "display_name": "Value",
-                    "description": "Parameter value",
+                    "display_name": i18n.t('components.data.api_request.body.table_schema.value.display_name'),
+                    "description": i18n.t('components.data.api_request.body.table_schema.value.description'),
                 },
             ],
             value=[],
@@ -114,20 +118,21 @@ class APIRequestComponent(Component):
         ),
         TableInput(
             name="headers",
-            display_name="Headers",
-            info="The headers to send with the request",
+            display_name=i18n.t(
+                'components.data.api_request.headers.display_name'),
+            info=i18n.t('components.data.api_request.headers.info'),
             table_schema=[
                 {
                     "name": "key",
-                    "display_name": "Header",
+                    "display_name": i18n.t('components.data.api_request.headers.table_schema.key.display_name'),
                     "type": "str",
-                    "description": "Header name",
+                    "description": i18n.t('components.data.api_request.headers.table_schema.key.description'),
                 },
                 {
                     "name": "value",
-                    "display_name": "Value",
+                    "display_name": i18n.t('components.data.api_request.headers.table_schema.value.display_name'),
                     "type": "str",
-                    "description": "Header value",
+                    "description": i18n.t('components.data.api_request.headers.table_schema.value.description'),
                 },
             ],
             value=[{"key": "User-Agent", "value": "Langflow/1.0"}],
@@ -137,39 +142,42 @@ class APIRequestComponent(Component):
         ),
         IntInput(
             name="timeout",
-            display_name="Timeout",
+            display_name=i18n.t(
+                'components.data.api_request.timeout.display_name'),
             value=30,
-            info="The timeout to use for the request.",
+            info=i18n.t('components.data.api_request.timeout.info'),
             advanced=True,
         ),
         BoolInput(
             name="follow_redirects",
-            display_name="Follow Redirects",
+            display_name=i18n.t(
+                'components.data.api_request.follow_redirects.display_name'),
             value=True,
-            info="Whether to follow http redirects.",
+            info=i18n.t('components.data.api_request.follow_redirects.info'),
             advanced=True,
         ),
         BoolInput(
             name="save_to_file",
-            display_name="Save to File",
+            display_name=i18n.t(
+                'components.data.api_request.save_to_file.display_name'),
             value=False,
-            info="Save the API response to a temporary file",
+            info=i18n.t('components.data.api_request.save_to_file.info'),
             advanced=True,
         ),
         BoolInput(
             name="include_httpx_metadata",
-            display_name="Include HTTPx Metadata",
+            display_name=i18n.t(
+                'components.data.api_request.include_httpx_metadata.display_name'),
             value=False,
-            info=(
-                "Include properties such as headers, status_code, response_headers, "
-                "and redirection_history in the output."
-            ),
+            info=i18n.t(
+                'components.data.api_request.include_httpx_metadata.info'),
             advanced=True,
         ),
     ]
 
     outputs = [
-        Output(display_name="API Response", name="data", method="make_api_request"),
+        Output(display_name=i18n.t('components.data.api_request.outputs.data.display_name'),
+               name="data", method="make_api_request"),
     ]
 
     def _parse_json_value(self, value: Any) -> Any:
@@ -250,7 +258,8 @@ class APIRequestComponent(Component):
             build_config["method"]["value"] = parsed.method.upper()
 
             # Process headers
-            headers_list = [{"key": k, "value": v} for k, v in parsed.headers.items()]
+            headers_list = [{"key": k, "value": v}
+                            for k, v in parsed.headers.items()]
             build_config["headers"]["value"] = headers_list
 
             # Process body data
@@ -261,14 +270,17 @@ class APIRequestComponent(Component):
                     json_data = json.loads(parsed.data)
                     if isinstance(json_data, dict):
                         body_list = [
-                            {"key": k, "value": json.dumps(v) if isinstance(v, dict | list) else str(v)}
+                            {"key": k, "value": json.dumps(v) if isinstance(
+                                v, dict | list) else str(v)}
                             for k, v in json_data.items()
                         ]
                         build_config["body"]["value"] = body_list
                     else:
-                        build_config["body"]["value"] = [{"key": "data", "value": json.dumps(json_data)}]
+                        build_config["body"]["value"] = [
+                            {"key": "data", "value": json.dumps(json_data)}]
                 except json.JSONDecodeError:
-                    build_config["body"]["value"] = [{"key": "data", "value": parsed.data}]
+                    build_config["body"]["value"] = [
+                        {"key": "data", "value": parsed.data}]
 
         except Exception as exc:
             msg = f"Error parsing curl: {exc}"
@@ -474,7 +486,8 @@ class APIRequestComponent(Component):
         if field_value == "cURL":
             set_field_display(build_config, "curl_input", value=True)
             if build_config["curl_input"]["value"]:
-                build_config = self.parse_curl(build_config["curl_input"]["value"], build_config)
+                build_config = self.parse_curl(
+                    build_config["curl_input"]["value"], build_config)
         else:
             set_field_display(build_config, "curl_input", value=False)
 
@@ -506,7 +519,8 @@ class APIRequestComponent(Component):
         if not with_file_path:
             return is_binary, None
 
-        component_temp_dir = Path(tempfile.gettempdir()) / self.__class__.__name__
+        component_temp_dir = Path(
+            tempfile.gettempdir()) / self.__class__.__name__
 
         # Create directory asynchronously
         await aiofiles_os.makedirs(component_temp_dir, exist_ok=True)
@@ -514,7 +528,8 @@ class APIRequestComponent(Component):
         filename = None
         if "Content-Disposition" in response.headers:
             content_disposition = response.headers["Content-Disposition"]
-            filename_match = re.search(r'filename="(.+?)"', content_disposition)
+            filename_match = re.search(
+                r'filename="(.+?)"', content_disposition)
             if filename_match:
                 extracted_filename = filename_match.group(1)
                 filename = extracted_filename
@@ -522,7 +537,8 @@ class APIRequestComponent(Component):
         # Step 3: Infer file extension or use part of the request URL if no filename
         if not filename:
             # Extract the last segment of the URL path
-            url_path = urlparse(str(response.request.url) if response.request else "").path
+            url_path = urlparse(str(response.request.url)
+                                if response.request else "").path
             base_name = Path(url_path).name  # Get the last segment of the path
             if not base_name:  # If the path ends with a slash or is empty
                 base_name = "response"
@@ -535,7 +551,8 @@ class APIRequestComponent(Component):
                 "image/png": ".png",
                 "application/octet-stream": ".bin",
             }
-            extension = content_type_to_extension.get(content_type, ".bin" if is_binary else ".txt")
+            extension = content_type_to_extension.get(
+                content_type, ".bin" if is_binary else ".txt")
             filename = f"{base_name}{extension}"
 
         # Step 4: Define the full file path

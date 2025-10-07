@@ -1,0 +1,26 @@
+{
+  "display_name": "Pass",
+  "description": "Forwards the input message, unchanged.",
+  "input_message": {
+    "display_name": "Input Message",
+    "info": "The message to be passed forward."
+  },
+  "ignored_message": {
+    "display_name": "Ignored Message", 
+    "info": "A second message to be ignored. Used as a workaround for continuity."
+  },
+  "outputs": {
+    "output_message": {
+      "display_name": "Output Message"
+    }
+  },
+  "success": {
+    "message_passed": "Message passed successfully"
+  },
+  "warnings": {
+    "empty_message": "Empty message passed through"
+  },
+  "errors": {
+    "pass_error": "Error passing message: {error}"
+  }
+}

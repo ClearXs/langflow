@@ -1,0 +1,68 @@
+{
+  "display_name": "条件路由器",
+  "description": "基于条件逻辑评估将数据路由到不同路径。",
+  "input_data": {
+    "display_name": "输入数据",
+    "info": "要基于条件进行评估和路由的数据。"
+  },
+  "conditions": {
+    "display_name": "条件",
+    "info": "路由条件的JSON数组。每个条件应包含'name'、'condition'和可选的'description'字段。"
+  },
+  "evaluation_mode": {
+    "display_name": "评估模式",
+    "info": "如何处理多个匹配条件：first_match（首次匹配后停止），all_matches（返回所有），best_match（返回最高评分）。"
+  },
+  "default_route": {
+    "display_name": "默认路由",
+    "info": "当没有条件匹配时使用的路由名称（严格模式下忽略）。"
+  },
+  "case_sensitive": {
+    "display_name": "区分大小写",
+    "info": "文本比较是否应区分大小写。"
+  },
+  "include_metadata": {
+    "display_name": "包含元数据",
+    "info": "是否在输出中包含评估元数据。"
+  },
+  "max_routes": {
+    "display_name": "最大路由数",
+    "info": "使用'all_matches'模式时返回的最大路由数（0表示无限制）。"
+  },
+  "strict_mode": {
+    "display_name": "严格模式",
+    "info": "在严格模式下，如果没有条件匹配则抛出错误，而不是使用默认路由。"
+  },
+  "text_key": {
+    "display_name": "文本键",
+    "info": "从数据对象中提取文本内容的键。"
+  },
+  "outputs": {
+    "routed_data": {
+      "display_name": "路由数据"
+    },
+    "routing_info": {
+      "display_name": "路由信息"
+    },
+    "matched_routes": {
+      "display_name": "匹配的路由"
+    }
+  },
+  "success": {
+    "conditions_matched": "{count}个条件成功匹配"
+  },
+  "warnings": {
+    "condition_evaluation_warning": "评估条件'{condition}'时出现警告：{error}",
+    "using_default_route": "没有条件匹配，使用默认路由：{route}"
+  },
+  "errors": {
+    "empty_conditions": "条件不能为空。",
+    "invalid_conditions_format": "无效的条件格式：{error}",
+    "condition_evaluation_error": "评估条件'{condition}'时出错：{error}",
+    "conditions_evaluation_error": "评估条件时出错：{error}",
+    "no_matches_strict_mode": "没有条件匹配且启用了严格模式。",
+    "routing_error": "路由过程中出错：{error}",
+    "routing_info_error": "获取路由信息时出错：{error}",
+    "matched_routes_error": "获取匹配路由时出错：{error}"
+  }
+}

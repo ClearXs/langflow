@@ -1,0 +1,54 @@
+{
+  "display_name": "AI/ML API",
+  "description": "Generates text using AI/ML API LLMs.",
+  "max_tokens": {
+    "display_name": "Max Tokens",
+    "info": "The maximum number of tokens to generate. Set to 0 for unlimited tokens."
+  },
+  "model_kwargs": {
+    "display_name": "Model Kwargs",
+    "info": "Additional keyword arguments to pass to the model."
+  },
+  "model_name": {
+    "display_name": "Model Name",
+    "info": "The name of the AI/ML model to use."
+  },
+  "aiml_api_base": {
+    "display_name": "AI/ML API Base",
+    "info": "The base URL of the API. Defaults to https://api.aimlapi.com/v2. You can change this to use other APIs like JinaChat, LocalAI and Prem."
+  },
+  "api_key": {
+    "display_name": "AI/ML API Key",
+    "info": "The AI/ML API Key to use for the OpenAI model."
+  },
+  "temperature": {
+    "display_name": "Temperature",
+    "info": "Controls randomness in the output. Lower values make the output more focused and deterministic."
+  },
+  "status": {
+    "loading_models": "Loading available models...",
+    "initializing_model": "Initializing model '{model}'..."
+  },
+  "success": {
+    "models_loaded": "Successfully loaded {count} models",
+    "model_initialized": "Model '{model}' initialized successfully with base URL: {base_url}"
+  },
+  "warnings": {
+    "no_models_available": "No models available from AI/ML API"
+  },
+  "errors": {
+    "models_loading_failed": "Failed to load models: {error}",
+    "build_config_update_failed": "Failed to update build configuration: {error}",
+    "api_key_required": "AI/ML API key is required",
+    "model_name_required": "Model name is required",
+    "api_key_extraction_failed": "Failed to extract API key: {error}",
+    "model_initialization_failed": "Failed to initialize model '{model}': {error}",
+    "model_build_failed": "Failed to build model: {error}",
+    "exception_message_extraction_failed": "Failed to extract exception message: {error}"
+  },
+  "logs": {
+    "o1_temperature_override": "Model '{model}' detected as o1 series, overriding temperature to 1",
+    "openai_error_not_available": "OpenAI error module not available for exception handling",
+    "extracted_error_message": "Extracted error message: {message}"
+  }
+}

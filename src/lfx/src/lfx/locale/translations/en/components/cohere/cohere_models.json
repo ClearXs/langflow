@@ -1,0 +1,24 @@
+{
+  "display_name": "Cohere Language Models",
+  "description": "Generate text using Cohere LLMs.",
+  "cohere_api_key": {
+    "display_name": "Cohere API Key",
+    "info": "The Cohere API Key to use for the Cohere model."
+  },
+  "temperature": {
+    "display_name": "Temperature",
+    "info": "Controls randomness. Lower values are more deterministic, higher values are more creative."
+  },
+  "status": {
+    "initializing": "Initializing Cohere language model..."
+  },
+  "success": {
+    "model_created": "Cohere language model created successfully with temperature: {temperature}"
+  },
+  "errors": {
+    "creation_failed": "Failed to create Cohere language model. Please verify your API key and try again. Error: {error}"
+  },
+  "logs": {
+    "initializing": "Initializing Cohere language model with temperature: {temperature}"
+  }
+}

@@ -1,6 +1,8 @@
+import i18n
 from lfx.custom import Component
 from lfx.field_typing.range_spec import RangeSpec
 from lfx.io import BoolInput, FloatInput, HandleInput, MessageTextInput, Output, PromptInput
+from lfx.log.logger import logger
 from lfx.schema.message import Message
 
 
@@ -36,72 +38,81 @@ class CleanlabRemediator(Component):
     to take appropriate action on low-trust responses and inform users accordingly.
     """
 
-    display_name = "Cleanlab Remediator"
-    description = (
-        "Remediates an untrustworthy response based on trust score from the Cleanlab Evaluator, "
-        "score threshold, and message handling settings."
-    )
+    display_name = i18n.t(
+        'components.cleanlab.cleanlab_remediator.display_name')
+    description = i18n.t('components.cleanlab.cleanlab_remediator.description')
     icon = "Cleanlab"
     name = "CleanlabRemediator"
 
     inputs = [
         MessageTextInput(
             name="response",
-            display_name="Response",
-            info="The response to the user's query.",
+            display_name=i18n.t(
+                'components.cleanlab.cleanlab_remediator.response.display_name'),
+            info=i18n.t(
+                'components.cleanlab.cleanlab_remediator.response.info'),
             required=True,
         ),
         HandleInput(
             name="score",
-            display_name="Trust Score",
-            info="The trustworthiness score output from the Cleanlab Evaluator.",
+            display_name=i18n.t(
+                'components.cleanlab.cleanlab_remediator.score.display_name'),
+            info=i18n.t('components.cleanlab.cleanlab_remediator.score.info'),
             input_types=["number"],
             required=True,
         ),
         MessageTextInput(
             name="explanation",
-            display_name="Explanation",
-            info="The explanation from the Cleanlab Evaluator.",
+            display_name=i18n.t(
+                'components.cleanlab.cleanlab_remediator.explanation.display_name'),
+            info=i18n.t(
+                'components.cleanlab.cleanlab_remediator.explanation.info'),
             required=False,
         ),
         FloatInput(
             name="threshold",
-            display_name="Threshold",
+            display_name=i18n.t(
+                'components.cleanlab.cleanlab_remediator.threshold.display_name'),
             field_type="float",
             value=0.7,
             range_spec=RangeSpec(min=0.0, max=1.0, step=0.05),
-            info="Minimum score required to show the response unmodified. Reponses with scores above this threshold "
-            "are considered trustworthy. Reponses with scores below this threshold are considered untrustworthy and "
-            "will be remediated based on the settings below.",
+            info=i18n.t(
+                'components.cleanlab.cleanlab_remediator.threshold.info'),
             required=True,
             show=True,
         ),
         BoolInput(
             name="show_untrustworthy_response",
-            display_name="Show Untrustworthy Response",
-            info="If enabled, and the trust score is below the threshold, the original response is shown with the "
-            "added warning. If disabled, and the trust score is below the threshold, the fallback answer is returned.",
+            display_name=i18n.t(
+                'components.cleanlab.cleanlab_remediator.show_untrustworthy_response.display_name'),
+            info=i18n.t(
+                'components.cleanlab.cleanlab_remediator.show_untrustworthy_response.info'),
             value=True,
         ),
         PromptInput(
             name="untrustworthy_warning_text",
-            display_name="Warning for Untrustworthy Response",
-            info="Warning to append to the response if Show Untrustworthy Response is enabled and trust score is "
-            "below the threshold.",
-            value="⚠️ WARNING: The following response is potentially untrustworthy.",
+            display_name=i18n.t(
+                'components.cleanlab.cleanlab_remediator.untrustworthy_warning_text.display_name'),
+            info=i18n.t(
+                'components.cleanlab.cleanlab_remediator.untrustworthy_warning_text.info'),
+            value=i18n.t(
+                'components.cleanlab.cleanlab_remediator.untrustworthy_warning_text.default'),
         ),
         PromptInput(
             name="fallback_text",
-            display_name="Fallback Answer",
-            info="Response returned if the trust score is below the threshold and 'Show Untrustworthy Response' is "
-            "disabled.",
-            value="Based on the available information, I cannot provide a complete answer to this question.",
+            display_name=i18n.t(
+                'components.cleanlab.cleanlab_remediator.fallback_text.display_name'),
+            info=i18n.t(
+                'components.cleanlab.cleanlab_remediator.fallback_text.info'),
+            value=i18n.t(
+                'components.cleanlab.cleanlab_remediator.fallback_text.default'),
         ),
     ]
 
     outputs = [
         Output(
-            display_name="Remediated Message",
+            display_name=i18n.t(
+                'components.cleanlab.cleanlab_remediator.outputs.remediated_response.display_name'),
             name="remediated_response",
             method="remediate_response",
             types=["Message"],
@@ -109,23 +120,56 @@ class CleanlabRemediator(Component):
     ]
 
     def remediate_response(self) -> Message:
-        if self.score >= self.threshold:
-            self.status = f"Score {self.score:.2f} ≥ threshold {self.threshold:.2f} → accepted"
-            return Message(
-                text=f"{self.response}\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n**Trust Score:** {self.score:.2f}"
-            )
+        try:
+            if self.score >= self.threshold:
+                status_msg = i18n.t('components.cleanlab.cleanlab_remediator.status.accepted',
+                                    score=self.score,
+                                    threshold=self.threshold)
+                self.status = status_msg
+                logger.info(i18n.t('components.cleanlab.cleanlab_remediator.logs.response_accepted',
+                                   score=self.score,
+                                   threshold=self.threshold))
 
-        self.status = f"Score {self.score:.2f} < threshold {self.threshold:.2f} → flagged"
+                return Message(
+                    text=i18n.t('components.cleanlab.cleanlab_remediator.messages.trusted_response',
+                                response=self.response,
+                                score=self.score)
+                )
 
-        if self.show_untrustworthy_response:
-            parts = [
-                self.response,
-                "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━",
-                f"**{self.untrustworthy_warning_text.strip()}**",
-                f"**Trust Score:** {self.score:.2f}",
-            ]
-            if self.explanation:
-                parts.append(f"**Explanation:** {self.explanation}")
-            return Message(text="\n\n".join(parts))
+            status_msg = i18n.t('components.cleanlab.cleanlab_remediator.status.flagged',
+                                score=self.score,
+                                threshold=self.threshold)
+            self.status = status_msg
+            logger.warning(i18n.t('components.cleanlab.cleanlab_remediator.logs.response_flagged',
+                                  score=self.score,
+                                  threshold=self.threshold))
 
-        return Message(text=self.fallback_text)
+            if self.show_untrustworthy_response:
+                logger.debug(
+                    i18n.t('components.cleanlab.cleanlab_remediator.logs.showing_with_warning'))
+
+                parts = [
+                    self.response,
+                    "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━",
+                    f"**{self.untrustworthy_warning_text.strip()}**",
+                    i18n.t('components.cleanlab.cleanlab_remediator.messages.trust_score_label',
+                           score=self.score),
+                ]
+                if self.explanation:
+                    parts.append(i18n.t('components.cleanlab.cleanlab_remediator.messages.explanation_label',
+                                        explanation=self.explanation))
+                    logger.debug(
+                        i18n.t('components.cleanlab.cleanlab_remediator.logs.explanation_included'))
+
+                return Message(text="\n\n".join(parts))
+
+            logger.debug(
+                i18n.t('components.cleanlab.cleanlab_remediator.logs.using_fallback'))
+            return Message(text=self.fallback_text)
+
+        except Exception as e:
+            error_msg = i18n.t('components.cleanlab.cleanlab_remediator.errors.remediation_failed',
+                               error=str(e))
+            logger.exception(error_msg)
+            self.status = error_msg
+            return Message(text=self.fallback_text)

@@ -1,0 +1,101 @@
+{
+  "display_name": "LLM路由器",
+  "description": "基于OpenRouter模型规范将输入路由到最合适的LLM",
+  "models": {
+    "display_name": "语言模型",
+    "info": "要在其间路由的LLM列表"
+  },
+  "input_value": {
+    "display_name": "输入",
+    "info": "要路由的输入消息"
+  },
+  "judge_llm": {
+    "display_name": "评判LLM",
+    "info": "将评估并选择最合适模型的LLM"
+  },
+  "optimization": {
+    "display_name": "优化",
+    "info": "模型选择的优化偏好",
+    "quality": "质量",
+    "speed": "速度",
+    "cost": "成本",
+    "balanced": "平衡"
+  },
+  "use_openrouter_specs": {
+    "display_name": "使用OpenRouter规范",
+    "info": "从OpenRouter API获取模型规范以增强路由决策。如果为false，则只使用模型名称。"
+  },
+  "timeout": {
+    "display_name": "API超时",
+    "info": "API请求的超时时间（秒）"
+  },
+  "fallback_to_first": {
+    "display_name": "回退到第一个模型",
+    "info": "当路由失败时使用第一个模型作为回退"
+  },
+  "outputs": {
+    "output": {
+      "display_name": "输出"
+    },
+    "selected_model_info": {
+      "display_name": "选定模型信息"
+    },
+    "routing_decision": {
+      "display_name": "路由决策"
+    }
+  },
+  "system_prompt": "您是专业的AI模型选择专家。您的任务是分析用户的输入查询、他们的优化偏好以及具有规范的可用模型列表，然后选择最合适的模型。\n\n每个模型都将作为JSON对象呈现，包含其能力和特性。\n\n您的决策应基于：\n1. 从用户查询中得出的任务复杂性和要求。\n2. 输入所需的上下文长度。\n3. 模型能力（例如，上下文窗口、输入/输出模态、分词器）。\n4. 定价考虑（如果与优化偏好相关）。\n5. 用户声明的优化偏好（质量、速度、成本、平衡）。\n\n只返回提供列表中最佳模型的索引号（0、1、2等）。\n不要提供任何解释或推理，只提供索引号。\n如果根据偏好多个模型看起来同样适合，您可以选择第一个匹配的。\n如果没有模型看起来适合，选择列表中的第一个模型（索引0）作为回退。",
+  "user_prompt": "用户查询：\"{query}\"\n优化偏好：{optimization}\n估计输入令牌：~{tokens}\n\n可用模型（JSON列表）：\n{models}\n\n基于用户查询、优化偏好和详细的模型规范，选择最合适模型的索引。\n只返回索引号：",
+  "routing_decision": "模型选择决策：\n- 选定模型索引：{index}\n- 选定Langflow模型名称：{langflow_name}\n- 选定API模型ID（如已解析）：{api_id}\n- 优化偏好：{optimization}\n- 输入查询长度：{input_length}个字符（~{tokens}个令牌）\n- 考虑的模型数量：{model_count}\n- 规范来源：{specs_source}",
+  "fallback_decision": "回退决策：\n- 路由期间的错误：{error}\n- 回退模型Langflow名称：{langflow_name}\n- 回退模型API ID（如已解析）：{api_id}\n- 原因：已启用自动回退",
+  "specs_not_available": "规范不可用。",
+  "specs_not_in_cache": "在缓存中未找到完整规范。",
+  "no_description_available": "无可用描述",
+  "unknown_model_name": "未知模型 {index}",
+  "name_not_determined": "无法确定名称。",
+  "no_model_selected": "尚未选择模型 - 请先运行路由器。",
+  "no_routing_decision": "尚未做出路由决策 - 请先运行路由器。",
+  "specs_source": {
+    "openrouter": "OpenRouter API",
+    "basic": "基本（仅Langflow模型名称）"
+  },
+  "status": {
+    "fetching_openrouter_specs": "正在获取OpenRouter模型规范...",
+    "analyzing_models": "正在分析可用模型并准备规范...",
+    "judge_analyzing": "评判LLM正在分析选项...",
+    "generating_response": "正在使用以下模型生成响应：{model}",
+    "successfully_routed": "成功路由到：{model}",
+    "fallback": "回退：使用 {model}"
+  },
+  "logs": {
+    "openrouter_specs_disabled": "OpenRouter规范已禁用。跳过获取。",
+    "fetching_openrouter_models": "正在从OpenRouter API获取所有模型规范：https://openrouter.ai/api/v1/models",
+    "openrouter_models_cached": "成功从OpenRouter获取并缓存了{count}个模型规范。",
+    "cached_data_not_found": "未找到Langflow模型'{langflow_name}'的缓存API数据（映射的API ID：{api_id}）。返回基本信息。",
+    "starting_routing": "开始使用{model_count}个可用Langflow模型进行模型路由。",
+    "prepared_specs": "为Langflow模型{index}（'{langflow_name}'）准备规范：{spec_name}",
+    "requesting_selection": "正在请求评判LLM进行模型选择...",
+    "judge_decision": "评判LLM的决策：选择模型索引{index} -> Langflow名称：'{langflow_name}'，API ID：'{api_id}'",
+    "detailed_error": "发生详细路由错误。检查日志了解详情。",
+    "activating_fallback": "由于错误激活到第一个模型的回退。",
+    "judge_selected_index": "评判LLM选择索引：{index}"
+  },
+  "warnings": {
+    "model_mapping_failed": "无法将Langflow模型名称'{langflow_name}'（尝试的变体：{variants}）映射到OpenRouter API ID。",
+    "unknown_model_name": "警告：无法确定索引{index}处模型的名称。使用占位符。",
+    "non_numeric_response": "评判LLM响应为非数字：'{response}'。默认为索引0。",
+    "index_out_of_bounds": "评判LLM选择的索引{index}超出范围（0-{max_index}）。默认为索引0。",
+    "parse_response_failed": "无法将评判LLM响应解析为整数：'{response}'。默认为索引0。"
+  },
+  "errors": {
+    "missing_required_inputs": "缺少必需输入：models、input_value或judge_llm",
+    "openrouter_fetch_failed": "获取OpenRouter模型失败：HTTP {status} - {error}",
+    "openrouter_client_error": "获取OpenRouter模型时AIOHTTP客户端错误：{error}",
+    "openrouter_timeout": "获取OpenRouter模型规范超时。",
+    "openrouter_json_error": "获取OpenRouter模型时JSON解码错误：{error}",
+    "routing_error": "路由错误：{error_type} - {error}",
+    "no_fallback": "没有可用的回退模型或回退已禁用。抛出错误。",
+    "no_result_produced": "route_to_model中的意外状态：未产生结果。",
+    "parse_response_error": "解析评判响应'{response}'时出错：{error}。默认为索引0。"
+  }
+}

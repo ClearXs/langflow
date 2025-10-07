@@ -1,0 +1,44 @@
+{
+  "display_name": "Directory",
+  "description": "Recursively load files from a directory.",
+  "path": {
+    "display_name": "Path",
+    "info": "Path to the directory to load files from. Defaults to current directory ('.')"
+  },
+  "types": {
+    "display_name": "File Types",
+    "info": "File types to load. Select one or more types or leave empty to load all supported types."
+  },
+  "depth": {
+    "display_name": "Depth",
+    "info": "Depth to search for files."
+  },
+  "max_concurrency": {
+    "display_name": "Max Concurrency",
+    "info": "Maximum concurrency for loading files."
+  },
+  "load_hidden": {
+    "display_name": "Load Hidden",
+    "info": "If true, hidden files will be loaded."
+  },
+  "recursive": {
+    "display_name": "Recursive",
+    "info": "If true, the search will be recursive."
+  },
+  "silent_errors": {
+    "display_name": "Silent Errors",
+    "info": "If true, errors will not raise an exception."
+  },
+  "use_multithreading": {
+    "display_name": "Use Multithreading",
+    "info": "If true, multithreading will be used."
+  },
+  "outputs": {
+    "dataframe": {
+      "display_name": "Loaded Files"
+    }
+  },
+  "errors": {
+    "invalid_file_types": "Invalid file types specified: {invalid_types}. Valid types are: {valid_types}"
+  }
+}

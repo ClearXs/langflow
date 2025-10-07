@@ -1,0 +1,30 @@
+{
+  "display_name": "合并文本",
+  "description": "使用指定的分隔符将两个文本源连接成单个文本块。",
+  "text1": {
+    "display_name": "第一段文本",
+    "info": "要连接的第一段文本输入。"
+  },
+  "text2": {
+    "display_name": "第二段文本",
+    "info": "要连接的第二段文本输入。"
+  },
+  "delimiter": {
+    "display_name": "分隔符",
+    "info": "用于分隔两个文本输入的字符串。默认为空格。"
+  },
+  "outputs": {
+    "combined_text": {
+      "display_name": "合并文本"
+    }
+  },
+  "success": {
+    "texts_combined": "成功合并文本（长度：{length}个字符）"
+  },
+  "warnings": {
+    "both_texts_empty": "两个文本输入都为空。返回空结果。"
+  },
+  "errors": {
+    "combination_failed": "合并文本失败：{error}"
+  }
+}

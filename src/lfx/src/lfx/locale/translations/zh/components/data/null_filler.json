@@ -1,0 +1,66 @@
+{
+  "display_name": "空值填充器",
+  "description": "使用各种策略填充数据中的空值、空字符串和缺失值，包括统计方法、前向/后向填充和插值。",
+  "data": {
+    "display_name": "输入数据",
+    "info": "包含需要填充空值的数据。可以是数据对象列表、单个数据对象或JSON字符串。"
+  },
+  "default_strategy": {
+    "display_name": "默认填充策略",
+    "info": "用于填充所有字段空值的默认策略。"
+  },
+  "default_fill_value": {
+    "display_name": "默认填充值",
+    "info": "当策略为'constant'时使用的默认值。会转换为适当的数据类型。"
+  },
+  "use_field_strategies": {
+    "display_name": "使用字段特定策略",
+    "info": "为个别字段启用基于字段配置的不同填充策略。"
+  },
+  "field_strategies": {
+    "display_name": "字段策略",
+    "info": "定义个别字段特定填充策略的JSON配置。"
+  },
+  "treat_empty_string_as_null": {
+    "display_name": "将空字符串视为空值",
+    "info": "将空字符串(\"\")视为需要填充的空值。"
+  },
+  "treat_whitespace_as_null": {
+    "display_name": "将空白字符视为空值",
+    "info": "将只包含空白字符的字符串视为空值。"
+  },
+  "custom_null_values": {
+    "display_name": "自定义空值",
+    "info": "应被视为空值的自定义值的JSON数组（例如\"N/A\", \"NULL\", \"-\"）。"
+  },
+  "preserve_original_order": {
+    "display_name": "保持原始顺序",
+    "info": "在输出数据中保持记录的原始顺序。"
+  },
+  "include_statistics": {
+    "display_name": "包含统计信息",
+    "info": "在报告中生成关于填充操作的详细统计信息。"
+  },
+  "validate_after_fill": {
+    "display_name": "填充后验证",
+    "info": "填充后执行验证以确保没有空值遗留。"
+  },
+  "outputs": {
+    "filled_data": {
+      "display_name": "填充后的数据"
+    },
+    "fill_report": {
+      "display_name": "填充报告"
+    },
+    "original_nulls": {
+      "display_name": "原始空值"
+    }
+  },
+  "errors": {
+    "no_data": "未提供空值填充的输入数据。",
+    "empty_data": "输入数据为空或不包含记录。",
+    "fill_error": "空值填充失败：{error}",
+    "invalid_json": "输入数据中的JSON格式无效。",
+    "no_fill_run": "必须先运行空值填充才能访问此输出。"
+  }
+}

@@ -1,0 +1,49 @@
+{
+  "display_name": "Cloudflare Workers AI Embeddings",
+  "description": "Generate embeddings using Cloudflare Workers AI models.",
+  "account_id": {
+    "display_name": "Cloudflare Account ID",
+    "info": "Find your account ID at https://developers.cloudflare.com/fundamentals/setup/find-account-and-zone-ids/#find-account-id-workers-and-pages"
+  },
+  "api_token": {
+    "display_name": "Cloudflare API Token",
+    "info": "Create an API token at https://developers.cloudflare.com/fundamentals/api/get-started/create-token/"
+  },
+  "model_name": {
+    "display_name": "Model Name",
+    "info": "List of supported models: https://developers.cloudflare.com/workers-ai/models/#text-embeddings"
+  },
+  "strip_new_lines": {
+    "display_name": "Strip New Lines",
+    "info": "Whether to strip newline characters from the input text"
+  },
+  "batch_size": {
+    "display_name": "Batch Size",
+    "info": "Number of texts to process in a single batch"
+  },
+  "api_base_url": {
+    "display_name": "Cloudflare API Base URL",
+    "info": "Base URL for Cloudflare API requests"
+  },
+  "headers": {
+    "display_name": "Headers",
+    "info": "Additional request headers"
+  },
+  "outputs": {
+    "embeddings": {
+      "display_name": "Embeddings"
+    }
+  },
+  "status": {
+    "initializing": "Initializing Cloudflare Workers AI embeddings..."
+  },
+  "success": {
+    "embeddings_created": "Cloudflare Workers AI embeddings created successfully with model: {model}"
+  },
+  "errors": {
+    "connection_failed": "Could not connect to CloudflareWorkersAI Embeddings API: {error}"
+  },
+  "logs": {
+    "initializing": "Initializing Cloudflare Workers AI embeddings - Model: {model}, Account ID: {account_id}"
+  }
+}

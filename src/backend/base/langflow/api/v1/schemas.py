@@ -76,7 +76,8 @@ class RunResponse(BaseModel):
             serialized_outputs = []
             for output in self.outputs:
                 if isinstance(output, BaseModel) and not isinstance(output, RunOutputs):
-                    serialized_outputs.append(output.model_dump(exclude_none=True))
+                    serialized_outputs.append(
+                        output.model_dump(exclude_none=True))
                 else:
                     serialized_outputs.append(output)
             serialized["outputs"] = serialized_outputs
@@ -314,7 +315,8 @@ class VertexBuildResponse(BaseModel):
     """JSON string of the params."""
     data: ResultDataResponse
     """Mapping of vertex ids to result dict containing the param name and result value."""
-    timestamp: datetime | None = Field(default_factory=lambda: datetime.now(timezone.utc))
+    timestamp: datetime | None = Field(
+        default_factory=lambda: datetime.now(timezone.utc))
     """Timestamp of the build."""
 
     @field_serializer("data")
@@ -336,9 +338,12 @@ class VerticesBuiltResponse(BaseModel):
 
 
 class SimplifiedAPIRequest(BaseModel):
-    input_value: str | None = Field(default=None, description="The input value")
-    input_type: InputType | None = Field(default="chat", description="The input type")
-    output_type: OutputType | None = Field(default="chat", description="The output type")
+    input_value: str | None = Field(
+        default=None, description="The input value")
+    input_type: InputType | None = Field(
+        default="chat", description="The input type")
+    output_type: OutputType | None = Field(
+        default="chat", description="The output type")
     output_component: str | None = Field(
         default="",
         description="If there are multiple output components, you can specify the component to get the output from.",
@@ -454,3 +459,7 @@ class MCPProjectResponse(BaseModel):
 
 class MCPInstallRequest(BaseModel):
     client: str
+
+
+class SwitchLocaleRequest(BaseModel):
+    lang: str

@@ -1,0 +1,75 @@
+{
+  "display_name": "字符串替换器",
+  "description": "使用多种策略替换数据字段中的字符串，包括简单替换、正则表达式模式、批量操作和模板替换。",
+  "data": {
+    "display_name": "输入数据",
+    "info": "包含需要替换字符串的数据。可以是数据对象列表、单个数据对象或JSON字符串。"
+  },
+  "replacement_strategy": {
+    "display_name": "替换策略",
+    "info": "字符串替换方法：simple（精确匹配）、regex（模式匹配）、bulk（批量替换）或template（变量替换）。"
+  },
+  "search_value": {
+    "display_name": "搜索值",
+    "info": "在数据字段中搜索的字符串或正则表达式模式。"
+  },
+  "replace_value": {
+    "display_name": "替换值",
+    "info": "用于替换搜索值的字符串。对于正则表达式可以包含捕获组。"
+  },
+  "target_fields": {
+    "display_name": "目标字段",
+    "info": "应用替换操作的字段名称JSON数组。如果为空，将处理所有字符串字段。"
+  },
+  "replacement_map": {
+    "display_name": "替换映射",
+    "info": "用于批量操作的搜索值到替换值的JSON对象映射。"
+  },
+  "template_variables": {
+    "display_name": "模板变量",
+    "info": "包含模板替换变量的JSON对象。"
+  },
+  "case_sensitive": {
+    "display_name": "区分大小写",
+    "info": "字符串匹配是否应该区分大小写。"
+  },
+  "whole_word_only": {
+    "display_name": "仅匹配整词",
+    "info": "是否仅匹配完整单词（在正则表达式中添加单词边界）。"
+  },
+  "max_replacements": {
+    "display_name": "最大替换次数",
+    "info": "每个字段的最大替换次数。0表示无限制。"
+  },
+  "create_backup": {
+    "display_name": "创建备份",
+    "info": "在带有'_original'后缀的字段中创建原始值的备份。"
+  },
+  "skip_empty": {
+    "display_name": "跳过空值",
+    "info": "跳过处理空值/null值。"
+  },
+  "preserve_type": {
+    "display_name": "保持数据类型",
+    "info": "尝试将替换后的值转换回原始数据类型。"
+  },
+  "outputs": {
+    "replaced_data": {
+      "display_name": "替换后的数据"
+    },
+    "replacement_report": {
+      "display_name": "替换报告"
+    },
+    "changed_records": {
+      "display_name": "已更改记录"
+    }
+  },
+  "errors": {
+    "no_data": "未提供字符串替换的输入数据。",
+    "empty_data": "输入数据为空或不包含记录。",
+    "replacement_error": "字符串替换失败：{error}",
+    "invalid_regex": "无效的正则表达式模式：{pattern}",
+    "invalid_json": "输入数据中的JSON格式无效。",
+    "no_replacement_run": "必须先运行字符串替换才能访问此输出。"
+  }
+}

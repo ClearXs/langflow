@@ -1,0 +1,97 @@
+{
+  "display_name": "Cassandra图",
+  "description": "具有基于图的遍历功能的Cassandra图向量存储",
+  "database_ref": {
+    "display_name": "联系点 / Astra数据库ID",
+    "info": "数据库的联系点（或Astra DB数据库ID）"
+  },
+  "username": {
+    "display_name": "用户名",
+    "info": "数据库的用户名（Astra DB留空）。"
+  },
+  "token": {
+    "display_name": "密码 / Astra DB令牌",
+    "info": "数据库的用户密码（或Astra DB令牌）。"
+  },
+  "keyspace": {
+    "display_name": "键空间",
+    "info": "表键空间（或Astra DB命名空间）。"
+  },
+  "table_name": {
+    "display_name": "表名",
+    "info": "存储向量的表名（或Astra DB集合）。"
+  },
+  "setup_mode": {
+    "display_name": "设置模式",
+    "info": "设置Cassandra表的配置模式，选项如'Sync'或'Off'。"
+  },
+  "cluster_kwargs": {
+    "display_name": "集群参数",
+    "info": "Cassandra集群的可选附加关键字参数字典。"
+  },
+  "embedding": {
+    "display_name": "嵌入"
+  },
+  "number_of_results": {
+    "display_name": "结果数量",
+    "info": "要返回的结果数量。"
+  },
+  "search_type": {
+    "display_name": "搜索类型",
+    "info": "要使用的搜索类型"
+  },
+  "depth": {
+    "display_name": "遍历深度",
+    "info": "要遍历的边的最大深度。（使用'Traversal'或'MMR traversal'时）"
+  },
+  "search_score_threshold": {
+    "display_name": "搜索分数阈值",
+    "info": "搜索结果的最小相似度分数阈值。（使用'Similarity with score threshold'时）"
+  },
+  "search_filter": {
+    "display_name": "搜索元数据过滤器",
+    "info": "应用于搜索查询的可选过滤器字典。"
+  },
+  "status": {
+    "connecting": "正在连接到数据库...",
+    "preparing_documents": "正在准备文档...",
+    "building_store": "正在构建向量存储...",
+    "searching": "正在搜索文档..."
+  },
+  "success": {
+    "store_created": "向量存储已在表'{table}'中成功创建"
+  },
+  "warnings": {
+    "empty_query": "提供了空的搜索查询"
+  },
+  "errors": {
+    "cassio_not_installed": "无法导入cassio集成包。请使用`pip install cassio`安装。",
+    "connection_failed": "连接到数据库失败：{error}",
+    "store_creation_failed": "创建向量存储失败：{error}",
+    "content_field_missing": "您应该通过Langflow（或LangChain）摄取数据才能在Langflow中查询。您的集合不包含名为'content'的字段。",
+    "search_failed": "搜索失败：{error}"
+  },
+  "logs": {
+    "cassio_imported": "cassio包导入成功",
+    "detected_astra": "检测到Astra DB，数据库ID：{database_id}",
+    "detected_cassandra_multiple": "检测到常规Cassandra，有{count}个联系点",
+    "detected_cassandra_single": "检测到常规Cassandra，联系点：{contact_point}",
+    "connecting_astra": "正在连接到Astra DB，数据库ID：{database_id}",
+    "astra_connected": "成功连接到Astra DB",
+    "connecting_cassandra": "正在连接到Cassandra - 联系点：{contact_points}，用户名：{username}",
+    "cassandra_connected": "成功连接到Cassandra",
+    "setup_mode_set": "设置模式设为：{mode}",
+    "adding_documents": "正在向向量存储添加{count}个文档。",
+    "creating_from_documents": "正在从{count}个文档创建向量存储 - 表：{table}，键空间：{keyspace}",
+    "no_documents": "没有要添加到向量存储的文档。",
+    "creating_empty_store": "正在创建空向量存储 - 表：{table}，键空间：{keyspace}",
+    "search_input": "搜索输入：{query}",
+    "search_type": "搜索类型：{type}",
+    "number_of_results": "结果数量：{count}",
+    "search_args": "搜索参数：{args}",
+    "executing_search": "正在执行搜索 - 查询：'{query}'，类型：{search_type}",
+    "retrieved_documents": "检索到的文档：{count}",
+    "search_completed": "搜索完成，共{count}个结果",
+    "filter_applied": "已应用过滤器：{filter}"
+  }
+}

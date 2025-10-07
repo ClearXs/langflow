@@ -1,0 +1,54 @@
+{
+  "display_name": "AI/ML API",
+  "description": "使用AI/ML API LLM生成文本。",
+  "max_tokens": {
+    "display_name": "最大令牌数",
+    "info": "要生成的最大令牌数。设置为0表示无限制令牌。"
+  },
+  "model_kwargs": {
+    "display_name": "模型关键字参数",
+    "info": "传递给模型的其他关键字参数。"
+  },
+  "model_name": {
+    "display_name": "模型名称",
+    "info": "要使用的AI/ML模型的名称。"
+  },
+  "aiml_api_base": {
+    "display_name": "AI/ML API基础URL",
+    "info": "API的基础URL。默认为https://api.aimlapi.com/v2。您可以更改此设置以使用其他API，如JinaChat、LocalAI和Prem。"
+  },
+  "api_key": {
+    "display_name": "AI/ML API密钥",
+    "info": "用于OpenAI模型的AI/ML API密钥。"
+  },
+  "temperature": {
+    "display_name": "温度",
+    "info": "控制输出的随机性。较低的值使输出更集中和确定性。"
+  },
+  "status": {
+    "loading_models": "正在加载可用模型...",
+    "initializing_model": "正在初始化模型'{model}'..."
+  },
+  "success": {
+    "models_loaded": "成功加载{count}个模型",
+    "model_initialized": "模型'{model}'初始化成功，基础URL：{base_url}"
+  },
+  "warnings": {
+    "no_models_available": "AI/ML API没有可用模型"
+  },
+  "errors": {
+    "models_loading_failed": "加载模型失败：{error}",
+    "build_config_update_failed": "更新构建配置失败：{error}",
+    "api_key_required": "需要AI/ML API密钥",
+    "model_name_required": "需要模型名称",
+    "api_key_extraction_failed": "提取API密钥失败：{error}",
+    "model_initialization_failed": "初始化模型'{model}'失败：{error}",
+    "model_build_failed": "构建模型失败：{error}",
+    "exception_message_extraction_failed": "提取异常消息失败：{error}"
+  },
+  "logs": {
+    "o1_temperature_override": "检测到模型'{model}'为o1系列，将温度覆盖为1",
+    "openai_error_not_available": "OpenAI错误模块不可用于异常处理",
+    "extracted_error_message": "提取的错误消息：{message}"
+  }
+}

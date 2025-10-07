@@ -1,0 +1,40 @@
+{
+  "display_name": "Azure OpenAI",
+  "description": "Generate text using Azure OpenAI LLMs.",
+  "azure_endpoint": {
+    "display_name": "Azure Endpoint",
+    "info": "Your Azure endpoint, including the resource. Example: `https://example-resource.azure.openai.com/`"
+  },
+  "azure_deployment": {
+    "display_name": "Deployment Name",
+    "info": "The name of your Azure OpenAI deployment"
+  },
+  "api_key": {
+    "display_name": "Azure Chat OpenAI API Key",
+    "info": "Your Azure OpenAI API key"
+  },
+  "api_version": {
+    "display_name": "API Version",
+    "info": "The Azure OpenAI API version to use"
+  },
+  "temperature": {
+    "display_name": "Temperature",
+    "info": "Controls randomness. Lower values are more deterministic, higher values are more creative."
+  },
+  "max_tokens": {
+    "display_name": "Max Tokens",
+    "info": "The maximum number of tokens to generate. Set to 0 for unlimited tokens."
+  },
+  "status": {
+    "initializing": "Initializing Azure OpenAI model with deployment '{deployment}'..."
+  },
+  "success": {
+    "model_initialized": "Azure OpenAI model initialized successfully with deployment '{deployment}'"
+  },
+  "errors": {
+    "connection_failed": "Could not connect to AzureOpenAI API: {error}"
+  },
+  "logs": {
+    "building_model": "Building model - Endpoint: {endpoint}, Deployment: {deployment}, API Version: {api_version}, Temperature: {temperature}, Max Tokens: {max_tokens}, Stream: {stream}"
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "display_name": "Parse DataFrame",
+  "description": "Convert a DataFrame into plain text following a specified template. Each column in the DataFrame is treated as a possible template key, e.g. {col_name}.",
+  "df": {
+    "display_name": "DataFrame",
+    "info": "The DataFrame to convert to text rows."
+  },
+  "template": {
+    "display_name": "Template",
+    "info": "The template for formatting each row. Use placeholders matching column names in the DataFrame, for example '{col1}', '{col2}'."
+  },
+  "sep": {
+    "display_name": "Separator",
+    "info": "String that joins all row texts when building the single Text output."
+  },
+  "outputs": {
+    "text": {
+      "display_name": "Text",
+      "info": "All rows combined into a single text, each row formatted by the template and separated by `sep`."
+    }
+  },
+  "success": {
+    "all_rows_processed": "Successfully processed all {rows} rows (result length: {length} characters)"
+  },
+  "warnings": {
+    "missing_column_in_row": "Row {row}: Missing column '{column}' referenced in template",
+    "missing_columns": "Template references missing columns: {missing}. Available columns: {available}",
+    "partial_success": "Processed {successful} out of {total} rows successfully"
+  },
+  "errors": {
+    "empty_dataframe": "DataFrame is empty or not provided",
+    "empty_template": "Template cannot be empty",
+    "argument_validation_failed": "Failed to validate input arguments: {error}",
+    "row_formatting_failed": "Failed to format row {row}: {error}",
+    "no_successful_rows": "No rows were successfully processed",
+    "parsing_failed": "DataFrame parsing failed: {error}"
+  }
+}

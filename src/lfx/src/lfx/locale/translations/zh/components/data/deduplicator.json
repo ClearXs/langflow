@@ -1,0 +1,66 @@
+{
+  "display_name": "数据去重器",
+  "description": "使用多种策略从数据中删除重复记录，包括完整记录比较、关键字段匹配、自定义哈希和模糊匹配。",
+  "data": {
+    "display_name": "输入数据",
+    "info": "包含潜在重复项的数据。可以是数据对象列表、单个数据对象或JSON字符串。"
+  },
+  "dedup_strategy": {
+    "display_name": "去重策略",
+    "info": "识别重复记录的方法：full_record（比较所有字段）、key_fields（比较特定字段）、custom_hash（哈希指定字段）或fuzzy_match（基于相似度匹配）。"
+  },
+  "key_fields": {
+    "display_name": "关键字段",
+    "info": "使用key_fields策略时用于重复检测的字段名称JSON数组。"
+  },
+  "hash_fields": {
+    "display_name": "哈希字段",
+    "info": "包含在自定义哈希计算中的字段名称JSON数组。"
+  },
+  "fuzzy_config": {
+    "display_name": "模糊匹配配置",
+    "info": "模糊匹配的JSON配置，包括相似度阈值和比较字段。"
+  },
+  "keep_strategy": {
+    "display_name": "保留策略",
+    "info": "找到重复项时保留哪条记录：first（第一条）、last（最后一条）、most_complete（非空字段最多）或custom_priority（自定义优先级）。"
+  },
+  "priority_fields": {
+    "display_name": "优先级字段",
+    "info": "当keep_strategy为custom_priority时用于自定义优先级排序的字段JSON数组。"
+  },
+  "case_sensitive": {
+    "display_name": "区分大小写",
+    "info": "字符串比较是否应该区分大小写。"
+  },
+  "ignore_whitespace": {
+    "display_name": "忽略空白字符",
+    "info": "在字符串比较中是否忽略前导/尾随空白字符。"
+  },
+  "include_duplicate_info": {
+    "display_name": "包含重复信息",
+    "info": "在报告中包含重复组的详细信息。"
+  },
+  "preserve_order": {
+    "display_name": "保持原始顺序",
+    "info": "在去重输出中保持记录的原始顺序。"
+  },
+  "outputs": {
+    "deduplicated_data": {
+      "display_name": "去重后的数据"
+    },
+    "duplicate_report": {
+      "display_name": "重复报告"
+    },
+    "duplicate_records": {
+      "display_name": "重复记录"
+    }
+  },
+  "errors": {
+    "no_data": "未提供去重的输入数据。",
+    "empty_data": "输入数据为空或不包含记录。",
+    "dedup_error": "去重失败：{error}",
+    "invalid_json": "输入数据中的JSON格式无效。",
+    "no_dedup_run": "必须先运行去重才能访问此输出。"
+  }
+}

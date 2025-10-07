@@ -1,0 +1,26 @@
+{
+  "display_name": "传递",
+  "description": "转发输入消息，保持不变。",
+  "input_message": {
+    "display_name": "输入消息",
+    "info": "要转发的消息。"
+  },
+  "ignored_message": {
+    "display_name": "忽略的消息",
+    "info": "要忽略的第二条消息。用作连续性的变通方法。"
+  },
+  "outputs": {
+    "output_message": {
+      "display_name": "输出消息"
+    }
+  },
+  "success": {
+    "message_passed": "消息传递成功"
+  },
+  "warnings": {
+    "empty_message": "传递了空消息"
+  },
+  "errors": {
+    "pass_error": "传递消息时出错：{error}"
+  }
+}

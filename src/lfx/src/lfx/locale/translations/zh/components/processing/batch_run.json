@@ -1,0 +1,50 @@
+{
+  "display_name": "批量运行",
+  "description": "在DataFrame列的每行上运行LLM。如果未指定列，则使用所有列。",
+  "model": {
+    "display_name": "语言模型",
+    "info": "在此处连接LLM组件的'语言模型'输出。"
+  },
+  "system_message": {
+    "display_name": "指令",
+    "info": "DataFrame中所有行的多行系统指令。"
+  },
+  "df": {
+    "display_name": "数据框",
+    "info": "其列（由'column_name'指定）将被视为文本消息的DataFrame。"
+  },
+  "column_name": {
+    "display_name": "列名",
+    "info": "要视为文本消息的DataFrame列的名称。如果为空，所有列将以TOML格式格式化。"
+  },
+  "output_column_name": {
+    "display_name": "输出列名",
+    "info": "存储模型响应的列的名称。"
+  },
+  "enable_metadata": {
+    "display_name": "启用元数据",
+    "info": "如果为True，则向输出DataFrame添加元数据。"
+  },
+  "outputs": {
+    "batch_results": {
+      "display_name": "LLM结果",
+      "info": "包含所有原始列以及模型响应列的DataFrame。"
+    }
+  },
+  "success": {
+    "batch_completed": "批量处理成功完成。处理了{total}行。"
+  },
+  "info": {
+    "processing_column": "正在处理列'{column}'，共{count}行",
+    "processing_all_columns": "正在以TOML格式处理所有列，共{count}行",
+    "starting_batch": "开始批量处理{total}行",
+    "processing_progress": "已处理{current}/{total}行"
+  },
+  "errors": {
+    "invalid_dataframe_type": "期望DataFrame输入，但得到{actual_type}",
+    "column_not_found": "在DataFrame中未找到列'{column}'。可用列：{available}",
+    "toml_formatting_failed": "将行格式化为TOML失败：{error}",
+    "data_processing_error": "数据处理错误：{error}",
+    "unexpected_error": "批量处理期间发生意外错误：{error}"
+  }
+}

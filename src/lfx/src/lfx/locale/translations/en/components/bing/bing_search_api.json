@@ -1,0 +1,50 @@
+{
+  "display_name": "Bing Search API",
+  "description": "Search the web using Bing Search API.",
+  "bing_subscription_key": {
+    "display_name": "Bing Subscription Key",
+    "info": "Your Bing Search API subscription key"
+  },
+  "input_value": {
+    "display_name": "Search Query",
+    "info": "The search query to send to Bing"
+  },
+  "bing_search_url": {
+    "display_name": "Bing Search URL",
+    "info": "Custom Bing Search API endpoint URL (optional)"
+  },
+  "k": {
+    "display_name": "Number of Results",
+    "info": "The number of search results to return"
+  },
+  "outputs": {
+    "dataframe": {
+      "display_name": "DataFrame"
+    },
+    "tool": {
+      "display_name": "Tool"
+    }
+  },
+  "status": {
+    "searching": "Searching Bing for '{query}'...",
+    "converting_to_dataframe": "Converting results to DataFrame...",
+    "building_tool": "Building Bing Search tool..."
+  },
+  "success": {
+    "results_found": "Found {count} search results",
+    "tool_built": "Bing Search tool built successfully"
+  },
+  "errors": {
+    "search_failed": "Bing search failed: {error}",
+    "dataframe_creation_failed": "Failed to create DataFrame: {error}",
+    "tool_build_failed": "Failed to build tool: {error}"
+  },
+  "logs": {
+    "initializing_wrapper": "Initializing Bing Search wrapper - Has Custom URL: {has_custom_url}, Number of Results: {num_results}",
+    "custom_url_set": "Using custom Bing Search URL: {url}",
+    "default_url_used": "Using default Bing Search URL",
+    "executing_search": "Executing search - Query: '{query}', Number of Results: {num_results}",
+    "dataframe_created": "DataFrame created with {rows} rows",
+    "building_tool": "Building Bing Search tool - Has Custom URL: {has_custom_url}, Number of Results: {num_results}"
+  }
+}

@@ -1,0 +1,45 @@
+{
+  "display_name": "Serp搜索API [已弃用]",
+  "description": "调用Serp搜索API并限制结果数量",
+  "serpapi_api_key": {
+    "display_name": "SerpAPI API密钥",
+    "info": "您在serpapi.com获取的用于访问搜索结果的API密钥。"
+  },
+  "input_value": {
+    "display_name": "搜索查询",
+    "info": "要执行的搜索查询。"
+  },
+  "search_params": {
+    "display_name": "搜索参数",
+    "info": "搜索API的额外参数（例如：引擎、位置、语言）。"
+  },
+  "max_results": {
+    "display_name": "最大结果数",
+    "info": "要返回的搜索结果的最大数量。"
+  },
+  "max_snippet_length": {
+    "display_name": "最大摘要长度",
+    "info": "每个结果摘要的最大字符长度。"
+  },
+  "tool_description": "使用SerpAPI搜索最新结果并限制结果数量",
+  "success": {
+    "tool_created": "SerpAPI搜索工具创建成功",
+    "search_completed": "搜索成功完成。为'{query}'找到{count}个结果"
+  },
+  "info": {
+    "executing_search": "正在使用SerpAPI搜索'{query}'..."
+  },
+  "warnings": {
+    "empty_query": "搜索查询为空。请提供搜索词。",
+    "empty_input": "搜索输入为空。请提供搜索查询。",
+    "no_results": "未找到查询'{query}'的搜索结果",
+    "no_results_returned": "SerpAPI未返回结果"
+  },
+  "errors": {
+    "api_key_required": "需要SerpAPI API密钥。请提供您从serpapi.com获取的API密钥。",
+    "wrapper_creation_failed": "创建SerpAPI包装器失败：{error}",
+    "search_execution_failed": "SerpAPI搜索执行失败：{error}",
+    "tool_creation_failed": "创建SerpAPI搜索工具失败：{error}",
+    "execution_failed": "SerpAPI执行失败：{error}"
+  }
+}

@@ -1,13 +1,15 @@
+import i18n
 from langchain_community.embeddings.cloudflare_workersai import CloudflareWorkersAIEmbeddings
 
 from lfx.base.models.model import LCModelComponent
 from lfx.field_typing import Embeddings
 from lfx.io import BoolInput, DictInput, IntInput, MessageTextInput, Output, SecretStrInput
+from lfx.log.logger import logger
 
 
 class CloudflareWorkersAIEmbeddingsComponent(LCModelComponent):
-    display_name: str = "Cloudflare Workers AI Embeddings"
-    description: str = "Generate embeddings using Cloudflare Workers AI models."
+    display_name: str = i18n.t('components.cloudflare.cloudflare.display_name')
+    description: str = i18n.t('components.cloudflare.cloudflare.description')
     documentation: str = "https://python.langchain.com/docs/integrations/text_embedding/cloudflare_workersai/"
     icon = "Cloudflare"
     name = "CloudflareWorkersAIEmbeddings"
@@ -15,56 +17,78 @@ class CloudflareWorkersAIEmbeddingsComponent(LCModelComponent):
     inputs = [
         MessageTextInput(
             name="account_id",
-            display_name="Cloudflare account ID",
-            info="Find your account ID https://developers.cloudflare.com/fundamentals/setup/find-account-and-zone-ids/#find-account-id-workers-and-pages",
+            display_name=i18n.t(
+                'components.cloudflare.cloudflare.account_id.display_name'),
+            info=i18n.t('components.cloudflare.cloudflare.account_id.info'),
             required=True,
         ),
         SecretStrInput(
             name="api_token",
-            display_name="Cloudflare API token",
-            info="Create an API token https://developers.cloudflare.com/fundamentals/api/get-started/create-token/",
+            display_name=i18n.t(
+                'components.cloudflare.cloudflare.api_token.display_name'),
+            info=i18n.t('components.cloudflare.cloudflare.api_token.info'),
             required=True,
         ),
         MessageTextInput(
             name="model_name",
-            display_name="Model Name",
-            info="List of supported models https://developers.cloudflare.com/workers-ai/models/#text-embeddings",
+            display_name=i18n.t(
+                'components.cloudflare.cloudflare.model_name.display_name'),
+            info=i18n.t('components.cloudflare.cloudflare.model_name.info'),
             required=True,
             value="@cf/baai/bge-base-en-v1.5",
         ),
         BoolInput(
             name="strip_new_lines",
-            display_name="Strip New Lines",
+            display_name=i18n.t(
+                'components.cloudflare.cloudflare.strip_new_lines.display_name'),
+            info=i18n.t(
+                'components.cloudflare.cloudflare.strip_new_lines.info'),
             advanced=True,
             value=True,
         ),
         IntInput(
             name="batch_size",
-            display_name="Batch Size",
+            display_name=i18n.t(
+                'components.cloudflare.cloudflare.batch_size.display_name'),
+            info=i18n.t('components.cloudflare.cloudflare.batch_size.info'),
             advanced=True,
             value=50,
         ),
         MessageTextInput(
             name="api_base_url",
-            display_name="Cloudflare API base URL",
+            display_name=i18n.t(
+                'components.cloudflare.cloudflare.api_base_url.display_name'),
+            info=i18n.t('components.cloudflare.cloudflare.api_base_url.info'),
             advanced=True,
             value="https://api.cloudflare.com/client/v4/accounts",
         ),
         DictInput(
             name="headers",
-            display_name="Headers",
-            info="Additional request headers",
+            display_name=i18n.t(
+                'components.cloudflare.cloudflare.headers.display_name'),
+            info=i18n.t('components.cloudflare.cloudflare.headers.info'),
             is_list=True,
             advanced=True,
         ),
     ]
 
     outputs = [
-        Output(display_name="Embeddings", name="embeddings", method="build_embeddings"),
+        Output(
+            display_name=i18n.t(
+                'components.cloudflare.cloudflare.outputs.embeddings.display_name'),
+            name="embeddings",
+            method="build_embeddings"
+        ),
     ]
 
     def build_embeddings(self) -> Embeddings:
         try:
+            self.status = i18n.t(
+                'components.cloudflare.cloudflare.status.initializing')
+            logger.info(i18n.t('components.cloudflare.cloudflare.logs.initializing',
+                               model=self.model_name,
+                               account_id=self.account_id))
+
             embeddings = CloudflareWorkersAIEmbeddings(
                 account_id=self.account_id,
                 api_base_url=self.api_base_url,
@@ -74,8 +98,17 @@ class CloudflareWorkersAIEmbeddingsComponent(LCModelComponent):
                 model_name=self.model_name,
                 strip_new_lines=self.strip_new_lines,
             )
-        except Exception as e:
-            msg = f"Could not connect to CloudflareWorkersAIEmbeddings API: {e!s}"
-            raise ValueError(msg) from e
 
-        return embeddings
+            success_msg = i18n.t('components.cloudflare.cloudflare.success.embeddings_created',
+                                 model=self.model_name)
+            self.status = success_msg
+            logger.info(success_msg)
+
+            return embeddings
+
+        except Exception as e:
+            error_msg = i18n.t('components.cloudflare.cloudflare.errors.connection_failed',
+                               error=str(e))
+            self.status = error_msg
+            logger.exception(error_msg)
+            raise ValueError(error_msg) from e

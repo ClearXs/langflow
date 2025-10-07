@@ -1,0 +1,55 @@
+{
+  "display_name": "Cassandra聊天记忆",
+  "description": "从Apache Cassandra检索和存储聊天消息。",
+  "database_ref": {
+    "display_name": "联系点 / Astra数据库ID",
+    "info": "数据库的联系点（或Astra DB数据库ID）"
+  },
+  "username": {
+    "display_name": "用户名",
+    "info": "数据库的用户名（Astra DB留空）。"
+  },
+  "token": {
+    "display_name": "密码 / Astra DB令牌",
+    "info": "数据库的用户密码（或Astra DB令牌）。"
+  },
+  "keyspace": {
+    "display_name": "键空间",
+    "info": "表键空间（或Astra DB命名空间）。"
+  },
+  "table_name": {
+    "display_name": "表名",
+    "info": "存储消息的表名（或Astra DB集合）。"
+  },
+  "session_id": {
+    "display_name": "会话ID",
+    "info": "消息的会话ID。"
+  },
+  "cluster_kwargs": {
+    "display_name": "集群参数",
+    "info": "Cassandra集群的可选附加关键字参数字典。"
+  },
+  "status": {
+    "initializing": "正在初始化Cassandra聊天记忆...",
+    "connecting": "正在连接到数据库...",
+    "creating_history": "正在创建消息历史..."
+  },
+  "success": {
+    "history_created": "成功为会话'{session_id}'在表'{table_name}'中创建消息历史"
+  },
+  "errors": {
+    "cassio_not_installed": "无法导入cassio集成包。请使用`pip install cassio`安装。",
+    "initialization_failed": "初始化Cassandra聊天记忆失败：{error}"
+  },
+  "logs": {
+    "cassio_imported": "cassio包导入成功",
+    "detected_astra": "检测到Astra DB，数据库ID：{database_id}",
+    "detected_cassandra_multiple": "检测到常规Cassandra，有{count}个联系点",
+    "detected_cassandra_single": "检测到常规Cassandra，联系点：{contact_point}",
+    "connecting_astra": "正在连接到Astra DB，数据库ID：{database_id}",
+    "astra_connected": "成功连接到Astra DB",
+    "connecting_cassandra": "正在连接到Cassandra - 联系点：{contact_points}，用户名：{username}",
+    "cassandra_connected": "成功连接到Cassandra",
+    "creating_history": "正在创建消息历史 - 会话ID：{session_id}，表：{table_name}，键空间：{keyspace}"
+  }
+}

@@ -1,0 +1,45 @@
+{
+  "display_name": "Serp Search API [DEPRECATED]",
+  "description": "Call Serp Search API with result limiting",
+  "serpapi_api_key": {
+    "display_name": "SerpAPI API Key",
+    "info": "Your API key from serpapi.com for accessing search results."
+  },
+  "input_value": {
+    "display_name": "Search Query",
+    "info": "The search query to execute."
+  },
+  "search_params": {
+    "display_name": "Search Parameters",
+    "info": "Additional parameters for the search API (e.g., engine, location, language)."
+  },
+  "max_results": {
+    "display_name": "Max Results",
+    "info": "Maximum number of search results to return."
+  },
+  "max_snippet_length": {
+    "display_name": "Max Snippet Length",
+    "info": "Maximum length of each result snippet in characters."
+  },
+  "tool_description": "Search for recent results using SerpAPI with result limiting",
+  "success": {
+    "tool_created": "SerpAPI search tool created successfully",
+    "search_completed": "Search completed successfully. Found {count} results for '{query}'"
+  },
+  "info": {
+    "executing_search": "Executing search for '{query}' using SerpAPI..."
+  },
+  "warnings": {
+    "empty_query": "Search query is empty. Please provide a search term.",
+    "empty_input": "Search input is empty. Please provide a search query.",
+    "no_results": "No search results found for query: '{query}'",
+    "no_results_returned": "SerpAPI returned no results"
+  },
+  "errors": {
+    "api_key_required": "SerpAPI API key is required. Please provide your API key from serpapi.com.",
+    "wrapper_creation_failed": "Failed to create SerpAPI wrapper: {error}",
+    "search_execution_failed": "SerpAPI search execution failed: {error}",
+    "tool_creation_failed": "Failed to create SerpAPI search tool: {error}",
+    "execution_failed": "SerpAPI execution failed: {error}"
+  }
+}

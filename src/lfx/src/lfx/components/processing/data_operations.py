@@ -1,6 +1,7 @@
 import ast
 import json
 from typing import TYPE_CHECKING, Any
+import i18n
 
 import jq
 from json_repair import repair_json
@@ -37,8 +38,8 @@ OPERATORS = {
 
 
 class DataOperationsComponent(Component):
-    display_name = "Data Operations"
-    description = "Perform various operations on a Data object."
+    display_name = i18n.t('components.processing.data_operations.display_name')
+    description = i18n.t('components.processing.data_operations.description')
     icon = "file-json"
     name = "DataOperations"
     default_keys = ["operations", "data"]
@@ -88,18 +89,21 @@ class DataOperationsComponent(Component):
             for k, v in obj.items():
                 new_path = f"{path}.{k}" if path else f".{k}"
                 paths.append(new_path)
-                paths.extend(DataOperationsComponent.extract_all_paths(v, new_path))
+                paths.extend(
+                    DataOperationsComponent.extract_all_paths(v, new_path))
         elif isinstance(obj, list) and obj:
             new_path = f"{path}[0]"
             paths.append(new_path)
-            paths.extend(DataOperationsComponent.extract_all_paths(obj[0], new_path))
+            paths.extend(
+                DataOperationsComponent.extract_all_paths(obj[0], new_path))
         return paths
 
     @staticmethod
     def remove_keys_recursive(obj, keys_to_remove):
         if isinstance(obj, dict):
             return {
-                k: DataOperationsComponent.remove_keys_recursive(v, keys_to_remove)
+                k: DataOperationsComponent.remove_keys_recursive(
+                    v, keys_to_remove)
                 for k, v in obj.items()
                 if k not in keys_to_remove
             }
@@ -119,22 +123,41 @@ class DataOperationsComponent(Component):
         return obj
 
     inputs = [
-        DataInput(name="data", display_name="Data", info="Data object to filter.", required=True, is_list=True),
+        DataInput(
+            name="data",
+            display_name=i18n.t(
+                'components.processing.data_operations.data.display_name'),
+            info=i18n.t('components.processing.data_operations.data.info'),
+            required=True,
+            is_list=True
+        ),
         SortableListInput(
             name="operations",
-            display_name="Operations",
-            placeholder="Select Operation",
-            info="List of operations to perform on the data.",
+            display_name=i18n.t(
+                'components.processing.data_operations.operations.display_name'),
+            placeholder=i18n.t(
+                'components.processing.data_operations.operations.placeholder'),
+            info=i18n.t(
+                'components.processing.data_operations.operations.info'),
             options=[
-                {"name": "Select Keys", "icon": "lasso-select"},
-                {"name": "Literal Eval", "icon": "braces"},
-                {"name": "Combine", "icon": "merge"},
-                {"name": "Filter Values", "icon": "filter"},
-                {"name": "Append or Update", "icon": "circle-plus"},
-                {"name": "Remove Keys", "icon": "eraser"},
-                {"name": "Rename Keys", "icon": "pencil-line"},
-                {"name": "Path Selection", "icon": "mouse-pointer"},
-                {"name": "JQ Expression", "icon": "terminal"},
+                {"name": i18n.t(
+                    'components.processing.data_operations.operations.select_keys'), "icon": "lasso-select"},
+                {"name": i18n.t(
+                    'components.processing.data_operations.operations.literal_eval'), "icon": "braces"},
+                {"name": i18n.t(
+                    'components.processing.data_operations.operations.combine'), "icon": "merge"},
+                {"name": i18n.t(
+                    'components.processing.data_operations.operations.filter_values'), "icon": "filter"},
+                {"name": i18n.t(
+                    'components.processing.data_operations.operations.append_update'), "icon": "circle-plus"},
+                {"name": i18n.t(
+                    'components.processing.data_operations.operations.remove_keys'), "icon": "eraser"},
+                {"name": i18n.t(
+                    'components.processing.data_operations.operations.rename_keys'), "icon": "pencil-line"},
+                {"name": i18n.t(
+                    'components.processing.data_operations.operations.path_selection'), "icon": "mouse-pointer"},
+                {"name": i18n.t(
+                    'components.processing.data_operations.operations.jq_expression'), "icon": "terminal"},
             ],
             real_time_refresh=True,
             limit=1,
@@ -142,43 +165,56 @@ class DataOperationsComponent(Component):
         # select keys inputs
         MessageTextInput(
             name="select_keys_input",
-            display_name="Select Keys",
-            info="List of keys to select from the data. Only top-level keys can be selected.",
+            display_name=i18n.t(
+                'components.processing.data_operations.select_keys_input.display_name'),
+            info=i18n.t(
+                'components.processing.data_operations.select_keys_input.info'),
             show=False,
             is_list=True,
         ),
         # filter values inputs
         MessageTextInput(
             name="filter_key",
-            display_name="Filter Key",
-            info=(
-                "Name of the key containing the list to filter. "
-                "It must be a top-level key in the JSON and its value must be a list."
-            ),
+            display_name=i18n.t(
+                'components.processing.data_operations.filter_key.display_name'),
+            info=i18n.t(
+                'components.processing.data_operations.filter_key.info'),
             is_list=True,
             show=False,
         ),
         DropdownInput(
             name="operator",
-            display_name="Comparison Operator",
-            options=["equals", "not equals", "contains", "starts with", "ends with"],
-            info="The operator to apply for comparing the values.",
-            value="equals",
+            display_name=i18n.t(
+                'components.processing.data_operations.operator.display_name'),
+            options=[
+                i18n.t('components.processing.data_operations.operator.equals'),
+                i18n.t('components.processing.data_operations.operator.not_equals'),
+                i18n.t('components.processing.data_operations.operator.contains'),
+                i18n.t('components.processing.data_operations.operator.starts_with'),
+                i18n.t('components.processing.data_operations.operator.ends_with')
+            ],
+            info=i18n.t('components.processing.data_operations.operator.info'),
+            value=i18n.t(
+                'components.processing.data_operations.operator.equals'),
             advanced=False,
             show=False,
         ),
         DictInput(
             name="filter_values",
-            display_name="Filter Values",
-            info="List of values to filter by.",
+            display_name=i18n.t(
+                'components.processing.data_operations.filter_values.display_name'),
+            info=i18n.t(
+                'components.processing.data_operations.filter_values.info'),
             show=False,
             is_list=True,
         ),
         # update/ Append data inputs
         DictInput(
             name="append_update_data",
-            display_name="Append or Update",
-            info="Data to append or update the existing data with. Only top-level keys are checked.",
+            display_name=i18n.t(
+                'components.processing.data_operations.append_update_data.display_name'),
+            info=i18n.t(
+                'components.processing.data_operations.append_update_data.info'),
             show=False,
             value={"key": "value"},
             is_list=True,
@@ -186,80 +222,120 @@ class DataOperationsComponent(Component):
         # remove keys inputs
         MessageTextInput(
             name="remove_keys_input",
-            display_name="Remove Keys",
-            info="List of keys to remove from the data.",
+            display_name=i18n.t(
+                'components.processing.data_operations.remove_keys_input.display_name'),
+            info=i18n.t(
+                'components.processing.data_operations.remove_keys_input.info'),
             show=False,
             is_list=True,
         ),
         # rename keys inputs
         DictInput(
             name="rename_keys_input",
-            display_name="Rename Keys",
-            info="List of keys to rename in the data.",
+            display_name=i18n.t(
+                'components.processing.data_operations.rename_keys_input.display_name'),
+            info=i18n.t(
+                'components.processing.data_operations.rename_keys_input.info'),
             show=False,
             is_list=True,
             value={"old_key": "new_key"},
         ),
         MultilineInput(
             name="mapped_json_display",
-            display_name="JSON to Map",
-            info="Paste or preview your JSON here to explore its structure and select a path for extraction.",
+            display_name=i18n.t(
+                'components.processing.data_operations.mapped_json_display.display_name'),
+            info=i18n.t(
+                'components.processing.data_operations.mapped_json_display.info'),
             required=False,
             refresh_button=True,
             real_time_refresh=True,
-            placeholder="Add a JSON example.",
+            placeholder=i18n.t(
+                'components.processing.data_operations.mapped_json_display.placeholder'),
             show=False,
         ),
         DropdownInput(
-            name="selected_key", display_name="Select Path", options=[], required=False, dynamic=True, show=False
+            name="selected_key",
+            display_name=i18n.t(
+                'components.processing.data_operations.selected_key.display_name'),
+            options=[],
+            required=False,
+            dynamic=True,
+            show=False
         ),
         MessageTextInput(
             name="query",
-            display_name="JQ Expression",
-            info="JSON Query to filter the data. Used by Parse JSON operation.",
-            placeholder="e.g., .properties.id",
+            display_name=i18n.t(
+                'components.processing.data_operations.query.display_name'),
+            info=i18n.t('components.processing.data_operations.query.info'),
+            placeholder=i18n.t(
+                'components.processing.data_operations.query.placeholder'),
             show=False,
         ),
     ]
     outputs = [
-        Output(display_name="Data", name="data_output", method="as_data"),
+        Output(
+            display_name=i18n.t(
+                'components.processing.data_operations.outputs.data.display_name'),
+            name="data_output",
+            method="as_data"
+        ),
     ]
 
     # Helper methods for data operations
     def get_data_dict(self) -> dict:
         """Extract data dictionary from Data object."""
-        data = self.data[0] if isinstance(self.data, list) and len(self.data) == 1 else self.data
+        data = self.data[0] if isinstance(
+            self.data, list) and len(self.data) == 1 else self.data
         return data.model_dump()
 
     def json_query(self) -> Data:
-        import json
-
-        import jq
-
-        if not self.query or not self.query.strip():
-            msg = "JSON Query is required and cannot be blank."
-            raise ValueError(msg)
-        raw_data = self.get_data_dict()
+        """Execute JQ expression on data."""
         try:
+            if not self.query or not self.query.strip():
+                error_msg = i18n.t(
+                    'components.processing.data_operations.errors.empty_jq_query')
+                self.status = error_msg
+                raise ValueError(error_msg)
+
+            raw_data = self.get_data_dict()
             input_str = json.dumps(raw_data)
             repaired = repair_json(input_str)
             data_json = json.loads(repaired)
-            jq_input = data_json["data"] if isinstance(data_json, dict) and "data" in data_json else data_json
+            jq_input = data_json["data"] if isinstance(
+                data_json, dict) and "data" in data_json else data_json
             results = jq.compile(self.query).input(jq_input).all()
+
             if not results:
-                msg = "No result from JSON query."
-                raise ValueError(msg)
+                error_msg = i18n.t(
+                    'components.processing.data_operations.errors.no_jq_results')
+                self.status = error_msg
+                raise ValueError(error_msg)
+
             result = results[0] if len(results) == 1 else results
+
             if result is None or result == "None":
-                msg = "JSON query returned null/None. Check if the path exists in your data."
-                raise ValueError(msg)
+                error_msg = i18n.t(
+                    'components.processing.data_operations.errors.jq_null_result')
+                self.status = error_msg
+                raise ValueError(error_msg)
+
             if isinstance(result, dict):
+                success_msg = i18n.t(
+                    'components.processing.data_operations.success.jq_query_executed')
+                self.status = success_msg
                 return Data(data=result)
+
+            success_msg = i18n.t(
+                'components.processing.data_operations.success.jq_query_executed')
+            self.status = success_msg
             return Data(data={"result": result})
+
         except (ValueError, TypeError, KeyError, json.JSONDecodeError) as e:
-            logger.error(f"JSON Query failed: {e}")
-            msg = f"JSON Query error: {e}"
-            raise ValueError(msg) from e
+            error_msg = i18n.t(
+                'components.processing.data_operations.errors.jq_query_failed', error=str(e))
+            self.status = error_msg
+            logger.error(error_msg)
+            raise ValueError(error_msg) from e
 
     def get_normalized_data(self) -> dict:
         """Get normalized data dictionary, handling the 'data' key if present."""
@@ -273,61 +349,107 @@ class DataOperationsComponent(Component):
     def validate_single_data(self, operation: str) -> None:
         """Validate that the operation is being performed on a single data object."""
         if self.data_is_list():
-            msg = f"{operation} operation is not supported for multiple data objects."
-            raise ValueError(msg)
+            error_msg = i18n.t('components.processing.data_operations.errors.multiple_data_not_supported',
+                               operation=operation)
+            raise ValueError(error_msg)
 
     def operation_exception(self, operations: list[str]) -> None:
         """Raise exception for incompatible operations."""
-        msg = f"{operations} operations are not supported in combination with each other."
-        raise ValueError(msg)
+        error_msg = i18n.t('components.processing.data_operations.errors.incompatible_operations',
+                           operations=', '.join(operations))
+        raise ValueError(error_msg)
 
     # Data transformation operations
     def select_keys(self, *, evaluate: bool | None = None) -> Data:
         """Select specific keys from the data dictionary."""
-        self.validate_single_data("Select Keys")
-        data_dict = self.get_normalized_data()
-        filter_criteria: list[str] = self.select_keys_input
+        try:
+            self.validate_single_data(
+                i18n.t('components.processing.data_operations.operations.select_keys'))
+            data_dict = self.get_normalized_data()
+            filter_criteria: list[str] = self.select_keys_input
 
-        # Filter the data
-        if len(filter_criteria) == 1 and filter_criteria[0] == "data":
-            filtered = data_dict["data"]
-        else:
-            if not all(key in data_dict for key in filter_criteria):
-                msg = f"Select key not found in data. Available keys: {list(data_dict.keys())}"
-                raise ValueError(msg)
-            filtered = {key: value for key, value in data_dict.items() if key in filter_criteria}
+            # Filter the data
+            if len(filter_criteria) == 1 and filter_criteria[0] == "data":
+                filtered = data_dict["data"]
+            else:
+                if not all(key in data_dict for key in filter_criteria):
+                    available_keys = ', '.join(list(data_dict.keys()))
+                    error_msg = i18n.t('components.processing.data_operations.errors.select_key_not_found',
+                                       available_keys=available_keys)
+                    raise ValueError(error_msg)
+                filtered = {key: value for key,
+                            value in data_dict.items() if key in filter_criteria}
 
-        # Create a new Data object with the filtered data
-        if evaluate:
-            filtered = self.recursive_eval(filtered)
+            # Create a new Data object with the filtered data
+            if evaluate:
+                filtered = self.recursive_eval(filtered)
 
-        # Return a new Data object with the filtered data directly in the data attribute
-        return Data(data=filtered)
+            success_msg = i18n.t('components.processing.data_operations.success.keys_selected',
+                                 count=len(filtered))
+            self.status = success_msg
+            return Data(data=filtered)
+
+        except ValueError:
+            # Re-raise ValueError as is (already has i18n message)
+            raise
+        except Exception as e:
+            error_msg = i18n.t(
+                'components.processing.data_operations.errors.select_keys_failed', error=str(e))
+            self.status = error_msg
+            raise ValueError(error_msg) from e
 
     def remove_keys(self) -> Data:
         """Remove specified keys from the data dictionary, recursively."""
-        self.validate_single_data("Remove Keys")
-        data_dict = self.get_normalized_data()
-        remove_keys_input: list[str] = self.remove_keys_input
+        try:
+            self.validate_single_data(
+                i18n.t('components.processing.data_operations.operations.remove_keys'))
+            data_dict = self.get_normalized_data()
+            remove_keys_input: list[str] = self.remove_keys_input
 
-        filtered = DataOperationsComponent.remove_keys_recursive(data_dict, set(remove_keys_input))
-        return Data(data=filtered)
+            filtered = DataOperationsComponent.remove_keys_recursive(
+                data_dict, set(remove_keys_input))
+
+            success_msg = i18n.t('components.processing.data_operations.success.keys_removed',
+                                 count=len(remove_keys_input))
+            self.status = success_msg
+            return Data(data=filtered)
+
+        except ValueError:
+            # Re-raise ValueError as is (already has i18n message)
+            raise
+        except Exception as e:
+            error_msg = i18n.t(
+                'components.processing.data_operations.errors.remove_keys_failed', error=str(e))
+            self.status = error_msg
+            raise ValueError(error_msg) from e
 
     def rename_keys(self) -> Data:
         """Rename keys in the data dictionary, recursively."""
-        self.validate_single_data("Rename Keys")
-        data_dict = self.get_normalized_data()
-        rename_keys_input: dict[str, str] = self.rename_keys_input
+        try:
+            self.validate_single_data(
+                i18n.t('components.processing.data_operations.operations.rename_keys'))
+            data_dict = self.get_normalized_data()
+            rename_keys_input: dict[str, str] = self.rename_keys_input
 
-        renamed = DataOperationsComponent.rename_keys_recursive(data_dict, rename_keys_input)
-        return Data(data=renamed)
+            renamed = DataOperationsComponent.rename_keys_recursive(
+                data_dict, rename_keys_input)
+
+            success_msg = i18n.t('components.processing.data_operations.success.keys_renamed',
+                                 count=len(rename_keys_input))
+            self.status = success_msg
+            return Data(data=renamed)
+
+        except ValueError:
+            # Re-raise ValueError as is (already has i18n message)
+            raise
+        except Exception as e:
+            error_msg = i18n.t(
+                'components.processing.data_operations.errors.rename_keys_failed', error=str(e))
+            self.status = error_msg
+            raise ValueError(error_msg) from e
 
     def recursive_eval(self, data: Any) -> Any:
-        """Recursively evaluate string values in a dictionary or list.
-
-        If the value is a string that can be evaluated, it will be evaluated.
-        Otherwise, the original value is returned.
-        """
+        """Recursively evaluate string values in a dictionary or list."""
         if isinstance(data, dict):
             return {k: self.recursive_eval(v) for k, v in data.items()}
         if isinstance(data, list):
@@ -341,134 +463,235 @@ class DataOperationsComponent(Component):
                     or data.strip().replace(".", "").isdigit()
                 ):
                     return ast.literal_eval(data)
-                # return data
             except (ValueError, SyntaxError, TypeError, MemoryError):
                 # If evaluation fails for any reason, return the original string
                 return data
-            else:
-                return data
+            return data
         return data
 
     def evaluate_data(self) -> Data:
         """Evaluate string values in the data dictionary."""
-        self.validate_single_data("Literal Eval")
-        logger.info("evaluating data")
-        return Data(**self.recursive_eval(self.get_data_dict()))
+        try:
+            self.validate_single_data(
+                i18n.t('components.processing.data_operations.operations.literal_eval'))
+            logger.info("evaluating data")
+
+            result = Data(**self.recursive_eval(self.get_data_dict()))
+
+            success_msg = i18n.t(
+                'components.processing.data_operations.success.data_evaluated')
+            self.status = success_msg
+            return result
+
+        except ValueError:
+            # Re-raise ValueError as is (already has i18n message)
+            raise
+        except Exception as e:
+            error_msg = i18n.t(
+                'components.processing.data_operations.errors.evaluate_data_failed', error=str(e))
+            self.status = error_msg
+            raise ValueError(error_msg) from e
 
     def combine_data(self, *, evaluate: bool | None = None) -> Data:
         """Combine multiple data objects into one."""
-        logger.info("combining data")
-        if not self.data_is_list():
-            return self.data[0] if self.data else Data(data={})
+        try:
+            logger.info("combining data")
+            if not self.data_is_list():
+                return self.data[0] if self.data else Data(data={})
 
-        if len(self.data) == 1:
-            msg = "Combine operation requires multiple data inputs."
-            raise ValueError(msg)
+            if len(self.data) == 1:
+                error_msg = i18n.t(
+                    'components.processing.data_operations.errors.combine_requires_multiple')
+                raise ValueError(error_msg)
 
-        data_dicts = [data.model_dump().get("data", data.model_dump()) for data in self.data]
-        combined_data = {}
+            data_dicts = [data.model_dump().get("data", data.model_dump())
+                          for data in self.data]
+            combined_data = {}
 
-        for data_dict in data_dicts:
-            for key, value in data_dict.items():
-                if key not in combined_data:
-                    combined_data[key] = value
-                elif isinstance(combined_data[key], list):
-                    if isinstance(value, list):
-                        combined_data[key].extend(value)
+            for data_dict in data_dicts:
+                for key, value in data_dict.items():
+                    if key not in combined_data:
+                        combined_data[key] = value
+                    elif isinstance(combined_data[key], list):
+                        if isinstance(value, list):
+                            combined_data[key].extend(value)
+                        else:
+                            combined_data[key].append(value)
                     else:
-                        combined_data[key].append(value)
-                else:
-                    # If current value is not a list, convert it to list and add new value
-                    combined_data[key] = (
-                        [combined_data[key], value] if not isinstance(value, list) else [combined_data[key], *value]
-                    )
+                        # If current value is not a list, convert it to list and add new value
+                        combined_data[key] = (
+                            [combined_data[key], value] if not isinstance(
+                                value, list) else [combined_data[key], *value]
+                        )
 
-        if evaluate:
-            combined_data = self.recursive_eval(combined_data)
+            if evaluate:
+                combined_data = self.recursive_eval(combined_data)
 
-        return Data(**combined_data)
+            success_msg = i18n.t('components.processing.data_operations.success.data_combined',
+                                 count=len(self.data))
+            self.status = success_msg
+            return Data(**combined_data)
+
+        except ValueError:
+            # Re-raise ValueError as is (already has i18n message)
+            raise
+        except Exception as e:
+            error_msg = i18n.t(
+                'components.processing.data_operations.errors.combine_data_failed', error=str(e))
+            self.status = error_msg
+            raise ValueError(error_msg) from e
 
     def filter_data(self, input_data: list[dict[str, Any]], filter_key: str, filter_value: str, operator: str) -> list:
         """Filter list data based on key, value, and operator."""
         # Validate inputs
         if not input_data:
-            self.status = "Input data is empty."
+            warning_msg = i18n.t(
+                'components.processing.data_operations.warnings.empty_input_data')
+            self.status = warning_msg
             return []
 
         if not filter_key or not filter_value:
-            self.status = "Filter key or value is missing."
+            warning_msg = i18n.t(
+                'components.processing.data_operations.warnings.missing_filter_params')
+            self.status = warning_msg
             return input_data
 
         # Filter the data
         filtered_data = []
+        missing_key_count = 0
+
         for item in input_data:
             if isinstance(item, dict) and filter_key in item:
                 if self.compare_values(item[filter_key], filter_value, operator):
                     filtered_data.append(item)
             else:
-                self.status = f"Warning: Some items don't have the key '{filter_key}' or are not dictionaries."
+                missing_key_count += 1
+
+        if missing_key_count > 0:
+            warning_msg = i18n.t('components.processing.data_operations.warnings.items_missing_key',
+                                 count=missing_key_count, key=filter_key)
+            self.status = warning_msg
 
         return filtered_data
 
     def compare_values(self, item_value: Any, filter_value: str, operator: str) -> bool:
-        comparison_func = OPERATORS.get(operator)
+        # Map localized operator names to English for internal logic
+        operator_map = {
+            i18n.t('components.processing.data_operations.operator.equals'): "equals",
+            i18n.t('components.processing.data_operations.operator.not_equals'): "not equals",
+            i18n.t('components.processing.data_operations.operator.contains'): "contains",
+            i18n.t('components.processing.data_operations.operator.starts_with'): "starts with",
+            i18n.t('components.processing.data_operations.operator.ends_with'): "ends with",
+        }
+
+        # Use mapped operator or fall back to original
+        internal_operator = operator_map.get(operator, operator)
+        comparison_func = OPERATORS.get(internal_operator)
+
         if comparison_func:
             return comparison_func(item_value, filter_value)
         return False
 
     def multi_filter_data(self) -> Data:
         """Apply multiple filters to the data."""
-        self.validate_single_data("Filter Values")
-        data_filtered = self.get_normalized_data()
+        try:
+            self.validate_single_data(
+                i18n.t('components.processing.data_operations.operations.filter_values'))
+            data_filtered = self.get_normalized_data()
 
-        for filter_key in self.filter_key:
-            if filter_key not in data_filtered:
-                msg = f"Filter key '{filter_key}' not found in data. Available keys: {list(data_filtered.keys())}"
-                raise ValueError(msg)
+            for filter_key in self.filter_key:
+                if filter_key not in data_filtered:
+                    available_keys = ', '.join(list(data_filtered.keys()))
+                    error_msg = i18n.t('components.processing.data_operations.errors.filter_key_not_found',
+                                       key=filter_key, available_keys=available_keys)
+                    raise ValueError(error_msg)
 
-            if isinstance(data_filtered[filter_key], list):
-                for filter_data in self.filter_values:
-                    filter_value = self.filter_values.get(filter_data)
-                    if filter_value is not None:
-                        data_filtered[filter_key] = self.filter_data(
-                            input_data=data_filtered[filter_key],
-                            filter_key=filter_data,
-                            filter_value=filter_value,
-                            operator=self.operator,
-                        )
-            else:
-                msg = f"Filter key '{filter_key}' is not a list."
-                raise TypeError(msg)
+                if isinstance(data_filtered[filter_key], list):
+                    for filter_data in self.filter_values:
+                        filter_value = self.filter_values.get(filter_data)
+                        if filter_value is not None:
+                            data_filtered[filter_key] = self.filter_data(
+                                input_data=data_filtered[filter_key],
+                                filter_key=filter_data,
+                                filter_value=filter_value,
+                                operator=self.operator,
+                            )
+                else:
+                    error_msg = i18n.t('components.processing.data_operations.errors.filter_key_not_list',
+                                       key=filter_key)
+                    raise TypeError(error_msg)
 
-        return Data(**data_filtered)
+            success_msg = i18n.t(
+                'components.processing.data_operations.success.data_filtered')
+            self.status = success_msg
+            return Data(**data_filtered)
+
+        except (ValueError, TypeError):
+            # Re-raise as is (already has i18n message)
+            raise
+        except Exception as e:
+            error_msg = i18n.t(
+                'components.processing.data_operations.errors.filter_data_failed', error=str(e))
+            self.status = error_msg
+            raise ValueError(error_msg) from e
 
     def append_update(self) -> Data:
         """Append or Update with new key-value pairs."""
-        self.validate_single_data("Append or Update")
-        data_filtered = self.get_normalized_data()
+        try:
+            self.validate_single_data(
+                i18n.t('components.processing.data_operations.operations.append_update'))
+            data_filtered = self.get_normalized_data()
 
-        for key, value in self.append_update_data.items():
-            data_filtered[key] = value
+            for key, value in self.append_update_data.items():
+                data_filtered[key] = value
 
-        return Data(**data_filtered)
+            success_msg = i18n.t('components.processing.data_operations.success.data_updated',
+                                 count=len(self.append_update_data))
+            self.status = success_msg
+            return Data(**data_filtered)
+
+        except ValueError:
+            # Re-raise ValueError as is (already has i18n message)
+            raise
+        except Exception as e:
+            error_msg = i18n.t(
+                'components.processing.data_operations.errors.append_update_failed', error=str(e))
+            self.status = error_msg
+            raise ValueError(error_msg) from e
 
     # Configuration and execution methods
     def update_build_config(self, build_config: dotdict, field_value: Any, field_name: str | None = None) -> dotdict:
         if field_name == "operations":
             build_config["operations"]["value"] = field_value
             selected_actions = [action["name"] for action in field_value]
-            if len(selected_actions) == 1 and selected_actions[0] in ACTION_CONFIG:
-                action = selected_actions[0]
-                config = ACTION_CONFIG[action]
-                build_config["data"]["is_list"] = config["is_list"]
-                logger.info(config["log_msg"])
-                return set_current_fields(
-                    build_config=build_config,
-                    action_fields=self.actions_data,
-                    selected_action=action,
-                    default_fields=["operations", "data"],
-                    func=set_field_display,
-                )
+            if len(selected_actions) == 1:
+                # Map localized action names to internal names
+                action_map = {
+                    i18n.t('components.processing.data_operations.operations.select_keys'): "Select Keys",
+                    i18n.t('components.processing.data_operations.operations.literal_eval'): "Literal Eval",
+                    i18n.t('components.processing.data_operations.operations.combine'): "Combine",
+                    i18n.t('components.processing.data_operations.operations.filter_values'): "Filter Values",
+                    i18n.t('components.processing.data_operations.operations.append_update'): "Append or Update",
+                    i18n.t('components.processing.data_operations.operations.remove_keys'): "Remove Keys",
+                    i18n.t('components.processing.data_operations.operations.rename_keys'): "Rename Keys",
+                    i18n.t('components.processing.data_operations.operations.path_selection'): "Path Selection",
+                    i18n.t('components.processing.data_operations.operations.jq_expression'): "JQ Expression",
+                }
+
+                internal_action = action_map.get(
+                    selected_actions[0], selected_actions[0])
+
+                if internal_action in ACTION_CONFIG:
+                    config = ACTION_CONFIG[internal_action]
+                    build_config["data"]["is_list"] = config["is_list"]
+                    logger.info(config["log_msg"])
+                    return set_current_fields(
+                        build_config=build_config,
+                        action_fields=self.actions_data,
+                        selected_action=internal_action,
+                        default_fields=["operations", "data"],
+                        func=set_field_display,
+                    )
 
         if field_name == "mapped_json_display":
             try:
@@ -477,52 +700,98 @@ class DataOperationsComponent(Component):
                 build_config["selected_key"]["options"] = keys
                 build_config["selected_key"]["show"] = True
             except (json.JSONDecodeError, TypeError, ValueError) as e:
-                logger.error(f"Error parsing mapped JSON: {e}")
+                error_msg = i18n.t(
+                    'components.processing.data_operations.errors.json_parse_error', error=str(e))
+                logger.error(error_msg)
                 build_config["selected_key"]["show"] = False
 
         return build_config
 
     def json_path(self) -> Data:
+        """Extract data using JSON path selection."""
         try:
             if not self.data or not self.selected_key:
-                msg = "Missing input data or selected key."
-                raise ValueError(msg)
-            input_payload = self.data[0].data if isinstance(self.data, list) else self.data.data
+                error_msg = i18n.t(
+                    'components.processing.data_operations.errors.missing_data_or_key')
+                raise ValueError(error_msg)
+
+            input_payload = self.data[0].data if isinstance(
+                self.data, list) else self.data.data
             compiled = jq.compile(self.selected_key)
             result = compiled.input(input_payload).first()
+
             if isinstance(result, dict):
+                success_msg = i18n.t(
+                    'components.processing.data_operations.success.path_selection_executed')
+                self.status = success_msg
                 return Data(data=result)
+
+            success_msg = i18n.t(
+                'components.processing.data_operations.success.path_selection_executed')
+            self.status = success_msg
             return Data(data={"result": result})
+
         except (ValueError, TypeError, KeyError) as e:
-            self.status = f"Error: {e!s}"
-            self.log(self.status)
+            error_msg = i18n.t(
+                'components.processing.data_operations.errors.path_selection_failed', error=str(e))
+            self.status = error_msg
+            self.log(error_msg)
             return Data(data={"error": str(e)})
 
     def as_data(self) -> Data:
-        if not hasattr(self, "operations") or not self.operations:
-            return Data(data={})
+        """Execute the selected data operation."""
+        try:
+            if not hasattr(self, "operations") or not self.operations:
+                warning_msg = i18n.t(
+                    'components.processing.data_operations.warnings.no_operations_selected')
+                self.status = warning_msg
+                return Data(data={})
 
-        selected_actions = [action["name"] for action in self.operations]
-        logger.info(f"selected_actions: {selected_actions}")
-        if len(selected_actions) != 1:
-            return Data(data={})
+            selected_actions = [action["name"] for action in self.operations]
+            logger.info(f"selected_actions: {selected_actions}")
 
-        action_map: dict[str, Callable[[], Data]] = {
-            "Select Keys": self.select_keys,
-            "Literal Eval": self.evaluate_data,
-            "Combine": self.combine_data,
-            "Filter Values": self.multi_filter_data,
-            "Append or Update": self.append_update,
-            "Remove Keys": self.remove_keys,
-            "Rename Keys": self.rename_keys,
-            "Path Selection": self.json_path,
-            "JQ Expression": self.json_query,
-        }
-        handler: Callable[[], Data] | None = action_map.get(selected_actions[0])
-        if handler:
-            try:
+            if len(selected_actions) != 1:
+                error_msg = i18n.t(
+                    'components.processing.data_operations.errors.single_operation_required')
+                self.status = error_msg
+                return Data(data={})
+
+            # Map localized action names to internal method names
+            action_map: dict[str, str] = {
+                i18n.t('components.processing.data_operations.operations.select_keys'): "select_keys",
+                i18n.t('components.processing.data_operations.operations.literal_eval'): "evaluate_data",
+                i18n.t('components.processing.data_operations.operations.combine'): "combine_data",
+                i18n.t('components.processing.data_operations.operations.filter_values'): "multi_filter_data",
+                i18n.t('components.processing.data_operations.operations.append_update'): "append_update",
+                i18n.t('components.processing.data_operations.operations.remove_keys'): "remove_keys",
+                i18n.t('components.processing.data_operations.operations.rename_keys'): "rename_keys",
+                i18n.t('components.processing.data_operations.operations.path_selection'): "json_path",
+                i18n.t('components.processing.data_operations.operations.jq_expression'): "json_query",
+                # Also support English names for backwards compatibility
+                "Select Keys": "select_keys",
+                "Literal Eval": "evaluate_data",
+                "Combine": "combine_data",
+                "Filter Values": "multi_filter_data",
+                "Append or Update": "append_update",
+                "Remove Keys": "remove_keys",
+                "Rename Keys": "rename_keys",
+                "Path Selection": "json_path",
+                "JQ Expression": "json_query",
+            }
+
+            method_name = action_map.get(selected_actions[0])
+            if method_name and hasattr(self, method_name):
+                handler = getattr(self, method_name)
                 return handler()
-            except Exception as e:
-                logger.error(f"Error executing {selected_actions[0]}: {e!s}")
-                raise
-        return Data(data={})
+            else:
+                error_msg = i18n.t('components.processing.data_operations.errors.unknown_operation',
+                                   operation=selected_actions[0])
+                self.status = error_msg
+                return Data(data={"error": error_msg})
+
+        except Exception as e:
+            error_msg = i18n.t('components.processing.data_operations.errors.operation_execution_failed',
+                               error=str(e))
+            self.status = error_msg
+            logger.error(error_msg)
+            return Data(data={"error": error_msg})

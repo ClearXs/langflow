@@ -1,0 +1,48 @@
+{
+  "display_name": "AssemblyAI Get Subtitles",
+  "description": "Export your transcript in SRT or VTT format for subtitles and closed captions",
+  "api_key": {
+    "display_name": "Assembly API Key",
+    "info": "Your AssemblyAI API key. You can get one from https://www.assemblyai.com/"
+  },
+  "transcription_result": {
+    "display_name": "Transcription Result",
+    "info": "The transcription result from AssemblyAI"
+  },
+  "subtitle_format": {
+    "display_name": "Subtitle Format",
+    "info": "The format of the captions (SRT or VTT)"
+  },
+  "chars_per_caption": {
+    "display_name": "Characters per Caption",
+    "info": "The maximum number of characters per caption (0 for no limit)"
+  },
+  "outputs": {
+    "subtitles": {
+      "display_name": "Subtitles"
+    }
+  },
+  "status": {
+    "retrieving_transcript": "Retrieving transcript...",
+    "exporting_subtitles": "Exporting subtitles in {format} format..."
+  },
+  "success": {
+    "subtitles_exported": "Subtitles exported successfully in {format} format"
+  },
+  "warnings": {
+    "previous_step_error": "Error from previous step: {error}"
+  },
+  "errors": {
+    "transcript_id_not_found": "Transcript ID not found in transcription result",
+    "get_transcript_failed": "Getting transcription failed: {error}",
+    "export_failed": "Failed to export subtitles in {format} format: {error}",
+    "transcript_not_completed": "Transcript is not completed. Status: {status}",
+    "get_subtitles_failed": "Failed to get subtitles: {error}"
+  },
+  "logs": {
+    "fetching_transcript": "Fetching transcript with ID: {id}",
+    "srt_exported": "SRT subtitles exported successfully",
+    "vtt_exported": "VTT subtitles exported successfully",
+    "transcript_error": "Transcript status: {status}, error: {error}"
+  }
+}

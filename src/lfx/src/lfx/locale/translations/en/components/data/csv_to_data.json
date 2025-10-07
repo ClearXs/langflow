@@ -1,0 +1,32 @@
+{
+            "display_name": "Load CSV",
+            "description": "Load a CSV file, CSV from a file path, or a valid CSV string and convert it to a list of Data",
+            "csv_file": {
+                        "display_name": "CSV File",
+                        "info": "Upload a CSV file to convert to a list of Data objects"
+            },
+            "csv_path": {
+                        "display_name": "CSV File Path",
+                        "info": "Provide the path to the CSV file as pure text"
+            },
+            "csv_string": {
+                        "display_name": "CSV String",
+                        "info": "Paste a CSV string directly to convert to a list of Data objects"
+            },
+            "text_key": {
+                        "display_name": "Text Key",
+                        "info": "The key to use for the text column. Defaults to 'text'."
+            },
+            "outputs": {
+                        "data_list": {
+                                    "display_name": "Data List"
+                        }
+            },
+            "errors": {
+                        "exactly_one_input": "Please provide exactly one of: CSV file, file path, or CSV string.",
+                        "must_be_csv": "The provided file must be a CSV file.",
+                        "empty_csv": "The CSV data is empty.",
+                        "csv_parsing_error": "CSV parsing error: {error}",
+                        "generic_error": "An error occurred: {error}"
+            }
+}

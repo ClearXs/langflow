@@ -1,0 +1,48 @@
+{
+  "display_name": "AssemblyAI获取字幕",
+  "description": "将您的转录导出为SRT或VTT格式的字幕和隐藏式字幕",
+  "api_key": {
+    "display_name": "Assembly API密钥",
+    "info": "您的AssemblyAI API密钥。您可以从https://www.assemblyai.com/获取"
+  },
+  "transcription_result": {
+    "display_name": "转录结果",
+    "info": "来自AssemblyAI的转录结果"
+  },
+  "subtitle_format": {
+    "display_name": "字幕格式",
+    "info": "字幕的格式（SRT或VTT）"
+  },
+  "chars_per_caption": {
+    "display_name": "每个字幕的字符数",
+    "info": "每个字幕的最大字符数（0表示无限制）"
+  },
+  "outputs": {
+    "subtitles": {
+      "display_name": "字幕"
+    }
+  },
+  "status": {
+    "retrieving_transcript": "正在检索转录...",
+    "exporting_subtitles": "正在导出{format}格式的字幕..."
+  },
+  "success": {
+    "subtitles_exported": "成功导出{format}格式的字幕"
+  },
+  "warnings": {
+    "previous_step_error": "来自上一步的错误：{error}"
+  },
+  "errors": {
+    "transcript_id_not_found": "在转录结果中未找到转录ID",
+    "get_transcript_failed": "获取转录失败：{error}",
+    "export_failed": "导出{format}格式的字幕失败：{error}",
+    "transcript_not_completed": "转录未完成。状态：{status}",
+    "get_subtitles_failed": "获取字幕失败：{error}"
+  },
+  "logs": {
+    "fetching_transcript": "正在获取转录，ID：{id}",
+    "srt_exported": "SRT字幕导出成功",
+    "vtt_exported": "VTT字幕导出成功",
+    "transcript_error": "转录状态：{status}，错误：{error}"
+  }
+}

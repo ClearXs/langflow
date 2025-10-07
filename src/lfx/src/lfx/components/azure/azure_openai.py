@@ -1,3 +1,4 @@
+import i18n
 from langchain_openai import AzureChatOpenAI
 
 from lfx.base.models.model import LCModelComponent
@@ -5,11 +6,12 @@ from lfx.field_typing import LanguageModel
 from lfx.field_typing.range_spec import RangeSpec
 from lfx.inputs.inputs import MessageTextInput
 from lfx.io import DropdownInput, IntInput, SecretStrInput, SliderInput
+from lfx.log.logger import logger
 
 
 class AzureChatOpenAIComponent(LCModelComponent):
-    display_name: str = "Azure OpenAI"
-    description: str = "Generate text using Azure OpenAI LLMs."
+    display_name: str = i18n.t('components.azure.azure_openai.display_name')
+    description: str = i18n.t('components.azure.azure_openai.description')
     documentation: str = "https://python.langchain.com/docs/integrations/llms/azure_openai"
     beta = False
     icon = "Azure"
@@ -34,15 +36,29 @@ class AzureChatOpenAIComponent(LCModelComponent):
         *LCModelComponent.get_base_inputs(),
         MessageTextInput(
             name="azure_endpoint",
-            display_name="Azure Endpoint",
-            info="Your Azure endpoint, including the resource. Example: `https://example-resource.azure.openai.com/`",
+            display_name=i18n.t(
+                'components.azure.azure_openai.azure_endpoint.display_name'),
+            info=i18n.t('components.azure.azure_openai.azure_endpoint.info'),
             required=True,
         ),
-        MessageTextInput(name="azure_deployment", display_name="Deployment Name", required=True),
-        SecretStrInput(name="api_key", display_name="Azure Chat OpenAI API Key", required=True),
+        MessageTextInput(
+            name="azure_deployment",
+            display_name=i18n.t(
+                'components.azure.azure_openai.azure_deployment.display_name'),
+            required=True,
+            info=i18n.t('components.azure.azure_openai.azure_deployment.info'),
+        ),
+        SecretStrInput(
+            name="api_key",
+            display_name=i18n.t(
+                'components.azure.azure_openai.api_key.display_name'),
+            required=True,
+            info=i18n.t('components.azure.azure_openai.api_key.info'),
+        ),
         DropdownInput(
             name="api_version",
-            display_name="API Version",
+            display_name=i18n.t(
+                'components.azure.azure_openai.api_version.display_name'),
             options=sorted(AZURE_OPENAI_API_VERSIONS, reverse=True),
             value=next(
                 (
@@ -52,44 +68,59 @@ class AzureChatOpenAIComponent(LCModelComponent):
                 ),
                 AZURE_OPENAI_API_VERSIONS[0],
             ),
+            info=i18n.t('components.azure.azure_openai.api_version.info'),
         ),
         SliderInput(
             name="temperature",
-            display_name="Temperature",
+            display_name=i18n.t(
+                'components.azure.azure_openai.temperature.display_name'),
             value=0.7,
             range_spec=RangeSpec(min=0, max=2, step=0.01),
-            info="Controls randomness. Lower values are more deterministic, higher values are more creative.",
+            info=i18n.t('components.azure.azure_openai.temperature.info'),
             advanced=True,
         ),
         IntInput(
             name="max_tokens",
-            display_name="Max Tokens",
+            display_name=i18n.t(
+                'components.azure.azure_openai.max_tokens.display_name'),
             advanced=True,
-            info="The maximum number of tokens to generate. Set to 0 for unlimited tokens.",
+            info=i18n.t('components.azure.azure_openai.max_tokens.info'),
         ),
     ]
 
     def build_model(self) -> LanguageModel:  # type: ignore[type-var]
-        azure_endpoint = self.azure_endpoint
-        azure_deployment = self.azure_deployment
-        api_version = self.api_version
-        api_key = self.api_key
-        temperature = self.temperature
-        max_tokens = self.max_tokens
-        stream = self.stream
-
+        """Build Azure OpenAI chat model."""
         try:
-            output = AzureChatOpenAI(
-                azure_endpoint=azure_endpoint,
-                azure_deployment=azure_deployment,
-                api_version=api_version,
-                api_key=api_key,
-                temperature=temperature,
-                max_tokens=max_tokens or None,
-                streaming=stream,
-            )
-        except Exception as e:
-            msg = f"Could not connect to AzureOpenAI API: {e}"
-            raise ValueError(msg) from e
+            self.status = i18n.t('components.azure.azure_openai.status.initializing',
+                                 deployment=self.azure_deployment)
 
-        return output
+            logger.debug(i18n.t('components.azure.azure_openai.logs.building_model',
+                                endpoint=self.azure_endpoint,
+                                deployment=self.azure_deployment,
+                                api_version=self.api_version,
+                                temperature=self.temperature,
+                                max_tokens=self.max_tokens,
+                                stream=self.stream))
+
+            output = AzureChatOpenAI(
+                azure_endpoint=self.azure_endpoint,
+                azure_deployment=self.azure_deployment,
+                api_version=self.api_version,
+                api_key=self.api_key,
+                temperature=self.temperature,
+                max_tokens=self.max_tokens or None,
+                streaming=self.stream,
+            )
+
+            success_msg = i18n.t('components.azure.azure_openai.success.model_initialized',
+                                 deployment=self.azure_deployment)
+            logger.info(success_msg)
+            self.status = success_msg
+
+            return output
+
+        except Exception as e:
+            error_msg = i18n.t('components.azure.azure_openai.errors.connection_failed',
+                               error=str(e))
+            logger.exception(error_msg)
+            raise ValueError(error_msg) from e

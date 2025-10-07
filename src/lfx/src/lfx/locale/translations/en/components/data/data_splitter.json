@@ -1,0 +1,78 @@
+{
+  "display_name": "Data Splitter",
+  "description": "Splits data into multiple subsets using various strategies including ratio-based, random, sequential, conditional, field value-based, and chunk size splitting.",
+  "data": {
+    "display_name": "Input Data",
+    "info": "Data to be split into multiple subsets. Can be a list of Data objects, single Data object, or JSON string."
+  },
+  "split_strategy": {
+    "display_name": "Split Strategy",
+    "info": "Method for data splitting: ratio (percentage-based), random (random sampling), sequential (ordered chunks), conditional (rule-based), field_value (group by field), or chunk_size (fixed size chunks)."
+  },
+  "split_ratios": {
+    "display_name": "Split Ratios",
+    "info": "JSON array of decimal ratios for splitting data (e.g., [0.7, 0.2, 0.1] for 70%/20%/10% split)."
+  },
+  "split_conditions": {
+    "display_name": "Split Conditions",
+    "info": "JSON array of conditions for conditional splitting, each defining rules for subset creation."
+  },
+  "split_field": {
+    "display_name": "Split Field",
+    "info": "Field name to use for field value-based splitting (groups records by field values)."
+  },
+  "chunk_size": {
+    "display_name": "Chunk Size",
+    "info": "Number of records per chunk when using chunk size splitting strategy."
+  },
+  "random_seed": {
+    "display_name": "Random Seed",
+    "info": "Seed value for random number generator to ensure reproducible random splits."
+  },
+  "stratify_field": {
+    "display_name": "Stratify Field",
+    "info": "Field name to use for stratified sampling (maintains field value distribution across splits)."
+  },
+  "shuffle_data": {
+    "display_name": "Shuffle Data",
+    "info": "Shuffle the data before splitting to ensure random distribution."
+  },
+  "preserve_order": {
+    "display_name": "Preserve Order",
+    "info": "Maintain the original order of records within each split subset."
+  },
+  "include_remainder": {
+    "display_name": "Include Remainder",
+    "info": "Include remaining records that don't fit exact ratios or chunk sizes in the last subset."
+  },
+  "output_format": {
+    "display_name": "Output Format",
+    "info": "Format for split outputs: separate (individual outputs), combined (single output with split info), or indexed (numbered subsets)."
+  },
+  "subset_names": {
+    "display_name": "Subset Names",
+    "info": "JSON array of custom names for the split subsets (e.g., ['train', 'validation', 'test'])."
+  },
+  "outputs": {
+    "split_data": {
+      "display_name": "Split Data"
+    },
+    "split_report": {
+      "display_name": "Split Report"
+    },
+    "subset_info": {
+      "display_name": "Subset Information"
+    }
+  },
+  "errors": {
+    "no_data": "No input data provided for splitting.",
+    "empty_data": "Input data is empty or contains no records.",
+    "split_error": "Data splitting failed: {error}",
+    "invalid_ratios": "Split ratios must sum to 1.0 or less: {ratios}",
+    "invalid_chunk_size": "Chunk size must be greater than 0: {size}",
+    "invalid_field": "Split field '{field}' not found in data.",
+    "invalid_json": "Invalid JSON format in input data.",
+    "insufficient_data": "Insufficient data for the requested split strategy.",
+    "no_split_run": "Data splitting must be run before accessing this output."
+  }
+}

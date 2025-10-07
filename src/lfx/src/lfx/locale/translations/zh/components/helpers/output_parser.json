@@ -1,0 +1,27 @@
+{
+  "display_name": "输出解析器",
+  "description": "将LLM的输出转换为指定格式。",
+  "parser_type": {
+    "display_name": "解析器",
+    "info": "用于格式化LLM响应的输出解析器类型。"
+  },
+  "outputs": {
+    "format_instructions": {
+      "display_name": "格式指令",
+      "info": "传递给提示模板以包含LLM响应的格式化指令。"
+    },
+    "output_parser": {
+      "display_name": "输出解析器"
+    }
+  },
+  "success": {
+    "csv_parser_created": "CSV输出解析器创建成功",
+    "format_instructions_generated": "格式指令生成成功"
+  },
+  "errors": {
+    "unsupported_parser": "不支持或缺失的解析器类型：{parser_type}",
+    "parser_creation_failed": "创建输出解析器失败：{error}",
+    "unsupported_parser_for_instructions": "无法为不支持的解析器类型生成格式指令：{parser_type}",
+    "instructions_generation_failed": "生成格式指令失败：{error}"
+  }
+}

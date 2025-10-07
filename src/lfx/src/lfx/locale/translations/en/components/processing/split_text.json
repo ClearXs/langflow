@@ -1,0 +1,68 @@
+{
+  "display_name": "Split Text",
+  "description": "Split text into chunks based on specified criteria.",
+  "data_inputs": {
+    "display_name": "Input",
+    "info": "The data with texts to split in chunks."
+  },
+  "chunk_overlap": {
+    "display_name": "Chunk Overlap",
+    "info": "Number of characters to overlap between chunks."
+  },
+  "chunk_size": {
+    "display_name": "Chunk Size",
+    "info": "The maximum length of each chunk. Text is first split by separator, then chunks are merged up to this size. Individual splits larger than this won't be further divided."
+  },
+  "separator": {
+    "display_name": "Separator",
+    "info": "The character to split on. Use \\n for newline. Examples: \\n\\n for paragraphs, \\n for lines, . for sentences"
+  },
+  "text_key": {
+    "display_name": "Text Key",
+    "info": "The key to use for the text column."
+  },
+  "keep_separator": {
+    "display_name": "Keep Separator",
+    "info": "Whether to keep the separator in the output chunks and where to place it.",
+    "options": {
+      "false": "False",
+      "true": "True", 
+      "start": "Start",
+      "end": "End"
+    }
+  },
+  "outputs": {
+    "chunks": {
+      "display_name": "Chunks"
+    }
+  },
+  "success": {
+    "text_split": "Successfully split {original_docs} documents into {split_docs} chunks",
+    "dataframe_created": "Successfully created DataFrame with {chunks} chunks"
+  },
+  "warnings": {
+    "invalid_list_item": "Item at index {index} is not a Data object (type: {type}), skipping"
+  },
+  "errors": {
+    "docs_to_data_failed": "Failed to convert documents to Data objects: {error}",
+    "separator_fix_failed": "Failed to fix separator: {error}",
+    "option_mapping_failed": "Failed to map keep_separator option: {error}",
+    "no_data_inputs": "No data inputs provided",
+    "empty_dataframe": "DataFrame is empty",
+    "dataframe_conversion_failed": "Error converting DataFrame to documents: {error}",
+    "data_conversion_failed": "Error converting Data to document: {error}",
+    "no_valid_data_in_list": "No valid Data inputs found in list",
+    "list_conversion_failed": "Invalid input type in collection: {error}",
+    "unsupported_input_type": "Unsupported input type: {type}",
+    "splitter_configuration_failed": "Failed to configure text splitter: {error}",
+    "text_splitting_failed": "Error splitting text: {error}",
+    "split_base_failed": "Text splitting operation failed: {error}",
+    "final_processing_failed": "Failed to create final DataFrame: {error}"
+  },
+  "logs": {
+    "dataframe_converted": "Converted DataFrame to {count} documents",
+    "single_data_converted": "Converted single Data object to document",
+    "list_converted": "Converted {count} valid Data objects from list of {total} items",
+    "splitter_configured": "Text splitter configured - separator: {separator}, chunk_size: {chunk_size}, chunk_overlap: {chunk_overlap}, keep_separator: {keep_separator}"
+  }
+}

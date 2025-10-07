@@ -1,0 +1,44 @@
+{
+  "display_name": "AssemblyAI Poll Transcript",
+  "description": "Poll for the status of a transcription job using AssemblyAI",
+  "api_key": {
+    "display_name": "Assembly API Key",
+    "info": "Your AssemblyAI API key. You can get one from https://www.assemblyai.com/"
+  },
+  "transcript_id": {
+    "display_name": "Transcript ID",
+    "info": "The ID of the transcription job to poll"
+  },
+  "polling_interval": {
+    "display_name": "Polling Interval",
+    "info": "The polling interval in seconds"
+  },
+  "outputs": {
+    "transcription_result": {
+      "display_name": "Transcription Result"
+    }
+  },
+  "status": {
+    "polling_transcript": "Polling transcript {id}...",
+    "processing_result": "Processing transcription result..."
+  },
+  "success": {
+    "transcription_completed": "Transcription {id} completed successfully ({length} characters)"
+  },
+  "warnings": {
+    "previous_step_error": "Error from previous step: {error}"
+  },
+  "errors": {
+    "transcript_id_not_found": "Transcript ID not found in input data",
+    "get_transcript_failed": "Getting transcription failed: {error}",
+    "process_result_failed": "Failed to process transcription result: {error}",
+    "transcript_not_completed": "Transcript is not completed. Status: {status}",
+    "poll_failed": "Failed to poll transcription job: {error}"
+  },
+  "logs": {
+    "polling_interval_set": "Polling interval set to {interval} seconds",
+    "polling_started": "Started polling for transcript {id}",
+    "transcript_completed": "Transcript {id} completed",
+    "transcript_error": "Transcript {id} error - Status: {status}, Error: {error}"
+  }
+}

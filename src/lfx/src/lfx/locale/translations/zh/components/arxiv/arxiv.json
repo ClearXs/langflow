@@ -1,0 +1,48 @@
+{
+  "display_name": "arXiv",
+  "description": "从arXiv.org搜索和检索论文",
+  "search_query": {
+    "display_name": "搜索查询",
+    "info": "arXiv论文的搜索查询（例如：'量子计算'）"
+  },
+  "search_type": {
+    "display_name": "搜索字段",
+    "info": "要搜索的字段"
+  },
+  "max_results": {
+    "display_name": "最大结果数",
+    "info": "返回的最大结果数"
+  },
+  "outputs": {
+    "dataframe": {
+      "display_name": "数据框"
+    }
+  },
+  "status": {
+    "searching": "正在arXiv中搜索'{query}'...",
+    "parsing_response": "正在解析arXiv响应...",
+    "fetching_results": "正在从arXiv获取结果...",
+    "converting_to_dataframe": "正在将结果转换为数据框..."
+  },
+  "success": {
+    "papers_found": "找到{count}篇论文"
+  },
+  "errors": {
+    "query_build_failed": "构建查询URL失败：{error}",
+    "response_parse_failed": "解析arXiv响应失败：{error}",
+    "invalid_url_scheme": "无效的URL协议：{scheme}",
+    "invalid_host": "无效的主机：{host}",
+    "request_failed": "从arXiv获取失败：{error}",
+    "request_error": "请求错误：{error}",
+    "search_failed": "搜索失败：{error}",
+    "dataframe_creation_failed": "创建数据框失败：{error}"
+  },
+  "logs": {
+    "building_query": "正在构建查询：类型={type}，查询={query}",
+    "query_url_built": "查询URL已构建：{url}",
+    "papers_parsed": "从响应中解析了{count}篇论文",
+    "url_validated": "URL验证通过",
+    "response_received": "已从arXiv接收响应",
+    "dataframe_created": "已创建包含{rows}行的数据框"
+  }
+}

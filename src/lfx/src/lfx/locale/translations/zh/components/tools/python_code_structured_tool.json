@@ -1,0 +1,56 @@
+{
+  "display_name": "Python代码结构化工具 [已弃用]",
+  "description": "将Python数据类代码转换为结构化工具。",
+  "tool_code": {
+    "display_name": "工具代码",
+    "info": "输入工具的数据类代码。"
+  },
+  "tool_name": {
+    "display_name": "工具名称",
+    "info": "输入工具的名称。"
+  },
+  "tool_description": {
+    "display_name": "工具描述",
+    "info": "输入工具的描述。"
+  },
+  "return_direct": {
+    "display_name": "直接返回",
+    "info": "工具是否应该直接返回函数输出？"
+  },
+  "tool_function": {
+    "display_name": "工具函数",
+    "info": "选择用于附加表达式的函数。"
+  },
+  "global_variables": {
+    "display_name": "全局变量",
+    "info": "输入全局变量或创建数据组件。"
+  },
+  "_classes": {
+    "display_name": "类"
+  },
+  "_functions": {
+    "display_name": "函数"
+  },
+  "outputs": {
+    "result_tool": {
+      "display_name": "工具"
+    }
+  },
+  "dynamic_field": {
+    "display_name": "{arg_name}：描述",
+    "info": "输入{arg_name}的描述"
+  },
+  "success": {
+    "tool_created": "结构化工具'{name}'创建成功"
+  },
+  "errors": {
+    "failed_to_extract_names": "提取函数名称失败：{error}",
+    "failed_to_parse": "解析失败",
+    "failed_to_find_arg": "查找参数失败：{field_name}",
+    "tool_creation_failed": "创建结构化工具失败：{error}",
+    "frontend_update_failed": "更新前端节点失败：{error}",
+    "multiline_args_not_supported": "不支持多行参数",
+    "code_parsing_failed": "解析代码失败：{error}",
+    "import_parsing_failed": "解析导入失败：{error}"
+  }
+}

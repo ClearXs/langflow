@@ -1,0 +1,36 @@
+{
+  "display_name": "选择数据",
+  "description": "从数据列表中选择单个数据。",
+  "data_list": {
+    "display_name": "数据列表",
+    "info": "要选择的数据列表。"
+  },
+  "data_index": {
+    "display_name": "数据索引",
+    "info": "要选择的数据索引。",
+    "info_with_range": "要选择的数据索引（0到{max_index}，总计：{length}项）。",
+    "info_empty_list": "要选择的数据索引（列表为空）。"
+  },
+  "outputs": {
+    "selected_data": {
+      "display_name": "选中的数据"
+    }
+  },
+  "success": {
+    "data_selected": "成功从{total}项中选择了索引{index}处的数据"
+  },
+  "errors": {
+    "empty_data_list": "数据列表为空或未提供。",
+    "invalid_data_list_type": "数据列表必须是一个列表。",
+    "missing_data_index": "未提供数据索引。",
+    "invalid_index_type": "无效的索引类型'{index}'：{error}",
+    "negative_index": "索引不能为负数。提供的值：{index}",
+    "index_out_of_range": "索引{index}超出范围。有效范围：0到{max_index}（长度：{length}）",
+    "invalid_selected_data_type": "索引{index}处的项目不是Data对象。发现：{actual_type}",
+    "selection_failed": "数据选择失败：{error}",
+    "build_config_update_failed": "更新构建配置失败：{error}"
+  },
+  "logs": {
+    "data_selected": "选择了索引{index}处的数据：{data_preview}..."
+  }
+}

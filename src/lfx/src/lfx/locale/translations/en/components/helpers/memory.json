@@ -1,0 +1,77 @@
+{
+  "display_name": "Message History",
+  "description": "Stores or retrieves stored chat messages from Langflow tables or an external memory.",
+  "mode": {
+    "display_name": "Mode",
+    "retrieve": "Retrieve",
+    "store": "Store",
+    "info": "Operation mode: Store messages or Retrieve messages."
+  },
+  "message": {
+    "display_name": "Message",
+    "info": "The chat message to be stored."
+  },
+  "external_memory": {
+    "display_name": "External Memory",
+    "info": "Retrieve messages from an external memory. If empty, it will use the Langflow tables."
+  },
+  "sender_type": {
+    "display_name": "Sender Type",
+    "machine_and_user": "Machine and User",
+    "info": "Filter by sender type."
+  },
+  "sender": {
+    "display_name": "Sender",
+    "info": "The sender of the message. Might be Machine or User. If empty, the current sender parameter will be used."
+  },
+  "sender_name": {
+    "display_name": "Sender Name",
+    "info": "Filter by sender name."
+  },
+  "n_messages": {
+    "display_name": "Number of Messages",
+    "info": "Number of messages to retrieve."
+  },
+  "session_id": {
+    "display_name": "Session ID",
+    "info": "The session ID of the chat. If empty, the current session ID parameter will be used."
+  },
+  "order": {
+    "display_name": "Order",
+    "ascending": "Ascending",
+    "descending": "Descending",
+    "info": "Order of the messages."
+  },
+  "template": {
+    "display_name": "Template",
+    "info": "The template to use for formatting the data. It can contain the keys {text}, {sender} or any other key in the message data."
+  },
+  "outputs": {
+    "message": {
+      "display_name": "Message"
+    },
+    "dataframe": {
+      "display_name": "Dataframe"
+    },
+    "stored_messages": {
+      "display_name": "Stored Messages"
+    },
+    "messages": {
+      "display_name": "Messages"
+    }
+  },
+  "success": {
+    "message_stored": "Message stored successfully for sender '{sender}' in session '{session_id}'",
+    "messages_retrieved": "Retrieved {count} messages for session '{session_id}'",
+    "text_formatted": "Messages formatted as text successfully",
+    "dataframe_created": "DataFrame created with {rows} rows"
+  },
+  "errors": {
+    "no_messages_stored": "No messages were stored. Please ensure that the session ID and sender are properly set.",
+    "store_failed": "Failed to store message: {error}",
+    "invalid_external_memory": "External Memory object ({memory_name}) must have 'aget_messages' method.",
+    "retrieve_failed": "Failed to retrieve messages: {error}",
+    "text_formatting_failed": "Failed to format messages as text: {error}",
+    "dataframe_creation_failed": "Failed to create DataFrame: {error}"
+  }
+}

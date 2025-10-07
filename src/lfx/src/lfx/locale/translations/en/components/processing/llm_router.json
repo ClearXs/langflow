@@ -1,0 +1,101 @@
+{
+  "display_name": "LLM Router",
+  "description": "Routes the input to the most appropriate LLM based on OpenRouter model specifications",
+  "models": {
+    "display_name": "Language Models",
+    "info": "List of LLMs to route between"
+  },
+  "input_value": {
+    "display_name": "Input",
+    "info": "The input message to be routed"
+  },
+  "judge_llm": {
+    "display_name": "Judge LLM",
+    "info": "LLM that will evaluate and select the most appropriate model"
+  },
+  "optimization": {
+    "display_name": "Optimization",
+    "info": "Optimization preference for model selection",
+    "quality": "quality",
+    "speed": "speed", 
+    "cost": "cost",
+    "balanced": "balanced"
+  },
+  "use_openrouter_specs": {
+    "display_name": "Use OpenRouter Specs",
+    "info": "Fetch model specifications from OpenRouter API for enhanced routing decisions. If false, only model names will be used."
+  },
+  "timeout": {
+    "display_name": "API Timeout",
+    "info": "Timeout for API requests in seconds"
+  },
+  "fallback_to_first": {
+    "display_name": "Fallback to First Model",
+    "info": "Use first model as fallback when routing fails"
+  },
+  "outputs": {
+    "output": {
+      "display_name": "Output"
+    },
+    "selected_model_info": {
+      "display_name": "Selected Model Info"
+    },
+    "routing_decision": {
+      "display_name": "Routing Decision"
+    }
+  },
+  "system_prompt": "You are an expert AI model selection specialist. Your task is to analyze the user's input query, their optimization preference, and a list of available models with their specifications, then select the most appropriate model.\n\nEach model will be presented as a JSON object with its capabilities and characteristics.\n\nYour decision should be based on:\n1. Task complexity and requirements derived from the user's query.\n2. Context length needed for the input.\n3. Model capabilities (e.g., context window, input/output modalities, tokenizer).\n4. Pricing considerations, if relevant to the optimization preference.\n5. User's stated optimization preference (quality, speed, cost, balanced).\n\nReturn ONLY the index number (0, 1, 2, etc.) of the best model from the provided list.\nDo not provide any explanation or reasoning, just the index number.\nIf multiple models seem equally suitable according to the preference, you may pick the first one that matches.\nIf no model seems suitable, pick the first model in the list (index 0) as a fallback.",
+  "user_prompt": "User Query: \"{query}\"\nOptimization Preference: {optimization}\nEstimated Input Tokens: ~{tokens}\n\nAvailable Models (JSON list):\n{models}\n\nBased on the user query, optimization preference, and the detailed model specifications, select the index of the most appropriate model.\nReturn ONLY the index number:",
+  "routing_decision": "Model Selection Decision:\n- Selected Model Index: {index}\n- Selected Langflow Model Name: {langflow_name}\n- Selected API Model ID (if resolved): {api_id}\n- Optimization Preference: {optimization}\n- Input Query Length: {input_length} characters (~{tokens} tokens)\n- Number of Models Considered: {model_count}\n- Specifications Source: {specs_source}",
+  "fallback_decision": "Fallback Decision:\n- Error During Routing: {error}\n- Fallback Model Langflow Name: {langflow_name}\n- Fallback Model API ID (if resolved): {api_id}\n- Reason: Automatic fallback enabled",
+  "specs_not_available": "Specifications not available.",
+  "specs_not_in_cache": "Full specifications not found in cache.",
+  "no_description_available": "No description available",
+  "unknown_model_name": "Unknown Model {index}",
+  "name_not_determined": "Name could not be determined.",
+  "no_model_selected": "No model selected yet - run the router first.",
+  "no_routing_decision": "No routing decision made yet - run the router first.",
+  "specs_source": {
+    "openrouter": "OpenRouter API",
+    "basic": "Basic (Langflow model names only)"
+  },
+  "status": {
+    "fetching_openrouter_specs": "Fetching OpenRouter model specifications...",
+    "analyzing_models": "Analyzing available models and preparing specifications...",
+    "judge_analyzing": "Judge LLM analyzing options...",
+    "generating_response": "Generating response with: {model}",
+    "successfully_routed": "Successfully routed to: {model}",
+    "fallback": "Fallback: Using {model}"
+  },
+  "logs": {
+    "openrouter_specs_disabled": "OpenRouter specs are disabled. Skipping fetch.",
+    "fetching_openrouter_models": "Fetching all model specifications from OpenRouter API: https://openrouter.ai/api/v1/models",
+    "openrouter_models_cached": "Successfully fetched and cached {count} model specifications from OpenRouter.",
+    "cached_data_not_found": "No cached API data found for Langflow model '{langflow_name}' (mapped API ID: {api_id}). Returning basic info.",
+    "starting_routing": "Starting model routing with {model_count} available Langflow models.",
+    "prepared_specs": "Prepared specs for Langflow model {index} ('{langflow_name}'): {spec_name}",
+    "requesting_selection": "Requesting model selection from judge LLM...",
+    "judge_decision": "DECISION by Judge LLM: Selected model index {index} -> Langflow Name: '{langflow_name}', API ID: '{api_id}'",
+    "detailed_error": "Detailed routing error occurred. Check logs for details.",
+    "activating_fallback": "Activating fallback to first model due to error.",
+    "judge_selected_index": "Judge LLM selected index: {index}"
+  },
+  "warnings": {
+    "model_mapping_failed": "Could not map Langflow model name '{langflow_name}' (tried variants: {variants}) to an OpenRouter API ID.",
+    "unknown_model_name": "Warning: Could not determine name for model at index {index}. Using placeholder.",
+    "non_numeric_response": "Judge LLM response was non-numeric: '{response}'. Defaulting to index 0.",
+    "index_out_of_bounds": "Judge LLM selected index {index} is out of bounds (0-{max_index}). Defaulting to index 0.",
+    "parse_response_failed": "Could not parse judge LLM response to integer: '{response}'. Defaulting to index 0."
+  },
+  "errors": {
+    "missing_required_inputs": "Missing required inputs: models, input_value, or judge_llm",
+    "openrouter_fetch_failed": "Failed to fetch OpenRouter models: HTTP {status} - {error}",
+    "openrouter_client_error": "AIOHTTP ClientError fetching OpenRouter models: {error}",
+    "openrouter_timeout": "Timeout fetching OpenRouter model specifications.",
+    "openrouter_json_error": "JSON decode error fetching OpenRouter models: {error}",
+    "routing_error": "Routing error: {error_type} - {error}",
+    "no_fallback": "No fallback model available or fallback disabled. Raising error.",
+    "no_result_produced": "Unexpected state in route_to_model: No result produced.",
+    "parse_response_error": "Error parsing judge response '{response}': {error}. Defaulting to index 0."
+  }
+}

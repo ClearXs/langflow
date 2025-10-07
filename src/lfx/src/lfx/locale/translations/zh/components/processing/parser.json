@@ -1,0 +1,61 @@
+{
+  "display_name": "解析器",
+  "description": "使用模板提取文本。",
+  "input_data": {
+    "display_name": "数据或数据框",
+    "info": "接受DataFrame或Data对象。"
+  },
+  "mode": {
+    "display_name": "模式",
+    "info": "转换为原始字符串而不使用模板。",
+    "parser": "解析器",
+    "stringify": "字符串化"
+  },
+  "pattern": {
+    "display_name": "模板",
+    "info": "使用大括号内的变量来提取DataFrame的列值或Data的键值。例如：`姓名: {Name}, 年龄: {Age}, 国家: {Country}`",
+    "default_value": "文本: {text}"
+  },
+  "sep": {
+    "display_name": "分隔符",
+    "info": "用于分隔行/项目的字符串。"
+  },
+  "clean_data": {
+    "display_name": "清理数据",
+    "info": "启用以清理数据，删除DataFrame/Data对象每个单元格中的空行和空行。"
+  },
+  "outputs": {
+    "parsed_text": {
+      "display_name": "解析文本",
+      "info": "格式化的文本输出。"
+    }
+  },
+  "success": {
+    "text_parsed": "成功解析{lines}行为文本（长度：{length}个字符）",
+    "string_converted": "成功将输入转换为字符串（长度：{length}个字符）"
+  },
+  "warnings": {
+    "no_data_to_parse": "未提供要解析的数据。",
+    "empty_dataframe": "DataFrame为空。",
+    "empty_data": "Data对象为空。",
+    "no_lines_generated": "模板格式化没有生成任何行。",
+    "empty_input_list": "输入列表为空。",
+    "empty_input_data": "输入数据为空或null。"
+  },
+  "errors": {
+    "data_list_not_supported": "不支持Data对象列表。",
+    "invalid_structured_input": "提供的结构化输入无效：{error}",
+    "unsupported_input_type": "不支持的输入类型：{actual_type}。期望DataFrame或Data。",
+    "argument_preparation_failed": "准备参数失败：{error}",
+    "template_key_missing": "第{row}行：在行数据中未找到模板键'{key}'",
+    "row_formatting_failed": "第{row}行：格式化模板失败：{error}",
+    "data_key_missing": "在数据中未找到模板键'{key}'。可用键：{available_keys}",
+    "data_formatting_failed": "使用模板格式化数据失败：{error}",
+    "parsing_failed": "文本解析失败：{error}",
+    "list_item_conversion_failed": "转换索引{index}处的列表项失败：{error}",
+    "string_conversion_failed": "字符串转换失败：{error}"
+  },
+  "logs": {
+    "string_conversion_completed": "转换为字符串，长度：{length}"
+  }
+}

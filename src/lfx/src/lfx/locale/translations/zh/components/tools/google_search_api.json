@@ -1,0 +1,38 @@
+{
+  "display_name": "Google搜索API [已弃用]",
+  "description": "调用Google搜索API。",
+  "google_api_key": {
+    "display_name": "Google API密钥",
+    "info": "用于访问自定义搜索API的Google API密钥。"
+  },
+  "google_cse_id": {
+    "display_name": "Google CSE ID",
+    "info": "您的Google自定义搜索引擎ID。"
+  },
+  "input_value": {
+    "display_name": "输入",
+    "info": "要执行的搜索查询。"
+  },
+  "k": {
+    "display_name": "结果数量",
+    "info": "要返回的搜索结果数量。"
+  },
+  "tool_description": "在Google中搜索最新结果。",
+  "success": {
+    "search_completed": "搜索成功完成。为'{query}'找到{count}个结果"
+  },
+  "info": {
+    "searching": "正在Google中搜索'{query}'（返回{count}个结果）..."
+  },
+  "warnings": {
+    "empty_query": "搜索查询为空。请提供搜索词。",
+    "no_results": "未找到查询'{query}'的搜索结果"
+  },
+  "errors": {
+    "import_error": "缺少必需的依赖项。请安装langchain-google-community以使用Google搜索API。",
+    "langchain_google_missing": "请安装langchain-google-community以使用GoogleSearchAPIWrapper。",
+    "search_failed": "Google搜索失败：{error}",
+    "tool_creation_failed": "创建Google搜索工具失败：{error}",
+    "wrapper_creation_failed": "创建Google搜索包装器失败：{error}"
+  }
+}

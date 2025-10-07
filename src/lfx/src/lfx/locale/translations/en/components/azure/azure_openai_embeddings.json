@@ -1,0 +1,45 @@
+{
+  "display_name": "Azure OpenAI Embeddings",
+  "description": "Generate embeddings using Azure OpenAI models.",
+  "model": {
+    "display_name": "Model",
+    "info": "The embedding model to use"
+  },
+  "azure_endpoint": {
+    "display_name": "Azure Endpoint",
+    "info": "Your Azure endpoint, including the resource. Example: `https://example-resource.azure.openai.com/`"
+  },
+  "azure_deployment": {
+    "display_name": "Deployment Name",
+    "info": "The name of your Azure OpenAI deployment"
+  },
+  "api_version": {
+    "display_name": "API Version",
+    "info": "The Azure OpenAI API version to use"
+  },
+  "api_key": {
+    "display_name": "Azure OpenAI API Key",
+    "info": "Your Azure OpenAI API key"
+  },
+  "dimensions": {
+    "display_name": "Dimensions",
+    "info": "The number of dimensions the resulting output embeddings should have. Only supported by certain models."
+  },
+  "outputs": {
+    "embeddings": {
+      "display_name": "Embeddings"
+    }
+  },
+  "status": {
+    "initializing": "Initializing Azure OpenAI Embeddings with model '{model}'..."
+  },
+  "success": {
+    "embeddings_initialized": "Azure OpenAI Embeddings initialized successfully with model '{model}'"
+  },
+  "errors": {
+    "connection_failed": "Could not connect to Azure OpenAI Embeddings API: {error}"
+  },
+  "logs": {
+    "building_embeddings": "Building embeddings - Model: {model}, Endpoint: {endpoint}, Deployment: {deployment}, API Version: {api_version}"
+  }
+}

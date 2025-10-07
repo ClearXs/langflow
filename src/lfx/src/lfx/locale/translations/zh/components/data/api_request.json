@@ -1,0 +1,73 @@
+{
+            "display_name": "API 请求",
+            "description": "使用 URL 或 cURL 命令发出 HTTP 请求。",
+            "url_input": {
+                        "display_name": "URL",
+                        "info": "输入请求的 URL。"
+            },
+            "curl_input": {
+                        "display_name": "cURL",
+                        "info": "粘贴 curl 命令以填充字段。这将填写标头和正文的字典字段。"
+            },
+            "method": {
+                        "display_name": "请求方法",
+                        "info": "要使用的 HTTP 方法。"
+            },
+            "mode": {
+                        "display_name": "模式",
+                        "info": "启用 cURL 模式以从 cURL 命令填充字段。"
+            },
+            "query_params": {
+                        "display_name": "查询参数",
+                        "info": "要附加到 URL 的查询参数。"
+            },
+            "body": {
+                        "display_name": "请求体",
+                        "info": "要与请求一起发送的主体，作为字典（用于 POST、PATCH、PUT）。",
+                        "table_schema": {
+                                    "key": {
+                                                "display_name": "键",
+                                                "description": "参数名称"
+                                    },
+                                    "value": {
+                                                "display_name": "值",
+                                                "description": "参数值"
+                                    }
+                        }
+            },
+            "headers": {
+                        "display_name": "请求头",
+                        "info": "要与请求一起发送的标头",
+                        "table_schema": {
+                                    "key": {
+                                                "display_name": "标头",
+                                                "description": "标头名称"
+                                    },
+                                    "value": {
+                                                "display_name": "值",
+                                                "description": "标头值"
+                                    }
+                        }
+            },
+            "timeout": {
+                        "display_name": "超时时间",
+                        "info": "用于请求的超时时间。"
+            },
+            "follow_redirects": {
+                        "display_name": "跟随重定向",
+                        "info": "是否跟随 HTTP 重定向。"
+            },
+            "save_to_file": {
+                        "display_name": "保存到文件",
+                        "info": "将 API 响应保存到临时文件"
+            },
+            "include_httpx_metadata": {
+                        "display_name": "包含 HTTPx 元数据",
+                        "info": "在输出中包含诸如标头、状态码、响应标头和重定向历史记录等属性。"
+            },
+            "outputs": {
+                        "data": {
+                                    "display_name": "API 响应"
+                        }
+            }
+}

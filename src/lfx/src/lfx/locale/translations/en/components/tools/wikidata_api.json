@@ -1,0 +1,30 @@
+{
+  "display_name": "Wikidata API [DEPRECATED]",
+  "description": "Performs a search using the Wikidata API.",
+  "query": {
+    "display_name": "Query",
+    "info": "The text query for similarity search on Wikidata."
+  },
+  "tool_description": "Perform similarity search on Wikidata API",
+  "success": {
+    "tool_created": "Wikidata Search API Tool for Langchain",
+    "search_completed": "Wikidata search completed successfully. Found {count} results for '{query}'"
+  },
+  "info": {
+    "executing_search": "Executing Wikidata search for '{query}'..."
+  },
+  "warnings": {
+    "empty_input": "Search input is empty. Please provide a search query.",
+    "no_results_returned": "Wikidata API returned no results"
+  },
+  "errors": {
+    "timeout": "Request to Wikidata API timed out. Please try again.",
+    "http_error": "HTTP error from Wikidata API: {status}",
+    "request_failed": "Failed to connect to Wikidata API: {error}",
+    "empty_query": "Search query is empty. Please provide a search term.",
+    "no_results": "No search results found for query: '{query}'",
+    "search_failed": "Wikidata search failed: {error}",
+    "tool_creation_failed": "Failed to create Wikidata search tool: {error}",
+    "execution_failed": "Wikidata API execution failed: {error}"
+  }
+}

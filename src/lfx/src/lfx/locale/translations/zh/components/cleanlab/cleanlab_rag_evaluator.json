@@ -1,0 +1,92 @@
+{
+  "display_name": "Cleanlab RAG评估器",
+  "description": "使用Cleanlab评估RAG管道中的上下文、查询和响应，并输出可信度指标。",
+  "api_key": {
+    "display_name": "Cleanlab API密钥",
+    "info": "您的Cleanlab API密钥。"
+  },
+  "model": {
+    "display_name": "Cleanlab评估模型",
+    "info": "Cleanlab用于评估上下文、查询和响应的模型。无需与生成响应的模型一致。"
+  },
+  "quality_preset": {
+    "display_name": "质量预设",
+    "info": "决定评估的准确性、延迟和成本。更高质量通常更慢但更准确。"
+  },
+  "context": {
+    "display_name": "上下文",
+    "info": "为给定查询检索的上下文。"
+  },
+  "query": {
+    "display_name": "查询",
+    "info": "用户的查询。"
+  },
+  "response": {
+    "display_name": "响应",
+    "info": "LLM生成的响应。"
+  },
+  "run_context_sufficiency": {
+    "display_name": "运行上下文充分性评估",
+    "info": "评估检索的上下文是否包含回答查询所需的信息。"
+  },
+  "run_response_groundedness": {
+    "display_name": "运行响应基础性评估",
+    "info": "评估响应是否直接由上下文支持。"
+  },
+  "run_response_helpfulness": {
+    "display_name": "运行响应有用性评估",
+    "info": "评估响应是否有效地解决了用户的查询。"
+  },
+  "run_query_ease": {
+    "display_name": "运行查询难度评估",
+    "info": "评估用户查询对AI系统而言是否容易正确处理。"
+  },
+  "outputs": {
+    "response": {
+      "display_name": "响应"
+    },
+    "trust_score": {
+      "display_name": "可信度分数"
+    },
+    "explanation": {
+      "display_name": "解释"
+    },
+    "other_evals": {
+      "display_name": "其他评估"
+    },
+    "summary": {
+      "display_name": "评估摘要"
+    }
+  },
+  "status": {
+    "configuring_evals": "正在配置选定的评估...",
+    "running_evals": "正在运行评估：{evals}",
+    "passing_response": "正在传递响应。",
+    "trust_score": "可信度分数：{score:.3f}",
+    "explanation_extracted": "已提取可信度解释。",
+    "other_evals_returned": "返回了{count}个其他评估。",
+    "summary_built": "评估摘要已构建。"
+  },
+  "success": {
+    "evaluation_complete": "评估完成。"
+  },
+  "errors": {
+    "evaluation_failed": "评估失败：{error}"
+  },
+  "logs": {
+    "configuring_evals": "正在配置评估指标",
+    "selected_evals": "已选择的评估：{evals}",
+    "running_evals": "正在运行{count}个评估",
+    "passing_response": "正在传递原始响应",
+    "trust_score_retrieved": "已检索可信度分数：{score:.3f}",
+    "explanation_extracted": "已从结果中提取可信度解释",
+    "other_evals_retrieved": "已检索{count}个额外的评估指标",
+    "summary_built": "评估摘要已成功构建"
+  },
+  "summary": {
+    "trustworthiness": "可信度：{score:.3f}",
+    "explanation": "解释：{explanation}",
+    "metric": "{name}：{score:.3f}",
+    "full": "查询：\n{query}\n-----\n上下文：\n{context}\n-----\n响应：\n{response}\n------------------------------\n{metrics}"
+  }
+}

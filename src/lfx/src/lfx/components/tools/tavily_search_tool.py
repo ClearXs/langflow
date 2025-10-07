@@ -1,4 +1,5 @@
 from enum import Enum
+import i18n
 
 import httpx
 from langchain.tools import StructuredTool
@@ -33,12 +34,18 @@ class TavilySearchTimeRange(Enum):
 
 
 class TavilySearchSchema(BaseModel):
-    query: str = Field(..., description="The search query you want to execute with Tavily.")
-    search_depth: TavilySearchDepth = Field(TavilySearchDepth.BASIC, description="The depth of the search.")
-    topic: TavilySearchTopic = Field(TavilySearchTopic.GENERAL, description="The category of the search.")
-    max_results: int = Field(5, description="The maximum number of search results to return.")
-    include_images: bool = Field(default=False, description="Include a list of query-related images in the response.")
-    include_answer: bool = Field(default=False, description="Include a short answer to original query.")
+    query: str = Field(...,
+                       description="The search query you want to execute with Tavily.")
+    search_depth: TavilySearchDepth = Field(
+        TavilySearchDepth.BASIC, description="The depth of the search.")
+    topic: TavilySearchTopic = Field(
+        TavilySearchTopic.GENERAL, description="The category of the search.")
+    max_results: int = Field(
+        5, description="The maximum number of search results to return.")
+    include_images: bool = Field(
+        default=False, description="Include a list of query-related images in the response.")
+    include_answer: bool = Field(
+        default=False, description="Include a short answer to original query.")
     chunks_per_source: int = Field(
         default=MAX_CHUNKS_PER_SOURCE,
         description=(
@@ -71,12 +78,8 @@ class TavilySearchSchema(BaseModel):
 
 
 class TavilySearchToolComponent(LCToolComponent):
-    display_name = "Tavily Search API"
-    description = """**Tavily Search API** is a search engine optimized for LLMs and RAG, \
-        aimed at efficient, quick, and persistent search results. It can be used independently or as an agent tool.
-
-Note: Check 'Advanced' for all options.
-"""
+    display_name = i18n.t('components.tools.tavily_search_tool.display_name')
+    description = i18n.t('components.tools.tavily_search_tool.description')
     icon = "TavilyIcon"
     name = "TavilyAISearch"
     documentation = "https://docs.tavily.com/"
@@ -86,90 +89,111 @@ Note: Check 'Advanced' for all options.
     inputs = [
         SecretStrInput(
             name="api_key",
-            display_name="Tavily API Key",
+            display_name=i18n.t(
+                'components.tools.tavily_search_tool.api_key.display_name'),
             required=True,
-            info="Your Tavily API Key.",
+            info=i18n.t('components.tools.tavily_search_tool.api_key.info'),
         ),
         MessageTextInput(
             name="query",
-            display_name="Search Query",
-            info="The search query you want to execute with Tavily.",
+            display_name=i18n.t(
+                'components.tools.tavily_search_tool.query.display_name'),
+            info=i18n.t('components.tools.tavily_search_tool.query.info'),
         ),
         DropdownInput(
             name="search_depth",
-            display_name="Search Depth",
-            info="The depth of the search.",
+            display_name=i18n.t(
+                'components.tools.tavily_search_tool.search_depth.display_name'),
+            info=i18n.t(
+                'components.tools.tavily_search_tool.search_depth.info'),
             options=list(TavilySearchDepth),
             value=TavilySearchDepth.ADVANCED,
             advanced=True,
         ),
         IntInput(
             name="chunks_per_source",
-            display_name="Chunks Per Source",
-            info=("The number of content chunks to retrieve from each source (1-3). Only works with advanced search."),
+            display_name=i18n.t(
+                'components.tools.tavily_search_tool.chunks_per_source.display_name'),
+            info=i18n.t(
+                'components.tools.tavily_search_tool.chunks_per_source.info'),
             value=MAX_CHUNKS_PER_SOURCE,
             advanced=True,
         ),
         DropdownInput(
             name="topic",
-            display_name="Search Topic",
-            info="The category of the search.",
+            display_name=i18n.t(
+                'components.tools.tavily_search_tool.topic.display_name'),
+            info=i18n.t('components.tools.tavily_search_tool.topic.info'),
             options=list(TavilySearchTopic),
             value=TavilySearchTopic.GENERAL,
             advanced=True,
         ),
         IntInput(
             name="days",
-            display_name="Days",
-            info="Number of days back from current date to include. Only available with news topic.",
+            display_name=i18n.t(
+                'components.tools.tavily_search_tool.days.display_name'),
+            info=i18n.t('components.tools.tavily_search_tool.days.info'),
             value=7,
             advanced=True,
         ),
         IntInput(
             name="max_results",
-            display_name="Max Results",
-            info="The maximum number of search results to return.",
+            display_name=i18n.t(
+                'components.tools.tavily_search_tool.max_results.display_name'),
+            info=i18n.t(
+                'components.tools.tavily_search_tool.max_results.info'),
             value=5,
             advanced=True,
         ),
         BoolInput(
             name="include_answer",
-            display_name="Include Answer",
-            info="Include a short answer to original query.",
+            display_name=i18n.t(
+                'components.tools.tavily_search_tool.include_answer.display_name'),
+            info=i18n.t(
+                'components.tools.tavily_search_tool.include_answer.info'),
             value=True,
             advanced=True,
         ),
         DropdownInput(
             name="time_range",
-            display_name="Time Range",
-            info="The time range back from the current date to filter results.",
+            display_name=i18n.t(
+                'components.tools.tavily_search_tool.time_range.display_name'),
+            info=i18n.t('components.tools.tavily_search_tool.time_range.info'),
             options=list(TavilySearchTimeRange),
             value=None,
             advanced=True,
         ),
         BoolInput(
             name="include_images",
-            display_name="Include Images",
-            info="Include a list of query-related images in the response.",
+            display_name=i18n.t(
+                'components.tools.tavily_search_tool.include_images.display_name'),
+            info=i18n.t(
+                'components.tools.tavily_search_tool.include_images.info'),
             value=True,
             advanced=True,
         ),
         MessageTextInput(
             name="include_domains",
-            display_name="Include Domains",
-            info="Comma-separated list of domains to include in the search results.",
+            display_name=i18n.t(
+                'components.tools.tavily_search_tool.include_domains.display_name'),
+            info=i18n.t(
+                'components.tools.tavily_search_tool.include_domains.info'),
             advanced=True,
         ),
         MessageTextInput(
             name="exclude_domains",
-            display_name="Exclude Domains",
-            info="Comma-separated list of domains to exclude from the search results.",
+            display_name=i18n.t(
+                'components.tools.tavily_search_tool.exclude_domains.display_name'),
+            info=i18n.t(
+                'components.tools.tavily_search_tool.exclude_domains.info'),
             advanced=True,
         ),
         BoolInput(
             name="include_raw_content",
-            display_name="Include Raw Content",
-            info="Include the cleaned and parsed HTML content of each search result.",
+            display_name=i18n.t(
+                'components.tools.tavily_search_tool.include_raw_content.display_name'),
+            info=i18n.t(
+                'components.tools.tavily_search_tool.include_raw_content.info'),
             value=False,
             advanced=True,
         ),
@@ -184,16 +208,19 @@ Note: Check 'Advanced' for all options.
                 else TavilySearchDepth(str(self.search_depth).lower())
             )
         except ValueError as e:
-            error_message = f"Invalid search depth value: {e!s}"
+            error_message = i18n.t(
+                'components.tools.tavily_search_tool.errors.invalid_search_depth', error=str(e))
             self.status = error_message
             return [Data(data={"error": error_message})]
 
         try:
             topic_enum = (
-                self.topic if isinstance(self.topic, TavilySearchTopic) else TavilySearchTopic(str(self.topic).lower())
+                self.topic if isinstance(self.topic, TavilySearchTopic) else TavilySearchTopic(
+                    str(self.topic).lower())
             )
         except ValueError as e:
-            error_message = f"Invalid topic value: {e!s}"
+            error_message = i18n.t(
+                'components.tools.tavily_search_tool.errors.invalid_topic', error=str(e))
             self.status = error_message
             return [Data(data={"error": error_message})]
 
@@ -206,7 +233,8 @@ Note: Check 'Advanced' for all options.
                 else None
             )
         except ValueError as e:
-            error_message = f"Invalid time range value: {e!s}"
+            error_message = i18n.t(
+                'components.tools.tavily_search_tool.errors.invalid_time_range', error=str(e))
             self.status = error_message
             return [Data(data={"error": error_message})]
 
@@ -216,10 +244,12 @@ Note: Check 'Advanced' for all options.
 
         # Only process domains if they're provided
         if self.include_domains:
-            include_domains = [domain.strip() for domain in self.include_domains.split(",") if domain.strip()]
+            include_domains = [
+                domain.strip() for domain in self.include_domains.split(",") if domain.strip()]
 
         if self.exclude_domains:
-            exclude_domains = [domain.strip() for domain in self.exclude_domains.split(",") if domain.strip()]
+            exclude_domains = [
+                domain.strip() for domain in self.exclude_domains.split(",") if domain.strip()]
 
         return self._tavily_search(
             self.query,
@@ -237,12 +267,20 @@ Note: Check 'Advanced' for all options.
         )
 
     def build_tool(self) -> Tool:
-        return StructuredTool.from_function(
+        tool_description = i18n.t(
+            'components.tools.tavily_search_tool.tool_description')
+
+        tool = StructuredTool.from_function(
             name="tavily_search",
-            description="Perform a web search using the Tavily API.",
+            description=tool_description,
             func=self._tavily_search,
             args_schema=TavilySearchSchema,
         )
+
+        success_message = i18n.t(
+            'components.tools.tavily_search_tool.success.tool_created')
+        self.status = success_message
+        return tool
 
     def _tavily_search(
         self,
@@ -260,25 +298,39 @@ Note: Check 'Advanced' for all options.
         days: int = 7,
         time_range: TavilySearchTimeRange | None = None,
     ) -> list[Data]:
+        # Validate input parameters
+        if not query or not query.strip():
+            warning_message = i18n.t(
+                'components.tools.tavily_search_tool.warnings.empty_query')
+            return [Data(data={"error": warning_message})]
+
         # Validate enum values
         if not isinstance(search_depth, TavilySearchDepth):
-            msg = f"Invalid search_depth value: {search_depth}"
-            raise TypeError(msg)
+            error_message = i18n.t('components.tools.tavily_search_tool.errors.invalid_search_depth_type',
+                                   value=search_depth)
+            raise TypeError(error_message)
         if not isinstance(topic, TavilySearchTopic):
-            msg = f"Invalid topic value: {topic}"
-            raise TypeError(msg)
+            error_message = i18n.t('components.tools.tavily_search_tool.errors.invalid_topic_type',
+                                   value=topic)
+            raise TypeError(error_message)
 
         # Validate chunks_per_source range
         if not 1 <= chunks_per_source <= MAX_CHUNKS_PER_SOURCE:
-            msg = f"chunks_per_source must be between 1 and {MAX_CHUNKS_PER_SOURCE}, got {chunks_per_source}"
-            raise ValueError(msg)
+            error_message = i18n.t('components.tools.tavily_search_tool.errors.invalid_chunks_per_source',
+                                   min=1, max=MAX_CHUNKS_PER_SOURCE, value=chunks_per_source)
+            raise ValueError(error_message)
 
         # Validate days is positive
         if days < 1:
-            msg = f"days must be greater than or equal to 1, got {days}"
-            raise ValueError(msg)
+            error_message = i18n.t(
+                'components.tools.tavily_search_tool.errors.invalid_days', value=days)
+            raise ValueError(error_message)
 
         try:
+            executing_message = i18n.t('components.tools.tavily_search_tool.info.executing_search',
+                                       query=query, depth=search_depth.value, topic=topic.value)
+            self.status = executing_message
+
             url = "https://api.tavily.com/search"
             headers = {
                 "content-type": "application/json",
@@ -306,6 +358,11 @@ Note: Check 'Advanced' for all options.
             response.raise_for_status()
             search_results = response.json()
 
+            if not search_results.get("results"):
+                warning_message = i18n.t(
+                    'components.tools.tavily_search_tool.warnings.no_results', query=query)
+                return [Data(data={"message": warning_message, "query": query})]
+
             data_results = [
                 Data(
                     data={
@@ -320,25 +377,32 @@ Note: Check 'Advanced' for all options.
             ]
 
             if include_answer and search_results.get("answer"):
-                data_results.insert(0, Data(data={"answer": search_results["answer"]}))
+                data_results.insert(
+                    0, Data(data={"answer": search_results["answer"]}))
 
             if include_images and search_results.get("images"):
-                data_results.append(Data(data={"images": search_results["images"]}))
+                data_results.append(
+                    Data(data={"images": search_results["images"]}))
 
-            self.status = data_results  # type: ignore[assignment]
+            success_message = i18n.t('components.tools.tavily_search_tool.success.search_completed',
+                                     count=len(data_results), query=query)
+            self.status = success_message
 
         except httpx.TimeoutException as e:
-            error_message = "Request timed out (90s). Please try again or adjust parameters."
+            error_message = i18n.t(
+                'components.tools.tavily_search_tool.errors.timeout')
             logger.error(f"Timeout error: {e}")
             self.status = error_message
             raise ToolException(error_message) from e
         except httpx.HTTPStatusError as e:
-            error_message = f"HTTP error: {e.response.status_code} - {e.response.text}"
+            error_message = i18n.t('components.tools.tavily_search_tool.errors.http_error',
+                                   status=e.response.status_code, text=e.response.text)
             logger.debug(error_message)
             self.status = error_message
             raise ToolException(error_message) from e
         except Exception as e:
-            error_message = f"Unexpected error: {e}"
+            error_message = i18n.t(
+                'components.tools.tavily_search_tool.errors.unexpected_error', error=str(e))
             logger.debug("Error running Tavily Search", exc_info=True)
             self.status = error_message
             raise ToolException(error_message) from e

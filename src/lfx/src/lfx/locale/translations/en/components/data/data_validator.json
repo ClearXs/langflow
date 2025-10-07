@@ -1,0 +1,74 @@
+{
+  "display_name": "Data Validator",
+  "description": "Validates data quality and integrity for ETL processes. Performs comprehensive checks including null values, data types, duplicates, ranges, and custom rules.",
+  "data": {
+    "display_name": "Input Data",
+    "info": "Data to validate. Can be a list of Data objects, single Data object, or JSON string."
+  },
+  "validation_mode": {
+    "display_name": "Validation Mode",
+    "info": "Validation strictness: strict (fail on first error), tolerant (collect all errors), or report_only (no failures)."
+  },
+  "check_null_values": {
+    "display_name": "Check Null Values",
+    "info": "Validate for null, empty, or missing values in data fields."
+  },
+  "check_duplicates": {
+    "display_name": "Check Duplicates",
+    "info": "Detect duplicate records in the dataset."
+  },
+  "check_data_types": {
+    "display_name": "Check Data Types",
+    "info": "Validate data types against a specified schema."
+  },
+  "type_schema": {
+    "display_name": "Type Schema",
+    "info": "JSON schema defining expected data types for each field. Supported types: string, integer, float, boolean, email, url, date."
+  },
+  "check_ranges": {
+    "display_name": "Check Ranges",
+    "info": "Validate numeric values against min/max ranges."
+  },
+  "range_schema": {
+    "display_name": "Range Schema",
+    "info": "JSON schema defining min/max constraints for numeric fields."
+  },
+  "use_custom_rules": {
+    "display_name": "Use Custom Rules",
+    "info": "Apply custom validation rules using patterns and constraints."
+  },
+  "custom_rules": {
+    "display_name": "Custom Rules",
+    "info": "JSON defining custom validation rules with patterns, length constraints, etc."
+  },
+  "include_statistics": {
+    "display_name": "Include Statistics",
+    "info": "Generate detailed data quality statistics in the validation report."
+  },
+  "auto_clean": {
+    "display_name": "Auto Clean Data",
+    "info": "Automatically attempt to clean and fix data issues where possible."
+  },
+  "null_threshold": {
+    "display_name": "Null Threshold",
+    "info": "Maximum allowed percentage of null values per field (0.0-1.0)."
+  },
+  "outputs": {
+    "validation_report": {
+      "display_name": "Validation Report"
+    },
+    "clean_data": {
+      "display_name": "Clean Data"
+    },
+    "error_records": {
+      "display_name": "Error Records"
+    }
+  },
+  "errors": {
+    "no_data": "No input data provided for validation.",
+    "empty_data": "Input data is empty or contains no records.",
+    "validation_error": "Validation failed: {error}",
+    "invalid_json": "Invalid JSON format in input data.",
+    "no_validation_run": "Validation must be run before accessing this output."
+  }
+}

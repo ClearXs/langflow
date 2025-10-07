@@ -1,0 +1,31 @@
+{
+  "display_name": "Cohere Rerank",
+  "description": "Rerank documents using the Cohere API.",
+  "api_key": {
+    "display_name": "Cohere API Key",
+    "info": "The Cohere API Key to use for reranking."
+  },
+  "model": {
+    "display_name": "Model",
+    "info": "The Cohere reranking model to use. V3.0 models offer improved performance over V2.0."
+  },
+  "outputs": {
+    "reranked_documents": {
+      "display_name": "Reranked Documents"
+    }
+  },
+  "status": {
+    "initializing": "Initializing Cohere reranker..."
+  },
+  "success": {
+    "compressor_created": "Cohere reranker created successfully with model: {model}, top_n: {top_n}"
+  },
+  "errors": {
+    "cohere_not_installed": "Please install langchain-cohere to use the Cohere model.",
+    "creation_failed": "Failed to create Cohere reranker. Please verify your API key and try again. Error: {error}"
+  },
+  "logs": {
+    "cohere_imported": "langchain-cohere package imported successfully",
+    "initializing": "Initializing Cohere reranker with model: {model}, top_n: {top_n}"
+  }
+}

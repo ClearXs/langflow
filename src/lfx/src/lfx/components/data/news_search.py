@@ -1,164 +1,297 @@
-from urllib.parse import quote_plus
-
-import pandas as pd
 import requests
-from bs4 import BeautifulSoup
+from datetime import datetime, timedelta
+from typing import Any, Optional
+import i18n
 
-from lfx.custom import Component
-from lfx.io import IntInput, MessageTextInput, Output
-from lfx.schema import DataFrame
+from lfx.custom.custom_component.component import Component
+from lfx.io import IntInput, MessageTextInput, DropdownInput, BoolInput, Output
+from lfx.schema.data import Data
 
 
 class NewsSearchComponent(Component):
-    display_name = "News Search"
-    description = "Searches Google News via RSS. Returns clean article data."
-    documentation: str = "https://docs.langflow.org/components-data#news-search"
+    display_name = i18n.t('components.data.news_search.display_name')
+    description = i18n.t('components.data.news_search.description')
     icon = "newspaper"
     name = "NewsSearch"
 
     inputs = [
         MessageTextInput(
             name="query",
-            display_name="Search Query",
-            info="Search keywords for news articles.",
-            tool_mode=True,
+            display_name=i18n.t(
+                'components.data.news_search.query.display_name'),
+            info=i18n.t('components.data.news_search.query.info'),
             required=True,
         ),
         MessageTextInput(
-            name="hl",
-            display_name="Language (hl)",
-            info="Language code, e.g. en-US, fr, de. Default: en-US.",
-            tool_mode=False,
-            input_types=[],
-            required=False,
+            name="api_key",
+            display_name=i18n.t(
+                'components.data.news_search.api_key.display_name'),
+            info=i18n.t('components.data.news_search.api_key.info'),
+            password=True,
+            required=True,
+        ),
+        DropdownInput(
+            name="source",
+            display_name=i18n.t(
+                'components.data.news_search.source.display_name'),
+            info=i18n.t('components.data.news_search.source.info'),
+            options=["newsapi", "gnews", "newsdata"],
+            value="newsapi",
+            real_time_refresh=True,
+        ),
+        DropdownInput(
+            name="language",
+            display_name=i18n.t(
+                'components.data.news_search.language.display_name'),
+            info=i18n.t('components.data.news_search.language.info'),
+            options=["en", "zh", "es", "fr", "de",
+                     "it", "pt", "ru", "ja", "ko"],
+            value="en",
             advanced=True,
         ),
-        MessageTextInput(
-            name="gl",
-            display_name="Country (gl)",
-            info="Country code, e.g. US, FR, DE. Default: US.",
-            tool_mode=False,
-            input_types=[],
-            required=False,
+        DropdownInput(
+            name="country",
+            display_name=i18n.t(
+                'components.data.news_search.country.display_name'),
+            info=i18n.t('components.data.news_search.country.info'),
+            options=["us", "cn", "gb", "ca", "au",
+                     "de", "fr", "jp", "kr", "in"],
+            value="us",
             advanced=True,
         ),
-        MessageTextInput(
-            name="ceid",
-            display_name="Country:Language (ceid)",
-            info="e.g. US:en, FR:fr. Default: US:en.",
-            tool_mode=False,
-            value="US:en",
-            input_types=[],
-            required=False,
-            advanced=True,
-        ),
-        MessageTextInput(
-            name="topic",
-            display_name="Topic",
-            info="One of: WORLD, NATION, BUSINESS, TECHNOLOGY, ENTERTAINMENT, SCIENCE, SPORTS, HEALTH.",
-            tool_mode=False,
-            input_types=[],
-            required=False,
-            advanced=True,
-        ),
-        MessageTextInput(
-            name="location",
-            display_name="Location (Geo)",
-            info="City, state, or country for location-based news. Leave blank for keyword search.",
-            tool_mode=False,
-            input_types=[],
-            required=False,
+        DropdownInput(
+            name="category",
+            display_name=i18n.t(
+                'components.data.news_search.category.display_name'),
+            info=i18n.t('components.data.news_search.category.info'),
+            options=["general", "business", "entertainment",
+                     "health", "science", "sports", "technology"],
+            value="general",
             advanced=True,
         ),
         IntInput(
-            name="timeout",
-            display_name="Timeout",
-            info="Timeout for the request in seconds.",
-            value=5,
-            required=False,
+            name="max_results",
+            display_name=i18n.t(
+                'components.data.news_search.max_results.display_name'),
+            info=i18n.t('components.data.news_search.max_results.info'),
+            value=10,
+            range_spec=(1, 100),
+        ),
+        IntInput(
+            name="days_back",
+            display_name=i18n.t(
+                'components.data.news_search.days_back.display_name'),
+            info=i18n.t('components.data.news_search.days_back.info'),
+            value=7,
+            range_spec=(1, 30),
+            advanced=True,
+        ),
+        BoolInput(
+            name="include_content",
+            display_name=i18n.t(
+                'components.data.news_search.include_content.display_name'),
+            info=i18n.t('components.data.news_search.include_content.info'),
+            value=True,
+            advanced=True,
+        ),
+        MessageTextInput(
+            name="text_key",
+            display_name=i18n.t(
+                'components.data.news_search.text_key.display_name'),
+            info=i18n.t('components.data.news_search.text_key.info'),
+            value="content",
             advanced=True,
         ),
     ]
 
-    outputs = [Output(name="articles", display_name="News Articles", method="search_news")]
+    outputs = [
+        Output(
+            name="news_list",
+            display_name=i18n.t(
+                'components.data.news_search.outputs.news_list.display_name'),
+            method="search_news"
+        ),
+    ]
 
-    def search_news(self) -> DataFrame:
-        # Defaults
-        hl = getattr(self, "hl", None) or "en-US"
-        gl = getattr(self, "gl", None) or "US"
-        ceid = getattr(self, "ceid", None) or f"{gl}:{hl.split('-')[0]}"
-        topic = getattr(self, "topic", None)
-        location = getattr(self, "location", None)
-        query = getattr(self, "query", None)
+    def update_build_config(self, build_config: dict[str, Any], field_value: Any, field_name: str | None = None) -> dict[str, Any]:
+        """Update build config based on news source selection."""
+        if field_name == "source":
+            # Different sources might have different parameter requirements
+            if field_value == "newsapi":
+                build_config["country"]["show"] = True
+                build_config["category"]["show"] = True
+            elif field_value == "gnews":
+                build_config["country"]["show"] = True
+                build_config["category"]["show"] = False
+            elif field_value == "newsdata":
+                build_config["country"]["show"] = True
+                build_config["category"]["show"] = True
+        return build_config
 
-        # Build base URL
-        if topic:
-            # Topic-based feed
-            base_url = f"https://news.google.com/rss/headlines/section/topic/{quote_plus(topic.upper())}"
-            params = f"?hl={hl}&gl={gl}&ceid={ceid}"
-            rss_url = base_url + params
-        elif location:
-            # Location-based feed
-            base_url = f"https://news.google.com/rss/headlines/section/geo/{quote_plus(location)}"
-            params = f"?hl={hl}&gl={gl}&ceid={ceid}"
-            rss_url = base_url + params
-        elif query:
-            # Keyword search feed
-            base_url = "https://news.google.com/rss/search?q="
-            query_parts = [query]
-            query_encoded = quote_plus(" ".join(query_parts))
-            params = f"&hl={hl}&gl={gl}&ceid={ceid}"
-            rss_url = f"{base_url}{query_encoded}{params}"
-        else:
-            self.status = "No search query, topic, or location provided."
-            self.log(self.status)
-            return DataFrame(
-                pd.DataFrame(
-                    [
-                        {
-                            "title": "Error",
-                            "link": "",
-                            "published": "",
-                            "summary": "No search query, topic, or location provided.",
-                        }
-                    ]
-                )
-            )
-
+    def search_news(self) -> list[Data]:
         try:
-            response = requests.get(rss_url, timeout=self.timeout)
-            response.raise_for_status()
-            soup = BeautifulSoup(response.content, "xml")
-            items = soup.find_all("item")
-        except requests.RequestException as e:
-            self.status = f"Failed to fetch news: {e}"
-            self.log(self.status)
-            return DataFrame(pd.DataFrame([{"title": "Error", "link": "", "published": "", "summary": str(e)}]))
-        except (AttributeError, ValueError, TypeError) as e:
-            self.status = f"Unexpected error: {e!s}"
-            self.log(self.status)
-            return DataFrame(pd.DataFrame([{"title": "Error", "link": "", "published": "", "summary": str(e)}]))
+            if not self.query.strip():
+                error_message = i18n.t(
+                    'components.data.news_search.errors.empty_query')
+                self.status = error_message
+                raise ValueError(error_message)
 
-        if not items:
-            self.status = "No news articles found."
-            self.log(self.status)
-            return DataFrame(pd.DataFrame([{"title": "No articles found", "link": "", "published": "", "summary": ""}]))
+            if not self.api_key.strip():
+                error_message = i18n.t(
+                    'components.data.news_search.errors.missing_api_key')
+                self.status = error_message
+                raise ValueError(error_message)
 
-        articles = []
-        for item in items:
-            try:
-                title = self.clean_html(item.title.text if item.title else "")
-                link = item.link.text if item.link else ""
-                published = item.pubDate.text if item.pubDate else ""
-                summary = self.clean_html(item.description.text if item.description else "")
-                articles.append({"title": title, "link": link, "published": published, "summary": summary})
-            except (AttributeError, ValueError, TypeError) as e:
-                self.log(f"Error parsing article: {e!s}")
-                continue
+            # Calculate date range
+            to_date = datetime.now()
+            from_date = to_date - timedelta(days=self.days_back)
 
-        df_articles = pd.DataFrame(articles)
-        self.log(f"Found {len(df_articles)} articles.")
-        return DataFrame(df_articles)
+            if self.source == "newsapi":
+                articles = self._search_newsapi()
+            elif self.source == "gnews":
+                articles = self._search_gnews()
+            elif self.source == "newsdata":
+                articles = self._search_newsdata()
+            else:
+                error_message = i18n.t(
+                    'components.data.news_search.errors.invalid_source', source=self.source)
+                self.status = error_message
+                raise ValueError(error_message)
 
-    def clean_html(self, html_string: str) -> str:
-        return BeautifulSoup(html_string, "html.parser").get_text(separator=" ", strip=True)
+            if not articles:
+                self.status = i18n.t(
+                    'components.data.news_search.errors.no_results')
+                return []
+
+            # Convert to Data objects
+            result = []
+            for article in articles[:self.max_results]:
+                data_dict = {
+                    "title": article.get("title", ""),
+                    "description": article.get("description", ""),
+                    "url": article.get("url", ""),
+                    "published_at": article.get("published_at", ""),
+                    "source": article.get("source", ""),
+                    "author": article.get("author", ""),
+                }
+
+                if self.include_content and article.get("content"):
+                    data_dict["content"] = article.get("content", "")
+
+                # Set text field based on text_key
+                text_content = ""
+                if self.text_key in data_dict:
+                    text_content = data_dict[self.text_key]
+                else:
+                    text_content = f"{article.get('title', '')} - {article.get('description', '')}"
+
+                result.append(Data(data=data_dict, text_key=self.text_key))
+
+            success_message = i18n.t(
+                'components.data.news_search.success.found_articles', count=len(result))
+            self.status = success_message
+            return result
+
+        except Exception as e:
+            error_message = i18n.t(
+                'components.data.news_search.errors.search_error', error=str(e))
+            self.status = error_message
+            raise ValueError(error_message) from e
+
+    def _search_newsapi(self) -> list[dict]:
+        """Search using NewsAPI."""
+        url = "https://newsapi.org/v2/everything"
+
+        from_date = (datetime.now() - timedelta(days=self.days_back)
+                     ).strftime('%Y-%m-%d')
+
+        params = {
+            "q": self.query,
+            "from": from_date,
+            "language": self.language,
+            "sortBy": "publishedAt",
+            "pageSize": min(self.max_results, 100),
+            "apiKey": self.api_key
+        }
+
+        response = requests.get(url, params=params, timeout=30)
+        response.raise_for_status()
+
+        data = response.json()
+        articles = data.get("articles", [])
+
+        return [
+            {
+                "title": article.get("title", ""),
+                "description": article.get("description", ""),
+                "content": article.get("content", ""),
+                "url": article.get("url", ""),
+                "published_at": article.get("publishedAt", ""),
+                "source": article.get("source", {}).get("name", ""),
+                "author": article.get("author", ""),
+            }
+            for article in articles
+        ]
+
+    def _search_gnews(self) -> list[dict]:
+        """Search using GNews API."""
+        url = "https://gnews.io/api/v4/search"
+
+        params = {
+            "q": self.query,
+            "lang": self.language,
+            "country": self.country,
+            "max": min(self.max_results, 100),
+            "token": self.api_key
+        }
+
+        response = requests.get(url, params=params, timeout=30)
+        response.raise_for_status()
+
+        data = response.json()
+        articles = data.get("articles", [])
+
+        return [
+            {
+                "title": article.get("title", ""),
+                "description": article.get("description", ""),
+                "content": article.get("content", ""),
+                "url": article.get("url", ""),
+                "published_at": article.get("publishedAt", ""),
+                "source": article.get("source", {}).get("name", ""),
+                "author": article.get("source", {}).get("name", ""),
+            }
+            for article in articles
+        ]
+
+    def _search_newsdata(self) -> list[dict]:
+        """Search using NewsData API."""
+        url = "https://newsdata.io/api/1/news"
+
+        params = {
+            "q": self.query,
+            "language": self.language,
+            "country": self.country,
+            "category": self.category,
+            "size": min(self.max_results, 50),
+            "apikey": self.api_key
+        }
+
+        response = requests.get(url, params=params, timeout=30)
+        response.raise_for_status()
+
+        data = response.json()
+        results = data.get("results", [])
+
+        return [
+            {
+                "title": article.get("title", ""),
+                "description": article.get("description", ""),
+                "content": article.get("content", ""),
+                "url": article.get("link", ""),
+                "published_at": article.get("pubDate", ""),
+                "source": article.get("source_id", ""),
+                "author": article.get("creator", [""])[0] if article.get("creator") else "",
+            }
+            for article in results
+        ]

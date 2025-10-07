@@ -1,0 +1,40 @@
+{
+  "display_name": "Azure OpenAI",
+  "description": "使用Azure OpenAI大型语言模型生成文本。",
+  "azure_endpoint": {
+    "display_name": "Azure端点",
+    "info": "您的Azure端点，包括资源。示例：`https://example-resource.azure.openai.com/`"
+  },
+  "azure_deployment": {
+    "display_name": "部署名称",
+    "info": "您的Azure OpenAI部署名称"
+  },
+  "api_key": {
+    "display_name": "Azure Chat OpenAI API密钥",
+    "info": "您的Azure OpenAI API密钥"
+  },
+  "api_version": {
+    "display_name": "API版本",
+    "info": "要使用的Azure OpenAI API版本"
+  },
+  "temperature": {
+    "display_name": "温度",
+    "info": "控制随机性。较低的值更确定，较高的值更有创造性。"
+  },
+  "max_tokens": {
+    "display_name": "最大令牌数",
+    "info": "要生成的最大令牌数。设置为0表示无限制令牌。"
+  },
+  "status": {
+    "initializing": "正在使用部署'{deployment}'初始化Azure OpenAI模型..."
+  },
+  "success": {
+    "model_initialized": "Azure OpenAI模型已成功初始化，使用部署'{deployment}'"
+  },
+  "errors": {
+    "connection_failed": "无法连接到Azure OpenAI API：{error}"
+  },
+  "logs": {
+    "building_model": "正在构建模型 - 端点：{endpoint}，部署：{deployment}，API版本：{api_version}，温度：{temperature}，最大令牌数：{max_tokens}，流式传输：{stream}"
+  }
+}

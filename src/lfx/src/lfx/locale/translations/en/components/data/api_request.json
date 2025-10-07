@@ -1,0 +1,73 @@
+{
+            "display_name": "API Request",
+            "description": "Make HTTP requests using URL or cURL commands.",
+            "url_input": {
+                        "display_name": "URL",
+                        "info": "Enter the URL for the request."
+            },
+            "curl_input": {
+                        "display_name": "cURL",
+                        "info": "Paste a curl command to populate the fields. This will fill in the dictionary fields for headers and body."
+            },
+            "method": {
+                        "display_name": "Method",
+                        "info": "The HTTP method to use."
+            },
+            "mode": {
+                        "display_name": "Mode",
+                        "info": "Enable cURL mode to populate fields from a cURL command."
+            },
+            "query_params": {
+                        "display_name": "Query Parameters",
+                        "info": "The query parameters to append to the URL."
+            },
+            "body": {
+                        "display_name": "Body",
+                        "info": "The body to send with the request as a dictionary (for POST, PATCH, PUT).",
+                        "table_schema": {
+                                    "key": {
+                                                "display_name": "Key",
+                                                "description": "Parameter name"
+                                    },
+                                    "value": {
+                                                "display_name": "Value",
+                                                "description": "Parameter value"
+                                    }
+                        }
+            },
+            "headers": {
+                        "display_name": "Headers",
+                        "info": "The headers to send with the request",
+                        "table_schema": {
+                                    "key": {
+                                                "display_name": "Header",
+                                                "description": "Header name"
+                                    },
+                                    "value": {
+                                                "display_name": "Value",
+                                                "description": "Header value"
+                                    }
+                        }
+            },
+            "timeout": {
+                        "display_name": "Timeout",
+                        "info": "The timeout to use for the request."
+            },
+            "follow_redirects": {
+                        "display_name": "Follow Redirects",
+                        "info": "Whether to follow http redirects."
+            },
+            "save_to_file": {
+                        "display_name": "Save to File",
+                        "info": "Save the API response to a temporary file"
+            },
+            "include_httpx_metadata": {
+                        "display_name": "Include HTTPx Metadata",
+                        "info": "Include properties such as headers, status_code, response_headers, and redirection_history in the output."
+            },
+            "outputs": {
+                        "data": {
+                                    "display_name": "API Response"
+                        }
+            }
+}

@@ -1,0 +1,21 @@
+{
+  "display_name": "ID生成器",
+  "description": "生成唯一ID。",
+  "unique_id": {
+    "display_name": "值",
+    "info": "生成的唯一ID。"
+  },
+  "outputs": {
+    "id": {
+      "display_name": "ID"
+    }
+  },
+  "success": {
+    "id_generated": "生成的ID：{id}",
+    "id_refreshed": "刷新的ID：{id}"
+  },
+  "errors": {
+    "generation_failed": "生成ID失败：{error}",
+    "refresh_failed": "刷新ID失败：{error}"
+  }
+}

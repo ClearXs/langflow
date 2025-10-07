@@ -1,0 +1,48 @@
+{
+  "display_name": "Smart Function",
+  "description": "Uses an LLM to generate a function for filtering or transforming structured data.",
+  "data": {
+    "display_name": "Data",
+    "info": "The structured data to filter or transform using a lambda function."
+  },
+  "llm": {
+    "display_name": "Language Model",
+    "info": "Connect the 'Language Model' output from your LLM component here."
+  },
+  "filter_instruction": {
+    "display_name": "Instructions",
+    "info": "Natural language instructions for how to filter or transform the data using a lambda function. Example: Filter the data to only include items where the 'status' is 'active'.",
+    "default_value": "Filter the data to..."
+  },
+  "sample_size": {
+    "display_name": "Sample Size",
+    "info": "For large datasets, number of items to sample from head/tail."
+  },
+  "max_size": {
+    "display_name": "Max Size",
+    "info": "Number of characters for the data to be considered large."
+  },
+  "outputs": {
+    "filtered_data": {
+      "display_name": "Filtered Data"
+    }
+  },
+  "data_sample_large": "Data is too long to display... \n\n First lines (head): {head} \n\n Last lines (tail): {tail})",
+  "llm_prompt": "Given this data structure and examples, create a Python lambda function that implements the following instruction:\n\nData Structure:\n{data_structure}\n\nExample Items:\n{data_sample}\n\nInstruction: {instruction}\n\nReturn ONLY the lambda function and nothing else. No need for ```python or whatever.\nJust a string starting with lambda.",
+  "success": {
+    "data_processed": "Data processed successfully. Generated {count} result(s)."
+  },
+  "warnings": {
+    "empty_data": "No data provided to process."
+  },
+  "errors": {
+    "empty_instruction": "Instructions cannot be empty. Please provide filtering or transformation instructions.",
+    "llm_invocation_failed": "Failed to invoke language model: {error}",
+    "lambda_not_found": "Could not find lambda function in LLM response: {response}",
+    "invalid_lambda_format": "Invalid lambda function format: {lambda_text}",
+    "lambda_evaluation_failed": "Failed to evaluate lambda function '{lambda_text}': {error}",
+    "lambda_execution_failed": "Failed to execute lambda function: {error}",
+    "data_conversion_failed": "Failed to convert processed data to Data objects: {error}",
+    "processing_failed": "Data processing failed: {error}"
+  }
+}

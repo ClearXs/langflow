@@ -1,0 +1,81 @@
+{
+  "display_name": "Amazon Bedrock对话",
+  "description": "使用现代Converse API通过Amazon Bedrock LLM生成文本，以改进对话处理。我们建议不需要使用自定义模型的用户使用Converse API。可以通过ChatBedrockConverse访问。",
+  "model_id": {
+    "display_name": "模型ID",
+    "info": "可供选择的可用模型ID列表。"
+  },
+  "aws_access_key_id": {
+    "display_name": "AWS访问密钥ID",
+    "info": "您AWS账户的访问密钥。通常在Python代码中设置为环境变量'AWS_ACCESS_KEY_ID'。"
+  },
+  "aws_secret_access_key": {
+    "display_name": "AWS密钥访问密钥",
+    "info": "您AWS账户的密钥。通常在Python代码中设置为环境变量'AWS_SECRET_ACCESS_KEY'。"
+  },
+  "aws_session_token": {
+    "display_name": "AWS会话令牌",
+    "info": "您AWS账户的会话密钥。仅临时凭证需要。通常在Python代码中设置为环境变量'AWS_SESSION_TOKEN'。"
+  },
+  "credentials_profile_name": {
+    "display_name": "凭证配置文件名称",
+    "info": "要从~/.aws/credentials文件中使用的配置文件名称。如果未提供，将使用默认配置文件。"
+  },
+  "region_name": {
+    "display_name": "区域名称",
+    "info": "Bedrock资源所在的AWS区域。"
+  },
+  "endpoint_url": {
+    "display_name": "Endpoint URL",
+    "info": "要使用的Bedrock端点的URL。"
+  },
+  "temperature": {
+    "display_name": "Temperature",
+    "info": "控制输出的随机性。较高的值使输出更随机。"
+  },
+  "max_tokens": {
+    "display_name": "Max Tokens",
+    "info": "要生成的最大令牌数。"
+  },
+  "top_p": {
+    "display_name": "Top P",
+    "info": "核采样参数。控制输出的多样性。"
+  },
+  "top_k": {
+    "display_name": "Top K",
+    "info": "限制要考虑的最高概率词汇令牌的数量。注意：并非所有模型都支持top_k。如果需要，请使用'附加模型字段'进行手动配置。"
+  },
+  "disable_streaming": {
+    "display_name": "禁用流式传输",
+    "info": "如果为True，则禁用流式响应。适用于批处理。"
+  },
+  "additional_model_fields": {
+    "display_name": "附加模型字段",
+    "info": "用于微调行为的附加模型特定参数。"
+  },
+  "status": {
+    "initializing_model": "正在初始化Amazon Bedrock对话模型'{model}'..."
+  },
+  "success": {
+    "model_initialized": "Amazon Bedrock对话模型'{model}'在区域'{region}'初始化成功"
+  },
+  "errors": {
+    "langchain_aws_not_installed": "langchain_aws未安装。请使用`pip install langchain_aws`安装。",
+    "validation_error": "ChatBedrockConverse验证错误：{error}。这可能是由于模型'{model}'的参数不兼容。考虑调整模型参数或尝试使用传统的Amazon Bedrock组件。",
+    "converse_api_error": "Converse API错误：{error}。模型'{model}'可能不支持Converse API。请尝试使用传统的Amazon Bedrock组件。",
+    "initialization_failed": "无法初始化ChatBedrockConverse：{error}",
+    "model_build_failed": "构建Amazon Bedrock对话模型失败：{error}"
+  },
+  "logs": {
+    "access_key_added": "AWS访问密钥ID已添加到配置",
+    "secret_key_added": "AWS密钥访问密钥已添加到配置",
+    "session_token_added": "AWS会话令牌已添加到配置",
+    "profile_name_added": "凭证配置文件名称'{profile}'已添加到配置",
+    "endpoint_url_added": "端点URL'{url}'已添加到配置",
+    "temperature_set": "温度设置为{value}",
+    "max_tokens_set": "最大令牌数设置为{value}",
+    "top_p_set": "Top P设置为{value}",
+    "streaming_disabled": "流式响应已禁用",
+    "additional_fields_added": "已添加附加模型字段：{fields}"
+  }
+}

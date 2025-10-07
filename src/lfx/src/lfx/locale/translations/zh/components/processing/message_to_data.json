@@ -1,0 +1,21 @@
+{
+  "display_name": "消息转数据",
+  "description": "将Message对象转换为Data对象",
+  "message": {
+    "display_name": "消息",
+    "info": "要转换为Data对象的Message对象"
+  },
+  "outputs": {
+    "data": {
+      "display_name": "数据"
+    }
+  },
+  "success": {
+    "conversion_successful": "成功将Message转换为Data对象"
+  },
+  "errors": {
+    "empty_message": "未提供要转换的消息",
+    "invalid_message_type": "Message转Data转换错误：输入必须是Message对象",
+    "conversion_failed": "Message转Data转换失败：{error}"
+  }
+}

@@ -36,7 +36,7 @@ const SidebarMenuButtons = ({
             className="h-4 w-4 text-muted-foreground"
           />
           <span className="group-data-[state=open]/collapsible:font-semibold">
-            {t("common.addMcpServer")}
+            {t("flow.sidebar.common.addMcpServer")}
           </span>
         </Button>
       </SidebarMenuButton>

@@ -1,311 +1,386 @@
-import importlib
-import re
-
 import requests
+from urllib.parse import urlparse, urljoin
 from bs4 import BeautifulSoup
-from langchain_community.document_loaders import RecursiveUrlLoader
+import json
+from typing import Any, Dict, List, Optional
+import i18n
 
 from lfx.custom.custom_component.component import Component
-from lfx.field_typing.range_spec import RangeSpec
-from lfx.helpers.data import safe_convert
-from lfx.io import BoolInput, DropdownInput, IntInput, MessageTextInput, Output, SliderInput, TableInput
-from lfx.log.logger import logger
-from lfx.schema.dataframe import DataFrame
-from lfx.schema.message import Message
-from lfx.utils.request_utils import get_user_agent
-
-# Constants
-DEFAULT_TIMEOUT = 30
-DEFAULT_MAX_DEPTH = 1
-DEFAULT_FORMAT = "Text"
-
-
-URL_REGEX = re.compile(
-    r"^(https?:\/\/)?" r"(www\.)?" r"([a-zA-Z0-9.-]+)" r"(\.[a-zA-Z]{2,})?" r"(:\d+)?" r"(\/[^\s]*)?$",
-    re.IGNORECASE,
-)
-
-USER_AGENT = None
-# Check if langflow is installed using importlib.util.find_spec(name))
-if importlib.util.find_spec("langflow"):
-    langflow_installed = True
-    USER_AGENT = get_user_agent()
-else:
-    langflow_installed = False
-    USER_AGENT = "lfx"
+from lfx.io import MessageTextInput, DropdownInput, BoolInput, IntInput, MultilineInput, Output
+from lfx.schema.data import Data
 
 
 class URLComponent(Component):
-    """A component that loads and parses content from web pages recursively.
-
-    This component allows fetching content from one or more URLs, with options to:
-    - Control crawl depth
-    - Prevent crawling outside the root domain
-    - Use async loading for better performance
-    - Extract either raw HTML or clean text
-    - Configure request headers and timeouts
-    """
-
-    display_name = "URL"
-    description = "Fetch content from one or more web pages, following links recursively."
-    documentation: str = "https://docs.langflow.org/components-data#url"
-    icon = "layout-template"
-    name = "URLComponent"
+    display_name = i18n.t('components.data.url.display_name')
+    description = i18n.t('components.data.url.description')
+    icon = "link"
+    name = "URL"
 
     inputs = [
         MessageTextInput(
             name="urls",
-            display_name="URLs",
-            info="Enter one or more URLs to crawl recursively, by clicking the '+' button.",
-            is_list=True,
-            tool_mode=True,
-            placeholder="Enter a URL...",
-            list_add_label="Add URL",
-            input_types=[],
-        ),
-        SliderInput(
-            name="max_depth",
-            display_name="Depth",
-            info=(
-                "Controls how many 'clicks' away from the initial page the crawler will go:\n"
-                "- depth 1: only the initial page\n"
-                "- depth 2: initial page + all pages linked directly from it\n"
-                "- depth 3: initial page + direct links + links found on those direct link pages\n"
-                "Note: This is about link traversal, not URL path depth."
-            ),
-            value=DEFAULT_MAX_DEPTH,
-            range_spec=RangeSpec(min=1, max=5, step=1),
-            required=False,
-            min_label=" ",
-            max_label=" ",
-            min_label_icon="None",
-            max_label_icon="None",
-            # slider_input=True
-        ),
-        BoolInput(
-            name="prevent_outside",
-            display_name="Prevent Outside",
-            info=(
-                "If enabled, only crawls URLs within the same domain as the root URL. "
-                "This helps prevent the crawler from going to external websites."
-            ),
-            value=True,
-            required=False,
-            advanced=True,
-        ),
-        BoolInput(
-            name="use_async",
-            display_name="Use Async",
-            info=(
-                "If enabled, uses asynchronous loading which can be significantly faster "
-                "but might use more system resources."
-            ),
-            value=True,
-            required=False,
-            advanced=True,
+            display_name=i18n.t('components.data.url.urls.display_name'),
+            info=i18n.t('components.data.url.urls.info'),
+            required=True,
+            placeholder="https://example.com,https://example2.com",
         ),
         DropdownInput(
-            name="format",
-            display_name="Output Format",
-            info="Output Format. Use 'Text' to extract the text from the HTML or 'HTML' for the raw HTML content.",
-            options=["Text", "HTML"],
-            value=DEFAULT_FORMAT,
+            name="method",
+            display_name=i18n.t('components.data.url.method.display_name'),
+            info=i18n.t('components.data.url.method.info'),
+            options=["GET", "POST", "PUT", "DELETE", "PATCH"],
+            value="GET",
+        ),
+        MultilineInput(
+            name="headers",
+            display_name=i18n.t('components.data.url.headers.display_name'),
+            info=i18n.t('components.data.url.headers.info'),
+            placeholder='{"User-Agent": "MyBot 1.0", "Accept": "text/html"}',
+            advanced=True,
+        ),
+        MultilineInput(
+            name="body",
+            display_name=i18n.t('components.data.url.body.display_name'),
+            info=i18n.t('components.data.url.body.info'),
+            placeholder='{"key": "value"}',
             advanced=True,
         ),
         IntInput(
             name="timeout",
-            display_name="Timeout",
-            info="Timeout for the request in seconds.",
-            value=DEFAULT_TIMEOUT,
-            required=False,
+            display_name=i18n.t('components.data.url.timeout.display_name'),
+            info=i18n.t('components.data.url.timeout.info'),
+            value=30,
+            range_spec=(1, 300),
             advanced=True,
-        ),
-        TableInput(
-            name="headers",
-            display_name="Headers",
-            info="The headers to send with the request",
-            table_schema=[
-                {
-                    "name": "key",
-                    "display_name": "Header",
-                    "type": "str",
-                    "description": "Header name",
-                },
-                {
-                    "name": "value",
-                    "display_name": "Value",
-                    "type": "str",
-                    "description": "Header value",
-                },
-            ],
-            value=[{"key": "User-Agent", "value": USER_AGENT}],
-            advanced=True,
-            input_types=["DataFrame"],
         ),
         BoolInput(
-            name="filter_text_html",
-            display_name="Filter Text/HTML",
-            info="If enabled, filters out text/css content type from the results.",
+            name="follow_redirects",
+            display_name=i18n.t(
+                'components.data.url.follow_redirects.display_name'),
+            info=i18n.t('components.data.url.follow_redirects.info'),
             value=True,
-            required=False,
             advanced=True,
         ),
         BoolInput(
-            name="continue_on_failure",
-            display_name="Continue on Failure",
-            info="If enabled, continues crawling even if some requests fail.",
+            name="verify_ssl",
+            display_name=i18n.t('components.data.url.verify_ssl.display_name'),
+            info=i18n.t('components.data.url.verify_ssl.info'),
             value=True,
-            required=False,
+            advanced=True,
+        ),
+        DropdownInput(
+            name="content_type",
+            display_name=i18n.t(
+                'components.data.url.content_type.display_name'),
+            info=i18n.t('components.data.url.content_type.info'),
+            options=["auto", "text", "html", "json", "xml"],
+            value="auto",
             advanced=True,
         ),
         BoolInput(
-            name="check_response_status",
-            display_name="Check Response Status",
-            info="If enabled, checks the response status of the request.",
+            name="extract_metadata",
+            display_name=i18n.t(
+                'components.data.url.extract_metadata.display_name'),
+            info=i18n.t('components.data.url.extract_metadata.info'),
+            value=True,
+            advanced=True,
+        ),
+        BoolInput(
+            name="extract_links",
+            display_name=i18n.t(
+                'components.data.url.extract_links.display_name'),
+            info=i18n.t('components.data.url.extract_links.info'),
             value=False,
-            required=False,
             advanced=True,
         ),
-        BoolInput(
-            name="autoset_encoding",
-            display_name="Autoset Encoding",
-            info="If enabled, automatically sets the encoding of the request.",
-            value=True,
-            required=False,
+        IntInput(
+            name="max_content_length",
+            display_name=i18n.t(
+                'components.data.url.max_content_length.display_name'),
+            info=i18n.t('components.data.url.max_content_length.info'),
+            value=1048576,  # 1MB
+            range_spec=(1024, 10485760),  # 1KB to 10MB
+            advanced=True,
+        ),
+        MessageTextInput(
+            name="text_key",
+            display_name=i18n.t('components.data.url.text_key.display_name'),
+            info=i18n.t('components.data.url.text_key.info'),
+            value="content",
             advanced=True,
         ),
     ]
 
     outputs = [
-        Output(display_name="Extracted Pages", name="page_results", method="fetch_content"),
-        Output(display_name="Raw Content", name="raw_results", method="fetch_content_as_message", tool_mode=False),
+        Output(
+            name="data",
+            display_name=i18n.t(
+                'components.data.url.outputs.data.display_name'),
+            method="fetch_url_data"
+        ),
+        Output(
+            name="response_info",
+            display_name=i18n.t(
+                'components.data.url.outputs.response_info.display_name'),
+            method="get_response_info"
+        ),
     ]
 
-    @staticmethod
-    def validate_url(url: str) -> bool:
-        """Validates if the given string matches URL pattern.
-
-        Args:
-            url: The URL string to validate
-
-        Returns:
-            bool: True if the URL is valid, False otherwise
-        """
-        return bool(URL_REGEX.match(url))
-
-    def ensure_url(self, url: str) -> str:
-        """Ensures the given string is a valid URL.
-
-        Args:
-            url: The URL string to validate and normalize
-
-        Returns:
-            str: The normalized URL
-
-        Raises:
-            ValueError: If the URL is invalid
-        """
-        url = url.strip()
-        if not url.startswith(("http://", "https://")):
-            url = "https://" + url
-
-        if not self.validate_url(url):
-            msg = f"Invalid URL: {url}"
-            raise ValueError(msg)
-
-        return url
-
-    def _create_loader(self, url: str) -> RecursiveUrlLoader:
-        """Creates a RecursiveUrlLoader instance with the configured settings.
-
-        Args:
-            url: The URL to load
-
-        Returns:
-            RecursiveUrlLoader: Configured loader instance
-        """
-        headers_dict = {header["key"]: header["value"] for header in self.headers if header["value"] is not None}
-        extractor = (lambda x: x) if self.format == "HTML" else (lambda x: BeautifulSoup(x, "lxml").get_text())
-
-        return RecursiveUrlLoader(
-            url=url,
-            max_depth=self.max_depth,
-            prevent_outside=self.prevent_outside,
-            use_async=self.use_async,
-            extractor=extractor,
-            timeout=self.timeout,
-            headers=headers_dict,
-            check_response_status=self.check_response_status,
-            continue_on_failure=self.continue_on_failure,
-            base_url=url,  # Add base_url to ensure consistent domain crawling
-            autoset_encoding=self.autoset_encoding,  # Enable automatic encoding detection
-            exclude_dirs=[],  # Allow customization of excluded directories
-            link_regex=None,  # Allow customization of link filtering
-        )
-
-    def fetch_url_contents(self) -> list[dict]:
-        """Load documents from the configured URLs.
-
-        Returns:
-            List[Data]: List of Data objects containing the fetched content
-
-        Raises:
-            ValueError: If no valid URLs are provided or if there's an error loading documents
-        """
+    def fetch_url_data(self) -> List[Data]:
+        """Fetch data from URLs and return as Data objects."""
         try:
-            urls = list({self.ensure_url(url) for url in self.urls if url.strip()})
-            logger.debug(f"URLs: {urls}")
-            if not urls:
-                msg = "No valid URLs provided."
-                raise ValueError(msg)
+            if not self.urls.strip():
+                error_message = i18n.t('components.data.url.errors.empty_urls')
+                self.status = error_message
+                raise ValueError(error_message)
 
-            all_docs = []
-            for url in urls:
-                logger.debug(f"Loading documents from {url}")
+            # Parse URLs
+            url_list = [url.strip()
+                        for url in self.urls.split(',') if url.strip()]
 
+            if not url_list:
+                error_message = i18n.t(
+                    'components.data.url.errors.no_valid_urls')
+                self.status = error_message
+                raise ValueError(error_message)
+
+            # Parse headers
+            headers = self._parse_headers()
+
+            # Parse body
+            body = self._parse_body()
+
+            results = []
+            successful_requests = 0
+
+            for url in url_list:
                 try:
-                    loader = self._create_loader(url)
-                    docs = loader.load()
-
-                    if not docs:
-                        logger.warning(f"No documents found for {url}")
+                    # Validate URL
+                    parsed_url = urlparse(url)
+                    if not parsed_url.scheme or not parsed_url.netloc:
+                        warning_message = i18n.t(
+                            'components.data.url.warnings.invalid_url', url=url)
+                        self.status = warning_message
                         continue
 
-                    logger.debug(f"Found {len(docs)} documents from {url}")
-                    all_docs.extend(docs)
+                    # Make request
+                    response = self._make_request(url, headers, body)
 
-                except requests.exceptions.RequestException as e:
-                    logger.exception(f"Error loading documents from {url}: {e}")
+                    # Process response
+                    data_dict = self._process_response(url, response)
+
+                    results.append(
+                        Data(data=data_dict, text_key=self.text_key))
+                    successful_requests += 1
+
+                except requests.RequestException as e:
+                    warning_message = i18n.t('components.data.url.warnings.request_failed',
+                                             url=url, error=str(e))
+                    self.status = warning_message
+                    # Continue with other URLs
                     continue
 
-            if not all_docs:
-                msg = "No documents were successfully loaded from any URL"
-                raise ValueError(msg)
+            if not results:
+                error_message = i18n.t(
+                    'components.data.url.errors.no_successful_requests')
+                self.status = error_message
+                return []
 
-            # data = [Data(text=doc.page_content, **doc.metadata) for doc in all_docs]
-            data = [
-                {
-                    "text": safe_convert(doc.page_content, clean_data=True),
-                    "url": doc.metadata.get("source", ""),
-                    "title": doc.metadata.get("title", ""),
-                    "description": doc.metadata.get("description", ""),
-                    "content_type": doc.metadata.get("content_type", ""),
-                    "language": doc.metadata.get("language", ""),
-                }
-                for doc in all_docs
-            ]
+            success_message = i18n.t('components.data.url.success.fetched_data',
+                                     successful=successful_requests, total=len(url_list))
+            self.status = success_message
+            return results
+
         except Exception as e:
-            error_msg = e.message if hasattr(e, "message") else e
-            msg = f"Error loading documents: {error_msg!s}"
-            logger.exception(msg)
-            raise ValueError(msg) from e
-        return data
+            error_message = i18n.t(
+                'components.data.url.errors.fetch_error', error=str(e))
+            self.status = error_message
+            raise ValueError(error_message) from e
 
-    def fetch_content(self) -> DataFrame:
-        """Convert the documents to a DataFrame."""
-        return DataFrame(data=self.fetch_url_contents())
+    def get_response_info(self) -> List[Data]:
+        """Get response information for URLs."""
+        try:
+            if not self.urls.strip():
+                error_message = i18n.t('components.data.url.errors.empty_urls')
+                raise ValueError(error_message)
 
-    def fetch_content_as_message(self) -> Message:
-        """Convert the documents to a Message."""
-        url_contents = self.fetch_url_contents()
-        return Message(text="\n\n".join([x["text"] for x in url_contents]), data={"data": url_contents})
+            url_list = [url.strip()
+                        for url in self.urls.split(',') if url.strip()]
+            headers = self._parse_headers()
+            body = self._parse_body()
+
+            results = []
+
+            for url in url_list:
+                try:
+                    response = self._make_request(url, headers, body)
+
+                    info_dict = {
+                        "url": url,
+                        "status_code": response.status_code,
+                        "status_text": response.reason,
+                        "headers": dict(response.headers),
+                        "content_type": response.headers.get('content-type', ''),
+                        "content_length": len(response.content),
+                        "encoding": response.encoding,
+                        "elapsed_time": response.elapsed.total_seconds(),
+                        "final_url": response.url,
+                        "history": [r.url for r in response.history],
+                    }
+
+                    results.append(Data(data=info_dict, text_key="url"))
+
+                except requests.RequestException as e:
+                    error_dict = {
+                        "url": url,
+                        "error": str(e),
+                        "status": "failed"
+                    }
+                    results.append(Data(data=error_dict, text_key="url"))
+
+            return results
+
+        except Exception as e:
+            error_message = i18n.t(
+                'components.data.url.errors.response_info_error', error=str(e))
+            raise ValueError(error_message) from e
+
+    def _parse_headers(self) -> Dict[str, str]:
+        """Parse headers from JSON string."""
+        if not self.headers.strip():
+            return {}
+
+        try:
+            return json.loads(self.headers)
+        except json.JSONDecodeError as e:
+            warning_message = i18n.t(
+                'components.data.url.warnings.invalid_headers', error=str(e))
+            self.status = warning_message
+            return {}
+
+    def _parse_body(self) -> Optional[str]:
+        """Parse body content."""
+        if not self.body.strip():
+            return None
+
+        try:
+            # Try to parse as JSON to validate
+            json.loads(self.body)
+            return self.body
+        except json.JSONDecodeError:
+            # Return as plain text if not JSON
+            return self.body
+
+    def _make_request(self, url: str, headers: Dict[str, str], body: Optional[str]) -> requests.Response:
+        """Make HTTP request to URL."""
+        request_kwargs = {
+            'timeout': self.timeout,
+            'allow_redirects': self.follow_redirects,
+            'verify': self.verify_ssl,
+            'headers': headers,
+        }
+
+        if body and self.method.upper() in ['POST', 'PUT', 'PATCH']:
+            # Try to send as JSON if possible, otherwise as text
+            try:
+                json.loads(body)
+                request_kwargs['json'] = json.loads(body)
+            except json.JSONDecodeError:
+                request_kwargs['data'] = body
+
+        response = requests.request(self.method.upper(), url, **request_kwargs)
+
+        # Check content length
+        if len(response.content) > self.max_content_length:
+            warning_message = i18n.t('components.data.url.warnings.content_too_large',
+                                     size=len(response.content), max_size=self.max_content_length)
+            self.status = warning_message
+
+        response.raise_for_status()
+        return response
+
+    def _process_response(self, url: str, response: requests.Response) -> Dict[str, Any]:
+        """Process HTTP response and extract data."""
+        data_dict = {
+            "url": url,
+            "status_code": response.status_code,
+            "content_type": response.headers.get('content-type', ''),
+            "content_length": len(response.content),
+        }
+
+        # Determine content type
+        content_type = self.content_type
+        if content_type == "auto":
+            response_content_type = response.headers.get(
+                'content-type', '').lower()
+            if 'application/json' in response_content_type:
+                content_type = "json"
+            elif 'text/html' in response_content_type:
+                content_type = "html"
+            elif 'application/xml' in response_content_type or 'text/xml' in response_content_type:
+                content_type = "xml"
+            else:
+                content_type = "text"
+
+        # Process content based on type
+        try:
+            if content_type == "json":
+                data_dict["content"] = response.json()
+                data_dict["raw_content"] = response.text
+            elif content_type == "html":
+                soup = BeautifulSoup(response.text, 'html.parser')
+                data_dict["content"] = soup.get_text(strip=True)
+                data_dict["raw_content"] = response.text
+
+                if self.extract_metadata:
+                    data_dict["metadata"] = self._extract_html_metadata(soup)
+
+                if self.extract_links:
+                    data_dict["links"] = self._extract_links(soup, url)
+
+            elif content_type == "xml":
+                data_dict["content"] = response.text
+                data_dict["raw_content"] = response.text
+            else:  # text
+                data_dict["content"] = response.text
+                data_dict["raw_content"] = response.text
+
+        except Exception as e:
+            # Fallback to raw text if processing fails
+            data_dict["content"] = response.text
+            data_dict["raw_content"] = response.text
+            data_dict["processing_error"] = str(e)
+
+        return data_dict
+
+    def _extract_html_metadata(self, soup: BeautifulSoup) -> Dict[str, str]:
+        """Extract metadata from HTML."""
+        metadata = {}
+
+        # Title
+        title_tag = soup.find('title')
+        if title_tag:
+            metadata['title'] = title_tag.get_text(strip=True)
+
+        # Meta tags
+        meta_tags = soup.find_all('meta')
+        for tag in meta_tags:
+            name = tag.get('name') or tag.get(
+                'property') or tag.get('http-equiv')
+            content = tag.get('content')
+            if name and content:
+                metadata[name] = content
+
+        return metadata
+
+    def _extract_links(self, soup: BeautifulSoup, base_url: str) -> List[str]:
+        """Extract links from HTML."""
+        links = []
+
+        for link_tag in soup.find_all('a', href=True):
+            href = link_tag['href']
+            # Convert relative URLs to absolute
+            absolute_url = urljoin(base_url, href)
+            links.append(absolute_url)
+
+        return list(set(links))  # Remove duplicates

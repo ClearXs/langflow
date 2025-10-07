@@ -1,0 +1,34 @@
+{
+  "display_name": "Extract Key",
+  "description": "Extract a specific key from a Data object or a list of Data objects and return the extracted value(s) as Data object(s).",
+  "data_input": {
+    "display_name": "Data Input",
+    "info": "The Data object or list of Data objects to extract the key from."
+  },
+  "key": {
+    "display_name": "Key to Extract",
+    "info": "The key in the Data object(s) to extract."
+  },
+  "outputs": {
+    "extracted_data": {
+      "display_name": "Extracted Data"
+    }
+  },
+  "success": {
+    "extracted_from_single": "Successfully extracted key '{key}' from Data object",
+    "extracted_from_list": "Successfully extracted key '{key}' from {count} Data objects"
+  },
+  "warnings": {
+    "empty_data_list": "Empty data list provided. Nothing to extract.",
+    "key_missing_in_some": "Key '{key}' was missing in {missing} objects but found in {found} objects"
+  },
+  "errors": {
+    "empty_key": "Key cannot be empty. Please specify a key to extract.",
+    "invalid_data_type_in_list": "Expected Data object at index {index}, got {actual_type}",
+    "key_not_found_in_any": "Key '{key}' not found in any of the {total} Data objects",
+    "key_not_found_in_data": "Key '{key}' not found in Data object. Available keys: {available_keys}",
+    "invalid_input_type": "Invalid input type. Expected Data object or list of Data objects, got {actual_type}",
+    "extraction_failed": "Key extraction failed: {error}"
+  },
+  "no_keys_available": "no keys available"
+}

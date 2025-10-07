@@ -1,0 +1,75 @@
+{
+  "display_name": "String Replacer",
+  "description": "Replaces strings in data fields using various strategies including simple replacement, regex patterns, bulk operations, and template substitution.",
+  "data": {
+    "display_name": "Input Data",
+    "info": "Data containing strings to be replaced. Can be a list of Data objects, single Data object, or JSON string."
+  },
+  "replacement_strategy": {
+    "display_name": "Replacement Strategy",
+    "info": "Method for string replacement: simple (exact match), regex (pattern matching), bulk (multiple replacements), or template (variable substitution)."
+  },
+  "search_value": {
+    "display_name": "Search Value",
+    "info": "String or regex pattern to search for in the data fields."
+  },
+  "replace_value": {
+    "display_name": "Replace Value",
+    "info": "String to replace the search value with. Can include captured groups for regex."
+  },
+  "target_fields": {
+    "display_name": "Target Fields",
+    "info": "JSON array of field names to apply replacements to. If empty, all string fields will be processed."
+  },
+  "replacement_map": {
+    "display_name": "Replacement Map",
+    "info": "JSON object mapping search values to replacement values for bulk operations."
+  },
+  "template_variables": {
+    "display_name": "Template Variables",
+    "info": "JSON object containing variables for template substitution."
+  },
+  "case_sensitive": {
+    "display_name": "Case Sensitive",
+    "info": "Whether string matching should be case sensitive."
+  },
+  "whole_word_only": {
+    "display_name": "Whole Word Only",
+    "info": "Whether to match whole words only (adds word boundaries to regex)."
+  },
+  "max_replacements": {
+    "display_name": "Max Replacements",
+    "info": "Maximum number of replacements per field. 0 means unlimited."
+  },
+  "create_backup": {
+    "display_name": "Create Backup",
+    "info": "Create backup of original values in fields with '_original' suffix."
+  },
+  "skip_empty": {
+    "display_name": "Skip Empty Values",
+    "info": "Skip processing of empty/null values."
+  },
+  "preserve_type": {
+    "display_name": "Preserve Data Type",
+    "info": "Attempt to convert replaced values back to original data type."
+  },
+  "outputs": {
+    "replaced_data": {
+      "display_name": "Replaced Data"
+    },
+    "replacement_report": {
+      "display_name": "Replacement Report"
+    },
+    "changed_records": {
+      "display_name": "Changed Records"
+    }
+  },
+  "errors": {
+    "no_data": "No input data provided for string replacement.",
+    "empty_data": "Input data is empty or contains no records.",
+    "replacement_error": "String replacement failed: {error}",
+    "invalid_regex": "Invalid regex pattern: {pattern}",
+    "invalid_json": "Invalid JSON format in input data.",
+    "no_replacement_run": "String replacement must be run before accessing this output."
+  }
+}

@@ -1,0 +1,72 @@
+{
+  "display_name": "SQL执行器",
+  "description": "对各种数据库类型执行SQL查询并返回结构化结果。",
+  "database_url": {
+    "display_name": "数据库URL",
+    "info": "数据库连接URL（用于PostgreSQL、MySQL等）。格式：dialect://user:password@host:port/database"
+  },
+  "database_path": {
+    "display_name": "数据库路径",
+    "info": "SQLite数据库文件的路径。"
+  },
+  "database_type": {
+    "display_name": "数据库类型",
+    "info": "要连接的数据库类型。"
+  },
+  "sql_query": {
+    "display_name": "SQL查询",
+    "info": "要执行的SQL查询。请使用适合您数据库类型的正确SQL语法。"
+  },
+  "operation_type": {
+    "display_name": "操作类型",
+    "info": "正在执行的SQL操作类型（影响安全检查和输出格式）。"
+  },
+  "return_only_text": {
+    "display_name": "仅返回文本",
+    "info": "如果为真，结果将作为简单文本字符串返回，而不是结构化数据。"
+  },
+  "include_columns": {
+    "display_name": "包含列名",
+    "info": "是否在结果输出中包含列名。"
+  },
+  "limit_rows": {
+    "display_name": "限制行数",
+    "info": "从查询结果返回的最大行数。"
+  },
+  "safe_mode": {
+    "display_name": "安全模式",
+    "info": "启用时，阻止执行潜在的破坏性操作（DROP、DELETE等）。"
+  },
+  "text_key": {
+    "display_name": "文本键",
+    "info": "用于数据对象中文本字段的键。"
+  },
+  "outputs": {
+    "result_data": {
+      "display_name": "查询结果"
+    },
+    "result_dataframe": {
+      "display_name": "结果数据框"
+    },
+    "execution_info": {
+      "display_name": "执行信息"
+    }
+  },
+  "success": {
+    "query_executed": "成功执行{operation}查询并返回{rows}行"
+  },
+  "warnings": {
+    "no_results": "查询执行成功但未返回结果"
+  },
+  "errors": {
+    "empty_query": "SQL查询不能为空。",
+    "destructive_query_blocked": "安全模式阻止了潜在的破坏性查询。禁用安全模式以执行。",
+    "execution_error": "执行SQL查询时出错：{error}",
+    "dataframe_error": "从查询结果创建数据框时出错：{error}",
+    "info_error": "获取执行信息时出错：{error}",
+    "missing_database_path": "SQLite连接需要数据库路径。",
+    "missing_database_url": "此数据库类型需要数据库URL。",
+    "database_not_found": "未找到数据库文件：{path}",
+    "sqlalchemy_required": "非SQLite数据库连接需要SQLAlchemy。请安装它。"
+  }
+}

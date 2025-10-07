@@ -1,0 +1,45 @@
+{
+  "display_name": "千帆",
+  "description": "使用百度千帆大型语言模型生成文本。",
+  "model": {
+    "display_name": "模型名称",
+    "info": "要使用的百度千帆模型。详情请参见https://python.langchain.com/docs/integrations/chat/baidu_qianfan_endpoint"
+  },
+  "qianfan_ak": {
+    "display_name": "千帆AK",
+    "info": "您的千帆访问密钥，可从https://cloud.baidu.com/product/wenxinworkshop获取"
+  },
+  "qianfan_sk": {
+    "display_name": "千帆SK",
+    "info": "您的千帆密钥，可从https://cloud.baidu.com/product/wenxinworkshop获取"
+  },
+  "top_p": {
+    "display_name": "Top P",
+    "info": "模型参数，仅ERNIE-Bot和ERNIE-Bot-turbo支持。通过核采样控制多样性。"
+  },
+  "temperature": {
+    "display_name": "温度",
+    "info": "模型参数，仅ERNIE-Bot和ERNIE-Bot-turbo支持。控制生成的随机性。"
+  },
+  "penalty_score": {
+    "display_name": "惩罚分数",
+    "info": "模型参数，仅ERNIE-Bot和ERNIE-Bot-turbo支持。惩罚重复的令牌。"
+  },
+  "endpoint": {
+    "display_name": "端点",
+    "info": "千帆大型语言模型的端点，使用自定义模型时必需。"
+  },
+  "status": {
+    "initializing": "正在初始化百度千帆模型'{model}'..."
+  },
+  "success": {
+    "model_initialized": "百度千帆模型'{model}'初始化成功"
+  },
+  "errors": {
+    "connection_failed": "无法连接到百度千帆API：{error}"
+  },
+  "logs": {
+    "building_model": "正在构建模型 - 模型：{model}，温度：{temperature}，Top P：{top_p}，惩罚分数：{penalty_score}，有自定义端点：{has_endpoint}",
+    "custom_endpoint_set": "自定义端点设置为：{endpoint}"
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "display_name": "聊天输出",
+  "description": "在游乐场中显示聊天消息。",
+  "input_value": {
+    "display_name": "输入",
+    "info": "要作为输出传递的消息。"
+  },
+  "should_store_message": {
+    "display_name": "存储消息",
+    "info": "将消息存储在历史记录中。"
+  },
+  "sender": {
+    "display_name": "发送者类型",
+    "info": "发送者的类型。"
+  },
+  "sender_name": {
+    "display_name": "发送者名称",
+    "info": "发送者的名称。"
+  },
+  "session_id": {
+    "display_name": "会话ID",
+    "info": "聊天的会话ID。如果为空，将使用当前会话ID参数。"
+  },
+  "data_template": {
+    "display_name": "数据模板",
+    "info": "将数据转换为文本的模板。如果留空，将动态设置为数据的文本键。"
+  },
+  "clean_data": {
+    "display_name": "基本数据清理",
+    "info": "是否在转换为字符串之前清理数据。"
+  },
+  "outputs": {
+    "message": {
+      "display_name": "输出消息"
+    }
+  },
+  "errors": {
+    "input_cannot_be_none": "输入数据不能为None",
+    "invalid_list_types": "期望Data或DataFrame或Message或str，得到{types}",
+    "invalid_input_type": "期望Data或DataFrame或Message或str、Generator或None，得到{type}"
+  }
+}

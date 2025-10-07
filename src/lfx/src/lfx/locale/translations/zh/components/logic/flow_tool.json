@@ -1,0 +1,85 @@
+{
+  "display_name": "流程工具",
+  "description": "将其他流程作为工具执行，支持参数传递和结果处理。",
+  "flow_id": {
+    "display_name": "流程ID",
+    "info": "要从流程注册表中执行的流程ID。"
+  },
+  "flow_file": {
+    "display_name": "流程文件",
+    "info": "包含要执行的流程定义的JSON文件。"
+  },
+  "input_parameters": {
+    "display_name": "输入参数",
+    "info": "要传递给目标流程的参数JSON对象。"
+  },
+  "input_data": {
+    "display_name": "输入数据",
+    "info": "要作为输入传递给目标流程的数据对象。"
+  },
+  "execution_mode": {
+    "display_name": "执行模式",
+    "info": "如何执行流程：sync（等待完成）、async（并发）或background（排队）。"
+  },
+  "timeout": {
+    "display_name": "超时时间（秒）",
+    "info": "等待流程执行完成的最大时间。"
+  },
+  "max_retries": {
+    "display_name": "最大重试次数",
+    "info": "失败执行的最大重试次数。"
+  },
+  "pass_current_context": {
+    "display_name": "传递当前上下文",
+    "info": "是否将当前流程的上下文（会话、流程ID等）传递给目标流程。"
+  },
+  "include_execution_metadata": {
+    "display_name": "包含执行元数据",
+    "info": "是否在结果中包含执行详情（时间、重试等）。"
+  },
+  "output_format": {
+    "display_name": "输出格式",
+    "info": "执行结果的格式：auto（自动检测）、data（数据对象）、message（消息）或raw。"
+  },
+  "cache_results": {
+    "display_name": "缓存结果",
+    "info": "是否为相同参数的重复调用缓存执行结果。"
+  },
+  "error_handling": {
+    "display_name": "错误处理",
+    "info": "如何处理执行错误：raise（抛出异常）、return_error（返回错误数据）或return_null。"
+  },
+  "outputs": {
+    "result": {
+      "display_name": "流程结果"
+    },
+    "execution_info": {
+      "display_name": "执行信息"
+    },
+    "flow_metadata": {
+      "display_name": "流程元数据"
+    }
+  },
+  "success": {
+    "flow_loaded_from_file": "成功从文件加载流程：{file}",
+    "flow_loaded_from_id": "成功加载流程ID：{flow_id}",
+    "flow_executed": "流程在{time:.2f}秒内成功执行"
+  },
+  "warnings": {
+    "both_flow_identifiers": "同时提供了流程ID和流程文件。将使用流程文件。"
+  },
+  "errors": {
+    "missing_flow_identifier": "必须提供flow_id或flow_file。",
+    "invalid_input_parameters": "输入参数中的JSON格式无效：{error}",
+    "invalid_timeout": "超时时间必须大于0。",
+    "flow_file_not_found": "未找到流程文件：{file}",
+    "invalid_flow_file": "{file}中的流程文件格式无效：{error}",
+    "flow_load_error": "加载流程时出错：{error}",
+    "flow_registry_not_implemented": "流程注册表查找未实现。",
+    "no_flow_source": "未指定流程源。",
+    "execution_timeout": "流程执行在{timeout}秒后超时。",
+    "execution_error": "执行流程时出错：{error}",
+    "execution_info_error": "获取执行信息时出错：{error}",
+    "flow_metadata_error": "获取流程元数据时出错：{error}"
+  }
+}

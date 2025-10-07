@@ -1,0 +1,67 @@
+{
+  "display_name": "MCP Tools",
+  "description": "Connect to an MCP server to use its tools.",
+  "mcp_server": {
+    "display_name": "MCP Server",
+    "info": "Select the MCP Server that will be used by this component"
+  },
+  "tool": {
+    "display_name": "Tool",
+    "info": "Select the tool to execute"
+  },
+  "tool_placeholder": {
+    "display_name": "Tool Placeholder",
+    "info": "Placeholder for the tool"
+  },
+  "outputs": {
+    "response": {
+      "display_name": "Response"
+    }
+  },
+  "placeholders": {
+    "select_tool": "Select a tool",
+    "loading_tools": "Loading tools...",
+    "timeout_mcp_server": "Timeout on MCP server",
+    "error_mcp_server": "Error on MCP Server"
+  },
+  "success": {
+    "tools_loaded_from_cache": "Tools loaded from cache for server '{server_name}': {count} tools available",
+    "tools_updated": "Tools updated for server '{server_name}': {count} tools loaded",
+    "tool_executed": "Tool '{tool_name}' executed successfully with {result_count} results"
+  },
+  "info": {
+    "no_input_parameters": "No input parameters to configure for tool '{tool_name}'"
+  },
+  "warnings": {
+    "no_input_parameters": "No input parameters defined for tool '{tool_name}'",
+    "tool_not_found": "Tool {tool_name} not found in available tools: {available_tools}",
+    "no_server_config": "No server configuration found for server '{server_name}'",
+    "tool_not_found_in_config": "Tool {tool_name} not found in available tools: {available_tools}",
+    "invalid_schema_input": "Invalid schema input detected, skipping"
+  },
+  "errors": {
+    "cache_structure_init_failed": "Failed to initialize cache structure: {error}",
+    "invalid_tool_object": "Invalid tool object or missing input schema",
+    "empty_input_schema": "Empty input schema for tool '{tool_name}'",
+    "schema_validation_failed": "Error validating schema inputs: {error}",
+    "langflow_mcp_not_available": "Langflow MCP server functionality is not available. This feature requires the full Langflow installation.",
+    "user_id_required": "User ID is required for fetching MCP tools.",
+    "timeout_updating_tools": "Timeout updating tool list: {error}",
+    "tool_update_failed": "Error updating tool list: {error}",
+    "update_tool_list_failed": "Failed to update tool list: {error}",
+    "tools_update_failed": "Failed to update tools: {error}",
+    "build_config_update_failed": "Error in update_build_config: {error}",
+    "tool_input_schema_failed": "Error getting inputs for tool {tool_name}: {error}",
+    "get_inputs_for_tools_failed": "Error getting inputs for all tools: {error}",
+    "remove_input_schema_failed": "Error removing input schema for tool {tool_name}: {error}",
+    "remove_non_default_keys_failed": "Error removing non-default keys: {error}",
+    "tool_schema_validation_failed": "Schema validation error for tool {tool_name}: {error}",
+    "tool_config_update_failed": "Error updating tool config: {error}",
+    "update_tool_config_failed": "Error updating tool configuration: {error}",
+    "schema_input_processing_failed": "Error processing schema input {schema_input}: {error}",
+    "no_tool_selected": "You must select a tool",
+    "build_output_failed": "Error in build_output: {error}",
+    "session_context_failed": "Error getting session context: {error}",
+    "get_tools_failed": "Error getting tools: {error}"
+  }
+}

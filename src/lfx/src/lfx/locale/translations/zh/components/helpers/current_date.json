@@ -1,0 +1,23 @@
+{
+  "display_name": "当前日期",
+  "description": "返回所选时区的当前日期和时间。",
+  "timezone": {
+    "display_name": "时区",
+    "info": "选择当前日期和时间的时区。"
+  },
+  "outputs": {
+    "current_date": {
+      "display_name": "当前日期"
+    }
+  },
+  "success": {
+    "current_datetime": "{timezone}的当前日期和时间：{datetime}"
+  },
+  "info": {
+    "datetime_retrieved": "成功获取时区'{timezone}'的当前日期和时间"
+  },
+  "errors": {
+    "no_timezone": "需要时区。请选择一个时区。",
+    "retrieval_failed": "获取时区'{timezone}'的当前日期时出错：{error}"
+  }
+}

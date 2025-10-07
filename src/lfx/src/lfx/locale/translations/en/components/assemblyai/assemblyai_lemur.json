@@ -1,0 +1,80 @@
+{
+  "display_name": "AssemblyAI LeMUR",
+  "description": "Apply Large Language Models to spoken data using the AssemblyAI LeMUR framework",
+  "api_key": {
+    "display_name": "Assembly API Key",
+    "info": "Your AssemblyAI API key. You can get one from https://www.assemblyai.com/"
+  },
+  "transcription_result": {
+    "display_name": "Transcription Result",
+    "info": "The transcription result from AssemblyAI"
+  },
+  "prompt": {
+    "display_name": "Input Prompt",
+    "info": "The text to prompt the model"
+  },
+  "final_model": {
+    "display_name": "Final Model",
+    "info": "The model that is used for the final prompt after compression is performed"
+  },
+  "temperature": {
+    "display_name": "Temperature",
+    "info": "The temperature to use for the model"
+  },
+  "max_output_size": {
+    "display_name": "Max Output Size",
+    "info": "Max output size in tokens, up to 4000"
+  },
+  "endpoint": {
+    "display_name": "Endpoint",
+    "info": "The LeMUR endpoint to use. For 'summary' and 'question-answer', no prompt input is needed. See https://www.assemblyai.com/docs/api-reference/lemur/ for more info."
+  },
+  "questions": {
+    "display_name": "Questions",
+    "info": "Comma-separated list of your questions. Only used if Endpoint is 'question-answer'"
+  },
+  "transcript_ids": {
+    "display_name": "Transcript IDs",
+    "info": "Comma-separated list of transcript IDs. LeMUR can perform actions over multiple transcripts. If provided, the Transcription Result is ignored."
+  },
+  "outputs": {
+    "lemur_response": {
+      "display_name": "LeMUR Response"
+    }
+  },
+  "status": {
+    "waiting_for_transcripts": "Waiting for transcripts to complete...",
+    "performing_lemur_action": "Performing LeMUR action: {endpoint}..."
+  },
+  "success": {
+    "lemur_completed": "LeMUR {endpoint} action completed successfully"
+  },
+  "warnings": {
+    "previous_step_error": "Error from previous step: {error}"
+  },
+  "errors": {
+    "no_input_provided": "Either a Transcription Result or Transcript IDs must be provided",
+    "no_prompt_for_task": "No prompt specified for the task endpoint",
+    "no_questions_for_qa": "No Questions were provided for the question-answer endpoint",
+    "no_valid_transcript_ids": "Either a valid Transcription Result or valid Transcript IDs must be provided",
+    "transcription_failed": "Getting transcriptions failed: {error}",
+    "lemur_action_failed": "An Error happened: {error}",
+    "run_lemur_failed": "Failed to run LeMUR: {error}",
+    "unsupported_endpoint": "Endpoint not supported: {endpoint}",
+    "action_execution_failed": "Failed to execute {endpoint} action: {error}",
+    "unsupported_model": "Model name not supported: {model}",
+    "model_selection_failed": "Failed to select model: {error}"
+  },
+  "logs": {
+    "transcript_id_from_result": "Using transcript ID from result: {id}",
+    "transcript_ids_provided": "Using {count} transcript IDs",
+    "transcript_error": "Transcript {id} has error: {error}",
+    "lemur_error": "Error running LeMUR",
+    "performing_action": "Performing LeMUR action: {endpoint}",
+    "task_completed": "Task action completed",
+    "summary_completed": "Summary action completed",
+    "processing_questions": "Processing {count} questions",
+    "qa_completed": "Question-answer action completed",
+    "model_selected": "Selected model: {model}"
+  }
+}

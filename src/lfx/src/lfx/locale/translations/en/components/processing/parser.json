@@ -1,0 +1,61 @@
+{
+  "display_name": "Parser",
+  "description": "Extracts text using a template.",
+  "input_data": {
+    "display_name": "Data or DataFrame",
+    "info": "Accepts either a DataFrame or a Data object."
+  },
+  "mode": {
+    "display_name": "Mode",
+    "info": "Convert into raw string instead of using a template.",
+    "parser": "Parser",
+    "stringify": "Stringify"
+  },
+  "pattern": {
+    "display_name": "Template",
+    "info": "Use variables within curly brackets to extract column values for DataFrames or key values for Data. For example: `Name: {Name}, Age: {Age}, Country: {Country}`",
+    "default_value": "Text: {text}"
+  },
+  "sep": {
+    "display_name": "Separator",
+    "info": "String used to separate rows/items."
+  },
+  "clean_data": {
+    "display_name": "Clean Data",
+    "info": "Enable to clean the data by removing empty rows and lines in each cell of the DataFrame/Data object."
+  },
+  "outputs": {
+    "parsed_text": {
+      "display_name": "Parsed Text",
+      "info": "Formatted text output."
+    }
+  },
+  "success": {
+    "text_parsed": "Successfully parsed {lines} lines into text (length: {length} characters)",
+    "string_converted": "Successfully converted input to string (length: {length} characters)"
+  },
+  "warnings": {
+    "no_data_to_parse": "No data provided to parse.",
+    "empty_dataframe": "DataFrame is empty.",
+    "empty_data": "Data object is empty.",
+    "no_lines_generated": "No lines were generated from the template formatting.",
+    "empty_input_list": "Input list is empty.",
+    "empty_input_data": "Input data is empty or null."
+  },
+  "errors": {
+    "data_list_not_supported": "List of Data objects is not supported.",
+    "invalid_structured_input": "Invalid structured input provided: {error}",
+    "unsupported_input_type": "Unsupported input type: {actual_type}. Expected DataFrame or Data.",
+    "argument_preparation_failed": "Failed to prepare arguments: {error}",
+    "template_key_missing": "Row {row}: Template key '{key}' not found in row data",
+    "row_formatting_failed": "Row {row}: Failed to format template: {error}",
+    "data_key_missing": "Template key '{key}' not found in data. Available keys: {available_keys}",
+    "data_formatting_failed": "Failed to format data with template: {error}",
+    "parsing_failed": "Text parsing failed: {error}",
+    "list_item_conversion_failed": "Failed to convert list item at index {index}: {error}",
+    "string_conversion_failed": "String conversion failed: {error}"
+  },
+  "logs": {
+    "string_conversion_completed": "Converted to string with length: {length}"
+  }
+}

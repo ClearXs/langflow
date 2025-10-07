@@ -1,0 +1,39 @@
+{
+  "display_name": "Yahoo! Finance [DEPRECATED]",
+  "description": "Uses yfinance (unofficial package) to access financial data and market information from Yahoo! Finance.",
+  "symbol": {
+    "display_name": "Stock Symbol",
+    "info": "The stock symbol to retrieve data for (e.g., AAPL, GOOG, TSLA)."
+  },
+  "method": {
+    "display_name": "Data Method",
+    "info": "The type of financial data to retrieve."
+  },
+  "num_news": {
+    "display_name": "Number of News",
+    "info": "The number of news articles to retrieve (only applicable for get_news method)."
+  },
+  "tool_description": "Access financial data and market information from Yahoo! Finance.",
+  "success": {
+    "tool_created": "Yahoo Finance tool created successfully",
+    "data_retrieved": "Successfully retrieved {method} data for {symbol} ({count} items)"
+  },
+  "info": {
+    "retrieving_data": "Retrieving {method} data for symbol '{symbol}'..."
+  },
+  "warnings": {
+    "empty_symbol": "Stock symbol is empty. Please provide a valid stock symbol."
+  },
+  "errors": {
+    "import_error": "Missing required dependency. Please install yfinance package: pip install yfinance",
+    "empty_symbol": "Stock symbol is required. Please provide a valid stock symbol.",
+    "invalid_method": "Invalid method '{method}'. Please select a valid data retrieval method.",
+    "no_info_data": "No company information available for symbol '{symbol}'",
+    "no_news_data": "No news articles available for symbol '{symbol}'",
+    "no_data_available": "No {method} data available for symbol '{symbol}'",
+    "method_not_found": "Method '{method}' not found in yfinance ticker object",
+    "data_retrieval_failed": "Failed to retrieve {method} data for symbol '{symbol}': {error}",
+    "tool_creation_failed": "Failed to create Yahoo Finance tool: {error}",
+    "execution_failed": "Yahoo Finance execution failed: {error}"
+  }
+}

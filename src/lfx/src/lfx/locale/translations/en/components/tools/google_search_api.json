@@ -1,0 +1,38 @@
+{
+  "display_name": "Google Search API [DEPRECATED]",
+  "description": "Call Google Search API.",
+  "google_api_key": {
+    "display_name": "Google API Key",
+    "info": "Your Google API key for accessing the Custom Search API."
+  },
+  "google_cse_id": {
+    "display_name": "Google CSE ID",
+    "info": "Your Google Custom Search Engine ID."
+  },
+  "input_value": {
+    "display_name": "Input",
+    "info": "The search query to execute."
+  },
+  "k": {
+    "display_name": "Number of Results",
+    "info": "The number of search results to return."
+  },
+  "tool_description": "Search Google for recent results.",
+  "success": {
+    "search_completed": "Search completed successfully. Found {count} results for '{query}'"
+  },
+  "info": {
+    "searching": "Searching Google for '{query}' (returning {count} results)..."
+  },
+  "warnings": {
+    "empty_query": "Search query is empty. Please provide a search term.",
+    "no_results": "No search results found for query: '{query}'"
+  },
+  "errors": {
+    "import_error": "Missing required dependency. Please install langchain-google-community to use Google Search API.",
+    "langchain_google_missing": "Please install langchain-google-community to use GoogleSearchAPIWrapper.",
+    "search_failed": "Google search failed: {error}",
+    "tool_creation_failed": "Failed to create Google Search tool: {error}",
+    "wrapper_creation_failed": "Failed to create Google Search wrapper: {error}"
+  }
+}

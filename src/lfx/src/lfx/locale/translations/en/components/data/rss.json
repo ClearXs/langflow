@@ -1,0 +1,64 @@
+{
+  "display_name": "RSS Feed",
+  "description": "Fetch and parse entries from RSS/Atom feeds.",
+  "rss_url": {
+    "display_name": "RSS URL",
+    "info": "URL of the RSS or Atom feed to fetch entries from."
+  },
+  "max_entries": {
+    "display_name": "Max Entries",
+    "info": "Maximum number of RSS entries to return (1-100)."
+  },
+  "days_back": {
+    "display_name": "Days Back",
+    "info": "Only include entries from the last N days. Set to 0 to include all entries."
+  },
+  "include_summary": {
+    "display_name": "Include Summary",
+    "info": "Whether to include the entry summary/description in the results."
+  },
+  "include_content": {
+    "display_name": "Include Content",
+    "info": "Whether to include the full entry content in the results (if available)."
+  },
+  "parse_dates": {
+    "display_name": "Parse Dates",
+    "info": "Whether to parse and include formatted datetime fields."
+  },
+  "sort_order": {
+    "display_name": "Sort Order",
+    "info": "How to sort the RSS entries: newest first, oldest first, or keep feed order."
+  },
+  "user_agent": {
+    "display_name": "User Agent",
+    "info": "User agent string to use when fetching the RSS feed."
+  },
+  "timeout": {
+    "display_name": "Timeout (seconds)",
+    "info": "Request timeout in seconds when fetching the RSS feed."
+  },
+  "text_key": {
+    "display_name": "Text Key",
+    "info": "The key to use for the text field in the Data objects (e.g., 'title', 'summary', 'content')."
+  },
+  "outputs": {
+    "rss_entries": {
+      "display_name": "RSS Entries"
+    },
+    "feed_info": {
+      "display_name": "Feed Info"
+    }
+  },
+  "success": {
+    "fetched_entries": "Successfully fetched {count} entries out of {total} total entries"
+  },
+  "warnings": {
+    "feed_parsing_issues": "Feed parsing encountered issues: {error}"
+  },
+  "errors": {
+    "empty_url": "RSS URL cannot be empty.",
+    "no_entries": "No entries found in the RSS feed.",
+    "fetch_error": "Error fetching RSS feed: {error}",
+    "feed_info_error": "Error getting feed information: {error}"
+  }
+}

@@ -1,4 +1,4 @@
-import httpx
+import i18n
 
 from lfx.custom.custom_component.component import Component
 from lfx.field_typing.range_spec import RangeSpec
@@ -8,144 +8,260 @@ from lfx.schema.data import Data
 
 
 class AgentQL(Component):
-    display_name = "Extract Web Data"
-    description = "Extracts structured data from a web page using an AgentQL query or a Natural Language description."
-    documentation: str = "https://docs.agentql.com/rest-api/api-reference"
-    icon = "AgentQL"
+    display_name = i18n.t('components.agentql.agentql_api.display_name')
+    description = i18n.t('components.agentql.agentql_api.description')
+    documentation: str = "https://docs.agentql.com/"
+    icon = "Globe"
     name = "AgentQL"
 
     inputs = [
-        SecretStrInput(
-            name="api_key",
-            display_name="AgentQL API Key",
-            required=True,
-            password=True,
-            info="Your AgentQL API key from dev.agentql.com",
-        ),
         MessageTextInput(
             name="url",
-            display_name="URL",
+            display_name=i18n.t(
+                'components.agentql.agentql_api.url.display_name'),
             required=True,
-            info="The URL of the public web page you want to extract data from.",
-            tool_mode=True,
+            info=i18n.t('components.agentql.agentql_api.url.info'),
         ),
         MultilineInput(
             name="query",
-            display_name="AgentQL Query",
+            display_name=i18n.t(
+                'components.agentql.agentql_api.query.display_name'),
+            required=True,
+            info=i18n.t('components.agentql.agentql_api.query.info'),
+        ),
+        SecretStrInput(
+            name="api_key",
+            display_name=i18n.t(
+                'components.agentql.agentql_api.api_key.display_name'),
             required=False,
-            info="The AgentQL query to execute. Learn more at https://docs.agentql.com/agentql-query or use a prompt.",
-            tool_mode=True,
-        ),
-        MultilineInput(
-            name="prompt",
-            display_name="Prompt",
-            required=False,
-            info="A Natural Language description of the data to extract from the page. Alternative to AgentQL query.",
-            tool_mode=True,
-        ),
-        BoolInput(
-            name="is_stealth_mode_enabled",
-            display_name="Enable Stealth Mode (Beta)",
-            info="Enable experimental anti-bot evasion strategies. May not work for all websites at all times.",
-            value=False,
-            advanced=True,
-        ),
-        IntInput(
-            name="timeout",
-            display_name="Timeout",
-            info="Seconds to wait for a request.",
-            value=900,
+            info=i18n.t('components.agentql.agentql_api.api_key.info'),
             advanced=True,
         ),
         DropdownInput(
             name="mode",
-            display_name="Request Mode",
-            info="'standard' uses deep data analysis, while 'fast' trades some depth of analysis for speed.",
-            options=["fast", "standard"],
-            value="fast",
+            display_name=i18n.t(
+                'components.agentql.agentql_api.mode.display_name'),
+            options=["standard", "fast"],
+            value="standard",
+            info=i18n.t('components.agentql.agentql_api.mode.info'),
+            advanced=True,
+        ),
+        BoolInput(
+            name="is_scroll_to_bottom",
+            display_name=i18n.t(
+                'components.agentql.agentql_api.is_scroll_to_bottom.display_name'),
+            value=False,
+            info=i18n.t(
+                'components.agentql.agentql_api.is_scroll_to_bottom.info'),
             advanced=True,
         ),
         IntInput(
-            name="wait_for",
-            display_name="Wait For",
-            info="Seconds to wait for the page to load before extracting data.",
-            value=0,
-            range_spec=RangeSpec(min=0, max=10, step_type="int"),
+            name="wait_for_page",
+            display_name=i18n.t(
+                'components.agentql.agentql_api.wait_for_page.display_name'),
+            value=5000,
+            info=i18n.t('components.agentql.agentql_api.wait_for_page.info'),
+            range_spec=RangeSpec(min=0, max=60000, step=100),
             advanced=True,
         ),
         BoolInput(
-            name="is_scroll_to_bottom_enabled",
-            display_name="Enable scroll to bottom",
-            info="Scroll to bottom of the page before extracting data.",
+            name="is_return_markdown",
+            display_name=i18n.t(
+                'components.agentql.agentql_api.is_return_markdown.display_name'),
             value=False,
-            advanced=True,
-        ),
-        BoolInput(
-            name="is_screenshot_enabled",
-            display_name="Enable screenshot",
-            info="Take a screenshot before extracting data. Returned in 'metadata' as a Base64 string.",
-            value=False,
+            info=i18n.t(
+                'components.agentql.agentql_api.is_return_markdown.info'),
             advanced=True,
         ),
     ]
 
     outputs = [
-        Output(display_name="Data", name="data", method="build_output"),
+        Output(
+            display_name=i18n.t(
+                'components.agentql.agentql_api.outputs.data.display_name'),
+            name="data",
+            method="extract_data",
+        ),
     ]
 
-    def build_output(self) -> Data:
-        endpoint = "https://api.agentql.com/v1/query-data"
-        headers = {
-            "X-API-Key": self.api_key,
-            "Content-Type": "application/json",
-            "X-TF-Request-Origin": "langflow",
-        }
-
-        payload = {
-            "url": self.url,
-            "query": self.query,
-            "prompt": self.prompt,
-            "params": {
-                "mode": self.mode,
-                "wait_for": self.wait_for,
-                "is_scroll_to_bottom_enabled": self.is_scroll_to_bottom_enabled,
-                "is_screenshot_enabled": self.is_screenshot_enabled,
-            },
-            "metadata": {
-                "experimental_stealth_mode_enabled": self.is_stealth_mode_enabled,
-            },
-        }
-
-        if not self.prompt and not self.query:
-            self.status = "Either Query or Prompt must be provided."
-            raise ValueError(self.status)
-        if self.prompt and self.query:
-            self.status = "Both Query and Prompt can't be provided at the same time."
-            raise ValueError(self.status)
-
+    def extract_data(self) -> Data:
+        """Extract data from a web page using AgentQL."""
         try:
-            response = httpx.post(endpoint, headers=headers, json=payload, timeout=self.timeout)
-            response.raise_for_status()
+            # Validate required inputs
+            if not self.url or not self.url.strip():
+                error_msg = i18n.t(
+                    'components.agentql.agentql_api.errors.url_required')
+                self.status = error_msg
+                raise ValueError(error_msg)
 
-            json = response.json()
-            data = Data(result=json["data"], metadata=json["metadata"])
+            if not self.query or not self.query.strip():
+                error_msg = i18n.t(
+                    'components.agentql.agentql_api.errors.query_required')
+                self.status = error_msg
+                raise ValueError(error_msg)
 
-        except httpx.HTTPStatusError as e:
-            response = e.response
-            if response.status_code == httpx.codes.UNAUTHORIZED:
-                self.status = "Please, provide a valid API Key. You can create one at https://dev.agentql.com."
-            else:
+            # Import AgentQL
+            try:
+                import agentql
+            except ImportError as e:
+                error_msg = i18n.t(
+                    'components.agentql.agentql_api.errors.agentql_not_installed')
+                self.status = error_msg
+                raise ImportError(error_msg) from e
+
+            self.status = i18n.t(
+                'components.agentql.agentql_api.status.initializing')
+
+            # Configure API key if provided
+            api_key = getattr(self, "api_key", None)
+            if api_key and api_key.strip():
                 try:
-                    error_json = response.json()
-                    logger.error(
-                        f"Failure response: '{response.status_code} {response.reason_phrase}' with body: {error_json}"
-                    )
-                    msg = error_json["error_info"] if "error_info" in error_json else error_json["detail"]
-                except (ValueError, TypeError):
-                    msg = f"HTTP {e}."
-                self.status = msg
-            raise ValueError(self.status) from e
+                    agentql.configure(api_key=api_key)
+                    logger.info(
+                        i18n.t('components.agentql.agentql_api.logs.api_key_configured'))
+                except Exception as e:
+                    warning_msg = i18n.t('components.agentql.agentql_api.warnings.api_key_config_failed',
+                                         error=str(e))
+                    logger.warning(warning_msg)
 
-        else:
-            self.status = data
-            return data
+            # Get configuration parameters
+            mode = getattr(self, "mode", "standard")
+            is_scroll_to_bottom = getattr(self, "is_scroll_to_bottom", False)
+            wait_for_page = getattr(self, "wait_for_page", 5000)
+            is_return_markdown = getattr(self, "is_return_markdown", False)
+
+            self.status = i18n.t(
+                'components.agentql.agentql_api.status.connecting', url=self.url)
+
+            # Initialize browser and page
+            try:
+                browser = agentql.start_browser()
+                page = browser.new_page()
+
+                # Navigate to URL
+                page.goto(self.url)
+                logger.info(
+                    i18n.t('components.agentql.agentql_api.logs.page_loaded', url=self.url))
+
+            except Exception as e:
+                error_msg = i18n.t(
+                    'components.agentql.agentql_api.errors.browser_init_failed', error=str(e))
+                self.status = error_msg
+                raise RuntimeError(error_msg) from e
+
+            try:
+                # Wait for page to load
+                if wait_for_page > 0:
+                    self.status = i18n.t('components.agentql.agentql_api.status.waiting_for_page',
+                                         milliseconds=wait_for_page)
+                    page.wait_for_timeout(wait_for_page)
+
+                # Scroll to bottom if enabled
+                if is_scroll_to_bottom:
+                    self.status = i18n.t(
+                        'components.agentql.agentql_api.status.scrolling_to_bottom')
+                    try:
+                        page.evaluate(
+                            "window.scrollTo(0, document.body.scrollHeight)")
+                        # Wait for content to load after scroll
+                        page.wait_for_timeout(1000)
+                        logger.info(
+                            i18n.t('components.agentql.agentql_api.logs.scrolled_to_bottom'))
+                    except Exception as e:
+                        warning_msg = i18n.t('components.agentql.agentql_api.warnings.scroll_failed',
+                                             error=str(e))
+                        logger.warning(warning_msg)
+
+                # Extract data using AgentQL query
+                self.status = i18n.t(
+                    'components.agentql.agentql_api.status.extracting_data')
+
+                try:
+                    if mode == "fast":
+                        response = page.query_data(self.query, mode="fast")
+                    else:
+                        response = page.query_data(self.query)
+
+                    logger.info(
+                        i18n.t('components.agentql.agentql_api.logs.data_extracted'))
+
+                except Exception as e:
+                    error_msg = i18n.t('components.agentql.agentql_api.errors.query_execution_failed',
+                                       error=str(e))
+                    self.status = error_msg
+                    raise ValueError(error_msg) from e
+
+                # Process response
+                if response is None:
+                    warning_msg = i18n.t(
+                        'components.agentql.agentql_api.warnings.no_data_extracted')
+                    self.status = warning_msg
+                    return Data(data={"message": warning_msg})
+
+                # Convert response to dictionary
+                try:
+                    if hasattr(response, "to_dict"):
+                        data_dict = response.to_dict()
+                    elif hasattr(response, "to_data"):
+                        data_dict = response.to_data()
+                    elif isinstance(response, dict):
+                        data_dict = response
+                    else:
+                        data_dict = {"content": str(response)}
+
+                    logger.info(
+                        i18n.t('components.agentql.agentql_api.logs.response_converted'))
+
+                except Exception as e:
+                    warning_msg = i18n.t('components.agentql.agentql_api.warnings.response_conversion_failed',
+                                         error=str(e))
+                    logger.warning(warning_msg)
+                    data_dict = {"content": str(response)}
+
+                # Add markdown if requested
+                if is_return_markdown:
+                    try:
+                        self.status = i18n.t(
+                            'components.agentql.agentql_api.status.getting_markdown')
+                        markdown_content = page.get_content(format="markdown")
+                        data_dict["markdown"] = markdown_content
+                        logger.info(
+                            i18n.t('components.agentql.agentql_api.logs.markdown_added'))
+                    except Exception as e:
+                        warning_msg = i18n.t('components.agentql.agentql_api.warnings.markdown_extraction_failed',
+                                             error=str(e))
+                        logger.warning(warning_msg)
+                        data_dict["markdown_error"] = str(e)
+
+                # Add metadata
+                data_dict["url"] = self.url
+                data_dict["query"] = self.query
+                data_dict["mode"] = mode
+
+                success_msg = i18n.t('components.agentql.agentql_api.success.data_extracted',
+                                     fields=len(data_dict))
+                self.status = success_msg
+
+                return Data(data=data_dict)
+
+            finally:
+                # Clean up browser resources
+                try:
+                    if 'browser' in locals():
+                        browser.close()
+                        logger.info(
+                            i18n.t('components.agentql.agentql_api.logs.browser_closed'))
+                except Exception as e:
+                    warning_msg = i18n.t('components.agentql.agentql_api.warnings.browser_close_failed',
+                                         error=str(e))
+                    logger.warning(warning_msg)
+
+        except (ValueError, ImportError, RuntimeError) as e:
+            # Re-raise these as they already have i18n messages
+            raise
+        except Exception as e:
+            error_msg = i18n.t(
+                'components.agentql.agentql_api.errors.extraction_failed', error=str(e))
+            self.status = error_msg
+            logger.exception(error_msg)
+            raise ValueError(error_msg) from e

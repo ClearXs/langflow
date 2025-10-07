@@ -1,0 +1,55 @@
+{
+  "display_name": "Cassandra Chat Memory",
+  "description": "Retrieves and store chat messages from Apache Cassandra.",
+  "database_ref": {
+    "display_name": "Contact Points / Astra Database ID",
+    "info": "Contact points for the database (or Astra DB database ID)"
+  },
+  "username": {
+    "display_name": "Username",
+    "info": "Username for the database (leave empty for Astra DB)."
+  },
+  "token": {
+    "display_name": "Password / Astra DB Token",
+    "info": "User password for the database (or Astra DB token)."
+  },
+  "keyspace": {
+    "display_name": "Keyspace",
+    "info": "Table Keyspace (or Astra DB namespace)."
+  },
+  "table_name": {
+    "display_name": "Table Name",
+    "info": "The name of the table (or Astra DB collection) where messages will be stored."
+  },
+  "session_id": {
+    "display_name": "Session ID",
+    "info": "Session ID for the message."
+  },
+  "cluster_kwargs": {
+    "display_name": "Cluster Arguments",
+    "info": "Optional dictionary of additional keyword arguments for the Cassandra cluster."
+  },
+  "status": {
+    "initializing": "Initializing Cassandra chat memory...",
+    "connecting": "Connecting to database...",
+    "creating_history": "Creating message history..."
+  },
+  "success": {
+    "history_created": "Message history created successfully for session '{session_id}' in table '{table_name}'"
+  },
+  "errors": {
+    "cassio_not_installed": "Could not import cassio integration package. Please install it with `pip install cassio`.",
+    "initialization_failed": "Failed to initialize Cassandra chat memory: {error}"
+  },
+  "logs": {
+    "cassio_imported": "cassio package imported successfully",
+    "detected_astra": "Detected Astra DB with database ID: {database_id}",
+    "detected_cassandra_multiple": "Detected regular Cassandra with {count} contact points",
+    "detected_cassandra_single": "Detected regular Cassandra with contact point: {contact_point}",
+    "connecting_astra": "Connecting to Astra DB with database ID: {database_id}",
+    "astra_connected": "Successfully connected to Astra DB",
+    "connecting_cassandra": "Connecting to Cassandra - Contact Points: {contact_points}, Username: {username}",
+    "cassandra_connected": "Successfully connected to Cassandra",
+    "creating_history": "Creating message history - Session ID: {session_id}, Table: {table_name}, Keyspace: {keyspace}"
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "display_name": "计算器",
+  "description": "对给定表达式执行基本算术运算。",
+  "expression": {
+    "display_name": "表达式",
+    "info": "要计算的算术表达式（例如：'4*4*(33/22)+12-20'）。"
+  },
+  "outputs": {
+    "result": {
+      "display_name": "数据"
+    }
+  },
+  "info": {
+    "calculation_result": "计算结果：{result}"
+  },
+  "warnings": {
+    "empty_expression": "表达式为空。请提供要计算的数学表达式。"
+  },
+  "errors": {
+    "unsupported_constant_type": "不支持的常量类型：{type_name}",
+    "unsupported_number_type": "不支持的数字类型：{type_name}",
+    "unsupported_binary_operator": "不支持的二元运算符：{operator_name}",
+    "unsupported_operation": "不支持的操作或表达式类型：{node_type}",
+    "division_by_zero": "错误：除零操作",
+    "syntax_error": "表达式语法错误：{error}",
+    "invalid_expression": "无效表达式：{error}",
+    "overflow_error": "计算溢出：{error}",
+    "unexpected_error": "计算过程中发生意外错误：{error}"
+  }
+}

@@ -1,401 +1,233 @@
-import secrets
-from datetime import datetime, timedelta, timezone
+import random
+from typing import Any
+import i18n
 
 from lfx.custom.custom_component.component import Component
-from lfx.io import Output
-from lfx.schema import Data, DataFrame
-from lfx.schema.message import Message
+from lfx.io import IntInput, MessageTextInput, DropdownInput, Output
+from lfx.schema.data import Data
 
 
-class MockDataGeneratorComponent(Component):
-    """Mock Data Generator Component.
-
-    Generates sample data for testing and development purposes. Supports three main
-    Langflow output types: Message (text), Data (JSON), and DataFrame (tabular data).
-
-    This component is useful for:
-    - Testing workflows without real data sources
-    - Prototyping data processing pipelines
-    - Creating sample data for demonstrations
-    - Development and debugging of Langflow components
-    """
-
-    display_name = "Mock Data Generator"
-    description = (
-        "Generate sample data for testing and development. "
-        "Choose from text messages, JSON data, or tabular data formats."
-    )
+class MockDataComponent(Component):
+    display_name = i18n.t('components.data.mock_data.display_name')
+    description = i18n.t('components.data.mock_data.description')
     icon = "database"
-    name = "MockDataGenerator"
+    name = "MockData"
 
-    inputs = []
-
-    outputs = [
-        Output(display_name="DataFrame Output", name="dataframe_output", method="generate_dataframe_output"),
-        Output(display_name="Message Output", name="message_output", method="generate_message_output"),
-        Output(display_name="Data Output", name="data_output", method="generate_data_output"),
+    inputs = [
+        IntInput(
+            name="number_of_rows",
+            display_name=i18n.t(
+                'components.data.mock_data.number_of_rows.display_name'),
+            info=i18n.t('components.data.mock_data.number_of_rows.info'),
+            value=10,
+            range_spec=(1, 1000),
+        ),
+        DropdownInput(
+            name="data_type",
+            display_name=i18n.t(
+                'components.data.mock_data.data_type.display_name'),
+            info=i18n.t('components.data.mock_data.data_type.info'),
+            options=["user_profiles", "products",
+                     "transactions", "articles", "custom"],
+            value="user_profiles",
+            real_time_refresh=True,
+        ),
+        MessageTextInput(
+            name="custom_schema",
+            display_name=i18n.t(
+                'components.data.mock_data.custom_schema.display_name'),
+            info=i18n.t('components.data.mock_data.custom_schema.info'),
+            placeholder='{"name": "string", "age": "integer", "email": "email"}',
+            show=False,
+        ),
+        IntInput(
+            name="seed",
+            display_name=i18n.t('components.data.mock_data.seed.display_name'),
+            info=i18n.t('components.data.mock_data.seed.info'),
+            value=42,
+            advanced=True,
+        ),
+        MessageTextInput(
+            name="text_key",
+            display_name=i18n.t(
+                'components.data.mock_data.text_key.display_name'),
+            info=i18n.t('components.data.mock_data.text_key.info'),
+            value="text",
+            advanced=True,
+        ),
     ]
 
-    def build(self) -> DataFrame:
-        """Default build method - returns DataFrame when component is standalone."""
-        return self.generate_dataframe_output()
+    outputs = [
+        Output(
+            name="data_list",
+            display_name=i18n.t(
+                'components.data.mock_data.outputs.data_list.display_name'),
+            method="generate_mock_data"
+        ),
+    ]
 
-    def generate_message_output(self) -> Message:
-        """Generate Message output specifically.
+    def update_build_config(self, build_config: dict[str, Any], field_value: Any, field_name: str | None = None) -> dict[str, Any]:
+        """Show/hide custom schema field based on data type selection."""
+        if field_name == "data_type":
+            if field_value == "custom":
+                build_config["custom_schema"]["show"] = True
+            else:
+                build_config["custom_schema"]["show"] = False
+        return build_config
 
-        Returns:
-            Message: A Message object containing Lorem Ipsum text
-        """
+    def generate_mock_data(self) -> list[Data]:
         try:
-            self.log("Generating Message mock data")
-            message = self._generate_message()
-            self.status = f"Generated Lorem Ipsum message ({len(message.text)} characters)"
-        except (ValueError, TypeError) as e:
-            error_msg = f"Error generating Message data: {e!s}"
-            self.log(error_msg)
-            self.status = f"Error: {error_msg}"
-            return Message(text=f"Error: {error_msg}")
-        else:
-            return message
+            if self.seed:
+                random.seed(self.seed)
 
-    def generate_data_output(self) -> Data:
-        """Generate Data output specifically.
+            if self.number_of_rows <= 0:
+                error_message = i18n.t(
+                    'components.data.mock_data.errors.invalid_row_count')
+                self.status = error_message
+                raise ValueError(error_message)
 
-        Returns:
-            Data: A Data object containing sample JSON data (1 record)
-        """
+            if self.data_type == "user_profiles":
+                data_list = self._generate_user_profiles()
+            elif self.data_type == "products":
+                data_list = self._generate_products()
+            elif self.data_type == "transactions":
+                data_list = self._generate_transactions()
+            elif self.data_type == "articles":
+                data_list = self._generate_articles()
+            elif self.data_type == "custom":
+                if not self.custom_schema:
+                    error_message = i18n.t(
+                        'components.data.mock_data.errors.missing_custom_schema')
+                    self.status = error_message
+                    raise ValueError(error_message)
+                data_list = self._generate_custom_data()
+            else:
+                error_message = i18n.t(
+                    'components.data.mock_data.errors.invalid_data_type', data_type=self.data_type)
+                self.status = error_message
+                raise ValueError(error_message)
+
+            result = [Data(data=item, text_key=self.text_key)
+                      for item in data_list]
+
+            self.status = f"Generated {len(result)} mock data records"
+            return result
+
+        except Exception as e:
+            error_message = i18n.t(
+                'components.data.mock_data.errors.generation_error', error=str(e))
+            self.status = error_message
+            raise ValueError(error_message) from e
+
+    def _generate_user_profiles(self) -> list[dict]:
+        """Generate mock user profile data."""
+        first_names = ["John", "Jane", "Bob", "Alice",
+                       "Charlie", "Diana", "Eve", "Frank", "Grace", "Henry"]
+        last_names = ["Smith", "Johnson", "Williams", "Brown", "Jones",
+                      "Garcia", "Miller", "Davis", "Rodriguez", "Martinez"]
+        domains = ["gmail.com", "yahoo.com",
+                   "outlook.com", "company.com", "university.edu"]
+
+        profiles = []
+        for i in range(self.number_of_rows):
+            first_name = random.choice(first_names)
+            last_name = random.choice(last_names)
+            profiles.append({
+                "id": i + 1,
+                "first_name": first_name,
+                "last_name": last_name,
+                "email": f"{first_name.lower()}.{last_name.lower()}@{random.choice(domains)}",
+                "age": random.randint(18, 80),
+                "city": random.choice(["New York", "Los Angeles", "Chicago", "Houston", "Phoenix"]),
+                "text": f"{first_name} {last_name} is {random.randint(18, 80)} years old"
+            })
+        return profiles
+
+    def _generate_products(self) -> list[dict]:
+        """Generate mock product data."""
+        categories = ["Electronics", "Clothing",
+                      "Books", "Home & Garden", "Sports"]
+        products = []
+        for i in range(self.number_of_rows):
+            category = random.choice(categories)
+            products.append({
+                "id": i + 1,
+                "name": f"Product {i + 1}",
+                "category": category,
+                "price": round(random.uniform(10.0, 500.0), 2),
+                "stock": random.randint(0, 100),
+                "rating": round(random.uniform(1.0, 5.0), 1),
+                "text": f"Product {i + 1} in {category} category"
+            })
+        return products
+
+    def _generate_transactions(self) -> list[dict]:
+        """Generate mock transaction data."""
+        transactions = []
+        for i in range(self.number_of_rows):
+            amount = round(random.uniform(10.0, 1000.0), 2)
+            transactions.append({
+                "id": i + 1,
+                "user_id": random.randint(1, 100),
+                "amount": amount,
+                "currency": random.choice(["USD", "EUR", "GBP", "JPY"]),
+                "status": random.choice(["completed", "pending", "failed"]),
+                "timestamp": f"2024-{random.randint(1, 12):02d}-{random.randint(1, 28):02d}",
+                "text": f"Transaction {i + 1} for ${amount}"
+            })
+        return transactions
+
+    def _generate_articles(self) -> list[dict]:
+        """Generate mock article data."""
+        topics = ["Technology", "Science",
+                  "Politics", "Sports", "Entertainment"]
+        articles = []
+        for i in range(self.number_of_rows):
+            topic = random.choice(topics)
+            articles.append({
+                "id": i + 1,
+                "title": f"{topic} Article {i + 1}",
+                "author": f"Author {random.randint(1, 20)}",
+                "topic": topic,
+                "word_count": random.randint(500, 2000),
+                "views": random.randint(100, 10000),
+                "likes": random.randint(10, 500),
+                "text": f"This is {topic} article {i + 1} with {random.randint(500, 2000)} words"
+            })
+        return articles
+
+    def _generate_custom_data(self) -> list[dict]:
+        """Generate mock data based on custom schema."""
+        import json
         try:
-            record_count = 1  # Fixed to 1 record for Data output
-            self.log(f"Generating Data mock data with {record_count} record")
-            data = self._generate_data(record_count)
-            self.status = f"Generated JSON data with {len(data.data.get('records', []))} record(s)"
-        except (ValueError, TypeError) as e:
-            error_msg = f"Error generating Data: {e!s}"
-            self.log(error_msg)
-            self.status = f"Error: {error_msg}"
-            return Data(data={"error": error_msg, "success": False})
-        else:
-            return data
+            schema = json.loads(self.custom_schema)
+            data_list = []
 
-    def generate_dataframe_output(self) -> DataFrame:
-        """Generate DataFrame output specifically.
+            for i in range(self.number_of_rows):
+                item = {"id": i + 1}
+                for field, field_type in schema.items():
+                    if field_type == "string":
+                        item[field] = f"Sample {field} {i + 1}"
+                    elif field_type == "integer":
+                        item[field] = random.randint(1, 100)
+                    elif field_type == "float":
+                        item[field] = round(random.uniform(1.0, 100.0), 2)
+                    elif field_type == "email":
+                        item[field] = f"user{i + 1}@example.com"
+                    elif field_type == "boolean":
+                        item[field] = random.choice([True, False])
+                    else:
+                        item[field] = f"Unknown type: {field_type}"
 
-        Returns:
-            DataFrame: A Langflow DataFrame with sample data (50 records)
-        """
-        try:
-            record_count = 50  # Fixed to 50 records for DataFrame output
-            self.log(f"Generating DataFrame mock data with {record_count} records")
-            return self._generate_dataframe(record_count)
-        except (ValueError, TypeError) as e:
-            error_msg = f"Error generating DataFrame: {e!s}"
-            self.log(error_msg)
+                # Add text field if not already present
+                if "text" not in item:
+                    item["text"] = f"Custom data record {i + 1}"
 
-            try:
-                import pandas as pd
+                data_list.append(item)
 
-                error_df = pd.DataFrame({"error": [error_msg]})
-                return DataFrame(error_df)
-            except ImportError:
-                # Even without pandas, return DataFrame wrapper
-                return DataFrame({"error": [error_msg]})
+            return data_list
 
-    def _generate_message(self) -> Message:
-        """Generate a sample Message with Lorem Ipsum text.
-
-        Returns:
-            Message: A Message object containing Lorem Ipsum text
-        """
-        lorem_ipsum_texts = [
-            (
-                "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor "
-                "incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud "
-                "exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat."
-            ),
-            (
-                "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla "
-                "pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt "
-                "mollit anim id est laborum."
-            ),
-            (
-                "Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, "
-                "totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto "
-                "beatae vitae dicta sunt explicabo."
-            ),
-            (
-                "Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, "
-                "sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt."
-            ),
-            (
-                "Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, "
-                "adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore "
-                "magnam aliquam quaerat voluptatem."
-            ),
-        ]
-
-        selected_text = secrets.choice(lorem_ipsum_texts)
-        return Message(text=selected_text)
-
-    def _generate_data(self, record_count: int) -> Data:
-        """Generate sample Data with JSON structure.
-
-        Args:
-            record_count: Number of records to generate
-
-        Returns:
-            Data: A Data object containing sample JSON data
-        """
-        # Sample data categories
-        companies = [
-            "TechCorp",
-            "DataSystems",
-            "CloudWorks",
-            "InnovateLab",
-            "DigitalFlow",
-            "SmartSolutions",
-            "FutureTech",
-            "NextGen",
-        ]
-        departments = ["Engineering", "Sales", "Marketing", "HR", "Finance", "Operations", "Support", "Research"]
-        statuses = ["active", "pending", "completed", "cancelled", "in_progress"]
-        categories = ["A", "B", "C", "D"]
-
-        # Generate sample records
-        records = []
-        base_date = datetime.now(tz=timezone.utc) - timedelta(days=365)
-
-        for i in range(record_count):
-            record = {
-                "id": f"REC-{1000 + i}",
-                "name": f"Sample Record {i + 1}",
-                "company": secrets.choice(companies),
-                "department": secrets.choice(departments),
-                "status": secrets.choice(statuses),
-                "category": secrets.choice(categories),
-                "value": round(secrets.randbelow(9901) + 100 + secrets.randbelow(100) / 100, 2),
-                "quantity": secrets.randbelow(100) + 1,
-                "rating": round(secrets.randbelow(41) / 10 + 1, 1),
-                "is_active": secrets.choice([True, False]),
-                "created_date": (base_date + timedelta(days=secrets.randbelow(366))).isoformat(),
-                "tags": [
-                    secrets.choice(
-                        [
-                            "important",
-                            "urgent",
-                            "review",
-                            "approved",
-                            "draft",
-                            "final",
-                        ]
-                    )
-                    for _ in range(secrets.randbelow(3) + 1)
-                ],
-            }
-            records.append(record)
-
-        # Create the main data structure
-        data_structure = {
-            "records": records,
-            "summary": {
-                "total_count": record_count,
-                "active_count": sum(1 for r in records if r["is_active"]),
-                "total_value": sum(r["value"] for r in records),
-                "average_rating": round(sum(r["rating"] for r in records) / record_count, 2),
-                "categories": list({r["category"] for r in records}),
-                "companies": list({r["company"] for r in records}),
-            },
-        }
-
-        return Data(data=data_structure)
-
-    def _generate_dataframe(self, record_count: int) -> DataFrame:
-        """Generate sample DataFrame with realistic business data.
-
-        Args:
-            record_count: Number of rows to generate
-
-        Returns:
-            DataFrame: A Langflow DataFrame with sample data
-        """
-        try:
-            import pandas as pd
-
-            self.log(f"pandas imported successfully, version: {pd.__version__}")
-        except ImportError as e:
-            self.log(f"pandas not available: {e!s}, creating simple DataFrame fallback")
-            # Create a simple DataFrame-like structure without pandas
-            data_result = self._generate_data(record_count)
-            # Convert Data to simple DataFrame format
-            try:
-                # Create a basic DataFrame structure from the Data
-                records = data_result.data.get("records", [])
-                if records:
-                    # Use first record to get column names
-                    columns = list(records[0].keys()) if records else ["error"]
-                    rows = [list(record.values()) for record in records]
-                else:
-                    columns = ["error"]
-                    rows = [["pandas not available"]]
-
-                # Create a simple dict-based DataFrame representation
-                simple_df_data = {
-                    col: [row[i] if i < len(row) else None for row in rows] for i, col in enumerate(columns)
-                }
-
-                # Return as DataFrame wrapper (Langflow will handle the display)
-                return DataFrame(simple_df_data)
-            except (ValueError, TypeError):
-                # Ultimate fallback - return the Data as DataFrame
-                return DataFrame({"data": [str(data_result.data)]})
-
-        try:
-            self.log(f"Starting DataFrame generation with {record_count} records")
-
-            # Sample data for realistic business dataset
-            first_names = [
-                "John",
-                "Jane",
-                "Michael",
-                "Sarah",
-                "David",
-                "Emily",
-                "Robert",
-                "Lisa",
-                "William",
-                "Jennifer",
-            ]
-            last_names = [
-                "Smith",
-                "Johnson",
-                "Williams",
-                "Brown",
-                "Jones",
-                "Garcia",
-                "Miller",
-                "Davis",
-                "Rodriguez",
-                "Martinez",
-            ]
-            cities = [
-                "New York",
-                "Los Angeles",
-                "Chicago",
-                "Houston",
-                "Phoenix",
-                "Philadelphia",
-                "San Antonio",
-                "San Diego",
-                "Dallas",
-                "San Jose",
-            ]
-            countries = ["USA", "Canada", "UK", "Germany", "France", "Australia", "Japan", "Brazil", "India", "Mexico"]
-            products = [
-                "Product A",
-                "Product B",
-                "Product C",
-                "Product D",
-                "Product E",
-                "Service X",
-                "Service Y",
-                "Service Z",
-            ]
-
-            # Generate DataFrame data
-            data = []
-            base_date = datetime.now(tz=timezone.utc) - timedelta(days=365)
-
-            self.log("Generating row data...")
-            for i in range(record_count):
-                row = {
-                    "customer_id": f"CUST-{10000 + i}",
-                    "first_name": secrets.choice(first_names),
-                    "last_name": secrets.choice(last_names),
-                    "email": f"user{i + 1}@example.com",
-                    "age": secrets.randbelow(63) + 18,
-                    "city": secrets.choice(cities),
-                    "country": secrets.choice(countries),
-                    "product": secrets.choice(products),
-                    "order_date": (base_date + timedelta(days=secrets.randbelow(366))).strftime("%Y-%m-%d"),
-                    "order_value": round(secrets.randbelow(991) + 10 + secrets.randbelow(100) / 100, 2),
-                    "quantity": secrets.randbelow(10) + 1,
-                    "discount": round(secrets.randbelow(31) / 100, 2),
-                    "is_premium": secrets.choice([True, False]),
-                    "satisfaction_score": secrets.randbelow(10) + 1,
-                    "last_contact": (base_date + timedelta(days=secrets.randbelow(366))).strftime("%Y-%m-%d"),
-                }
-                data.append(row)
-            # Create DataFrame
-            self.log("Creating pandas DataFrame...")
-            df = pd.DataFrame(data)
-            self.log(f"DataFrame created with shape: {df.shape}")
-
-            # Add calculated columns
-            self.log("Adding calculated columns...")
-            df["full_name"] = df["first_name"] + " " + df["last_name"]
-            df["discounted_value"] = df["order_value"] * (1 - df["discount"])
-            df["total_value"] = df["discounted_value"] * df["quantity"]
-
-            # Age group boundaries as constants
-            age_group_18_25 = 25
-            age_group_26_35 = 35
-            age_group_36_50 = 50
-            age_group_51_65 = 65
-
-            # Create age groups with better error handling
-            try:
-                df["age_group"] = pd.cut(
-                    df["age"],
-                    bins=[
-                        0,
-                        age_group_18_25,
-                        age_group_26_35,
-                        age_group_36_50,
-                        age_group_51_65,
-                        100,
-                    ],
-                    labels=[
-                        "18-25",
-                        "26-35",
-                        "36-50",
-                        "51-65",
-                        "65+",
-                    ],
-                )
-            except (ValueError, TypeError) as e:
-                self.log(f"Error creating age groups with pd.cut: {e!s}, using simple categorization")
-                df["age_group"] = df["age"].apply(
-                    lambda x: "18-25"
-                    if x <= age_group_18_25
-                    else "26-35"
-                    if x <= age_group_26_35
-                    else "36-50"
-                    if x <= age_group_36_50
-                    else "51-65"
-                    if x <= age_group_51_65
-                    else "65+"
-                )
-
-            self.log(f"Successfully generated DataFrame with shape: {df.shape}, columns: {list(df.columns)}")
-            # CRITICAL: Use DataFrame wrapper from Langflow
-            # DO NOT set self.status when returning DataFrames - it interferes with display
-            return DataFrame(df)
-
-        except (ValueError, TypeError) as e:
-            error_msg = f"Error generating DataFrame: {e!s}"
-            self.log(error_msg)
-            # DO NOT set self.status when returning DataFrames - it interferes with display
-            # Return a fallback DataFrame with error info using Langflow wrapper
-            try:
-                error_df = pd.DataFrame(
-                    {
-                        "error": [error_msg],
-                        "timestamp": [datetime.now(tz=timezone.utc).isoformat()],
-                        "attempted_records": [record_count],
-                    }
-                )
-                return DataFrame(error_df)
-            except (ValueError, TypeError) as fallback_error:
-                # Last resort: return simple error DataFrame
-                self.log(f"Fallback also failed: {fallback_error!s}")
-                simple_error_df = pd.DataFrame({"error": [error_msg]})
-                return DataFrame(simple_error_df)
+        except json.JSONDecodeError as e:
+            error_message = i18n.t(
+                'components.data.mock_data.errors.invalid_schema', error=str(e))
+            raise ValueError(error_message) from e

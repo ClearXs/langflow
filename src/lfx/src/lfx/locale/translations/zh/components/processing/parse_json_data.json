@@ -1,0 +1,34 @@
+{
+  "display_name": "解析JSON",
+  "description": "使用JQ查询转换和提取JSON字段。",
+  "input_value": {
+    "display_name": "输入",
+    "info": "要过滤的Data对象或Message。可以是单个项目或列表。"
+  },
+  "query": {
+    "display_name": "JQ查询",
+    "info": "用于过滤数据的JQ查询。输入将作为JSON处理，可以使用JQ语法进行查询。"
+  },
+  "outputs": {
+    "filtered_data": {
+      "display_name": "过滤数据"
+    }
+  },
+  "success": {
+    "data_filtered": "成功使用查询'{query}'过滤JSON数据。生成了{results}个结果。"
+  },
+  "warnings": {
+    "empty_input": "未提供用于过滤的输入数据。",
+    "no_results": "JQ查询'{query}'没有返回结果。"
+  },
+  "errors": {
+    "data_parsing_failed": "解析输入数据失败：{error}",
+    "invalid_json": "无效的JSON格式：{error}",
+    "list_item_parsing_failed": "解析索引{index}处的列表项失败：{error}",
+    "list_json_parsing_failed": "解析列表索引{index}处的JSON失败：{error}",
+    "empty_query": "JQ查询不能为空。",
+    "jq_filter_failed": "JQ过滤器'{query}'失败：{error}",
+    "result_conversion_failed": "将索引{index}处的结果转换为Data对象失败：{error}",
+    "filtering_failed": "JSON数据过滤失败：{error}"
+  }
+}

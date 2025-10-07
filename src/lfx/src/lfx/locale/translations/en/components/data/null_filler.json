@@ -1,0 +1,66 @@
+{
+  "display_name": "Null Filler",
+  "description": "Fills null, empty, and missing values in data using various strategies including statistical methods, forward/backward fill, and interpolation.",
+  "data": {
+    "display_name": "Input Data",
+    "info": "Data containing null values to be filled. Can be a list of Data objects, single Data object, or JSON string."
+  },
+  "default_strategy": {
+    "display_name": "Default Fill Strategy",
+    "info": "Default strategy to use for filling null values across all fields."
+  },
+  "default_fill_value": {
+    "display_name": "Default Fill Value",
+    "info": "Default value to use when strategy is 'constant'. Will be converted to appropriate data type."
+  },
+  "use_field_strategies": {
+    "display_name": "Use Field-Specific Strategies",
+    "info": "Enable different fill strategies for individual fields based on field configuration."
+  },
+  "field_strategies": {
+    "display_name": "Field Strategies",
+    "info": "JSON configuration defining specific fill strategies for individual fields."
+  },
+  "treat_empty_string_as_null": {
+    "display_name": "Treat Empty String as Null",
+    "info": "Consider empty strings (\"\") as null values that need to be filled."
+  },
+  "treat_whitespace_as_null": {
+    "display_name": "Treat Whitespace as Null",
+    "info": "Consider strings with only whitespace characters as null values."
+  },
+  "custom_null_values": {
+    "display_name": "Custom Null Values",
+    "info": "JSON array of custom values that should be treated as null (e.g., \"N/A\", \"NULL\", \"-\")."
+  },
+  "preserve_original_order": {
+    "display_name": "Preserve Original Order",
+    "info": "Maintain the original order of records in the output data."
+  },
+  "include_statistics": {
+    "display_name": "Include Statistics",
+    "info": "Generate detailed statistics about the fill operation in the report."
+  },
+  "validate_after_fill": {
+    "display_name": "Validate After Fill",
+    "info": "Perform validation after filling to ensure no null values remain."
+  },
+  "outputs": {
+    "filled_data": {
+      "display_name": "Filled Data"
+    },
+    "fill_report": {
+      "display_name": "Fill Report"
+    },
+    "original_nulls": {
+      "display_name": "Original Nulls"
+    }
+  },
+  "errors": {
+    "no_data": "No input data provided for null filling.",
+    "empty_data": "Input data is empty or contains no records.",
+    "fill_error": "Null filling failed: {error}",
+    "invalid_json": "Invalid JSON format in input data.",
+    "no_fill_run": "Null filling must be run before accessing this output."
+  }
+}

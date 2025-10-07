@@ -1,0 +1,50 @@
+{
+  "display_name": "Language Model",
+  "description": "Runs a language model given a specified provider.",
+  "provider": {
+    "display_name": "Model Provider",
+    "info": "Select the model provider"
+  },
+  "model_name": {
+    "display_name": "Model Name",
+    "info": "Select the model to use"
+  },
+  "api_key": {
+    "info": "Model Provider API key",
+    "openai_display_name": "OpenAI API Key",
+    "anthropic_display_name": "Anthropic API Key",
+    "google_display_name": "Google API Key"
+  },
+  "input_value": {
+    "display_name": "Input",
+    "info": "The input text to send to the model"
+  },
+  "system_message": {
+    "display_name": "System Message",
+    "info": "A system message that helps set the behavior of the assistant",
+    "o1_not_supported": "System messages are not supported by o1 reasoning models"
+  },
+  "stream": {
+    "display_name": "Stream",
+    "info": "Whether to stream the response"
+  },
+  "temperature": {
+    "display_name": "Temperature",
+    "info": "Controls randomness in responses"
+  },
+  "success": {
+    "openai_model_created": "OpenAI model '{model}' created successfully",
+    "anthropic_model_created": "Anthropic model '{model}' created successfully",
+    "google_model_created": "Google model '{model}' created successfully"
+  },
+  "info": {
+    "reasoning_model_no_temperature": "Reasoning model '{model}' does not support temperature parameter"
+  },
+  "errors": {
+    "openai_api_key_required": "OpenAI API key is required when using OpenAI provider",
+    "anthropic_api_key_required": "Anthropic API key is required when using Anthropic provider",
+    "google_api_key_required": "Google API key is required when using Google provider",
+    "unknown_provider": "Unknown provider: {provider}",
+    "model_creation_failed": "Failed to create {provider} model: {error}"
+  }
+}

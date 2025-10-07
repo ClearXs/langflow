@@ -1,0 +1,24 @@
+{
+  "display_name": "数据 → 数据框",
+  "description": "将一个或多个Data对象转换为DataFrame。每个Data对象对应一行。来自`.data`的字段成为列，`.text`（如果存在）放置在'text'列中。",
+  "data_list": {
+    "display_name": "数据或数据列表",
+    "info": "要转换为DataFrame的一个或多个Data对象。"
+  },
+  "outputs": {
+    "dataframe": {
+      "display_name": "数据框",
+      "info": "由每个Data对象的字段构建的DataFrame，加上'text'列。"
+    }
+  },
+  "success": {
+    "dataframe_created": "成功从{objects}个Data对象创建了包含{rows}行的DataFrame"
+  },
+  "warnings": {
+    "empty_data_list": "未提供Data对象。返回空DataFrame。"
+  },
+  "errors": {
+    "invalid_data_type": "期望Data对象，但在索引{index}处得到{actual_type}",
+    "dataframe_creation_failed": "创建DataFrame失败：{error}"
+  }
+}

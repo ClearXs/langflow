@@ -1,0 +1,50 @@
+{
+  "display_name": "语言模型",
+  "description": "使用指定提供商运行语言模型。",
+  "provider": {
+    "display_name": "模型提供商",
+    "info": "选择模型提供商"
+  },
+  "model_name": {
+    "display_name": "模型名称",
+    "info": "选择要使用的模型"
+  },
+  "api_key": {
+    "info": "模型提供商的API密钥",
+    "openai_display_name": "OpenAI API密钥",
+    "anthropic_display_name": "Anthropic API密钥",
+    "google_display_name": "Google API密钥"
+  },
+  "input_value": {
+    "display_name": "输入",
+    "info": "发送给模型的输入文本"
+  },
+  "system_message": {
+    "display_name": "系统消息",
+    "info": "帮助设置助手行为的系统消息",
+    "o1_not_supported": "o1推理模型不支持系统消息"
+  },
+  "stream": {
+    "display_name": "流式输出",
+    "info": "是否流式输出响应"
+  },
+  "temperature": {
+    "display_name": "温度",
+    "info": "控制响应的随机性"
+  },
+  "success": {
+    "openai_model_created": "OpenAI模型'{model}'创建成功",
+    "anthropic_model_created": "Anthropic模型'{model}'创建成功",
+    "google_model_created": "Google模型'{model}'创建成功"
+  },
+  "info": {
+    "reasoning_model_no_temperature": "推理模型'{model}'不支持温度参数"
+  },
+  "errors": {
+    "openai_api_key_required": "使用OpenAI提供商时需要OpenAI API密钥",
+    "anthropic_api_key_required": "使用Anthropic提供商时需要Anthropic API密钥",
+    "google_api_key_required": "使用Google提供商时需要Google API密钥",
+    "unknown_provider": "未知提供商：{provider}",
+    "model_creation_failed": "创建{provider}模型失败：{error}"
+  }
+}

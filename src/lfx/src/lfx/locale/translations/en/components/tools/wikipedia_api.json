@@ -1,0 +1,41 @@
+{
+  "display_name": "Wikipedia API [DEPRECATED]",
+  "description": "Call Wikipedia API.",
+  "input_value": {
+    "display_name": "Input",
+    "info": "The search query to execute on Wikipedia."
+  },
+  "lang": {
+    "display_name": "Language",
+    "info": "Language code for Wikipedia (e.g., 'en' for English, 'es' for Spanish)."
+  },
+  "k": {
+    "display_name": "Number of Results",
+    "info": "The maximum number of Wikipedia pages to return."
+  },
+  "load_all_available_meta": {
+    "display_name": "Load All Available Meta",
+    "info": "Whether to load all available metadata for each Wikipedia page."
+  },
+  "doc_content_chars_max": {
+    "display_name": "Document Content Characters Max",
+    "info": "Maximum number of characters to extract from each Wikipedia page."
+  },
+  "success": {
+    "search_completed": "Wikipedia search completed successfully. Found {count} results for '{query}'",
+    "tool_created": "Wikipedia API tool created for language '{lang}' with max {results} results"
+  },
+  "info": {
+    "searching": "Searching Wikipedia for '{query}' in language '{lang}'..."
+  },
+  "warnings": {
+    "empty_input": "Search input is empty. Please provide a search query.",
+    "no_results": "No Wikipedia articles found for query: '{query}'"
+  },
+  "errors": {
+    "import_error": "Missing required dependency. Please install wikipedia package to use Wikipedia API.",
+    "search_failed": "Wikipedia search failed: {error}",
+    "tool_creation_failed": "Failed to create Wikipedia API tool: {error}",
+    "wrapper_creation_failed": "Failed to create Wikipedia API wrapper: {error}"
+  }
+}

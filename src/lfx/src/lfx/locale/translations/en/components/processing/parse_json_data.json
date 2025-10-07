@@ -1,0 +1,34 @@
+{
+  "display_name": "Parse JSON",
+  "description": "Convert and extract JSON fields using JQ queries.",
+  "input_value": {
+    "display_name": "Input",
+    "info": "Data object or Message to filter. Can be a single item or a list."
+  },
+  "query": {
+    "display_name": "JQ Query",
+    "info": "JQ Query to filter the data. The input is processed as JSON and can be queried using JQ syntax."
+  },
+  "outputs": {
+    "filtered_data": {
+      "display_name": "Filtered Data"
+    }
+  },
+  "success": {
+    "data_filtered": "Successfully filtered JSON data using query '{query}'. Generated {results} result(s)."
+  },
+  "warnings": {
+    "empty_input": "No input data provided for filtering.",
+    "no_results": "JQ query '{query}' returned no results."
+  },
+  "errors": {
+    "data_parsing_failed": "Failed to parse input data: {error}",
+    "invalid_json": "Invalid JSON format: {error}",
+    "list_item_parsing_failed": "Failed to parse list item at index {index}: {error}",
+    "list_json_parsing_failed": "Failed to parse JSON at list index {index}: {error}",
+    "empty_query": "JQ query cannot be empty.",
+    "jq_filter_failed": "JQ filter '{query}' failed: {error}",
+    "result_conversion_failed": "Failed to convert result at index {index} to Data object: {error}",
+    "filtering_failed": "JSON data filtering failed: {error}"
+  }
+}

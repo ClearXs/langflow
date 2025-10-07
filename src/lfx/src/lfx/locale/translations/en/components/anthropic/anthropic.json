@@ -1,0 +1,63 @@
+{
+  "display_name": "Anthropic",
+  "description": "Generate text using Anthropic's Messages API and models.",
+  "max_tokens": {
+    "display_name": "Max Tokens",
+    "info": "The maximum number of tokens to generate. Set to 0 for unlimited tokens."
+  },
+  "model_name": {
+    "display_name": "Model Name"
+  },
+  "api_key": {
+    "display_name": "Anthropic API Key",
+    "info": "Your Anthropic API key."
+  },
+  "temperature": {
+    "display_name": "Temperature",
+    "info": "Run inference with this temperature. Must be in the closed interval [0.0, 1.0]."
+  },
+  "base_url": {
+    "display_name": "Anthropic API URL",
+    "info": "Endpoint of the Anthropic API. Defaults to 'https://api.anthropic.com' if not specified."
+  },
+  "tool_model_enabled": {
+    "display_name": "Enable Tool Models",
+    "info": "Select if you want to use models that can work with tools. If yes, only those models will be shown."
+  },
+  "status": {
+    "initializing_model": "Initializing Anthropic model '{model}'...",
+    "fetching_models": "Fetching available models...",
+    "filtering_tool_models": "Filtering models with tool support...",
+    "updating_models": "Updating model list..."
+  },
+  "success": {
+    "model_initialized": "Anthropic model '{model}' initialized successfully"
+  },
+  "warnings": {
+    "models_fetch_failed": "Error getting model names: {error}",
+    "tool_check_failed": "Failed to check tool support for model '{model}': {error}",
+    "exception_message_extraction_failed": "Failed to extract exception message: {error}",
+    "models_update_failed": "Error updating model names: {error}"
+  },
+  "errors": {
+    "langchain_anthropic_not_installed": "langchain_anthropic is not installed. Please install it with `pip install langchain_anthropic`.",
+    "validation_error": "Validation error: {error}",
+    "connection_failed": "Could not connect to Anthropic API.",
+    "model_build_failed": "Failed to build Anthropic model: {error}",
+    "get_models_failed": "Failed to get models: {error}",
+    "config_update_failed": "Error getting model names: {error}",
+    "build_config_update_failed": "Failed to update build configuration: {error}"
+  },
+  "logs": {
+    "models_fetched": "Fetched {count} models from Anthropic API",
+    "tool_model_added": "Added tool-supported model: {model}",
+    "tool_model_skipped": "Skipped model without tool support: {model}",
+    "tool_model_verified": "Verified tool support for model: {model}",
+    "tool_models_filtered": "Filtered {count} tool-capable models",
+    "anthropic_not_available": "Anthropic error module not available for exception handling",
+    "extracted_error_message": "Extracted error message: {message}",
+    "default_url_set": "Default API URL set",
+    "using_default_models": "Using default Anthropic models",
+    "models_updated": "Updated model list with {count} models"
+  }
+}

@@ -1,0 +1,68 @@
+{
+  "display_name": "Conditional Router",
+  "description": "Route data to different paths based on conditional logic evaluation.",
+  "input_data": {
+    "display_name": "Input Data",
+    "info": "Data to be evaluated and routed based on conditions."
+  },
+  "conditions": {
+    "display_name": "Conditions",
+    "info": "JSON array of routing conditions. Each condition should have 'name', 'condition', and optional 'description' fields."
+  },
+  "evaluation_mode": {
+    "display_name": "Evaluation Mode",
+    "info": "How to handle multiple matching conditions: first_match (stop at first), all_matches (return all), best_match (return highest scoring)."
+  },
+  "default_route": {
+    "display_name": "Default Route",
+    "info": "Name of the route to use when no conditions match (ignored in strict mode)."
+  },
+  "case_sensitive": {
+    "display_name": "Case Sensitive",
+    "info": "Whether text comparisons should be case sensitive."
+  },
+  "include_metadata": {
+    "display_name": "Include Metadata",
+    "info": "Whether to include evaluation metadata in the output."
+  },
+  "max_routes": {
+    "display_name": "Max Routes",
+    "info": "Maximum number of routes to return when using 'all_matches' mode (0 for unlimited)."
+  },
+  "strict_mode": {
+    "display_name": "Strict Mode",
+    "info": "In strict mode, throw error if no conditions match instead of using default route."
+  },
+  "text_key": {
+    "display_name": "Text Key",
+    "info": "Key to extract text content from Data objects."
+  },
+  "outputs": {
+    "routed_data": {
+      "display_name": "Routed Data"
+    },
+    "routing_info": {
+      "display_name": "Routing Info"
+    },
+    "matched_routes": {
+      "display_name": "Matched Routes"
+    }
+  },
+  "success": {
+    "conditions_matched": "{count} condition(s) matched successfully"
+  },
+  "warnings": {
+    "condition_evaluation_warning": "Warning evaluating condition '{condition}': {error}",
+    "using_default_route": "No conditions matched, using default route: {route}"
+  },
+  "errors": {
+    "empty_conditions": "Conditions cannot be empty.",
+    "invalid_conditions_format": "Invalid conditions format: {error}",
+    "condition_evaluation_error": "Error evaluating condition '{condition}': {error}",
+    "conditions_evaluation_error": "Error evaluating conditions: {error}",
+    "no_matches_strict_mode": "No conditions matched and strict mode is enabled.",
+    "routing_error": "Error during routing: {error}",
+    "routing_info_error": "Error getting routing information: {error}",
+    "matched_routes_error": "Error getting matched routes: {error}"
+  }
+}

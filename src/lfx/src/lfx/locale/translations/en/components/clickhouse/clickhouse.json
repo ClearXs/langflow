@@ -1,0 +1,96 @@
+{
+  "display_name": "ClickHouse",
+  "description": "ClickHouse Vector Store with search capabilities",
+  "host": {
+    "display_name": "Host",
+    "info": "ClickHouse server hostname"
+  },
+  "port": {
+    "display_name": "Port",
+    "info": "ClickHouse server port"
+  },
+  "database": {
+    "display_name": "Database",
+    "info": "ClickHouse database name"
+  },
+  "table": {
+    "display_name": "Table Name",
+    "info": "The name of the table where vectors will be stored"
+  },
+  "username": {
+    "display_name": "Username",
+    "info": "The ClickHouse user name"
+  },
+  "password": {
+    "display_name": "Password",
+    "info": "ClickHouse user password"
+  },
+  "index_type": {
+    "display_name": "Index Type",
+    "info": "Type of the index (annoy or vector_similarity)"
+  },
+  "metric": {
+    "display_name": "Metric",
+    "info": "Metric to compute distance (angular, euclidean, manhattan, hamming, or dot)"
+  },
+  "secure": {
+    "display_name": "Use HTTPS/TLS",
+    "info": "Use https/TLS. This overrides inferred values from the interface or port arguments."
+  },
+  "index_param": {
+    "display_name": "Index Parameters",
+    "info": "Parameters of the index (e.g., '100,L2Distance')"
+  },
+  "index_query_params": {
+    "display_name": "Index Query Parameters",
+    "info": "Additional query parameters for the index"
+  },
+  "embedding": {
+    "display_name": "Embedding"
+  },
+  "number_of_results": {
+    "display_name": "Number of Results",
+    "info": "Number of results to return"
+  },
+  "score_threshold": {
+    "display_name": "Score Threshold",
+    "info": "Minimum similarity score threshold for search results"
+  },
+  "status": {
+    "connecting": "Connecting to ClickHouse...",
+    "preparing_documents": "Preparing documents...",
+    "building_store": "Building vector store...",
+    "searching": "Searching documents..."
+  },
+  "success": {
+    "store_created": "Vector store created successfully in table '{table}'"
+  },
+  "warnings": {
+    "empty_query": "Empty search query provided"
+  },
+  "errors": {
+    "clickhouse_not_installed": "Failed to import ClickHouse dependencies. Install it using `uv pip install langflow[clickhouse-connect] --pre`",
+    "connection_failed": "Failed to connect to ClickHouse: {error}",
+    "store_creation_failed": "Failed to create vector store: {error}",
+    "search_failed": "Search failed: {error}"
+  },
+  "logs": {
+    "clickhouse_imported": "ClickHouse packages imported successfully",
+    "connecting": "Connecting to ClickHouse - Host: {host}, Port: {port}, Database: {database}",
+    "connection_successful": "Successfully connected to ClickHouse at {host}",
+    "document_count": "Prepared {count} documents for ingestion",
+    "index_param_set": "Index parameters set: {params}",
+    "index_query_params_set": "Index query parameters set: {params}",
+    "settings_configured": "Settings configured - Table: {table}, Database: {database}, Index Type: {index_type}, Metric: {metric}",
+    "adding_documents": "Adding {count} documents to the Vector Store.",
+    "creating_from_documents": "Creating vector store from {count} documents - Table: {table}",
+    "no_documents": "No documents to add to the Vector Store.",
+    "creating_empty_store": "Creating empty vector store - Table: {table}",
+    "search_input": "Search input: {query}",
+    "number_of_results": "Number of results: {count}",
+    "score_threshold_set": "Score threshold set to: {threshold}",
+    "executing_search": "Executing similarity search - Query: '{query}', k: {k}",
+    "retrieved_documents": "Retrieved documents: {count}",
+    "search_completed": "Search completed with {count} results"
+  }
+}

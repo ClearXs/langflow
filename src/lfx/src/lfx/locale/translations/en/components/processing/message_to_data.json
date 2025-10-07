@@ -1,0 +1,21 @@
+{
+  "display_name": "Message to Data",
+  "description": "Convert a Message object to a Data object",
+  "message": {
+    "display_name": "Message",
+    "info": "The Message object to convert to a Data object"
+  },
+  "outputs": {
+    "data": {
+      "display_name": "Data"
+    }
+  },
+  "success": {
+    "conversion_successful": "Successfully converted Message to Data object"
+  },
+  "errors": {
+    "empty_message": "No message provided for conversion",
+    "invalid_message_type": "Error converting Message to Data: Input must be a Message object",
+    "conversion_failed": "Message to Data conversion failed: {error}"
+  }
+}

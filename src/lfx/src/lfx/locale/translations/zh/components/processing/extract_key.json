@@ -1,0 +1,34 @@
+{
+  "display_name": "提取键",
+  "description": "从Data对象或Data对象列表中提取特定键，并将提取的值作为Data对象返回。",
+  "data_input": {
+    "display_name": "数据输入",
+    "info": "要从中提取键的Data对象或Data对象列表。"
+  },
+  "key": {
+    "display_name": "要提取的键",
+    "info": "要从Data对象中提取的键。"
+  },
+  "outputs": {
+    "extracted_data": {
+      "display_name": "提取的数据"
+    }
+  },
+  "success": {
+    "extracted_from_single": "成功从Data对象中提取键'{key}'",
+    "extracted_from_list": "成功从{count}个Data对象中提取键'{key}'"
+  },
+  "warnings": {
+    "empty_data_list": "提供了空数据列表。没有要提取的内容。",
+    "key_missing_in_some": "键'{key}'在{missing}个对象中缺失，但在{found}个对象中找到"
+  },
+  "errors": {
+    "empty_key": "键不能为空。请指定要提取的键。",
+    "invalid_data_type_in_list": "在索引{index}处期望Data对象，但得到{actual_type}",
+    "key_not_found_in_any": "在{total}个Data对象中的任何一个都未找到键'{key}'",
+    "key_not_found_in_data": "在Data对象中未找到键'{key}'。可用键：{available_keys}",
+    "invalid_input_type": "无效的输入类型。期望Data对象或Data对象列表，但得到{actual_type}",
+    "extraction_failed": "键提取失败：{error}"
+  },
+  "no_keys_available": "没有可用的键"
+}

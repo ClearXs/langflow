@@ -1,0 +1,30 @@
+{
+  "display_name": "Combine Text",
+  "description": "Concatenate two text sources into a single text chunk using a specified delimiter.",
+  "text1": {
+    "display_name": "First Text",
+    "info": "The first text input to concatenate."
+  },
+  "text2": {
+    "display_name": "Second Text",
+    "info": "The second text input to concatenate."
+  },
+  "delimiter": {
+    "display_name": "Delimiter",
+    "info": "A string used to separate the two text inputs. Defaults to a whitespace."
+  },
+  "outputs": {
+    "combined_text": {
+      "display_name": "Combined Text"
+    }
+  },
+  "success": {
+    "texts_combined": "Successfully combined texts (length: {length} characters)"
+  },
+  "warnings": {
+    "both_texts_empty": "Both text inputs are empty. Returning empty result."
+  },
+  "errors": {
+    "combination_failed": "Failed to combine texts: {error}"
+  }
+}

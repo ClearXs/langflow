@@ -1,0 +1,87 @@
+{
+  "display_name": "监听",
+  "description": "监听来自各种源的事件、消息或数据，支持过滤和处理选项。",
+  "listen_type": {
+    "display_name": "监听类型",
+    "info": "要监听的数据源类型：event、message、data_stream、file_change、http_webhook或queue。"
+  },
+  "source_identifier": {
+    "display_name": "源标识符",
+    "info": "数据源的标识符（例如，事件名称、消息通道、文件路径、webhook URL、队列名称）。"
+  },
+  "filter_conditions": {
+    "display_name": "过滤条件",
+    "info": "定义过滤传入数据条件的JSON对象。使用字段名称和操作符如_contains、_gt、_lt。"
+  },
+  "listen_mode": {
+    "display_name": "监听模式",
+    "info": "如何监听数据：blocking（带超时等待）、non_blocking（检查一次）、continuous（持续监听）、single_shot（第一条消息后停止）。"
+  },
+  "timeout": {
+    "display_name": "超时时间（秒）",
+    "info": "在blocking或single_shot模式下等待数据的最大时间。"
+  },
+  "max_messages": {
+    "display_name": "最大消息数",
+    "info": "停止前收集的最大消息数（0表示无限制）。"
+  },
+  "poll_interval": {
+    "display_name": "轮询间隔（秒）",
+    "info": "检查新数据之间的时间间隔。"
+  },
+  "auto_acknowledge": {
+    "display_name": "自动确认",
+    "info": "是否自动确认收到的消息（适用于基于队列的源）。"
+  },
+  "include_metadata": {
+    "display_name": "包含元数据",
+    "info": "是否在输出中包含监听过程的元数据。"
+  },
+  "output_format": {
+    "display_name": "输出格式",
+    "info": "接收数据的格式：data（数据对象）、message（消息）、raw或batch（多个项目）。"
+  },
+  "persistent_connection": {
+    "display_name": "持久连接",
+    "info": "是否维护到数据源的持久连接。"
+  },
+  "authentication": {
+    "display_name": "身份验证",
+    "info": "包含安全源身份验证凭据的JSON对象。"
+  },
+  "outputs": {
+    "received_data": {
+      "display_name": "接收的数据"
+    },
+    "listen_status": {
+      "display_name": "监听状态"
+    },
+    "connection_info": {
+      "display_name": "连接信息"
+    }
+  },
+  "success": {
+    "listening_started": "开始监听{type}源：{source}",
+    "listening_stopped": "停止监听。接收了{count}条消息。",
+    "data_received": "成功接收{count}个数据项"
+  },
+  "warnings": {
+    "filter_evaluation_error": "评估过滤条件时出错：{error}",
+    "no_data_received_timeout": "在{timeout}秒的超时时间内未收到数据"
+  },
+  "info": {
+    "no_data_available": "当前没有可用数据"
+  },
+  "errors": {
+    "empty_source_identifier": "源标识符不能为空。",
+    "invalid_timeout": "超时时间必须大于0。",
+    "invalid_poll_interval": "轮询间隔必须大于0。",
+    "invalid_filter_conditions": "过滤条件中的JSON格式无效：{error}",
+    "invalid_authentication": "身份验证中的JSON格式无效：{error}",
+    "unsupported_listen_type": "不支持的监听类型：{type}",
+    "connection_creation_error": "创建连接时出错：{error}",
+    "listening_error": "监听过程中出错：{error}",
+    "status_error": "获取监听状态时出错：{error}",
+    "connection_info_error": "获取连接信息时出错：{error}"
+  }
+}

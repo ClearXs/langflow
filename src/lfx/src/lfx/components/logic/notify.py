@@ -1,4 +1,5 @@
 from typing import cast
+import i18n
 
 from lfx.custom import Component
 from lfx.io import BoolInput, HandleInput, Output, StrInput
@@ -6,8 +7,8 @@ from lfx.schema.data import Data
 
 
 class NotifyComponent(Component):
-    display_name = "Notify"
-    description = "A component to generate a notification to Get Notified component."
+    display_name = i18n.t('components.logic.notify.display_name')
+    description = i18n.t('components.logic.notify.description')
     icon = "Notify"
     name = "Notify"
     beta: bool = True
@@ -15,21 +16,23 @@ class NotifyComponent(Component):
     inputs = [
         StrInput(
             name="context_key",
-            display_name="Context Key",
-            info="The key of the context to store the notification.",
+            display_name=i18n.t(
+                'components.logic.notify.context_key.display_name'),
+            info=i18n.t('components.logic.notify.context_key.info'),
             required=True,
         ),
         HandleInput(
             name="input_value",
-            display_name="Input Data",
-            info="The data to store.",
+            display_name=i18n.t(
+                'components.logic.notify.input_value.display_name'),
+            info=i18n.t('components.logic.notify.input_value.info'),
             required=False,
             input_types=["Data", "Message", "DataFrame"],
         ),
         BoolInput(
             name="append",
-            display_name="Append",
-            info="If True, the record will be appended to the notification.",
+            display_name=i18n.t('components.logic.notify.append.display_name'),
+            info=i18n.t('components.logic.notify.append.info'),
             value=False,
             required=False,
         ),
@@ -37,7 +40,8 @@ class NotifyComponent(Component):
 
     outputs = [
         Output(
-            display_name="Data",
+            display_name=i18n.t(
+                'components.logic.notify.outputs.result.display_name'),
             name="result",
             method="notify_components",
             cache=False,
@@ -59,8 +63,10 @@ class NotifyComponent(Component):
             ValueError: If the component is not part of a graph.
         """
         if not self._vertex:
-            msg = "Notify component must be used in a graph."
-            raise ValueError(msg)
+            error_message = i18n.t(
+                'components.logic.notify.errors.must_be_in_graph')
+            raise ValueError(error_message)
+
         input_value: Data | str | dict | None = self.input_value
         if input_value is None:
             input_value = Data(text="")
@@ -71,6 +77,7 @@ class NotifyComponent(Component):
                 input_value = Data(data=input_value)
             else:
                 input_value = Data(text=str(input_value))
+
         if input_value:
             if self.append:
                 current_data = self.ctx.get(self.context_key, [])
@@ -78,11 +85,20 @@ class NotifyComponent(Component):
                     current_data = [current_data]
                 current_data.append(input_value)
                 self.update_ctx({self.context_key: current_data})
+                success_message = i18n.t('components.logic.notify.success.appended_to_context',
+                                         key=self.context_key)
             else:
                 self.update_ctx({self.context_key: input_value})
-            self.status = input_value
+                success_message = i18n.t('components.logic.notify.success.stored_in_context',
+                                         key=self.context_key)
+
+            self.status = success_message
         else:
-            self.status = "No record provided."
+            no_record_message = i18n.t(
+                'components.logic.notify.warnings.no_record_provided')
+            self.status = no_record_message
+
         self._vertex.is_state = True
-        self.graph.activate_state_vertices(name=self.context_key, caller=self._id)
+        self.graph.activate_state_vertices(
+            name=self.context_key, caller=self._id)
         return cast("Data", input_value)

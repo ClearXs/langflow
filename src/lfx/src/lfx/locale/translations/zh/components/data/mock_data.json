@@ -1,0 +1,36 @@
+{
+  "display_name": "模拟数据",
+  "description": "生成用于测试和开发的模拟数据。",
+  "number_of_rows": {
+    "display_name": "行数",
+    "info": "要生成的模拟数据记录数量（1-1000）。"
+  },
+  "data_type": {
+    "display_name": "数据类型",
+    "info": "要生成的模拟数据类型。从预定义模板中选择或创建自定义数据。"
+  },
+  "custom_schema": {
+    "display_name": "自定义模式",
+    "info": "定义自定义数据结构的JSON模式。示例：{\"name\": \"string\", \"age\": \"integer\", \"email\": \"email\"}"
+  },
+  "seed": {
+    "display_name": "随机种子",
+    "info": "随机数生成的种子值，确保结果可重现。"
+  },
+  "text_key": {
+    "display_name": "文本键",
+    "info": "用于数据对象中文本字段的键。"
+  },
+  "outputs": {
+    "data_list": {
+      "display_name": "模拟数据列表"
+    }
+  },
+  "errors": {
+    "invalid_row_count": "行数必须大于0。",
+    "missing_custom_schema": "当数据类型设置为'自定义'时，需要提供自定义模式。",
+    "invalid_data_type": "指定了无效的数据类型：{data_type}",
+    "generation_error": "生成模拟数据时出错：{error}",
+    "invalid_schema": "无效的JSON模式格式：{error}"
+  }
+}

@@ -1,0 +1,73 @@
+{
+  "display_name": "S3 Bucket Uploader",
+  "description": "Uploads files to S3 bucket.",
+  "aws_access_key_id": {
+    "display_name": "AWS Access Key ID",
+    "info": "AWS Access key ID."
+  },
+  "aws_secret_access_key": {
+    "display_name": "AWS Secret Key",
+    "info": "AWS Secret Key."
+  },
+  "bucket_name": {
+    "display_name": "Bucket Name",
+    "info": "Enter the name of the bucket."
+  },
+  "strategy": {
+    "display_name": "Strategy for file upload",
+    "info": "Choose the strategy to upload the file. Store Data means that the source file is parsed and stored as LangFlow data. Store Original File means that the source file is uploaded as is.",
+    "options": {
+      "store_data": "Store Data",
+      "store_original_file": "Store Original File"
+    }
+  },
+  "data_inputs": {
+    "display_name": "Data Inputs",
+    "info": "The data to upload."
+  },
+  "s3_prefix": {
+    "display_name": "S3 Prefix",
+    "info": "Prefix for all files."
+  },
+  "strip_path": {
+    "display_name": "Strip Path",
+    "info": "Removes path from file path."
+  },
+  "outputs": {
+    "data": {
+      "display_name": "Writes to AWS Bucket"
+    }
+  },
+  "status": {
+    "processing_files": "Processing files..."
+  },
+  "success": {
+    "files_processed_by_data": "Successfully uploaded {uploaded} files by data, skipped {skipped}",
+    "files_processed_by_name": "Successfully uploaded {uploaded} files by name, skipped {skipped}"
+  },
+  "warnings": {
+    "no_data_inputs": "No data inputs provided",
+    "missing_data": "Missing file path or text content for file: {path}",
+    "file_not_found": "File not found: {path}",
+    "no_file_path": "No file path provided in data item"
+  },
+  "errors": {
+    "invalid_strategy": "Invalid strategy: {strategy}",
+    "process_files_failed": "Failed to process files: {error}",
+    "upload_data_failed": "Failed to upload data for file {path}: {error}",
+    "process_by_data_failed": "Failed to process files by data: {error}",
+    "upload_file_failed": "Failed to upload file {path}: {error}",
+    "process_by_name_failed": "Failed to process files by name: {error}",
+    "boto3_not_installed": "boto3 is not installed. Please install it using `uv pip install boto3`.",
+    "s3_client_creation_failed": "Failed to create S3 client: {error}",
+    "path_normalization_failed": "Failed to normalize path {path}: {error}"
+  },
+  "logs": {
+    "uploading_data": "Uploading data from {path} to S3 key: {key}",
+    "data_uploaded": "Data uploaded successfully to S3 key: {key}",
+    "uploading_file": "Uploading file {path} to S3 key: {key}",
+    "file_uploaded": "File uploaded successfully to S3 key: {key}",
+    "path_stripped": "Path stripped: {original} -> {stripped}",
+    "prefix_added": "Prefix '{prefix}' added: {result}"
+  }
+}

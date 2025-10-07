@@ -1,0 +1,86 @@
+{
+  "display_name": "Chroma DB",
+  "description": "Chroma Vector Store with search capabilities",
+  "collection_name": {
+    "display_name": "Collection Name",
+    "info": "The name of the Chroma collection"
+  },
+  "persist_directory": {
+    "display_name": "Persist Directory",
+    "info": "Directory to persist the Chroma database"
+  },
+  "embedding": {
+    "display_name": "Embedding"
+  },
+  "chroma_server_cors_allow_origins": {
+    "display_name": "Server CORS Allow Origins",
+    "info": "CORS allow origins for the Chroma server"
+  },
+  "chroma_server_host": {
+    "display_name": "Server Host",
+    "info": "Host address for the Chroma server"
+  },
+  "chroma_server_http_port": {
+    "display_name": "Server HTTP Port",
+    "info": "HTTP port for the Chroma server"
+  },
+  "chroma_server_grpc_port": {
+    "display_name": "Server gRPC Port",
+    "info": "gRPC port for the Chroma server"
+  },
+  "chroma_server_ssl_enabled": {
+    "display_name": "Server SSL Enabled",
+    "info": "Enable SSL for the Chroma server"
+  },
+  "allow_duplicates": {
+    "display_name": "Allow Duplicates",
+    "info": "If false, will not add documents that are already in the Vector Store."
+  },
+  "search_type": {
+    "display_name": "Search Type",
+    "info": "Search type to use (Similarity or MMR)"
+  },
+  "number_of_results": {
+    "display_name": "Number of Results",
+    "info": "Number of results to return."
+  },
+  "limit": {
+    "display_name": "Limit",
+    "info": "Limit the number of records to compare when Allow Duplicates is False."
+  },
+  "status": {
+    "initializing": "Initializing Chroma vector store...",
+    "preparing_documents": "Preparing documents for ingestion..."
+  },
+  "success": {
+    "store_created": "Chroma vector store created successfully for collection '{collection}'"
+  },
+  "warnings": {
+    "filter_not_available": "Warning: Could not import filter_complex_metadata. Adding documents without filtering."
+  },
+  "errors": {
+    "chroma_not_installed": "Could not import Chroma integration package. Please install it with `pip install langchain-chroma`.",
+    "store_creation_failed": "Failed to create Chroma vector store: {error}",
+    "invalid_input_type": "Vector Store Inputs must be Data objects."
+  },
+  "logs": {
+    "chroma_imported": "Chroma packages imported successfully",
+    "configuring_server": "Configuring Chroma server at host: {host}",
+    "server_client_created": "Chroma server client created - HTTP Port: {http_port}, gRPC Port: {grpc_port}, SSL: {ssl}",
+    "using_persist_directory": "Using persist directory: {path}",
+    "in_memory_mode": "Using in-memory mode (no persist directory)",
+    "creating_chroma": "Creating Chroma instance with collection: {collection}",
+    "chroma_created": "Chroma instance created for collection: {collection}",
+    "no_ingest_data": "No ingest data provided",
+    "ingest_data_count": "Ingest data count: {count}",
+    "duplicates_allowed": "Duplicates allowed - will add all documents",
+    "checking_duplicates": "Checking for duplicates with limit: {limit}",
+    "existing_documents": "Found {count} existing documents in collection",
+    "adding_documents": "Adding {count} documents to the Vector Store.",
+    "adding_documents_to_store": "Adding {count} documents to Chroma vector store",
+    "documents_added_successfully": "Successfully added {count} documents with metadata filtering",
+    "documents_added_without_filter": "Successfully added {count} documents without metadata filtering",
+    "no_documents": "No documents to add to the Vector Store.",
+    "no_documents_to_add": "No documents to add after duplicate check"
+  }
+}

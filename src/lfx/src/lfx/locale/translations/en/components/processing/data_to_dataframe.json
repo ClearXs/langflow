@@ -1,0 +1,24 @@
+{
+  "display_name": "Data → DataFrame",
+  "description": "Converts one or multiple Data objects into a DataFrame. Each Data object corresponds to one row. Fields from `.data` become columns, and the `.text` (if present) is placed in a 'text' column.",
+  "data_list": {
+    "display_name": "Data or Data List",
+    "info": "One or multiple Data objects to transform into a DataFrame."
+  },
+  "outputs": {
+    "dataframe": {
+      "display_name": "DataFrame",
+      "info": "A DataFrame built from each Data object's fields plus a 'text' column."
+    }
+  },
+  "success": {
+    "dataframe_created": "DataFrame created successfully with {rows} rows from {objects} Data objects"
+  },
+  "warnings": {
+    "empty_data_list": "No Data objects provided. Returning empty DataFrame."
+  },
+  "errors": {
+    "invalid_data_type": "Expected Data objects, got {actual_type} at index {index}",
+    "dataframe_creation_failed": "Failed to create DataFrame: {error}"
+  }
+}

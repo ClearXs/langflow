@@ -1,0 +1,45 @@
+{
+  "display_name": "Qianfan",
+  "description": "Generate text using Baidu Qianfan LLMs.",
+  "model": {
+    "display_name": "Model Name",
+    "info": "The Baidu Qianfan model to use. See https://python.langchain.com/docs/integrations/chat/baidu_qianfan_endpoint for details."
+  },
+  "qianfan_ak": {
+    "display_name": "Qianfan AK",
+    "info": "Your Qianfan Access Key, which you can get from https://cloud.baidu.com/product/wenxinworkshop"
+  },
+  "qianfan_sk": {
+    "display_name": "Qianfan SK",
+    "info": "Your Qianfan Secret Key, which you can get from https://cloud.baidu.com/product/wenxinworkshop"
+  },
+  "top_p": {
+    "display_name": "Top P",
+    "info": "Model parameter, only supported in ERNIE-Bot and ERNIE-Bot-turbo. Controls diversity via nucleus sampling."
+  },
+  "temperature": {
+    "display_name": "Temperature",
+    "info": "Model parameter, only supported in ERNIE-Bot and ERNIE-Bot-turbo. Controls randomness in generation."
+  },
+  "penalty_score": {
+    "display_name": "Penalty Score",
+    "info": "Model parameter, only supported in ERNIE-Bot and ERNIE-Bot-turbo. Penalizes repetitive tokens."
+  },
+  "endpoint": {
+    "display_name": "Endpoint",
+    "info": "Endpoint of the Qianfan LLM, required if custom model is used."
+  },
+  "status": {
+    "initializing": "Initializing Baidu Qianfan model '{model}'..."
+  },
+  "success": {
+    "model_initialized": "Baidu Qianfan model '{model}' initialized successfully"
+  },
+  "errors": {
+    "connection_failed": "Could not connect to Baidu Qianfan API: {error}"
+  },
+  "logs": {
+    "building_model": "Building model - Model: {model}, Temperature: {temperature}, Top P: {top_p}, Penalty Score: {penalty_score}, Has Custom Endpoint: {has_endpoint}",
+    "custom_endpoint_set": "Custom endpoint set to: {endpoint}"
+  }
+}

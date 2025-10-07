@@ -1,0 +1,59 @@
+{
+  "display_name": "News Search",
+  "description": "Search for news articles using various news APIs.",
+  "query": {
+    "display_name": "Search Query",
+    "info": "Keywords or phrases to search for in news articles."
+  },
+  "api_key": {
+    "display_name": "API Key",
+    "info": "API key for the selected news service (NewsAPI, GNews, or NewsData)."
+  },
+  "source": {
+    "display_name": "News Source",
+    "info": "Select the news API service to use for searching articles."
+  },
+  "language": {
+    "display_name": "Language",
+    "info": "Language code for news articles (e.g., 'en' for English, 'zh' for Chinese)."
+  },
+  "country": {
+    "display_name": "Country",
+    "info": "Country code to filter news articles by geographic region."
+  },
+  "category": {
+    "display_name": "Category",
+    "info": "News category to filter articles by topic."
+  },
+  "max_results": {
+    "display_name": "Max Results",
+    "info": "Maximum number of news articles to return (1-100)."
+  },
+  "days_back": {
+    "display_name": "Days Back",
+    "info": "Number of days back to search for news articles (1-30)."
+  },
+  "include_content": {
+    "display_name": "Include Content",
+    "info": "Whether to include the full article content in the results (if available)."
+  },
+  "text_key": {
+    "display_name": "Text Key",
+    "info": "The key to use for the text field in the Data objects (e.g., 'title', 'description', 'content')."
+  },
+  "outputs": {
+    "news_list": {
+      "display_name": "News Articles"
+    }
+  },
+  "success": {
+    "found_articles": "Found {count} news articles"
+  },
+  "errors": {
+    "empty_query": "Search query cannot be empty.",
+    "missing_api_key": "API key is required for news search.",
+    "invalid_source": "Invalid news source specified: {source}",
+    "no_results": "No news articles found for the given query.",
+    "search_error": "Error searching for news: {error}"
+  }
+}

@@ -1,0 +1,77 @@
+{
+  "display_name": "AssemblyAI启动转录",
+  "description": "使用AssemblyAI为音频文件创建具有高级选项的转录任务",
+  "api_key": {
+    "display_name": "Assembly API密钥",
+    "info": "您的AssemblyAI API密钥。您可以从https://www.assemblyai.com/获取"
+  },
+  "audio_file": {
+    "display_name": "音频文件",
+    "info": "要转录的音频文件"
+  },
+  "audio_file_url": {
+    "display_name": "音频文件URL",
+    "info": "要转录的音频文件的URL（可以代替文件使用）"
+  },
+  "speech_model": {
+    "display_name": "语音模型",
+    "info": "用于转录的语音模型"
+  },
+  "language_detection": {
+    "display_name": "自动语言检测",
+    "info": "启用自动语言检测"
+  },
+  "language_code": {
+    "display_name": "语言",
+    "info": "音频文件的语言。如果禁用自动语言检测，可以手动设置。支持的语言代码列表请参见https://www.assemblyai.com/docs/getting-started/supported-languages"
+  },
+  "speaker_labels": {
+    "display_name": "启用说话人标签",
+    "info": "启用说话人分离"
+  },
+  "speakers_expected": {
+    "display_name": "预期说话人数",
+    "info": "设置预期的说话人数（可选，输入数字）"
+  },
+  "punctuate": {
+    "display_name": "标点符号",
+    "info": "启用自动标点"
+  },
+  "format_text": {
+    "display_name": "格式化文本",
+    "info": "启用文本格式化"
+  },
+  "outputs": {
+    "transcript_id": {
+      "display_name": "转录ID"
+    }
+  },
+  "status": {
+    "building_config": "正在构建转录配置...",
+    "submitting_job": "正在提交转录任务..."
+  },
+  "success": {
+    "job_created": "转录任务创建成功，ID：{id}"
+  },
+  "warnings": {
+    "url_ignored": "同时指定了音频文件和音频URL。音频URL已被忽略。"
+  },
+  "errors": {
+    "invalid_speakers_count": "错误：预期说话人数必须是有效的整数",
+    "file_not_found": "错误：未找到音频文件",
+    "no_audio_source": "错误：必须指定音频文件或音频URL",
+    "submission_failed": "发生错误：{error}",
+    "create_job_failed": "创建转录任务失败：{error}"
+  },
+  "logs": {
+    "speakers_expected_set": "预期说话人数设置为{count}",
+    "language_code_set": "语言代码设置为'{code}'",
+    "config_built": "配置已构建 - 模型：{model}，语言检测：{language_detection}，说话人标签：{speaker_labels}",
+    "file_not_found": "在路径未找到音频文件：{path}",
+    "using_audio_file": "使用音频文件：{path}",
+    "using_audio_url": "使用音频URL：{url}",
+    "job_submitted": "转录任务已提交，ID：{id}",
+    "submission_error": "提交转录任务时出错",
+    "transcript_error": "转录错误：{error}"
+  }
+}

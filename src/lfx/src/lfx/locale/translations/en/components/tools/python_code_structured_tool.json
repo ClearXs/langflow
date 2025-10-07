@@ -1,0 +1,56 @@
+{
+  "display_name": "Python Code Structured Tool [DEPRECATED]",
+  "description": "Transform Python dataclass code into a structured tool.",
+  "tool_code": {
+    "display_name": "Tool Code",
+    "info": "Enter the dataclass code for the tool."
+  },
+  "tool_name": {
+    "display_name": "Tool Name",
+    "info": "Enter the name of the tool."
+  },
+  "tool_description": {
+    "display_name": "Tool Description",
+    "info": "Enter the description of the tool."
+  },
+  "return_direct": {
+    "display_name": "Return Directly",
+    "info": "Should the tool return the function output directly?"
+  },
+  "tool_function": {
+    "display_name": "Tool Function",
+    "info": "Select the function for additional expressions."
+  },
+  "global_variables": {
+    "display_name": "Global Variables",
+    "info": "Enter the global variables or create Data Component."
+  },
+  "_classes": {
+    "display_name": "Classes"
+  },
+  "_functions": {
+    "display_name": "Functions"
+  },
+  "outputs": {
+    "result_tool": {
+      "display_name": "Tool"
+    }
+  },
+  "dynamic_field": {
+    "display_name": "{arg_name}: Description",
+    "info": "Enter the description for {arg_name}"
+  },
+  "success": {
+    "tool_created": "Structured tool '{name}' created successfully"
+  },
+  "errors": {
+    "failed_to_extract_names": "Failed to extract function names: {error}",
+    "failed_to_parse": "Failed to parse",
+    "failed_to_find_arg": "Failed to find argument: {field_name}",
+    "tool_creation_failed": "Failed to create structured tool: {error}",
+    "frontend_update_failed": "Failed to update frontend node: {error}",
+    "multiline_args_not_supported": "Multiline arguments are not supported",
+    "code_parsing_failed": "Failed to parse code: {error}",
+    "import_parsing_failed": "Failed to parse imports: {error}"
+  }
+}

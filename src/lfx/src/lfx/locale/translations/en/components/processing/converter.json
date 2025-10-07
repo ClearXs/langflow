@@ -1,0 +1,42 @@
+{
+  "display_name": "Type Convert",
+  "description": "Convert between different types (Message, Data, DataFrame)",
+  "input_data": {
+    "display_name": "Input",
+    "info": "Accept Message, Data or DataFrame as input"
+  },
+  "auto_parse": {
+    "display_name": "Auto Parse",
+    "info": "Detect and convert JSON/CSV strings automatically."
+  },
+  "output_type": {
+    "display_name": "Output Type",
+    "info": "Select the desired output data type",
+    "message": "Message",
+    "data": "Data",
+    "dataframe": "DataFrame"
+  },
+  "outputs": {
+    "message_output": {
+      "display_name": "Message Output"
+    },
+    "data_output": {
+      "display_name": "Data Output"
+    },
+    "dataframe_output": {
+      "display_name": "DataFrame Output"
+    }
+  },
+  "success": {
+    "converted_to_message": "Successfully converted input to Message type",
+    "converted_to_data": "Successfully converted input to Data type",
+    "converted_to_data_with_parsing": "Successfully converted input to Data type with automatic parsing",
+    "converted_to_dataframe": "Successfully converted input to DataFrame type ({rows} rows)",
+    "converted_to_dataframe_with_parsing": "Successfully converted input to DataFrame type with automatic parsing ({rows} rows)"
+  },
+  "errors": {
+    "message_conversion_failed": "Failed to convert input to Message type: {error}",
+    "data_conversion_failed": "Failed to convert input to Data type: {error}",
+    "dataframe_conversion_failed": "Failed to convert input to DataFrame type: {error}"
+  }
+}

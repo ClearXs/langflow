@@ -1,0 +1,68 @@
+{
+  "display_name": "Text Output",
+  "description": "Display text output with various formatting options and streaming support.",
+  "input_value": {
+    "display_name": "Input",
+    "info": "Text or data to be displayed as output."
+  },
+  "template": {
+    "display_name": "Template",
+    "info": "Template string to format the output. Use {text} as placeholder for the input text."
+  },
+  "clean_data": {
+    "display_name": "Clean Data",
+    "info": "Whether to clean the data before converting to text."
+  },
+  "output_format": {
+    "display_name": "Output Format",
+    "info": "Format for the output display (text, markdown, json, html)."
+  },
+  "preserve_whitespace": {
+    "display_name": "Preserve Whitespace",
+    "info": "Whether to preserve leading and trailing whitespace in the output."
+  },
+  "max_length": {
+    "display_name": "Max Length",
+    "info": "Maximum length of the output text (0 for unlimited)."
+  },
+  "show_line_numbers": {
+    "display_name": "Show Line Numbers",
+    "info": "Whether to display line numbers in the output."
+  },
+  "prefix": {
+    "display_name": "Prefix",
+    "info": "Text to add before the output."
+  },
+  "suffix": {
+    "display_name": "Suffix",
+    "info": "Text to add after the output."
+  },
+  "enable_streaming": {
+    "display_name": "Enable Streaming",
+    "info": "Whether to enable streaming output for generator inputs."
+  },
+  "outputs": {
+    "text": {
+      "display_name": "Text Output"
+    },
+    "formatted_output": {
+      "display_name": "Formatted Output"
+    }
+  },
+  "success": {
+    "text_processed": "Text processed successfully ({length} characters)",
+    "formatted_output_processed": "Output formatted as {format} ({length} characters)"
+  },
+  "warnings": {
+    "template_error": "Error applying template: {error}",
+    "text_truncated": "Text truncated from {original} to {limit} characters"
+  },
+  "errors": {
+    "input_cannot_be_none": "Input value cannot be None.",
+    "invalid_max_length": "Max length cannot be negative.",
+    "format_error": "Error formatting output as {format}: {error}",
+    "text_output_error": "Error generating text output: {error}",
+    "formatted_output_error": "Error generating formatted output: {error}",
+    "output_info_error": "Error getting output information: {error}"
+  }
+}

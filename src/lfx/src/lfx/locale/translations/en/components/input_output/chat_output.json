@@ -1,0 +1,42 @@
+{
+  "display_name": "Chat Output",
+  "description": "Display a chat message in the Playground.",
+  "input_value": {
+    "display_name": "Inputs",
+    "info": "Message to be passed as output."
+  },
+  "should_store_message": {
+    "display_name": "Store Messages",
+    "info": "Store the message in the history."
+  },
+  "sender": {
+    "display_name": "Sender Type",
+    "info": "Type of sender."
+  },
+  "sender_name": {
+    "display_name": "Sender Name",
+    "info": "Name of the sender."
+  },
+  "session_id": {
+    "display_name": "Session ID",
+    "info": "The session ID of the chat. If empty, the current session ID parameter will be used."
+  },
+  "data_template": {
+    "display_name": "Data Template",
+    "info": "Template to convert Data to Text. If left empty, it will be dynamically set to the Data's text key."
+  },
+  "clean_data": {
+    "display_name": "Basic Clean Data",
+    "info": "Whether to clean data before converting to string."
+  },
+  "outputs": {
+    "message": {
+      "display_name": "Output Message"
+    }
+  },
+  "errors": {
+    "input_cannot_be_none": "Input data cannot be None",
+    "invalid_list_types": "Expected Data or DataFrame or Message or str, got {types}",
+    "invalid_input_type": "Expected Data or DataFrame or Message or str, Generator or None, got {type}"
+  }
+}

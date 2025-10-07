@@ -1,5 +1,6 @@
 import json
 import re
+import i18n
 
 from langchain_core.tools import StructuredTool, Tool
 from pydantic import ValidationError
@@ -37,14 +38,15 @@ MODEL_PROVIDERS_LIST = ["Anthropic", "Google Generative AI", "OpenAI"]
 
 
 class AgentComponent(ToolCallingAgentComponent):
-    display_name: str = "Agent"
-    description: str = "Define the agent's instructions, then enter a task to complete using tools."
+    display_name: str = i18n.t('components.agents.agent.display_name')
+    description: str = i18n.t('components.agents.agent.description')
     documentation: str = "https://docs.langflow.org/agents"
     icon = "bot"
     beta = False
     name = "Agent"
 
-    memory_inputs = [set_advanced_true(component_input) for component_input in MemoryComponent().inputs]
+    memory_inputs = [set_advanced_true(component_input)
+                     for component_input in MemoryComponent().inputs]
 
     # Filter out json_mode from OpenAI inputs since we handle structured output differently
     if "OpenAI" in MODEL_PROVIDERS_DICT:
@@ -59,21 +61,23 @@ class AgentComponent(ToolCallingAgentComponent):
     inputs = [
         DropdownInput(
             name="agent_llm",
-            display_name="Model Provider",
-            info="The provider of the language model that the agent will use to generate responses.",
+            display_name=i18n.t(
+                'components.agents.agent.agent_llm.display_name'),
+            info=i18n.t('components.agents.agent.agent_llm.info'),
             options=[*MODEL_PROVIDERS_LIST],
             value="OpenAI",
             real_time_refresh=True,
             refresh_button=False,
             input_types=[],
-            options_metadata=[MODELS_METADATA[key] for key in MODEL_PROVIDERS_LIST if key in MODELS_METADATA]
+            options_metadata=[MODELS_METADATA[key]
+                              for key in MODEL_PROVIDERS_LIST if key in MODELS_METADATA]
             + [{"icon": "brain"}],
             external_options={
                 "fields": {
                     "data": {
                         "node": {
                             "name": "connect_other_models",
-                            "display_name": "Connect other models",
+                            "display_name": i18n.t('components.agents.agent.connect_other_models.display_name'),
                             "icon": "CornerDownLeft",
                         }
                     }
@@ -83,75 +87,70 @@ class AgentComponent(ToolCallingAgentComponent):
         *openai_inputs_filtered,
         MultilineInput(
             name="system_prompt",
-            display_name="Agent Instructions",
-            info="System Prompt: Initial instructions and context provided to guide the agent's behavior.",
-            value="You are a helpful assistant that can use tools to answer questions and perform tasks.",
+            display_name=i18n.t(
+                'components.agents.agent.system_prompt.display_name'),
+            info=i18n.t('components.agents.agent.system_prompt.info'),
+            value=i18n.t(
+                'components.agents.agent.system_prompt.default_value'),
             advanced=False,
         ),
         IntInput(
             name="n_messages",
-            display_name="Number of Chat History Messages",
+            display_name=i18n.t(
+                'components.agents.agent.n_messages.display_name'),
             value=100,
-            info="Number of chat history messages to retrieve.",
+            info=i18n.t('components.agents.agent.n_messages.info'),
             advanced=True,
             show=True,
         ),
         MultilineInput(
             name="format_instructions",
-            display_name="Output Format Instructions",
-            info="Generic Template for structured output formatting. Valid only with Structured response.",
-            value=(
-                "You are an AI that extracts structured JSON objects from unstructured text. "
-                "Use a predefined schema with expected types (str, int, float, bool, dict). "
-                "Extract ALL relevant instances that match the schema - if multiple patterns exist, capture them all. "
-                "Fill missing or ambiguous values with defaults: null for missing values. "
-                "Remove exact duplicates but keep variations that have different field values. "
-                "Always return valid JSON in the expected format, never throw errors. "
-                "If multiple objects can be extracted, return them all in the structured format."
-            ),
+            display_name=i18n.t(
+                'components.agents.agent.format_instructions.display_name'),
+            info=i18n.t('components.agents.agent.format_instructions.info'),
+            value=i18n.t(
+                'components.agents.agent.format_instructions.default_value'),
             advanced=True,
         ),
         TableInput(
             name="output_schema",
-            display_name="Output Schema",
-            info=(
-                "Schema Validation: Define the structure and data types for structured output. "
-                "No validation if no output schema."
-            ),
+            display_name=i18n.t(
+                'components.agents.agent.output_schema.display_name'),
+            info=i18n.t('components.agents.agent.output_schema.info'),
             advanced=True,
             required=False,
             value=[],
             table_schema=[
                 {
                     "name": "name",
-                    "display_name": "Name",
+                    "display_name": i18n.t('components.agents.agent.table_schema.name.display_name'),
                     "type": "str",
-                    "description": "Specify the name of the output field.",
+                    "description": i18n.t('components.agents.agent.table_schema.name.description'),
                     "default": "field",
                     "edit_mode": EditMode.INLINE,
                 },
                 {
                     "name": "description",
-                    "display_name": "Description",
+                    "display_name": i18n.t('components.agents.agent.table_schema.description.display_name'),
                     "type": "str",
-                    "description": "Describe the purpose of the output field.",
-                    "default": "description of field",
+                    "description": i18n.t('components.agents.agent.table_schema.description.description'),
+                    "default": i18n.t('components.agents.agent.table_schema.description.default'),
                     "edit_mode": EditMode.POPOVER,
                 },
                 {
                     "name": "type",
-                    "display_name": "Type",
+                    "display_name": i18n.t('components.agents.agent.table_schema.type.display_name'),
                     "type": "str",
                     "edit_mode": EditMode.INLINE,
-                    "description": ("Indicate the data type of the output field (e.g., str, int, float, bool, dict)."),
+                    "description": i18n.t('components.agents.agent.table_schema.type.description'),
                     "options": ["str", "int", "float", "bool", "dict"],
                     "default": "str",
                 },
                 {
                     "name": "multiple",
-                    "display_name": "As List",
+                    "display_name": i18n.t('components.agents.agent.table_schema.multiple.display_name'),
                     "type": "boolean",
-                    "description": "Set to True if this output field should be a list of the specified type.",
+                    "description": i18n.t('components.agents.agent.table_schema.multiple.description'),
                     "default": "False",
                     "edit_mode": EditMode.INLINE,
                 },
@@ -162,44 +161,66 @@ class AgentComponent(ToolCallingAgentComponent):
         # *memory_inputs,
         BoolInput(
             name="add_current_date_tool",
-            display_name="Current Date",
+            display_name=i18n.t(
+                'components.agents.agent.add_current_date_tool.display_name'),
             advanced=True,
-            info="If true, will add a tool to the agent that returns the current date.",
+            info=i18n.t('components.agents.agent.add_current_date_tool.info'),
             value=True,
         ),
     ]
     outputs = [
-        Output(name="response", display_name="Response", method="message_response"),
+        Output(name="response", display_name=i18n.t(
+            'components.agents.agent.outputs.response.display_name'), method="message_response"),
     ]
 
     async def get_agent_requirements(self):
         """Get the agent requirements for the agent."""
-        llm_model, display_name = await self.get_llm()
-        if llm_model is None:
-            msg = "No language model selected. Please choose a model to proceed."
-            raise ValueError(msg)
-        self.model_name = get_model_name(llm_model, display_name=display_name)
+        try:
+            llm_model, display_name = await self.get_llm()
+            if llm_model is None:
+                error_msg = i18n.t(
+                    'components.agents.agent.errors.no_language_model')
+                raise ValueError(error_msg)
 
-        # Get memory data
-        self.chat_history = await self.get_memory_data()
-        if isinstance(self.chat_history, Message):
-            self.chat_history = [self.chat_history]
+            self.model_name = get_model_name(
+                llm_model, display_name=display_name)
 
-        # Add current date tool if enabled
-        if self.add_current_date_tool:
-            if not isinstance(self.tools, list):  # type: ignore[has-type]
-                self.tools = []
-            current_date_tool = (await CurrentDateComponent(**self.get_base_args()).to_toolkit()).pop(0)
-            if not isinstance(current_date_tool, StructuredTool):
-                msg = "CurrentDateComponent must be converted to a StructuredTool"
-                raise TypeError(msg)
-            self.tools.append(current_date_tool)
-        return llm_model, self.chat_history, self.tools
+            # Get memory data
+            self.chat_history = await self.get_memory_data()
+            if isinstance(self.chat_history, Message):
+                self.chat_history = [self.chat_history]
+
+            # Add current date tool if enabled
+            if self.add_current_date_tool:
+                if not isinstance(self.tools, list):  # type: ignore[has-type]
+                    self.tools = []
+                current_date_tool = (await CurrentDateComponent(**self.get_base_args()).to_toolkit()).pop(0)
+                if not isinstance(current_date_tool, StructuredTool):
+                    error_msg = i18n.t(
+                        'components.agents.agent.errors.current_date_tool_invalid')
+                    raise TypeError(error_msg)
+                self.tools.append(current_date_tool)
+
+            return llm_model, self.chat_history, self.tools
+
+        except (ValueError, TypeError) as e:
+            # Re-raise these as they already have i18n messages
+            raise
+        except Exception as e:
+            error_msg = i18n.t(
+                'components.agents.agent.errors.agent_requirements_failed', error=str(e))
+            await logger.aerror(error_msg)
+            raise ValueError(error_msg) from e
 
     async def message_response(self) -> Message:
         try:
+            self.status = i18n.t(
+                'components.agents.agent.status.initializing_agent')
             llm_model, self.chat_history, self.tools = await self.get_agent_requirements()
+
             # Set up and run agent
+            self.status = i18n.t(
+                'components.agents.agent.status.setting_up_agent')
             self.set(
                 llm=llm_model,
                 tools=self.tools or [],
@@ -207,106 +228,151 @@ class AgentComponent(ToolCallingAgentComponent):
                 input_value=self.input_value,
                 system_prompt=self.system_prompt,
             )
+
+            self.status = i18n.t(
+                'components.agents.agent.status.creating_agent')
             agent = self.create_agent_runnable()
+
+            self.status = i18n.t(
+                'components.agents.agent.status.running_agent')
             result = await self.run_agent(agent)
 
             # Store result for potential JSON output
             self._agent_result = result
 
+            success_msg = i18n.t(
+                'components.agents.agent.success.agent_completed')
+            self.status = success_msg
+
         except (ValueError, TypeError, KeyError) as e:
+            error_msg = i18n.t(
+                'components.agents.agent.errors.agent_execution_failed', error=str(e))
             await logger.aerror(f"{type(e).__name__}: {e!s}")
+            self.status = error_msg
             raise
         except ExceptionWithMessageError as e:
+            error_msg = i18n.t(
+                'components.agents.agent.errors.exception_with_message', error=str(e))
             await logger.aerror(f"ExceptionWithMessageError occurred: {e}")
+            self.status = error_msg
             raise
         # Avoid catching blind Exception; let truly unexpected exceptions propagate
         except Exception as e:
+            error_msg = i18n.t(
+                'components.agents.agent.errors.unexpected_error', error=str(e))
             await logger.aerror(f"Unexpected error: {e!s}")
+            self.status = error_msg
             raise
         else:
             return result
 
     def _preprocess_schema(self, schema):
         """Preprocess schema to ensure correct data types for build_model_from_schema."""
-        processed_schema = []
-        for field in schema:
-            processed_field = {
-                "name": str(field.get("name", "field")),
-                "type": str(field.get("type", "str")),
-                "description": str(field.get("description", "")),
-                "multiple": field.get("multiple", False),
-            }
-            # Ensure multiple is handled correctly
-            if isinstance(processed_field["multiple"], str):
-                processed_field["multiple"] = processed_field["multiple"].lower() in [
-                    "true",
-                    "1",
-                    "t",
-                    "y",
-                    "yes",
-                ]
-            processed_schema.append(processed_field)
-        return processed_schema
+        try:
+            processed_schema = []
+            for field in schema:
+                processed_field = {
+                    "name": str(field.get("name", "field")),
+                    "type": str(field.get("type", "str")),
+                    "description": str(field.get("description", "")),
+                    "multiple": field.get("multiple", False),
+                }
+                # Ensure multiple is handled correctly
+                if isinstance(processed_field["multiple"], str):
+                    processed_field["multiple"] = processed_field["multiple"].lower() in [
+                        "true",
+                        "1",
+                        "t",
+                        "y",
+                        "yes",
+                    ]
+                processed_schema.append(processed_field)
+            return processed_schema
+
+        except Exception as e:
+            error_msg = i18n.t(
+                'components.agents.agent.errors.schema_preprocessing_failed', error=str(e))
+            logger.aerror(error_msg)
+            raise ValueError(error_msg) from e
 
     async def build_structured_output_base(self, content: str):
         """Build structured output with optional BaseModel validation."""
-        json_pattern = r"\{.*\}"
-        schema_error_msg = "Try setting an output schema"
-
-        # Try to parse content as JSON first
-        json_data = None
         try:
-            json_data = json.loads(content)
-        except json.JSONDecodeError:
-            json_match = re.search(json_pattern, content, re.DOTALL)
-            if json_match:
-                try:
-                    json_data = json.loads(json_match.group())
-                except json.JSONDecodeError:
-                    return {"content": content, "error": schema_error_msg}
-            else:
-                return {"content": content, "error": schema_error_msg}
+            json_pattern = r"\{.*\}"
+            schema_error_msg = i18n.t(
+                'components.agents.agent.errors.try_setting_output_schema')
 
-        # If no output schema provided, return parsed JSON without validation
-        if not hasattr(self, "output_schema") or not self.output_schema or len(self.output_schema) == 0:
-            return json_data
-
-        # Use BaseModel validation with schema
-        try:
-            processed_schema = self._preprocess_schema(self.output_schema)
-            output_model = build_model_from_schema(processed_schema)
-
-            # Validate against the schema
-            if isinstance(json_data, list):
-                # Multiple objects
-                validated_objects = []
-                for item in json_data:
-                    try:
-                        validated_obj = output_model.model_validate(item)
-                        validated_objects.append(validated_obj.model_dump())
-                    except ValidationError as e:
-                        await logger.aerror(f"Validation error for item: {e}")
-                        # Include invalid items with error info
-                        validated_objects.append({"data": item, "validation_error": str(e)})
-                return validated_objects
-
-            # Single object
+            # Try to parse content as JSON first
+            json_data = None
             try:
-                validated_obj = output_model.model_validate(json_data)
-                return [validated_obj.model_dump()]  # Return as list for consistency
-            except ValidationError as e:
-                await logger.aerror(f"Validation error: {e}")
-                return [{"data": json_data, "validation_error": str(e)}]
+                json_data = json.loads(content)
+            except json.JSONDecodeError:
+                json_match = re.search(json_pattern, content, re.DOTALL)
+                if json_match:
+                    try:
+                        json_data = json.loads(json_match.group())
+                    except json.JSONDecodeError:
+                        return {"content": content, "error": schema_error_msg}
+                else:
+                    return {"content": content, "error": schema_error_msg}
 
-        except (TypeError, ValueError) as e:
-            await logger.aerror(f"Error building structured output: {e}")
-            # Fallback to parsed JSON without validation
-            return json_data
+            # If no output schema provided, return parsed JSON without validation
+            if not hasattr(self, "output_schema") or not self.output_schema or len(self.output_schema) == 0:
+                return json_data
+
+            # Use BaseModel validation with schema
+            try:
+                processed_schema = self._preprocess_schema(self.output_schema)
+                output_model = build_model_from_schema(processed_schema)
+
+                # Validate against the schema
+                if isinstance(json_data, list):
+                    # Multiple objects
+                    validated_objects = []
+                    for i, item in enumerate(json_data):
+                        try:
+                            validated_obj = output_model.model_validate(item)
+                            validated_objects.append(
+                                validated_obj.model_dump())
+                        except ValidationError as e:
+                            validation_error_msg = i18n.t('components.agents.agent.errors.validation_error_item',
+                                                          index=i, error=str(e))
+                            await logger.aerror(validation_error_msg)
+                            # Include invalid items with error info
+                            validated_objects.append(
+                                {"data": item, "validation_error": str(e)})
+                    return validated_objects
+
+                # Single object
+                try:
+                    validated_obj = output_model.model_validate(json_data)
+                    # Return as list for consistency
+                    return [validated_obj.model_dump()]
+                except ValidationError as e:
+                    validation_error_msg = i18n.t(
+                        'components.agents.agent.errors.validation_error_single', error=str(e))
+                    await logger.aerror(validation_error_msg)
+                    return [{"data": json_data, "validation_error": str(e)}]
+
+            except (TypeError, ValueError) as e:
+                error_msg = i18n.t(
+                    'components.agents.agent.errors.structured_output_build_failed', error=str(e))
+                await logger.aerror(error_msg)
+                # Fallback to parsed JSON without validation
+                return json_data
+
+        except Exception as e:
+            error_msg = i18n.t(
+                'components.agents.agent.errors.structured_output_base_failed', error=str(e))
+            await logger.aerror(error_msg)
+            return {"content": content, "error": str(e)}
 
     async def json_response(self) -> Data:
         """Convert agent response to structured JSON Data output with schema validation."""
         # Always use structured chat agent for JSON response mode for better JSON formatting
         try:
+            self.status = i18n.t(
+                'components.agents.agent.status.building_structured_response')
             system_components = []
 
             # 1. Agent Instructions (system_prompt)
@@ -315,34 +381,37 @@ class AgentComponent(ToolCallingAgentComponent):
                 system_components.append(f"{agent_instructions}")
 
             # 2. Format Instructions
-            format_instructions = getattr(self, "format_instructions", "") or ""
+            format_instructions = getattr(
+                self, "format_instructions", "") or ""
             if format_instructions:
-                system_components.append(f"Format instructions: {format_instructions}")
+                system_components.append(
+                    f"{i18n.t('components.agents.agent.labels.format_instructions')}: {format_instructions}")
 
             # 3. Schema Information from BaseModel
             if hasattr(self, "output_schema") and self.output_schema and len(self.output_schema) > 0:
                 try:
-                    processed_schema = self._preprocess_schema(self.output_schema)
+                    processed_schema = self._preprocess_schema(
+                        self.output_schema)
                     output_model = build_model_from_schema(processed_schema)
                     schema_dict = output_model.model_json_schema()
-                    schema_info = (
-                        "You are given some text that may include format instructions, "
-                        "explanations, or other content alongside a JSON schema.\n\n"
-                        "Your task:\n"
-                        "- Extract only the JSON schema.\n"
-                        "- Return it as valid JSON.\n"
-                        "- Do not include format instructions, explanations, or extra text.\n\n"
-                        "Input:\n"
-                        f"{json.dumps(schema_dict, indent=2)}\n\n"
-                        "Output (only JSON schema):"
-                    )
+                    schema_info = i18n.t('components.agents.agent.prompts.schema_extraction',
+                                         schema=json.dumps(schema_dict, indent=2))
                     system_components.append(schema_info)
                 except (ValidationError, ValueError, TypeError, KeyError) as e:
-                    await logger.aerror(f"Could not build schema for prompt: {e}", exc_info=True)
+                    error_msg = i18n.t(
+                        'components.agents.agent.errors.schema_build_for_prompt_failed', error=str(e))
+                    await logger.aerror(error_msg, exc_info=True)
 
             # Combine all components
-            combined_instructions = "\n\n".join(system_components) if system_components else ""
+            combined_instructions = "\n\n".join(
+                system_components) if system_components else ""
+
+            self.status = i18n.t(
+                'components.agents.agent.status.getting_agent_requirements_json')
             llm_model, self.chat_history, self.tools = await self.get_agent_requirements()
+
+            self.status = i18n.t(
+                'components.agents.agent.status.setting_up_structured_agent')
             self.set(
                 llm=llm_model,
                 tools=self.tools or [],
@@ -353,11 +422,17 @@ class AgentComponent(ToolCallingAgentComponent):
 
             # Create and run structured chat agent
             try:
+                self.status = i18n.t(
+                    'components.agents.agent.status.creating_structured_agent')
                 structured_agent = self.create_agent_runnable()
             except (NotImplementedError, ValueError, TypeError) as e:
-                await logger.aerror(f"Error with structured chat agent: {e}")
+                error_msg = i18n.t(
+                    'components.agents.agent.errors.structured_agent_creation_failed', error=str(e))
+                await logger.aerror(error_msg)
                 raise
             try:
+                self.status = i18n.t(
+                    'components.agents.agent.status.running_structured_agent')
                 result = await self.run_agent(structured_agent)
             except (
                 ExceptionWithMessageError,
@@ -365,8 +440,11 @@ class AgentComponent(ToolCallingAgentComponent):
                 TypeError,
                 RuntimeError,
             ) as e:
-                await logger.aerror(f"Error with structured agent result: {e}")
+                error_msg = i18n.t(
+                    'components.agents.agent.errors.structured_agent_result_failed', error=str(e))
+                await logger.aerror(error_msg)
                 raise
+
             # Extract content from structured agent result
             if hasattr(result, "content"):
                 content = result.content
@@ -382,52 +460,80 @@ class AgentComponent(ToolCallingAgentComponent):
             NotImplementedError,
             AttributeError,
         ) as e:
-            await logger.aerror(f"Error with structured chat agent: {e}")
+            error_msg = i18n.t(
+                'components.agents.agent.errors.structured_chat_agent_failed', error=str(e))
+            await logger.aerror(error_msg)
             # Fallback to regular agent
-            content_str = "No content returned from agent"
+            content_str = i18n.t(
+                'components.agents.agent.errors.no_content_from_agent')
             return Data(data={"content": content_str, "error": str(e)})
 
         # Process with structured output validation
         try:
+            self.status = i18n.t(
+                'components.agents.agent.status.processing_structured_output')
             structured_output = await self.build_structured_output_base(content)
 
             # Handle different output formats
             if isinstance(structured_output, list) and structured_output:
                 if len(structured_output) == 1:
+                    success_msg = i18n.t(
+                        'components.agents.agent.success.single_structured_output')
+                    self.status = success_msg
                     return Data(data=structured_output[0])
+                success_msg = i18n.t(
+                    'components.agents.agent.success.multiple_structured_outputs', count=len(structured_output))
+                self.status = success_msg
                 return Data(data={"results": structured_output})
             if isinstance(structured_output, dict):
+                success_msg = i18n.t(
+                    'components.agents.agent.success.dict_structured_output')
+                self.status = success_msg
                 return Data(data=structured_output)
+
+            fallback_msg = i18n.t(
+                'components.agents.agent.status.using_content_fallback')
+            self.status = fallback_msg
             return Data(data={"content": content})
 
         except (ValueError, TypeError) as e:
-            await logger.aerror(f"Error in structured output processing: {e}")
+            error_msg = i18n.t(
+                'components.agents.agent.errors.structured_output_processing_failed', error=str(e))
+            await logger.aerror(error_msg)
+            self.status = error_msg
             return Data(data={"content": content, "error": str(e)})
 
     async def get_memory_data(self):
         # TODO: This is a temporary fix to avoid message duplication. We should develop a function for this.
-        messages = (
-            await MemoryComponent(**self.get_base_args())
-            .set(
-                session_id=self.graph.session_id,
-                order="Ascending",
-                n_messages=self.n_messages,
+        try:
+            messages = (
+                await MemoryComponent(**self.get_base_args())
+                .set(
+                    session_id=self.graph.session_id,
+                    order="Ascending",
+                    n_messages=self.n_messages,
+                )
+                .retrieve_messages()
             )
-            .retrieve_messages()
-        )
-        return [
-            message for message in messages if getattr(message, "id", None) != getattr(self.input_value, "id", None)
-        ]
+            return [
+                message for message in messages if getattr(message, "id", None) != getattr(self.input_value, "id", None)
+            ]
+        except Exception as e:
+            error_msg = i18n.t(
+                'components.agents.agent.errors.memory_data_retrieval_failed', error=str(e))
+            await logger.aerror(error_msg)
+            return []  # Return empty list as fallback
 
     async def get_llm(self):
-        if not isinstance(self.agent_llm, str):
-            return self.agent_llm, None
-
         try:
+            if not isinstance(self.agent_llm, str):
+                return self.agent_llm, None
+
             provider_info = MODEL_PROVIDERS_DICT.get(self.agent_llm)
             if not provider_info:
-                msg = f"Invalid model provider: {self.agent_llm}"
-                raise ValueError(msg)
+                error_msg = i18n.t(
+                    'components.agents.agent.errors.invalid_model_provider', provider=self.agent_llm)
+                raise ValueError(error_msg)
 
             component_class = provider_info.get("component_class")
             display_name = component_class.display_name
@@ -437,167 +543,217 @@ class AgentComponent(ToolCallingAgentComponent):
             return self._build_llm_model(component_class, inputs, prefix), display_name
 
         except (AttributeError, ValueError, TypeError, RuntimeError) as e:
-            await logger.aerror(f"Error building {self.agent_llm} language model: {e!s}")
-            msg = f"Failed to initialize language model: {e!s}"
-            raise ValueError(msg) from e
+            error_msg = i18n.t(
+                'components.agents.agent.errors.llm_build_failed', provider=self.agent_llm, error=str(e))
+            await logger.aerror(error_msg)
+            final_error_msg = i18n.t(
+                'components.agents.agent.errors.llm_initialization_failed', error=str(e))
+            raise ValueError(final_error_msg) from e
 
     def _build_llm_model(self, component, inputs, prefix=""):
-        model_kwargs = {}
-        for input_ in inputs:
-            if hasattr(self, f"{prefix}{input_.name}"):
-                model_kwargs[input_.name] = getattr(self, f"{prefix}{input_.name}")
-        return component.set(**model_kwargs).build_model()
-
-    def set_component_params(self, component):
-        provider_info = MODEL_PROVIDERS_DICT.get(self.agent_llm)
-        if provider_info:
-            inputs = provider_info.get("inputs")
-            prefix = provider_info.get("prefix")
-            # Filter out json_mode and only use attributes that exist on this component
+        try:
             model_kwargs = {}
             for input_ in inputs:
                 if hasattr(self, f"{prefix}{input_.name}"):
-                    model_kwargs[input_.name] = getattr(self, f"{prefix}{input_.name}")
+                    model_kwargs[input_.name] = getattr(
+                        self, f"{prefix}{input_.name}")
+            return component.set(**model_kwargs).build_model()
+        except Exception as e:
+            error_msg = i18n.t(
+                'components.agents.agent.errors.model_build_failed', error=str(e))
+            raise ValueError(error_msg) from e
 
-            return component.set(**model_kwargs)
-        return component
+    def set_component_params(self, component):
+        try:
+            provider_info = MODEL_PROVIDERS_DICT.get(self.agent_llm)
+            if provider_info:
+                inputs = provider_info.get("inputs")
+                prefix = provider_info.get("prefix")
+                # Filter out json_mode and only use attributes that exist on this component
+                model_kwargs = {}
+                for input_ in inputs:
+                    if hasattr(self, f"{prefix}{input_.name}"):
+                        model_kwargs[input_.name] = getattr(
+                            self, f"{prefix}{input_.name}")
+
+                return component.set(**model_kwargs)
+            return component
+        except Exception as e:
+            error_msg = i18n.t(
+                'components.agents.agent.errors.component_params_set_failed', error=str(e))
+            logger.aerror(error_msg)
+            return component
 
     def delete_fields(self, build_config: dotdict, fields: dict | list[str]) -> None:
         """Delete specified fields from build_config."""
-        for field in fields:
-            build_config.pop(field, None)
+        try:
+            for field in fields:
+                build_config.pop(field, None)
+        except Exception as e:
+            error_msg = i18n.t(
+                'components.agents.agent.errors.field_deletion_failed', error=str(e))
+            self.log(error_msg, "warning")
 
     def update_input_types(self, build_config: dotdict) -> dotdict:
         """Update input types for all fields in build_config."""
-        for key, value in build_config.items():
-            if isinstance(value, dict):
-                if value.get("input_types") is None:
-                    build_config[key]["input_types"] = []
-            elif hasattr(value, "input_types") and value.input_types is None:
-                value.input_types = []
-        return build_config
+        try:
+            for key, value in build_config.items():
+                if isinstance(value, dict):
+                    if value.get("input_types") is None:
+                        build_config[key]["input_types"] = []
+                elif hasattr(value, "input_types") and value.input_types is None:
+                    value.input_types = []
+            return build_config
+        except Exception as e:
+            error_msg = i18n.t(
+                'components.agents.agent.errors.input_types_update_failed', error=str(e))
+            self.log(error_msg, "warning")
+            return build_config
 
     async def update_build_config(
         self, build_config: dotdict, field_value: str, field_name: str | None = None
     ) -> dotdict:
-        # Iterate over all providers in the MODEL_PROVIDERS_DICT
-        # Existing logic for updating build_config
-        if field_name in ("agent_llm",):
-            build_config["agent_llm"]["value"] = field_value
-            provider_info = MODEL_PROVIDERS_DICT.get(field_value)
-            if provider_info:
-                component_class = provider_info.get("component_class")
-                if component_class and hasattr(component_class, "update_build_config"):
-                    # Call the component class's update_build_config method
-                    build_config = await update_component_build_config(
-                        component_class, build_config, field_value, "model_name"
+        try:
+            # Iterate over all providers in the MODEL_PROVIDERS_DICT
+            # Existing logic for updating build_config
+            if field_name in ("agent_llm",):
+                build_config["agent_llm"]["value"] = field_value
+                provider_info = MODEL_PROVIDERS_DICT.get(field_value)
+                if provider_info:
+                    component_class = provider_info.get("component_class")
+                    if component_class and hasattr(component_class, "update_build_config"):
+                        # Call the component class's update_build_config method
+                        build_config = await update_component_build_config(
+                            component_class, build_config, field_value, "model_name"
+                        )
+
+                provider_configs: dict[str, tuple[dict, list[dict]]] = {
+                    provider: (
+                        MODEL_PROVIDERS_DICT[provider]["fields"],
+                        [
+                            MODEL_PROVIDERS_DICT[other_provider]["fields"]
+                            for other_provider in MODEL_PROVIDERS_DICT
+                            if other_provider != provider
+                        ],
                     )
+                    for provider in MODEL_PROVIDERS_DICT
+                }
+                if field_value in provider_configs:
+                    fields_to_add, fields_to_delete = provider_configs[field_value]
 
-            provider_configs: dict[str, tuple[dict, list[dict]]] = {
-                provider: (
-                    MODEL_PROVIDERS_DICT[provider]["fields"],
-                    [
-                        MODEL_PROVIDERS_DICT[other_provider]["fields"]
-                        for other_provider in MODEL_PROVIDERS_DICT
-                        if other_provider != provider
-                    ],
-                )
-                for provider in MODEL_PROVIDERS_DICT
-            }
-            if field_value in provider_configs:
-                fields_to_add, fields_to_delete = provider_configs[field_value]
+                    # Delete fields from other providers
+                    for fields in fields_to_delete:
+                        self.delete_fields(build_config, fields)
 
-                # Delete fields from other providers
-                for fields in fields_to_delete:
-                    self.delete_fields(build_config, fields)
-
-                # Add provider-specific fields
-                if field_value == "OpenAI" and not any(field in build_config for field in fields_to_add):
-                    build_config.update(fields_to_add)
-                else:
-                    build_config.update(fields_to_add)
-                # Reset input types for agent_llm
-                build_config["agent_llm"]["input_types"] = []
-                build_config["agent_llm"]["display_name"] = "Model Provider"
-            elif field_value == "connect_other_models":
-                # Delete all provider fields
-                self.delete_fields(build_config, ALL_PROVIDER_FIELDS)
-                # # Update with custom component
-                custom_component = DropdownInput(
-                    name="agent_llm",
-                    display_name="Language Model",
-                    info="The provider of the language model that the agent will use to generate responses.",
-                    options=[*MODEL_PROVIDERS_LIST],
-                    real_time_refresh=True,
-                    refresh_button=False,
-                    input_types=["LanguageModel"],
-                    placeholder="Awaiting model input.",
-                    options_metadata=[MODELS_METADATA[key] for key in MODEL_PROVIDERS_LIST if key in MODELS_METADATA],
-                    external_options={
-                        "fields": {
-                            "data": {
-                                "node": {
-                                    "name": "connect_other_models",
-                                    "display_name": "Connect other models",
-                                    "icon": "CornerDownLeft",
-                                },
-                            }
+                    # Add provider-specific fields
+                    if field_value == "OpenAI" and not any(field in build_config for field in fields_to_add):
+                        build_config.update(fields_to_add)
+                    else:
+                        build_config.update(fields_to_add)
+                    # Reset input types for agent_llm
+                    build_config["agent_llm"]["input_types"] = []
+                    build_config["agent_llm"]["display_name"] = i18n.t(
+                        'components.agents.agent.agent_llm.display_name')
+                elif field_value == "connect_other_models":
+                    # Delete all provider fields
+                    self.delete_fields(build_config, ALL_PROVIDER_FIELDS)
+                    # # Update with custom component
+                    custom_component = DropdownInput(
+                        name="agent_llm",
+                        display_name=i18n.t(
+                            'components.agents.agent.custom_llm.display_name'),
+                        info=i18n.t('components.agents.agent.custom_llm.info'),
+                        options=[*MODEL_PROVIDERS_LIST],
+                        real_time_refresh=True,
+                        refresh_button=False,
+                        input_types=["LanguageModel"],
+                        placeholder=i18n.t(
+                            'components.agents.agent.custom_llm.placeholder'),
+                        options_metadata=[
+                            MODELS_METADATA[key] for key in MODEL_PROVIDERS_LIST if key in MODELS_METADATA],
+                        external_options={
+                            "fields": {
+                                "data": {
+                                    "node": {
+                                        "name": "connect_other_models",
+                                        "display_name": i18n.t('components.agents.agent.connect_other_models.display_name'),
+                                        "icon": "CornerDownLeft",
+                                    },
+                                }
+                            },
                         },
-                    },
-                )
-                build_config.update({"agent_llm": custom_component.to_dict()})
-            # Update input types for all fields
-            build_config = self.update_input_types(build_config)
-
-            # Validate required keys
-            default_keys = [
-                "code",
-                "_type",
-                "agent_llm",
-                "tools",
-                "input_value",
-                "add_current_date_tool",
-                "system_prompt",
-                "agent_description",
-                "max_iterations",
-                "handle_parsing_errors",
-                "verbose",
-            ]
-            missing_keys = [key for key in default_keys if key not in build_config]
-            if missing_keys:
-                msg = f"Missing required keys in build_config: {missing_keys}"
-                raise ValueError(msg)
-        if (
-            isinstance(self.agent_llm, str)
-            and self.agent_llm in MODEL_PROVIDERS_DICT
-            and field_name in MODEL_DYNAMIC_UPDATE_FIELDS
-        ):
-            provider_info = MODEL_PROVIDERS_DICT.get(self.agent_llm)
-            if provider_info:
-                component_class = provider_info.get("component_class")
-                component_class = self.set_component_params(component_class)
-                prefix = provider_info.get("prefix")
-                if component_class and hasattr(component_class, "update_build_config"):
-                    # Call each component class's update_build_config method
-                    # remove the prefix from the field_name
-                    if isinstance(field_name, str) and isinstance(prefix, str):
-                        field_name = field_name.replace(prefix, "")
-                    build_config = await update_component_build_config(
-                        component_class, build_config, field_value, "model_name"
                     )
-        return dotdict({k: v.to_dict() if hasattr(v, "to_dict") else v for k, v in build_config.items()})
+                    build_config.update(
+                        {"agent_llm": custom_component.to_dict()})
+                # Update input types for all fields
+                build_config = self.update_input_types(build_config)
+
+                # Validate required keys
+                default_keys = [
+                    "code",
+                    "_type",
+                    "agent_llm",
+                    "tools",
+                    "input_value",
+                    "add_current_date_tool",
+                    "system_prompt",
+                    "agent_description",
+                    "max_iterations",
+                    "handle_parsing_errors",
+                    "verbose",
+                ]
+                missing_keys = [
+                    key for key in default_keys if key not in build_config]
+                if missing_keys:
+                    error_msg = i18n.t(
+                        'components.agents.agent.errors.missing_required_keys', keys=str(missing_keys))
+                    raise ValueError(error_msg)
+
+            if (
+                isinstance(self.agent_llm, str)
+                and self.agent_llm in MODEL_PROVIDERS_DICT
+                and field_name in MODEL_DYNAMIC_UPDATE_FIELDS
+            ):
+                provider_info = MODEL_PROVIDERS_DICT.get(self.agent_llm)
+                if provider_info:
+                    component_class = provider_info.get("component_class")
+                    component_class = self.set_component_params(
+                        component_class)
+                    prefix = provider_info.get("prefix")
+                    if component_class and hasattr(component_class, "update_build_config"):
+                        # Call each component class's update_build_config method
+                        # remove the prefix from the field_name
+                        if isinstance(field_name, str) and isinstance(prefix, str):
+                            field_name = field_name.replace(prefix, "")
+                        build_config = await update_component_build_config(
+                            component_class, build_config, field_value, "model_name"
+                        )
+            return dotdict({k: v.to_dict() if hasattr(v, "to_dict") else v for k, v in build_config.items()})
+
+        except Exception as e:
+            error_msg = i18n.t(
+                'components.agents.agent.errors.build_config_update_failed', error=str(e))
+            await logger.aerror(error_msg)
+            raise ValueError(error_msg) from e
 
     async def _get_tools(self) -> list[Tool]:
-        component_toolkit = get_component_toolkit()
-        tools_names = self._build_tools_names()
-        agent_description = self.get_tool_description()
-        # TODO: Agent Description Depreciated Feature to be removed
-        description = f"{agent_description}{tools_names}"
-        tools = component_toolkit(component=self).get_tools(
-            tool_name="Call_Agent",
-            tool_description=description,
-            callbacks=self.get_langchain_callbacks(),
-        )
-        if hasattr(self, "tools_metadata"):
-            tools = component_toolkit(component=self, metadata=self.tools_metadata).update_tools_metadata(tools=tools)
-        return tools
+        try:
+            component_toolkit = get_component_toolkit()
+            tools_names = self._build_tools_names()
+            agent_description = self.get_tool_description()
+            # TODO: Agent Description Depreciated Feature to be removed
+            description = f"{agent_description}{tools_names}"
+            tools = component_toolkit(component=self).get_tools(
+                tool_name="Call_Agent",
+                tool_description=description,
+                callbacks=self.get_langchain_callbacks(),
+            )
+            if hasattr(self, "tools_metadata"):
+                tools = component_toolkit(
+                    component=self, metadata=self.tools_metadata).update_tools_metadata(tools=tools)
+            return tools
+        except Exception as e:
+            error_msg = i18n.t(
+                'components.agents.agent.errors.tools_retrieval_failed', error=str(e))
+            await logger.aerror(error_msg)
+            return []  # Return empty list as fallback

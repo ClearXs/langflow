@@ -1,0 +1,41 @@
+{
+  "display_name": "Wikipedia API [已弃用]",
+  "description": "调用Wikipedia API。",
+  "input_value": {
+    "display_name": "输入",
+    "info": "要在Wikipedia上执行的搜索查询。"
+  },
+  "lang": {
+    "display_name": "语言",
+    "info": "Wikipedia的语言代码（例如：'en'表示英语，'zh'表示中文）。"
+  },
+  "k": {
+    "display_name": "结果数量",
+    "info": "要返回的Wikipedia页面的最大数量。"
+  },
+  "load_all_available_meta": {
+    "display_name": "加载所有可用元数据",
+    "info": "是否为每个Wikipedia页面加载所有可用的元数据。"
+  },
+  "doc_content_chars_max": {
+    "display_name": "文档内容最大字符数",
+    "info": "从每个Wikipedia页面提取的最大字符数。"
+  },
+  "success": {
+    "search_completed": "Wikipedia搜索成功完成。为'{query}'找到{count}个结果",
+    "tool_created": "已为语言'{lang}'创建Wikipedia API工具，最多返回{results}个结果"
+  },
+  "info": {
+    "searching": "正在Wikipedia中搜索'{query}'（语言：'{lang}'）..."
+  },
+  "warnings": {
+    "empty_input": "搜索输入为空。请提供搜索查询。",
+    "no_results": "未找到查询'{query}'的Wikipedia文章"
+  },
+  "errors": {
+    "import_error": "缺少必需的依赖项。请安装wikipedia包以使用Wikipedia API。",
+    "search_failed": "Wikipedia搜索失败：{error}",
+    "tool_creation_failed": "创建Wikipedia API工具失败：{error}",
+    "wrapper_creation_failed": "创建Wikipedia API包装器失败：{error}"
+  }
+}

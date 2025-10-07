@@ -1,0 +1,27 @@
+{
+  "display_name": "Output Parser",
+  "description": "Transforms the output of an LLM into a specified format.",
+  "parser_type": {
+    "display_name": "Parser",
+    "info": "The type of output parser to use for formatting LLM responses."
+  },
+  "outputs": {
+    "format_instructions": {
+      "display_name": "Format Instructions",
+      "info": "Pass to a prompt template to include formatting instructions for LLM responses."
+    },
+    "output_parser": {
+      "display_name": "Output Parser"
+    }
+  },
+  "success": {
+    "csv_parser_created": "CSV output parser created successfully",
+    "format_instructions_generated": "Format instructions generated successfully"
+  },
+  "errors": {
+    "unsupported_parser": "Unsupported or missing parser type: {parser_type}",
+    "parser_creation_failed": "Failed to create output parser: {error}",
+    "unsupported_parser_for_instructions": "Cannot generate format instructions for unsupported parser type: {parser_type}",
+    "instructions_generation_failed": "Failed to generate format instructions: {error}"
+  }
+}

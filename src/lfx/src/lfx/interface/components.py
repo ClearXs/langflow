@@ -13,7 +13,8 @@ if TYPE_CHECKING:
     from lfx.services.settings.service import SettingsService
 
 MIN_MODULE_PARTS = 2
-EXPECTED_RESULT_LENGTH = 2  # Expected length of the tuple returned by _process_single_module
+# Expected length of the tuple returned by _process_single_module
+EXPECTED_RESULT_LENGTH = 2
 
 
 # Create a class to manage component cache instead of using globals
@@ -59,7 +60,8 @@ async def import_langflow_components():
         return {"components": modules_dict}
 
     # Create tasks for parallel module processing
-    tasks = [asyncio.to_thread(_process_single_module, modname) for modname in module_names]
+    tasks = [asyncio.to_thread(_process_single_module, modname)
+             for modname in module_names]
 
     # Wait for all modules to be processed
     try:
@@ -134,7 +136,8 @@ def _process_single_module(modname: str) -> tuple[str, dict] | None:
             comp_template, _ = create_component_template(
                 component_extractor=comp_instance, module_name=full_module_name
             )
-            component_name = obj.name if hasattr(obj, "name") and obj.name else name
+            component_name = obj.name if hasattr(
+                obj, "name") and obj.name else name
             module_components[component_name] = comp_template
         except Exception as e:  # noqa: BLE001
             failed_count.append(f"{name}: {e}")
@@ -165,13 +168,15 @@ async def _determine_loading_strategy(settings_service: "SettingsService") -> di
         component_cache.all_types_dict = await aget_component_metadata(settings_service.settings.components_path)
     elif settings_service.settings.components_path:
         # Traditional full loading - filter out base components path to only load custom components
-        custom_paths = [p for p in settings_service.settings.components_path if p != BASE_COMPONENTS_PATH]
+        custom_paths = [
+            p for p in settings_service.settings.components_path if p != BASE_COMPONENTS_PATH]
         if custom_paths:
             component_cache.all_types_dict = await aget_all_types_dict(custom_paths)
 
     # Log custom component loading stats
     components_dict = component_cache.all_types_dict or {}
-    component_count = sum(len(comps) for comps in components_dict.get("components", {}).values())
+    component_count = sum(len(comps)
+                          for comps in components_dict.get("components", {}).values())
     if component_count > 0 and settings_service.settings.components_path:
         await logger.adebug(
             f"Built {component_count} custom components from {settings_service.settings.components_path}"
@@ -201,7 +206,8 @@ async def get_and_cache_all_types_dict(
             **langflow_components["components"],
             **custom_components_dict,
         }
-        component_count = sum(len(comps) for comps in component_cache.all_types_dict.values())
+        component_count = sum(len(comps)
+                              for comps in component_cache.all_types_dict.values())
         await logger.adebug(f"Loaded {component_count} components")
     return component_cache.all_types_dict
 

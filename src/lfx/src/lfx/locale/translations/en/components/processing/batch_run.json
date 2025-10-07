@@ -1,0 +1,50 @@
+{
+  "display_name": "Batch Run",
+  "description": "Runs an LLM on each row of a DataFrame column. If no column is specified, all columns are used.",
+  "model": {
+    "display_name": "Language Model",
+    "info": "Connect the 'Language Model' output from your LLM component here."
+  },
+  "system_message": {
+    "display_name": "Instructions",
+    "info": "Multi-line system instruction for all rows in the DataFrame."
+  },
+  "df": {
+    "display_name": "DataFrame",
+    "info": "The DataFrame whose column (specified by 'column_name') we'll treat as text messages."
+  },
+  "column_name": {
+    "display_name": "Column Name",
+    "info": "The name of the DataFrame column to treat as text messages. If empty, all columns will be formatted in TOML."
+  },
+  "output_column_name": {
+    "display_name": "Output Column Name",
+    "info": "Name of the column where the model's response will be stored."
+  },
+  "enable_metadata": {
+    "display_name": "Enable Metadata",
+    "info": "If True, add metadata to the output DataFrame."
+  },
+  "outputs": {
+    "batch_results": {
+      "display_name": "LLM Results",
+      "info": "A DataFrame with all original columns plus the model's response column."
+    }
+  },
+  "success": {
+    "batch_completed": "Batch processing completed successfully. Processed {total} rows."
+  },
+  "info": {
+    "processing_column": "Processing column '{column}' with {count} rows",
+    "processing_all_columns": "Processing all columns as TOML format with {count} rows",
+    "starting_batch": "Starting batch processing for {total} rows",
+    "processing_progress": "Processed {current}/{total} rows"
+  },
+  "errors": {
+    "invalid_dataframe_type": "Expected DataFrame input, got {actual_type}",
+    "column_not_found": "Column '{column}' not found in the DataFrame. Available columns: {available}",
+    "toml_formatting_failed": "Failed to format row as TOML: {error}",
+    "data_processing_error": "Data processing error: {error}",
+    "unexpected_error": "Unexpected error during batch processing: {error}"
+  }
+}

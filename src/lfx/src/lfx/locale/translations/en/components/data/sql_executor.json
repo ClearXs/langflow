@@ -1,0 +1,72 @@
+{
+  "display_name": "SQL Executor",
+  "description": "Execute SQL queries against various database types and return structured results.",
+  "database_url": {
+    "display_name": "Database URL",
+    "info": "Database connection URL (for PostgreSQL, MySQL, etc.). Format: dialect://user:password@host:port/database"
+  },
+  "database_path": {
+    "display_name": "Database Path",
+    "info": "Path to the SQLite database file."
+  },
+  "database_type": {
+    "display_name": "Database Type",
+    "info": "Type of database to connect to."
+  },
+  "sql_query": {
+    "display_name": "SQL Query",
+    "info": "SQL query to execute. Use proper SQL syntax for your database type."
+  },
+  "operation_type": {
+    "display_name": "Operation Type",
+    "info": "Type of SQL operation being performed (affects safety checks and output formatting)."
+  },
+  "return_only_text": {
+    "display_name": "Return Only Text",
+    "info": "If true, results will be returned as simple text strings instead of structured data."
+  },
+  "include_columns": {
+    "display_name": "Include Columns",
+    "info": "Whether to include column names in the result output."
+  },
+  "limit_rows": {
+    "display_name": "Limit Rows",
+    "info": "Maximum number of rows to return from the query results."
+  },
+  "safe_mode": {
+    "display_name": "Safe Mode",
+    "info": "When enabled, prevents execution of potentially destructive operations (DROP, DELETE, etc.)."
+  },
+  "text_key": {
+    "display_name": "Text Key",
+    "info": "The key to use for the text field in the Data objects."
+  },
+  "outputs": {
+    "result_data": {
+      "display_name": "Query Results"
+    },
+    "result_dataframe": {
+      "display_name": "Results DataFrame"
+    },
+    "execution_info": {
+      "display_name": "Execution Info"
+    }
+  },
+  "success": {
+    "query_executed": "Successfully executed {operation} query and returned {rows} rows"
+  },
+  "warnings": {
+    "no_results": "Query executed successfully but returned no results"
+  },
+  "errors": {
+    "empty_query": "SQL query cannot be empty.",
+    "destructive_query_blocked": "Potentially destructive query blocked by safe mode. Disable safe mode to execute.",
+    "execution_error": "Error executing SQL query: {error}",
+    "dataframe_error": "Error creating DataFrame from query results: {error}",
+    "info_error": "Error getting execution information: {error}",
+    "missing_database_path": "Database path is required for SQLite connections.",
+    "missing_database_url": "Database URL is required for this database type.",
+    "database_not_found": "Database file not found: {path}",
+    "sqlalchemy_required": "SQLAlchemy is required for non-SQLite database connections. Please install it."
+  }
+}

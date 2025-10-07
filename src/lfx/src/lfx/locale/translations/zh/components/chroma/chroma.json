@@ -1,0 +1,86 @@
+{
+  "display_name": "Chroma数据库",
+  "description": "具有搜索功能的Chroma向量存储",
+  "collection_name": {
+    "display_name": "集合名称",
+    "info": "Chroma集合的名称"
+  },
+  "persist_directory": {
+    "display_name": "持久化目录",
+    "info": "持久化Chroma数据库的目录"
+  },
+  "embedding": {
+    "display_name": "嵌入"
+  },
+  "chroma_server_cors_allow_origins": {
+    "display_name": "服务器CORS允许源",
+    "info": "Chroma服务器的CORS允许源"
+  },
+  "chroma_server_host": {
+    "display_name": "服务器主机",
+    "info": "Chroma服务器的主机地址"
+  },
+  "chroma_server_http_port": {
+    "display_name": "服务器HTTP端口",
+    "info": "Chroma服务器的HTTP端口"
+  },
+  "chroma_server_grpc_port": {
+    "display_name": "服务器gRPC端口",
+    "info": "Chroma服务器的gRPC端口"
+  },
+  "chroma_server_ssl_enabled": {
+    "display_name": "服务器SSL启用",
+    "info": "为Chroma服务器启用SSL"
+  },
+  "allow_duplicates": {
+    "display_name": "允许重复",
+    "info": "如果为false，将不会添加已在向量存储中的文档。"
+  },
+  "search_type": {
+    "display_name": "搜索类型",
+    "info": "要使用的搜索类型（相似度或MMR）"
+  },
+  "number_of_results": {
+    "display_name": "结果数量",
+    "info": "要返回的结果数量。"
+  },
+  "limit": {
+    "display_name": "限制",
+    "info": "当允许重复为False时，限制要比较的记录数量。"
+  },
+  "status": {
+    "initializing": "正在初始化Chroma向量存储...",
+    "preparing_documents": "正在准备摄取文档..."
+  },
+  "success": {
+    "store_created": "Chroma向量存储已成功创建，集合：'{collection}'"
+  },
+  "warnings": {
+    "filter_not_available": "警告：无法导入filter_complex_metadata。在不过滤的情况下添加文档。"
+  },
+  "errors": {
+    "chroma_not_installed": "无法导入Chroma集成包。请使用`pip install langchain-chroma`安装。",
+    "store_creation_failed": "创建Chroma向量存储失败：{error}",
+    "invalid_input_type": "向量存储输入必须是Data对象。"
+  },
+  "logs": {
+    "chroma_imported": "Chroma包导入成功",
+    "configuring_server": "正在配置Chroma服务器，主机：{host}",
+    "server_client_created": "Chroma服务器客户端已创建 - HTTP端口：{http_port}，gRPC端口：{grpc_port}，SSL：{ssl}",
+    "using_persist_directory": "使用持久化目录：{path}",
+    "in_memory_mode": "使用内存模式（无持久化目录）",
+    "creating_chroma": "正在创建Chroma实例，集合：{collection}",
+    "chroma_created": "已为集合创建Chroma实例：{collection}",
+    "no_ingest_data": "未提供摄取数据",
+    "ingest_data_count": "摄取数据数量：{count}",
+    "duplicates_allowed": "允许重复 - 将添加所有文档",
+    "checking_duplicates": "正在检查重复，限制：{limit}",
+    "existing_documents": "在集合中找到{count}个现有文档",
+    "adding_documents": "正在向向量存储添加{count}个文档。",
+    "adding_documents_to_store": "正在向Chroma向量存储添加{count}个文档",
+    "documents_added_successfully": "成功添加{count}个文档（带元数据过滤）",
+    "documents_added_without_filter": "成功添加{count}个文档（不带元数据过滤）",
+    "no_documents": "没有要添加到向量存储的文档。",
+    "no_documents_to_add": "重复检查后没有要添加的文档"
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "display_name": "提示词模板",
+  "description": "创建带有动态变量的提示词模板。",
+  "template": {
+    "display_name": "模板",
+    "info": "带有用大括号括起来的变量的提示词模板，例如'你好 {name}！'"
+  },
+  "tool_placeholder": {
+    "display_name": "工具占位符",
+    "info": "工具模式的占位符输入。"
+  },
+  "outputs": {
+    "prompt": {
+      "display_name": "提示词"
+    }
+  },
+  "success": {
+    "prompt_built": "提示词构建成功：{preview}"
+  },
+  "warnings": {
+    "empty_prompt_generated": "模板生成了空的提示词。"
+  },
+  "errors": {
+    "empty_template": "模板不能为空。",
+    "prompt_build_failed": "从模板构建提示词失败：{error}",
+    "template_update_failed": "更新模板失败：{error}",
+    "frontend_node_update_failed": "更新前端节点失败：{error}",
+    "fallback_input_failed": "创建回退输入失败：{error}"
+  },
+  "logs": {
+    "prompt_created": "创建提示词，长度：{length}个字符",
+    "template_updated": "模板更新成功",
+    "frontend_node_updated": "前端节点更新成功"
+  }
+}

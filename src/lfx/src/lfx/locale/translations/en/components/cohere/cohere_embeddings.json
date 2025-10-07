@@ -1,0 +1,48 @@
+{
+  "display_name": "Cohere Embeddings",
+  "description": "Generate embeddings using Cohere models.",
+  "api_key": {
+    "display_name": "Cohere API Key"
+  },
+  "model_name": {
+    "display_name": "Model",
+    "info": "The Cohere embedding model to use"
+  },
+  "truncate": {
+    "display_name": "Truncate",
+    "info": "Truncation strategy for input text that exceeds the model's maximum token limit"
+  },
+  "max_retries": {
+    "display_name": "Max Retries",
+    "info": "Maximum number of retries for failed API requests"
+  },
+  "user_agent": {
+    "display_name": "User Agent",
+    "info": "User agent string for API requests"
+  },
+  "request_timeout": {
+    "display_name": "Request Timeout",
+    "info": "Timeout in seconds for API requests"
+  },
+  "outputs": {
+    "embeddings": {
+      "display_name": "Embeddings"
+    }
+  },
+  "status": {
+    "initializing": "Initializing Cohere embeddings..."
+  },
+  "success": {
+    "embeddings_created": "Cohere embeddings created successfully with model: {model}"
+  },
+  "errors": {
+    "creation_failed": "Unable to create Cohere Embeddings. Please verify the API key and model parameters, and try again. Error: {error}",
+    "fetch_models_failed": "Failed to fetch Cohere models. Error: {error}"
+  },
+  "logs": {
+    "initializing": "Initializing Cohere embeddings with model: {model}",
+    "fetching_models": "Fetching available Cohere models",
+    "models_fetched": "Successfully fetched {count} Cohere models",
+    "updating_model_list": "Updating model list with available Cohere models"
+  }
+}

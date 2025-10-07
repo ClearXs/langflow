@@ -1,0 +1,76 @@
+{
+  "display_name": "URL",
+  "description": "从URL获取和处理数据，支持各种内容类型和HTTP方法。",
+  "urls": {
+    "display_name": "URL地址",
+    "info": "要获取数据的URL地址列表，用逗号分隔。"
+  },
+  "method": {
+    "display_name": "HTTP方法",
+    "info": "用于请求的HTTP方法（GET、POST、PUT、DELETE、PATCH）。"
+  },
+  "headers": {
+    "display_name": "请求头",
+    "info": "作为JSON对象包含在请求中的HTTP头。示例：{\"User-Agent\": \"MyBot 1.0\"}"
+  },
+  "body": {
+    "display_name": "请求体",
+    "info": "POST/PUT/PATCH请求的请求体内容。可以是JSON或纯文本。"
+  },
+  "timeout": {
+    "display_name": "超时时间（秒）",
+    "info": "请求超时时间（秒）。"
+  },
+  "follow_redirects": {
+    "display_name": "跟随重定向",
+    "info": "是否自动跟随HTTP重定向。"
+  },
+  "verify_ssl": {
+    "display_name": "验证SSL",
+    "info": "是否验证HTTPS请求的SSL证书。"
+  },
+  "content_type": {
+    "display_name": "内容类型",
+    "info": "如何处理响应内容。'自动'将根据响应头进行检测。"
+  },
+  "extract_metadata": {
+    "display_name": "提取元数据",
+    "info": "是否从HTML页面提取元数据（标题、元标签等）。"
+  },
+  "extract_links": {
+    "display_name": "提取链接",
+    "info": "是否从HTML页面提取所有链接。"
+  },
+  "max_content_length": {
+    "display_name": "最大内容长度",
+    "info": "允许的最大响应内容长度（字节）。"
+  },
+  "text_key": {
+    "display_name": "文本键",
+    "info": "用于数据对象中文本字段的键。"
+  },
+  "outputs": {
+    "data": {
+      "display_name": "URL数据"
+    },
+    "response_info": {
+      "display_name": "响应信息"
+    }
+  },
+  "success": {
+    "fetched_data": "成功从{total}个URL中的{successful}个获取了数据"
+  },
+  "warnings": {
+    "invalid_url": "无效的URL格式：{url}",
+    "request_failed": "URL请求失败 {url}：{error}",
+    "invalid_headers": "请求头中的JSON格式无效：{error}",
+    "content_too_large": "响应内容（{size}字节）超过了允许的最大大小（{max_size}字节）"
+  },
+  "errors": {
+    "empty_urls": "URL不能为空。",
+    "no_valid_urls": "未提供有效的URL。",
+    "no_successful_requests": "对任何提供的URL都未成功发出请求。",
+    "fetch_error": "获取URL数据时出错：{error}",
+    "response_info_error": "获取响应信息时出错：{error}"
+  }
+}

@@ -1,0 +1,75 @@
+{
+  "display_name": "文本",
+  "description": "具有验证、模板和格式选项的文本输入组件。",
+  "text": {
+    "display_name": "文本",
+    "info": "要处理或显示的文本内容。"
+  },
+  "text_type": {
+    "display_name": "文本类型",
+    "info": "文本内容的类型（纯文本、模板、markdown、html、json）。"
+  },
+  "strip_whitespace": {
+    "display_name": "去除空格",
+    "info": "是否删除文本的前导和尾随空格。"
+  },
+  "validate_format": {
+    "display_name": "验证格式",
+    "info": "是否根据所选文本类型验证文本格式。"
+  },
+  "template_variables": {
+    "display_name": "模板变量",
+    "info": "包含要在模板文本中替换的变量的JSON对象。在文本中使用{key}或{{key}}。"
+  },
+  "max_length": {
+    "display_name": "最大长度",
+    "info": "文本允许的最大长度（0表示无限制）。"
+  },
+  "min_length": {
+    "display_name": "最小长度",
+    "info": "文本要求的最小长度（0表示无最小值）。"
+  },
+  "regex_pattern": {
+    "display_name": "正则表达式模式",
+    "info": "用于验证文本格式的正则表达式模式。"
+  },
+  "case_sensitive": {
+    "display_name": "区分大小写",
+    "info": "正则表达式模式匹配是否应区分大小写。"
+  },
+  "encoding": {
+    "display_name": "文本编码",
+    "info": "用于文本处理的字符编码。"
+  },
+  "outputs": {
+    "text": {
+      "display_name": "文本"
+    },
+    "data": {
+      "display_name": "文本数据"
+    },
+    "processed_text": {
+      "display_name": "处理后的文本"
+    }
+  },
+  "success": {
+    "text_processed": "文本处理成功（{length}个字符）",
+    "processed_text_created": "处理后的文本创建成功（{length}个字符）"
+  },
+  "warnings": {
+    "invalid_template_variables": "模板变量中的JSON格式无效：{error}",
+    "template_processing_error": "处理模板时出错：{error}",
+    "encoding_error": "{encoding}编码错误：{error}"
+  },
+  "errors": {
+    "text_too_short": "文本过短（{length}个字符）。最小要求：{min_length}",
+    "text_too_long": "文本过长（{length}个字符）。最大允许：{max_length}",
+    "regex_validation_failed": "文本不匹配所需模式：{pattern}",
+    "invalid_regex_pattern": "无效的正则表达式模式'{pattern}'：{error}",
+    "format_validation_failed": "文本不匹配预期的{format}格式",
+    "text_processing_error": "处理文本时出错：{error}",
+    "data_creation_error": "创建数据对象时出错：{error}",
+    "processed_text_error": "创建处理后的文本时出错：{error}",
+    "text_info_error": "获取文本信息时出错：{error}"
+  }
+}

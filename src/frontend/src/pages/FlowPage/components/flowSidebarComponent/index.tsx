@@ -52,9 +52,7 @@ import { filteredDataFn } from "./helpers/filtered-data";
 import { normalizeString } from "./helpers/normalize-string";
 import sensitiveSort from "./helpers/sensitive-sort";
 import { traditionalSearchMetadata } from "./helpers/traditional-search-metadata";
-
-const CATEGORIES = SIDEBAR_CATEGORIES;
-const BUNDLES = SIDEBAR_BUNDLES;
+import { useSidebarBundles, useSidebarCategories } from "@/i18n/locale";
 
 // Search context for the sidebar
 export type SearchContextType = {
@@ -147,6 +145,8 @@ interface FlowSidebarComponentProps {
 
 export function FlowSidebarComponent({ isLoading }: FlowSidebarComponentProps) {
   const data = useTypesStore((state) => state.data);
+  const BUNDLES = useSidebarBundles()
+  const CATEGORIES = useSidebarCategories()
 
   const {
     getFilterEdge,
@@ -221,7 +221,6 @@ export function FlowSidebarComponent({ isLoading }: FlowSidebarComponentProps) {
   }, []);
   const [mcpSearchData, setMcpSearchData] = useState<any[]>([]);
 
-  // 创建包含 MCP 类别（如果可用）的基础数据
   const baseData = useMemo(() => {
     if (mcpSuccess && mcpServers && data["agents"]?.["MCPTools"]) {
       const mcpComponent = data["agents"]["MCPTools"];

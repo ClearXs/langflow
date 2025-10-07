@@ -1,0 +1,40 @@
+{
+  "display_name": "数据转消息",
+  "description": "使用输入数据中的任何{field_name}将Data对象转换为Message。",
+  "data": {
+    "display_name": "数据",
+    "info": "要转换为文本的数据。"
+  },
+  "template": {
+    "display_name": "模板",
+    "info": "用于格式化数据的模板。它可以包含键{text}、{data}或Data中的任何其他键。"
+  },
+  "sep": {
+    "display_name": "分隔符",
+    "info": "创建单个消息时在数据项之间使用的分隔符。"
+  },
+  "outputs": {
+    "message": {
+      "display_name": "消息",
+      "info": "作为单个Message的数据，每个输入Data由分隔符分隔"
+    },
+    "data_list": {
+      "display_name": "数据列表",
+      "info": "作为新Data列表的数据，每个都有由模板格式化的`text`"
+    }
+  },
+  "success": {
+    "data_parsed_to_message": "成功将{count}个数据项解析为消息（长度：{length}个字符）",
+    "data_parsed_to_list": "成功将{count}个数据项解析为列表"
+  },
+  "warnings": {
+    "no_valid_data": "没有有效的数据项可解析。",
+    "empty_result": "模板格式化结果为空文本。"
+  },
+  "errors": {
+    "empty_data": "未提供解析数据。",
+    "argument_validation_failed": "验证输入参数失败：{error}",
+    "parse_to_message_failed": "解析数据为消息失败：{error}",
+    "parse_to_list_failed": "解析数据为列表失败：{error}"
+  }
+}

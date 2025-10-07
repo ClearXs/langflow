@@ -1,0 +1,49 @@
+{
+  "display_name": "Cloudflare Workers AI嵌入",
+  "description": "使用Cloudflare Workers AI模型生成嵌入。",
+  "account_id": {
+    "display_name": "Cloudflare账户ID",
+    "info": "在以下位置查找您的账户ID：https://developers.cloudflare.com/fundamentals/setup/find-account-and-zone-ids/#find-account-id-workers-and-pages"
+  },
+  "api_token": {
+    "display_name": "Cloudflare API令牌",
+    "info": "在以下位置创建API令牌：https://developers.cloudflare.com/fundamentals/api/get-started/create-token/"
+  },
+  "model_name": {
+    "display_name": "模型名称",
+    "info": "支持的模型列表：https://developers.cloudflare.com/workers-ai/models/#text-embeddings"
+  },
+  "strip_new_lines": {
+    "display_name": "去除换行符",
+    "info": "是否从输入文本中去除换行符"
+  },
+  "batch_size": {
+    "display_name": "批次大小",
+    "info": "单个批次中处理的文本数量"
+  },
+  "api_base_url": {
+    "display_name": "Cloudflare API基础URL",
+    "info": "Cloudflare API请求的基础URL"
+  },
+  "headers": {
+    "display_name": "请求头",
+    "info": "附加的请求头"
+  },
+  "outputs": {
+    "embeddings": {
+      "display_name": "嵌入"
+    }
+  },
+  "status": {
+    "initializing": "正在初始化Cloudflare Workers AI嵌入..."
+  },
+  "success": {
+    "embeddings_created": "Cloudflare Workers AI嵌入已成功创建，模型：{model}"
+  },
+  "errors": {
+    "connection_failed": "无法连接到Cloudflare Workers AI嵌入API：{error}"
+  },
+  "logs": {
+    "initializing": "正在初始化Cloudflare Workers AI嵌入 - 模型：{model}，账户ID：{account_id}"
+  }
+}

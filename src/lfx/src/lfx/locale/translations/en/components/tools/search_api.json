@@ -1,0 +1,49 @@
+{
+  "display_name": "Search API [DEPRECATED]",
+  "description": "Call the searchapi.io API with result limiting",
+  "engine": {
+    "display_name": "Search Engine",
+    "info": "The search engine to use (e.g., google, bing, baidu)."
+  },
+  "api_key": {
+    "display_name": "SearchAPI API Key",
+    "info": "Your API key from searchapi.io for accessing the search API."
+  },
+  "input_value": {
+    "display_name": "Search Query",
+    "info": "The search query to execute."
+  },
+  "search_params": {
+    "display_name": "Search Parameters",
+    "info": "Additional parameters for the search API (e.g., location, language, date filters)."
+  },
+  "max_results": {
+    "display_name": "Max Results",
+    "info": "Maximum number of search results to return."
+  },
+  "max_snippet_length": {
+    "display_name": "Max Snippet Length",
+    "info": "Maximum length of each result snippet in characters."
+  },
+  "tool_description": "Search for recent results using searchapi.io with result limiting",
+  "success": {
+    "tool_created": "Search API Tool created with engine: {engine}",
+    "search_completed": "Search completed successfully. Found {count} results for '{query}'"
+  },
+  "info": {
+    "executing_search": "Executing search for '{query}' using {engine} engine..."
+  },
+  "warnings": {
+    "empty_query": "Search query is empty. Please provide a search term.",
+    "empty_input": "Search input is empty. Please provide a search query.",
+    "no_results": "No search results found for query: '{query}'",
+    "no_results_returned": "Search API returned no results"
+  },
+  "errors": {
+    "api_key_required": "SearchAPI API key is required. Please provide your API key from searchapi.io.",
+    "wrapper_creation_failed": "Failed to create SearchAPI wrapper: {error}",
+    "search_execution_failed": "Search execution failed: {error}",
+    "tool_creation_failed": "Failed to create Search API tool: {error}",
+    "execution_failed": "Search API execution failed: {error}"
+  }
+}

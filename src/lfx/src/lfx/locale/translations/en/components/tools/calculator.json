@@ -1,0 +1,19 @@
+{
+  "display_name": "Calculator",
+  "description": "Perform basic arithmetic operations on a given expression.",
+  "expression": {
+    "display_name": "Expression",
+    "info": "The arithmetic expression to evaluate (e.g., '4*4*(33/22)+12-20')."
+  },
+  "tool_description": "Evaluate basic arithmetic expressions. Input should be a string containing the expression.",
+  "success": {
+    "calculation_completed": "Calculation completed: {expression} = {result}"
+  },
+  "errors": {
+    "function_calls_not_supported": "Function calls like sqrt(), sin(), cos() etc. are not supported. Only basic arithmetic operations (+, -, *, /, **) are allowed.",
+    "unsupported_operation": "Unsupported operation or expression type: {operation}",
+    "invalid_expression": "Invalid expression: {error}",
+    "division_by_zero": "Error: Division by zero",
+    "calculation_error": "Error: {error}"
+  }
+}

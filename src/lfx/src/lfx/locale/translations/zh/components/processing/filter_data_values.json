@@ -1,0 +1,45 @@
+{
+  "display_name": "过滤值",
+  "description": "基于指定的键、过滤值和比较运算符过滤数据项列表。检查高级选项以选择匹配比较。",
+  "input_data": {
+    "display_name": "输入数据",
+    "info": "要过滤的数据项列表。"
+  },
+  "filter_key": {
+    "display_name": "过滤键",
+    "info": "要过滤的键（例如，'route'）。"
+  },
+  "filter_value": {
+    "display_name": "过滤值",
+    "info": "要过滤的值（例如，'CMIP'）。"
+  },
+  "operator": {
+    "display_name": "比较运算符",
+    "info": "用于比较值的运算符。"
+  },
+  "operators": {
+    "equals": "等于",
+    "not_equals": "不等于",
+    "contains": "包含",
+    "starts_with": "开始于",
+    "ends_with": "结束于"
+  },
+  "outputs": {
+    "filtered_data": {
+      "display_name": "过滤数据"
+    }
+  },
+  "success": {
+    "filtered_data": "成功从{total}个项目中过滤出{filtered}个项目"
+  },
+  "warnings": {
+    "empty_input_data": "输入数据为空。",
+    "missing_filter_params": "过滤键或值缺失。",
+    "invalid_items": "警告：{count}个项目不是Data对象，已跳过。",
+    "items_missing_key": "警告：{count}个项目没有键'{key}'或不是字典。",
+    "no_matches": "没有项目匹配过滤条件（运算符：{operator}，键：{key}，值：{value}）"
+  },
+  "errors": {
+    "filter_failed": "数据过滤失败：{error}"
+  }
+}

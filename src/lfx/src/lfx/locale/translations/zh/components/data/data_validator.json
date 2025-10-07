@@ -1,0 +1,74 @@
+{
+  "display_name": "数据验证器",
+  "description": "为ETL过程验证数据质量和完整性。执行全面检查，包括空值、数据类型、重复项、范围和自定义规则。",
+  "data": {
+    "display_name": "输入数据",
+    "info": "要验证的数据。可以是数据对象列表、单个数据对象或JSON字符串。"
+  },
+  "validation_mode": {
+    "display_name": "验证模式",
+    "info": "验证严格程度：strict（首次错误时失败）、tolerant（收集所有错误）或report_only（仅报告）。"
+  },
+  "check_null_values": {
+    "display_name": "检查空值",
+    "info": "验证数据字段中的空值、空字符串或缺失值。"
+  },
+  "check_duplicates": {
+    "display_name": "检查重复项",
+    "info": "检测数据集中的重复记录。"
+  },
+  "check_data_types": {
+    "display_name": "检查数据类型",
+    "info": "根据指定模式验证数据类型。"
+  },
+  "type_schema": {
+    "display_name": "类型模式",
+    "info": "定义每个字段预期数据类型的JSON模式。支持类型：string、integer、float、boolean、email、url、date。"
+  },
+  "check_ranges": {
+    "display_name": "检查范围",
+    "info": "验证数值是否在最小/最大范围内。"
+  },
+  "range_schema": {
+    "display_name": "范围模式",
+    "info": "定义数值字段的最小/最大约束的JSON模式。"
+  },
+  "use_custom_rules": {
+    "display_name": "使用自定义规则",
+    "info": "使用模式和约束应用自定义验证规则。"
+  },
+  "custom_rules": {
+    "display_name": "自定义规则",
+    "info": "定义带有模式、长度约束等的自定义验证规则的JSON。"
+  },
+  "include_statistics": {
+    "display_name": "包含统计信息",
+    "info": "在验证报告中生成详细的数据质量统计信息。"
+  },
+  "auto_clean": {
+    "display_name": "自动清理数据",
+    "info": "在可能的情况下自动尝试清理和修复数据问题。"
+  },
+  "null_threshold": {
+    "display_name": "空值阈值",
+    "info": "每个字段允许的最大空值百分比（0.0-1.0）。"
+  },
+  "outputs": {
+    "validation_report": {
+      "display_name": "验证报告"
+    },
+    "clean_data": {
+      "display_name": "清理后的数据"
+    },
+    "error_records": {
+      "display_name": "错误记录"
+    }
+  },
+  "errors": {
+    "no_data": "未提供验证的输入数据。",
+    "empty_data": "输入数据为空或不包含记录。",
+    "validation_error": "验证失败：{error}",
+    "invalid_json": "输入数据中的JSON格式无效。",
+    "no_validation_run": "必须先运行验证才能访问此输出。"
+  }
+}

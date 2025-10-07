@@ -1,0 +1,36 @@
+{
+  "display_name": "Mock Data",
+  "description": "Generate mock data for testing and development purposes.",
+  "number_of_rows": {
+    "display_name": "Number of Rows",
+    "info": "Number of mock data records to generate (1-1000)."
+  },
+  "data_type": {
+    "display_name": "Data Type",
+    "info": "Type of mock data to generate. Choose from predefined templates or create custom data."
+  },
+  "custom_schema": {
+    "display_name": "Custom Schema",
+    "info": "JSON schema defining the structure of custom data. Example: {\"name\": \"string\", \"age\": \"integer\", \"email\": \"email\"}"
+  },
+  "seed": {
+    "display_name": "Random Seed",
+    "info": "Seed value for random number generation to ensure reproducible results."
+  },
+  "text_key": {
+    "display_name": "Text Key",
+    "info": "The key to use for the text field in the Data objects."
+  },
+  "outputs": {
+    "data_list": {
+      "display_name": "Mock Data List"
+    }
+  },
+  "errors": {
+    "invalid_row_count": "Number of rows must be greater than 0.",
+    "missing_custom_schema": "Custom schema is required when data type is set to 'custom'.",
+    "invalid_data_type": "Invalid data type specified: {data_type}",
+    "generation_error": "Error generating mock data: {error}",
+    "invalid_schema": "Invalid JSON schema format: {error}"
+  }
+}

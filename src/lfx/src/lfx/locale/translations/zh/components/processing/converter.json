@@ -1,0 +1,42 @@
+{
+  "display_name": "类型转换",
+  "description": "在不同类型之间进行转换（Message、Data、DataFrame）",
+  "input_data": {
+    "display_name": "输入",
+    "info": "接受Message、Data或DataFrame作为输入"
+  },
+  "auto_parse": {
+    "display_name": "自动解析",
+    "info": "自动检测和转换JSON/CSV字符串。"
+  },
+  "output_type": {
+    "display_name": "输出类型",
+    "info": "选择所需的输出数据类型",
+    "message": "消息",
+    "data": "数据",
+    "dataframe": "数据框"
+  },
+  "outputs": {
+    "message_output": {
+      "display_name": "消息输出"
+    },
+    "data_output": {
+      "display_name": "数据输出"
+    },
+    "dataframe_output": {
+      "display_name": "数据框输出"
+    }
+  },
+  "success": {
+    "converted_to_message": "成功将输入转换为Message类型",
+    "converted_to_data": "成功将输入转换为Data类型",
+    "converted_to_data_with_parsing": "成功将输入转换为Data类型并进行自动解析",
+    "converted_to_dataframe": "成功将输入转换为DataFrame类型（{rows}行）",
+    "converted_to_dataframe_with_parsing": "成功将输入转换为DataFrame类型并进行自动解析（{rows}行）"
+  },
+  "errors": {
+    "message_conversion_failed": "转换输入为Message类型失败：{error}",
+    "data_conversion_failed": "转换输入为Data类型失败：{error}",
+    "dataframe_conversion_failed": "转换输入为DataFrame类型失败：{error}"
+  }
+}

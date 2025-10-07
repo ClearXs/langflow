@@ -1,0 +1,60 @@
+{
+  "display_name": "Chat",
+  "description": "Create and manage chat messages with support for different senders and message storage.",
+  "text": {
+    "display_name": "Text",
+    "info": "Text content of the message."
+  },
+  "message": {
+    "display_name": "Message",
+    "info": "Existing message object to use as input (when Use Message Input is enabled)."
+  },
+  "should_store_message": {
+    "display_name": "Store Message",
+    "info": "Whether to store the message in the chat history."
+  },
+  "sender": {
+    "display_name": "Sender Type",
+    "info": "Type of the message sender (AI or User)."
+  },
+  "sender_name": {
+    "display_name": "Sender Name",
+    "info": "Name of the message sender."
+  },
+  "session_id": {
+    "display_name": "Session ID",
+    "info": "Session ID for the chat. If empty, the current session ID will be used."
+  },
+  "use_message_input": {
+    "display_name": "Use Message Input",
+    "info": "Whether to use an existing Message object as input instead of creating a new one from text."
+  },
+  "clean_data": {
+    "display_name": "Clean Data",
+    "info": "Whether to clean the text data before processing."
+  },
+  "outputs": {
+    "message": {
+      "display_name": "Chat Message"
+    },
+    "text": {
+      "display_name": "Message Text"
+    }
+  },
+  "success": {
+    "message_stored": "Message successfully stored in chat history",
+    "message_created": "Message created successfully",
+    "history_cleared": "Chat history cleared successfully"
+  },
+  "warnings": {
+    "history_error": "Failed to retrieve message history: {error}"
+  },
+  "errors": {
+    "message_required": "Message input is required when 'Use Message Input' is enabled.",
+    "text_required": "Text input cannot be empty.",
+    "invalid_message_type": "Expected Message object, got different type.",
+    "build_message_error": "Error building message: {error}",
+    "get_text_error": "Error getting text content: {error}",
+    "clear_history_error": "Error clearing chat history: {error}"
+  }
+}

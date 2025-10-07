@@ -1,0 +1,40 @@
+{
+  "display_name": "正则提取器",
+  "description": "使用正则表达式从文本中提取模式。",
+  "input_text": {
+    "display_name": "输入文本",
+    "info": "要使用正则表达式模式分析的文本。"
+  },
+  "pattern": {
+    "display_name": "正则模式",
+    "info": "要匹配的正则表达式模式。使用捕获组()来提取特定部分。"
+  },
+  "outputs": {
+    "data": {
+      "display_name": "数据"
+    },
+    "message": {
+      "display_name": "消息"
+    }
+  },
+  "success": {
+    "matches_extracted": "成功使用模式'{pattern}'提取了{count}个匹配项",
+    "text_formatted": "成功将{count}个匹配项格式化为文本（长度：{length}个字符）"
+  },
+  "warnings": {
+    "empty_pattern": "正则表达式模式不能为空。",
+    "empty_input_text": "输入文本不能为空。",
+    "no_matches": "未找到给定模式的匹配项。"
+  },
+  "errors": {
+    "invalid_pattern": "无效的正则表达式模式：{error}",
+    "match_processing_failed": "处理索引{index}处的匹配项失败：{error}",
+    "extraction_failed": "正则表达式提取失败：{error}",
+    "match_formatting_failed": "格式化索引{index}处的匹配项失败：{error}",
+    "text_formatting_failed": "将匹配项格式化为文本失败：{error}"
+  },
+  "messages": {
+    "no_matches_found": "未找到匹配项",
+    "no_valid_matches": "没有有效的匹配项可显示"
+  }
+}

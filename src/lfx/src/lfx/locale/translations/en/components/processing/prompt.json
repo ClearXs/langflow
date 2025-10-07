@@ -1,0 +1,35 @@
+{
+  "display_name": "Prompt Template",
+  "description": "Create a prompt template with dynamic variables.",
+  "template": {
+    "display_name": "Template",
+    "info": "The prompt template with variables enclosed in curly braces, e.g., 'Hello {name}!'"
+  },
+  "tool_placeholder": {
+    "display_name": "Tool Placeholder",
+    "info": "A placeholder input for tool mode."
+  },
+  "outputs": {
+    "prompt": {
+      "display_name": "Prompt"
+    }
+  },
+  "success": {
+    "prompt_built": "Prompt built successfully: {preview}"
+  },
+  "warnings": {
+    "empty_prompt_generated": "Template generated an empty prompt."
+  },
+  "errors": {
+    "empty_template": "Template cannot be empty.",
+    "prompt_build_failed": "Failed to build prompt from template: {error}",
+    "template_update_failed": "Failed to update template: {error}",
+    "frontend_node_update_failed": "Failed to update frontend node: {error}",
+    "fallback_input_failed": "Failed to create fallback input: {error}"
+  },
+  "logs": {
+    "prompt_created": "Prompt created with length: {length} characters",
+    "template_updated": "Template updated successfully",
+    "frontend_node_updated": "Frontend node updated successfully"
+  }
+}

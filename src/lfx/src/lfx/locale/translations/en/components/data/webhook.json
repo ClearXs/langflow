@@ -1,0 +1,82 @@
+{
+  "display_name": "Webhook",
+  "description": "Send HTTP requests to webhook endpoints with support for signatures, retries, and various content types.",
+  "webhook_url": {
+    "display_name": "Webhook URL",
+    "info": "The URL endpoint to send the webhook request to."
+  },
+  "method": {
+    "display_name": "HTTP Method",
+    "info": "HTTP method to use for the webhook request."
+  },
+  "payload": {
+    "display_name": "Payload",
+    "info": "Request payload/body. Supports placeholders like {{timestamp}}, {{date}}, {{time}}, {{unix_timestamp}}."
+  },
+  "headers": {
+    "display_name": "Custom Headers",
+    "info": "Additional HTTP headers as JSON object. Example: {\"Authorization\": \"Bearer token\", \"Custom-Header\": \"value\"}"
+  },
+  "content_type": {
+    "display_name": "Content Type",
+    "info": "Content-Type header for the request payload."
+  },
+  "secret_key": {
+    "display_name": "Secret Key",
+    "info": "Secret key for generating request signatures (HMAC). Leave empty to disable signing."
+  },
+  "signature_method": {
+    "display_name": "Signature Method",
+    "info": "Method to use for generating payload signatures (requires secret key)."
+  },
+  "signature_header": {
+    "display_name": "Signature Header",
+    "info": "Name of the header to include the generated signature."
+  },
+  "timeout": {
+    "display_name": "Timeout (seconds)",
+    "info": "Request timeout in seconds."
+  },
+  "retry_count": {
+    "display_name": "Retry Count",
+    "info": "Number of times to retry failed requests (0 to disable retries)."
+  },
+  "verify_ssl": {
+    "display_name": "Verify SSL",
+    "info": "Whether to verify SSL certificates for HTTPS requests."
+  },
+  "follow_redirects": {
+    "display_name": "Follow Redirects",
+    "info": "Whether to automatically follow HTTP redirects."
+  },
+  "include_request_info": {
+    "display_name": "Include Request Info",
+    "info": "Whether to include request information in the response data."
+  },
+  "text_key": {
+    "display_name": "Text Key",
+    "info": "The key to use for the text field in the Data objects."
+  },
+  "outputs": {
+    "response": {
+      "display_name": "Webhook Response"
+    },
+    "request_info": {
+      "display_name": "Request Info"
+    }
+  },
+  "success": {
+    "webhook_sent": "Webhook sent successfully to {url} (Status: {status_code})"
+  },
+  "warnings": {
+    "invalid_headers": "Invalid JSON format in headers: {error}",
+    "retry_attempt": "Retry attempt {attempt}/{total} failed: {error}"
+  },
+  "errors": {
+    "empty_url": "Webhook URL cannot be empty.",
+    "invalid_json_payload": "Invalid JSON format in payload: {error}",
+    "webhook_error": "Error sending webhook: {error}",
+    "request_info_error": "Error getting request information: {error}",
+    "max_retries_exceeded": "Maximum retry attempts exceeded."
+  }
+}

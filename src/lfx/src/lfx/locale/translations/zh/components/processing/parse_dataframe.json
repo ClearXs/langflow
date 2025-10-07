@@ -1,0 +1,38 @@
+{
+  "display_name": "解析数据框",
+  "description": "按照指定模板将DataFrame转换为纯文本。DataFrame中的每一列都被视为可能的模板键，例如{col_name}。",
+  "df": {
+    "display_name": "数据框",
+    "info": "要转换为文本行的DataFrame。"
+  },
+  "template": {
+    "display_name": "模板",
+    "info": "用于格式化每行的模板。使用与DataFrame中列名匹配的占位符，例如'{col1}'、'{col2}'。"
+  },
+  "sep": {
+    "display_name": "分隔符",
+    "info": "构建单个文本输出时连接所有行文本的字符串。"
+  },
+  "outputs": {
+    "text": {
+      "display_name": "文本",
+      "info": "所有行合并为单个文本，每行由模板格式化并由`sep`分隔。"
+    }
+  },
+  "success": {
+    "all_rows_processed": "成功处理了所有{rows}行（结果长度：{length}个字符）"
+  },
+  "warnings": {
+    "missing_column_in_row": "第{row}行：模板中引用的列'{column}'不存在",
+    "missing_columns": "模板引用了不存在的列：{missing}。可用列：{available}",
+    "partial_success": "成功处理了{total}行中的{successful}行"
+  },
+  "errors": {
+    "empty_dataframe": "DataFrame为空或未提供",
+    "empty_template": "模板不能为空",
+    "argument_validation_failed": "验证输入参数失败：{error}",
+    "row_formatting_failed": "格式化第{row}行失败：{error}",
+    "no_successful_rows": "没有行被成功处理",
+    "parsing_failed": "DataFrame解析失败：{error}"
+  }
+}

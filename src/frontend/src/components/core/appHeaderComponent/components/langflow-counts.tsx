@@ -18,12 +18,39 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { useI18nStore } from '@/stores/i18nStore';
+import { useSwitchLocale } from '@/controllers/API/queries/locale/use-put-switch-locale';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { Language } from '@/types/zustand/i18n';
 
 export const LangflowCounts = () => {
   const stars: number | undefined = useDarkStore((state) => state.stars);
   const discordCount: number = useDarkStore((state) => state.discordCount);
 
-  const {lang, setLanguage} = useI18nStore()
+  const { lang, setLanguage } = useI18nStore();
+  const { mutate } = useSwitchLocale();
+  const navigate = useNavigate();
+   const location = useLocation();
+  const [firstLoader, setFirstLoader] = useState<boolean>(true);
+
+  useEffect(() => {
+    onSwitchLocale(lang);
+  }, []);
+
+  const onSwitchLocale = useCallback((lang: Language) => {
+    mutate(
+      { lang },
+      {
+        onSuccess(data, variables, context) {
+          if (!firstLoader) {
+            window.location.reload()
+          }
+          setFirstLoader(false);
+          setLanguage(lang);
+        },
+      }
+    );
+  }, [firstLoader]);
 
   return (
     <div className='flex items-center gap-3'>
@@ -36,16 +63,26 @@ export const LangflowCounts = () => {
           </ShadTooltip>
         </DropdownMenuTrigger>
         <DropdownMenuContent>
-          <DropdownMenuItem className={lang == 'en' ? cn('bg-[hsl(var(--accent))]') : undefined} onClick={() => {
-            if (lang != 'en') {
-              setLanguage('en')
-            }
-          }}>English</DropdownMenuItem>
-          <DropdownMenuItem className={lang == 'zh' ? cn('bg-[hsl(var(--accent))]') : undefined} onClick={() => {
-            if (lang != 'zh') {
-              setLanguage('zh')
-            }
-          }}>中文</DropdownMenuItem>
+          <DropdownMenuItem
+            className={lang == 'en' ? cn('bg-[hsl(var(--accent))]') : undefined}
+            onClick={() => {
+              if (lang != 'en') {
+                onSwitchLocale('en');
+              }
+            }}
+          >
+            English
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            className={lang == 'zh' ? cn('bg-[hsl(var(--accent))]') : undefined}
+            onClick={() => {
+              if (lang != 'zh') {
+                onSwitchLocale('zh');
+              }
+            }}
+          >
+            中文
+          </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
 

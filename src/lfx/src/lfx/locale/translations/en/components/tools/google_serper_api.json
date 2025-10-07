@@ -1,0 +1,43 @@
+{
+  "display_name": "Google Serper API [DEPRECATED]",
+  "description": "Call the Serper.dev Google Search API.",
+  "serper_api_key": {
+    "display_name": "Serper API Key",
+    "info": "Your API key from Serper.dev for accessing Google Search API."
+  },
+  "query": {
+    "display_name": "Query",
+    "info": "The search query to execute."
+  },
+  "k": {
+    "display_name": "Number of Results",
+    "info": "The number of search results to return."
+  },
+  "query_type": {
+    "display_name": "Query Type",
+    "info": "The type of search to perform: 'search' for web results or 'news' for news articles."
+  },
+  "query_params": {
+    "display_name": "Query Parameters",
+    "info": "Additional parameters for the search API (e.g., country code 'gl', language 'hl')."
+  },
+  "tool_description": "Search Google for recent results using Serper API.",
+  "success": {
+    "search_completed": "Search completed successfully. Found {count} {type} results for '{query}'"
+  },
+  "info": {
+    "searching": "Searching Google via Serper for '{query}' ({type} results, returning {count} items)..."
+  },
+  "warnings": {
+    "empty_query": "Search query is empty. Please provide a search term.",
+    "no_results": "No {type} results found for query: '{query}'"
+  },
+  "errors": {
+    "import_error": "Missing required dependency. Please install langchain-community to use Google Serper API.",
+    "api_key_required": "Serper API key is required. Please provide your API key from serper.dev.",
+    "search_failed": "Google Serper search failed: {error}",
+    "tool_creation_failed": "Failed to create Google Serper search tool: {error}",
+    "wrapper_creation_failed": "Failed to create Google Serper wrapper: {error}",
+    "search_execution_failed": "Failed to execute search: {error}"
+  }
+}

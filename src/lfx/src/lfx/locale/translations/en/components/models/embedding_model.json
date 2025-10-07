@@ -1,0 +1,54 @@
+{
+  "display_name": "Embedding Model",
+  "description": "Generate embeddings using a specified provider.",
+  "provider": {
+    "display_name": "Model Provider",
+    "info": "Select the embedding model provider"
+  },
+  "model": {
+    "display_name": "Model Name",
+    "info": "Select the embedding model to use"
+  },
+  "api_key": {
+    "display_name": "API Key",
+    "info": "Model Provider API key",
+    "openai_display_name": "OpenAI API Key"
+  },
+  "api_base": {
+    "display_name": "API Base URL",
+    "info": "Base URL for the API. Leave empty for default.",
+    "openai_display_name": "OpenAI API Base URL"
+  },
+  "dimensions": {
+    "display_name": "Dimensions",
+    "info": "The number of dimensions the resulting output embeddings should have. Only supported by certain models."
+  },
+  "chunk_size": {
+    "display_name": "Chunk Size",
+    "info": "Number of texts to process in each batch when generating embeddings."
+  },
+  "request_timeout": {
+    "display_name": "Request Timeout",
+    "info": "Timeout in seconds for API requests."
+  },
+  "max_retries": {
+    "display_name": "Max Retries",
+    "info": "Maximum number of retries for failed API requests."
+  },
+  "show_progress_bar": {
+    "display_name": "Show Progress Bar",
+    "info": "Whether to display a progress bar during embedding generation."
+  },
+  "model_kwargs": {
+    "display_name": "Model Kwargs",
+    "info": "Additional keyword arguments to pass to the model."
+  },
+  "success": {
+    "openai_embeddings_created": "OpenAI embeddings model '{model}' created successfully"
+  },
+  "errors": {
+    "openai_api_key_required": "OpenAI API key is required when using OpenAI provider",
+    "failed_to_create_embeddings": "Failed to create embeddings for provider '{provider}': {error}",
+    "unknown_provider": "Unknown provider: {provider}"
+  }
+}

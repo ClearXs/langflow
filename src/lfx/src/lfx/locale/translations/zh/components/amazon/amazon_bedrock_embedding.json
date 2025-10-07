@@ -1,0 +1,61 @@
+{
+  "display_name": "Amazon Bedrock嵌入",
+  "description": "使用Amazon Bedrock模型生成嵌入向量。",
+  "model_id": {
+    "display_name": "模型ID",
+    "info": "要使用的Amazon Bedrock嵌入模型。"
+  },
+  "aws_access_key_id": {
+    "display_name": "AWS访问密钥ID",
+    "info": "您AWS账户的访问密钥。通常在Python代码中设置为环境变量'AWS_ACCESS_KEY_ID'。"
+  },
+  "aws_secret_access_key": {
+    "display_name": "AWS密钥访问密钥",
+    "info": "您AWS账户的密钥。通常在Python代码中设置为环境变量'AWS_SECRET_ACCESS_KEY'。"
+  },
+  "aws_session_token": {
+    "display_name": "AWS会话令牌",
+    "info": "您AWS账户的会话密钥。仅临时凭证需要。通常在Python代码中设置为环境变量'AWS_SESSION_TOKEN'。"
+  },
+  "credentials_profile_name": {
+    "display_name": "凭证配置文件名称",
+    "info": "要从~/.aws/credentials文件中使用的配置文件名称。如果未提供，将使用默认配置文件。"
+  },
+  "region_name": {
+    "display_name": "区域名称",
+    "info": "Bedrock资源所在的AWS区域。"
+  },
+  "endpoint_url": {
+    "display_name": "端点URL",
+    "info": "要使用的AWS Bedrock端点的URL。"
+  },
+  "outputs": {
+    "embeddings": {
+      "display_name": "嵌入"
+    }
+  },
+  "status": {
+    "creating_session": "正在创建AWS会话...",
+    "creating_client": "正在创建Bedrock客户端...",
+    "initializing_embeddings": "正在初始化嵌入模型'{model}'..."
+  },
+  "success": {
+    "embeddings_initialized": "Amazon Bedrock嵌入模型'{model}'在区域'{region}'初始化成功"
+  },
+  "errors": {
+    "langchain_aws_not_installed": "langchain_aws未安装。请使用`pip install langchain_aws`安装。",
+    "boto3_not_installed": "boto3未安装。请使用`pip install boto3`安装。",
+    "session_creation_failed": "创建AWS会话失败：{error}",
+    "client_creation_failed": "创建Bedrock客户端失败：{error}",
+    "embeddings_initialization_failed": "初始化嵌入模型'{model}'失败：{error}",
+    "embeddings_build_failed": "构建嵌入失败：{error}"
+  },
+  "logs": {
+    "session_created_with_keys": "使用访问密钥创建AWS会话",
+    "session_created_with_profile": "使用配置文件'{profile}'创建AWS会话",
+    "session_created_default": "使用默认凭证创建AWS会话",
+    "endpoint_url_set": "端点URL设置为'{url}'",
+    "region_set": "区域设置为'{region}'",
+    "client_created": "Bedrock客户端创建成功"
+  }
+}

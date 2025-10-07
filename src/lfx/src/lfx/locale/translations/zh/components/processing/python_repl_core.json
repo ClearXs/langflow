@@ -1,0 +1,43 @@
+{
+  "display_name": "Python解释器",
+  "description": "运行带有可选导入的Python代码。使用print()查看输出。",
+  "global_imports": {
+    "display_name": "全局导入",
+    "info": "要全局导入的模块的逗号分隔列表，例如'math,numpy,pandas'。"
+  },
+  "python_code": {
+    "display_name": "Python代码",
+    "info": "要执行的Python代码。只能使用全局导入中指定的模块。",
+    "default_value": "print('你好，世界！')"
+  },
+  "outputs": {
+    "results": {
+      "display_name": "结果"
+    }
+  },
+  "status": {
+    "preparing_environment": "正在准备Python执行环境...",
+    "executing_code": "正在执行Python代码..."
+  },
+  "success": {
+    "modules_imported": "成功导入模块：{modules}",
+    "code_executed_no_output": "代码执行成功（无输出）",
+    "code_executed_with_output": "代码执行成功（输出长度：{length}个字符）"
+  },
+  "warnings": {
+    "empty_imports": "全局导入为空，没有模块可用",
+    "no_valid_modules": "在全局导入中未找到有效模块",
+    "failed_imports": "导入某些模块失败：{failures}"
+  },
+  "errors": {
+    "invalid_imports_type": "全局导入必须是字符串或列表",
+    "module_import_failed": "无法导入模块'{module}'：{error}",
+    "global_imports_failed": "处理全局导入时出错：{error}",
+    "empty_code": "Python代码不能为空",
+    "import_error": "导入错误：{error}",
+    "syntax_error": "语法错误：{error}",
+    "name_error": "名称错误：{error}",
+    "runtime_error": "运行时错误：{error}",
+    "execution_failed": "代码执行失败：{error}"
+  }
+}

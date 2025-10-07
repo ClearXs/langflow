@@ -3733,6 +3733,15 @@ wheels = [
 ]
 
 [[package]]
+name = "i18nice"
+version = "0.16.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/47/bf/c4d9528786ac0177e86290f53e67e1365840959edb10cbc7575d149e3f8d/i18nice-0.16.0.tar.gz", hash = "sha256:8e90d042436f4bf0cdf9ab6869eb70946eba094f58121020c350996e45b0be89", size = 22371, upload-time = "2025-05-29T17:32:08.547Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/7a/b7/633dcdb800b54501f717b80776f9541d2b3fcffea1c11339fc0074acef5e/i18nice-0.16.0-py3-none-any.whl", hash = "sha256:a8d4c70e8c1b28f867b8a901226fa8c67ab3075b29744e6274cfa2c208fe34fe", size = 19753, upload-time = "2025-05-29T17:32:06.941Z" },
+]
+
+[[package]]
 name = "ibm-cos-sdk"
 version = "2.14.3"
 source = { registry = "https://pypi.org/simple" }
@@ -5802,6 +5811,7 @@ dependencies = [
     { name = "emoji" },
     { name = "fastapi" },
     { name = "httpx", extra = ["http2"] },
+    { name = "i18nice" },
     { name = "json-repair" },
     { name = "langchain" },
     { name = "langchain-core" },
@@ -5848,6 +5858,7 @@ requires-dist = [
     { name = "emoji", specifier = ">=2.14.1" },
     { name = "fastapi", specifier = ">=0.115.13" },
     { name = "httpx", extras = ["http2"], specifier = ">=0.24.0" },
+    { name = "i18nice", specifier = ">=0.16.0" },
     { name = "json-repair", specifier = ">=0.30.3" },
     { name = "langchain", specifier = "~=0.3.23" },
     { name = "langchain-core", specifier = ">=0.3.66" },

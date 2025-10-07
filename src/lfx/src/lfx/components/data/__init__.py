@@ -7,40 +7,60 @@ from lfx.components._importing import import_mod
 if TYPE_CHECKING:
     from lfx.components.data.api_request import APIRequestComponent
     from lfx.components.data.csv_to_data import CSVToDataComponent
+    from lfx.components.data.data_splitter import DataSplitterComponent
+    from lfx.components.data.data_validator import DataValidatorComponent
+    from lfx.components.data.deduplicator import DeduplicatorComponent
     from lfx.components.data.directory import DirectoryComponent
+    from lfx.components.data.field_selector import FieldSelectorComponent
     from lfx.components.data.file import FileComponent
     from lfx.components.data.json_to_data import JSONToDataComponent
     from lfx.components.data.news_search import NewsSearchComponent
+    from lfx.components.data.null_filler import NullFillerComponent
     from lfx.components.data.rss import RSSReaderComponent
     from lfx.components.data.sql_executor import SQLComponent
+    from lfx.components.data.string_replacer import StringReplacerComponent
     from lfx.components.data.url import URLComponent
+    from lfx.components.data.value_mapper import ValueMapperComponent
     from lfx.components.data.web_search import WebSearchComponent
     from lfx.components.data.webhook import WebhookComponent
 
 _dynamic_imports = {
     "APIRequestComponent": "api_request",
     "CSVToDataComponent": "csv_to_data",
+    "DataSplitterComponent": "data_splitter",
+    "DataValidatorComponent": "data_validator",
+    "DeduplicatorComponent": "deduplicator",
     "DirectoryComponent": "directory",
+    "FieldSelectorComponent": "field_selector",
     "FileComponent": "file",
     "JSONToDataComponent": "json_to_data",
     "NewsSearchComponent": "news_search",
+    "NullFillerComponent": "null_filler",
     "RSSReaderComponent": "rss",
     "SQLComponent": "sql_executor",
+    "StringReplacerComponent": "string_replacer",
     "URLComponent": "url",
+    "ValueMapperComponent": "value_mapper",
     "WebSearchComponent": "web_search",
     "WebhookComponent": "webhook",
 }
-
 __all__ = [
     "APIRequestComponent",
     "CSVToDataComponent",
+    "DataSplitterComponent",
+    "DataValidatorComponent",
+    "DeduplicatorComponent",
     "DirectoryComponent",
+    "FieldSelectorComponent",
     "FileComponent",
     "JSONToDataComponent",
     "NewsSearchComponent",
+    "NullFillerComponent",
     "RSSReaderComponent",
     "SQLComponent",
+    "StringReplacerComponent",
     "URLComponent",
+    "ValueMapperComponent",
     "WebSearchComponent",
     "WebhookComponent",
 ]
@@ -52,7 +72,8 @@ def __getattr__(attr_name: str) -> Any:
         msg = f"module '{__name__}' has no attribute '{attr_name}'"
         raise AttributeError(msg)
     try:
-        result = import_mod(attr_name, _dynamic_imports[attr_name], __spec__.parent)
+        result = import_mod(
+            attr_name, _dynamic_imports[attr_name], __spec__.parent)
     except (ModuleNotFoundError, ImportError, AttributeError) as e:
         msg = f"Could not import '{attr_name}' from '{__name__}': {e}"
         raise AttributeError(msg) from e

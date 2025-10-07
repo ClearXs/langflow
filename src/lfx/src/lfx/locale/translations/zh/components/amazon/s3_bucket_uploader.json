@@ -1,0 +1,73 @@
+{
+  "display_name": "S3存储桶上传器",
+  "description": "上传文件到S3存储桶。",
+  "aws_access_key_id": {
+    "display_name": "AWS访问密钥ID",
+    "info": "AWS访问密钥ID。"
+  },
+  "aws_secret_access_key": {
+    "display_name": "AWS密钥",
+    "info": "AWS密钥。"
+  },
+  "bucket_name": {
+    "display_name": "存储桶名称",
+    "info": "输入存储桶的名称。"
+  },
+  "strategy": {
+    "display_name": "文件上传策略",
+    "info": "选择上传文件的策略。存储数据意味着源文件被解析并存储为LangFlow数据。存储原始文件意味着源文件按原样上传。",
+    "options": {
+      "store_data": "存储数据",
+      "store_original_file": "存储原始文件"
+    }
+  },
+  "data_inputs": {
+    "display_name": "数据输入",
+    "info": "要上传的数据。"
+  },
+  "s3_prefix": {
+    "display_name": "S3前缀",
+    "info": "所有文件的前缀。"
+  },
+  "strip_path": {
+    "display_name": "去除路径",
+    "info": "从文件路径中移除路径。"
+  },
+  "outputs": {
+    "data": {
+      "display_name": "写入AWS存储桶"
+    }
+  },
+  "status": {
+    "processing_files": "正在处理文件..."
+  },
+  "success": {
+    "files_processed_by_data": "成功按数据上传{uploaded}个文件，跳过{skipped}个",
+    "files_processed_by_name": "成功按文件名上传{uploaded}个文件，跳过{skipped}个"
+  },
+  "warnings": {
+    "no_data_inputs": "未提供数据输入",
+    "missing_data": "文件缺少文件路径或文本内容：{path}",
+    "file_not_found": "文件未找到：{path}",
+    "no_file_path": "数据项中未提供文件路径"
+  },
+  "errors": {
+    "invalid_strategy": "无效的策略：{strategy}",
+    "process_files_failed": "处理文件失败：{error}",
+    "upload_data_failed": "上传文件{path}的数据失败：{error}",
+    "process_by_data_failed": "按数据处理文件失败：{error}",
+    "upload_file_failed": "上传文件{path}失败：{error}",
+    "process_by_name_failed": "按文件名处理文件失败：{error}",
+    "boto3_not_installed": "boto3未安装。请使用`uv pip install boto3`安装。",
+    "s3_client_creation_failed": "创建S3客户端失败：{error}",
+    "path_normalization_failed": "规范化路径{path}失败：{error}"
+  },
+  "logs": {
+    "uploading_data": "正在将数据从{path}上传到S3键：{key}",
+    "data_uploaded": "数据成功上传到S3键：{key}",
+    "uploading_file": "正在上传文件{path}到S3键：{key}",
+    "file_uploaded": "文件成功上传到S3键：{key}",
+    "path_stripped": "路径已去除：{original} -> {stripped}",
+    "prefix_added": "已添加前缀'{prefix}'：{result}"
+  }
+}

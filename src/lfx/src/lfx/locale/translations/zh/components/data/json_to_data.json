@@ -1,0 +1,32 @@
+{
+  "display_name": "JSON转数据",
+  "description": "将JSON文件、路径或字符串转换为数据对象。",
+  "json_file": {
+    "display_name": "JSON文件",
+    "info": "上传JSON文件以转换为数据对象。"
+  },
+  "json_path": {
+    "display_name": "JSON路径",
+    "info": "要加载的JSON文件路径。"
+  },
+  "json_string": {
+    "display_name": "JSON字符串",
+    "info": "要转换为数据对象的JSON字符串数据。"
+  },
+  "text_key": {
+    "display_name": "文本键",
+    "info": "用于数据对象中文本字段的键。"
+  },
+  "outputs": {
+    "data_list": {
+      "display_name": "数据列表"
+    }
+  },
+  "errors": {
+    "exactly_one_input": "请提供恰好一个输入：JSON文件、JSON路径或JSON字符串。",
+    "must_be_json": "文件必须具有.json扩展名。",
+    "empty_json": "JSON文件为空或不包含有效数据。",
+    "json_parsing_error": "解析JSON数据时出错：{error}",
+    "generic_error": "处理JSON时发生错误：{error}"
+  }
+}

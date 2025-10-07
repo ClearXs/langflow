@@ -1,0 +1,39 @@
+{
+  "display_name": "Yahoo! Finance [已弃用]",
+  "description": "使用yfinance（非官方包）从Yahoo! Finance访问金融数据和市场信息。",
+  "symbol": {
+    "display_name": "股票代码",
+    "info": "要检索数据的股票代码（例如：AAPL、GOOG、TSLA）。"
+  },
+  "method": {
+    "display_name": "数据方法",
+    "info": "要检索的金融数据类型。"
+  },
+  "num_news": {
+    "display_name": "新闻数量",
+    "info": "要检索的新闻文章数量（仅适用于get_news方法）。"
+  },
+  "tool_description": "从Yahoo! Finance访问金融数据和市场信息。",
+  "success": {
+    "tool_created": "Yahoo Finance工具创建成功",
+    "data_retrieved": "成功检索{symbol}的{method}数据（{count}项）"
+  },
+  "info": {
+    "retrieving_data": "正在检索股票代码'{symbol}'的{method}数据..."
+  },
+  "warnings": {
+    "empty_symbol": "股票代码为空。请提供有效的股票代码。"
+  },
+  "errors": {
+    "import_error": "缺少必需的依赖项。请安装yfinance包：pip install yfinance",
+    "empty_symbol": "需要股票代码。请提供有效的股票代码。",
+    "invalid_method": "无效的方法'{method}'。请选择有效的数据检索方法。",
+    "no_info_data": "股票代码'{symbol}'没有可用的公司信息",
+    "no_news_data": "股票代码'{symbol}'没有可用的新闻文章",
+    "no_data_available": "股票代码'{symbol}'没有可用的{method}数据",
+    "method_not_found": "在yfinance ticker对象中未找到方法'{method}'",
+    "data_retrieval_failed": "检索股票代码'{symbol}'的{method}数据失败：{error}",
+    "tool_creation_failed": "创建Yahoo Finance工具失败：{error}",
+    "execution_failed": "Yahoo Finance执行失败：{error}"
+  }
+}

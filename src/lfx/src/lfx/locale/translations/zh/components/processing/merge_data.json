@@ -1,0 +1,39 @@
+{
+  "display_name": "合并数据",
+  "description": "使用不同操作（连接、追加、合并或联接）合并多个Data对象。",
+  "data_inputs": {
+    "display_name": "数据输入",
+    "info": "要合并的Data对象列表。"
+  },
+  "operation": {
+    "display_name": "操作类型",
+    "info": "合并数据时执行的操作类型。"
+  },
+  "operations": {
+    "concatenate": "连接",
+    "append": "追加",
+    "merge": "合并",
+    "join": "联接"
+  },
+  "outputs": {
+    "dataframe": {
+      "display_name": "合并后的数据框"
+    }
+  },
+  "success": {
+    "data_combined": "成功使用'{operation}'操作合并了{inputs}个数据输入。结果包含{rows}行。"
+  },
+  "warnings": {
+    "no_data_inputs": "未提供数据输入。",
+    "insufficient_inputs": "数据输入不足。需要：{required}，提供：{provided}。"
+  },
+  "errors": {
+    "combination_failed": "使用'{operation}'操作合并数据失败：{error}",
+    "unsupported_operation": "不支持的操作：{operation}",
+    "operation_processing_failed": "处理'{operation}'操作失败：{error}",
+    "concatenate_failed": "连接操作失败：{error}",
+    "append_failed": "追加操作失败：{error}",
+    "merge_failed": "合并操作失败：{error}",
+    "join_failed": "联接操作失败：{error}"
+  }
+}

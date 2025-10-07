@@ -1,6 +1,7 @@
 import ast
 import json
 from typing import Any
+import i18n
 
 from langchain.agents import Tool
 from langchain_core.tools import StructuredTool
@@ -30,20 +31,25 @@ class PythonCodeStructuredTool(LCToolComponent):
         "_classes",
         "_functions",
     ]
-    display_name = "Python Code Structured"
-    description = "structuredtool dataclass code to tool"
+    display_name = i18n.t(
+        'components.tools.python_code_structured_tool.display_name')
+    description = i18n.t(
+        'components.tools.python_code_structured_tool.description')
     documentation = "https://python.langchain.com/docs/modules/tools/custom_tools/#structuredtool-dataclass"
     name = "PythonCodeStructuredTool"
     icon = "Python"
-    field_order = ["name", "description", "tool_code", "return_direct", "tool_function"]
+    field_order = ["name", "description",
+                   "tool_code", "return_direct", "tool_function"]
     legacy: bool = True
     replacement = ["processing.PythonREPLComponent"]
 
     inputs = [
         MultilineInput(
             name="tool_code",
-            display_name="Tool Code",
-            info="Enter the dataclass code.",
+            display_name=i18n.t(
+                'components.tools.python_code_structured_tool.tool_code.display_name'),
+            info=i18n.t(
+                'components.tools.python_code_structured_tool.tool_code.info'),
             placeholder="def my_function(args):\n    pass",
             required=True,
             real_time_refresh=True,
@@ -51,25 +57,33 @@ class PythonCodeStructuredTool(LCToolComponent):
         ),
         MessageTextInput(
             name="tool_name",
-            display_name="Tool Name",
-            info="Enter the name of the tool.",
+            display_name=i18n.t(
+                'components.tools.python_code_structured_tool.tool_name.display_name'),
+            info=i18n.t(
+                'components.tools.python_code_structured_tool.tool_name.info'),
             required=True,
         ),
         MessageTextInput(
             name="tool_description",
-            display_name="Description",
-            info="Enter the description of the tool.",
+            display_name=i18n.t(
+                'components.tools.python_code_structured_tool.tool_description.display_name'),
+            info=i18n.t(
+                'components.tools.python_code_structured_tool.tool_description.info'),
             required=True,
         ),
         BoolInput(
             name="return_direct",
-            display_name="Return Directly",
-            info="Should the tool return the function output directly?",
+            display_name=i18n.t(
+                'components.tools.python_code_structured_tool.return_direct.display_name'),
+            info=i18n.t(
+                'components.tools.python_code_structured_tool.return_direct.info'),
         ),
         DropdownInput(
             name="tool_function",
-            display_name="Tool Function",
-            info="Select the function for additional expressions.",
+            display_name=i18n.t(
+                'components.tools.python_code_structured_tool.tool_function.display_name'),
+            info=i18n.t(
+                'components.tools.python_code_structured_tool.tool_function.info'),
             options=[],
             required=True,
             real_time_refresh=True,
@@ -77,18 +91,35 @@ class PythonCodeStructuredTool(LCToolComponent):
         ),
         HandleInput(
             name="global_variables",
-            display_name="Global Variables",
-            info="Enter the global variables or Create Data Component.",
+            display_name=i18n.t(
+                'components.tools.python_code_structured_tool.global_variables.display_name'),
+            info=i18n.t(
+                'components.tools.python_code_structured_tool.global_variables.info'),
             input_types=["Data"],
             field_type=FieldTypes.DICT,
             is_list=True,
         ),
-        MessageTextInput(name="_classes", display_name="Classes", advanced=True),
-        MessageTextInput(name="_functions", display_name="Functions", advanced=True),
+        MessageTextInput(
+            name="_classes",
+            display_name=i18n.t(
+                'components.tools.python_code_structured_tool._classes.display_name'),
+            advanced=True
+        ),
+        MessageTextInput(
+            name="_functions",
+            display_name=i18n.t(
+                'components.tools.python_code_structured_tool._functions.display_name'),
+            advanced=True
+        ),
     ]
 
     outputs = [
-        Output(display_name="Tool", name="result_tool", method="build_tool"),
+        Output(
+            display_name=i18n.t(
+                'components.tools.python_code_structured_tool.outputs.result_tool.display_name'),
+            name="result_tool",
+            method="build_tool"
+        ),
     ]
 
     @override
@@ -103,7 +134,8 @@ class PythonCodeStructuredTool(LCToolComponent):
 
         try:
             named_functions = {}
-            [classes, functions] = self._parse_code(build_config["tool_code"]["value"])
+            [classes, functions] = self._parse_code(
+                build_config["tool_code"]["value"])
             existing_fields = {}
             if len(build_config) > len(self.DEFAULT_KEYS):
                 for key in build_config.copy():
@@ -121,208 +153,271 @@ class PythonCodeStructuredTool(LCToolComponent):
                         build_config[field_name] = existing_fields[field_name]
                         continue
 
+                    display_name = i18n.t('components.tools.python_code_structured_tool.dynamic_field.display_name',
+                                          arg_name=arg['name'])
+                    info = i18n.t('components.tools.python_code_structured_tool.dynamic_field.info',
+                                  arg_name=arg['name'])
+
                     field = MessageTextInput(
-                        display_name=f"{arg['name']}: Description",
+                        display_name=display_name,
                         name=field_name,
-                        info=f"Enter the description for {arg['name']}",
+                        info=info,
                         required=True,
                     )
                     build_config[field_name] = field.to_dict()
             build_config["_functions"]["value"] = json.dumps(named_functions)
             build_config["_classes"]["value"] = json.dumps(classes)
             build_config["tool_function"]["options"] = names
+
         except Exception as e:  # noqa: BLE001
-            self.status = f"Failed to extract names: {e}"
+            error_message = i18n.t('components.tools.python_code_structured_tool.errors.failed_to_extract_names',
+                                   error=str(e))
+            self.status = error_message
             logger.debug(self.status, exc_info=True)
-            build_config["tool_function"]["options"] = ["Failed to parse", str(e)]
+            build_config["tool_function"]["options"] = [
+                i18n.t(
+                    'components.tools.python_code_structured_tool.errors.failed_to_parse'),
+                str(e)
+            ]
         return build_config
 
     async def build_tool(self) -> Tool:
-        local_namespace = {}  # type: ignore[var-annotated]
-        modules = self._find_imports(self.tool_code)
-        import_code = ""
-        for module in modules["imports"]:
-            import_code += f"global {module}\nimport {module}\n"
-        for from_module in modules["from_imports"]:
-            for alias in from_module.names:
-                import_code += f"global {alias.name}\n"
-            import_code += (
-                f"from {from_module.module} import {', '.join([alias.name for alias in from_module.names])}\n"
+        try:
+            local_namespace = {}  # type: ignore[var-annotated]
+            modules = self._find_imports(self.tool_code)
+            import_code = ""
+
+            # Import modules
+            for module in modules["imports"]:
+                import_code += f"global {module}\nimport {module}\n"
+            for from_module in modules["from_imports"]:
+                for alias in from_module.names:
+                    import_code += f"global {alias.name}\n"
+                import_code += (
+                    f"from {from_module.module} import {', '.join([alias.name for alias in from_module.names])}\n"
+                )
+
+            # Execute imports and user code
+            exec(import_code, globals())
+            exec(self.tool_code, globals(), local_namespace)
+
+            class PythonCodeToolFunc:
+                params: dict = {}
+
+                def run(**kwargs):
+                    for key, arg in kwargs.items():
+                        if key not in PythonCodeToolFunc.params:
+                            PythonCodeToolFunc.params[key] = arg
+                    return local_namespace[self.tool_function](**PythonCodeToolFunc.params)
+
+            globals_ = globals()
+            local = {}
+            local[self.tool_function] = PythonCodeToolFunc
+            globals_.update(local)
+
+            # Add global variables
+            if isinstance(self.global_variables, list):
+                for data in self.global_variables:
+                    if isinstance(data, Data):
+                        globals_.update(data.data)
+            elif isinstance(self.global_variables, dict):
+                globals_.update(self.global_variables)
+
+            # Execute classes
+            classes = json.loads(self._attributes["_classes"])
+            for class_dict in classes:
+                exec("\n".join(class_dict["code"]), globals_)
+
+            # Build schema fields
+            named_functions = json.loads(self._attributes["_functions"])
+            schema_fields = {}
+
+            for attr in self._attributes:
+                if attr in self.DEFAULT_KEYS:
+                    continue
+
+                func_name = attr.split("|")[0]
+                field_name = attr.split("|")[1]
+                func_arg = self._find_arg(
+                    named_functions, func_name, field_name)
+
+                if func_arg is None:
+                    error_message = i18n.t('components.tools.python_code_structured_tool.errors.failed_to_find_arg',
+                                           field_name=field_name)
+                    raise ValueError(error_message)
+
+                field_annotation = func_arg["annotation"]
+                field_description = self._get_value(
+                    self._attributes[attr], str)
+
+                if field_annotation:
+                    exec(
+                        f"temp_annotation_type = {field_annotation}", globals_)
+                    schema_annotation = globals_["temp_annotation_type"]
+                else:
+                    schema_annotation = Any
+
+                schema_fields[field_name] = (
+                    schema_annotation,
+                    Field(
+                        default=func_arg.get("default", Undefined),
+                        description=field_description,
+                    ),
+                )
+
+            if "temp_annotation_type" in globals_:
+                globals_.pop("temp_annotation_type")
+
+            python_code_tool_schema = None
+            if schema_fields:
+                python_code_tool_schema = create_model(
+                    "PythonCodeToolSchema", **schema_fields)
+
+            success_message = i18n.t('components.tools.python_code_structured_tool.success.tool_created',
+                                     name=self.tool_name)
+            self.status = success_message
+
+            return StructuredTool.from_function(
+                func=local[self.tool_function].run,
+                args_schema=python_code_tool_schema,
+                name=self.tool_name,
+                description=self.tool_description,
+                return_direct=self.return_direct,
             )
-        exec(import_code, globals())
-        exec(self.tool_code, globals(), local_namespace)
 
-        class PythonCodeToolFunc:
-            params: dict = {}
-
-            def run(**kwargs):
-                for key, arg in kwargs.items():
-                    if key not in PythonCodeToolFunc.params:
-                        PythonCodeToolFunc.params[key] = arg
-                return local_namespace[self.tool_function](**PythonCodeToolFunc.params)
-
-        globals_ = globals()
-        local = {}
-        local[self.tool_function] = PythonCodeToolFunc
-        globals_.update(local)
-
-        if isinstance(self.global_variables, list):
-            for data in self.global_variables:
-                if isinstance(data, Data):
-                    globals_.update(data.data)
-        elif isinstance(self.global_variables, dict):
-            globals_.update(self.global_variables)
-
-        classes = json.loads(self._attributes["_classes"])
-        for class_dict in classes:
-            exec("\n".join(class_dict["code"]), globals_)
-
-        named_functions = json.loads(self._attributes["_functions"])
-        schema_fields = {}
-
-        for attr in self._attributes:
-            if attr in self.DEFAULT_KEYS:
-                continue
-
-            func_name = attr.split("|")[0]
-            field_name = attr.split("|")[1]
-            func_arg = self._find_arg(named_functions, func_name, field_name)
-            if func_arg is None:
-                msg = f"Failed to find arg: {field_name}"
-                raise ValueError(msg)
-
-            field_annotation = func_arg["annotation"]
-            field_description = self._get_value(self._attributes[attr], str)
-
-            if field_annotation:
-                exec(f"temp_annotation_type = {field_annotation}", globals_)
-                schema_annotation = globals_["temp_annotation_type"]
-            else:
-                schema_annotation = Any
-            schema_fields[field_name] = (
-                schema_annotation,
-                Field(
-                    default=func_arg.get("default", Undefined),
-                    description=field_description,
-                ),
-            )
-
-        if "temp_annotation_type" in globals_:
-            globals_.pop("temp_annotation_type")
-
-        python_code_tool_schema = None
-        if schema_fields:
-            python_code_tool_schema = create_model("PythonCodeToolSchema", **schema_fields)
-
-        return StructuredTool.from_function(
-            func=local[self.tool_function].run,
-            args_schema=python_code_tool_schema,
-            name=self.tool_name,
-            description=self.tool_description,
-            return_direct=self.return_direct,
-        )
+        except Exception as e:
+            error_message = i18n.t('components.tools.python_code_structured_tool.errors.tool_creation_failed',
+                                   error=str(e))
+            self.status = error_message
+            raise ValueError(error_message) from e
 
     async def update_frontend_node(self, new_frontend_node: dict, current_frontend_node: dict):
         """This function is called after the code validation is done."""
-        frontend_node = await super().update_frontend_node(new_frontend_node, current_frontend_node)
-        frontend_node["template"] = await self.update_build_config(
-            frontend_node["template"],
-            frontend_node["template"]["tool_code"]["value"],
-            "tool_code",
-        )
-        frontend_node = await super().update_frontend_node(new_frontend_node, current_frontend_node)
-        for key in frontend_node["template"]:
-            if key in self.DEFAULT_KEYS:
-                continue
+        try:
+            frontend_node = await super().update_frontend_node(new_frontend_node, current_frontend_node)
             frontend_node["template"] = await self.update_build_config(
-                frontend_node["template"], frontend_node["template"][key]["value"], key
+                frontend_node["template"],
+                frontend_node["template"]["tool_code"]["value"],
+                "tool_code",
             )
             frontend_node = await super().update_frontend_node(new_frontend_node, current_frontend_node)
-        return frontend_node
+            for key in frontend_node["template"]:
+                if key in self.DEFAULT_KEYS:
+                    continue
+                frontend_node["template"] = await self.update_build_config(
+                    frontend_node["template"], frontend_node["template"][key]["value"], key
+                )
+                frontend_node = await super().update_frontend_node(new_frontend_node, current_frontend_node)
+            return frontend_node
+        except Exception as e:
+            error_message = i18n.t('components.tools.python_code_structured_tool.errors.frontend_update_failed',
+                                   error=str(e))
+            logger.warning(error_message, exc_info=True)
+            return current_frontend_node
 
     def _parse_code(self, code: str) -> tuple[list[dict], list[dict]]:
-        parsed_code = ast.parse(code)
-        lines = code.split("\n")
-        classes = []
-        functions = []
-        for node in parsed_code.body:
-            if isinstance(node, ast.ClassDef):
-                class_lines = lines[node.lineno - 1 : node.end_lineno]
-                class_lines[-1] = class_lines[-1][: node.end_col_offset]
-                class_lines[0] = class_lines[0][node.col_offset :]
-                classes.append(
-                    {
-                        "name": node.name,
-                        "code": class_lines,
+        try:
+            parsed_code = ast.parse(code)
+            lines = code.split("\n")
+            classes = []
+            functions = []
+
+            for node in parsed_code.body:
+                if isinstance(node, ast.ClassDef):
+                    class_lines = lines[node.lineno - 1: node.end_lineno]
+                    class_lines[-1] = class_lines[-1][: node.end_col_offset]
+                    class_lines[0] = class_lines[0][node.col_offset:]
+                    classes.append(
+                        {
+                            "name": node.name,
+                            "code": class_lines,
+                        }
+                    )
+                    continue
+
+                if not isinstance(node, ast.FunctionDef):
+                    continue
+
+                func = {"name": node.name, "args": []}
+                for arg in node.args.args:
+                    if arg.lineno != arg.end_lineno:
+                        error_message = i18n.t(
+                            'components.tools.python_code_structured_tool.errors.multiline_args_not_supported')
+                        raise ValueError(error_message)
+
+                    func_arg = {
+                        "name": arg.arg,
+                        "annotation": None,
                     }
-                )
-                continue
 
-            if not isinstance(node, ast.FunctionDef):
-                continue
+                    for default in node.args.defaults:
+                        if (
+                            arg.lineno > default.lineno
+                            or arg.col_offset > default.col_offset
+                            or (
+                                arg.end_lineno is not None
+                                and default.end_lineno is not None
+                                and arg.end_lineno < default.end_lineno
+                            )
+                            or (
+                                arg.end_col_offset is not None
+                                and default.end_col_offset is not None
+                                and arg.end_col_offset < default.end_col_offset
+                            )
+                        ):
+                            continue
 
-            func = {"name": node.name, "args": []}
-            for arg in node.args.args:
-                if arg.lineno != arg.end_lineno:
-                    msg = "Multiline arguments are not supported"
-                    raise ValueError(msg)
+                        if isinstance(default, ast.Name):
+                            func_arg["default"] = default.id
+                        elif isinstance(default, ast.Constant):
+                            func_arg["default"] = str(
+                                default.value) if default.value is not None else None
 
-                func_arg = {
-                    "name": arg.arg,
-                    "annotation": None,
-                }
+                    if arg.annotation:
+                        annotation_line = lines[arg.annotation.lineno - 1]
+                        annotation_line = annotation_line[:
+                                                          arg.annotation.end_col_offset]
+                        annotation_line = annotation_line[arg.annotation.col_offset:]
+                        func_arg["annotation"] = annotation_line
+                        if isinstance(func_arg["annotation"], str) and func_arg["annotation"].count("=") > 0:
+                            func_arg["annotation"] = "=".join(
+                                func_arg["annotation"].split("=")[:-1]).strip()
+                    if isinstance(func["args"], list):
+                        func["args"].append(func_arg)
+                functions.append(func)
 
-                for default in node.args.defaults:
-                    if (
-                        arg.lineno > default.lineno
-                        or arg.col_offset > default.col_offset
-                        or (
-                            arg.end_lineno is not None
-                            and default.end_lineno is not None
-                            and arg.end_lineno < default.end_lineno
-                        )
-                        or (
-                            arg.end_col_offset is not None
-                            and default.end_col_offset is not None
-                            and arg.end_col_offset < default.end_col_offset
-                        )
-                    ):
-                        continue
+            return classes, functions
 
-                    if isinstance(default, ast.Name):
-                        func_arg["default"] = default.id
-                    elif isinstance(default, ast.Constant):
-                        func_arg["default"] = str(default.value) if default.value is not None else None
-
-                if arg.annotation:
-                    annotation_line = lines[arg.annotation.lineno - 1]
-                    annotation_line = annotation_line[: arg.annotation.end_col_offset]
-                    annotation_line = annotation_line[arg.annotation.col_offset :]
-                    func_arg["annotation"] = annotation_line
-                    if isinstance(func_arg["annotation"], str) and func_arg["annotation"].count("=") > 0:
-                        func_arg["annotation"] = "=".join(func_arg["annotation"].split("=")[:-1]).strip()
-                if isinstance(func["args"], list):
-                    func["args"].append(func_arg)
-            functions.append(func)
-
-        return classes, functions
+        except Exception as e:
+            error_message = i18n.t('components.tools.python_code_structured_tool.errors.code_parsing_failed',
+                                   error=str(e))
+            raise ValueError(error_message) from e
 
     def _find_imports(self, code: str) -> dotdict:
-        imports: list[str] = []
-        from_imports = []
-        parsed_code = ast.parse(code)
-        for node in parsed_code.body:
-            if isinstance(node, ast.Import):
-                imports.extend(alias.name for alias in node.names)
-            elif isinstance(node, ast.ImportFrom):
-                from_imports.append(node)
-        return dotdict({"imports": imports, "from_imports": from_imports})
+        try:
+            imports: list[str] = []
+            from_imports = []
+            parsed_code = ast.parse(code)
+            for node in parsed_code.body:
+                if isinstance(node, ast.Import):
+                    imports.extend(alias.name for alias in node.names)
+                elif isinstance(node, ast.ImportFrom):
+                    from_imports.append(node)
+            return dotdict({"imports": imports, "from_imports": from_imports})
+        except Exception as e:
+            error_message = i18n.t('components.tools.python_code_structured_tool.errors.import_parsing_failed',
+                                   error=str(e))
+            logger.warning(error_message)
+            return dotdict({"imports": [], "from_imports": []})
 
     def _get_value(self, value: Any, annotation: Any) -> Any:
         return value if isinstance(value, annotation) else value["value"]
 
     def _find_arg(self, named_functions: dict, func_name: str, arg_name: str) -> dict | None:
-        for arg in named_functions[func_name]["args"]:
-            if arg["name"] == arg_name:
-                return arg
-        return None
+        try:
+            for arg in named_functions[func_name]["args"]:
+                if arg["name"] == arg_name:
+                    return arg
+            return None
+        except (KeyError, TypeError):
+            return None

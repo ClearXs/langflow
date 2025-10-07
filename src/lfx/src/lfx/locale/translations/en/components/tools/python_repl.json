@@ -1,0 +1,38 @@
+{
+  "display_name": "Python REPL [DEPRECATED]",
+  "description": "A tool for running Python code in a REPL environment.",
+  "name": {
+    "display_name": "Tool Name",
+    "info": "The name of the tool."
+  },
+  "tool_description": {
+    "display_name": "Tool Description",
+    "info": "A description of the tool.",
+    "default_value": "A Python shell. Use this to execute python commands. Input should be a valid python command. If you want to see the output of a value, you should print it out with `print(...)`."
+  },
+  "global_imports": {
+    "display_name": "Global Imports",
+    "info": "A comma-separated list of modules to import globally, e.g. 'math,numpy'."
+  },
+  "code": {
+    "display_name": "Python Code",
+    "info": "The Python code to execute."
+  },
+  "success": {
+    "tool_created": "Python REPL Tool created with global imports: {imports}",
+    "code_executed": "Python code executed successfully"
+  },
+  "info": {
+    "executing_code": "Executing Python code..."
+  },
+  "warnings": {
+    "empty_code": "No code provided to execute"
+  },
+  "errors": {
+    "invalid_global_imports_type": "global_imports must be either a string or a list",
+    "module_import_failed": "Could not import module {module}",
+    "code_execution_failed": "Error executing Python code: {error}",
+    "tool_creation_failed": "Failed to create Python REPL tool: {error}",
+    "execution_failed": "Python REPL execution failed: {error}"
+  }
+}

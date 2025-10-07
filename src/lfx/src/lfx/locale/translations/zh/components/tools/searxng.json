@@ -1,0 +1,55 @@
+{
+  "display_name": "SearXNG搜索 [已弃用]",
+  "description": "使用SearXNG搜索工具的组件。",
+  "url": {
+    "display_name": "URL",
+    "info": "您的SearXNG实例的基础URL（例如：http://localhost:8080）。"
+  },
+  "max_results": {
+    "display_name": "最大结果数",
+    "info": "要返回的搜索结果的最大数量。"
+  },
+  "categories": {
+    "display_name": "类别",
+    "info": "要包含的搜索类别（例如：general、images、news）。"
+  },
+  "language": {
+    "display_name": "语言",
+    "info": "搜索结果的语言。"
+  },
+  "outputs": {
+    "result_tool": {
+      "display_name": "工具"
+    }
+  },
+  "schema": {
+    "query": {
+      "description": "要搜索的查询。"
+    },
+    "categories": {
+      "description": "要搜索的类别。"
+    }
+  },
+  "tool_description": "使用SearXNG搜索的工具。\n可用类别：{categories}",
+  "no_categories_configured": "未配置",
+  "success": {
+    "config_loaded": "SearXNG配置已加载：{categories}个类别，{languages}种语言",
+    "tool_created": "已为{url}创建SearXNG搜索工具，最多返回{max_results}个结果"
+  },
+  "warnings": {
+    "empty_query": "搜索查询为空。请提供搜索词。",
+    "no_results": "未找到查询'{query}'的搜索结果"
+  },
+  "errors": {
+    "connection_failed": "连接SearXNG实例{url}失败：{error}",
+    "connection_error": "连接错误",
+    "config_parsing_failed": "解析SearXNG配置失败：{error}",
+    "failed_to_parse": "解析失败",
+    "no_categories": "未提供搜索类别。",
+    "search_request_failed": "搜索请求失败，状态码：{status}",
+    "search_connection_failed": "连接SearXNG进行搜索失败：{error}",
+    "search_failed": "SearXNG搜索失败：{error}",
+    "url_required": "需要SearXNG URL。请提供有效的URL。",
+    "tool_creation_failed": "创建SearXNG搜索工具失败：{error}"
+  }
+}

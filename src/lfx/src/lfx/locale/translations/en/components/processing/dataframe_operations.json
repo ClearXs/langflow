@@ -1,0 +1,107 @@
+{
+  "display_name": "DataFrame Operations",
+  "description": "Perform various operations on a DataFrame.",
+  "df": {
+    "display_name": "DataFrame",
+    "info": "The input DataFrame to operate on."
+  },
+  "operation": {
+    "display_name": "Operation",
+    "placeholder": "Select Operation",
+    "info": "Select the DataFrame operation to perform."
+  },
+  "operations": {
+    "add_column": "Add Column",
+    "drop_column": "Drop Column",
+    "filter": "Filter",
+    "head": "Head",
+    "rename_column": "Rename Column",
+    "replace_value": "Replace Value",
+    "select_columns": "Select Columns",
+    "sort": "Sort",
+    "tail": "Tail",
+    "drop_duplicates": "Drop Duplicates"
+  },
+  "column_name": {
+    "display_name": "Column Name",
+    "info": "The column name to use for the operation."
+  },
+  "filter_value": {
+    "display_name": "Filter Value",
+    "info": "The value to filter rows by."
+  },
+  "filter_operator": {
+    "display_name": "Filter Operator",
+    "info": "The operator to apply for filtering rows."
+  },
+  "filter_operators": {
+    "equals": "equals",
+    "not_equals": "not equals",
+    "contains": "contains",
+    "not_contains": "not contains",
+    "starts_with": "starts with",
+    "ends_with": "ends with",
+    "greater_than": "greater than",
+    "less_than": "less than"
+  },
+  "ascending": {
+    "display_name": "Sort Ascending",
+    "info": "Whether to sort in ascending order."
+  },
+  "new_column_name": {
+    "display_name": "New Column Name",
+    "info": "The new column name when renaming or adding a column."
+  },
+  "new_column_value": {
+    "display_name": "New Column Value",
+    "info": "The value to populate the new column with."
+  },
+  "columns_to_select": {
+    "display_name": "Columns to Select",
+    "info": "List of column names to select from the DataFrame."
+  },
+  "num_rows": {
+    "display_name": "Number of Rows",
+    "info": "Number of rows to return (for head/tail)."
+  },
+  "replace_value": {
+    "display_name": "Value to Replace",
+    "info": "The value to replace in the column."
+  },
+  "replacement_value": {
+    "display_name": "Replacement Value",
+    "info": "The value to replace with."
+  },
+  "outputs": {
+    "dataframe": {
+      "display_name": "DataFrame",
+      "info": "The resulting DataFrame after the operation."
+    }
+  },
+  "success": {
+    "operation_completed": "Operation '{operation}' completed successfully. Result has {rows} rows."
+  },
+  "warnings": {
+    "no_operation_selected": "No operation selected. Returning original DataFrame."
+  },
+  "errors": {
+    "unsupported_operation": "Unsupported operation: {operation}",
+    "operation_failed": "Operation failed: {error}",
+    "column_not_found": "Column '{column}' not found. Available columns: {available}",
+    "filter_failed": "Filter operation failed: {error}",
+    "sort_failed": "Sort operation failed: {error}",
+    "drop_column_failed": "Drop column operation failed: {error}",
+    "rename_column_failed": "Rename column operation failed: {error}",
+    "add_column_failed": "Add column operation failed: {error}",
+    "select_columns_failed": "Select columns operation failed: {error}",
+    "head_failed": "Head operation failed: {error}",
+    "tail_failed": "Tail operation failed: {error}",
+    "replace_values_failed": "Replace values operation failed: {error}",
+    "drop_duplicates_failed": "Drop duplicates operation failed: {error}",
+    "new_column_name_required": "New column name is required and cannot be empty.",
+    "columns_to_select_required": "Columns to select are required.",
+    "no_valid_columns": "No valid columns specified.",
+    "columns_not_found": "Columns not found: {columns}. Available columns: {available}",
+    "invalid_num_rows": "Number of rows must be greater than 0."
+  }
+}

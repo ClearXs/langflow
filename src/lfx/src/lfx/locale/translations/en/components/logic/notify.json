@@ -1,0 +1,31 @@
+{
+  "display_name": "Notify",
+  "description": "A component to generate a notification to Get Notified component.",
+  "context_key": {
+    "display_name": "Context Key",
+    "info": "The key of the context to store the notification."
+  },
+  "input_value": {
+    "display_name": "Input Data",
+    "info": "The data to store."
+  },
+  "append": {
+    "display_name": "Append",
+    "info": "If True, the record will be appended to the notification."
+  },
+  "outputs": {
+    "result": {
+      "display_name": "Data"
+    }
+  },
+  "success": {
+    "appended_to_context": "Data appended to context key '{key}'",
+    "stored_in_context": "Data stored in context key '{key}'"
+  },
+  "warnings": {
+    "no_record_provided": "No record provided."
+  },
+  "errors": {
+    "must_be_in_graph": "Notify component must be used in a graph."
+  }
+}

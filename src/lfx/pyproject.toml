@@ -39,6 +39,7 @@ dependencies = [
     "loguru>=0.7.3",
     "langchain~=0.3.23",
     "validators>=0.34.0",
+    "i18nice>=0.16.0",
 ]
 
 [project.scripts]

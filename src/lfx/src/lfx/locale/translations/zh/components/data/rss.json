@@ -1,0 +1,64 @@
+{
+  "display_name": "RSS订阅",
+  "description": "从RSS/Atom订阅源获取和解析条目。",
+  "rss_url": {
+    "display_name": "RSS链接",
+    "info": "要获取条目的RSS或Atom订阅源URL。"
+  },
+  "max_entries": {
+    "display_name": "最大条目数",
+    "info": "返回的最大RSS条目数量（1-100）。"
+  },
+  "days_back": {
+    "display_name": "回溯天数",
+    "info": "仅包含最近N天的条目。设置为0表示包含所有条目。"
+  },
+  "include_summary": {
+    "display_name": "包含摘要",
+    "info": "是否在结果中包含条目摘要/描述。"
+  },
+  "include_content": {
+    "display_name": "包含内容",
+    "info": "是否在结果中包含完整的条目内容（如果可用）。"
+  },
+  "parse_dates": {
+    "display_name": "解析日期",
+    "info": "是否解析并包含格式化的日期时间字段。"
+  },
+  "sort_order": {
+    "display_name": "排序顺序",
+    "info": "如何排序RSS条目：最新优先、最旧优先，或保持订阅源顺序。"
+  },
+  "user_agent": {
+    "display_name": "用户代理",
+    "info": "获取RSS订阅源时使用的用户代理字符串。"
+  },
+  "timeout": {
+    "display_name": "超时时间（秒）",
+    "info": "获取RSS订阅源时的请求超时时间（秒）。"
+  },
+  "text_key": {
+    "display_name": "文本键",
+    "info": "用于数据对象中文本字段的键（例如，'title'、'summary'、'content'）。"
+  },
+  "outputs": {
+    "rss_entries": {
+      "display_name": "RSS条目"
+    },
+    "feed_info": {
+      "display_name": "订阅源信息"
+    }
+  },
+  "success": {
+    "fetched_entries": "成功获取了{count}个条目，总共{total}个条目"
+  },
+  "warnings": {
+    "feed_parsing_issues": "订阅源解析遇到问题：{error}"
+  },
+  "errors": {
+    "empty_url": "RSS链接不能为空。",
+    "no_entries": "在RSS订阅源中未找到条目。",
+    "fetch_error": "获取RSS订阅源时出错：{error}",
+    "feed_info_error": "获取订阅源信息时出错：{error}"
+  }
+}

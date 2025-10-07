@@ -1,3 +1,4 @@
+import i18n
 from lfx.base.data.utils import TEXT_FILE_TYPES, parallel_load_data, parse_text_file_to_data, retrieve_file_paths
 from lfx.custom.custom_component.component import Component
 from lfx.io import BoolInput, IntInput, MessageTextInput, MultiselectInput
@@ -7,8 +8,8 @@ from lfx.template.field.base import Output
 
 
 class DirectoryComponent(Component):
-    display_name = "Directory"
-    description = "Recursively load files from a directory."
+    display_name = i18n.t('components.data.directory.display_name')
+    description = i18n.t('components.data.directory.description')
     documentation: str = "https://docs.langflow.org/components-data#directory"
     icon = "folder"
     name = "Directory"
@@ -16,59 +17,67 @@ class DirectoryComponent(Component):
     inputs = [
         MessageTextInput(
             name="path",
-            display_name="Path",
-            info="Path to the directory to load files from. Defaults to current directory ('.')",
+            display_name=i18n.t('components.data.directory.path.display_name'),
+            info=i18n.t('components.data.directory.path.info'),
             value=".",
             tool_mode=True,
         ),
         MultiselectInput(
             name="types",
-            display_name="File Types",
-            info="File types to load. Select one or more types or leave empty to load all supported types.",
+            display_name=i18n.t(
+                'components.data.directory.types.display_name'),
+            info=i18n.t('components.data.directory.types.info'),
             options=TEXT_FILE_TYPES,
             value=[],
         ),
         IntInput(
             name="depth",
-            display_name="Depth",
-            info="Depth to search for files.",
+            display_name=i18n.t(
+                'components.data.directory.depth.display_name'),
+            info=i18n.t('components.data.directory.depth.info'),
             value=0,
         ),
         IntInput(
             name="max_concurrency",
-            display_name="Max Concurrency",
+            display_name=i18n.t(
+                'components.data.directory.max_concurrency.display_name'),
             advanced=True,
-            info="Maximum concurrency for loading files.",
+            info=i18n.t('components.data.directory.max_concurrency.info'),
             value=2,
         ),
         BoolInput(
             name="load_hidden",
-            display_name="Load Hidden",
+            display_name=i18n.t(
+                'components.data.directory.load_hidden.display_name'),
             advanced=True,
-            info="If true, hidden files will be loaded.",
+            info=i18n.t('components.data.directory.load_hidden.info'),
         ),
         BoolInput(
             name="recursive",
-            display_name="Recursive",
+            display_name=i18n.t(
+                'components.data.directory.recursive.display_name'),
             advanced=True,
-            info="If true, the search will be recursive.",
+            info=i18n.t('components.data.directory.recursive.info'),
         ),
         BoolInput(
             name="silent_errors",
-            display_name="Silent Errors",
+            display_name=i18n.t(
+                'components.data.directory.silent_errors.display_name'),
             advanced=True,
-            info="If true, errors will not raise an exception.",
+            info=i18n.t('components.data.directory.silent_errors.info'),
         ),
         BoolInput(
             name="use_multithreading",
-            display_name="Use Multithreading",
+            display_name=i18n.t(
+                'components.data.directory.use_multithreading.display_name'),
             advanced=True,
-            info="If true, multithreading will be used.",
+            info=i18n.t('components.data.directory.use_multithreading.info'),
         ),
     ]
 
     outputs = [
-        Output(display_name="Loaded Files", name="dataframe", method="as_dataframe"),
+        Output(display_name=i18n.t('components.data.directory.outputs.dataframe.display_name'),
+               name="dataframe", method="as_dataframe"),
     ]
 
     def load_directory(self) -> list[Data]:
@@ -90,7 +99,8 @@ class DirectoryComponent(Component):
         # Check if all specified types are valid
         invalid_types = [t for t in types if t not in TEXT_FILE_TYPES]
         if invalid_types:
-            msg = f"Invalid file types specified: {invalid_types}. Valid types are: {TEXT_FILE_TYPES}"
+            msg = i18n.t('components.data.directory.errors.invalid_file_types',
+                         invalid_types=str(invalid_types), valid_types=str(TEXT_FILE_TYPES))
             raise ValueError(msg)
 
         valid_types = types
@@ -101,11 +111,14 @@ class DirectoryComponent(Component):
 
         loaded_data = []
         if use_multithreading:
-            loaded_data = parallel_load_data(file_paths, silent_errors=silent_errors, max_concurrency=max_concurrency)
+            loaded_data = parallel_load_data(
+                file_paths, silent_errors=silent_errors, max_concurrency=max_concurrency)
         else:
-            loaded_data = [parse_text_file_to_data(file_path, silent_errors=silent_errors) for file_path in file_paths]
+            loaded_data = [parse_text_file_to_data(
+                file_path, silent_errors=silent_errors) for file_path in file_paths]
 
-        valid_data = [x for x in loaded_data if x is not None and isinstance(x, Data)]
+        valid_data = [
+            x for x in loaded_data if x is not None and isinstance(x, Data)]
         self.status = valid_data
         return valid_data
 

@@ -1,0 +1,45 @@
+{
+  "display_name": "Filter Values",
+  "description": "Filter a list of data items based on a specified key, filter value, and comparison operator. Check advanced options to select match comparison.",
+  "input_data": {
+    "display_name": "Input Data",
+    "info": "The list of data items to filter."
+  },
+  "filter_key": {
+    "display_name": "Filter Key",
+    "info": "The key to filter on (e.g., 'route')."
+  },
+  "filter_value": {
+    "display_name": "Filter Value",
+    "info": "The value to filter by (e.g., 'CMIP')."
+  },
+  "operator": {
+    "display_name": "Comparison Operator",
+    "info": "The operator to apply for comparing the values."
+  },
+  "operators": {
+    "equals": "equals",
+    "not_equals": "not equals",
+    "contains": "contains",
+    "starts_with": "starts with",
+    "ends_with": "ends with"
+  },
+  "outputs": {
+    "filtered_data": {
+      "display_name": "Filtered Data"
+    }
+  },
+  "success": {
+    "filtered_data": "Successfully filtered {filtered} items out of {total} total items"
+  },
+  "warnings": {
+    "empty_input_data": "Input data is empty.",
+    "missing_filter_params": "Filter key or value is missing.",
+    "invalid_items": "Warning: {count} items are not Data objects and were skipped.",
+    "items_missing_key": "Warning: {count} items don't have the key '{key}' or are not dictionaries.",
+    "no_matches": "No items matched the filter criteria (operator: {operator}, key: {key}, value: {value})"
+  },
+  "errors": {
+    "filter_failed": "Data filtering failed: {error}"
+  }
+}

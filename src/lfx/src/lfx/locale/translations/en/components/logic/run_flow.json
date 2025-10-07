@@ -1,0 +1,20 @@
+{
+  "display_name": "Run Flow",
+  "description": "Creates a tool component from a Flow that takes all its inputs and runs it.\n **Select a Flow to use the tool mode**",
+  "success": {
+    "build_config_updated": "Build configuration updated successfully for flow '{flow}'",
+    "flow_executed": "Flow '{flow}' executed successfully"
+  },
+  "info": {
+    "using_flow_tweak_data": "Using {count} tweaks from flow tweak data",
+    "using_attribute_tweaks": "Using {count} tweaks from component attributes", 
+    "executing_flow": "Executing flow: {flow}"
+  },
+  "errors": {
+    "failed_to_get_flow_names": "Failed to get flow names: {error}",
+    "missing_required_keys": "Missing required keys in build_config: {keys}",
+    "failed_to_build_graph": "Error building graph for flow '{flow}': {error}",
+    "no_flow_selected": "No flow selected for execution",
+    "execution_failed": "Flow execution failed: {error}"
+  }
+}

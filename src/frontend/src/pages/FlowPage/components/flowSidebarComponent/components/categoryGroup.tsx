@@ -1,15 +1,16 @@
-import { memo } from "react";
+import { memo } from 'react';
 import {
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
   SidebarMenu,
-} from "@/components/ui/sidebar";
-import { ENABLE_NEW_SIDEBAR } from "@/customization/feature-flags";
-import { SIDEBAR_BUNDLES } from "@/utils/styleUtils";
-import type { CategoryGroupProps } from "../types";
-import { CategoryDisclosure } from "./categoryDisclouse";
-import { SearchConfigTrigger } from "./searchConfigTrigger";
+} from '@/components/ui/sidebar';
+import { ENABLE_NEW_SIDEBAR } from '@/customization/feature-flags';
+import { SIDEBAR_BUNDLES } from '@/utils/styleUtils';
+import type { CategoryGroupProps } from '../types';
+import { CategoryDisclosure } from './categoryDisclouse';
+import { SearchConfigTrigger } from './searchConfigTrigger';
+import { useTranslation } from 'react-i18next';
 
 export const CategoryGroup = memo(function CategoryGroup({
   dataFilter,
@@ -24,11 +25,13 @@ export const CategoryGroup = memo(function CategoryGroup({
   showConfig,
   setShowConfig,
 }: CategoryGroupProps) {
+  const { t } = useTranslation();
+
   return (
-    <SidebarGroup className="p-3">
+    <SidebarGroup className='p-3'>
       {ENABLE_NEW_SIDEBAR && (
-        <SidebarGroupLabel className="cursor-default flex items-center justify-between w-full">
-          <span>Components</span>
+        <SidebarGroupLabel className='cursor-default flex items-center justify-between w-full'>
+          <span>{t('flow.sidebar.common.components')}</span>
           <SearchConfigTrigger
             showConfig={showConfig}
             setShowConfig={setShowConfig}
@@ -42,13 +45,13 @@ export const CategoryGroup = memo(function CategoryGroup({
               ([categoryName, items]) =>
                 // filter out bundles and MCP
                 !SIDEBAR_BUNDLES.some((cat) => cat.name === categoryName) &&
-                categoryName !== "custom_component" &&
-                categoryName !== "MCP" &&
-                Object.keys(items).length > 0,
+                categoryName !== 'custom_component' &&
+                categoryName !== 'MCP' &&
+                Object.keys(items).length > 0
             )
             .sort(([aName], [bName]) => {
               const categoryList =
-                search !== ""
+                search !== ''
                   ? sortedCategories
                   : CATEGORIES.map((c) => c.name);
               const aIndex = categoryList.indexOf(aName);
@@ -65,10 +68,10 @@ export const CategoryGroup = memo(function CategoryGroup({
             })
             .map(([categoryName]) => {
               const item = CATEGORIES.find(
-                (cat) => cat.name === categoryName,
+                (cat) => cat.name === categoryName
               ) ?? {
                 name: categoryName,
-                icon: "folder",
+                icon: 'folder',
                 display_name: categoryName,
               };
               return (
@@ -90,4 +93,4 @@ export const CategoryGroup = memo(function CategoryGroup({
   );
 });
 
-CategoryGroup.displayName = "CategoryGroup";
+CategoryGroup.displayName = 'CategoryGroup';

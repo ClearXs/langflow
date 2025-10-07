@@ -1,0 +1,67 @@
+{
+  "display_name": "数据条件路由器",
+  "description": "基于字段值和复杂条件逻辑路由数据，支持各种操作符和数据类型。",
+  "input_data": {
+    "display_name": "输入数据",
+    "info": "要基于字段条件进行评估和路由的数据对象。"
+  },
+  "routing_rules": {
+    "display_name": "路由规则",
+    "info": "路由规则的JSON数组。每个规则包含带有字段路径、操作符和值的条件。"
+  },
+  "evaluation_strategy": {
+    "display_name": "评估策略",
+    "info": "当多个规则匹配时选择路由的策略：first_match、all_matches、priority_based或score_based。"
+  },
+  "default_route": {
+    "display_name": "默认路由",
+    "info": "当没有规则匹配时使用的路由名称（启用fail_on_no_match时忽略）。"
+  },
+  "strict_typing": {
+    "display_name": "严格类型",
+    "info": "比较值时是否强制执行类型转换。"
+  },
+  "null_safe_comparison": {
+    "display_name": "空值安全比较",
+    "info": "在比较中是否安全处理null/None值。"
+  },
+  "max_routes": {
+    "display_name": "最大路由数",
+    "info": "支持多重匹配的策略返回的最大路由数（0表示无限制）。"
+  },
+  "include_route_metadata": {
+    "display_name": "包含路由元数据",
+    "info": "是否在输出中包含详细的路由元数据。"
+  },
+  "fail_on_no_match": {
+    "display_name": "无匹配时失败",
+    "info": "当没有规则匹配时是否抛出错误，而不是使用默认路由。"
+  },
+  "outputs": {
+    "routed_data": {
+      "display_name": "路由数据"
+    },
+    "routing_summary": {
+      "display_name": "路由摘要"
+    },
+    "matched_rules": {
+      "display_name": "匹配的规则"
+    }
+  },
+  "success": {
+    "routes_matched": "{count}个路由成功匹配"
+  },
+  "warnings": {
+    "condition_evaluation_error": "评估字段'{field}'的条件时出现警告：{error}",
+    "using_default_route": "没有规则匹配，使用默认路由：{route}"
+  },
+  "errors": {
+    "empty_routing_rules": "路由规则不能为空。",
+    "invalid_input_data": "输入必须是数据对象。",
+    "invalid_routing_rules_format": "无效的路由规则格式：{error}",
+    "no_matches_fail_mode": "没有规则匹配且启用了fail_on_no_match。",
+    "routing_error": "路由过程中出错：{error}",
+    "routing_summary_error": "生成路由摘要时出错：{error}",
+    "matched_rules_error": "获取匹配规则时出错：{error}"
+  }
+}

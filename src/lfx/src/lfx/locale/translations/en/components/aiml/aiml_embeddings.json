@@ -1,0 +1,24 @@
+{
+  "display_name": "AI/ML API Embeddings",
+  "description": "Generate embeddings using the AI/ML API.",
+  "model_name": {
+    "display_name": "Model Name",
+    "info": "The name of the AI/ML embedding model to use."
+  },
+  "aiml_api_key": {
+    "display_name": "AI/ML API Key",
+    "info": "The AI/ML API Key to use for generating embeddings."
+  },
+  "status": {
+    "initializing_embeddings": "Initializing embeddings model '{model}'..."
+  },
+  "success": {
+    "embeddings_initialized": "Embeddings model '{model}' initialized successfully"
+  },
+  "errors": {
+    "api_key_required": "AI/ML API key is required",
+    "model_name_required": "Model name is required",
+    "embeddings_initialization_failed": "Failed to initialize embeddings model '{model}': {error}",
+    "embeddings_build_failed": "Failed to build embeddings: {error}"
+  }
+}

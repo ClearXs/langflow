@@ -1,0 +1,30 @@
+{
+  "display_name": "Calculator",
+  "description": "Perform basic arithmetic operations on a given expression.",
+  "expression": {
+    "display_name": "Expression",
+    "info": "The arithmetic expression to evaluate (e.g., '4*4*(33/22)+12-20')."
+  },
+  "outputs": {
+    "result": {
+      "display_name": "Data"
+    }
+  },
+  "info": {
+    "calculation_result": "Calculation result: {result}"
+  },
+  "warnings": {
+    "empty_expression": "Expression is empty. Please provide a mathematical expression to evaluate."
+  },
+  "errors": {
+    "unsupported_constant_type": "Unsupported constant type: {type_name}",
+    "unsupported_number_type": "Unsupported number type: {type_name}",
+    "unsupported_binary_operator": "Unsupported binary operator: {operator_name}",
+    "unsupported_operation": "Unsupported operation or expression type: {node_type}",
+    "division_by_zero": "Error: Division by zero",
+    "syntax_error": "Syntax error in expression: {error}",
+    "invalid_expression": "Invalid expression: {error}",
+    "overflow_error": "Calculation overflow: {error}",
+    "unexpected_error": "Unexpected error during calculation: {error}"
+  }
+}

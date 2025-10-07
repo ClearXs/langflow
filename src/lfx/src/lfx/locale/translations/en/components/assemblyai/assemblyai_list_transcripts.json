@@ -1,0 +1,52 @@
+{
+  "display_name": "AssemblyAI List Transcripts",
+  "description": "Retrieve a list of transcripts from AssemblyAI with filtering options",
+  "api_key": {
+    "display_name": "Assembly API Key",
+    "info": "Your AssemblyAI API key. You can get one from https://www.assemblyai.com/"
+  },
+  "limit": {
+    "display_name": "Limit",
+    "info": "Maximum number of transcripts to retrieve (default: 20, use 0 for all)"
+  },
+  "status_filter": {
+    "display_name": "Status Filter",
+    "info": "Filter by transcript status"
+  },
+  "created_on": {
+    "display_name": "Created On",
+    "info": "Only get transcripts created on this date (YYYY-MM-DD)"
+  },
+  "throttled_only": {
+    "display_name": "Throttled Only",
+    "info": "Only get throttled transcripts, overrides the status filter"
+  },
+  "outputs": {
+    "transcript_list": {
+      "display_name": "Transcript List"
+    }
+  },
+  "status": {
+    "building_parameters": "Building query parameters...",
+    "fetching_all_transcripts": "Fetching all transcripts (paginating)...",
+    "fetching_transcripts": "Fetching up to {limit} transcripts..."
+  },
+  "success": {
+    "transcripts_retrieved": "Successfully retrieved {count} transcripts"
+  },
+  "errors": {
+    "list_failed": "An error occurred: {error}"
+  },
+  "logs": {
+    "limit_set": "Limit set to {limit}",
+    "status_filter_set": "Status filter set to '{status}'",
+    "created_on_set": "Created on date filter set to '{date}'",
+    "throttled_only_enabled": "Throttled only filter enabled",
+    "fetching_all_pages": "Fetching all transcript pages",
+    "page_fetched": "Page {page} fetched with {count} transcripts",
+    "all_pages_fetched": "All {pages} pages fetched, total {total} transcripts",
+    "fetching_single_page": "Fetching single page with limit {limit}",
+    "single_page_fetched": "Page fetched with {count} transcripts",
+    "list_error": "Error listing transcripts"
+  }
+}

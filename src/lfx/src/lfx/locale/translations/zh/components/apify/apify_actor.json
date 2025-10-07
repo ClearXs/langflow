@@ -1,0 +1,79 @@
+{
+  "display_name": "Apify执行器",
+  "description": "使用Apify执行器快速从数百个地方提取数据。该组件可以在流程中用于检索数据，或作为代理的工具。",
+  "apify_token": {
+    "display_name": "Apify令牌",
+    "info": "Apify账户的API令牌。"
+  },
+  "actor_id": {
+    "display_name": "执行器",
+    "info": "要运行的Apify商店中的执行器名称。例如'apify/website-content-crawler'以使用网站内容爬虫执行器。"
+  },
+  "run_input": {
+    "display_name": "运行输入",
+    "info": "执行器运行的JSON输入。例如对于'apify/website-content-crawler'执行器：{\"startUrls\":[{\"url\":\"https://docs.apify.com/academy/web-scraping-for-beginners\"}],\"maxCrawlDepth\":0}"
+  },
+  "dataset_fields": {
+    "display_name": "输出字段",
+    "info": "要从数据集中提取的字段，用逗号分隔。其他字段将被忽略。嵌套结构中的点将被替换为下划线。示例输入：'text, metadata.title'。示例输出：{'text': '页面内容', 'metadata_title': '页面标题'}。例如，对于'apify/website-content-crawler'执行器，您可以提取'markdown'字段，即网站内容的markdown格式。"
+  },
+  "flatten_dataset": {
+    "display_name": "展平输出",
+    "info": "输出数据集将从嵌套格式转换为扁平结构。嵌套结构中的点将被替换为下划线。这对于Data对象的进一步处理很有用。例如，{'a': {'b': 1}}将被展平为{'a_b': 1}。"
+  },
+  "outputs": {
+    "output": {
+      "display_name": "输出"
+    },
+    "tool": {
+      "display_name": "工具"
+    }
+  },
+  "status": {
+    "parsing_input": "正在解析输入JSON...",
+    "flattening_dataset": "正在展平数据集...",
+    "building_tool": "正在构建Apify执行器工具...",
+    "calling_actor": "正在调用执行器'{actor}'...",
+    "streaming_logs": "正在流式传输运行'{run}'的日志...",
+    "waiting_for_finish": "正在等待执行器完成...",
+    "loading_dataset": "正在加载数据集..."
+  },
+  "success": {
+    "actor_run_completed": "执行器运行成功完成，包含{count}个项目",
+    "tool_built": "为执行器'{actor}'成功构建工具"
+  },
+  "errors": {
+    "invalid_json": "无效的JSON输入：{error}",
+    "run_model_failed": "运行执行器失败：{error}",
+    "input_schema_not_found": "未找到输入模式",
+    "build_tool_failed": "构建工具失败：{error}",
+    "tool_run_failed": "运行工具失败：{error}",
+    "api_token_required": "需要API令牌",
+    "client_creation_failed": "创建Apify客户端失败：{error}",
+    "actor_not_found": "未找到执行器'{actor}'",
+    "build_not_found": "未找到构建'{build}'",
+    "get_build_failed": "获取执行器'{actor}'的构建失败：{error}",
+    "dataset_not_found": "未找到数据集",
+    "dataset_id_not_found": "未找到数据集ID",
+    "get_dataset_id_failed": "获取运行'{run}'的数据集ID失败：{error}",
+    "actor_run_details_not_found": "未找到执行器运行详情",
+    "run_id_not_found": "未找到运行ID",
+    "run_client_not_found": "未找到运行客户端",
+    "run_actor_failed": "运行执行器'{actor}'失败：{error}"
+  },
+  "logs": {
+    "running_actor": "正在运行执行器'{actor}'，包含{fields}个字段",
+    "dataset_flattened": "数据集展平成功",
+    "fetching_build": "正在获取执行器'{actor}'的构建",
+    "client_created": "Apify客户端创建成功",
+    "build_retrieved": "已检索执行器'{actor}'的构建（构建ID：{build}）",
+    "dataset_id_retrieved": "已检索运行'{run}'的数据集ID（数据集ID：{dataset}）",
+    "actor_run_finished": "执行器运行'{run}'已完成",
+    "dataset_loaded": "数据集'{dataset}'已加载，包含{items}个项目"
+  },
+  "tool": {
+    "input_schema_prefix": "作为字符串编码的JSON，带有输入模式（严格遵循JSON格式和模式）：",
+    "required_fields_prefix": "\n\n必需字段：",
+    "description_prefix": "使用给定的输入运行Apify执行器。以下是当前加载的执行器README的一部分："
+  }
+}

@@ -1,0 +1,97 @@
+{
+  "display_name": "Cassandra Graph",
+  "description": "Cassandra Graph Vector Store with graph-based traversal capabilities",
+  "database_ref": {
+    "display_name": "Contact Points / Astra Database ID",
+    "info": "Contact points for the database (or Astra DB database ID)"
+  },
+  "username": {
+    "display_name": "Username",
+    "info": "Username for the database (leave empty for Astra DB)."
+  },
+  "token": {
+    "display_name": "Password / Astra DB Token",
+    "info": "User password for the database (or Astra DB token)."
+  },
+  "keyspace": {
+    "display_name": "Keyspace",
+    "info": "Table Keyspace (or Astra DB namespace)."
+  },
+  "table_name": {
+    "display_name": "Table Name",
+    "info": "The name of the table (or Astra DB collection) where vectors will be stored."
+  },
+  "setup_mode": {
+    "display_name": "Setup Mode",
+    "info": "Configuration mode for setting up the Cassandra table, with options like 'Sync' or 'Off'."
+  },
+  "cluster_kwargs": {
+    "display_name": "Cluster Arguments",
+    "info": "Optional dictionary of additional keyword arguments for the Cassandra cluster."
+  },
+  "embedding": {
+    "display_name": "Embedding"
+  },
+  "number_of_results": {
+    "display_name": "Number of Results",
+    "info": "Number of results to return."
+  },
+  "search_type": {
+    "display_name": "Search Type",
+    "info": "Search type to use"
+  },
+  "depth": {
+    "display_name": "Depth of Traversal",
+    "info": "The maximum depth of edges to traverse. (when using 'Traversal' or 'MMR traversal')"
+  },
+  "search_score_threshold": {
+    "display_name": "Search Score Threshold",
+    "info": "Minimum similarity score threshold for search results. (when using 'Similarity with score threshold')"
+  },
+  "search_filter": {
+    "display_name": "Search Metadata Filter",
+    "info": "Optional dictionary of filters to apply to the search query."
+  },
+  "status": {
+    "connecting": "Connecting to database...",
+    "preparing_documents": "Preparing documents...",
+    "building_store": "Building vector store...",
+    "searching": "Searching documents..."
+  },
+  "success": {
+    "store_created": "Vector store created successfully in table '{table}'"
+  },
+  "warnings": {
+    "empty_query": "Empty search query provided"
+  },
+  "errors": {
+    "cassio_not_installed": "Could not import cassio integration package. Please install it with `pip install cassio`.",
+    "connection_failed": "Failed to connect to database: {error}",
+    "store_creation_failed": "Failed to create vector store: {error}",
+    "content_field_missing": "You should ingest data through Langflow (or LangChain) to query it in Langflow. Your collection does not contain a field name 'content'.",
+    "search_failed": "Search failed: {error}"
+  },
+  "logs": {
+    "cassio_imported": "cassio package imported successfully",
+    "detected_astra": "Detected Astra DB with database ID: {database_id}",
+    "detected_cassandra_multiple": "Detected regular Cassandra with {count} contact points",
+    "detected_cassandra_single": "Detected regular Cassandra with contact point: {contact_point}",
+    "connecting_astra": "Connecting to Astra DB with database ID: {database_id}",
+    "astra_connected": "Successfully connected to Astra DB",
+    "connecting_cassandra": "Connecting to Cassandra - Contact Points: {contact_points}, Username: {username}",
+    "cassandra_connected": "Successfully connected to Cassandra",
+    "setup_mode_set": "Setup mode set to: {mode}",
+    "adding_documents": "Adding {count} documents to the Vector Store.",
+    "creating_from_documents": "Creating vector store from {count} documents - Table: {table}, Keyspace: {keyspace}",
+    "no_documents": "No documents to add to the Vector Store.",
+    "creating_empty_store": "Creating empty vector store - Table: {table}, Keyspace: {keyspace}",
+    "search_input": "Search input: {query}",
+    "search_type": "Search type: {type}",
+    "number_of_results": "Number of results: {count}",
+    "search_args": "Search args: {args}",
+    "executing_search": "Executing search - Query: '{query}', Type: {search_type}",
+    "retrieved_documents": "Retrieved documents: {count}",
+    "search_completed": "Search completed with {count} results",
+    "filter_applied": "Filter applied: {filter}"
+  }
+}

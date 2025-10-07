@@ -1,0 +1,75 @@
+{
+  "display_name": "Web Search",
+  "description": "Search the web using various search engines and APIs.",
+  "query": {
+    "display_name": "Search Query",
+    "info": "The search query or keywords to search for."
+  },
+  "api_key": {
+    "display_name": "API Key",
+    "info": "API key for the selected search engine service."
+  },
+  "search_engine": {
+    "display_name": "Search Engine",
+    "info": "Which search engine API to use for the search."
+  },
+  "max_results": {
+    "display_name": "Max Results",
+    "info": "Maximum number of search results to return (1-100)."
+  },
+  "search_type": {
+    "display_name": "Search Type",
+    "info": "Type of search to perform (web, images, news, videos, shopping)."
+  },
+  "language": {
+    "display_name": "Language",
+    "info": "Language for search results and interface."
+  },
+  "country": {
+    "display_name": "Country",
+    "info": "Country/region to focus the search results on."
+  },
+  "time_range": {
+    "display_name": "Time Range",
+    "info": "Restrict search results to a specific time period."
+  },
+  "safe_search": {
+    "display_name": "Safe Search",
+    "info": "Enable safe search filtering to exclude adult content."
+  },
+  "include_snippets": {
+    "display_name": "Include Snippets",
+    "info": "Whether to include text snippets/descriptions in the results."
+  },
+  "include_metadata": {
+    "display_name": "Include Metadata",
+    "info": "Whether to include additional metadata like domains, dates, cached URLs, etc."
+  },
+  "timeout": {
+    "display_name": "Timeout (seconds)",
+    "info": "Request timeout in seconds for the search API calls."
+  },
+  "text_key": {
+    "display_name": "Text Key",
+    "info": "The key to use for the text field in the Data objects (e.g., 'title', 'snippet', 'url')."
+  },
+  "outputs": {
+    "search_results": {
+      "display_name": "Search Results"
+    },
+    "search_metadata": {
+      "display_name": "Search Metadata"
+    }
+  },
+  "success": {
+    "search_completed": "Successfully found {count} results using {engine}"
+  },
+  "errors": {
+    "empty_query": "Search query cannot be empty.",
+    "missing_api_key": "API key is required for web search.",
+    "invalid_search_engine": "Invalid search engine specified: {engine}",
+    "no_results": "No search results found for the given query.",
+    "search_error": "Error performing web search: {error}",
+    "metadata_error": "Error getting search metadata: {error}"
+  }
+}

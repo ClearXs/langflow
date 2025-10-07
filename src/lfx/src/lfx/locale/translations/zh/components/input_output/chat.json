@@ -1,0 +1,60 @@
+{
+  "display_name": "聊天",
+  "description": "创建和管理聊天消息，支持不同的发送者和消息存储。",
+  "text": {
+    "display_name": "文本",
+    "info": "消息的文本内容。"
+  },
+  "message": {
+    "display_name": "消息",
+    "info": "用作输入的现有消息对象（启用使用消息输入时）。"
+  },
+  "should_store_message": {
+    "display_name": "存储消息",
+    "info": "是否将消息存储在聊天历史记录中。"
+  },
+  "sender": {
+    "display_name": "发送者类型",
+    "info": "消息发送者的类型（AI或用户）。"
+  },
+  "sender_name": {
+    "display_name": "发送者名称",
+    "info": "消息发送者的名称。"
+  },
+  "session_id": {
+    "display_name": "会话ID",
+    "info": "聊天的会话ID。如果为空，将使用当前会话ID。"
+  },
+  "use_message_input": {
+    "display_name": "使用消息输入",
+    "info": "是否使用现有的消息对象作为输入，而不是从文本创建新的消息。"
+  },
+  "clean_data": {
+    "display_name": "清理数据",
+    "info": "是否在处理之前清理文本数据。"
+  },
+  "outputs": {
+    "message": {
+      "display_name": "聊天消息"
+    },
+    "text": {
+      "display_name": "消息文本"
+    }
+  },
+  "success": {
+    "message_stored": "消息已成功存储在聊天历史记录中",
+    "message_created": "消息创建成功",
+    "history_cleared": "聊天历史记录清理成功"
+  },
+  "warnings": {
+    "history_error": "检索消息历史记录失败：{error}"
+  },
+  "errors": {
+    "message_required": "启用'使用消息输入'时需要消息输入。",
+    "text_required": "文本输入不能为空。",
+    "invalid_message_type": "期望消息对象，得到不同类型。",
+    "build_message_error": "构建消息时出错：{error}",
+    "get_text_error": "获取文本内容时出错：{error}",
+    "clear_history_error": "清理聊天历史记录时出错：{error}"
+  }
+}

@@ -1,0 +1,107 @@
+{
+  "display_name": "数据框操作",
+  "description": "对数据框执行各种操作。",
+  "df": {
+    "display_name": "数据框",
+    "info": "要操作的输入数据框。"
+  },
+  "operation": {
+    "display_name": "操作",
+    "placeholder": "选择操作",
+    "info": "选择要执行的数据框操作。"
+  },
+  "operations": {
+    "add_column": "添加列",
+    "drop_column": "删除列",
+    "filter": "过滤",
+    "head": "头部",
+    "rename_column": "重命名列",
+    "replace_value": "替换值",
+    "select_columns": "选择列",
+    "sort": "排序",
+    "tail": "尾部",
+    "drop_duplicates": "删除重复项"
+  },
+  "column_name": {
+    "display_name": "列名",
+    "info": "用于操作的列名。"
+  },
+  "filter_value": {
+    "display_name": "过滤值",
+    "info": "用于过滤行的值。"
+  },
+  "filter_operator": {
+    "display_name": "过滤运算符",
+    "info": "用于过滤行的运算符。"
+  },
+  "filter_operators": {
+    "equals": "等于",
+    "not_equals": "不等于",
+    "contains": "包含",
+    "not_contains": "不包含",
+    "starts_with": "开始于",
+    "ends_with": "结束于",
+    "greater_than": "大于",
+    "less_than": "小于"
+  },
+  "ascending": {
+    "display_name": "升序排序",
+    "info": "是否按升序排序。"
+  },
+  "new_column_name": {
+    "display_name": "新列名",
+    "info": "重命名或添加列时的新列名。"
+  },
+  "new_column_value": {
+    "display_name": "新列值",
+    "info": "用于填充新列的值。"
+  },
+  "columns_to_select": {
+    "display_name": "要选择的列",
+    "info": "要从数据框中选择的列名列表。"
+  },
+  "num_rows": {
+    "display_name": "行数",
+    "info": "要返回的行数（用于头部/尾部操作）。"
+  },
+  "replace_value": {
+    "display_name": "要替换的值",
+    "info": "要在列中替换的值。"
+  },
+  "replacement_value": {
+    "display_name": "替换值",
+    "info": "用于替换的值。"
+  },
+  "outputs": {
+    "dataframe": {
+      "display_name": "数据框",
+      "info": "操作后的结果数据框。"
+    }
+  },
+  "success": {
+    "operation_completed": "操作'{operation}'成功完成。结果包含{rows}行。"
+  },
+  "warnings": {
+    "no_operation_selected": "未选择操作。返回原始数据框。"
+  },
+  "errors": {
+    "unsupported_operation": "不支持的操作：{operation}",
+    "operation_failed": "操作失败：{error}",
+    "column_not_found": "列'{column}'未找到。可用列：{available}",
+    "filter_failed": "过滤操作失败：{error}",
+    "sort_failed": "排序操作失败：{error}",
+    "drop_column_failed": "删除列操作失败：{error}",
+    "rename_column_failed": "重命名列操作失败：{error}",
+    "add_column_failed": "添加列操作失败：{error}",
+    "select_columns_failed": "选择列操作失败：{error}",
+    "head_failed": "头部操作失败：{error}",
+    "tail_failed": "尾部操作失败：{error}",
+    "replace_values_failed": "替换值操作失败：{error}",
+    "drop_duplicates_failed": "删除重复项操作失败：{error}",
+    "new_column_name_required": "新列名是必需的，不能为空。",
+    "columns_to_select_required": "需要指定要选择的列。",
+    "no_valid_columns": "未指定有效列。",
+    "columns_not_found": "列未找到：{columns}。可用列：{available}",
+    "invalid_num_rows": "行数必须大于0。"
+  }
+}

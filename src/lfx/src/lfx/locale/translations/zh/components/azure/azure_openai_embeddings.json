@@ -1,0 +1,45 @@
+{
+  "display_name": "Azure OpenAI嵌入",
+  "description": "使用Azure OpenAI模型生成嵌入向量。",
+  "model": {
+    "display_name": "模型",
+    "info": "要使用的嵌入模型"
+  },
+  "azure_endpoint": {
+    "display_name": "Azure端点",
+    "info": "您的Azure端点，包括资源。示例：`https://example-resource.azure.openai.com/`"
+  },
+  "azure_deployment": {
+    "display_name": "部署名称",
+    "info": "您的Azure OpenAI部署名称"
+  },
+  "api_version": {
+    "display_name": "API版本",
+    "info": "要使用的Azure OpenAI API版本"
+  },
+  "api_key": {
+    "display_name": "Azure OpenAI API密钥",
+    "info": "您的Azure OpenAI API密钥"
+  },
+  "dimensions": {
+    "display_name": "维度",
+    "info": "输出嵌入向量应具有的维度数。仅某些模型支持此功能。"
+  },
+  "outputs": {
+    "embeddings": {
+      "display_name": "嵌入向量"
+    }
+  },
+  "status": {
+    "initializing": "正在使用模型'{model}'初始化Azure OpenAI嵌入..."
+  },
+  "success": {
+    "embeddings_initialized": "Azure OpenAI嵌入已成功初始化，使用模型'{model}'"
+  },
+  "errors": {
+    "connection_failed": "无法连接到Azure OpenAI嵌入API：{error}"
+  },
+  "logs": {
+    "building_embeddings": "正在构建嵌入 - 模型：{model}，端点：{endpoint}，部署：{deployment}，API版本：{api_version}"
+  }
+}

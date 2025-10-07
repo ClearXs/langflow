@@ -1,0 +1,67 @@
+{
+  "display_name": "Data Conditional Router",
+  "description": "Route data based on field values and complex conditional logic with support for various operators and data types.",
+  "input_data": {
+    "display_name": "Input Data",
+    "info": "Data object to be evaluated and routed based on field conditions."
+  },
+  "routing_rules": {
+    "display_name": "Routing Rules",
+    "info": "JSON array of routing rules. Each rule contains conditions with field paths, operators, and values."
+  },
+  "evaluation_strategy": {
+    "display_name": "Evaluation Strategy",
+    "info": "Strategy for selecting routes when multiple rules match: first_match, all_matches, priority_based, or score_based."
+  },
+  "default_route": {
+    "display_name": "Default Route",
+    "info": "Name of the route to use when no rules match (ignored when fail_on_no_match is enabled)."
+  },
+  "strict_typing": {
+    "display_name": "Strict Typing",
+    "info": "Whether to enforce type conversion when comparing values."
+  },
+  "null_safe_comparison": {
+    "display_name": "Null Safe Comparison",
+    "info": "Whether to handle null/None values safely in comparisons."
+  },
+  "max_routes": {
+    "display_name": "Max Routes",
+    "info": "Maximum number of routes to return for strategies that support multiple matches (0 for unlimited)."
+  },
+  "include_route_metadata": {
+    "display_name": "Include Route Metadata",
+    "info": "Whether to include detailed routing metadata in the output."
+  },
+  "fail_on_no_match": {
+    "display_name": "Fail on No Match",
+    "info": "Whether to throw an error when no rules match instead of using the default route."
+  },
+  "outputs": {
+    "routed_data": {
+      "display_name": "Routed Data"
+    },
+    "routing_summary": {
+      "display_name": "Routing Summary"
+    },
+    "matched_rules": {
+      "display_name": "Matched Rules"
+    }
+  },
+  "success": {
+    "routes_matched": "{count} route(s) matched successfully"
+  },
+  "warnings": {
+    "condition_evaluation_error": "Warning evaluating condition for field '{field}': {error}",
+    "using_default_route": "No rules matched, using default route: {route}"
+  },
+  "errors": {
+    "empty_routing_rules": "Routing rules cannot be empty.",
+    "invalid_input_data": "Input must be a Data object.",
+    "invalid_routing_rules_format": "Invalid routing rules format: {error}",
+    "no_matches_fail_mode": "No rules matched and fail_on_no_match is enabled.",
+    "routing_error": "Error during routing: {error}",
+    "routing_summary_error": "Error generating routing summary: {error}",
+    "matched_rules_error": "Error getting matched rules: {error}"
+  }
+}

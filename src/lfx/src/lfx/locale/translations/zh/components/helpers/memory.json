@@ -1,0 +1,77 @@
+{
+  "display_name": "消息历史",
+  "description": "从Langflow表或外部内存中存储或检索聊天消息。",
+  "mode": {
+    "display_name": "模式",
+    "retrieve": "检索",
+    "store": "存储",
+    "info": "操作模式：存储消息或检索消息。"
+  },
+  "message": {
+    "display_name": "消息",
+    "info": "要存储的聊天消息。"
+  },
+  "external_memory": {
+    "display_name": "外部内存",
+    "info": "从外部内存检索消息。如果为空，将使用Langflow表。"
+  },
+  "sender_type": {
+    "display_name": "发送者类型",
+    "machine_and_user": "机器和用户",
+    "info": "按发送者类型筛选。"
+  },
+  "sender": {
+    "display_name": "发送者",
+    "info": "消息的发送者。可能是机器或用户。如果为空，将使用当前发送者参数。"
+  },
+  "sender_name": {
+    "display_name": "发送者名称",
+    "info": "按发送者名称筛选。"
+  },
+  "n_messages": {
+    "display_name": "消息数量",
+    "info": "要检索的消息数量。"
+  },
+  "session_id": {
+    "display_name": "会话ID",
+    "info": "聊天的会话ID。如果为空，将使用当前会话ID参数。"
+  },
+  "order": {
+    "display_name": "排序",
+    "ascending": "升序",
+    "descending": "降序",
+    "info": "消息的排序方式。"
+  },
+  "template": {
+    "display_name": "模板",
+    "info": "用于格式化数据的模板。它可以包含键{text}、{sender}或消息数据中的任何其他键。"
+  },
+  "outputs": {
+    "message": {
+      "display_name": "消息"
+    },
+    "dataframe": {
+      "display_name": "数据框"
+    },
+    "stored_messages": {
+      "display_name": "已存储消息"
+    },
+    "messages": {
+      "display_name": "消息"
+    }
+  },
+  "success": {
+    "message_stored": "为发送者'{sender}'在会话'{session_id}'中成功存储消息",
+    "messages_retrieved": "为会话'{session_id}'检索到{count}条消息",
+    "text_formatted": "消息成功格式化为文本",
+    "dataframe_created": "成功创建包含{rows}行的数据框"
+  },
+  "errors": {
+    "no_messages_stored": "未存储任何消息。请确保会话ID和发送者设置正确。",
+    "store_failed": "存储消息失败：{error}",
+    "invalid_external_memory": "外部内存对象({memory_name})必须有'aget_messages'方法。",
+    "retrieve_failed": "检索消息失败：{error}",
+    "text_formatting_failed": "将消息格式化为文本失败：{error}",
+    "dataframe_creation_failed": "创建数据框失败：{error}"
+  }
+}

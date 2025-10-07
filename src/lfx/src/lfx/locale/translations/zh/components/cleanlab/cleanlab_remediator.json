@@ -1,0 +1,58 @@
+{
+  "display_name": "Cleanlab修复器",
+  "description": "根据Cleanlab评估器的可信度分数、分数阈值和消息处理设置来修复不可信的响应。",
+  "response": {
+    "display_name": "响应",
+    "info": "对用户查询的响应。"
+  },
+  "score": {
+    "display_name": "可信度分数",
+    "info": "来自Cleanlab评估器的可信度分数输出。"
+  },
+  "explanation": {
+    "display_name": "解释",
+    "info": "来自Cleanlab评估器的解释。"
+  },
+  "threshold": {
+    "display_name": "阈值",
+    "info": "显示未修改响应所需的最低分数。高于此阈值的响应被认为是可信的。低于此阈值的响应被认为是不可信的，将根据以下设置进行修复。"
+  },
+  "show_untrustworthy_response": {
+    "display_name": "显示不可信响应",
+    "info": "如果启用，且可信度分数低于阈值，将显示原始响应并附加警告。如果禁用，且可信度分数低于阈值，将返回后备答案。"
+  },
+  "untrustworthy_warning_text": {
+    "display_name": "不可信响应的警告",
+    "info": "如果启用'显示不可信响应'且可信度分数低于阈值时，附加到响应的警告。",
+    "default": "⚠️ 警告：以下响应可能不可信。"
+  },
+  "fallback_text": {
+    "display_name": "后备答案",
+    "info": "如果可信度分数低于阈值且'显示不可信响应'被禁用时返回的响应。",
+    "default": "根据现有信息，我无法提供这个问题的完整答案。"
+  },
+  "outputs": {
+    "remediated_response": {
+      "display_name": "修复后的消息"
+    }
+  },
+  "status": {
+    "accepted": "分数 {score:.2f} ≥ 阈值 {threshold:.2f} → 已接受",
+    "flagged": "分数 {score:.2f} < 阈值 {threshold:.2f} → 已标记"
+  },
+  "messages": {
+    "trusted_response": "{response}\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n**可信度分数：** {score:.2f}",
+    "trust_score_label": "**可信度分数：** {score:.2f}",
+    "explanation_label": "**解释：** {explanation}"
+  },
+  "logs": {
+    "response_accepted": "响应已接受 - 分数：{score:.2f}，阈值：{threshold:.2f}",
+    "response_flagged": "响应被标记为不可信 - 分数：{score:.2f}，阈值：{threshold:.2f}",
+    "showing_with_warning": "显示带警告的不可信响应",
+    "explanation_included": "在警告消息中包含解释",
+    "using_fallback": "使用后备响应"
+  },
+  "errors": {
+    "remediation_failed": "修复失败：{error}"
+  }
+}

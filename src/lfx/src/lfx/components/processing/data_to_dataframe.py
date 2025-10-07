@@ -1,3 +1,5 @@
+import i18n
+
 from lfx.custom.custom_component.component import Component
 from lfx.io import DataInput, Output
 from lfx.schema.data import Data
@@ -5,32 +7,34 @@ from lfx.schema.dataframe import DataFrame
 
 
 class DataToDataFrameComponent(Component):
-    display_name = "Data → DataFrame"
-    description = (
-        "Converts one or multiple Data objects into a DataFrame. "
-        "Each Data object corresponds to one row. Fields from `.data` become columns, "
-        "and the `.text` (if present) is placed in a 'text' column."
-    )
+    display_name = i18n.t(
+        'components.processing.data_to_dataframe.display_name')
+    description = i18n.t('components.processing.data_to_dataframe.description')
     icon = "table"
     name = "DataToDataFrame"
     legacy = True
-    replacement = ["processing.DataOperations", "processing.TypeConverterComponent"]
+    replacement = ["processing.DataOperations",
+                   "processing.TypeConverterComponent"]
 
     inputs = [
         DataInput(
             name="data_list",
-            display_name="Data or Data List",
-            info="One or multiple Data objects to transform into a DataFrame.",
+            display_name=i18n.t(
+                'components.processing.data_to_dataframe.data_list.display_name'),
+            info=i18n.t(
+                'components.processing.data_to_dataframe.data_list.info'),
             is_list=True,
         ),
     ]
 
     outputs = [
         Output(
-            display_name="DataFrame",
+            display_name=i18n.t(
+                'components.processing.data_to_dataframe.outputs.dataframe.display_name'),
             name="dataframe",
             method="build_dataframe",
-            info="A DataFrame built from each Data object's fields plus a 'text' column.",
+            info=i18n.t(
+                'components.processing.data_to_dataframe.outputs.dataframe.info'),
         ),
     ]
 
@@ -43,29 +47,55 @@ class DataToDataFrameComponent(Component):
 
         Returns a DataFrame with one row per Data object.
         """
-        data_input = self.data_list
+        try:
+            data_input = self.data_list
 
-        # If user passed a single Data, it might come in as a single object rather than a list
-        if not isinstance(data_input, list):
-            data_input = [data_input]
+            # Validate input
+            if not data_input:
+                warning_msg = i18n.t(
+                    'components.processing.data_to_dataframe.warnings.empty_data_list')
+                self.status = warning_msg
+                return DataFrame([])
 
-        rows = []
-        for item in data_input:
-            if not isinstance(item, Data):
-                msg = f"Expected Data objects, got {type(item)} instead."
-                raise TypeError(msg)
+            # If user passed a single Data, it might come in as a single object rather than a list
+            if not isinstance(data_input, list):
+                data_input = [data_input]
 
-            # Start with a copy of item.data or an empty dict
-            row_dict = dict(item.data) if item.data else {}
+            rows = []
+            processed_count = 0
 
-            # If the Data object has text, store it under 'text' col
-            text_val = item.get_text()
-            if text_val:
-                row_dict["text"] = text_val
+            for idx, item in enumerate(data_input):
+                if not isinstance(item, Data):
+                    error_msg = i18n.t('components.processing.data_to_dataframe.errors.invalid_data_type',
+                                       index=idx, actual_type=type(item).__name__)
+                    self.status = error_msg
+                    raise TypeError(error_msg)
 
-            rows.append(row_dict)
+                # Start with a copy of item.data or an empty dict
+                row_dict = dict(item.data) if item.data else {}
 
-        # Build a DataFrame from these row dictionaries
-        df_result = DataFrame(rows)
-        self.status = df_result  # store in self.status for logs
-        return df_result
+                # If the Data object has text, store it under 'text' col
+                text_val = item.get_text()
+                if text_val:
+                    row_dict["text"] = text_val
+
+                rows.append(row_dict)
+                processed_count += 1
+
+            # Build a DataFrame from these row dictionaries
+            df_result = DataFrame(rows)
+
+            success_msg = i18n.t('components.processing.data_to_dataframe.success.dataframe_created',
+                                 rows=len(rows), objects=processed_count)
+            self.status = success_msg
+
+            return df_result
+
+        except TypeError:
+            # Re-raise TypeError as is (already has i18n message)
+            raise
+        except Exception as e:
+            error_msg = i18n.t('components.processing.data_to_dataframe.errors.dataframe_creation_failed',
+                               error=str(e))
+            self.status = error_msg
+            raise ValueError(error_msg) from e

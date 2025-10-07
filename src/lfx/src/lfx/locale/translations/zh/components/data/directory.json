@@ -1,0 +1,44 @@
+{
+  "display_name": "目录",
+  "description": "递归地从目录加载文件。",
+  "path": {
+    "display_name": "路径",
+    "info": "要从中加载文件的目录路径。默认为当前目录（'.'）"
+  },
+  "types": {
+    "display_name": "文件类型",
+    "info": "要加载的文件类型。选择一个或多个类型，或留空以加载所有支持的类型。"
+  },
+  "depth": {
+    "display_name": "深度",
+    "info": "搜索文件的深度。"
+  },
+  "max_concurrency": {
+    "display_name": "最大并发数",
+    "info": "加载文件的最大并发数。"
+  },
+  "load_hidden": {
+    "display_name": "加载隐藏文件",
+    "info": "如果为真，将加载隐藏文件。"
+  },
+  "recursive": {
+    "display_name": "递归搜索",
+    "info": "如果为真，搜索将是递归的。"
+  },
+  "silent_errors": {
+    "display_name": "静默错误",
+    "info": "如果为真，错误将不会引发异常。"
+  },
+  "use_multithreading": {
+    "display_name": "使用多线程",
+    "info": "如果为真，将使用多线程。"
+  },
+  "outputs": {
+    "dataframe": {
+      "display_name": "已加载的文件"
+    }
+  },
+  "errors": {
+    "invalid_file_types": "指定了无效的文件类型：{invalid_types}。有效类型为：{valid_types}"
+  }
+}

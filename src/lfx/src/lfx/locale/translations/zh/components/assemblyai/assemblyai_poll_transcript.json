@@ -1,0 +1,44 @@
+{
+  "display_name": "AssemblyAI轮询转录",
+  "description": "使用AssemblyAI轮询转录任务的状态",
+  "api_key": {
+    "display_name": "Assembly API密钥",
+    "info": "您的AssemblyAI API密钥。您可以从https://www.assemblyai.com/获取"
+  },
+  "transcript_id": {
+    "display_name": "转录ID",
+    "info": "要轮询的转录任务的ID"
+  },
+  "polling_interval": {
+    "display_name": "轮询间隔",
+    "info": "轮询间隔（秒）"
+  },
+  "outputs": {
+    "transcription_result": {
+      "display_name": "转录结果"
+    }
+  },
+  "status": {
+    "polling_transcript": "正在轮询转录{id}...",
+    "processing_result": "正在处理转录结果..."
+  },
+  "success": {
+    "transcription_completed": "转录{id}成功完成（{length}个字符）"
+  },
+  "warnings": {
+    "previous_step_error": "来自上一步的错误：{error}"
+  },
+  "errors": {
+    "transcript_id_not_found": "在输入数据中未找到转录ID",
+    "get_transcript_failed": "获取转录失败：{error}",
+    "process_result_failed": "处理转录结果失败：{error}",
+    "transcript_not_completed": "转录未完成。状态：{status}",
+    "poll_failed": "轮询转录任务失败：{error}"
+  },
+  "logs": {
+    "polling_interval_set": "轮询间隔设置为{interval}秒",
+    "polling_started": "开始轮询转录{id}",
+    "transcript_completed": "转录{id}已完成",
+    "transcript_error": "转录{id}错误 - 状态：{status}，错误：{error}"
+  }
+}

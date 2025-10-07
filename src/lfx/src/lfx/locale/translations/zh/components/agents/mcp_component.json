@@ -1,0 +1,67 @@
+{
+  "display_name": "MCP工具",
+  "description": "连接到MCP服务器以使用其工具。",
+  "mcp_server": {
+    "display_name": "MCP服务器",
+    "info": "选择此组件将使用的MCP服务器"
+  },
+  "tool": {
+    "display_name": "工具",
+    "info": "选择要执行的工具"
+  },
+  "tool_placeholder": {
+    "display_name": "工具占位符",
+    "info": "工具的占位符"
+  },
+  "outputs": {
+    "response": {
+      "display_name": "响应"
+    }
+  },
+  "placeholders": {
+    "select_tool": "选择工具",
+    "loading_tools": "正在加载工具...",
+    "timeout_mcp_server": "MCP服务器超时",
+    "error_mcp_server": "MCP服务器错误"
+  },
+  "success": {
+    "tools_loaded_from_cache": "从缓存为服务器'{server_name}'加载工具：{count}个工具可用",
+    "tools_updated": "为服务器'{server_name}'更新工具：加载了{count}个工具",
+    "tool_executed": "工具'{tool_name}'成功执行，返回{result_count}个结果"
+  },
+  "info": {
+    "no_input_parameters": "工具'{tool_name}'没有输入参数需要配置"
+  },
+  "warnings": {
+    "no_input_parameters": "工具'{tool_name}'未定义输入参数",
+    "tool_not_found": "在可用工具中未找到工具{tool_name}：{available_tools}",
+    "no_server_config": "未找到服务器'{server_name}'的服务器配置",
+    "tool_not_found_in_config": "在可用工具中未找到工具{tool_name}：{available_tools}",
+    "invalid_schema_input": "检测到无效的模式输入，跳过"
+  },
+  "errors": {
+    "cache_structure_init_failed": "初始化缓存结构失败：{error}",
+    "invalid_tool_object": "无效的工具对象或缺少输入模式",
+    "empty_input_schema": "工具'{tool_name}'的输入模式为空",
+    "schema_validation_failed": "验证模式输入时出错：{error}",
+    "langflow_mcp_not_available": "Langflow MCP服务器功能不可用。此功能需要完整的Langflow安装。",
+    "user_id_required": "获取MCP工具需要用户ID。",
+    "timeout_updating_tools": "更新工具列表超时：{error}",
+    "tool_update_failed": "更新工具列表时出错：{error}",
+    "update_tool_list_failed": "更新工具列表失败：{error}",
+    "tools_update_failed": "更新工具失败：{error}",
+    "build_config_update_failed": "update_build_config中出错：{error}",
+    "tool_input_schema_failed": "获取工具{tool_name}的输入时出错：{error}",
+    "get_inputs_for_tools_failed": "获取所有工具的输入时出错：{error}",
+    "remove_input_schema_failed": "移除工具{tool_name}的输入模式时出错：{error}",
+    "remove_non_default_keys_failed": "移除非默认键时出错：{error}",
+    "tool_schema_validation_failed": "工具{tool_name}的模式验证错误：{error}",
+    "tool_config_update_failed": "更新工具配置时出错：{error}",
+    "update_tool_config_failed": "更新工具配置时出错：{error}",
+    "schema_input_processing_failed": "处理模式输入{schema_input}时出错：{error}",
+    "no_tool_selected": "您必须选择一个工具",
+    "build_output_failed": "build_output中出错：{error}",
+    "session_context_failed": "获取会话上下文时出错：{error}",
+    "get_tools_failed": "获取工具时出错：{error}"
+  }
+}

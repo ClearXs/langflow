@@ -1,0 +1,49 @@
+{
+  "display_name": "File",
+  "description": "Loads content from one or more files.",
+  "path": {
+    "display_name": "Path",
+    "info": "Path to the file(s) to load content from."
+  },
+  "advanced_mode": {
+    "display_name": "Advanced Parser",
+    "info": "Enable advanced document processing and export with Docling for PDFs, images, and office documents. Available only for single file processing. Note that advanced document processing can consume significant resources."
+  },
+  "pipeline": {
+    "display_name": "Pipeline",
+    "info": "Docling pipeline to use"
+  },
+  "ocr_engine": {
+    "display_name": "OCR Engine",
+    "info": "OCR engine to use. Only available when pipeline is set to 'standard'."
+  },
+  "md_image_placeholder": {
+    "display_name": "Image placeholder",
+    "info": "Specify the image placeholder for markdown exports."
+  },
+  "md_page_break_placeholder": {
+    "display_name": "Page break placeholder",
+    "info": "Add this placeholder between pages in the markdown output."
+  },
+  "doc_key": {
+    "display_name": "Doc Key",
+    "info": "The key to use for the DoclingDocument column."
+  },
+  "use_multithreading": {
+    "display_name": "[Deprecated] Use Multithreading",
+    "info": "Set 'Processing Concurrency' greater than 1 to enable multithreading."
+  },
+  "concurrency_multithreading": {
+    "display_name": "Processing Concurrency",
+    "info": "When multiple files are being processed, the number of files to process concurrently."
+  },
+  "markdown": {
+    "display_name": "Markdown Export",
+    "info": "Export processed documents to Markdown format. Only available when advanced mode is enabled."
+  },
+  "outputs": {
+    "message": {
+      "display_name": "Raw Content"
+    }
+  }
+}

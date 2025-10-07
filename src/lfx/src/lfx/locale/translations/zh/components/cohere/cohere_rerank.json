@@ -1,0 +1,31 @@
+{
+  "display_name": "Cohere重排序",
+  "description": "使用Cohere API重新排序文档。",
+  "api_key": {
+    "display_name": "Cohere API密钥",
+    "info": "用于重排序的Cohere API密钥。"
+  },
+  "model": {
+    "display_name": "模型",
+    "info": "要使用的Cohere重排序模型。V3.0模型比V2.0提供更好的性能。"
+  },
+  "outputs": {
+    "reranked_documents": {
+      "display_name": "重排序后的文档"
+    }
+  },
+  "status": {
+    "initializing": "正在初始化Cohere重排序器..."
+  },
+  "success": {
+    "compressor_created": "Cohere重排序器已成功创建，模型：{model}，top_n：{top_n}"
+  },
+  "errors": {
+    "cohere_not_installed": "请安装langchain-cohere以使用Cohere模型。",
+    "creation_failed": "创建Cohere重排序器失败。请验证您的API密钥并重试。错误：{error}"
+  },
+  "logs": {
+    "cohere_imported": "langchain-cohere包导入成功",
+    "initializing": "正在初始化Cohere重排序器，模型：{model}，top_n：{top_n}"
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "display_name": "运行流程",
+  "description": "从流程创建一个工具组件，接收所有输入并运行它。\n **选择一个流程以使用工具模式**",
+  "success": {
+    "build_config_updated": "流程'{flow}'的构建配置更新成功",
+    "flow_executed": "流程'{flow}'执行成功"
+  },
+  "info": {
+    "using_flow_tweak_data": "使用流程调整数据中的{count}个调整",
+    "using_attribute_tweaks": "使用组件属性中的{count}个调整",
+    "executing_flow": "正在执行流程：{flow}"
+  },
+  "errors": {
+    "failed_to_get_flow_names": "获取流程名称失败：{error}",
+    "missing_required_keys": "构建配置中缺少必需的键：{keys}",
+    "failed_to_build_graph": "为流程'{flow}'构建图形时出错：{error}",
+    "no_flow_selected": "未选择要执行的流程",
+    "execution_failed": "流程执行失败：{error}"
+  }
+}

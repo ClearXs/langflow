@@ -1,0 +1,19 @@
+{
+  "display_name": "计算器",
+  "description": "对给定表达式执行基本算术运算。",
+  "expression": {
+    "display_name": "表达式",
+    "info": "要计算的算术表达式（例如：'4*4*(33/22)+12-20'）。"
+  },
+  "tool_description": "计算基本算术表达式。输入应为包含表达式的字符串。",
+  "success": {
+    "calculation_completed": "计算完成：{expression} = {result}"
+  },
+  "errors": {
+    "function_calls_not_supported": "不支持函数调用如 sqrt()、sin()、cos() 等。仅允许基本算术运算（+、-、*、/、**）。",
+    "unsupported_operation": "不支持的操作或表达式类型：{operation}",
+    "invalid_expression": "无效表达式：{error}",
+    "division_by_zero": "错误：除零",
+    "calculation_error": "错误：{error}"
+  }
+}

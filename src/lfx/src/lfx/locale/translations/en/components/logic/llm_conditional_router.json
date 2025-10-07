@@ -1,0 +1,89 @@
+{
+  "display_name": "Smart Router",
+  "description": "Routes an input message using LLM-based categorization.",
+  "llm": {
+    "display_name": "Language Model",
+    "info": "LLM to use for categorization."
+  },
+  "input_text": {
+    "display_name": "Input",
+    "info": "The primary text input for the operation."
+  },
+  "routes": {
+    "display_name": "Routes",
+    "info": "Define the categories for routing. Each row should have a route/category name and optionally a custom output value."
+  },
+  "table_schema": {
+    "route_category": {
+      "display_name": "Route/Category",
+      "description": "Name for the route/category (used for both output name and category matching)"
+    },
+    "output_value": {
+      "display_name": "Output Value",
+      "description": "Custom message for this category (overrides default output message if filled)"
+    }
+  },
+  "default_routes": {
+    "positive": "Positive",
+    "negative": "Negative"
+  },
+  "message": {
+    "display_name": "Override Output",
+    "info": "Optional override message that will replace both the Input and Output Value for all routes when filled."
+  },
+  "enable_else_output": {
+    "display_name": "Include Else Output",
+    "info": "Include an Else output for cases that don't match any route."
+  },
+  "custom_prompt": {
+    "display_name": "Additional Instructions",
+    "info": "Additional instructions for LLM-based categorization. These will be added to the base prompt. Use {input_text} for the input text and {routes} for the available categories."
+  },
+  "default_category": "Category {number}",
+  "outputs": {
+    "else": {
+      "display_name": "Else"
+    }
+  },
+  "prompts": {
+    "base_classification": "You are a text classifier. Given the following text and categories, determine which category best matches the text.\n\nText to classify: \"{input_text}\"\n\nAvailable categories: {categories}\n\nRespond with ONLY the exact category name that best matches the text. If none match well, respond with \"NONE\".\n\nCategory:",
+    "with_custom_instructions": "{base_prompt}\n\nAdditional Instructions:\n{custom_instructions}"
+  },
+  "status": {
+    "using_custom_prompt": "Using custom prompt as additional instructions",
+    "using_default_prompt": "Using default prompt for LLM categorization",
+    "categorized_as": "Categorized as {category}",
+    "no_match_no_else": "No match found and Else output is disabled",
+    "else_output_disabled": "Else output is disabled",
+    "match_already_found": "Match already found in process_case (Category {category}), stopping default_response",
+    "using_custom_prompt_default_check": "Using custom prompt as additional instructions (default check)",
+    "using_default_prompt_default_check": "Using default prompt for LLM categorization (default check)",
+    "else_using_override": "Routed to Else (no match) - using override output",
+    "else_using_input_default": "Routed to Else (no match) - using input as default"
+  },
+  "warnings": {
+    "empty_input_text": "Input text is empty",
+    "custom_prompt_format_failed": "Failed to format custom prompt: {error}",
+    "default_check_failed": "Default check categorization failed: {error}"
+  },
+  "errors": {
+    "output_update_failed": "Failed to update outputs: {error}",
+    "no_routes_defined": "No routes defined",
+    "no_llm_provided": "No LLM provided for categorization",
+    "llm_categorization_failed": "Error in LLM categorization: {error}",
+    "process_case_failed": "Process case failed: {error}",
+    "default_response_failed": "Default response failed: {error}"
+  },
+  "logs": {
+    "prompt_sent": "Prompt sent to LLM:\n{prompt}",
+    "llm_response": "LLM response: '{response}'",
+    "comparing_categories": "Comparing '{response}' with category {index}: route_category='{category}'",
+    "match_found": "MATCH FOUND! Category {index} matched with '{response}'",
+    "no_match_found": "No match found for '{response}'. Available categories: {available}",
+    "default_check_prompt_sent": "Default check - Prompt sent to LLM:\n{prompt}",
+    "default_check_llm_response": "Default check - LLM response: '{response}'",
+    "default_check_comparing": "Default check - Comparing '{response}' with category {index}: route_category='{category}'",
+    "default_check_match_found": "Default check - MATCH FOUND! Category {index} matched with '{response}'",
+    "default_check_no_match": "Default check - No match found for '{response}'. Available categories: {available}"
+  }
+}

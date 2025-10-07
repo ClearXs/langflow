@@ -1,0 +1,77 @@
+{
+  "display_name": "AssemblyAI Start Transcript",
+  "description": "Create a transcription job for an audio file using AssemblyAI with advanced options",
+  "api_key": {
+    "display_name": "Assembly API Key",
+    "info": "Your AssemblyAI API key. You can get one from https://www.assemblyai.com/"
+  },
+  "audio_file": {
+    "display_name": "Audio File",
+    "info": "The audio file to transcribe"
+  },
+  "audio_file_url": {
+    "display_name": "Audio File URL",
+    "info": "The URL of the audio file to transcribe (Can be used instead of a File)"
+  },
+  "speech_model": {
+    "display_name": "Speech Model",
+    "info": "The speech model to use for the transcription"
+  },
+  "language_detection": {
+    "display_name": "Automatic Language Detection",
+    "info": "Enable automatic language detection"
+  },
+  "language_code": {
+    "display_name": "Language",
+    "info": "The language of the audio file. Can be set manually if automatic language detection is disabled. See https://www.assemblyai.com/docs/getting-started/supported-languages for a list of supported language codes."
+  },
+  "speaker_labels": {
+    "display_name": "Enable Speaker Labels",
+    "info": "Enable speaker diarization"
+  },
+  "speakers_expected": {
+    "display_name": "Expected Number of Speakers",
+    "info": "Set the expected number of speakers (optional, enter a number)"
+  },
+  "punctuate": {
+    "display_name": "Punctuate",
+    "info": "Enable automatic punctuation"
+  },
+  "format_text": {
+    "display_name": "Format Text",
+    "info": "Enable text formatting"
+  },
+  "outputs": {
+    "transcript_id": {
+      "display_name": "Transcript ID"
+    }
+  },
+  "status": {
+    "building_config": "Building transcription configuration...",
+    "submitting_job": "Submitting transcription job..."
+  },
+  "success": {
+    "job_created": "Transcription job created successfully with ID: {id}"
+  },
+  "warnings": {
+    "url_ignored": "Both an audio file and audio URL were specified. The audio URL was ignored."
+  },
+  "errors": {
+    "invalid_speakers_count": "Error: Expected Number of Speakers must be a valid integer",
+    "file_not_found": "Error: Audio file not found",
+    "no_audio_source": "Error: Either an audio file or an audio URL must be specified",
+    "submission_failed": "An error occurred: {error}",
+    "create_job_failed": "Failed to create transcription job: {error}"
+  },
+  "logs": {
+    "speakers_expected_set": "Expected number of speakers set to {count}",
+    "language_code_set": "Language code set to '{code}'",
+    "config_built": "Configuration built - Model: {model}, Language Detection: {language_detection}, Speaker Labels: {speaker_labels}",
+    "file_not_found": "Audio file not found at path: {path}",
+    "using_audio_file": "Using audio file: {path}",
+    "using_audio_url": "Using audio URL: {url}",
+    "job_submitted": "Transcription job submitted with ID: {id}",
+    "submission_error": "Error submitting transcription job",
+    "transcript_error": "Transcript error: {error}"
+  }
+}

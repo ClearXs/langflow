@@ -1,0 +1,43 @@
+{
+  "display_name": "Python Interpreter",
+  "description": "Run Python code with optional imports. Use print() to see the output.",
+  "global_imports": {
+    "display_name": "Global Imports",
+    "info": "A comma-separated list of modules to import globally, e.g. 'math,numpy,pandas'."
+  },
+  "python_code": {
+    "display_name": "Python Code",
+    "info": "The Python code to execute. Only modules specified in Global Imports can be used.",
+    "default_value": "print('Hello, World!')"
+  },
+  "outputs": {
+    "results": {
+      "display_name": "Results"
+    }
+  },
+  "status": {
+    "preparing_environment": "Preparing Python execution environment...",
+    "executing_code": "Executing Python code..."
+  },
+  "success": {
+    "modules_imported": "Successfully imported modules: {modules}",
+    "code_executed_no_output": "Code executed successfully (no output)",
+    "code_executed_with_output": "Code executed successfully (output length: {length} characters)"
+  },
+  "warnings": {
+    "empty_imports": "Global imports is empty, no modules will be available",
+    "no_valid_modules": "No valid modules found in global imports",
+    "failed_imports": "Failed to import some modules: {failures}"
+  },
+  "errors": {
+    "invalid_imports_type": "Global imports must be either a string or a list",
+    "module_import_failed": "Could not import module '{module}': {error}",
+    "global_imports_failed": "Error processing global imports: {error}",
+    "empty_code": "Python code cannot be empty",
+    "import_error": "Import Error: {error}",
+    "syntax_error": "Syntax Error: {error}",
+    "name_error": "Name Error: {error}",
+    "runtime_error": "Runtime Error: {error}",
+    "execution_failed": "Code execution failed: {error}"
+  }
+}

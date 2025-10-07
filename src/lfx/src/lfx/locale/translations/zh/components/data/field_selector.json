@@ -1,0 +1,76 @@
+{
+  "display_name": "字段筛选器",
+  "description": "使用多种筛选策略选择、过滤、重命名和转换数据记录中的字段，包括包含/排除列表、正则表达式模式和条件逻辑。",
+  "data": {
+    "display_name": "输入数据",
+    "info": "包含需要选择或过滤字段的数据。可以是数据对象列表、单个数据对象或JSON字符串。"
+  },
+  "selection_strategy": {
+    "display_name": "筛选策略",
+    "info": "字段选择方法：include（选择指定字段）、exclude（移除指定字段）、regex（模式匹配）或conditional（基于字段条件）。"
+  },
+  "field_list": {
+    "display_name": "字段列表",
+    "info": "根据筛选策略包含或排除的字段名称JSON数组。"
+  },
+  "field_patterns": {
+    "display_name": "字段模式",
+    "info": "使用正则表达式策略时用于字段名称匹配的正则表达式模式JSON数组。"
+  },
+  "selection_conditions": {
+    "display_name": "筛选条件",
+    "info": "基于字段值或属性定义字段选择条件的JSON对象。"
+  },
+  "field_mapping": {
+    "display_name": "字段映射",
+    "info": "将原始字段名称映射到新字段名称进行重命名的JSON对象。"
+  },
+  "default_values": {
+    "display_name": "默认值",
+    "info": "使用包含策略时为缺失字段提供默认值的JSON对象。"
+  },
+  "case_sensitive": {
+    "display_name": "区分大小写",
+    "info": "字段名称匹配是否应该区分大小写。"
+  },
+  "flatten_nested": {
+    "display_name": "展平嵌套字段",
+    "info": "使用点号表示法展平嵌套对象字段（例如：'address.street'）。"
+  },
+  "preserve_structure": {
+    "display_name": "保持结构",
+    "info": "在可能的情况下保持对象的原始嵌套结构。"
+  },
+  "include_empty": {
+    "display_name": "包含空字段",
+    "info": "在输出中包含具有空值/null值的字段。"
+  },
+  "max_depth": {
+    "display_name": "最大嵌套深度",
+    "info": "嵌套对象遍历的最大深度。0表示无限制。"
+  },
+  "strict_mode": {
+    "display_name": "严格模式",
+    "info": "在严格模式下，缺失必需字段将导致错误而不是被跳过。"
+  },
+  "outputs": {
+    "selected_data": {
+      "display_name": "筛选后的数据"
+    },
+    "selection_report": {
+      "display_name": "筛选报告"
+    },
+    "excluded_fields": {
+      "display_name": "排除的字段"
+    }
+  },
+  "errors": {
+    "no_data": "未提供字段筛选的输入数据。",
+    "empty_data": "输入数据为空或不包含记录。",
+    "selection_error": "字段筛选失败：{error}",
+    "invalid_regex": "无效的正则表达式模式：{pattern}",
+    "invalid_json": "输入数据中的JSON格式无效。",
+    "missing_required_field": "在数据中未找到必需字段'{field}'。",
+    "no_selection_run": "必须先运行字段筛选才能访问此输出。"
+  }
+}

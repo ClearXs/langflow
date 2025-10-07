@@ -1,0 +1,118 @@
+{
+  "display_name": "Agent",
+  "description": "Define the agent's instructions, then enter a task to complete using tools.",
+  "agent_llm": {
+    "display_name": "Model Provider",
+    "info": "The provider of the language model that the agent will use to generate responses."
+  },
+  "connect_other_models": {
+    "display_name": "Connect other models"
+  },
+  "custom_llm": {
+    "display_name": "Language Model",
+    "info": "The provider of the language model that the agent will use to generate responses.",
+    "placeholder": "Awaiting model input."
+  },
+  "system_prompt": {
+    "display_name": "Agent Instructions",
+    "info": "System Prompt: Initial instructions and context provided to guide the agent's behavior.",
+    "default_value": "You are a helpful assistant that can use tools to answer questions and perform tasks."
+  },
+  "n_messages": {
+    "display_name": "Number of Chat History Messages",
+    "info": "Number of chat history messages to retrieve."
+  },
+  "format_instructions": {
+    "display_name": "Output Format Instructions",
+    "info": "Generic Template for structured output formatting. Valid only with Structured response.",
+    "default_value": "You are an AI that extracts structured JSON objects from unstructured text. Use a predefined schema with expected types (str, int, float, bool, dict). Extract ALL relevant instances that match the schema - if multiple patterns exist, capture them all. Fill missing or ambiguous values with defaults: null for missing values. Remove exact duplicates but keep variations that have different field values. Always return valid JSON in the expected format, never throw errors. If multiple objects can be extracted, return them all in the structured format."
+  },
+  "output_schema": {
+    "display_name": "Output Schema",
+    "info": "Schema Validation: Define the structure and data types for structured output. No validation if no output schema."
+  },
+  "table_schema": {
+    "name": {
+      "display_name": "Name",
+      "description": "Specify the name of the output field."
+    },
+    "description": {
+      "display_name": "Description",
+      "description": "Describe the purpose of the output field.",
+      "default": "description of field"
+    },
+    "type": {
+      "display_name": "Type",
+      "description": "Indicate the data type of the output field (e.g., str, int, float, bool, dict)."
+    },
+    "multiple": {
+      "display_name": "As List",
+      "description": "Set to True if this output field should be a list of the specified type."
+    }
+  },
+  "add_current_date_tool": {
+    "display_name": "Current Date",
+    "info": "If true, will add a tool to the agent that returns the current date."
+  },
+  "outputs": {
+    "response": {
+      "display_name": "Response"
+    }
+  },
+  "status": {
+    "initializing_agent": "Initializing agent...",
+    "setting_up_agent": "Setting up agent...",
+    "creating_agent": "Creating agent runnable...",
+    "running_agent": "Running agent...",
+    "building_structured_response": "Building structured response...",
+    "getting_agent_requirements_json": "Getting agent requirements for JSON response...",
+    "setting_up_structured_agent": "Setting up structured agent...",
+    "creating_structured_agent": "Creating structured agent...",
+    "running_structured_agent": "Running structured agent...",
+    "processing_structured_output": "Processing structured output...",
+    "using_content_fallback": "Using content as fallback output"
+  },
+  "success": {
+    "agent_completed": "Agent execution completed successfully",
+    "single_structured_output": "Generated single structured output",
+    "multiple_structured_outputs": "Generated {count} structured outputs",
+    "dict_structured_output": "Generated dictionary structured output"
+  },
+  "labels": {
+    "format_instructions": "Format instructions"
+  },
+  "prompts": {
+    "schema_extraction": "You are given some text that may include format instructions, explanations, or other content alongside a JSON schema.\n\nYour task:\n- Extract only the JSON schema.\n- Return it as valid JSON.\n- Do not include format instructions, explanations, or extra text.\n\nInput:\n{schema}\n\nOutput (only JSON schema):"
+  },
+  "errors": {
+    "no_language_model": "No language model selected. Please choose a model to proceed.",
+    "current_date_tool_invalid": "CurrentDateComponent must be converted to a StructuredTool",
+    "agent_requirements_failed": "Failed to get agent requirements: {error}",
+    "agent_execution_failed": "Agent execution failed: {error}",
+    "exception_with_message": "ExceptionWithMessageError occurred: {error}",
+    "unexpected_error": "Unexpected error occurred: {error}",
+    "schema_preprocessing_failed": "Schema preprocessing failed: {error}",
+    "try_setting_output_schema": "Try setting an output schema",
+    "validation_error_item": "Validation error for item {index}: {error}",
+    "validation_error_single": "Validation error: {error}",
+    "structured_output_build_failed": "Error building structured output: {error}",
+    "structured_output_base_failed": "Structured output base processing failed: {error}",
+    "schema_build_for_prompt_failed": "Could not build schema for prompt: {error}",
+    "structured_agent_creation_failed": "Error with structured chat agent: {error}",
+    "structured_agent_result_failed": "Error with structured agent result: {error}",
+    "structured_chat_agent_failed": "Error with structured chat agent: {error}",
+    "no_content_from_agent": "No content returned from agent",
+    "structured_output_processing_failed": "Error in structured output processing: {error}",
+    "memory_data_retrieval_failed": "Failed to retrieve memory data: {error}",
+    "invalid_model_provider": "Invalid model provider: {provider}",
+    "llm_build_failed": "Error building {provider} language model: {error}",
+    "llm_initialization_failed": "Failed to initialize language model: {error}",
+    "model_build_failed": "Model building failed: {error}",
+    "component_params_set_failed": "Failed to set component parameters: {error}",
+    "field_deletion_failed": "Failed to delete fields: {error}",
+    "input_types_update_failed": "Failed to update input types: {error}",
+    "missing_required_keys": "Missing required keys in build_config: {keys}",
+    "build_config_update_failed": "Failed to update build configuration: {error}",
+    "tools_retrieval_failed": "Failed to retrieve tools: {error}"
+  }
+}

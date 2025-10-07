@@ -1,0 +1,38 @@
+{
+  "display_name": "Python REPL [已弃用]",
+  "description": "在REPL环境中运行Python代码的工具。",
+  "name": {
+    "display_name": "工具名称",
+    "info": "工具的名称。"
+  },
+  "tool_description": {
+    "display_name": "工具描述",
+    "info": "工具的描述。",
+    "default_value": "一个Python外壳。使用它执行Python命令。输入应该是有效的Python命令。如果您想看到值的输出，应该使用`print(...)`打印出来。"
+  },
+  "global_imports": {
+    "display_name": "全局导入",
+    "info": "要全局导入的模块的逗号分隔列表，例如'math,numpy'。"
+  },
+  "code": {
+    "display_name": "Python代码",
+    "info": "要执行的Python代码。"
+  },
+  "success": {
+    "tool_created": "Python REPL工具已创建，全局导入：{imports}",
+    "code_executed": "Python代码执行成功"
+  },
+  "info": {
+    "executing_code": "正在执行Python代码..."
+  },
+  "warnings": {
+    "empty_code": "未提供要执行的代码"
+  },
+  "errors": {
+    "invalid_global_imports_type": "global_imports必须是字符串或列表",
+    "module_import_failed": "无法导入模块{module}",
+    "code_execution_failed": "执行Python代码时出错：{error}",
+    "tool_creation_failed": "创建Python REPL工具失败：{error}",
+    "execution_failed": "Python REPL执行失败：{error}"
+  }
+}

@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import re
 from typing import TYPE_CHECKING, Any
+import i18n
 
 from lfx.custom.custom_component.component import Component
 from lfx.io import DataInput, HandleInput, IntInput, MultilineInput, Output
@@ -14,8 +15,8 @@ if TYPE_CHECKING:
 
 
 class LambdaFilterComponent(Component):
-    display_name = "Smart Function"
-    description = "Uses an LLM to generate a function for filtering or transforming structured data."
+    display_name = i18n.t('components.processing.lambda_filter.display_name')
+    description = i18n.t('components.processing.lambda_filter.description')
     documentation: str = "https://docs.langflow.org/components-processing#smart-function"
     icon = "square-function"
     name = "Smart Function"
@@ -23,39 +24,44 @@ class LambdaFilterComponent(Component):
     inputs = [
         DataInput(
             name="data",
-            display_name="Data",
-            info="The structured data to filter or transform using a lambda function.",
+            display_name=i18n.t(
+                'components.processing.lambda_filter.data.display_name'),
+            info=i18n.t('components.processing.lambda_filter.data.info'),
             is_list=True,
             required=True,
         ),
         HandleInput(
             name="llm",
-            display_name="Language Model",
-            info="Connect the 'Language Model' output from your LLM component here.",
+            display_name=i18n.t(
+                'components.processing.lambda_filter.llm.display_name'),
+            info=i18n.t('components.processing.lambda_filter.llm.info'),
             input_types=["LanguageModel"],
             required=True,
         ),
         MultilineInput(
             name="filter_instruction",
-            display_name="Instructions",
-            info=(
-                "Natural language instructions for how to filter or transform the data using a lambda function. "
-                "Example: Filter the data to only include items where the 'status' is 'active'."
-            ),
-            value="Filter the data to...",
+            display_name=i18n.t(
+                'components.processing.lambda_filter.filter_instruction.display_name'),
+            info=i18n.t(
+                'components.processing.lambda_filter.filter_instruction.info'),
+            value=i18n.t(
+                'components.processing.lambda_filter.filter_instruction.default_value'),
             required=True,
         ),
         IntInput(
             name="sample_size",
-            display_name="Sample Size",
-            info="For large datasets, number of items to sample from head/tail.",
+            display_name=i18n.t(
+                'components.processing.lambda_filter.sample_size.display_name'),
+            info=i18n.t(
+                'components.processing.lambda_filter.sample_size.info'),
             value=1000,
             advanced=True,
         ),
         IntInput(
             name="max_size",
-            display_name="Max Size",
-            info="Number of characters for the data to be considered large.",
+            display_name=i18n.t(
+                'components.processing.lambda_filter.max_size.display_name'),
+            info=i18n.t('components.processing.lambda_filter.max_size.info'),
             value=30000,
             advanced=True,
         ),
@@ -63,7 +69,8 @@ class LambdaFilterComponent(Component):
 
     outputs = [
         Output(
-            display_name="Filtered Data",
+            display_name=i18n.t(
+                'components.processing.lambda_filter.outputs.filtered_data.display_name'),
             name="filtered_data",
             method="filter_data",
         ),
@@ -79,76 +86,137 @@ class LambdaFilterComponent(Component):
         return lambda_text.strip().startswith("lambda") and ":" in lambda_text
 
     async def filter_data(self) -> list[Data]:
-        self.log(str(self.data))
-        data = self.data[0].data if isinstance(self.data, list) else self.data.data
+        try:
+            self.log(str(self.data))
+            data = self.data[0].data if isinstance(
+                self.data, list) else self.data.data
 
-        dump = json.dumps(data)
-        self.log(str(data))
+            if not data:
+                warning_msg = i18n.t(
+                    'components.processing.lambda_filter.warnings.empty_data')
+                self.status = warning_msg
+                return []
 
-        llm = self.llm
-        instruction = self.filter_instruction
-        sample_size = self.sample_size
+            dump = json.dumps(data)
+            self.log(str(data))
 
-        # Get data structure and samples
-        data_structure = self.get_data_structure(data)
-        dump_structure = json.dumps(data_structure)
-        self.log(dump_structure)
+            llm = self.llm
+            instruction = self.filter_instruction
+            sample_size = self.sample_size
 
-        # For large datasets, sample from head and tail
-        if len(dump) > self.max_size:
-            data_sample = (
-                f"Data is too long to display... \n\n First lines (head): {dump[:sample_size]} \n\n"
-                f" Last lines (tail): {dump[-sample_size:]})"
-            )
-        else:
-            data_sample = dump
+            # Validate inputs
+            if not instruction or not instruction.strip():
+                error_msg = i18n.t(
+                    'components.processing.lambda_filter.errors.empty_instruction')
+                self.status = error_msg
+                raise ValueError(error_msg)
 
-        self.log(data_sample)
+            # Get data structure and samples
+            data_structure = self.get_data_structure(data)
+            dump_structure = json.dumps(data_structure)
+            self.log(dump_structure)
 
-        prompt = f"""Given this data structure and examples, create a Python lambda function that
-                    implements the following instruction:
+            # For large datasets, sample from head and tail
+            if len(dump) > self.max_size:
+                data_sample = i18n.t('components.processing.lambda_filter.data_sample_large',
+                                     head=dump[:sample_size], tail=dump[-sample_size:])
+            else:
+                data_sample = dump
 
-                    Data Structure:
-                    {dump_structure}
+            self.log(data_sample)
 
-                    Example Items:
-                    {data_sample}
+            # Create prompt with i18n support
+            prompt = i18n.t('components.processing.lambda_filter.llm_prompt',
+                            data_structure=dump_structure,
+                            data_sample=data_sample,
+                            instruction=instruction)
 
-                    Instruction: {instruction}
+            # Get LLM response
+            try:
+                response = await llm.ainvoke(prompt)
+                response_text = response.content if hasattr(
+                    response, "content") else str(response)
+                self.log(response_text)
+            except Exception as e:
+                error_msg = i18n.t(
+                    'components.processing.lambda_filter.errors.llm_invocation_failed', error=str(e))
+                self.status = error_msg
+                raise ValueError(error_msg) from e
 
-                    Return ONLY the lambda function and nothing else. No need for ```python or whatever.
-                    Just a string starting with lambda.
-                    """
+            # Extract lambda using regex
+            lambda_match = re.search(
+                r"lambda\s+\w+\s*:.*?(?=\n|$)", response_text)
+            if not lambda_match:
+                error_msg = i18n.t(
+                    'components.processing.lambda_filter.errors.lambda_not_found', response=response_text)
+                self.status = error_msg
+                raise ValueError(error_msg)
 
-        response = await llm.ainvoke(prompt)
-        response_text = response.content if hasattr(response, "content") else str(response)
-        self.log(response_text)
+            lambda_text = lambda_match.group().strip()
+            self.log(lambda_text)
 
-        # Extract lambda using regex
-        lambda_match = re.search(r"lambda\s+\w+\s*:.*?(?=\n|$)", response_text)
-        if not lambda_match:
-            msg = f"Could not find lambda in response: {response_text}"
-            raise ValueError(msg)
+            # Validate lambda function
+            if not self._validate_lambda(lambda_text):
+                error_msg = i18n.t(
+                    'components.processing.lambda_filter.errors.invalid_lambda_format', lambda_text=lambda_text)
+                self.status = error_msg
+                raise ValueError(error_msg)
 
-        lambda_text = lambda_match.group().strip()
-        self.log(lambda_text)
+            # Create and apply the function
+            try:
+                fn: Callable[[Any], Any] = eval(lambda_text)  # noqa: S307
+            except Exception as e:
+                error_msg = i18n.t('components.processing.lambda_filter.errors.lambda_evaluation_failed',
+                                   lambda_text=lambda_text, error=str(e))
+                self.status = error_msg
+                raise ValueError(error_msg) from e
 
-        # Validation is commented out as requested
-        if not self._validate_lambda(lambda_text):
-            msg = f"Invalid lambda format: {lambda_text}"
-            raise ValueError(msg)
+            # Apply the lambda function to the data
+            try:
+                processed_data = fn(data)
+            except Exception as e:
+                error_msg = i18n.t(
+                    'components.processing.lambda_filter.errors.lambda_execution_failed', error=str(e))
+                self.status = error_msg
+                raise ValueError(error_msg) from e
 
-        # Create and apply the function
-        fn: Callable[[Any], Any] = eval(lambda_text)  # noqa: S307
+            # Convert result to Data objects
+            result = self._convert_to_data_objects(processed_data)
 
-        # Apply the lambda function to the data
-        processed_data = fn(data)
+            success_msg = i18n.t('components.processing.lambda_filter.success.data_processed',
+                                 count=len(result))
+            self.status = success_msg
 
-        # If it's a dict, wrap it in a Data object
-        if isinstance(processed_data, dict):
-            return [Data(**processed_data)]
-        # If it's a list, convert each item to a Data object
-        if isinstance(processed_data, list):
-            return [Data(**item) if isinstance(item, dict) else Data(text=str(item)) for item in processed_data]
-        # If it's anything else, convert to string and wrap in a Data object
-        return [Data(text=str(processed_data))]
+            return result
+
+        except ValueError:
+            # Re-raise ValueError as is (already has i18n message)
+            raise
+        except Exception as e:
+            error_msg = i18n.t(
+                'components.processing.lambda_filter.errors.processing_failed', error=str(e))
+            self.status = error_msg
+            raise ValueError(error_msg) from e
+
+    def _convert_to_data_objects(self, processed_data: Any) -> list[Data]:
+        """Convert processed data to Data objects."""
+        try:
+            # If it's a dict, wrap it in a Data object
+            if isinstance(processed_data, dict):
+                return [Data(**processed_data)]
+            # If it's a list, convert each item to a Data object
+            if isinstance(processed_data, list):
+                result = []
+                for item in processed_data:
+                    if isinstance(item, dict):
+                        result.append(Data(**item))
+                    else:
+                        result.append(Data(text=str(item)))
+                return result
+            # If it's anything else, convert to string and wrap in a Data object
+            return [Data(text=str(processed_data))]
+
+        except Exception as e:
+            error_msg = i18n.t(
+                'components.processing.lambda_filter.errors.data_conversion_failed', error=str(e))
+            raise ValueError(error_msg) from e

@@ -1,0 +1,24 @@
+{
+  "display_name": "AI/ML API嵌入",
+  "description": "使用AI/ML API生成嵌入向量。",
+  "model_name": {
+    "display_name": "模型名称",
+    "info": "要使用的AI/ML嵌入模型的名称。"
+  },
+  "aiml_api_key": {
+    "display_name": "AI/ML API密钥",
+    "info": "用于生成嵌入向量的AI/ML API密钥。"
+  },
+  "status": {
+    "initializing_embeddings": "正在初始化嵌入模型'{model}'..."
+  },
+  "success": {
+    "embeddings_initialized": "嵌入模型'{model}'初始化成功"
+  },
+  "errors": {
+    "api_key_required": "需要AI/ML API密钥",
+    "model_name_required": "需要模型名称",
+    "embeddings_initialization_failed": "初始化嵌入模型'{model}'失败：{error}",
+    "embeddings_build_failed": "构建嵌入失败：{error}"
+  }
+}

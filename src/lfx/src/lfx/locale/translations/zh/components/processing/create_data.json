@@ -1,0 +1,38 @@
+{
+  "display_name": "创建数据",
+  "description": "动态创建具有指定字段数的数据对象。",
+  "number_of_fields": {
+    "display_name": "字段数量",
+    "info": "要添加到记录中的字段数量。"
+  },
+  "text_key": {
+    "display_name": "文本键",
+    "info": "标识用作文本内容的字段的键。"
+  },
+  "text_key_validator": {
+    "display_name": "文本键验证器",
+    "info": "如果启用，检查给定的'文本键'是否存在于给定的'数据'中。"
+  },
+  "field": {
+    "display_name": "字段 {number}",
+    "info": "字段 {number} 的键。"
+  },
+  "outputs": {
+    "data": {
+      "display_name": "数据"
+    }
+  },
+  "success": {
+    "fields_configured": "成功配置了{count}个字段",
+    "data_created": "成功创建包含{count}个字段的数据对象",
+    "text_key_validated": "文本键'{text_key}'验证成功"
+  },
+  "errors": {
+    "invalid_field_count": "无效的字段计数值。请输入有效的数字。",
+    "max_fields_exceeded": "字段数量不能超过{max_fields}。请将字段数量调整到允许的限制范围内。",
+    "data_creation_failed": "创建数据对象失败：{error}",
+    "data_extraction_failed": "从属性中提取数据失败：{error}",
+    "text_key_not_found": "文本键：'{text_key}'在数据键中未找到：'{data_keys}'",
+    "text_key_validation_failed": "验证文本键失败：{error}"
+  }
+}

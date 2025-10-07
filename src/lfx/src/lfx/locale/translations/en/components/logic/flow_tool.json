@@ -1,0 +1,85 @@
+{
+  "display_name": "Flow Tool",
+  "description": "Execute other flows as tools with parameter passing and result handling.",
+  "flow_id": {
+    "display_name": "Flow ID",
+    "info": "ID of the flow to execute from the flow registry."
+  },
+  "flow_file": {
+    "display_name": "Flow File",
+    "info": "JSON file containing the flow definition to execute."
+  },
+  "input_parameters": {
+    "display_name": "Input Parameters",
+    "info": "JSON object containing parameters to pass to the target flow."
+  },
+  "input_data": {
+    "display_name": "Input Data",
+    "info": "Data object to pass to the target flow as input."
+  },
+  "execution_mode": {
+    "display_name": "Execution Mode",
+    "info": "How to execute the flow: sync (wait for completion), async (concurrent), or background (queued)."
+  },
+  "timeout": {
+    "display_name": "Timeout (seconds)",
+    "info": "Maximum time to wait for flow execution to complete."
+  },
+  "max_retries": {
+    "display_name": "Max Retries",
+    "info": "Maximum number of times to retry failed executions."
+  },
+  "pass_current_context": {
+    "display_name": "Pass Current Context",
+    "info": "Whether to pass the current flow's context (session, flow ID, etc.) to the target flow."
+  },
+  "include_execution_metadata": {
+    "display_name": "Include Execution Metadata",
+    "info": "Whether to include execution details (timing, retries, etc.) in the result."
+  },
+  "output_format": {
+    "display_name": "Output Format",
+    "info": "Format for the execution result: auto (detect), data (Data object), message (Message), or raw."
+  },
+  "cache_results": {
+    "display_name": "Cache Results",
+    "info": "Whether to cache execution results for repeated calls with same parameters."
+  },
+  "error_handling": {
+    "display_name": "Error Handling",
+    "info": "How to handle execution errors: raise (throw exception), return_error (return error data), or return_null."
+  },
+  "outputs": {
+    "result": {
+      "display_name": "Flow Result"
+    },
+    "execution_info": {
+      "display_name": "Execution Info"
+    },
+    "flow_metadata": {
+      "display_name": "Flow Metadata"
+    }
+  },
+  "success": {
+    "flow_loaded_from_file": "Flow loaded successfully from file: {file}",
+    "flow_loaded_from_id": "Flow loaded successfully with ID: {flow_id}",
+    "flow_executed": "Flow executed successfully in {time:.2f} seconds"
+  },
+  "warnings": {
+    "both_flow_identifiers": "Both flow ID and flow file provided. Flow file will be used."
+  },
+  "errors": {
+    "missing_flow_identifier": "Either flow_id or flow_file must be provided.",
+    "invalid_input_parameters": "Invalid JSON format in input parameters: {error}",
+    "invalid_timeout": "Timeout must be greater than 0.",
+    "flow_file_not_found": "Flow file not found: {file}",
+    "invalid_flow_file": "Invalid flow file format in {file}: {error}",
+    "flow_load_error": "Error loading flow: {error}",
+    "flow_registry_not_implemented": "Flow registry lookup is not implemented.",
+    "no_flow_source": "No flow source specified.",
+    "execution_timeout": "Flow execution timed out after {timeout} seconds.",
+    "execution_error": "Error executing flow: {error}",
+    "execution_info_error": "Error getting execution information: {error}",
+    "flow_metadata_error": "Error getting flow metadata: {error}"
+  }
+}

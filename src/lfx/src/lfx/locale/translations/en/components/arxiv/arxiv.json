@@ -1,0 +1,48 @@
+{
+  "display_name": "arXiv",
+  "description": "Search and retrieve papers from arXiv.org",
+  "search_query": {
+    "display_name": "Search Query",
+    "info": "The search query for arXiv papers (e.g., 'quantum computing')"
+  },
+  "search_type": {
+    "display_name": "Search Field",
+    "info": "The field to search in"
+  },
+  "max_results": {
+    "display_name": "Max Results",
+    "info": "Maximum number of results to return"
+  },
+  "outputs": {
+    "dataframe": {
+      "display_name": "DataFrame"
+    }
+  },
+  "status": {
+    "searching": "Searching arXiv for '{query}'...",
+    "parsing_response": "Parsing arXiv response...",
+    "fetching_results": "Fetching results from arXiv...",
+    "converting_to_dataframe": "Converting results to DataFrame..."
+  },
+  "success": {
+    "papers_found": "Found {count} papers"
+  },
+  "errors": {
+    "query_build_failed": "Failed to build query URL: {error}",
+    "response_parse_failed": "Failed to parse arXiv response: {error}",
+    "invalid_url_scheme": "Invalid URL scheme: {scheme}",
+    "invalid_host": "Invalid host: {host}",
+    "request_failed": "Failed to fetch from arXiv: {error}",
+    "request_error": "Request error: {error}",
+    "search_failed": "Search failed: {error}",
+    "dataframe_creation_failed": "Failed to create DataFrame: {error}"
+  },
+  "logs": {
+    "building_query": "Building query: type={type}, query={query}",
+    "query_url_built": "Query URL built: {url}",
+    "papers_parsed": "Parsed {count} papers from response",
+    "url_validated": "URL validation passed",
+    "response_received": "Response received from arXiv",
+    "dataframe_created": "DataFrame created with {rows} rows"
+  }
+}

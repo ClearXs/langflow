@@ -1,6 +1,7 @@
 import csv
 import io
 from pathlib import Path
+import i18n
 
 from lfx.custom.custom_component.component import Component
 from lfx.io import FileInput, MessageTextInput, MultilineInput, Output
@@ -8,8 +9,8 @@ from lfx.schema.data import Data
 
 
 class CSVToDataComponent(Component):
-    display_name = "Load CSV"
-    description = "Load a CSV file, CSV from a file path, or a valid CSV string and convert it to a list of Data"
+    display_name = i18n.t('components.data.csv_to_data.display_name')
+    description = i18n.t('components.data.csv_to_data.description')
     icon = "file-spreadsheet"
     name = "CSVtoData"
     legacy = True
@@ -18,35 +19,41 @@ class CSVToDataComponent(Component):
     inputs = [
         FileInput(
             name="csv_file",
-            display_name="CSV File",
+            display_name=i18n.t(
+                'components.data.csv_to_data.csv_file.display_name'),
             file_types=["csv"],
-            info="Upload a CSV file to convert to a list of Data objects",
+            info=i18n.t('components.data.csv_to_data.csv_file.info'),
         ),
         MessageTextInput(
             name="csv_path",
-            display_name="CSV File Path",
-            info="Provide the path to the CSV file as pure text",
+            display_name=i18n.t(
+                'components.data.csv_to_data.csv_path.display_name'),
+            info=i18n.t('components.data.csv_to_data.csv_path.info'),
         ),
         MultilineInput(
             name="csv_string",
-            display_name="CSV String",
-            info="Paste a CSV string directly to convert to a list of Data objects",
+            display_name=i18n.t(
+                'components.data.csv_to_data.csv_string.display_name'),
+            info=i18n.t('components.data.csv_to_data.csv_string.info'),
         ),
         MessageTextInput(
             name="text_key",
-            display_name="Text Key",
-            info="The key to use for the text column. Defaults to 'text'.",
+            display_name=i18n.t(
+                'components.data.csv_to_data.text_key.display_name'),
+            info=i18n.t('components.data.csv_to_data.text_key.info'),
             value="text",
         ),
     ]
 
     outputs = [
-        Output(name="data_list", display_name="Data List", method="load_csv_to_data"),
+        Output(name="data_list", display_name=i18n.t(
+            'components.data.csv_to_data.outputs.data_list.display_name'), method="load_csv_to_data"),
     ]
 
     def load_csv_to_data(self) -> list[Data]:
         if sum(bool(field) for field in [self.csv_file, self.csv_path, self.csv_string]) != 1:
-            msg = "Please provide exactly one of: CSV file, file path, or CSV string."
+            msg = i18n.t(
+                'components.data.csv_to_data.errors.exactly_one_input')
             raise ValueError(msg)
 
         csv_data = None
@@ -55,7 +62,8 @@ class CSVToDataComponent(Component):
                 resolved_path = self.resolve_path(self.csv_file)
                 file_path = Path(resolved_path)
                 if file_path.suffix.lower() != ".csv":
-                    self.status = "The provided file must be a CSV file."
+                    self.status = i18n.t(
+                        'components.data.csv_to_data.errors.must_be_csv')
                 else:
                     with file_path.open(newline="", encoding="utf-8") as csvfile:
                         csv_data = csvfile.read()
@@ -63,7 +71,8 @@ class CSVToDataComponent(Component):
             elif self.csv_path:
                 file_path = Path(self.csv_path)
                 if file_path.suffix.lower() != ".csv":
-                    self.status = "The provided file must be a CSV file."
+                    self.status = i18n.t(
+                        'components.data.csv_to_data.errors.must_be_csv')
                 else:
                     with file_path.open(newline="", encoding="utf-8") as csvfile:
                         csv_data = csvfile.read()
@@ -73,22 +82,26 @@ class CSVToDataComponent(Component):
 
             if csv_data:
                 csv_reader = csv.DictReader(io.StringIO(csv_data))
-                result = [Data(data=row, text_key=self.text_key) for row in csv_reader]
+                result = [Data(data=row, text_key=self.text_key)
+                          for row in csv_reader]
 
                 if not result:
-                    self.status = "The CSV data is empty."
+                    self.status = i18n.t(
+                        'components.data.csv_to_data.errors.empty_csv')
                     return []
 
                 self.status = result
                 return result
 
         except csv.Error as e:
-            error_message = f"CSV parsing error: {e}"
+            error_message = i18n.t(
+                'components.data.csv_to_data.errors.csv_parsing_error', error=str(e))
             self.status = error_message
             raise ValueError(error_message) from e
 
         except Exception as e:
-            error_message = f"An error occurred: {e}"
+            error_message = i18n.t(
+                'components.data.csv_to_data.errors.generic_error', error=str(e))
             self.status = error_message
             raise ValueError(error_message) from e
 

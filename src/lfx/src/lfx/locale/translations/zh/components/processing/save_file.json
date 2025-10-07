@@ -1,0 +1,53 @@
+{
+  "display_name": "保存文件",
+  "description": "将数据保存为选定格式的本地文件。",
+  "input": {
+    "display_name": "输入",
+    "info": "要保存的输入。"
+  },
+  "file_name": {
+    "display_name": "文件名",
+    "info": "要保存的文件名（不含扩展名）。"
+  },
+  "file_format": {
+    "display_name": "文件格式",
+    "info": "选择保存输入的文件格式。如果未提供，将使用默认格式。"
+  },
+  "outputs": {
+    "file_path": {
+      "display_name": "文件路径"
+    }
+  },
+  "status": {
+    "preparing_file_path": "正在准备文件路径...",
+    "saving_file": "正在保存为{format}格式...",
+    "uploading_file": "正在上传文件..."
+  },
+  "success": {
+    "file_saved_and_uploaded": "{confirmation}并上传到{path}",
+    "dataframe_saved": "DataFrame成功保存为'{path}'",
+    "data_saved": "Data成功保存为'{path}'",
+    "message_saved": "Message成功保存为'{path}'"
+  },
+  "errors": {
+    "empty_file_name": "必须提供文件名。",
+    "input_type_not_set": "输入类型未设置。",
+    "invalid_file_format": "对于{input_type}，文件格式'{format}'无效。允许的格式：{allowed}",
+    "unsupported_input_type": "不支持的输入类型：{input_type}",
+    "unsupported_input_type_detection": "不支持的输入类型：{actual_type}",
+    "input_type_detection_failed": "检测输入类型失败：{error}",
+    "file_path_adjustment_failed": "调整文件路径格式失败：{error}",
+    "langflow_import_failed": "Langflow文件上传功能不可用。此功能需要完整的Langflow安装。",
+    "langflow_mcp_import_failed": "Langflow MCP服务器功能不可用。此功能需要完整的Langflow安装。",
+    "file_not_found": "未找到文件：{path}",
+    "user_id_required": "文件保存需要用户ID。",
+    "file_upload_failed": "上传文件'{path}'失败：{error}",
+    "unsupported_dataframe_format": "不支持的DataFrame格式：{format}",
+    "dataframe_save_failed": "保存DataFrame为{format}格式失败：{error}",
+    "unsupported_data_format": "不支持的Data格式：{format}",
+    "data_save_failed": "保存Data为{format}格式失败：{error}",
+    "unsupported_message_format": "不支持的Message格式：{format}",
+    "message_save_failed": "保存Message为{format}格式失败：{error}",
+    "save_operation_failed": "保存操作失败：{error}"
+  }
+}

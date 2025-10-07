@@ -1,0 +1,31 @@
+{
+  "display_name": "过滤数据",
+  "description": "基于键列表过滤Data对象。",
+  "data": {
+    "display_name": "数据",
+    "info": "要过滤的Data对象。"
+  },
+  "filter_criteria": {
+    "display_name": "过滤条件",
+    "info": "用于过滤的键列表。"
+  },
+  "outputs": {
+    "filtered_data": {
+      "display_name": "过滤数据"
+    }
+  },
+  "success": {
+    "filtered_successfully": "成功过滤数据，匹配了{count}个键"
+  },
+  "warnings": {
+    "empty_filter_criteria": "未提供过滤条件。返回空数据。",
+    "no_valid_filter_criteria": "清理后没有有效的过滤条件。返回空数据。",
+    "no_matching_keys": "未找到匹配的键。过滤条件：[{criteria}]。可用键：{available_keys}",
+    "partial_match": "部分匹配：找到{found}个键，缺少{missing}个键（{missing_keys}）"
+  },
+  "errors": {
+    "invalid_data_type": "期望Data对象，但得到{actual_type}",
+    "filter_failed": "数据过滤失败：{error}"
+  },
+  "no_keys_available": "没有可用的键"
+}

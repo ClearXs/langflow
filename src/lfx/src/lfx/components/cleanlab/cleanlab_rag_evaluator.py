@@ -1,3 +1,4 @@
+import i18n
 from cleanlab_tlm import TrustworthyRAG, get_default_evals
 
 from lfx.custom import Component
@@ -8,51 +9,33 @@ from lfx.io import (
     Output,
     SecretStrInput,
 )
+from lfx.log.logger import logger
 from lfx.schema.message import Message
 
 
 class CleanlabRAGEvaluator(Component):
-    """A component that evaluates the quality of RAG (Retrieval-Augmented Generation) outputs using Cleanlab.
+    """A component that evaluates the quality of RAG (Retrieval-Augmented Generation) outputs using Cleanlab."""
 
-    This component takes a query, retrieved context, and generated response from a RAG pipeline,
-    and uses Cleanlab's evaluation algorithms to assess various aspects of the RAG system's performance.
-
-    The component can evaluate:
-    - Overall trustworthiness of the LLM generated response
-    - Context sufficiency (whether the retrieved context contains information needed to answer the query)
-    - Response groundedness (whether the response is supported directly by the context)
-    - Response helpfulness (whether the response effectively addresses the user's query)
-    - Query ease (whether the user query seems easy for an AI system to properly handle, useful to diagnose
-      queries that are: complex, vague, tricky, or disgruntled-sounding)
-
-    Outputs:
-        - Trust Score: A score between 0-1 corresponding to the trustworthiness of the response. A higher score
-          indicates a higher confidence that the response is correct/good.
-        - Explanation: An LLM generated explanation of the trustworthiness assessment
-        - Other Evals: Additional evaluation metrics for selected evaluation types in the "Controls" tab
-        - Evaluation Summary: A comprehensive summary of context, query, response, and selected evaluation results
-
-    This component works well in conjunction with the CleanlabRemediator to create a complete trust evaluation
-    and remediation pipeline.
-
-    More details on the evaluation metrics can be found here: https://help.cleanlab.ai/tlm/use-cases/tlm_rag/
-    """
-
-    display_name = "Cleanlab RAG Evaluator"
-    description = "Evaluates context, query, and response from a RAG pipeline using Cleanlab and outputs trust metrics."
+    display_name = i18n.t(
+        'components.cleanlab.cleanlab_rag_evaluator.display_name')
+    description = i18n.t(
+        'components.cleanlab.cleanlab_rag_evaluator.description')
     icon = "Cleanlab"
     name = "CleanlabRAGEvaluator"
 
     inputs = [
         SecretStrInput(
             name="api_key",
-            display_name="Cleanlab API Key",
-            info="Your Cleanlab API key.",
+            display_name=i18n.t(
+                'components.cleanlab.cleanlab_rag_evaluator.api_key.display_name'),
+            info=i18n.t(
+                'components.cleanlab.cleanlab_rag_evaluator.api_key.info'),
             required=True,
         ),
         DropdownInput(
             name="model",
-            display_name="Cleanlab Evaluation Model",
+            display_name=i18n.t(
+                'components.cleanlab.cleanlab_rag_evaluator.model.display_name'),
             options=[
                 "gpt-4.1",
                 "gpt-4.1-mini",
@@ -76,85 +59,134 @@ class CleanlabRAGEvaluator(Component):
                 "nova-lite",
                 "nova-pro",
             ],
-            info="The model Cleanlab uses to evaluate the context, query, and response. This does NOT need to be "
-            "the same model that generated the response.",
+            info=i18n.t(
+                'components.cleanlab.cleanlab_rag_evaluator.model.info'),
             value="gpt-4o-mini",
             required=True,
             advanced=True,
         ),
         DropdownInput(
             name="quality_preset",
-            display_name="Quality Preset",
+            display_name=i18n.t(
+                'components.cleanlab.cleanlab_rag_evaluator.quality_preset.display_name'),
             options=["base", "low", "medium"],
             value="medium",
-            info="This determines the accuracy, latency, and cost of the evaluation. Higher quality is generally "
-            "slower but more accurate.",
+            info=i18n.t(
+                'components.cleanlab.cleanlab_rag_evaluator.quality_preset.info'),
             required=True,
             advanced=True,
         ),
         MessageTextInput(
             name="context",
-            display_name="Context",
-            info="The context retrieved for the given query.",
+            display_name=i18n.t(
+                'components.cleanlab.cleanlab_rag_evaluator.context.display_name'),
+            info=i18n.t(
+                'components.cleanlab.cleanlab_rag_evaluator.context.info'),
             required=True,
         ),
         MessageTextInput(
             name="query",
-            display_name="Query",
-            info="The user's query.",
+            display_name=i18n.t(
+                'components.cleanlab.cleanlab_rag_evaluator.query.display_name'),
+            info=i18n.t(
+                'components.cleanlab.cleanlab_rag_evaluator.query.info'),
             required=True,
         ),
         MessageTextInput(
             name="response",
-            display_name="Response",
-            info="The response generated by the LLM.",
+            display_name=i18n.t(
+                'components.cleanlab.cleanlab_rag_evaluator.response.display_name'),
+            info=i18n.t(
+                'components.cleanlab.cleanlab_rag_evaluator.response.info'),
             required=True,
         ),
         BoolInput(
             name="run_context_sufficiency",
-            display_name="Run Context Sufficiency",
+            display_name=i18n.t(
+                'components.cleanlab.cleanlab_rag_evaluator.run_context_sufficiency.display_name'),
+            info=i18n.t(
+                'components.cleanlab.cleanlab_rag_evaluator.run_context_sufficiency.info'),
             value=False,
             advanced=True,
         ),
         BoolInput(
             name="run_response_groundedness",
-            display_name="Run Response Groundedness",
+            display_name=i18n.t(
+                'components.cleanlab.cleanlab_rag_evaluator.run_response_groundedness.display_name'),
+            info=i18n.t(
+                'components.cleanlab.cleanlab_rag_evaluator.run_response_groundedness.info'),
             value=False,
             advanced=True,
         ),
         BoolInput(
             name="run_response_helpfulness",
-            display_name="Run Response Helpfulness",
+            display_name=i18n.t(
+                'components.cleanlab.cleanlab_rag_evaluator.run_response_helpfulness.display_name'),
+            info=i18n.t(
+                'components.cleanlab.cleanlab_rag_evaluator.run_response_helpfulness.info'),
             value=False,
             advanced=True,
         ),
         BoolInput(
             name="run_query_ease",
-            display_name="Run Query Ease",
+            display_name=i18n.t(
+                'components.cleanlab.cleanlab_rag_evaluator.run_query_ease.display_name'),
+            info=i18n.t(
+                'components.cleanlab.cleanlab_rag_evaluator.run_query_ease.info'),
             value=False,
             advanced=True,
         ),
     ]
 
     outputs = [
-        Output(display_name="Response", name="response_passthrough", method="pass_response", types=["Message"]),
-        Output(display_name="Trust Score", name="trust_score", method="get_trust_score", types=["number"]),
-        Output(display_name="Explanation", name="trust_explanation", method="get_trust_explanation", types=["Message"]),
-        Output(display_name="Other Evals", name="other_scores", method="get_other_scores", types=["Data"]),
         Output(
-            display_name="Evaluation Summary",
+            display_name=i18n.t(
+                'components.cleanlab.cleanlab_rag_evaluator.outputs.response.display_name'),
+            name="response_passthrough",
+            method="pass_response",
+            types=["Message"]
+        ),
+        Output(
+            display_name=i18n.t(
+                'components.cleanlab.cleanlab_rag_evaluator.outputs.trust_score.display_name'),
+            name="trust_score",
+            method="get_trust_score",
+            types=["number"]
+        ),
+        Output(
+            display_name=i18n.t(
+                'components.cleanlab.cleanlab_rag_evaluator.outputs.explanation.display_name'),
+            name="trust_explanation",
+            method="get_trust_explanation",
+            types=["Message"]
+        ),
+        Output(
+            display_name=i18n.t(
+                'components.cleanlab.cleanlab_rag_evaluator.outputs.other_evals.display_name'),
+            name="other_scores",
+            method="get_other_scores",
+            types=["Data"]
+        ),
+        Output(
+            display_name=i18n.t(
+                'components.cleanlab.cleanlab_rag_evaluator.outputs.summary.display_name'),
             name="evaluation_summary",
             method="get_evaluation_summary",
-            types=["Message"],
+            types=["Message"]
         ),
     ]
 
     def _evaluate_once(self):
         if not hasattr(self, "_cached_result"):
             try:
-                self.status = "Configuring selected evals..."
+                self.status = i18n.t(
+                    'components.cleanlab.cleanlab_rag_evaluator.status.configuring_evals')
+                logger.debug(
+                    i18n.t('components.cleanlab.cleanlab_rag_evaluator.logs.configuring_evals'))
+
                 default_evals = get_default_evals()
                 enabled_names = []
+
                 if self.run_context_sufficiency:
                     enabled_names.append("context_sufficiency")
                 if self.run_response_groundedness:
@@ -164,7 +196,11 @@ class CleanlabRAGEvaluator(Component):
                 if self.run_query_ease:
                     enabled_names.append("query_ease")
 
-                selected_evals = [e for e in default_evals if e.name in enabled_names]
+                selected_evals = [
+                    e for e in default_evals if e.name in enabled_names]
+
+                logger.info(i18n.t('components.cleanlab.cleanlab_rag_evaluator.logs.selected_evals',
+                                   evals=enabled_names))
 
                 validator = TrustworthyRAG(
                     api_key=self.api_key,
@@ -173,31 +209,53 @@ class CleanlabRAGEvaluator(Component):
                     evals=selected_evals,
                 )
 
-                self.status = f"Running evals: {[e.name for e in selected_evals]}"
+                self.status = i18n.t('components.cleanlab.cleanlab_rag_evaluator.status.running_evals',
+                                     evals=[e.name for e in selected_evals])
+                logger.info(i18n.t('components.cleanlab.cleanlab_rag_evaluator.logs.running_evals',
+                                   count=len(selected_evals)))
+
                 self._cached_result = validator.score(
                     query=self.query,
                     context=self.context,
                     response=self.response,
                 )
-                self.status = "Evaluation complete."
 
-            except Exception as e:  # noqa: BLE001
-                self.status = f"Evaluation failed: {e!s}"
+                success_msg = i18n.t(
+                    'components.cleanlab.cleanlab_rag_evaluator.success.evaluation_complete')
+                self.status = success_msg
+                logger.info(success_msg)
+
+            except Exception as e:
+                error_msg = i18n.t('components.cleanlab.cleanlab_rag_evaluator.errors.evaluation_failed',
+                                   error=str(e))
+                self.status = error_msg
+                logger.exception(error_msg)
                 self._cached_result = {}
+
         return self._cached_result
 
     def pass_response(self) -> Message:
-        self.status = "Passing through response."
+        self.status = i18n.t(
+            'components.cleanlab.cleanlab_rag_evaluator.status.passing_response')
+        logger.debug(
+            i18n.t('components.cleanlab.cleanlab_rag_evaluator.logs.passing_response'))
         return Message(text=self.response)
 
     def get_trust_score(self) -> float:
         score = self._evaluate_once().get("trustworthiness", {}).get("score", 0.0)
-        self.status = f"Trust Score: {score:.3f}"
+        self.status = i18n.t(
+            'components.cleanlab.cleanlab_rag_evaluator.status.trust_score', score=score)
+        logger.info(i18n.t(
+            'components.cleanlab.cleanlab_rag_evaluator.logs.trust_score_retrieved', score=score))
         return score
 
     def get_trust_explanation(self) -> Message:
-        explanation = self._evaluate_once().get("trustworthiness", {}).get("log", {}).get("explanation", "")
-        self.status = "Trust explanation extracted."
+        explanation = self._evaluate_once().get(
+            "trustworthiness", {}).get("log", {}).get("explanation", "")
+        self.status = i18n.t(
+            'components.cleanlab.cleanlab_rag_evaluator.status.explanation_extracted')
+        logger.debug(
+            i18n.t('components.cleanlab.cleanlab_rag_evaluator.logs.explanation_extracted'))
         return Message(text=explanation)
 
     def get_other_scores(self) -> dict:
@@ -210,9 +268,13 @@ class CleanlabRAGEvaluator(Component):
             "query_ease": self.run_query_ease,
         }
 
-        filtered_scores = {key: result[key]["score"] for key, include in selected.items() if include and key in result}
+        filtered_scores = {key: result[key]["score"] for key, include in selected.items(
+        ) if include and key in result}
 
-        self.status = f"{len(filtered_scores)} other evals returned."
+        self.status = i18n.t('components.cleanlab.cleanlab_rag_evaluator.status.other_evals_returned',
+                             count=len(filtered_scores))
+        logger.info(i18n.t('components.cleanlab.cleanlab_rag_evaluator.logs.other_evals_retrieved',
+                           count=len(filtered_scores)))
         return filtered_scores
 
     def get_evaluation_summary(self) -> Message:
@@ -223,7 +285,8 @@ class CleanlabRAGEvaluator(Component):
         response_text = self.response.strip()
 
         trust = result.get("trustworthiness", {}).get("score", 0.0)
-        trust_exp = result.get("trustworthiness", {}).get("log", {}).get("explanation", "")
+        trust_exp = result.get("trustworthiness", {}).get(
+            "log", {}).get("explanation", "")
 
         selected = {
             "context_sufficiency": self.run_context_sufficiency,
@@ -232,23 +295,30 @@ class CleanlabRAGEvaluator(Component):
             "query_ease": self.run_query_ease,
         }
 
-        other_scores = {key: result[key]["score"] for key, include in selected.items() if include and key in result}
+        other_scores = {key: result[key]["score"] for key, include in selected.items(
+        ) if include and key in result}
 
-        metrics = f"Trustworthiness: {trust:.3f}"
+        metrics = i18n.t(
+            'components.cleanlab.cleanlab_rag_evaluator.summary.trustworthiness', score=trust)
         if trust_exp:
-            metrics += f"\nExplanation: {trust_exp}"
+            metrics += "\n" + i18n.t('components.cleanlab.cleanlab_rag_evaluator.summary.explanation',
+                                     explanation=trust_exp)
         if other_scores:
-            metrics += "\n" + "\n".join(f"{k.replace('_', ' ').title()}: {v:.3f}" for k, v in other_scores.items())
+            metrics += "\n" + "\n".join(
+                i18n.t('components.cleanlab.cleanlab_rag_evaluator.summary.metric',
+                       name=k.replace('_', ' ').title(),
+                       score=v)
+                for k, v in other_scores.items()
+            )
 
-        summary = (
-            f"Query:\n{query_text}\n"
-            "-----\n"
-            f"Context:\n{context_text}\n"
-            "-----\n"
-            f"Response:\n{response_text}\n"
-            "------------------------------\n"
-            f"{metrics}"
-        )
+        summary = i18n.t('components.cleanlab.cleanlab_rag_evaluator.summary.full',
+                         query=query_text,
+                         context=context_text,
+                         response=response_text,
+                         metrics=metrics)
 
-        self.status = "Evaluation summary built."
+        self.status = i18n.t(
+            'components.cleanlab.cleanlab_rag_evaluator.status.summary_built')
+        logger.info(
+            i18n.t('components.cleanlab.cleanlab_rag_evaluator.logs.summary_built'))
         return Message(text=summary)

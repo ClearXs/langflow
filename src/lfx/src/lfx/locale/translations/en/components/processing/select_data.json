@@ -1,0 +1,36 @@
+{
+  "display_name": "Select Data",
+  "description": "Select a single data from a list of data.",
+  "data_list": {
+    "display_name": "Data List",
+    "info": "List of data to select from."
+  },
+  "data_index": {
+    "display_name": "Data Index",
+    "info": "Index of the data to select.",
+    "info_with_range": "Index of the data to select (0 to {max_index}, total: {length} items).",
+    "info_empty_list": "Index of the data to select (list is empty)."
+  },
+  "outputs": {
+    "selected_data": {
+      "display_name": "Selected Data"
+    }
+  },
+  "success": {
+    "data_selected": "Successfully selected data at index {index} from {total} items"
+  },
+  "errors": {
+    "empty_data_list": "Data list is empty or not provided.",
+    "invalid_data_list_type": "Data list must be a list.",
+    "missing_data_index": "Data index is not provided.",
+    "invalid_index_type": "Invalid index type '{index}': {error}",
+    "negative_index": "Index cannot be negative. Provided: {index}",
+    "index_out_of_range": "Index {index} is out of range. Valid range: 0 to {max_index} (length: {length})",
+    "invalid_selected_data_type": "Item at index {index} is not a Data object. Found: {actual_type}",
+    "selection_failed": "Data selection failed: {error}",
+    "build_config_update_failed": "Failed to update build config: {error}"
+  },
+  "logs": {
+    "data_selected": "Selected data at index {index}: {data_preview}..."
+  }
+}

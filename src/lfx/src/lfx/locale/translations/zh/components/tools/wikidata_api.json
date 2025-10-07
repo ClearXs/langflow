@@ -1,0 +1,30 @@
+{
+  "display_name": "Wikidata API [已弃用]",
+  "description": "使用Wikidata API执行搜索。",
+  "query": {
+    "display_name": "查询",
+    "info": "在Wikidata上进行相似性搜索的文本查询。"
+  },
+  "tool_description": "在Wikidata API上执行相似性搜索",
+  "success": {
+    "tool_created": "为Langchain创建了Wikidata搜索API工具",
+    "search_completed": "Wikidata搜索成功完成。为'{query}'找到{count}个结果"
+  },
+  "info": {
+    "executing_search": "正在为'{query}'执行Wikidata搜索..."
+  },
+  "warnings": {
+    "empty_input": "搜索输入为空。请提供搜索查询。",
+    "no_results_returned": "Wikidata API未返回结果"
+  },
+  "errors": {
+    "timeout": "向Wikidata API的请求超时。请重试。",
+    "http_error": "Wikidata API HTTP错误：{status}",
+    "request_failed": "连接Wikidata API失败：{error}",
+    "empty_query": "搜索查询为空。请提供搜索词。",
+    "no_results": "未找到查询'{query}'的搜索结果",
+    "search_failed": "Wikidata搜索失败：{error}",
+    "tool_creation_failed": "创建Wikidata搜索工具失败：{error}",
+    "execution_failed": "Wikidata API执行失败：{error}"
+  }
+}

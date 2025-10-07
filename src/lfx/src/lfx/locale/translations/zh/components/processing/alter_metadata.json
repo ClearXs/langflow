@@ -1,0 +1,48 @@
+{
+  "display_name": "修改元数据",
+  "description": "在输入上添加/删除元数据字典",
+  "input_value": {
+    "display_name": "输入",
+    "info": "应添加元数据的对象"
+  },
+  "text_in": {
+    "display_name": "用户文本",
+    "info": "文本输入；值将在Data对象的'text'属性中。空文本条目将被忽略。"
+  },
+  "metadata": {
+    "display_name": "元数据",
+    "info": "要添加到每个对象的元数据"
+  },
+  "remove_fields": {
+    "display_name": "要删除的字段",
+    "info": "要删除的元数据字段"
+  },
+  "outputs": {
+    "data": {
+      "display_name": "数据",
+      "info": "每个都添加了元数据的输入对象列表"
+    },
+    "dataframe": {
+      "display_name": "数据框",
+      "info": "作为数据框的数据对象，元数据作为列"
+    }
+  },
+  "success": {
+    "metadata_processed": "成功为{count}个数据对象处理了元数据",
+    "dataframe_created": "创建了包含{rows}行的数据框"
+  },
+  "info": {
+    "fields_removed": "删除了{count}个字段出现次数：{fields}"
+  },
+  "warnings": {
+    "empty_metadata": "未提供元数据。对象将在不更改元数据的情况下处理。",
+    "no_input_data": "未提供输入数据或文本。没有要处理的内容。",
+    "empty_dataframe": "没有可用数据来创建数据框"
+  },
+  "errors": {
+    "invalid_object_type": "期望Data对象或字典，但得到{obj_type}",
+    "dict_conversion_failed": "将对象转换为字典失败：{error}",
+    "processing_failed": "处理元数据失败：{error}",
+    "dataframe_creation_failed": "创建数据框失败：{error}"
+  }
+}

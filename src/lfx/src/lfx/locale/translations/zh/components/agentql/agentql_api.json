@@ -1,0 +1,73 @@
+{
+  "display_name": "提取网页数据",
+  "description": "使用AgentQL查询从网页中提取结构化数据。",
+  "url": {
+    "display_name": "URL",
+    "info": "要从中提取数据的网页URL。"
+  },
+  "query": {
+    "display_name": "AgentQL查询",
+    "info": "描述要从页面中提取的数据的自然语言查询。"
+  },
+  "api_key": {
+    "display_name": "API密钥",
+    "info": "用于身份验证的AgentQL API密钥（可选，可通过环境变量设置）。"
+  },
+  "mode": {
+    "display_name": "查询模式",
+    "info": "查询执行模式：'standard'表示准确性，'fast'表示速度。"
+  },
+  "is_scroll_to_bottom": {
+    "display_name": "滚动到底部",
+    "info": "在提取数据之前自动滚动到页面底部。"
+  },
+  "wait_for_page": {
+    "display_name": "等待页面加载（毫秒）",
+    "info": "在提取数据之前等待页面加载的时间（以毫秒为单位）。"
+  },
+  "is_return_markdown": {
+    "display_name": "包含Markdown",
+    "info": "在响应中包含页面内容的markdown格式。"
+  },
+  "outputs": {
+    "data": {
+      "display_name": "数据"
+    }
+  },
+  "status": {
+    "initializing": "正在初始化AgentQL...",
+    "connecting": "正在连接到{url}...",
+    "waiting_for_page": "正在等待页面加载（{milliseconds}毫秒）...",
+    "scrolling_to_bottom": "正在滚动到页面底部...",
+    "extracting_data": "正在使用AgentQL查询提取数据...",
+    "getting_markdown": "正在获取页面markdown内容..."
+  },
+  "success": {
+    "data_extracted": "成功提取数据，包含{fields}个字段"
+  },
+  "warnings": {
+    "api_key_config_failed": "配置API密钥失败：{error}",
+    "scroll_failed": "滚动到底部失败：{error}",
+    "no_data_extracted": "未从页面中提取到数据",
+    "response_conversion_failed": "将响应转换为字典失败：{error}",
+    "markdown_extraction_failed": "提取markdown内容失败：{error}",
+    "browser_close_failed": "关闭浏览器失败：{error}"
+  },
+  "errors": {
+    "url_required": "URL是必需的",
+    "query_required": "AgentQL查询是必需的",
+    "agentql_not_installed": "AgentQL未安装。请使用以下命令安装：pip install agentql",
+    "browser_init_failed": "初始化浏览器失败：{error}",
+    "query_execution_failed": "执行AgentQL查询失败：{error}",
+    "extraction_failed": "数据提取失败：{error}"
+  },
+  "logs": {
+    "api_key_configured": "AgentQL API密钥已配置",
+    "page_loaded": "页面已加载：{url}",
+    "scrolled_to_bottom": "已滚动到页面底部",
+    "data_extracted": "数据提取成功",
+    "response_converted": "响应已转换为字典",
+    "markdown_added": "Markdown内容已添加到响应",
+    "browser_closed": "浏览器已成功关闭"
+  }
+}

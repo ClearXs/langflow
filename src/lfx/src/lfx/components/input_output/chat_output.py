@@ -3,6 +3,7 @@ from typing import Any
 
 import orjson
 from fastapi.encoders import jsonable_encoder
+import i18n
 
 from lfx.base.io.chat import ChatComponent
 from lfx.helpers.data import safe_convert
@@ -20,8 +21,8 @@ from lfx.utils.constants import (
 
 
 class ChatOutput(ChatComponent):
-    display_name = "Chat Output"
-    description = "Display a chat message in the Playground."
+    display_name = i18n.t('components.input_output.chat_output.display_name')
+    description = i18n.t('components.input_output.chat_output.description')
     documentation: str = "https://docs.langflow.org/components-io#chat-output"
     icon = "MessagesSquare"
     name = "ChatOutput"
@@ -30,57 +31,69 @@ class ChatOutput(ChatComponent):
     inputs = [
         HandleInput(
             name="input_value",
-            display_name="Inputs",
-            info="Message to be passed as output.",
+            display_name=i18n.t(
+                'components.input_output.chat_output.input_value.display_name'),
+            info=i18n.t(
+                'components.input_output.chat_output.input_value.info'),
             input_types=["Data", "DataFrame", "Message"],
             required=True,
         ),
         BoolInput(
             name="should_store_message",
-            display_name="Store Messages",
-            info="Store the message in the history.",
+            display_name=i18n.t(
+                'components.input_output.chat_output.should_store_message.display_name'),
+            info=i18n.t(
+                'components.input_output.chat_output.should_store_message.info'),
             value=True,
             advanced=True,
         ),
         DropdownInput(
             name="sender",
-            display_name="Sender Type",
+            display_name=i18n.t(
+                'components.input_output.chat_output.sender.display_name'),
             options=[MESSAGE_SENDER_AI, MESSAGE_SENDER_USER],
             value=MESSAGE_SENDER_AI,
             advanced=True,
-            info="Type of sender.",
+            info=i18n.t('components.input_output.chat_output.sender.info'),
         ),
         MessageTextInput(
             name="sender_name",
-            display_name="Sender Name",
-            info="Name of the sender.",
+            display_name=i18n.t(
+                'components.input_output.chat_output.sender_name.display_name'),
+            info=i18n.t(
+                'components.input_output.chat_output.sender_name.info'),
             value=MESSAGE_SENDER_NAME_AI,
             advanced=True,
         ),
         MessageTextInput(
             name="session_id",
-            display_name="Session ID",
-            info="The session ID of the chat. If empty, the current session ID parameter will be used.",
+            display_name=i18n.t(
+                'components.input_output.chat_output.session_id.display_name'),
+            info=i18n.t('components.input_output.chat_output.session_id.info'),
             advanced=True,
         ),
         MessageTextInput(
             name="data_template",
-            display_name="Data Template",
+            display_name=i18n.t(
+                'components.input_output.chat_output.data_template.display_name'),
             value="{text}",
             advanced=True,
-            info="Template to convert Data to Text. If left empty, it will be dynamically set to the Data's text key.",
+            info=i18n.t(
+                'components.input_output.chat_output.data_template.info'),
         ),
         BoolInput(
             name="clean_data",
-            display_name="Basic Clean Data",
+            display_name=i18n.t(
+                'components.input_output.chat_output.clean_data.display_name'),
             value=True,
             advanced=True,
-            info="Whether to clean data before converting to string.",
+            info=i18n.t('components.input_output.chat_output.clean_data.info'),
         ),
     ]
     outputs = [
         Output(
-            display_name="Output Message",
+            display_name=i18n.t(
+                'components.input_output.chat_output.outputs.message.display_name'),
             name="message",
             method="message_response",
         ),
@@ -121,8 +134,10 @@ class ChatOutput(ChatComponent):
         message.sender = self.sender
         message.sender_name = self.sender_name
         message.session_id = self.session_id
-        message.flow_id = self.graph.flow_id if hasattr(self, "graph") else None
-        message.properties.source = self._build_source(source_id, display_name, source)
+        message.flow_id = self.graph.flow_id if hasattr(
+            self, "graph") else None
+        message.properties.source = self._build_source(
+            source_id, display_name, source)
 
         # Store message if needed
         if self.session_id and self.should_store_message:
@@ -138,14 +153,16 @@ class ChatOutput(ChatComponent):
         # Convert data.data to JSON-serializable format
         serializable_data = jsonable_encoder(data.data)
         # Serialize with orjson, enabling pretty printing with indentation
-        json_bytes = orjson.dumps(serializable_data, option=orjson.OPT_INDENT_2)
+        json_bytes = orjson.dumps(
+            serializable_data, option=orjson.OPT_INDENT_2)
         # Convert bytes to string and wrap in Markdown code blocks
         return "```json\n" + json_bytes.decode("utf-8") + "\n```"
 
     def _validate_input(self) -> None:
         """Validate the input data and raise ValueError if invalid."""
         if self.input_value is None:
-            msg = "Input data cannot be None"
+            msg = i18n.t(
+                'components.input_output.chat_output.errors.input_cannot_be_none')
             raise ValueError(msg)
         if isinstance(self.input_value, list) and not all(
             isinstance(item, Message | Data | DataFrame | str) for item in self.input_value
@@ -155,14 +172,16 @@ class ChatOutput(ChatComponent):
                 for item in self.input_value
                 if not isinstance(item, Message | Data | DataFrame | str)
             ]
-            msg = f"Expected Data or DataFrame or Message or str, got {invalid_types}"
+            msg = i18n.t(
+                'components.input_output.chat_output.errors.invalid_list_types', types=invalid_types)
             raise TypeError(msg)
         if not isinstance(
             self.input_value,
             Message | Data | DataFrame | str | list | Generator | type(None),
         ):
             type_name = type(self.input_value).__name__
-            msg = f"Expected Data or DataFrame or Message or str, Generator or None, got {type_name}"
+            msg = i18n.t(
+                'components.input_output.chat_output.errors.invalid_input_type', type=type_name)
             raise TypeError(msg)
 
     def convert_to_string(self) -> str | Generator[Any, None, None]:

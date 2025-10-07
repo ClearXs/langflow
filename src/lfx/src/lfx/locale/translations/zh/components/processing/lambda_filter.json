@@ -1,0 +1,48 @@
+{
+  "display_name": "智能函数",
+  "description": "使用LLM生成函数来过滤或转换结构化数据。",
+  "data": {
+    "display_name": "数据",
+    "info": "要使用lambda函数过滤或转换的结构化数据。"
+  },
+  "llm": {
+    "display_name": "语言模型",
+    "info": "在此处连接LLM组件的'语言模型'输出。"
+  },
+  "filter_instruction": {
+    "display_name": "指令",
+    "info": "关于如何使用lambda函数过滤或转换数据的自然语言指令。例如：过滤数据以仅包含'status'为'active'的项目。",
+    "default_value": "过滤数据以..."
+  },
+  "sample_size": {
+    "display_name": "样本大小",
+    "info": "对于大型数据集，从头部/尾部采样的项目数量。"
+  },
+  "max_size": {
+    "display_name": "最大大小",
+    "info": "数据被认为是大型数据的字符数。"
+  },
+  "outputs": {
+    "filtered_data": {
+      "display_name": "过滤数据"
+    }
+  },
+  "data_sample_large": "数据太长无法显示... \n\n 首行（头部）：{head} \n\n 末行（尾部）：{tail})",
+  "llm_prompt": "基于此数据结构和示例，创建一个实现以下指令的Python lambda函数：\n\n数据结构：\n{data_structure}\n\n示例项目：\n{data_sample}\n\n指令：{instruction}\n\n只返回lambda函数，不要其他任何内容。不需要```python或其他标记。\n只需一个以lambda开头的字符串。",
+  "success": {
+    "data_processed": "数据处理成功。生成了{count}个结果。"
+  },
+  "warnings": {
+    "empty_data": "未提供要处理的数据。"
+  },
+  "errors": {
+    "empty_instruction": "指令不能为空。请提供过滤或转换指令。",
+    "llm_invocation_failed": "调用语言模型失败：{error}",
+    "lambda_not_found": "在LLM响应中找不到lambda函数：{response}",
+    "invalid_lambda_format": "无效的lambda函数格式：{lambda_text}",
+    "lambda_evaluation_failed": "评估lambda函数'{lambda_text}'失败：{error}",
+    "lambda_execution_failed": "执行lambda函数失败：{error}",
+    "data_conversion_failed": "将处理后的数据转换为Data对象失败：{error}",
+    "processing_failed": "数据处理失败：{error}"
+  }
+}

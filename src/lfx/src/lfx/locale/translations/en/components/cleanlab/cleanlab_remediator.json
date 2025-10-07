@@ -1,0 +1,58 @@
+{
+  "display_name": "Cleanlab Remediator",
+  "description": "Remediates an untrustworthy response based on trust score from the Cleanlab Evaluator, score threshold, and message handling settings.",
+  "response": {
+    "display_name": "Response",
+    "info": "The response to the user's query."
+  },
+  "score": {
+    "display_name": "Trust Score",
+    "info": "The trustworthiness score output from the Cleanlab Evaluator."
+  },
+  "explanation": {
+    "display_name": "Explanation",
+    "info": "The explanation from the Cleanlab Evaluator."
+  },
+  "threshold": {
+    "display_name": "Threshold",
+    "info": "Minimum score required to show the response unmodified. Responses with scores above this threshold are considered trustworthy. Responses with scores below this threshold are considered untrustworthy and will be remediated based on the settings below."
+  },
+  "show_untrustworthy_response": {
+    "display_name": "Show Untrustworthy Response",
+    "info": "If enabled, and the trust score is below the threshold, the original response is shown with the added warning. If disabled, and the trust score is below the threshold, the fallback answer is returned."
+  },
+  "untrustworthy_warning_text": {
+    "display_name": "Warning for Untrustworthy Response",
+    "info": "Warning to append to the response if Show Untrustworthy Response is enabled and trust score is below the threshold.",
+    "default": "⚠️ WARNING: The following response is potentially untrustworthy."
+  },
+  "fallback_text": {
+    "display_name": "Fallback Answer",
+    "info": "Response returned if the trust score is below the threshold and 'Show Untrustworthy Response' is disabled.",
+    "default": "Based on the available information, I cannot provide a complete answer to this question."
+  },
+  "outputs": {
+    "remediated_response": {
+      "display_name": "Remediated Message"
+    }
+  },
+  "status": {
+    "accepted": "Score {score:.2f} ≥ threshold {threshold:.2f} → accepted",
+    "flagged": "Score {score:.2f} < threshold {threshold:.2f} → flagged"
+  },
+  "messages": {
+    "trusted_response": "{response}\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n**Trust Score:** {score:.2f}",
+    "trust_score_label": "**Trust Score:** {score:.2f}",
+    "explanation_label": "**Explanation:** {explanation}"
+  },
+  "logs": {
+    "response_accepted": "Response accepted - Score: {score:.2f}, Threshold: {threshold:.2f}",
+    "response_flagged": "Response flagged as untrustworthy - Score: {score:.2f}, Threshold: {threshold:.2f}",
+    "showing_with_warning": "Showing untrustworthy response with warning",
+    "explanation_included": "Including explanation in warning message",
+    "using_fallback": "Using fallback response"
+  },
+  "errors": {
+    "remediation_failed": "Remediation failed: {error}"
+  }
+}

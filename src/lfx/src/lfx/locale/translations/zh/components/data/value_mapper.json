@@ -1,0 +1,90 @@
+{
+  "display_name": "值映射器",
+  "description": "使用多种策略映射和转换数据字段中的值，包括简单映射、条件逻辑、计算表达式和查找表。",
+  "data": {
+    "display_name": "输入数据",
+    "info": "包含需要映射或转换值的数据。可以是数据对象列表、单个数据对象或JSON字符串。"
+  },
+  "mapping_strategy": {
+    "display_name": "映射策略",
+    "info": "值映射方法：simple（直接映射）、conditional（if-then逻辑）、calculated（表达式计算）、lookup（基于表的映射）或regex（基于模式的映射）。"
+  },
+  "target_fields": {
+    "display_name": "目标字段",
+    "info": "应用值映射的字段名称JSON数组。如果为空，将处理所有字段。"
+  },
+  "value_mappings": {
+    "display_name": "值映射",
+    "info": "用于简单映射策略的源值到目标值的JSON对象映射。"
+  },
+  "conditional_rules": {
+    "display_name": "条件规则",
+    "info": "包含条件和相应值的条件映射规则JSON数组。"
+  },
+  "calculated_expressions": {
+    "display_name": "计算表达式",
+    "info": "包含用于计算值映射的字段表达式的JSON对象。"
+  },
+  "lookup_table": {
+    "display_name": "查找表",
+    "info": "包含用于基于表的映射的查找表数据的JSON对象或数组。"
+  },
+  "lookup_key_field": {
+    "display_name": "查找键字段",
+    "info": "查找表中用于基于表的映射匹配的字段名称。"
+  },
+  "lookup_value_field": {
+    "display_name": "查找值字段",
+    "info": "查找表中用作基于表的映射的映射值的字段名称。"
+  },
+  "regex_patterns": {
+    "display_name": "正则表达式模式",
+    "info": "将正则表达式模式映射到替换值的JSON对象，用于基于模式的映射。"
+  },
+  "default_value": {
+    "display_name": "默认值",
+    "info": "当没有映射规则匹配时使用的默认值。"
+  },
+  "case_sensitive": {
+    "display_name": "区分大小写",
+    "info": "值匹配是否应该区分大小写。"
+  },
+  "preserve_unmapped": {
+    "display_name": "保留未映射的值",
+    "info": "当没有映射规则匹配时保留原始值，而不是使用默认值。"
+  },
+  "create_new_fields": {
+    "display_name": "创建新字段",
+    "info": "为映射值创建新字段，而不是替换原始值。"
+  },
+  "new_field_suffix": {
+    "display_name": "新字段后缀",
+    "info": "为映射值创建新字段时添加到字段名称的后缀。"
+  },
+  "strict_mode": {
+    "display_name": "严格模式",
+    "info": "在严格模式下，未映射的值将导致错误，而不是被保留或使用默认值。"
+  },
+  "outputs": {
+    "mapped_data": {
+      "display_name": "映射后的数据"
+    },
+    "mapping_report": {
+      "display_name": "映射报告"
+    },
+    "unmapped_values": {
+      "display_name": "未映射的值"
+    }
+  },
+  "errors": {
+    "no_data": "未提供值映射的输入数据。",
+    "empty_data": "输入数据为空或不包含记录。",
+    "mapping_error": "值映射失败：{error}",
+    "invalid_expression": "无效的表达式：{expression}",
+    "invalid_regex": "无效的正则表达式模式：{pattern}",
+    "invalid_json": "输入数据中的JSON格式无效。",
+    "lookup_table_error": "查找表错误：{error}",
+    "unmapped_value_error": "在严格模式下发现未映射的值'{value}'。",
+    "no_mapping_run": "必须先运行值映射才能访问此输出。"
+  }
+}

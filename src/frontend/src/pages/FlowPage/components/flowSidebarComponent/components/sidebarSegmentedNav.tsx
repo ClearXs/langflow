@@ -60,32 +60,32 @@ export const getNavItems = (t: (key: string) => string): NavItem[] => [
   {
     id: "search",
     icon: "search",
-    label: t("common.search"),
-    tooltip: t("common.search"),
+    label: t("flow.sidebar.common.search"),
+    tooltip: t("flow.sidebar.common.search"),
   },
   {
     id: "components",
     icon: "component",
-    label: t("navigation.components"),
-    tooltip: t("navigation.components"),
+    label: t("flow.sidebar.common.components"),
+    tooltip: t("flow.sidebar.common.components"),
   },
   {
     id: "mcp",
     icon: "Mcp",
-    label: t("common.mcp"),
-    tooltip: t("common.mcp"),
+    label: t("flow.sidebar.common.mcp"),
+    tooltip: t("flow.sidebar.common.mcp"),
   },
   {
     id: "bundles",
     icon: "blocks",
-    label: t("common.bundles"),
-    tooltip: t("common.bundles"),
+    label: t("flow.sidebar.common.bundles"),
+    tooltip: t("flow.sidebar.common.bundles"),
   },
   {
     id: "add_note",
     icon: "sticky-note",
-    label: t("common.stickyNotes"),
-    tooltip: t("common.addStickyNotes"),
+    label: t("flow.sidebar.common.stickyNotes"),
+    tooltip: t("flow.sidebar.common.addStickyNotes"),
   },
 ];
 

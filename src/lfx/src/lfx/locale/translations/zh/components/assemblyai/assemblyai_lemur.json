@@ -1,0 +1,80 @@
+{
+  "display_name": "AssemblyAI LeMUR",
+  "description": "使用AssemblyAI LeMUR框架将大型语言模型应用于语音数据",
+  "api_key": {
+    "display_name": "Assembly API密钥",
+    "info": "您的AssemblyAI API密钥。您可以从https://www.assemblyai.com/获取"
+  },
+  "transcription_result": {
+    "display_name": "转录结果",
+    "info": "来自AssemblyAI的转录结果"
+  },
+  "prompt": {
+    "display_name": "输入提示",
+    "info": "提示模型的文本"
+  },
+  "final_model": {
+    "display_name": "最终模型",
+    "info": "执行压缩后用于最终提示的模型"
+  },
+  "temperature": {
+    "display_name": "温度",
+    "info": "用于模型的温度"
+  },
+  "max_output_size": {
+    "display_name": "最大输出大小",
+    "info": "最大输出大小（令牌数），最多4000"
+  },
+  "endpoint": {
+    "display_name": "端点",
+    "info": "要使用的LeMUR端点。对于'summary'和'question-answer'，不需要提示输入。更多信息请参见https://www.assemblyai.com/docs/api-reference/lemur/"
+  },
+  "questions": {
+    "display_name": "问题",
+    "info": "以逗号分隔的问题列表。仅当端点为'question-answer'时使用"
+  },
+  "transcript_ids": {
+    "display_name": "转录ID",
+    "info": "以逗号分隔的转录ID列表。LeMUR可以对多个转录执行操作。如果提供，转录结果将被忽略。"
+  },
+  "outputs": {
+    "lemur_response": {
+      "display_name": "LeMUR响应"
+    }
+  },
+  "status": {
+    "waiting_for_transcripts": "正在等待转录完成...",
+    "performing_lemur_action": "正在执行LeMUR操作：{endpoint}..."
+  },
+  "success": {
+    "lemur_completed": "LeMUR {endpoint}操作成功完成"
+  },
+  "warnings": {
+    "previous_step_error": "来自上一步的错误：{error}"
+  },
+  "errors": {
+    "no_input_provided": "必须提供转录结果或转录ID",
+    "no_prompt_for_task": "未为任务端点指定提示",
+    "no_questions_for_qa": "未为问答端点提供问题",
+    "no_valid_transcript_ids": "必须提供有效的转录结果或有效的转录ID",
+    "transcription_failed": "获取转录失败：{error}",
+    "lemur_action_failed": "发生错误：{error}",
+    "run_lemur_failed": "运行LeMUR失败：{error}",
+    "unsupported_endpoint": "不支持的端点：{endpoint}",
+    "action_execution_failed": "执行{endpoint}操作失败：{error}",
+    "unsupported_model": "不支持的模型名称：{model}",
+    "model_selection_failed": "选择模型失败：{error}"
+  },
+  "logs": {
+    "transcript_id_from_result": "使用结果中的转录ID：{id}",
+    "transcript_ids_provided": "使用{count}个转录ID",
+    "transcript_error": "转录{id}有错误：{error}",
+    "lemur_error": "运行LeMUR时出错",
+    "performing_action": "正在执行LeMUR操作：{endpoint}",
+    "task_completed": "任务操作已完成",
+    "summary_completed": "摘要操作已完成",
+    "processing_questions": "正在处理{count}个问题",
+    "qa_completed": "问答操作已完成",
+    "model_selected": "已选择模型：{model}"
+  }
+}

@@ -1,0 +1,118 @@
+{
+  "display_name": "智能体",
+  "description": "定义智能体的指示，然后输入要使用工具完成的任务。",
+  "agent_llm": {
+    "display_name": "模型提供商",
+    "info": "智能体用于生成响应的语言模型提供商。"
+  },
+  "connect_other_models": {
+    "display_name": "连接其他模型"
+  },
+  "custom_llm": {
+    "display_name": "语言模型",
+    "info": "智能体用于生成响应的语言模型提供商。",
+    "placeholder": "等待模型输入。"
+  },
+  "system_prompt": {
+    "display_name": "智能体指示",
+    "info": "系统提示：提供给智能体的初始指示和上下文，用于指导智能体的行为。",
+    "default_value": "你是一个有用的助手，可以使用工具来回答问题和执行任务。"
+  },
+  "n_messages": {
+    "display_name": "聊天历史消息数量",
+    "info": "要检索的聊天历史消息数量。"
+  },
+  "format_instructions": {
+    "display_name": "输出格式指示",
+    "info": "结构化输出格式的通用模板。仅在结构化响应时有效。",
+    "default_value": "你是一个从非结构化文本中提取结构化JSON对象的AI。使用预定义的模式和预期类型（str、int、float、bool、dict）。提取所有匹配模式的相关实例 - 如果存在多种模式，请全部捕获。用默认值填充缺失或模糊的值：缺失值用null。删除完全重复的项，但保留字段值不同的变体。始终返回预期格式的有效JSON，永不抛出错误。如果可以提取多个对象，请以结构化格式返回所有对象。"
+  },
+  "output_schema": {
+    "display_name": "输出模式",
+    "info": "模式验证：定义结构化输出的结构和数据类型。如果没有输出模式则不进行验证。"
+  },
+  "table_schema": {
+    "name": {
+      "display_name": "名称",
+      "description": "指定输出字段的名称。"
+    },
+    "description": {
+      "display_name": "描述",
+      "description": "描述输出字段的用途。",
+      "default": "字段描述"
+    },
+    "type": {
+      "display_name": "类型",
+      "description": "指示输出字段的数据类型（例如，str、int、float、bool、dict）。"
+    },
+    "multiple": {
+      "display_name": "作为列表",
+      "description": "如果此输出字段应为指定类型的列表，请设置为True。"
+    }
+  },
+  "add_current_date_tool": {
+    "display_name": "当前日期",
+    "info": "如果为true，将向智能体添加一个返回当前日期的工具。"
+  },
+  "outputs": {
+    "response": {
+      "display_name": "响应"
+    }
+  },
+  "status": {
+    "initializing_agent": "正在初始化智能体...",
+    "setting_up_agent": "正在设置智能体...",
+    "creating_agent": "正在创建智能体运行器...",
+    "running_agent": "正在运行智能体...",
+    "building_structured_response": "正在构建结构化响应...",
+    "getting_agent_requirements_json": "正在获取JSON响应的智能体要求...",
+    "setting_up_structured_agent": "正在设置结构化智能体...",
+    "creating_structured_agent": "正在创建结构化智能体...",
+    "running_structured_agent": "正在运行结构化智能体...",
+    "processing_structured_output": "正在处理结构化输出...",
+    "using_content_fallback": "使用内容作为备用输出"
+  },
+  "success": {
+    "agent_completed": "智能体执行成功完成",
+    "single_structured_output": "生成单个结构化输出",
+    "multiple_structured_outputs": "生成了{count}个结构化输出",
+    "dict_structured_output": "生成字典结构化输出"
+  },
+  "labels": {
+    "format_instructions": "格式指示"
+  },
+  "prompts": {
+    "schema_extraction": "你收到一些文本，可能包含格式说明、解释或其他内容以及JSON模式。\n\n你的任务：\n- 只提取JSON模式。\n- 以有效JSON的形式返回。\n- 不要包含格式说明、解释或额外文本。\n\n输入：\n{schema}\n\n输出（仅JSON模式）："
+  },
+  "errors": {
+    "no_language_model": "未选择语言模型。请选择一个模型以继续。",
+    "current_date_tool_invalid": "CurrentDateComponent必须转换为StructuredTool",
+    "agent_requirements_failed": "获取智能体要求失败：{error}",
+    "agent_execution_failed": "智能体执行失败：{error}",
+    "exception_with_message": "发生ExceptionWithMessageError：{error}",
+    "unexpected_error": "发生意外错误：{error}",
+    "schema_preprocessing_failed": "模式预处理失败：{error}",
+    "try_setting_output_schema": "尝试设置输出模式",
+    "validation_error_item": "项目{index}验证错误：{error}",
+    "validation_error_single": "验证错误：{error}",
+    "structured_output_build_failed": "构建结构化输出时出错：{error}",
+    "structured_output_base_failed": "结构化输出基础处理失败：{error}",
+    "schema_build_for_prompt_failed": "无法为提示构建模式：{error}",
+    "structured_agent_creation_failed": "结构化聊天智能体出错：{error}",
+    "structured_agent_result_failed": "结构化智能体结果出错：{error}",
+    "structured_chat_agent_failed": "结构化聊天智能体出错：{error}",
+    "no_content_from_agent": "智能体未返回内容",
+    "structured_output_processing_failed": "结构化输出处理时出错：{error}",
+    "memory_data_retrieval_failed": "检索内存数据失败：{error}",
+    "invalid_model_provider": "无效的模型提供商：{provider}",
+    "llm_build_failed": "构建{provider}语言模型时出错：{error}",
+    "llm_initialization_failed": "初始化语言模型失败：{error}",
+    "model_build_failed": "模型构建失败：{error}",
+    "component_params_set_failed": "设置组件参数失败：{error}",
+    "field_deletion_failed": "删除字段失败：{error}",
+    "input_types_update_failed": "更新输入类型失败：{error}",
+    "missing_required_keys": "build_config中缺少必需的键：{keys}",
+    "build_config_update_failed": "更新构建配置失败：{error}",
+    "tools_retrieval_failed": "检索工具失败：{error}"
+  }
+}

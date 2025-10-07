@@ -1,0 +1,78 @@
+{
+  "display_name": "数据拆分器",
+  "description": "使用多种策略将数据拆分为多个子集，包括基于比例、随机、顺序、条件、字段值和块大小的拆分。",
+  "data": {
+    "display_name": "输入数据",
+    "info": "要拆分为多个子集的数据。可以是数据对象列表、单个数据对象或JSON字符串。"
+  },
+  "split_strategy": {
+    "display_name": "拆分策略",
+    "info": "数据拆分方法：ratio（基于百分比）、random（随机采样）、sequential（有序块）、conditional（基于规则）、field_value（按字段分组）或chunk_size（固定大小块）。"
+  },
+  "split_ratios": {
+    "display_name": "拆分比例",
+    "info": "用于拆分数据的小数比例JSON数组（例如：[0.7, 0.2, 0.1]表示70%/20%/10%拆分）。"
+  },
+  "split_conditions": {
+    "display_name": "拆分条件",
+    "info": "用于条件拆分的条件JSON数组，每个条件定义子集创建的规则。"
+  },
+  "split_field": {
+    "display_name": "拆分字段",
+    "info": "用于基于字段值拆分的字段名称（按字段值对记录进行分组）。"
+  },
+  "chunk_size": {
+    "display_name": "块大小",
+    "info": "使用块大小拆分策略时每个块的记录数。"
+  },
+  "random_seed": {
+    "display_name": "随机种子",
+    "info": "随机数生成器的种子值，确保可重现的随机拆分。"
+  },
+  "stratify_field": {
+    "display_name": "分层字段",
+    "info": "用于分层采样的字段名称（在拆分中保持字段值分布）。"
+  },
+  "shuffle_data": {
+    "display_name": "打乱数据",
+    "info": "在拆分前打乱数据以确保随机分布。"
+  },
+  "preserve_order": {
+    "display_name": "保持顺序",
+    "info": "在每个拆分子集中保持记录的原始顺序。"
+  },
+  "include_remainder": {
+    "display_name": "包含余数",
+    "info": "将不符合精确比例或块大小的剩余记录包含在最后一个子集中。"
+  },
+  "output_format": {
+    "display_name": "输出格式",
+    "info": "拆分输出的格式：separate（单独输出）、combined（带拆分信息的单一输出）或indexed（编号子集）。"
+  },
+  "subset_names": {
+    "display_name": "子集名称",
+    "info": "拆分子集的自定义名称JSON数组（例如：['train', 'validation', 'test']）。"
+  },
+  "outputs": {
+    "split_data": {
+      "display_name": "拆分后的数据"
+    },
+    "split_report": {
+      "display_name": "拆分报告"
+    },
+    "subset_info": {
+      "display_name": "子集信息"
+    }
+  },
+  "errors": {
+    "no_data": "未提供拆分的输入数据。",
+    "empty_data": "输入数据为空或不包含记录。",
+    "split_error": "数据拆分失败：{error}",
+    "invalid_ratios": "拆分比例之和必须等于或小于1.0：{ratios}",
+    "invalid_chunk_size": "块大小必须大于0：{size}",
+    "invalid_field": "在数据中未找到拆分字段'{field}'。",
+    "invalid_json": "输入数据中的JSON格式无效。",
+    "insufficient_data": "请求的拆分策略数据不足。",
+    "no_split_run": "必须先运行数据拆分才能访问此输出。"
+  }
+}

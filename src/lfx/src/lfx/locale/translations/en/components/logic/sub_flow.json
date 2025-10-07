@@ -1,0 +1,34 @@
+{
+  "display_name": "Sub Flow",
+  "description": "Generates a Component from a Flow, with all of its inputs, and outputs.",
+  "flow_name": {
+    "display_name": "Flow Name",
+    "info": "The name of the flow to run as a sub-component."
+  },
+  "outputs": {
+    "flow_outputs": {
+      "display_name": "Flow Outputs"
+    }
+  },
+  "success": {
+    "build_config_updated": "Build configuration updated for flow '{flow}' with {count} inputs",
+    "sub_flow_executed": "Sub flow '{flow}' executed successfully with {outputs} outputs"
+  },
+  "info": {
+    "using_tweaks": "Using {count} parameter tweaks for sub flow '{flow}'",
+    "executing_sub_flow": "Executing sub flow: {flow}"
+  },
+  "warnings": {
+    "flow_not_found": "Flow '{flow}' not found in available flows",
+    "no_outputs": "Sub flow execution completed but no outputs were generated"
+  },
+  "errors": {
+    "failed_to_get_flow_names": "Failed to retrieve available flow names: {error}",
+    "failed_to_get_flow": "Failed to retrieve flow '{flow}': {error}",
+    "failed_to_update_flow_options": "Failed to update flow options: {error}",
+    "flow_not_found": "Flow '{flow}' not found",
+    "failed_to_build_graph": "Error building graph for flow '{flow}': {error}",
+    "no_flow_selected": "No flow selected for execution",
+    "execution_failed": "Sub flow execution failed: {error}"
+  }
+}

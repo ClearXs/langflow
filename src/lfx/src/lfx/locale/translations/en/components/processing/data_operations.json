@@ -1,0 +1,115 @@
+{
+  "display_name": "Data Operations",
+  "description": "Perform various operations on a Data object.",
+  "data": {
+    "display_name": "Data",
+    "info": "Data object to filter."
+  },
+  "operations": {
+    "display_name": "Operations",
+    "placeholder": "Select Operation",
+    "info": "List of operations to perform on the data.",
+    "select_keys": "Select Keys",
+    "literal_eval": "Literal Eval",
+    "combine": "Combine",
+    "filter_values": "Filter Values",
+    "append_update": "Append or Update",
+    "remove_keys": "Remove Keys",
+    "rename_keys": "Rename Keys",
+    "path_selection": "Path Selection",
+    "jq_expression": "JQ Expression"
+  },
+  "select_keys_input": {
+    "display_name": "Select Keys",
+    "info": "List of keys to select from the data. Only top-level keys can be selected."
+  },
+  "filter_key": {
+    "display_name": "Filter Key",
+    "info": "Name of the key containing the list to filter. It must be a top-level key in the JSON and its value must be a list."
+  },
+  "operator": {
+    "display_name": "Comparison Operator",
+    "info": "The operator to apply for comparing the values.",
+    "equals": "equals",
+    "not_equals": "not equals",
+    "contains": "contains",
+    "starts_with": "starts with",
+    "ends_with": "ends with"
+  },
+  "filter_values": {
+    "display_name": "Filter Values",
+    "info": "List of values to filter by."
+  },
+  "append_update_data": {
+    "display_name": "Append or Update",
+    "info": "Data to append or update the existing data with. Only top-level keys are checked."
+  },
+  "remove_keys_input": {
+    "display_name": "Remove Keys",
+    "info": "List of keys to remove from the data."
+  },
+  "rename_keys_input": {
+    "display_name": "Rename Keys",
+    "info": "List of keys to rename in the data."
+  },
+  "mapped_json_display": {
+    "display_name": "JSON to Map",
+    "info": "Paste or preview your JSON here to explore its structure and select a path for extraction.",
+    "placeholder": "Add a JSON example."
+  },
+  "selected_key": {
+    "display_name": "Select Path"
+  },
+  "query": {
+    "display_name": "JQ Expression",
+    "info": "JSON Query to filter the data. Used by Parse JSON operation.",
+    "placeholder": "e.g., .properties.id"
+  },
+  "outputs": {
+    "data": {
+      "display_name": "Data"
+    }
+  },
+  "success": {
+    "jq_query_executed": "JQ query executed successfully",
+    "keys_selected": "Successfully selected {count} keys",
+    "keys_removed": "Successfully removed {count} keys",
+    "keys_renamed": "Successfully renamed {count} keys",
+    "data_evaluated": "Data evaluation completed successfully",
+    "data_combined": "Successfully combined {count} data objects",
+    "data_filtered": "Data filtering completed successfully",
+    "data_updated": "Successfully updated data with {count} new fields",
+    "path_selection_executed": "Path selection executed successfully"
+  },
+  "warnings": {
+    "empty_input_data": "Input data is empty.",
+    "missing_filter_params": "Filter key or value is missing.",
+    "items_missing_key": "Warning: {count} items don't have the key '{key}' or are not dictionaries.",
+    "no_operations_selected": "No operations selected."
+  },
+  "errors": {
+    "empty_jq_query": "JSON Query is required and cannot be blank.",
+    "no_jq_results": "No result from JSON query.",
+    "jq_null_result": "JSON query returned null/None. Check if the path exists in your data.",
+    "jq_query_failed": "JSON Query error: {error}",
+    "multiple_data_not_supported": "{operation} operation is not supported for multiple data objects.",
+    "incompatible_operations": "{operations} operations are not supported in combination with each other.",
+    "select_key_not_found": "Select key not found in data. Available keys: {available_keys}",
+    "select_keys_failed": "Failed to select keys: {error}",
+    "remove_keys_failed": "Failed to remove keys: {error}",
+    "rename_keys_failed": "Failed to rename keys: {error}",
+    "evaluate_data_failed": "Failed to evaluate data: {error}",
+    "combine_requires_multiple": "Combine operation requires multiple data inputs.",
+    "combine_data_failed": "Failed to combine data: {error}",
+    "filter_key_not_found": "Filter key '{key}' not found in data. Available keys: {available_keys}",
+    "filter_key_not_list": "Filter key '{key}' is not a list.",
+    "filter_data_failed": "Failed to filter data: {error}",
+    "append_update_failed": "Failed to append or update data: {error}",
+    "json_parse_error": "Error parsing mapped JSON: {error}",
+    "missing_data_or_key": "Missing input data or selected key.",
+    "path_selection_failed": "Path selection failed: {error}",
+    "single_operation_required": "Please select exactly one operation.",
+    "unknown_operation": "Unknown operation: {operation}",
+    "operation_execution_failed": "Operation execution failed: {error}"
+  }
+}

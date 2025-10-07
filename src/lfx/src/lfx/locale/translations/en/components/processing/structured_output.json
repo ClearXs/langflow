@@ -1,0 +1,85 @@
+{
+  "display_name": "Structured Output",
+  "description": "Uses an LLM to generate structured data. Ideal for extraction and consistency.",
+  "llm": {
+    "display_name": "Language Model",
+    "info": "The language model to use to generate the structured output."
+  },
+  "input_value": {
+    "display_name": "Input Message",
+    "info": "The input message to the language model."
+  },
+  "system_prompt": {
+    "display_name": "Format Instructions",
+    "info": "The instructions to the language model for formatting the output.",
+    "default_value": "You are an AI that extracts structured JSON objects from unstructured text. Use a predefined schema with expected types (str, int, float, bool, dict). Extract ALL relevant instances that match the schema - if multiple patterns exist, capture them all. Fill missing or ambiguous values with defaults: null for missing values. Remove exact duplicates but keep variations that have different field values. Always return valid JSON in the expected format, never throw errors. If multiple objects can be extracted, return them all in the structured format."
+  },
+  "schema_name": {
+    "display_name": "Schema Name",
+    "info": "Provide a name for the output data schema."
+  },
+  "output_schema": {
+    "display_name": "Output Schema",
+    "info": "Define the structure and data types for the model's output."
+  },
+  "table_schema": {
+    "name": {
+      "display_name": "Name",
+      "description": "Specify the name of the output field."
+    },
+    "description": {
+      "display_name": "Description",
+      "description": "Describe the purpose of the output field.",
+      "default": "description of field"
+    },
+    "type": {
+      "display_name": "Type",
+      "description": "Indicate the data type of the output field (e.g., str, int, float, bool, dict)."
+    },
+    "multiple": {
+      "display_name": "As List",
+      "description": "Set to True if this output field should be a list of the specified type."
+    }
+  },
+  "outputs": {
+    "structured_output": {
+      "display_name": "Structured Output",
+      "info": "The structured data extracted from the input"
+    },
+    "dataframe_output": {
+      "display_name": "DataFrame Output",
+      "info": "The structured data as a DataFrame"
+    }
+  },
+  "status": {
+    "building_model": "Building output model from schema...",
+    "creating_extractor": "Creating structured output extractor...",
+    "generating_output": "Generating structured output...",
+    "processing_result": "Processing extraction result..."
+  },
+  "success": {
+    "objects_extracted": "Successfully extracted {count} structured objects",
+    "single_data_created": "Successfully created single Data object",
+    "multiple_data_created": "Successfully created Data object with {count} results",
+    "single_row_dataframe_created": "Successfully created DataFrame with single row",
+    "multi_row_dataframe_created": "Successfully created DataFrame with {rows} rows"
+  },
+  "warnings": {
+    "unexpected_result_type": "Unexpected result type: {result_type}",
+    "no_responses": "No responses found in result",
+    "empty_output_list": "Output list is empty"
+  },
+  "errors": {
+    "llm_no_structured_support": "Language model does not support structured output.",
+    "empty_output_schema": "Output schema cannot be empty",
+    "empty_input_value": "Input message cannot be empty",
+    "model_build_failed": "Failed to build model from schema: {error}",
+    "llm_not_supported": "{llm_name} does not support structured output.",
+    "extractor_creation_failed": "Failed to create structured output extractor: {error}",
+    "chat_result_failed": "Failed to generate chat result: {error}",
+    "base_processing_failed": "Structured output processing failed: {error}",
+    "no_structured_output": "No structured output returned",
+    "data_creation_failed": "Failed to create Data object: {error}",
+    "dataframe_creation_failed": "Failed to create DataFrame: {error}"
+  }
+}

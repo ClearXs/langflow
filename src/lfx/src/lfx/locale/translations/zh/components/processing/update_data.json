@@ -1,0 +1,58 @@
+{
+  "display_name": "更新数据",
+  "description": "使用指定字段动态更新或追加数据。",
+  "old_data": {
+    "display_name": "数据",
+    "info": "要更新的记录。"
+  },
+  "number_of_fields": {
+    "display_name": "字段数量",
+    "info": "要添加到记录中的字段数量。"
+  },
+  "text_key": {
+    "display_name": "文本键",
+    "info": "标识要用作文本内容的字段的键。"
+  },
+  "text_key_validator": {
+    "display_name": "文本键验证器",
+    "info": "如果启用，检查给定的'文本键'是否存在于给定的'数据'中。"
+  },
+  "dynamic_field": {
+    "display_name": "字段 {number}",
+    "info": "字段 {number} 的键。"
+  },
+  "outputs": {
+    "data": {
+      "display_name": "数据"
+    }
+  },
+  "success": {
+    "full_list_update": "成功更新了所有{count}个数据对象",
+    "partial_list_update": "更新了{total}个数据对象中的{updated}个（跳过{skipped}个）",
+    "single_data_update": "成功更新数据对象，添加了{fields_added}个新字段"
+  },
+  "warnings": {
+    "invalid_list_item": "索引{index}处的项目不是Data对象（类型：{actual_type}），跳过",
+    "no_items_updated": "没有数据对象被更新",
+    "field_processing_failed": "处理字段'{field}'失败：{error}"
+  },
+  "errors": {
+    "invalid_number_of_fields": "无效的字段数量值：{value}",
+    "too_many_fields": "字段数量不能超过{max_fields}。尝试使用组件来组合两个数据。",
+    "build_config_update_failed": "更新构建配置失败：{error}",
+    "no_old_data": "未提供要更新的数据",
+    "get_data_failed": "提取新数据字段失败：{error}",
+    "invalid_old_data_type": "old_data必须是Data对象或Data对象列表。发现：{actual_type}",
+    "build_data_failed": "数据更新操作失败：{error}",
+    "list_item_update_failed": "更新索引{index}处的项目失败：{error}",
+    "list_processing_failed": "处理数据列表失败：{error}",
+    "single_data_update_failed": "更新单个数据对象失败：{error}",
+    "data_extraction_failed": "从属性中提取数据失败：{error}",
+    "text_key_not_found": "在数据键中未找到文本键'{text_key}'：{available_keys}",
+    "text_key_validation_failed": "文本键验证失败：{error}"
+  },
+  "logs": {
+    "data_extracted": "从属性中提取了{fields}个字段",
+    "text_key_validated": "文本键'{text_key}'验证成功"
+  }
+}

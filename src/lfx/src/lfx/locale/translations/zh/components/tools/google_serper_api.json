@@ -1,0 +1,43 @@
+{
+  "display_name": "Google Serper API [已弃用]",
+  "description": "调用Serper.dev Google搜索API。",
+  "serper_api_key": {
+    "display_name": "Serper API密钥",
+    "info": "您在Serper.dev获取的用于访问Google搜索API的API密钥。"
+  },
+  "query": {
+    "display_name": "查询",
+    "info": "要执行的搜索查询。"
+  },
+  "k": {
+    "display_name": "结果数量",
+    "info": "要返回的搜索结果数量。"
+  },
+  "query_type": {
+    "display_name": "查询类型",
+    "info": "要执行的搜索类型：'search'用于网页结果，'news'用于新闻文章。"
+  },
+  "query_params": {
+    "display_name": "查询参数",
+    "info": "搜索API的额外参数（例如，国家代码'gl'，语言'hl'）。"
+  },
+  "tool_description": "使用Serper API在Google中搜索最新结果。",
+  "success": {
+    "search_completed": "搜索成功完成。为'{query}'找到{count}个{type}结果"
+  },
+  "info": {
+    "searching": "正在通过Serper在Google中搜索'{query}'（{type}结果，返回{count}项）..."
+  },
+  "warnings": {
+    "empty_query": "搜索查询为空。请提供搜索词。",
+    "no_results": "未找到查询'{query}'的{type}结果"
+  },
+  "errors": {
+    "import_error": "缺少必需的依赖项。请安装langchain-community以使用Google Serper API。",
+    "api_key_required": "需要Serper API密钥。请提供您从serper.dev获取的API密钥。",
+    "search_failed": "Google Serper搜索失败：{error}",
+    "tool_creation_failed": "创建Google Serper搜索工具失败：{error}",
+    "wrapper_creation_failed": "创建Google Serper包装器失败：{error}",
+    "search_execution_failed": "执行搜索失败：{error}"
+  }
+}

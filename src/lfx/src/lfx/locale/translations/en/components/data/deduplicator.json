@@ -1,0 +1,66 @@
+{
+  "display_name": "Data Deduplicator",
+  "description": "Removes duplicate records from data using various strategies including full record comparison, key field matching, custom hashing, and fuzzy matching.",
+  "data": {
+    "display_name": "Input Data",
+    "info": "Data containing potential duplicates. Can be a list of Data objects, single Data object, or JSON string."
+  },
+  "dedup_strategy": {
+    "display_name": "Deduplication Strategy",
+    "info": "Method for identifying duplicate records: full_record (compare all fields), key_fields (compare specific fields), custom_hash (hash specified fields), or fuzzy_match (similarity-based matching)."
+  },
+  "key_fields": {
+    "display_name": "Key Fields",
+    "info": "JSON array of field names to use for duplicate detection when using key_fields strategy."
+  },
+  "hash_fields": {
+    "display_name": "Hash Fields",
+    "info": "JSON array of field names to include in custom hash calculation."
+  },
+  "fuzzy_config": {
+    "display_name": "Fuzzy Match Configuration",
+    "info": "JSON configuration for fuzzy matching including similarity threshold and comparison fields."
+  },
+  "keep_strategy": {
+    "display_name": "Keep Strategy",
+    "info": "Which record to keep when duplicates are found: first, last, most_complete (most non-null fields), or custom_priority."
+  },
+  "priority_fields": {
+    "display_name": "Priority Fields",
+    "info": "JSON array of fields to use for custom priority ranking when keep_strategy is custom_priority."
+  },
+  "case_sensitive": {
+    "display_name": "Case Sensitive",
+    "info": "Whether string comparisons should be case sensitive."
+  },
+  "ignore_whitespace": {
+    "display_name": "Ignore Whitespace",
+    "info": "Whether to ignore leading/trailing whitespace in string comparisons."
+  },
+  "include_duplicate_info": {
+    "display_name": "Include Duplicate Information",
+    "info": "Include detailed information about duplicate groups in the report."
+  },
+  "preserve_order": {
+    "display_name": "Preserve Original Order",
+    "info": "Maintain the original order of records in the deduplicated output."
+  },
+  "outputs": {
+    "deduplicated_data": {
+      "display_name": "Deduplicated Data"
+    },
+    "duplicate_report": {
+      "display_name": "Duplicate Report"
+    },
+    "duplicate_records": {
+      "display_name": "Duplicate Records"
+    }
+  },
+  "errors": {
+    "no_data": "No input data provided for deduplication.",
+    "empty_data": "Input data is empty or contains no records.",
+    "dedup_error": "Deduplication failed: {error}",
+    "invalid_json": "Invalid JSON format in input data.",
+    "no_dedup_run": "Deduplication must be run before accessing this output."
+  }
+}

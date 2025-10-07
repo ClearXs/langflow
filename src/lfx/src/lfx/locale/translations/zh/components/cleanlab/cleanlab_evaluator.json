@@ -1,0 +1,46 @@
+{
+  "display_name": "Cleanlab评估器",
+  "description": "使用Cleanlab评估任何LLM响应，并输出可信度分数和解释。",
+  "system_prompt": {
+    "display_name": "系统消息",
+    "info": "添加到用户查询前的系统级指令。"
+  },
+  "prompt": {
+    "display_name": "提示词",
+    "info": "用户发送给模型的查询。"
+  },
+  "response": {
+    "display_name": "回复",
+    "info": "模型对用户查询的回复。"
+  },
+  "api_key": {
+    "display_name": "Cleanlab API密钥",
+    "info": "您的Cleanlab API密钥。"
+  },
+  "model": {
+    "display_name": "Cleanlab评估模型",
+    "info": "Cleanlab用于评估回复的模型。无需与生成回复的模型一致。"
+  },
+  "quality_preset": {
+    "display_name": "质量预设",
+    "info": "决定评估的准确性、延迟和成本。更高质量通常更慢但更准确。"
+  },
+  "outputs": {
+    "response": {
+      "display_name": "回复"
+    },
+    "score": {
+      "display_name": "可信度分数"
+    },
+    "explanation": {
+      "display_name": "解释"
+    }
+  },
+  "status": {
+    "score": "可信度分数：{score:.2f}",
+    "passing_response": "正在传递回复。"
+  },
+  "errors": {
+    "no_explanation": "未返回解释。"
+  }
+}

@@ -1,0 +1,59 @@
+{
+  "display_name": "新闻搜索",
+  "description": "使用各种新闻API搜索新闻文章。",
+  "query": {
+    "display_name": "搜索查询",
+    "info": "在新闻文章中搜索的关键词或短语。"
+  },
+  "api_key": {
+    "display_name": "API密钥",
+    "info": "所选新闻服务（NewsAPI、GNews或NewsData）的API密钥。"
+  },
+  "source": {
+    "display_name": "新闻源",
+    "info": "选择用于搜索文章的新闻API服务。"
+  },
+  "language": {
+    "display_name": "语言",
+    "info": "新闻文章的语言代码（例如，'en'表示英语，'zh'表示中文）。"
+  },
+  "country": {
+    "display_name": "国家",
+    "info": "按地理区域过滤新闻文章的国家代码。"
+  },
+  "category": {
+    "display_name": "类别",
+    "info": "按主题过滤文章的新闻类别。"
+  },
+  "max_results": {
+    "display_name": "最大结果数",
+    "info": "返回的最大新闻文章数量（1-100）。"
+  },
+  "days_back": {
+    "display_name": "回溯天数",
+    "info": "搜索新闻文章的回溯天数（1-30）。"
+  },
+  "include_content": {
+    "display_name": "包含内容",
+    "info": "是否在结果中包含完整的文章内容（如果可用）。"
+  },
+  "text_key": {
+    "display_name": "文本键",
+    "info": "用于数据对象中文本字段的键（例如，'title'、'description'、'content'）。"
+  },
+  "outputs": {
+    "news_list": {
+      "display_name": "新闻文章"
+    }
+  },
+  "success": {
+    "found_articles": "找到{count}篇新闻文章"
+  },
+  "errors": {
+    "empty_query": "搜索查询不能为空。",
+    "missing_api_key": "新闻搜索需要API密钥。",
+    "invalid_source": "指定了无效的新闻源：{source}",
+    "no_results": "未找到符合查询条件的新闻文章。",
+    "search_error": "搜索新闻时出错：{error}"
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "display_name": "子流程",
+  "description": "从流程生成组件，包含其所有输入和输出。",
+  "flow_name": {
+    "display_name": "流程名称",
+    "info": "要作为子组件运行的流程名称。"
+  },
+  "outputs": {
+    "flow_outputs": {
+      "display_name": "流程输出"
+    }
+  },
+  "success": {
+    "build_config_updated": "流程'{flow}'的构建配置已更新，包含{count}个输入",
+    "sub_flow_executed": "子流程'{flow}'执行成功，生成{outputs}个输出"
+  },
+  "info": {
+    "using_tweaks": "为子流程'{flow}'使用{count}个参数调整",
+    "executing_sub_flow": "正在执行子流程：{flow}"
+  },
+  "warnings": {
+    "flow_not_found": "在可用流程中未找到流程'{flow}'",
+    "no_outputs": "子流程执行完成但未生成输出"
+  },
+  "errors": {
+    "failed_to_get_flow_names": "获取可用流程名称失败：{error}",
+    "failed_to_get_flow": "获取流程'{flow}'失败：{error}",
+    "failed_to_update_flow_options": "更新流程选项失败：{error}",
+    "flow_not_found": "未找到流程'{flow}'",
+    "failed_to_build_graph": "为流程'{flow}'构建图形时出错：{error}",
+    "no_flow_selected": "未选择要执行的流程",
+    "execution_failed": "子流程执行失败：{error}"
+  }
+}

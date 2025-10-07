@@ -1,0 +1,21 @@
+{
+  "display_name": "ID Generator",
+  "description": "Generates a unique ID.",
+  "unique_id": {
+    "display_name": "Value",
+    "info": "The generated unique ID."
+  },
+  "outputs": {
+    "id": {
+      "display_name": "ID"
+    }
+  },
+  "success": {
+    "id_generated": "Generated ID: {id}",
+    "id_refreshed": "Refreshed ID: {id}"
+  },
+  "errors": {
+    "generation_failed": "Failed to generate ID: {error}",
+    "refresh_failed": "Failed to refresh ID: {error}"
+  }
+}

@@ -1,0 +1,73 @@
+{
+  "display_name": "Extract Web Data",
+  "description": "Extract structured data from web pages using AgentQL queries.",
+  "url": {
+    "display_name": "URL",
+    "info": "The URL of the web page to extract data from."
+  },
+  "query": {
+    "display_name": "AgentQL Query",
+    "info": "Natural language query describing the data you want to extract from the page."
+  },
+  "api_key": {
+    "display_name": "API Key",
+    "info": "AgentQL API key for authentication (optional, can be set via environment variable)."
+  },
+  "mode": {
+    "display_name": "Query Mode",
+    "info": "Query execution mode: 'standard' for accuracy, 'fast' for speed."
+  },
+  "is_scroll_to_bottom": {
+    "display_name": "Scroll to Bottom",
+    "info": "Automatically scroll to the bottom of the page before extracting data."
+  },
+  "wait_for_page": {
+    "display_name": "Wait for Page (ms)",
+    "info": "Time to wait for the page to load before extracting data (in milliseconds)."
+  },
+  "is_return_markdown": {
+    "display_name": "Include Markdown",
+    "info": "Include the page content in markdown format in the response."
+  },
+  "outputs": {
+    "data": {
+      "display_name": "Data"
+    }
+  },
+  "status": {
+    "initializing": "Initializing AgentQL...",
+    "connecting": "Connecting to {url}...",
+    "waiting_for_page": "Waiting for page to load ({milliseconds}ms)...",
+    "scrolling_to_bottom": "Scrolling to bottom of page...",
+    "extracting_data": "Extracting data with AgentQL query...",
+    "getting_markdown": "Getting page markdown content..."
+  },
+  "success": {
+    "data_extracted": "Successfully extracted data with {fields} fields"
+  },
+  "warnings": {
+    "api_key_config_failed": "Failed to configure API key: {error}",
+    "scroll_failed": "Failed to scroll to bottom: {error}",
+    "no_data_extracted": "No data was extracted from the page",
+    "response_conversion_failed": "Failed to convert response to dictionary: {error}",
+    "markdown_extraction_failed": "Failed to extract markdown content: {error}",
+    "browser_close_failed": "Failed to close browser: {error}"
+  },
+  "errors": {
+    "url_required": "URL is required",
+    "query_required": "AgentQL query is required",
+    "agentql_not_installed": "AgentQL is not installed. Please install it using: pip install agentql",
+    "browser_init_failed": "Failed to initialize browser: {error}",
+    "query_execution_failed": "Failed to execute AgentQL query: {error}",
+    "extraction_failed": "Data extraction failed: {error}"
+  },
+  "logs": {
+    "api_key_configured": "AgentQL API key configured",
+    "page_loaded": "Page loaded: {url}",
+    "scrolled_to_bottom": "Scrolled to bottom of page",
+    "data_extracted": "Data extracted successfully",
+    "response_converted": "Response converted to dictionary",
+    "markdown_added": "Markdown content added to response",
+    "browser_closed": "Browser closed successfully"
+  }
+}

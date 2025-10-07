@@ -1,0 +1,90 @@
+{
+  "display_name": "Value Mapper",
+  "description": "Maps and transforms values in data fields using various strategies including simple mapping, conditional logic, calculated expressions, and lookup tables.",
+  "data": {
+    "display_name": "Input Data",
+    "info": "Data containing values to be mapped or transformed. Can be a list of Data objects, single Data object, or JSON string."
+  },
+  "mapping_strategy": {
+    "display_name": "Mapping Strategy",
+    "info": "Method for value mapping: simple (direct mapping), conditional (if-then logic), calculated (expression evaluation), lookup (table-based), or regex (pattern-based)."
+  },
+  "target_fields": {
+    "display_name": "Target Fields",
+    "info": "JSON array of field names to apply value mapping to. If empty, all fields will be processed."
+  },
+  "value_mappings": {
+    "display_name": "Value Mappings",
+    "info": "JSON object mapping source values to target values for simple mapping strategy."
+  },
+  "conditional_rules": {
+    "display_name": "Conditional Rules",
+    "info": "JSON array of conditional mapping rules with conditions and corresponding values."
+  },
+  "calculated_expressions": {
+    "display_name": "Calculated Expressions",
+    "info": "JSON object containing field expressions for calculated value mapping."
+  },
+  "lookup_table": {
+    "display_name": "Lookup Table",
+    "info": "JSON object or array containing lookup table data for table-based mapping."
+  },
+  "lookup_key_field": {
+    "display_name": "Lookup Key Field",
+    "info": "Field name in the lookup table to match against for table-based mapping."
+  },
+  "lookup_value_field": {
+    "display_name": "Lookup Value Field",
+    "info": "Field name in the lookup table to use as the mapped value for table-based mapping."
+  },
+  "regex_patterns": {
+    "display_name": "Regex Patterns",
+    "info": "JSON object mapping regex patterns to replacement values for pattern-based mapping."
+  },
+  "default_value": {
+    "display_name": "Default Value",
+    "info": "Default value to use when no mapping rule matches."
+  },
+  "case_sensitive": {
+    "display_name": "Case Sensitive",
+    "info": "Whether value matching should be case sensitive."
+  },
+  "preserve_unmapped": {
+    "display_name": "Preserve Unmapped Values",
+    "info": "Keep original values when no mapping rule matches instead of using default value."
+  },
+  "create_new_fields": {
+    "display_name": "Create New Fields",
+    "info": "Create new fields for mapped values instead of replacing original values."
+  },
+  "new_field_suffix": {
+    "display_name": "New Field Suffix",
+    "info": "Suffix to add to field names when creating new fields for mapped values."
+  },
+  "strict_mode": {
+    "display_name": "Strict Mode",
+    "info": "In strict mode, unmapped values will cause an error instead of being preserved or using default."
+  },
+  "outputs": {
+    "mapped_data": {
+      "display_name": "Mapped Data"
+    },
+    "mapping_report": {
+      "display_name": "Mapping Report"
+    },
+    "unmapped_values": {
+      "display_name": "Unmapped Values"
+    }
+  },
+  "errors": {
+    "no_data": "No input data provided for value mapping.",
+    "empty_data": "Input data is empty or contains no records.",
+    "mapping_error": "Value mapping failed: {error}",
+    "invalid_expression": "Invalid expression: {expression}",
+    "invalid_regex": "Invalid regex pattern: {pattern}",
+    "invalid_json": "Invalid JSON format in input data.",
+    "lookup_table_error": "Lookup table error: {error}",
+    "unmapped_value_error": "Unmapped value '{value}' found in strict mode.",
+    "no_mapping_run": "Value mapping must be run before accessing this output."
+  }
+}

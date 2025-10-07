@@ -1,0 +1,31 @@
+{
+  "display_name": "Filter Data",
+  "description": "Filters a Data object based on a list of keys.",
+  "data": {
+    "display_name": "Data",
+    "info": "Data object to filter."
+  },
+  "filter_criteria": {
+    "display_name": "Filter Criteria",
+    "info": "List of keys to filter by."
+  },
+  "outputs": {
+    "filtered_data": {
+      "display_name": "Filtered Data"
+    }
+  },
+  "success": {
+    "filtered_successfully": "Successfully filtered data with {count} matching keys"
+  },
+  "warnings": {
+    "empty_filter_criteria": "No filter criteria provided. Returning empty data.",
+    "no_valid_filter_criteria": "No valid filter criteria after cleaning. Returning empty data.",
+    "no_matching_keys": "No matching keys found. Filter criteria: [{criteria}]. Available keys: {available_keys}",
+    "partial_match": "Partial match: found {found} keys, {missing} keys missing ({missing_keys})"
+  },
+  "errors": {
+    "invalid_data_type": "Expected Data object, got {actual_type}",
+    "filter_failed": "Data filtering failed: {error}"
+  },
+  "no_keys_available": "no keys available"
+}

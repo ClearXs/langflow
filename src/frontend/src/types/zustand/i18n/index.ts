@@ -1,4 +1,4 @@
-type Language = 'en' | 'zh'
+export type Language = 'en' | 'zh'
 
 export type I18nType = {
   lang: Language;

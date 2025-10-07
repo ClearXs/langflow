@@ -1,0 +1,49 @@
+{
+  "display_name": "文件",
+  "description": "从一个或多个文件加载内容。",
+  "path": {
+    "display_name": "路径",
+    "info": "要加载内容的文件路径。"
+  },
+  "advanced_mode": {
+    "display_name": "高级解析器",
+    "info": "启用Docling对PDF、图像和办公文档的高级文档处理和导出。仅适用于单文件处理。注意高级文档处理可能会消耗大量资源。"
+  },
+  "pipeline": {
+    "display_name": "管道",
+    "info": "要使用的Docling管道"
+  },
+  "ocr_engine": {
+    "display_name": "OCR引擎",
+    "info": "要使用的OCR引擎。仅在管道设置为'standard'时可用。"
+  },
+  "md_image_placeholder": {
+    "display_name": "图像占位符",
+    "info": "为markdown导出指定图像占位符。"
+  },
+  "md_page_break_placeholder": {
+    "display_name": "分页占位符",
+    "info": "在markdown输出的页面之间添加此占位符。"
+  },
+  "doc_key": {
+    "display_name": "文档键",
+    "info": "用于DoclingDocument列的键。"
+  },
+  "use_multithreading": {
+    "display_name": "[已弃用] 使用多线程",
+    "info": "将'处理并发数'设置为大于1以启用多线程。"
+  },
+  "concurrency_multithreading": {
+    "display_name": "处理并发数",
+    "info": "处理多个文件时，并发处理的文件数。"
+  },
+  "markdown": {
+    "display_name": "Markdown导出",
+    "info": "将处理后的文档导出为Markdown格式。仅在启用高级模式时可用。"
+  },
+  "outputs": {
+    "message": {
+      "display_name": "原始内容"
+    }
+  }
+}

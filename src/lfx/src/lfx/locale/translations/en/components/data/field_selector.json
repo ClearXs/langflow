@@ -1,0 +1,76 @@
+{
+  "display_name": "Field Selector",
+  "description": "Selects, filters, renames, and transforms fields in data records using various selection strategies including inclusion/exclusion lists, regex patterns, and conditional logic.",
+  "data": {
+    "display_name": "Input Data",
+    "info": "Data containing fields to be selected or filtered. Can be a list of Data objects, single Data object, or JSON string."
+  },
+  "selection_strategy": {
+    "display_name": "Selection Strategy",
+    "info": "Method for field selection: include (select specified fields), exclude (remove specified fields), regex (pattern matching), or conditional (based on field conditions)."
+  },
+  "field_list": {
+    "display_name": "Field List",
+    "info": "JSON array of field names to include or exclude based on the selection strategy."
+  },
+  "field_patterns": {
+    "display_name": "Field Patterns",
+    "info": "JSON array of regex patterns for field name matching when using regex strategy."
+  },
+  "selection_conditions": {
+    "display_name": "Selection Conditions",
+    "info": "JSON object defining conditions for field selection based on field values or properties."
+  },
+  "field_mapping": {
+    "display_name": "Field Mapping",
+    "info": "JSON object mapping original field names to new field names for renaming."
+  },
+  "default_values": {
+    "display_name": "Default Values",
+    "info": "JSON object providing default values for missing fields when using include strategy."
+  },
+  "case_sensitive": {
+    "display_name": "Case Sensitive",
+    "info": "Whether field name matching should be case sensitive."
+  },
+  "flatten_nested": {
+    "display_name": "Flatten Nested Fields",
+    "info": "Flatten nested object fields using dot notation (e.g., 'address.street')."
+  },
+  "preserve_structure": {
+    "display_name": "Preserve Structure",
+    "info": "Maintain the original nested structure of objects when possible."
+  },
+  "include_empty": {
+    "display_name": "Include Empty Fields",
+    "info": "Include fields with empty/null values in the output."
+  },
+  "max_depth": {
+    "display_name": "Max Nesting Depth",
+    "info": "Maximum depth to traverse for nested objects. 0 means unlimited."
+  },
+  "strict_mode": {
+    "display_name": "Strict Mode",
+    "info": "In strict mode, missing required fields will cause an error instead of being skipped."
+  },
+  "outputs": {
+    "selected_data": {
+      "display_name": "Selected Data"
+    },
+    "selection_report": {
+      "display_name": "Selection Report"
+    },
+    "excluded_fields": {
+      "display_name": "Excluded Fields"
+    }
+  },
+  "errors": {
+    "no_data": "No input data provided for field selection.",
+    "empty_data": "Input data is empty or contains no records.",
+    "selection_error": "Field selection failed: {error}",
+    "invalid_regex": "Invalid regex pattern: {pattern}",
+    "invalid_json": "Invalid JSON format in input data.",
+    "missing_required_field": "Required field '{field}' not found in data.",
+    "no_selection_run": "Field selection must be run before accessing this output."
+  }
+}

@@ -1,0 +1,82 @@
+{
+  "display_name": "Webhook",
+  "description": "向webhook端点发送HTTP请求，支持签名、重试和各种内容类型。",
+  "webhook_url": {
+    "display_name": "Webhook URL",
+    "info": "要发送webhook请求的URL端点。"
+  },
+  "method": {
+    "display_name": "HTTP方法",
+    "info": "webhook请求使用的HTTP方法。"
+  },
+  "payload": {
+    "display_name": "载荷",
+    "info": "请求载荷/主体。支持占位符如{{timestamp}}、{{date}}、{{time}}、{{unix_timestamp}}。"
+  },
+  "headers": {
+    "display_name": "自定义头部",
+    "info": "作为JSON对象的额外HTTP头部。示例：{\"Authorization\": \"Bearer token\", \"Custom-Header\": \"value\"}"
+  },
+  "content_type": {
+    "display_name": "内容类型",
+    "info": "请求载荷的Content-Type头部。"
+  },
+  "secret_key": {
+    "display_name": "密钥",
+    "info": "用于生成请求签名（HMAC）的密钥。留空则禁用签名。"
+  },
+  "signature_method": {
+    "display_name": "签名方法",
+    "info": "用于生成载荷签名的方法（需要密钥）。"
+  },
+  "signature_header": {
+    "display_name": "签名头部",
+    "info": "包含生成签名的头部名称。"
+  },
+  "timeout": {
+    "display_name": "超时时间（秒）",
+    "info": "请求超时时间（秒）。"
+  },
+  "retry_count": {
+    "display_name": "重试次数",
+    "info": "失败请求的重试次数（0表示禁用重试）。"
+  },
+  "verify_ssl": {
+    "display_name": "验证SSL",
+    "info": "是否验证HTTPS请求的SSL证书。"
+  },
+  "follow_redirects": {
+    "display_name": "跟随重定向",
+    "info": "是否自动跟随HTTP重定向。"
+  },
+  "include_request_info": {
+    "display_name": "包含请求信息",
+    "info": "是否在响应数据中包含请求信息。"
+  },
+  "text_key": {
+    "display_name": "文本键",
+    "info": "用于数据对象中文本字段的键。"
+  },
+  "outputs": {
+    "response": {
+      "display_name": "Webhook响应"
+    },
+    "request_info": {
+      "display_name": "请求信息"
+    }
+  },
+  "success": {
+    "webhook_sent": "成功向{url}发送Webhook（状态：{status_code}）"
+  },
+  "warnings": {
+    "invalid_headers": "头部中的JSON格式无效：{error}",
+    "retry_attempt": "重试尝试{attempt}/{total}失败：{error}"
+  },
+  "errors": {
+    "empty_url": "Webhook URL不能为空。",
+    "invalid_json_payload": "载荷中的JSON格式无效：{error}",
+    "webhook_error": "发送webhook时出错：{error}",
+    "request_info_error": "获取请求信息时出错：{error}",
+    "max_retries_exceeded": "已超过最大重试次数。"
+  }
+}
