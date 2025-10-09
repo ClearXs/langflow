@@ -1,0 +1,64 @@
+{
+  "description": "Extract structured data from URLs using AI-guided prompts and optional schemas.",
+  "api_key": {
+    "display_name": "Firecrawl API Key",
+    "info": "The API key to use Firecrawl API."
+  },
+  "urls": {
+    "display_name": "URLs",
+    "info": "List of URLs to extract data from (separated by commas or new lines)."
+  },
+  "prompt": {
+    "display_name": "Prompt",
+    "info": "Prompt to guide the extraction process. Describe what information you want to extract from the pages."
+  },
+  "schema": {
+    "display_name": "Schema",
+    "info": "Optional schema to define the structure of the extracted data. Must be a valid JSON schema with a 'type' field."
+  },
+  "enable_web_search": {
+    "display_name": "Enable Web Search",
+    "info": "When true, the extraction will use web search to find additional data beyond the provided URLs."
+  },
+  "ignore_sitemap": {
+    "display_name": "Ignore Sitemap",
+    "info": "When true, sitemap.xml files will be ignored during website scanning."
+  },
+  "include_subdomains": {
+    "display_name": "Include Subdomains",
+    "info": "When true, subdomains of the provided URLs will also be scanned and extracted."
+  },
+  "show_sources": {
+    "display_name": "Show Sources",
+    "info": "When true, the sources used to extract the data will be included in the response."
+  },
+  "outputs": {
+    "data": {
+      "display_name": "Extracted Data"
+    }
+  },
+  "errors": {
+    "import_failed": "Could not import firecrawl integration package. Please install it with `pip install firecrawl-py`.",
+    "api_key_required": "API key is required",
+    "urls_required": "URLs are required",
+    "no_valid_urls": "No valid URLs provided",
+    "prompt_required": "Prompt is required",
+    "extraction_failed": "Error during extraction: {error}"
+  },
+  "logs": {
+    "firecrawl_imported": "Firecrawl package imported successfully",
+    "parsing_urls": "Parsing URLs from input",
+    "urls_parsed": "Parsed {count} valid URL(s)",
+    "prompt_received": "Prompt received - Length: {length} characters",
+    "enhanced_prompt": "{prompt}. Please extract all instances in a comprehensive, structured format.",
+    "prompt_enhanced": "Prompt enhanced for comprehensive extraction",
+    "params_configured": "Parameters configured - Web search: {web_search}, Timeout: {timeout}s",
+    "schema_added_dict": "Schema added to parameters (dict format)",
+    "schema_added_object": "Schema added to parameters (object format)",
+    "schema_invalid": "Schema provided but does not have valid structure, skipping",
+    "schema_error": "Invalid schema: {error}",
+    "starting_extraction": "Starting extraction from {count} URL(s)",
+    "app_initialized": "Firecrawl app initialized with API key",
+    "extraction_completed": "Extraction completed successfully - {items} item(s) extracted"
+  }
+}

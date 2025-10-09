@@ -1,0 +1,39 @@
+{
+  "display_name": "Not Diamond路由器",
+  "description": "使用世界上最强大的AI模型路由器，在正确的时间调用正确的模型。",
+  "input_value": {
+    "display_name": "输入"
+  },
+  "system_message": {
+    "display_name": "系统消息",
+    "info": "传递给模型的系统消息。"
+  },
+  "models": {
+    "display_name": "语言模型",
+    "info": "链接您想要在其之间路由的模型。"
+  },
+  "api_key": {
+    "display_name": "Not Diamond API密钥",
+    "info": "用于路由的Not Diamond API密钥。"
+  },
+  "preference_id": {
+    "display_name": "偏好ID",
+    "info": "通过仪表板配置的路由器偏好ID。"
+  },
+  "tradeoff": {
+    "display_name": "权衡",
+    "info": "路由器在成本和延迟之间的权衡，以确定给定查询的最佳LLM。"
+  },
+  "hash_content": {
+    "display_name": "哈希内容",
+    "info": "在发送到NotDiamond API之前是否对内容进行哈希处理。"
+  },
+  "outputs": {
+    "output": {
+      "display_name": "输出"
+    },
+    "selected_model": {
+      "display_name": "选定的模型"
+    }
+  }
+}

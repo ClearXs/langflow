@@ -1,0 +1,53 @@
+{
+  "description": "Analyzes a Git repository and returns file contents and complete repository information including statistics and structure.",
+  "repository_url": {
+    "display_name": "Repository URL",
+    "info": "URL of the Git repository (e.g., https://github.com/username/repo)"
+  },
+  "outputs": {
+    "text_based_file_contents": {
+      "display_name": "Text-Based File Contents"
+    },
+    "directory_structure": {
+      "display_name": "Directory Structure"
+    },
+    "repository_info": {
+      "display_name": "Repository Info"
+    },
+    "statistics": {
+      "display_name": "Statistics"
+    },
+    "files_content": {
+      "display_name": "Files Content"
+    }
+  },
+  "errors": {
+    "repo_info_failed": "Error getting repository info: {error}",
+    "statistics_failed": "Error calculating statistics: {error}",
+    "directory_structure_failed": "Error getting directory structure: {error}",
+    "files_content_failed": "Error getting files content: {error}",
+    "text_contents_failed": "Error getting text-based file contents: {error}"
+  },
+  "logs": {
+    "temp_dir_created": "Temporary directory created: {path}",
+    "cloning_repository": "Cloning repository: {url}",
+    "repository_cloned": "Repository cloned to: {path}",
+    "temp_dir_removed": "Temporary directory removed: {path}",
+    "getting_repo_info": "Getting repository information",
+    "repo_info_retrieved": "Repository info retrieved - Name: {name}, Branch: {branch}, Total branches: {branch_count}",
+    "calculating_statistics": "Calculating repository statistics",
+    "binary_file_detected": "Binary file detected: {path}",
+    "statistics_calculated": "Statistics calculated - Files: {files}, Size: {size_mb}MB, Lines: {lines}, Binary: {binary}",
+    "generating_directory_structure": "Generating directory structure",
+    "directory_structure_header": "Directory structure:",
+    "directory_structure_generated": "Directory structure generated - {lines} line(s)",
+    "extracting_files_content": "Extracting files content",
+    "binary_file_marker": "[BINARY FILE]",
+    "files_content_extracted": "Files content extracted - {count} file(s)",
+    "getting_text_contents": "Getting text-based file contents",
+    "truncation_notice": "(Files content cropped to {limit}k characters, download full ingest to see more)",
+    "content_truncated": "... (content truncated)",
+    "char_limit_reached": "Character limit of {limit} reached, stopping extraction",
+    "text_contents_generated": "Text contents generated - {files} file(s), {chars} character(s)"
+  }
+}

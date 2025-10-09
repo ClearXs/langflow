@@ -1,0 +1,27 @@
+{
+  "display_name": "Natural Language to SQL",
+  "description": "Generate SQL from natural language.",
+  "input_value": {
+    "display_name": "Input",
+    "info": "The input value to pass to the chain."
+  },
+  "llm": {
+    "display_name": "Language Model"
+  },
+  "db": {
+    "display_name": "SQL Database"
+  },
+  "top_k": {
+    "display_name": "Top K",
+    "info": "The number of results per select statement to return."
+  },
+  "prompt": {
+    "display_name": "Prompt",
+    "info": "The prompt must contain `{question}`."
+  },
+  "outputs": {
+    "text": {
+      "display_name": "Message"
+    }
+  }
+}

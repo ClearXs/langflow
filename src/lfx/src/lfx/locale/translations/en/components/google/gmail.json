@@ -1,0 +1,55 @@
+{
+  "description": "Loads emails from Gmail using OAuth 2.0 service account credentials. Extract and process email content with support for threads and conversation context.",
+  "json_string": {
+    "display_name": "JSON String of the Service Account Token",
+    "info": "JSON string containing OAuth 2.0 access token information for service account access"
+  },
+  "label_ids": {
+    "display_name": "Label IDs",
+    "info": "Comma-separated list of label IDs to filter emails (e.g., INBOX, SENT, UNREAD, IMPORTANT)."
+  },
+  "max_results": {
+    "display_name": "Max Results",
+    "info": "Maximum number of emails to load."
+  },
+  "outputs": {
+    "data": {
+      "display_name": "Email Data"
+    }
+  },
+  "errors": {
+    "from_email_not_found": "From email not found in message headers.",
+    "no_plain_text": "No plain text part found in the email.",
+    "response_email_not_found": "Response email not found in the thread.",
+    "invalid_json": "Invalid JSON string provided for credentials.",
+    "credentials_creation_failed": "Failed to create credentials: {error}",
+    "auth_refresh_failed": "Authentication error: Unable to refresh authentication token. Please try to reauthenticate.",
+    "loading_failed": "Error loading documents: {error}"
+  },
+  "logs": {
+    "loader_initialized": "Gmail loader initialized - Max results: {max_results}, Labels: {labels}",
+    "cleaning_message": "Cleaning message content - Length: {length} characters",
+    "message_cleaned": "Message cleaned - Original: {original_length}, Cleaned: {cleaned_length} characters",
+    "extracting_content": "Extracting email content from message",
+    "from_email_found": "From email found: {email}",
+    "content_extracted": "Content extracted successfully",
+    "getting_message_data": "Getting message data for ID: {message_id}",
+    "processing_thread": "Processing email thread: {thread_id}",
+    "thread_context_added": "Thread context added to chat session",
+    "single_message": "Processing as single message (not in thread)",
+    "starting_lazy_load": "Starting lazy load of emails from Gmail",
+    "no_messages_found": "No messages found with the specified labels.",
+    "messages_found": "Found {count} message(s) matching criteria",
+    "processing_message": "Processing message {index}/{total} - ID: {message_id}",
+    "message_processing_error": "Error processing message {message_id}: {error}",
+    "loading_emails": "Loading emails from Gmail",
+    "parameters_parsed": "Parameters parsed - Labels: {labels}, Max results: {max_results}",
+    "parsing_json": "Parsing JSON credentials string",
+    "json_parsed": "JSON credentials parsed successfully",
+    "creating_credentials": "Creating OAuth credentials from token info",
+    "credentials_created": "Credentials created successfully",
+    "initializing_loader": "Initializing Gmail loader",
+    "loading_documents": "Loading documents from Gmail",
+    "documents_loaded": "Successfully loaded {count} document(s)"
+  }
+}

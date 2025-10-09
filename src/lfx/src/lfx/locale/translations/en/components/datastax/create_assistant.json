@@ -1,0 +1,37 @@
+{
+  "display_name": "Create Assistant",
+  "description": "Creates an Assistant and returns its ID",
+  "assistant_name": {
+    "display_name": "Assistant Name",
+    "info": "Name for the assistant being created"
+  },
+  "instructions": {
+    "display_name": "Instructions",
+    "info": "Instructions for the assistant, think of these as the system prompt."
+  },
+  "model": {
+    "display_name": "Model Name",
+    "info": "Model for the assistant.\n\nEnvironment variables for provider credentials can be set with the Dotenv Component.\n\nModels are supported via LiteLLM, see (https://docs.litellm.ai/docs/providers) for supported model names and env vars."
+  },
+  "env_set": {
+    "display_name": "Environment Set",
+    "info": "Dummy input to allow chaining with Dotenv Component."
+  },
+  "outputs": {
+    "assistant_id": {
+      "display_name": "Assistant ID"
+    }
+  },
+  "status": {
+    "creating": "Creating assistant...",
+    "created": "Assistant '{name}' created successfully - ID: {assistant_id}"
+  },
+  "errors": {
+    "creation_failed": "Failed to create assistant: {error}"
+  },
+  "logs": {
+    "client_initialized": "OpenAI client initialized successfully",
+    "processing_inputs": "Processing inputs - env_set: {env_set}",
+    "creating_assistant": "Creating assistant '{name}' with model '{model}'"
+  }
+}

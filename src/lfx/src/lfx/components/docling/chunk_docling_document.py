@@ -1,186 +1,162 @@
-import json
-
-import tiktoken
-from docling_core.transforms.chunker import BaseChunker, DocMeta
-from docling_core.transforms.chunker.hierarchical_chunker import HierarchicalChunker
-
-from lfx.base.data.docling_utils import extract_docling_documents
+import i18n
 from lfx.custom import Component
-from lfx.io import DropdownInput, HandleInput, IntInput, MessageTextInput, Output, StrInput
-from lfx.schema import Data, DataFrame
+from lfx.io import DataInput, MessageTextInput, Output
+from lfx.log.logger import logger
+from lfx.schema import Data
 
 
-class ChunkDoclingDocumentComponent(Component):
-    display_name: str = "Chunk DoclingDocument"
-    description: str = "Use the DocumentDocument chunkers to split the document into chunks."
-    documentation = "https://docling-project.github.io/docling/concepts/chunking/"
+class ChunkDoclingDocument(Component):
+    display_name = i18n.t(
+        'components.docling.chunk_docling_document.display_name')
+    description = i18n.t(
+        'components.docling.chunk_docling_document.description')
     icon = "Docling"
     name = "ChunkDoclingDocument"
 
     inputs = [
-        HandleInput(
-            name="data_inputs",
-            display_name="Data or DataFrame",
-            info="The data with documents to split in chunks.",
-            input_types=["Data", "DataFrame"],
-            required=True,
-        ),
-        DropdownInput(
-            name="chunker",
-            display_name="Chunker",
-            options=["HybridChunker", "HierarchicalChunker"],
-            info=("Which chunker to use."),
-            value="HybridChunker",
-            real_time_refresh=True,
-        ),
-        DropdownInput(
-            name="provider",
-            display_name="Provider",
-            options=["Hugging Face", "OpenAI"],
-            info=("Which tokenizer provider."),
-            value="Hugging Face",
-            show=True,
-            real_time_refresh=True,
-            advanced=True,
-            dynamic=True,
-        ),
-        StrInput(
-            name="hf_model_name",
-            display_name="HF model name",
-            info=(
-                "Model name of the tokenizer to use with the HybridChunker when Hugging Face is chosen as a tokenizer."
-            ),
-            value="sentence-transformers/all-MiniLM-L6-v2",
-            show=True,
-            advanced=True,
-            dynamic=True,
-        ),
-        StrInput(
-            name="openai_model_name",
-            display_name="OpenAI model name",
-            info=("Model name of the tokenizer to use with the HybridChunker when OpenAI is chosen as a tokenizer."),
-            value="gpt-4o",
-            show=False,
-            advanced=True,
-            dynamic=True,
-        ),
-        IntInput(
-            name="max_tokens",
-            display_name="Maximum tokens",
-            info=("Maximum number of tokens for the HybridChunker."),
-            show=True,
-            required=False,
-            advanced=True,
-            dynamic=True,
+        DataInput(
+            name="data",
+            display_name=i18n.t(
+                'components.docling.chunk_docling_document.data.display_name'),
+            info=i18n.t('components.docling.chunk_docling_document.data.info'),
+            is_list=True,
         ),
         MessageTextInput(
-            name="doc_key",
-            display_name="Doc Key",
-            info="The key to use for the DoclingDocument column.",
-            value="doc",
+            name="tokenizer",
+            display_name=i18n.t(
+                'components.docling.chunk_docling_document.tokenizer.display_name'),
+            info=i18n.t(
+                'components.docling.chunk_docling_document.tokenizer.info'),
+            value="nltk",
             advanced=True,
+        ),
+        MessageTextInput(
+            name="max_tokens",
+            display_name=i18n.t(
+                'components.docling.chunk_docling_document.max_tokens.display_name'),
+            info=i18n.t(
+                'components.docling.chunk_docling_document.max_tokens.info'),
+            value="512",
         ),
     ]
 
     outputs = [
-        Output(display_name="DataFrame", name="dataframe", method="chunk_documents"),
+        Output(display_name=i18n.t('components.docling.chunk_docling_document.outputs.chunks.display_name'),
+               name="chunks",
+               method="chunk_document"),
     ]
 
-    def update_build_config(self, build_config: dict, field_value: str, field_name: str | None = None) -> dict:
-        if field_name == "chunker":
-            provider_type = build_config["provider"]["value"]
-            is_hf = provider_type == "Hugging Face"
-            is_openai = provider_type == "OpenAI"
-            if field_value == "HybridChunker":
-                build_config["provider"]["show"] = True
-                build_config["hf_model_name"]["show"] = is_hf
-                build_config["openai_model_name"]["show"] = is_openai
-                build_config["max_tokens"]["show"] = True
-            else:
-                build_config["provider"]["show"] = False
-                build_config["hf_model_name"]["show"] = False
-                build_config["openai_model_name"]["show"] = False
-                build_config["max_tokens"]["show"] = False
-        elif field_name == "provider" and build_config["chunker"]["value"] == "HybridChunker":
-            if field_value == "Hugging Face":
-                build_config["hf_model_name"]["show"] = True
-                build_config["openai_model_name"]["show"] = False
-            elif field_value == "OpenAI":
-                build_config["hf_model_name"]["show"] = False
-                build_config["openai_model_name"]["show"] = True
+    def chunk_document(self) -> list[Data]:
+        """Chunk a Docling document into smaller pieces.
 
-        return build_config
+        Returns:
+            list[Data]: List of chunked document data.
 
-    def _docs_to_data(self, docs) -> list[Data]:
-        return [Data(text=doc.page_content, data=doc.metadata) for doc in docs]
-
-    def chunk_documents(self) -> DataFrame:
-        documents = extract_docling_documents(self.data_inputs, self.doc_key)
-
-        chunker: BaseChunker
-        if self.chunker == "HybridChunker":
-            try:
-                from docling_core.transforms.chunker.hybrid_chunker import HybridChunker
-            except ImportError as e:
-                msg = (
-                    "HybridChunker is not installed. Please install it with `uv pip install docling-core[chunking] "
-                    "or `uv pip install transformers`"
-                )
-                raise ImportError(msg) from e
-            max_tokens: int | None = self.max_tokens if self.max_tokens else None
-            if self.provider == "Hugging Face":
-                try:
-                    from docling_core.transforms.chunker.tokenizer.huggingface import HuggingFaceTokenizer
-                except ImportError as e:
-                    msg = (
-                        "HuggingFaceTokenizer is not installed."
-                        " Please install it with `uv pip install docling-core[chunking]`"
-                    )
-                    raise ImportError(msg) from e
-                tokenizer = HuggingFaceTokenizer.from_pretrained(
-                    model_name=self.hf_model_name,
-                    max_tokens=max_tokens,
-                )
-            elif self.provider == "OpenAI":
-                try:
-                    from docling_core.transforms.chunker.tokenizer.openai import OpenAITokenizer
-                except ImportError as e:
-                    msg = (
-                        "OpenAITokenizer is not installed."
-                        " Please install it with `uv pip install docling-core[chunking]`"
-                        " or `uv pip install transformers`"
-                    )
-                    raise ImportError(msg) from e
-                if max_tokens is None:
-                    max_tokens = 128 * 1024  # context window length required for OpenAI tokenizers
-                tokenizer = OpenAITokenizer(
-                    tokenizer=tiktoken.encoding_for_model(self.openai_model_name), max_tokens=max_tokens
-                )
-            chunker = HybridChunker(
-                tokenizer=tokenizer,
-            )
-        elif self.chunker == "HierarchicalChunker":
-            chunker = HierarchicalChunker()
-
-        results: list[Data] = []
+        Raises:
+            ImportError: If docling or docling_core is not installed.
+            ValueError: If chunking fails.
+        """
         try:
-            for doc in documents:
-                for chunk in chunker.chunk(dl_doc=doc):
-                    enriched_text = chunker.contextualize(chunk=chunk)
-                    meta = DocMeta.model_validate(chunk.meta)
+            from docling.chunking import HybridChunker
+            from docling_core.types.doc import DoclingDocument, DocumentOrigin
+            logger.debug(i18n.t(
+                'components.docling.chunk_docling_document.logs.docling_import_successful'))
+        except ImportError as e:
+            error_msg = i18n.t(
+                'components.docling.chunk_docling_document.errors.docling_import_failed')
+            logger.error(error_msg)
+            raise ImportError(error_msg) from e
 
-                    results.append(
-                        Data(
+        if not self.data:
+            logger.warning(
+                i18n.t('components.docling.chunk_docling_document.logs.no_data'))
+            return []
+
+        try:
+            logger.info(i18n.t('components.docling.chunk_docling_document.logs.processing_documents',
+                               count=len(self.data)))
+            self.status = i18n.t(
+                'components.docling.chunk_docling_document.status.processing')
+
+            max_tokens = int(self.max_tokens)
+            logger.debug(i18n.t('components.docling.chunk_docling_document.logs.chunker_config',
+                                tokenizer=self.tokenizer,
+                                max_tokens=max_tokens))
+
+            chunker = HybridChunker(
+                tokenizer=self.tokenizer, max_tokens=max_tokens)
+            all_chunks = []
+
+            for idx, data_item in enumerate(self.data, 1):
+                logger.info(i18n.t('components.docling.chunk_docling_document.logs.processing_document',
+                                   index=idx,
+                                   total=len(self.data)))
+
+                # Get document JSON
+                doc_json = data_item.data.get("json")
+                if not doc_json:
+                    logger.warning(i18n.t('components.docling.chunk_docling_document.logs.no_json',
+                                          index=idx))
+                    continue
+
+                # Create DoclingDocument
+                try:
+                    docling_doc = DoclingDocument.model_validate(doc_json)
+                    logger.debug(i18n.t('components.docling.chunk_docling_document.logs.document_validated',
+                                        index=idx))
+                except Exception as e:
+                    logger.error(i18n.t('components.docling.chunk_docling_document.errors.validation_failed',
+                                        index=idx,
+                                        error=str(e)))
+                    continue
+
+                # Chunk the document
+                try:
+                    chunks = list(chunker.chunk(dl_doc=docling_doc))
+                    logger.info(i18n.t('components.docling.chunk_docling_document.logs.chunks_created',
+                                       index=idx,
+                                       chunk_count=len(chunks)))
+
+                    # Convert chunks to Data objects
+                    for chunk_idx, chunk in enumerate(chunks, 1):
+                        chunk_data = Data(
+                            text=chunk.text,
                             data={
-                                "text": enriched_text,
-                                "document_id": f"{doc.origin.binary_hash}",
-                                "doc_items": json.dumps([item.self_ref for item in meta.doc_items]),
-                            }
+                                "chunk_index": chunk_idx,
+                                "document_index": idx,
+                                "meta": chunk.meta.model_dump() if hasattr(chunk, 'meta') else {},
+                                "original_document": data_item.data,
+                            },
                         )
-                    )
+                        all_chunks.append(chunk_data)
+                        logger.debug(i18n.t('components.docling.chunk_docling_document.logs.chunk_added',
+                                            chunk_index=chunk_idx,
+                                            text_length=len(chunk.text)))
 
+                except Exception as e:
+                    logger.error(i18n.t('components.docling.chunk_docling_document.errors.chunking_failed',
+                                        index=idx,
+                                        error=str(e)))
+                    continue
+
+            total_chunks = len(all_chunks)
+            success_msg = i18n.t('components.docling.chunk_docling_document.status.completed',
+                                 total_chunks=total_chunks,
+                                 total_docs=len(self.data))
+            self.status = success_msg
+            logger.info(success_msg)
+
+            return all_chunks
+
+        except ValueError as e:
+            error_msg = i18n.t('components.docling.chunk_docling_document.errors.invalid_max_tokens',
+                               error=str(e))
+            logger.error(error_msg)
+            self.status = error_msg
+            raise ValueError(error_msg) from e
         except Exception as e:
-            msg = f"Error splitting text: {e}"
-            raise TypeError(msg) from e
-
-        return DataFrame(results)
+            error_msg = i18n.t('components.docling.chunk_docling_document.errors.chunking_process_failed',
+                               error=str(e))
+            logger.exception(error_msg)
+            self.status = error_msg
+            raise ValueError(error_msg) from e

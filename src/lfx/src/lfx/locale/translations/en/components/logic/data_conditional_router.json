@@ -1,67 +1,57 @@
 {
-  "display_name": "Data Conditional Router",
-  "description": "Route data based on field values and complex conditional logic with support for various operators and data types.",
-  "input_data": {
-    "display_name": "Input Data",
-    "info": "Data object to be evaluated and routed based on field conditions."
+  "display_name": "Condition (Legacy)",
+  "description": "Route Data object(s) based on a condition applied to a specified key, including boolean validation.",
+  "data_input": {
+    "display_name": "Data Input",
+    "info": "The Data object or list of Data objects to process"
   },
-  "routing_rules": {
-    "display_name": "Routing Rules",
-    "info": "JSON array of routing rules. Each rule contains conditions with field paths, operators, and values."
+  "key_name": {
+    "display_name": "Key Name",
+    "info": "The name of the key in the Data object(s) to check"
   },
-  "evaluation_strategy": {
-    "display_name": "Evaluation Strategy",
-    "info": "Strategy for selecting routes when multiple rules match: first_match, all_matches, priority_based, or score_based."
+  "operator": {
+    "display_name": "Operator",
+    "info": "The operator to apply for comparing the values. 'boolean validator' treats the value as a boolean."
   },
-  "default_route": {
-    "display_name": "Default Route",
-    "info": "Name of the route to use when no rules match (ignored when fail_on_no_match is enabled)."
-  },
-  "strict_typing": {
-    "display_name": "Strict Typing",
-    "info": "Whether to enforce type conversion when comparing values."
-  },
-  "null_safe_comparison": {
-    "display_name": "Null Safe Comparison",
-    "info": "Whether to handle null/None values safely in comparisons."
-  },
-  "max_routes": {
-    "display_name": "Max Routes",
-    "info": "Maximum number of routes to return for strategies that support multiple matches (0 for unlimited)."
-  },
-  "include_route_metadata": {
-    "display_name": "Include Route Metadata",
-    "info": "Whether to include detailed routing metadata in the output."
-  },
-  "fail_on_no_match": {
-    "display_name": "Fail on No Match",
-    "info": "Whether to throw an error when no rules match instead of using the default route."
+  "compare_value": {
+    "display_name": "Match Text",
+    "info": "The value to compare against (not used for boolean validator)"
   },
   "outputs": {
-    "routed_data": {
-      "display_name": "Routed Data"
+    "true_output": {
+      "display_name": "True Output"
     },
-    "routing_summary": {
-      "display_name": "Routing Summary"
-    },
-    "matched_rules": {
-      "display_name": "Matched Rules"
+    "false_output": {
+      "display_name": "False Output"
     }
   },
-  "success": {
-    "routes_matched": "{count} route(s) matched successfully"
+  "status": {
+    "condition_met": "Condition met: {description}",
+    "condition_not_met": "Condition not met: {description}"
   },
-  "warnings": {
-    "condition_evaluation_error": "Warning evaluating condition for field '{field}': {error}",
-    "using_default_route": "No rules matched, using default route: {route}"
+  "conditions": {
+    "boolean_validation": "Boolean validation of '{key}'",
+    "comparison": "{key} {operator} {value}"
   },
   "errors": {
-    "empty_routing_rules": "Routing rules cannot be empty.",
-    "invalid_input_data": "Input must be a Data object.",
-    "invalid_routing_rules_format": "Invalid routing rules format: {error}",
-    "no_matches_fail_mode": "No rules matched and fail_on_no_match is enabled.",
-    "routing_error": "Error during routing: {error}",
-    "routing_summary_error": "Error generating routing summary: {error}",
-    "matched_rules_error": "Error getting matched rules: {error}"
+    "not_data_object": "Input is not a Data object",
+    "key_not_found": "Key '{key}' not found in Data",
+    "processing_failed": "Data processing failed: {error}"
+  },
+  "logs": {
+    "comparing": "Comparing values - Operator: {operator}, Item: '{item_value}', Compare: '{compare_value}'",
+    "comparison_result": "Comparison result: {result}",
+    "parsing_boolean": "Parsing boolean value: {value} (type: {value_type})",
+    "boolean_result": "Boolean parsing result: {result}",
+    "validating_input": "Validating input data",
+    "validation_passed": "Input validation passed",
+    "processing_list": "Processing list of {count} data items",
+    "list_results": "List processing complete - True: {true_count}, False: {false_count}",
+    "processing_single": "Processing single data item",
+    "validation_failed": "Validation failed: {error}",
+    "processing_item": "Processing item - Key: '{key}', Value: '{value}', Operator: {operator}",
+    "updating_config": "Updating build config for operator: {operator}",
+    "hidden_compare_value": "Hidden compare_value field for boolean validator",
+    "shown_compare_value": "Shown compare_value field"
   }
 }

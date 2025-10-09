@@ -1,0 +1,133 @@
+{
+  "display_name": "Astra DB Tool",
+  "description": "Tool to run hybrid vector and metadata search on DataStax Astra DB Collection",
+  "tool_name": {
+    "display_name": "Tool Name",
+    "info": "The name of the tool to be passed to the LLM."
+  },
+  "tool_description": {
+    "display_name": "Tool Description",
+    "info": "Describe the tool to LLM. Add any information that can help the LLM to use the tool."
+  },
+  "keyspace": {
+    "display_name": "Keyspace Name",
+    "info": "The name of the keyspace within Astra where the collection is stored."
+  },
+  "collection_name": {
+    "display_name": "Collection Name",
+    "info": "The name of the collection within Astra DB where the vectors will be stored."
+  },
+  "token": {
+    "display_name": "Astra DB Application Token",
+    "info": "Authentication token for accessing Astra DB."
+  },
+  "api_endpoint": {
+    "display_name": "API Endpoint",
+    "display_name_enhanced": "Database",
+    "info": "API endpoint URL for the Astra DB service."
+  },
+  "projection_attributes": {
+    "display_name": "Projection Attributes",
+    "info": "Attributes to be returned by the tool separated by comma."
+  },
+  "tools_params_v2": {
+    "display_name": "Tools Parameters",
+    "info": "Define the structure for the tool parameters. Describe the parameters in a way the LLM can understand how to use them.",
+    "schema": {
+      "name": {
+        "display_name": "Name",
+        "description": "Specify the name of the output field/parameter for the model."
+      },
+      "attribute_name": {
+        "display_name": "Attribute Name",
+        "description": "Specify the attribute name to be filtered on the collection. Leave empty if the attribute name is the same as the name of the field."
+      },
+      "description": {
+        "display_name": "Description",
+        "description": "Describe the purpose of the output field."
+      },
+      "metadata": {
+        "display_name": "Is Metadata",
+        "description": "Indicate if the field is included in the metadata field."
+      },
+      "mandatory": {
+        "display_name": "Is Mandatory",
+        "description": "Indicate if the field is mandatory."
+      },
+      "is_timestamp": {
+        "display_name": "Is Timestamp",
+        "description": "Indicate if the field is a timestamp."
+      },
+      "operator": {
+        "display_name": "Operator",
+        "description": "Set the operator for the field. https://docs.datastax.com/en/astra-db-serverless/api-reference/documents.html#operators"
+      }
+    }
+  },
+  "tool_params": {
+    "display_name": "Tool params",
+    "info": "DEPRECATED: Attributes to filter and description to the model. Add ! for mandatory (e.g: !customerId)"
+  },
+  "static_filters": {
+    "display_name": "Static filters",
+    "info": "Attributes to filter and corresponding value"
+  },
+  "number_of_results": {
+    "display_name": "Number of Results",
+    "info": "Number of results to return."
+  },
+  "use_search_query": {
+    "display_name": "Semantic Search",
+    "info": "When this parameter is activated, the search query parameter will be used to search the collection."
+  },
+  "use_vectorize": {
+    "display_name": "Use Astra DB Vectorize",
+    "info": "When this parameter is activated, Astra DB Vectorize method will be used to generate the embeddings."
+  },
+  "embedding": {
+    "display_name": "Embedding Model"
+  },
+  "semantic_search_instruction": {
+    "display_name": "Semantic Search Instruction",
+    "info": "The instruction to use for the semantic search."
+  },
+  "status": {
+    "tool_created": "Astra DB Tool created"
+  },
+  "errors": {
+    "astrapy_import_failed": "Could not import Astra DB integration package. Please install it with `uv pip install astrapy`.",
+    "build_collection_failed": "Error building collection: {error}",
+    "timestamp_parse_failed": "Could not parse date: {timestamp}",
+    "timestamp_error": "Error parsing timestamp: {error} - Use the prompt to specify the date in the correct format",
+    "embedding_not_set": "Embedding model is not set. Please set the embedding model or use Astra DB Vectorize.",
+    "query_failed": "Error on Astra DB Tool {tool_name} request: {error}"
+  },
+  "logs": {
+    "astrapy_import_successful": "Astrapy package imported successfully",
+    "using_cached_collection": "Using cached collection",
+    "building_collection": "Building collection: {collection} in keyspace: {keyspace}",
+    "environment_detected": "Environment detected: {environment}",
+    "collection_built": "Collection built successfully",
+    "deprecated_method_warning": "This is the old way to define the tool parameters. Please use the new way.",
+    "args_schema_created_v1": "Arguments schema created (v1) with {field_count} fields",
+    "creating_args_schema_v2": "Creating arguments schema (v2)",
+    "args_schema_created_v2": "Arguments schema created (v2) with {field_count} fields",
+    "building_tool": "Building tool: {tool_name}",
+    "tool_built": "Tool built successfully: {tool_name}",
+    "building_projection": "Building projection arguments: {input_str}",
+    "projection_all": "Using * projection (all fields)",
+    "projection_built": "Projection built with {field_count} fields",
+    "parsing_timestamp": "Parsing timestamp: {timestamp}",
+    "timestamp_parsed": "Timestamp parsed successfully: {result}",
+    "building_filter": "Building filter conditions",
+    "filter_built": "Filter built with {filter_count} conditions",
+    "running_tool": "Running tool: {tool_name}",
+    "using_semantic_search": "Using semantic search",
+    "using_vectorize": "Using Astra DB Vectorize for embeddings",
+    "generating_embedding": "Generating embedding using embedding model",
+    "projection_added": "Projection added to query options",
+    "executing_query": "Executing query on collection",
+    "tool_executed": "Tool {tool_name} executed successfully",
+    "results_processed": "Processed {count} results"
+  }
+}

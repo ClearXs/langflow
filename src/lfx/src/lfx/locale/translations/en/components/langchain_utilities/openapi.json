@@ -1,0 +1,16 @@
+{
+  "display_name": "OpenAPI Agent",
+  "description": "Agent to interact with OpenAPI API.",
+  "llm": {
+    "display_name": "Language Model",
+    "info": "An LLM Model Object (It can be found in any LLM Component)."
+  },
+  "path": {
+    "display_name": "File Path",
+    "info": "Path to the OpenAPI specification file (JSON, YAML, or YML)."
+  },
+  "allow_dangerous_requests": {
+    "display_name": "Allow Dangerous Requests",
+    "info": "Allow the agent to make potentially dangerous requests. Use with caution."
+  }
+}

@@ -1,0 +1,54 @@
+{
+  "display_name": "Confluence",
+  "description": "从Confluence wiki协作平台加载和处理文档",
+  "url": {
+    "display_name": "站点URL",
+    "info": "Confluence空间的基础URL。例如：https://<公司>.atlassian.net/wiki"
+  },
+  "username": {
+    "display_name": "用户名",
+    "info": "Atlassian用户邮箱。例如：email@example.com"
+  },
+  "api_key": {
+    "display_name": "Confluence API密钥",
+    "info": "Atlassian API令牌。在此创建：https://id.atlassian.com/manage-profile/security/api-tokens"
+  },
+  "space_key": {
+    "display_name": "空间键",
+    "info": "要加载文档的Confluence空间的键标识符"
+  },
+  "cloud": {
+    "display_name": "使用云版？",
+    "info": "是否使用Confluence Cloud（true）或Server/Data Center（false）"
+  },
+  "content_format": {
+    "display_name": "内容格式",
+    "info": "指定加载文档的内容格式（STORAGE、VIEW、EDITOR、EXPORT_VIEW或ANONYMOUS_EXPORT_VIEW）"
+  },
+  "max_pages": {
+    "display_name": "最大页数",
+    "info": "要检索的最大页数（默认：1000）"
+  },
+  "outputs": {
+    "data": {
+      "display_name": "数据"
+    }
+  },
+  "status": {
+    "connecting": "正在连接到Confluence空间：{space_key}",
+    "loading": "正在从Confluence加载文档...",
+    "converting": "正在将{count}个文档转换为Data对象",
+    "completed": "成功从空间{space_key}加载了{count}个文档"
+  },
+  "errors": {
+    "loader_build_failed": "构建Confluence加载器失败：{error}",
+    "load_failed": "从Confluence空间'{space_key}'加载文档失败：{error}"
+  },
+  "logs": {
+    "building_loader": "正在构建Confluence加载器",
+    "loader_built": "Confluence加载器已构建 - 空间：{space_key}，最大页数：{max_pages}",
+    "loading_documents": "开始从Confluence空间加载文档：{space_key}",
+    "fetching_pages": "正在从Confluence获取页面",
+    "pages_loaded": "已从Confluence加载{count}个页面"
+  }
+}

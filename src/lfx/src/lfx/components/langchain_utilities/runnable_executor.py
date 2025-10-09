@@ -1,3 +1,4 @@
+import i18n
 from langchain.agents import AgentExecutor
 
 from lfx.custom.custom_component.component import Component
@@ -7,42 +8,54 @@ from lfx.template.field.base import Output
 
 
 class RunnableExecComponent(Component):
-    description = "Execute a runnable. It will try to guess the input and output keys."
-    display_name = "Runnable Executor"
+    description = i18n.t(
+        'components.langchain_utilities.runnable_executor.description')
+    display_name = i18n.t(
+        'components.langchain_utilities.runnable_executor.display_name')
     name = "RunnableExecutor"
     beta: bool = True
     icon = "LangChain"
 
     inputs = [
-        MessageTextInput(name="input_value", display_name="Input", required=True),
+        MessageTextInput(
+            name="input_value",
+            display_name=i18n.t(
+                'components.langchain_utilities.runnable_executor.input_value.display_name'),
+            required=True
+        ),
         HandleInput(
             name="runnable",
-            display_name="Agent Executor",
+            display_name=i18n.t(
+                'components.langchain_utilities.runnable_executor.runnable.display_name'),
             input_types=["Chain", "AgentExecutor", "Agent", "Runnable"],
             required=True,
         ),
         MessageTextInput(
             name="input_key",
-            display_name="Input Key",
+            display_name=i18n.t(
+                'components.langchain_utilities.runnable_executor.input_key.display_name'),
             value="input",
             advanced=True,
         ),
         MessageTextInput(
             name="output_key",
-            display_name="Output Key",
+            display_name=i18n.t(
+                'components.langchain_utilities.runnable_executor.output_key.display_name'),
             value="output",
             advanced=True,
         ),
         BoolInput(
             name="use_stream",
-            display_name="Stream",
+            display_name=i18n.t(
+                'components.langchain_utilities.runnable_executor.use_stream.display_name'),
             value=False,
         ),
     ]
 
     outputs = [
         Output(
-            display_name="Message",
+            display_name=i18n.t(
+                'components.langchain_utilities.runnable_executor.outputs.text.display_name'),
             name="text",
             method="build_executor",
         ),
@@ -60,7 +73,8 @@ class RunnableExecComponent(Component):
             tuple: A tuple containing the output value and the status message.
 
         """
-        possible_output_keys = ["answer", "response", "output", "result", "text"]
+        possible_output_keys = [
+            "answer", "response", "output", "result", "text"]
         status = ""
         result_value = None
 
@@ -115,7 +129,8 @@ class RunnableExecComponent(Component):
         return input_dict, status
 
     async def build_executor(self) -> Message:
-        input_dict, status = self.get_input_dict(self.runnable, self.input_key, self.input_value)
+        input_dict, status = self.get_input_dict(
+            self.runnable, self.input_key, self.input_value)
         if not isinstance(self.runnable, AgentExecutor):
             msg = "The runnable must be an AgentExecutor"
             raise TypeError(msg)
@@ -123,7 +138,8 @@ class RunnableExecComponent(Component):
         if self.use_stream:
             return self.astream_events(input_dict)
         result = await self.runnable.ainvoke(input_dict)
-        result_value, status_ = self.get_output(result, self.input_key, self.output_key)
+        result_value, status_ = self.get_output(
+            result, self.input_key, self.output_key)
         status += status_
         status += f"\n\nOutput: {result_value}\n\nRaw Output: {result}"
         self.status = status

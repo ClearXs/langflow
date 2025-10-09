@@ -1,0 +1,32 @@
+{
+  "display_name": "层级任务",
+  "description": "每个任务必须有描述、预期输出和负责执行的代理。",
+  "task_description": {
+    "display_name": "描述",
+    "info": "详细说明任务目的和执行的描述性文本。"
+  },
+  "expected_output": {
+    "display_name": "预期输出",
+    "info": "预期任务结果的明确定义。"
+  },
+  "tools": {
+    "display_name": "工具",
+    "info": "任务执行限定的工具/资源列表。默认使用代理工具。"
+  },
+  "outputs": {
+    "task": {
+      "display_name": "任务"
+    }
+  },
+  "status": {
+    "building": "正在构建层级任务...",
+    "task_created": "层级任务创建成功"
+  },
+  "errors": {
+    "build_failed": "构建层级任务失败：{error}"
+  },
+  "logs": {
+    "building_task": "正在构建层级任务",
+    "task_details": "任务详情 - 描述长度：{description_length}，工具：{tool_count}"
+  }
+}

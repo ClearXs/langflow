@@ -1,0 +1,62 @@
+{
+  "display_name": "CrewAI代理",
+  "description": "表示一个CrewAI代理。创建具有特定角色、目标和能力的AI代理。",
+  "role": {
+    "display_name": "角色",
+    "info": "代理的角色（例如：'研究员'、'作家'、'分析师'）"
+  },
+  "goal": {
+    "display_name": "目标",
+    "info": "代理的目标 - 它旨在完成什么"
+  },
+  "backstory": {
+    "display_name": "背景故事",
+    "info": "代理的背景故事 - 关于其专业知识和背景的上下文"
+  },
+  "tools": {
+    "display_name": "工具",
+    "info": "代理可用于完成任务的工具"
+  },
+  "llm": {
+    "display_name": "语言模型",
+    "info": "为代理的推理和响应提供动力的语言模型"
+  },
+  "memory": {
+    "display_name": "记忆",
+    "info": "代理是否应该具有记忆以记住以前的交互"
+  },
+  "verbose": {
+    "display_name": "详细模式"
+  },
+  "allow_delegation": {
+    "display_name": "允许委派",
+    "info": "是否允许代理将任务委派给其他代理"
+  },
+  "allow_code_execution": {
+    "display_name": "允许代码执行",
+    "info": "是否允许代理在任务执行期间执行代码"
+  },
+  "kwargs": {
+    "display_name": "附加参数",
+    "info": "代理配置的附加关键字参数"
+  },
+  "outputs": {
+    "agent": {
+      "display_name": "代理"
+    }
+  },
+  "status": {
+    "creating_agent": "正在创建CrewAI代理...",
+    "agent_created": "CrewAI代理创建成功 - 角色：{role}"
+  },
+  "errors": {
+    "import_failed": "CrewAI未安装。请使用`uv pip install crewai`安装。",
+    "creation_failed": "创建CrewAI代理失败：{error}"
+  },
+  "logs": {
+    "imports_successful": "CrewAI依赖导入成功",
+    "creating_agent": "正在创建角色为{role}的CrewAI代理",
+    "converting_llm": "正在为CrewAI转换语言模型",
+    "converting_tools": "正在为CrewAI代理转换{count}个工具"
+  }
+}

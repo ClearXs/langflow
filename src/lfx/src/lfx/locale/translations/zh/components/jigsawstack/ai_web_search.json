@@ -1,0 +1,47 @@
+{
+  "description": "使用AI驱动的洞察搜索网页，即时获得结构化结果",
+  "api_key": {
+    "display_name": "JigsawStack API密钥",
+    "info": "用于身份验证的JigsawStack API密钥"
+  },
+  "query": {
+    "display_name": "搜索查询",
+    "info": "要执行的搜索查询"
+  },
+  "ai_overview": {
+    "display_name": "AI概览",
+    "info": "生成搜索结果的AI驱动概览/摘要"
+  },
+  "safe_mode": {
+    "display_name": "安全模式",
+    "info": "启用安全搜索以过滤显式内容"
+  },
+  "spell_check": {
+    "display_name": "拼写检查",
+    "info": "启用查询的自动拼写检查和纠正"
+  },
+  "max_results": {
+    "display_name": "最大结果数",
+    "info": "返回的最大搜索结果数（默认：10）"
+  },
+  "outputs": {
+    "search_results": {
+      "display_name": "AI网页搜索结果"
+    }
+  },
+  "errors": {
+    "import_error": "未找到JigsawStack包。请使用以下命令安装：pip install jigsawstack>=0.2.7",
+    "empty_query": "搜索查询不能为空",
+    "api_request_failed": "JigsawStack API请求失败",
+    "jigsawstack_error": "JigsawStack错误：{error}",
+    "unexpected_error": "发生意外错误：{error}"
+  },
+  "logs": {
+    "starting_search": "正在开始AI网页搜索 - 查询：'{query}'",
+    "creating_client": "正在创建JigsawStack客户端",
+    "search_parameters": "搜索参数 - 查询：'{query}'，AI概览：{ai_overview}，安全模式：{safe_mode}，拼写检查：{spell_check}，最大结果数：{max_results}",
+    "calling_api": "正在调用JigsawStack AI搜索API",
+    "search_complete": "AI搜索完成 - 找到{results_count}个结果，AI概览：{has_overview}",
+    "search_complete_status": "AI搜索成功完成，找到{count}个结果。"
+  }
+}

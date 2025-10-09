@@ -1,0 +1,26 @@
+{
+  "display_name": "环境变量",
+  "description": "从.env文件加载环境变量",
+  "dotenv_file_content": {
+    "display_name": "Dotenv文件内容",
+    "info": "直接粘贴.env文件的内容。由于内容敏感，建议使用设置为'password'的全局变量。"
+  },
+  "outputs": {
+    "env_set": {
+      "display_name": "环境设置"
+    }
+  },
+  "status": {
+    "loading": "正在加载环境变量...",
+    "loaded": "已成功从.env加载环境变量"
+  },
+  "warnings": {
+    "no_variables_found": "在.env文件中未找到变量"
+  },
+  "errors": {
+    "load_failed": "加载环境变量失败：{error}"
+  },
+  "logs": {
+    "loading_env_vars": "正在从.env内容加载环境变量"
+  }
+}

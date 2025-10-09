@@ -1,0 +1,31 @@
+{
+  "display_name": "CSV代理",
+  "description": "从CSV文件和工具构建CSV代理。",
+  "llm": {
+    "display_name": "语言模型",
+    "info": "LLM模型对象(可以在任何LLM组件中找到)。"
+  },
+  "path": {
+    "display_name": "文件路径",
+    "info": "CSV文件或文件路径。"
+  },
+  "agent_type": {
+    "display_name": "代理类型"
+  },
+  "input_value": {
+    "display_name": "文本",
+    "info": "要作为输入传递并从CSV文件中提取信息的文本。"
+  },
+  "pandas_kwargs": {
+    "display_name": "Pandas参数",
+    "info": "要传递给代理的Pandas参数。"
+  },
+  "outputs": {
+    "response": {
+      "display_name": "响应"
+    },
+    "agent": {
+      "display_name": "代理"
+    }
+  }
+}

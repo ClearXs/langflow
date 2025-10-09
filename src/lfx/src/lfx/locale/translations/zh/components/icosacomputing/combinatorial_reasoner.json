@@ -1,0 +1,50 @@
+{
+  "description": "使用组合优化构建包含嵌入式推理的最优提示。在此注册：\nhttps://forms.gle/oWNv2NKjBNaqqvCx6",
+  "prompt": {
+    "display_name": "提示"
+  },
+  "openai_api_key": {
+    "display_name": "OpenAI API密钥",
+    "info": "用于OpenAI模型的API密钥。"
+  },
+  "username": {
+    "display_name": "用户名",
+    "info": "用于访问Icosa CR API的身份验证用户名"
+  },
+  "password": {
+    "display_name": "组合推理器密码",
+    "info": "用于访问Icosa CR API的身份验证密码。"
+  },
+  "model_name": {
+    "display_name": "模型名称"
+  },
+  "outputs": {
+    "optimized_prompt": {
+      "display_name": "优化提示"
+    },
+    "reasons": {
+      "display_name": "选定推理"
+    }
+  },
+  "errors": {
+    "timeout": "请求在100秒后超时。优化过程可能需要比预期更长的时间。请重试。",
+    "authentication_failed": "身份验证失败。请检查您的用户名和密码。",
+    "access_denied": "访问被拒绝。您的帐户可能没有使用此服务的权限。请在https://forms.gle/oWNv2NKjBNaqqvCx6注册",
+    "rate_limit": "超出速率限制。请稍等片刻后重试。",
+    "server_error": "服务器错误{status}。Icosa CR API遇到问题。请稍后重试。",
+    "http_error": "HTTP错误{status}：{error}",
+    "connection_failed": "无法连接到Icosa CR API。请检查您的网络连接。",
+    "request_failed": "请求失败：{error}",
+    "invalid_response": "API响应无效：{error}"
+  },
+  "logs": {
+    "building_prompt": "正在构建优化提示 - 提示长度：{prompt_length}字符，模型：{model}",
+    "authenticating": "正在使用用户名进行身份验证：{username}",
+    "sending_request": "正在向Icosa CR API发送请求",
+    "response_received": "已收到响应 - 状态：{status}",
+    "optimization_complete": "提示优化完成 - 选择了{reasons_count}个推理，优化后长度：{optimized_length}字符",
+    "extracting_reasons": "正在提取选定的推理",
+    "no_reasons": "没有可用的推理。请先运行build_prompt。",
+    "reasons_extracted": "已提取{count}个推理"
+  }
+}

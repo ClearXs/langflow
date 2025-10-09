@@ -1,0 +1,46 @@
+{
+  "description": "使用Firecrawl API映射URL以发现所有可访问的链接和网站结构。",
+  "api_key": {
+    "display_name": "Firecrawl API密钥",
+    "info": "使用Firecrawl API的API密钥。"
+  },
+  "urls": {
+    "display_name": "URL列表",
+    "info": "要创建映射的URL列表（用逗号或换行符分隔）。"
+  },
+  "ignore_sitemap": {
+    "display_name": "忽略站点地图",
+    "info": "当为true时，映射期间将忽略sitemap.xml文件。"
+  },
+  "sitemap_only": {
+    "display_name": "仅站点地图",
+    "info": "当为true时，仅返回站点地图中找到的链接。"
+  },
+  "include_subdomains": {
+    "display_name": "包含子域",
+    "info": "当为true时，也将扫描提供的URL的子域。"
+  },
+  "outputs": {
+    "data": {
+      "display_name": "站点地图数据"
+    }
+  },
+  "errors": {
+    "import_failed": "无法导入firecrawl集成包。请使用`pip install firecrawl-py`安装。",
+    "urls_required": "需要URL",
+    "no_valid_urls": "未提供有效的URL",
+    "mapping_failed": "映射过程中出错：{error}"
+  },
+  "logs": {
+    "firecrawl_imported": "Firecrawl包导入成功",
+    "parsing_urls": "正在解析输入的URL",
+    "urls_parsed": "已解析{count}个有效URL",
+    "params_configured": "参数已配置 - 忽略站点地图：{ignore_sitemap}，仅站点地图：{sitemap_only}，包含子域：{include_subdomains}",
+    "app_initialized": "Firecrawl应用已使用API密钥初始化",
+    "starting_mapping": "开始为{count}个URL进行映射",
+    "mapping_url": "正在映射URL {index}/{total}：{url}",
+    "url_mapped": "URL映射成功：{url} - 找到{count}个链接",
+    "no_links_found": "未找到URL的链接：{url}",
+    "mapping_completed": "映射完成 - 从{urls_processed}个URL共找到{total_links}个链接"
+  }
+}

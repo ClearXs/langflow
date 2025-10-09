@@ -1,0 +1,37 @@
+{
+  "display_name": "LangWatch评估器",
+  "description": "使用LangWatch的评估端点评估语言模型的各个方面。",
+  "evaluator_name": {
+    "display_name": "评估器名称",
+    "info": "选择一个评估器。"
+  },
+  "api_key": {
+    "display_name": "LangWatch API密钥",
+    "info": "输入您的LangWatch API密钥。"
+  },
+  "input": {
+    "display_name": "输入",
+    "info": "用于评估的输入文本。"
+  },
+  "output": {
+    "display_name": "输出",
+    "info": "用于评估的输出文本。"
+  },
+  "expected_output": {
+    "display_name": "预期输出",
+    "info": "用于评估的预期输出。"
+  },
+  "contexts": {
+    "display_name": "上下文",
+    "info": "用于评估的上下文(逗号分隔)。"
+  },
+  "timeout": {
+    "display_name": "超时",
+    "info": "服务器响应超时前允许的最大时间(秒)。"
+  },
+  "outputs": {
+    "evaluation_result": {
+      "display_name": "评估结果"
+    }
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "display_name": "向页面添加内容",
+  "description": "将Markdown文本转换为Notion块并附加到Notion页面。",
+  "markdown_text": {
+    "display_name": "Markdown文本",
+    "info": "要转换为Notion块的Markdown文本。"
+  },
+  "block_id": {
+    "display_name": "页面/块ID",
+    "info": "要添加内容的页面/块的ID。"
+  },
+  "notion_secret": {
+    "display_name": "Notion密钥",
+    "info": "Notion集成令牌。"
+  }
+}

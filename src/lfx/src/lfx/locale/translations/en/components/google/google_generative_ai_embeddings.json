@@ -1,0 +1,32 @@
+{
+  "description": "Connect to Google's generative AI embeddings service using the GoogleGenerativeAIEmbeddings class, found in the langchain-google-genai package.",
+  "api_key": {
+    "display_name": "Google Generative AI API Key"
+  },
+  "model_name": {
+    "display_name": "Model Name",
+    "info": "The name of the Google Generative AI embedding model to use (e.g., models/text-embedding-004)."
+  },
+  "outputs": {
+    "embeddings": {
+      "display_name": "Embeddings"
+    }
+  },
+  "errors": {
+    "api_key_required": "API Key is required",
+    "min_dimension": "Output dimensionality must be at least 1",
+    "max_dimension": "Output dimensionality cannot exceed {max}. Google's embedding models only support dimensions up to {max}.",
+    "embedding_failed": "Error embedding content: {error}"
+  },
+  "logs": {
+    "building_embeddings": "Building Google Generative AI embeddings with model: {model}",
+    "embedding_documents": "Embedding {count} document(s) - Batch size: {batch_size}, Dimensionality: {dimensionality}",
+    "processing_batch": "Processing batch {batch_num} with {batch_size} document(s)",
+    "batch_completed": "Batch {batch_num} completed - Generated {embeddings_count} embedding(s)",
+    "documents_embedded": "All documents embedded successfully - Total: {total} embedding(s)",
+    "embedding_query": "Embedding query - Text length: {text_length} characters, Dimensionality: {dimensionality}",
+    "query_embedded": "Query embedded successfully - Dimension: {dimension}",
+    "embeddings_built": "Google Generative AI embeddings instance created successfully",
+    "ready": "Google Generative AI Embeddings ready with model: {model}"
+  }
+}

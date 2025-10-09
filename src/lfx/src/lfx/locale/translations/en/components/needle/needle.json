@@ -1,0 +1,25 @@
+{
+  "display_name": "Needle Retriever",
+  "description": "A retriever that uses the Needle API to search collections.",
+  "needle_api_key": {
+    "display_name": "Needle API Key",
+    "info": "Your Needle API key."
+  },
+  "collection_id": {
+    "display_name": "Collection ID",
+    "info": "The ID of the Needle collection."
+  },
+  "query": {
+    "display_name": "User Query",
+    "info": "Enter your question here. In tool mode, you can also specify top_k parameter (min: 20)."
+  },
+  "top_k": {
+    "display_name": "Top K Results",
+    "info": "Number of search results to return (min: 20)."
+  },
+  "outputs": {
+    "result": {
+      "display_name": "Result"
+    }
+  }
+}

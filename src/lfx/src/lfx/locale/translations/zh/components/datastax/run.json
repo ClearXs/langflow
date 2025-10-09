@@ -1,0 +1,46 @@
+{
+  "display_name": "运行助手",
+  "description": "针对线程执行助手运行",
+  "assistant_id": {
+    "display_name": "助手ID",
+    "info": "要运行的助手的ID。\n\n可以使用列出助手组件检索或使用创建助手组件创建。"
+  },
+  "user_message": {
+    "display_name": "用户消息",
+    "info": "传递给运行的用户消息。"
+  },
+  "thread_id": {
+    "display_name": "线程ID",
+    "info": "用于运行的线程ID。如果未提供，将创建新线程。"
+  },
+  "env_set": {
+    "display_name": "环境设置",
+    "info": "用于允许与Dotenv组件链接的虚拟输入。"
+  },
+  "outputs": {
+    "assistant_response": {
+      "display_name": "助手响应"
+    }
+  },
+  "status": {
+    "adding_message": "正在将用户消息添加到线程...",
+    "running": "正在运行助手...",
+    "completed": "助手运行完成 - 响应长度：{length}个字符"
+  },
+  "errors": {
+    "thread_creation_failed": "创建线程失败：{error}",
+    "stream_exception": "流异常发生：{error}",
+    "run_failed": "运行助手失败：{error}"
+  },
+  "logs": {
+    "client_initialized": "OpenAI客户端初始化成功",
+    "creating_new_thread": "正在创建新线程（未提供thread_id）",
+    "thread_created": "新线程已创建 - ID：{thread_id}",
+    "creating_thread_for_run": "正在为助手运行创建新线程",
+    "thread_created_for_run": "已为运行创建线程 - ID：{thread_id}",
+    "using_existing_thread": "正在使用现有线程 - ID：{thread_id}",
+    "adding_user_message": "正在将用户消息添加到线程：{message_preview}",
+    "running_assistant": "正在运行助手，ID：{assistant_id}",
+    "response_received": "已接收助手响应 - 长度：{length}个字符"
+  }
+}

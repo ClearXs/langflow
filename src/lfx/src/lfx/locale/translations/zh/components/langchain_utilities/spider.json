@@ -1,0 +1,53 @@
+{
+  "display_name": "Spider网页爬虫和抓取器",
+  "description": "用于网页爬取和抓取的Spider API。",
+  "spider_api_key": {
+    "display_name": "Spider API密钥",
+    "info": "Spider API密钥，从https://spider.cloud获取"
+  },
+  "url": {
+    "display_name": "URL",
+    "info": "要抓取或爬取的URL"
+  },
+  "mode": {
+    "display_name": "模式",
+    "info": "操作模式：抓取(scrape)或爬取(crawl)"
+  },
+  "limit": {
+    "display_name": "限制",
+    "info": "每个网站允许爬取的最大页面数。设置为0表示爬取所有页面。"
+  },
+  "depth": {
+    "display_name": "深度",
+    "info": "最大深度的爬取限制。如果为0，则不应用限制。"
+  },
+  "blacklist": {
+    "display_name": "黑名单",
+    "info": "您不想爬取的黑名单路径。使用正则表达式模式。"
+  },
+  "whitelist": {
+    "display_name": "白名单",
+    "info": "您想要爬取的白名单路径，忽略所有其他路由。使用正则表达式模式。"
+  },
+  "readability": {
+    "display_name": "使用可读性",
+    "info": "使用可读性来预处理内容以便阅读。"
+  },
+  "request_timeout": {
+    "display_name": "请求超时",
+    "info": "请求超时时间(秒)。"
+  },
+  "metadata": {
+    "display_name": "元数据",
+    "info": "在响应中包含元数据。"
+  },
+  "params": {
+    "display_name": "附加参数",
+    "info": "要传递给API的附加参数。如果提供，其他输入将被忽略。"
+  },
+  "outputs": {
+    "content": {
+      "display_name": "Markdown"
+    }
+  }
+}

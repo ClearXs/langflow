@@ -1,0 +1,75 @@
+{
+  "display_name": "Astra Assistant Agent",
+  "description": "Manages Assistant Interactions with DataStax Astra",
+  "model_name": {
+    "display_name": "Model"
+  },
+  "instructions": {
+    "display_name": "Agent Instructions",
+    "info": "Instructions for the assistant, think of these as the system prompt."
+  },
+  "input_tools": {
+    "display_name": "Tools",
+    "info": "These are the tools that the agent can use to help with tasks."
+  },
+  "user_message": {
+    "display_name": "User Message",
+    "info": "User message to pass to the run."
+  },
+  "file": {
+    "display_name": "File(s) for retrieval",
+    "info": "Files to be sent with the message."
+  },
+  "input_thread_id": {
+    "display_name": "Thread ID (optional)",
+    "info": "ID of the thread"
+  },
+  "input_assistant_id": {
+    "display_name": "Assistant ID (optional)",
+    "info": "ID of the assistant"
+  },
+  "env_set": {
+    "display_name": "Environment Set",
+    "info": "Dummy input to allow chaining with Dotenv Component."
+  },
+  "outputs": {
+    "assistant_response": {
+      "display_name": "Assistant Response"
+    },
+    "tool_output": {
+      "display_name": "Tool output"
+    },
+    "output_thread_id": {
+      "display_name": "Thread Id"
+    },
+    "output_assistant_id": {
+      "display_name": "Assistant Id"
+    },
+    "output_vs_id": {
+      "display_name": "Vector Store Id"
+    }
+  },
+  "content_block_title": "Assistant Steps",
+  "errors": {
+    "no_text_in_result": "No text in result, {result}",
+    "processing_failed": "Failed to process assistant interaction: {error}"
+  },
+  "logs": {
+    "env_set_value": "env_set is {value}",
+    "wrapping_tools": "Wrapping {count} tools",
+    "using_assistant_id": "Using assistant ID: {id}",
+    "using_thread_id": "Using thread ID: {id}",
+    "creating_assistant_manager": "Creating assistant manager with model: {model}",
+    "uploading_file": "Uploading file for retrieval",
+    "creating_vector_store": "Creating vector store",
+    "updating_assistant_tools": "Updating assistant with file search tool",
+    "file_search_enabled": "File search capability enabled",
+    "running_thread": "Running thread with user message",
+    "tool_used": "Tool was used in the response",
+    "file_search_used": "File search was used",
+    "response_received": "Assistant response received",
+    "processing_events": "Processing agent events",
+    "processing_complete": "Event processing complete",
+    "exception_with_message": "Exception occurred, deleting message: {msg_id}"
+  }
+}

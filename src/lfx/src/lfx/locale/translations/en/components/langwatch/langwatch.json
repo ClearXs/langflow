@@ -1,0 +1,37 @@
+{
+  "display_name": "LangWatch Evaluator",
+  "description": "Evaluates various aspects of language models using LangWatch's evaluation endpoints.",
+  "evaluator_name": {
+    "display_name": "Evaluator Name",
+    "info": "Select an evaluator."
+  },
+  "api_key": {
+    "display_name": "LangWatch API Key",
+    "info": "Enter your LangWatch API key."
+  },
+  "input": {
+    "display_name": "Input",
+    "info": "The input text for evaluation."
+  },
+  "output": {
+    "display_name": "Output",
+    "info": "The output text for evaluation."
+  },
+  "expected_output": {
+    "display_name": "Expected Output",
+    "info": "The expected output for evaluation."
+  },
+  "contexts": {
+    "display_name": "Contexts",
+    "info": "The contexts for evaluation (comma-separated)."
+  },
+  "timeout": {
+    "display_name": "Timeout",
+    "info": "The maximum time (in seconds) allowed for the server to respond before timing out."
+  },
+  "outputs": {
+    "evaluation_result": {
+      "display_name": "Evaluation Result"
+    }
+  }
+}

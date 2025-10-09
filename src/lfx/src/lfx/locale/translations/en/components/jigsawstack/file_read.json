@@ -1,0 +1,36 @@
+{
+  "description": "Read any previously uploaded file seamlessly from JigsawStack File Storage and use it in your AI applications.",
+  "api_key": {
+    "display_name": "JigsawStack API Key",
+    "info": "Your JigsawStack API key for authentication"
+  },
+  "key": {
+    "display_name": "Key",
+    "info": "The key used to retrieve the file from JigsawStack File Storage."
+  },
+  "outputs": {
+    "file_path": {
+      "display_name": "File Path"
+    }
+  },
+  "errors": {
+    "import_error": "JigsawStack package not found. Please install it using: pip install jigsawstack>=0.2.7",
+    "empty_key": "Key is required to read a file from JigsawStack File Storage.",
+    "jigsawstack_error": "JigsawStack error: {error}",
+    "unexpected_error": "An unexpected error occurred: {error}"
+  },
+  "logs": {
+    "starting_read": "Starting file read - Key: {key}",
+    "creating_client": "Creating JigsawStack client",
+    "downloading_file": "Downloading file from JigsawStack storage - Key: {key}",
+    "detecting_extension": "Detecting file extension",
+    "extension_detected": "File extension detected: {extension}",
+    "creating_temp_file": "Creating temporary file",
+    "wrote_binary": "Wrote binary content ({size} bytes)",
+    "wrote_text": "Wrote text content ({size} bytes)",
+    "file_saved": "File saved to temporary path: {path} (Size: {size} bytes, Extension: {extension})",
+    "read_complete": "File read complete for key: {key}",
+    "analyzing_binary": "Analyzing binary content for file type detection",
+    "detected_type": "Detected file type: {type}"
+  }
+}

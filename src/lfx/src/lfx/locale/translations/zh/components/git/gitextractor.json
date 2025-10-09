@@ -1,0 +1,53 @@
+{
+  "description": "分析Git仓库并返回文件内容和完整的仓库信息，包括统计数据和结构。",
+  "repository_url": {
+    "display_name": "仓库URL",
+    "info": "Git仓库的URL（例如：https://github.com/username/repo）"
+  },
+  "outputs": {
+    "text_based_file_contents": {
+      "display_name": "基于文本的文件内容"
+    },
+    "directory_structure": {
+      "display_name": "目录结构"
+    },
+    "repository_info": {
+      "display_name": "仓库信息"
+    },
+    "statistics": {
+      "display_name": "统计数据"
+    },
+    "files_content": {
+      "display_name": "文件内容"
+    }
+  },
+  "errors": {
+    "repo_info_failed": "获取仓库信息时出错：{error}",
+    "statistics_failed": "计算统计数据时出错：{error}",
+    "directory_structure_failed": "获取目录结构时出错：{error}",
+    "files_content_failed": "获取文件内容时出错：{error}",
+    "text_contents_failed": "获取基于文本的文件内容时出错：{error}"
+  },
+  "logs": {
+    "temp_dir_created": "临时目录已创建：{path}",
+    "cloning_repository": "正在克隆仓库：{url}",
+    "repository_cloned": "仓库已克隆到：{path}",
+    "temp_dir_removed": "临时目录已删除：{path}",
+    "getting_repo_info": "正在获取仓库信息",
+    "repo_info_retrieved": "仓库信息已检索 - 名称：{name}，分支：{branch}，总分支数：{branch_count}",
+    "calculating_statistics": "正在计算仓库统计数据",
+    "binary_file_detected": "检测到二进制文件：{path}",
+    "statistics_calculated": "统计数据已计算 - 文件数：{files}，大小：{size_mb}MB，行数：{lines}，二进制：{binary}",
+    "generating_directory_structure": "正在生成目录结构",
+    "directory_structure_header": "目录结构：",
+    "directory_structure_generated": "目录结构已生成 - {lines}行",
+    "extracting_files_content": "正在提取文件内容",
+    "binary_file_marker": "[二进制文件]",
+    "files_content_extracted": "文件内容已提取 - {count}个文件",
+    "getting_text_contents": "正在获取基于文本的文件内容",
+    "truncation_notice": "（文件内容已裁剪至{limit}k字符，下载完整摄入以查看更多）",
+    "content_truncated": "...（内容已截断）",
+    "char_limit_reached": "已达到{limit}字符限制，停止提取",
+    "text_contents_generated": "文本内容已生成 - {files}个文件，{chars}个字符"
+  }
+}

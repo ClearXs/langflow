@@ -1,0 +1,83 @@
+{
+  "display_name": "Sequential Task Agent",
+  "description": "Creates a CrewAI Task and its associated Agent for sequential execution.",
+  "role": {
+    "display_name": "Role",
+    "info": "The role of the agent"
+  },
+  "goal": {
+    "display_name": "Goal",
+    "info": "The objective of the agent"
+  },
+  "backstory": {
+    "display_name": "Backstory",
+    "info": "The backstory of the agent"
+  },
+  "tools": {
+    "display_name": "Tools",
+    "info": "Tools at agent's disposal"
+  },
+  "llm": {
+    "display_name": "Language Model",
+    "info": "Language model that will run the agent"
+  },
+  "memory": {
+    "display_name": "Memory",
+    "info": "Whether the agent should have memory or not"
+  },
+  "verbose": {
+    "display_name": "Verbose"
+  },
+  "allow_delegation": {
+    "display_name": "Allow Delegation",
+    "info": "Whether the agent is allowed to delegate tasks to other agents"
+  },
+  "allow_code_execution": {
+    "display_name": "Allow Code Execution",
+    "info": "Whether the agent is allowed to execute code"
+  },
+  "agent_kwargs": {
+    "display_name": "Agent kwargs",
+    "info": "Additional kwargs for the agent"
+  },
+  "task_description": {
+    "display_name": "Task Description",
+    "info": "Descriptive text detailing task's purpose and execution"
+  },
+  "expected_output": {
+    "display_name": "Expected Task Output",
+    "info": "Clear definition of expected task outcome"
+  },
+  "async_execution": {
+    "display_name": "Async Execution",
+    "info": "Boolean flag indicating asynchronous task execution"
+  },
+  "previous_task": {
+    "display_name": "Previous Task",
+    "info": "The previous task in the sequence (for chaining)"
+  },
+  "outputs": {
+    "task": {
+      "display_name": "Sequential Task"
+    }
+  },
+  "status": {
+    "building": "Building agent and task...",
+    "created": "Agent and task created successfully - Role: {role}, Total tasks: {task_count}"
+  },
+  "errors": {
+    "import_failed": "CrewAI is not installed. Please install it with `uv pip install crewai`.",
+    "build_failed": "Failed to build agent and task: {error}"
+  },
+  "logs": {
+    "imports_successful": "CrewAI dependencies imported successfully",
+    "building_agent_task": "Building agent and task - Role: {role}",
+    "creating_agent": "Creating agent with role: {role}",
+    "agent_created": "Agent created successfully - Role: {role}",
+    "creating_task": "Creating task for agent",
+    "task_created": "Task created successfully",
+    "chaining_tasks": "Chaining with previous task(s)",
+    "tasks_chained": "Tasks chained successfully - Total tasks: {total_count}",
+    "single_task": "Creating single task without chaining"
+  }
+}

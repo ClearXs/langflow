@@ -1,0 +1,34 @@
+{
+  "display_name": "Knowledge Retrieval",
+  "description": "Search and retrieve data from knowledge.",
+  "knowledge_base": {
+    "display_name": "Knowledge",
+    "info": "Select the knowledge to load data from."
+  },
+  "api_key": {
+    "display_name": "Embedding Provider API Key",
+    "info": "API key for the embedding provider to generate embeddings."
+  },
+  "search_query": {
+    "display_name": "Search Query",
+    "info": "Optional search query to filter knowledge base data."
+  },
+  "top_k": {
+    "display_name": "Top K Results",
+    "info": "Number of top results to return from the knowledge base."
+  },
+  "include_metadata": {
+    "display_name": "Include Metadata",
+    "info": "Whether to include all metadata in the output. If false, only content is returned."
+  },
+  "include_embeddings": {
+    "display_name": "Include Embeddings",
+    "info": "Whether to include embeddings in the output. Only applicable if 'Include Metadata' is enabled."
+  },
+  "outputs": {
+    "retrieve_data": {
+      "display_name": "Results",
+      "info": "Returns the data from the selected knowledge base."
+    }
+  }
+}

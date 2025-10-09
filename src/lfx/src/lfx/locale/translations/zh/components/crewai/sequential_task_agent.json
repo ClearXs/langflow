@@ -1,0 +1,83 @@
+{
+  "display_name": "顺序任务代理",
+  "description": "创建CrewAI任务及其关联的代理用于顺序执行。",
+  "role": {
+    "display_name": "角色",
+    "info": "代理的角色"
+  },
+  "goal": {
+    "display_name": "目标",
+    "info": "代理的目标"
+  },
+  "backstory": {
+    "display_name": "背景故事",
+    "info": "代理的背景故事"
+  },
+  "tools": {
+    "display_name": "工具",
+    "info": "代理可用的工具"
+  },
+  "llm": {
+    "display_name": "语言模型",
+    "info": "运行代理的语言模型"
+  },
+  "memory": {
+    "display_name": "记忆",
+    "info": "代理是否应该具有记忆"
+  },
+  "verbose": {
+    "display_name": "详细模式"
+  },
+  "allow_delegation": {
+    "display_name": "允许委派",
+    "info": "是否允许代理将任务委派给其他代理"
+  },
+  "allow_code_execution": {
+    "display_name": "允许代码执行",
+    "info": "是否允许代理执行代码"
+  },
+  "agent_kwargs": {
+    "display_name": "代理参数",
+    "info": "代理的附加关键字参数"
+  },
+  "task_description": {
+    "display_name": "任务描述",
+    "info": "详细说明任务目的和执行的描述性文本"
+  },
+  "expected_output": {
+    "display_name": "预期任务输出",
+    "info": "预期任务结果的明确定义"
+  },
+  "async_execution": {
+    "display_name": "异步执行",
+    "info": "指示异步任务执行的布尔标志"
+  },
+  "previous_task": {
+    "display_name": "上一个任务",
+    "info": "序列中的上一个任务（用于链接）"
+  },
+  "outputs": {
+    "task": {
+      "display_name": "顺序任务"
+    }
+  },
+  "status": {
+    "building": "正在构建代理和任务...",
+    "created": "代理和任务创建成功 - 角色：{role}，总任务数：{task_count}"
+  },
+  "errors": {
+    "import_failed": "CrewAI未安装。请使用`uv pip install crewai`安装。",
+    "build_failed": "构建代理和任务失败：{error}"
+  },
+  "logs": {
+    "imports_successful": "CrewAI依赖导入成功",
+    "building_agent_task": "正在构建代理和任务 - 角色：{role}",
+    "creating_agent": "正在创建角色为{role}的代理",
+    "agent_created": "代理创建成功 - 角色：{role}",
+    "creating_task": "正在为代理创建任务",
+    "task_created": "任务创建成功",
+    "chaining_tasks": "正在与上一个任务链接",
+    "tasks_chained": "任务链接成功 - 总任务数：{total_count}",
+    "single_task": "正在创建单个任务，无链接"
+  }
+}

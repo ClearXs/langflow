@@ -1,0 +1,42 @@
+{
+  "description": "Exa Search toolkit for intelligent search and content retrieval with neural search capabilities.",
+  "metaphor_api_key": {
+    "display_name": "Exa Search API Key",
+    "info": "API key for accessing Exa Search (formerly Metaphor) services."
+  },
+  "use_autoprompt": {
+    "display_name": "Use Autoprompt",
+    "info": "Enable autoprompt to automatically optimize search queries for better results."
+  },
+  "search_num_results": {
+    "display_name": "Search Number of Results",
+    "info": "Maximum number of search results to return."
+  },
+  "similar_num_results": {
+    "display_name": "Similar Number of Results",
+    "info": "Maximum number of similar results to return when finding similar content."
+  },
+  "outputs": {
+    "tools": {
+      "display_name": "Search Tools"
+    }
+  },
+  "errors": {
+    "api_key_required": "Exa Search API key is required",
+    "client_creation_failed": "Failed to create Exa Search client: {error}",
+    "search_failed": "Search operation failed: {error}",
+    "get_contents_failed": "Failed to retrieve contents: {error}",
+    "find_similar_failed": "Failed to find similar results: {error}"
+  },
+  "logs": {
+    "building_toolkit": "Building Exa Search toolkit",
+    "client_created": "Exa Search client created successfully",
+    "searching": "Searching with query: {query}",
+    "search_completed": "Search completed - Retrieved {count} result(s)",
+    "getting_contents": "Getting contents for {count} ID(s)",
+    "contents_retrieved": "Contents retrieved successfully for {count} ID(s)",
+    "finding_similar": "Finding similar results for URL: {url}",
+    "similar_found": "Found {count} similar result(s)",
+    "toolkit_built": "Exa Search toolkit built successfully with 3 tools"
+  }
+}

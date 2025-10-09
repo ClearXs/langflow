@@ -1,0 +1,42 @@
+{
+  "description": "Generate embeddings using Hugging Face Text Embeddings Inference (TEI)",
+  "api_key": {
+    "display_name": "HuggingFace API Key",
+    "info": "Required for non-local inference endpoints. Local inference does not require an API Key."
+  },
+  "inference_endpoint": {
+    "display_name": "Inference Endpoint",
+    "info": "Custom inference endpoint URL."
+  },
+  "model_name": {
+    "display_name": "Model Name",
+    "info": "The name of the model to use for text embeddings."
+  },
+  "outputs": {
+    "embeddings": {
+      "display_name": "Embeddings"
+    }
+  },
+  "errors": {
+    "invalid_url_format": "Invalid inference endpoint format: '{endpoint}'. Please ensure the URL includes both a scheme (e.g., 'http://' or 'https://') and a domain name. Example: 'http://localhost:8080' or 'https://api.example.com'",
+    "endpoint_not_responding": "Inference endpoint '{endpoint}' is not responding. Please ensure the URL is correct and the service is running.",
+    "health_check_failed": "Hugging Face health check failed: {status}",
+    "api_key_required": "API Key is required for non-local inference endpoints",
+    "connection_failed": "Could not connect to Hugging Face Inference API: {error}"
+  },
+  "logs": {
+    "validating_endpoint": "Validating inference endpoint: {endpoint}",
+    "checking_health": "Checking endpoint health: {endpoint}",
+    "endpoint_validated": "Inference endpoint validated successfully",
+    "getting_api_url": "Getting API URL",
+    "using_hf_endpoint": "Using HuggingFace hosted endpoint",
+    "using_custom_endpoint": "Using custom endpoint",
+    "creating_embeddings": "Creating HuggingFace embeddings - Model: {model}, URL: {url}",
+    "building_embeddings": "Building HuggingFace embeddings for model: {model}",
+    "url_type_detected": "URL type detected - Is Local: {is_local}, URL: {url}",
+    "using_local_deployment": "Using local deployment without API key",
+    "using_api_key": "Using provided API key for authentication",
+    "connecting": "Connecting to HuggingFace Inference API",
+    "embeddings_built": "HuggingFace embeddings built successfully"
+  }
+}

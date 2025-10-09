@@ -1,0 +1,61 @@
+{
+  "description": "使用JigsawStack的对象检测模型对图像执行对象检测，能够进行图像定位、分割和计算机使用。",
+  "api_key": {
+    "display_name": "JigsawStack API密钥",
+    "info": "用于身份验证的JigsawStack API密钥"
+  },
+  "prompts": {
+    "display_name": "提示词",
+    "info": "用于定位对象检测模型的提示词。您可以传递以逗号分隔的提示词列表，以从图像中提取不同的信息。"
+  },
+  "url": {
+    "display_name": "URL",
+    "info": "图像URL。如果指定了file_store_key，则不需要。"
+  },
+  "file_store_key": {
+    "display_name": "文件存储密钥",
+    "info": "用于在JigsawStack文件存储中存储图像的密钥。如果指定了url，则不需要。"
+  },
+  "annotated_image": {
+    "display_name": "返回标注图像",
+    "info": "如果为true，将返回带有检测对象的标注图像URL。"
+  },
+  "features": {
+    "display_name": "功能",
+    "info": "选择要为对象检测启用的功能"
+  },
+  "return_type": {
+    "display_name": "返回类型",
+    "info": "选择对象检测结果的返回类型，例如遮罩或标注。"
+  },
+  "outputs": {
+    "results": {
+      "display_name": "对象检测结果"
+    }
+  },
+  "errors": {
+    "import_error": "未找到JigsawStack包。请使用以下命令安装：pip install jigsawstack>=0.2.7",
+    "invalid_prompt": "提示词必须是字符串列表或单个字符串",
+    "missing_image_source": "必须提供URL或文件存储密钥来执行对象检测",
+    "api_request_failed": "JigsawStack API返回失败响应",
+    "jigsawstack_error": "JigsawStack错误：{error}",
+    "unexpected_error": "发生意外错误：{error}"
+  },
+  "logs": {
+    "starting_detection": "正在开始对象检测",
+    "creating_client": "正在创建JigsawStack客户端",
+    "processing_prompts": "正在处理检测提示词",
+    "prompts_list": "正在使用列表中的{count}个提示词",
+    "prompts_split": "已将提示词拆分为{count}项",
+    "prompts_single": "正在使用单个提示词",
+    "prompts_parsed": "已解析提示词：{prompts}",
+    "using_url": "正在使用图像URL：{url}",
+    "using_file_store_key": "正在使用文件存储密钥：{key}",
+    "annotated_image_setting": "标注图像返回：{enabled}",
+    "features_enabled": "已启用功能：{features}",
+    "return_type_setting": "返回类型：{type}",
+    "calling_api": "正在调用JigsawStack对象检测API",
+    "detection_complete": "对象检测完成 - 检测到{count}个对象，标注图像：{has_annotated}",
+    "detection_success": "对象检测成功完成 - 找到{count}个对象。"
+  }
+}

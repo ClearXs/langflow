@@ -1,0 +1,57 @@
+{
+  "display_name": "Export DoclingDocument",
+  "description": "Export DoclingDocument to markdown, html or other formats.",
+  "data_inputs": {
+    "display_name": "Data or DataFrame",
+    "info": "The data with documents to export."
+  },
+  "export_format": {
+    "display_name": "Export format",
+    "info": "Select the export format to convert the input."
+  },
+  "image_mode": {
+    "display_name": "Image export mode",
+    "info": "Specify how images are exported in the output. Placeholder will replace the images with a string, whereas Embedded will include them as base64 encoded images."
+  },
+  "md_image_placeholder": {
+    "display_name": "Image placeholder",
+    "info": "Specify the image placeholder for markdown exports."
+  },
+  "md_page_break_placeholder": {
+    "display_name": "Page break placeholder",
+    "info": "Add this placeholder between pages in the markdown output."
+  },
+  "doc_key": {
+    "display_name": "Doc Key",
+    "info": "The key to use for the DoclingDocument column."
+  },
+  "outputs": {
+    "data": {
+      "display_name": "Exported data"
+    },
+    "dataframe": {
+      "display_name": "DataFrame"
+    }
+  },
+  "errors": {
+    "extraction_failed": "Failed to extract documents: {error}",
+    "export_failed": "Error exporting document: {error}",
+    "dataframe_creation_failed": "Failed to create DataFrame: {error}"
+  },
+  "logs": {
+    "markdown_options_enabled": "Markdown-specific options enabled",
+    "html_options_enabled": "HTML-specific options enabled",
+    "text_options_enabled": "{format} options enabled",
+    "extracting_documents": "Extracting documents using key: {doc_key}",
+    "documents_extracted": "Extracted {count} document(s)",
+    "exporting_documents": "Exporting {count} document(s) to {format} format (Image mode: {image_mode})",
+    "exporting_document": "Exporting document {index}/{total}",
+    "markdown_exported": "Markdown export completed - Length: {length} characters",
+    "html_exported": "HTML export completed - Length: {length} characters",
+    "text_exported": "Text export completed - Length: {length} characters",
+    "doctags_exported": "DocTags export completed - Length: {length} characters",
+    "export_completed": "Export completed - {count} document(s) exported",
+    "creating_dataframe": "Creating DataFrame from exported documents",
+    "dataframe_created": "DataFrame created with {rows} row(s)"
+  }
+}

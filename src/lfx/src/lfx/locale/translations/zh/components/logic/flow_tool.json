@@ -1,85 +1,53 @@
 {
-  "display_name": "流程工具",
-  "description": "将其他流程作为工具执行，支持参数传递和结果处理。",
-  "flow_id": {
-    "display_name": "流程ID",
-    "info": "要从流程注册表中执行的流程ID。"
+  "display_name": "工作流转工具",
+  "description": "从运行已加载工作流的函数构造一个工具。",
+  "flow_name": {
+    "display_name": "工作流名称",
+    "info": "要运行的工作流的名称。"
   },
-  "flow_file": {
-    "display_name": "流程文件",
-    "info": "包含要执行的流程定义的JSON文件。"
+  "tool_name": {
+    "display_name": "名称",
+    "info": "工具的名称。"
   },
-  "input_parameters": {
-    "display_name": "输入参数",
-    "info": "要传递给目标流程的参数JSON对象。"
+  "tool_description": {
+    "display_name": "描述",
+    "info": "工具的描述；默认使用工作流的描述。"
   },
-  "input_data": {
-    "display_name": "输入数据",
-    "info": "要作为输入传递给目标流程的数据对象。"
-  },
-  "execution_mode": {
-    "display_name": "执行模式",
-    "info": "如何执行流程：sync（等待完成）、async（并发）或background（排队）。"
-  },
-  "timeout": {
-    "display_name": "超时时间（秒）",
-    "info": "等待流程执行完成的最大时间。"
-  },
-  "max_retries": {
-    "display_name": "最大重试次数",
-    "info": "失败执行的最大重试次数。"
-  },
-  "pass_current_context": {
-    "display_name": "传递当前上下文",
-    "info": "是否将当前流程的上下文（会话、流程ID等）传递给目标流程。"
-  },
-  "include_execution_metadata": {
-    "display_name": "包含执行元数据",
-    "info": "是否在结果中包含执行详情（时间、重试等）。"
-  },
-  "output_format": {
-    "display_name": "输出格式",
-    "info": "执行结果的格式：auto（自动检测）、data（数据对象）、message（消息）或raw。"
-  },
-  "cache_results": {
-    "display_name": "缓存结果",
-    "info": "是否为相同参数的重复调用缓存执行结果。"
-  },
-  "error_handling": {
-    "display_name": "错误处理",
-    "info": "如何处理执行错误：raise（抛出异常）、return_error（返回错误数据）或return_null。"
+  "return_direct": {
+    "display_name": "直接返回",
+    "info": "直接从工具返回结果。"
   },
   "outputs": {
-    "result": {
-      "display_name": "流程结果"
-    },
-    "execution_info": {
-      "display_name": "执行信息"
-    },
-    "flow_metadata": {
-      "display_name": "流程元数据"
+    "tool": {
+      "display_name": "工具"
     }
   },
-  "success": {
-    "flow_loaded_from_file": "成功从文件加载流程：{file}",
-    "flow_loaded_from_id": "成功加载流程ID：{flow_id}",
-    "flow_executed": "流程在{time:.2f}秒内成功执行"
-  },
-  "warnings": {
-    "both_flow_identifiers": "同时提供了流程ID和流程文件。将使用流程文件。"
+  "status": {
+    "loading_flow": "正在加载工作流：{flow_name}",
+    "building_graph": "正在从工作流数据构建图",
+    "building_tool": "正在从工作流构建工具",
+    "tool_created": "{description}\n参数：\n{args}"
   },
   "errors": {
-    "missing_flow_identifier": "必须提供flow_id或flow_file。",
-    "invalid_input_parameters": "输入参数中的JSON格式无效：{error}",
-    "invalid_timeout": "超时时间必须大于0。",
-    "flow_file_not_found": "未找到流程文件：{file}",
-    "invalid_flow_file": "{file}中的流程文件格式无效：{error}",
-    "flow_load_error": "加载流程时出错：{error}",
-    "flow_registry_not_implemented": "流程注册表查找未实现。",
-    "no_flow_source": "未指定流程源。",
-    "execution_timeout": "流程执行在{timeout}秒后超时。",
-    "execution_error": "执行流程时出错：{error}",
-    "execution_info_error": "获取执行信息时出错：{error}",
-    "flow_metadata_error": "获取流程元数据时出错：{error}"
+    "flow_name_required": "工作流名称是必需的",
+    "flow_not_found": "未找到工作流'{flow_name}'",
+    "tool_creation_failed": "从工作流创建工具失败：{error}"
+  },
+  "warnings": {
+    "run_id_failed": "为工作流图设置run_id失败"
+  },
+  "logs": {
+    "fetching_flow_names": "正在获取可用的工作流名称",
+    "flow_names_fetched": "已获取{count}个工作流名称",
+    "searching_flow": "正在搜索工作流：{flow_name}",
+    "flow_found": "已找到工作流：{flow_name}",
+    "flow_not_found": "未找到工作流：{flow_name}",
+    "updating_flow_list": "正在更新工作流名称列表",
+    "loading_flow": "正在加载工作流：{flow_name}",
+    "building_graph": "正在从工作流负载构建图",
+    "run_id_set": "Run ID设置成功：{run_id}",
+    "getting_inputs": "正在提取工作流输入",
+    "creating_tool": "正在创建工具'{name}'，包含{input_count}个输入",
+    "tool_created": "工具'{name}'已从工作流'{flow_name}'成功创建"
   }
 }

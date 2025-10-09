@@ -11,6 +11,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
+import i18n
 import pandas as pd
 from cryptography.fernet import InvalidToken
 from langchain_chroma import Chroma
@@ -60,8 +61,8 @@ class KnowledgeIngestionComponent(Component):
     """Create or append to Langflow Knowledge from a DataFrame."""
 
     # ------ UI metadata ---------------------------------------------------
-    display_name = "Knowledge Ingestion"
-    description = "Create or update knowledge in Langflow."
+    display_name = i18n.t('components.knowledge_bases.ingestion.display_name')
+    description = i18n.t('components.knowledge_bases.ingestion.description')
     icon = "upload"
     name = "KnowledgeIngestion"
 
@@ -77,8 +78,8 @@ class KnowledgeIngestionComponent(Component):
                 "data": {
                     "node": {
                         "name": "create_knowledge_base",
-                        "description": "Create new knowledge in Langflow.",
-                        "display_name": "Create new knowledge",
+                        "description": i18n.t('components.knowledge_bases.ingestion.new_knowledge_base.description'),
+                        "display_name": i18n.t('components.knowledge_bases.ingestion.new_knowledge_base.display_name'),
                         "field_order": [
                             "01_new_kb_name",
                             "02_embedding_model",
@@ -87,24 +88,34 @@ class KnowledgeIngestionComponent(Component):
                         "template": {
                             "01_new_kb_name": StrInput(
                                 name="new_kb_name",
-                                display_name="Knowledge Name",
-                                info="Name of the new knowledge to create.",
+                                display_name=i18n.t(
+                                    'components.knowledge_bases.ingestion.new_kb_name.display_name'),
+                                info=i18n.t(
+                                    'components.knowledge_bases.ingestion.new_kb_name.info'),
                                 required=True,
                             ),
                             "02_embedding_model": DropdownInput(
                                 name="embedding_model",
-                                display_name="Choose Embedding",
-                                info="Select the embedding model to use for this knowledge base.",
+                                display_name=i18n.t(
+                                    'components.knowledge_bases.ingestion.embedding_model.display_name'),
+                                info=i18n.t(
+                                    'components.knowledge_bases.ingestion.embedding_model.info'),
                                 required=True,
-                                options=OPENAI_EMBEDDING_MODEL_NAMES + HUGGINGFACE_MODEL_NAMES + COHERE_MODEL_NAMES,
-                                options_metadata=[{"icon": "OpenAI"} for _ in OPENAI_EMBEDDING_MODEL_NAMES]
-                                + [{"icon": "HuggingFace"} for _ in HUGGINGFACE_MODEL_NAMES]
-                                + [{"icon": "Cohere"} for _ in COHERE_MODEL_NAMES],
+                                options=OPENAI_EMBEDDING_MODEL_NAMES +
+                                HUGGINGFACE_MODEL_NAMES + COHERE_MODEL_NAMES,
+                                options_metadata=[{"icon": "OpenAI"}
+                                                  for _ in OPENAI_EMBEDDING_MODEL_NAMES]
+                                + [{"icon": "HuggingFace"}
+                                    for _ in HUGGINGFACE_MODEL_NAMES]
+                                + [{"icon": "Cohere"}
+                                    for _ in COHERE_MODEL_NAMES],
                             ),
                             "03_api_key": SecretStrInput(
                                 name="api_key",
-                                display_name="API Key",
-                                info="Provider API key for embedding model",
+                                display_name=i18n.t(
+                                    'components.knowledge_bases.ingestion.api_key.display_name'),
+                                info=i18n.t(
+                                    'components.knowledge_bases.ingestion.api_key.info'),
                                 required=True,
                                 load_from_db=False,
                             ),
@@ -118,8 +129,10 @@ class KnowledgeIngestionComponent(Component):
     inputs = [
         DropdownInput(
             name="knowledge_base",
-            display_name="Knowledge",
-            info="Select the knowledge to load data from.",
+            display_name=i18n.t(
+                'components.knowledge_bases.ingestion.knowledge_base.display_name'),
+            info=i18n.t(
+                'components.knowledge_bases.ingestion.knowledge_base.info'),
             required=True,
             options=[],
             refresh_button=True,
@@ -128,40 +141,40 @@ class KnowledgeIngestionComponent(Component):
         ),
         HandleInput(
             name="input_df",
-            display_name="Input",
-            info=(
-                "Table with all original columns (already chunked / processed). "
-                "Accepts Data or DataFrame. If Data is provided, it is converted to a DataFrame automatically."
-            ),
+            display_name=i18n.t(
+                'components.knowledge_bases.ingestion.input_df.display_name'),
+            info=i18n.t('components.knowledge_bases.ingestion.input_df.info'),
             input_types=["Data", "DataFrame"],
             required=True,
         ),
         TableInput(
             name="column_config",
-            display_name="Column Configuration",
-            info="Configure column behavior for the knowledge base.",
+            display_name=i18n.t(
+                'components.knowledge_bases.ingestion.column_config.display_name'),
+            info=i18n.t(
+                'components.knowledge_bases.ingestion.column_config.info'),
             required=True,
             table_schema=[
                 {
                     "name": "column_name",
-                    "display_name": "Column Name",
+                    "display_name": i18n.t('components.knowledge_bases.ingestion.column_config.column_name.display_name'),
                     "type": "str",
-                    "description": "Name of the column in the source DataFrame",
+                    "description": i18n.t('components.knowledge_bases.ingestion.column_config.column_name.description'),
                     "edit_mode": EditMode.INLINE,
                 },
                 {
                     "name": "vectorize",
-                    "display_name": "Vectorize",
+                    "display_name": i18n.t('components.knowledge_bases.ingestion.column_config.vectorize.display_name'),
                     "type": "boolean",
-                    "description": "Create embeddings for this column",
+                    "description": i18n.t('components.knowledge_bases.ingestion.column_config.vectorize.description'),
                     "default": False,
                     "edit_mode": EditMode.INLINE,
                 },
                 {
                     "name": "identifier",
-                    "display_name": "Identifier",
+                    "display_name": i18n.t('components.knowledge_bases.ingestion.column_config.identifier.display_name'),
                     "type": "boolean",
-                    "description": "Use this column as unique identifier",
+                    "description": i18n.t('components.knowledge_bases.ingestion.column_config.identifier.description'),
                     "default": False,
                     "edit_mode": EditMode.INLINE,
                 },
@@ -176,29 +189,36 @@ class KnowledgeIngestionComponent(Component):
         ),
         IntInput(
             name="chunk_size",
-            display_name="Chunk Size",
-            info="Batch size for processing embeddings",
+            display_name=i18n.t(
+                'components.knowledge_bases.ingestion.chunk_size.display_name'),
+            info=i18n.t(
+                'components.knowledge_bases.ingestion.chunk_size.info'),
             advanced=True,
             value=1000,
         ),
         SecretStrInput(
             name="api_key",
-            display_name="Embedding Provider API Key",
-            info="API key for the embedding provider to generate embeddings.",
+            display_name=i18n.t(
+                'components.knowledge_bases.ingestion.embedding_api_key.display_name'),
+            info=i18n.t(
+                'components.knowledge_bases.ingestion.embedding_api_key.info'),
             advanced=True,
             required=False,
         ),
         BoolInput(
             name="allow_duplicates",
-            display_name="Allow Duplicates",
-            info="Allow duplicate rows in the knowledge base",
+            display_name=i18n.t(
+                'components.knowledge_bases.ingestion.allow_duplicates.display_name'),
+            info=i18n.t(
+                'components.knowledge_bases.ingestion.allow_duplicates.info'),
             advanced=True,
             value=False,
         ),
     ]
 
     # ------ Outputs -------------------------------------------------------
-    outputs = [Output(display_name="Results", name="dataframe_output", method="build_kb_info")]
+    outputs = [Output(display_name=i18n.t('components.knowledge_bases.ingestion.outputs.dataframe_output.display_name'),
+                      name="dataframe_output", method="build_kb_info")]
 
     # ------ Internal helpers ---------------------------------------------
     def _get_kb_root(self) -> Path:
@@ -212,7 +232,8 @@ class KnowledgeIngestionComponent(Component):
             raise ValueError(msg)
 
         # Convert table input to list of dicts (similar to Structured Output)
-        config_list = self.column_config if isinstance(self.column_config, list) else []
+        config_list = self.column_config if isinstance(
+            self.column_config, list) else []
 
         # Validate column names exist in DataFrame
         df_columns = set(df_source.columns)
@@ -289,7 +310,8 @@ class KnowledgeIngestionComponent(Component):
         if api_key_to_save:
             settings_service = get_settings_service()
             try:
-                encrypted_api_key = encrypt_api_key(api_key_to_save, settings_service=settings_service)
+                encrypted_api_key = encrypt_api_key(
+                    api_key_to_save, settings_service=settings_service)
             except (TypeError, ValueError) as e:
                 self.log(f"Could not encrypt API key: {e}")
 
@@ -304,7 +326,8 @@ class KnowledgeIngestionComponent(Component):
 
     def _save_embedding_metadata(self, kb_path: Path, embedding_model: str, api_key: str) -> None:
         """Save embedding model metadata."""
-        embedding_metadata = self._build_embedding_metadata(embedding_model, api_key)
+        embedding_metadata = self._build_embedding_metadata(
+            embedding_model, api_key)
         metadata_path = kb_path / "embedding_metadata.json"
         metadata_path.write_text(json.dumps(embedding_metadata, indent=2))
 
@@ -339,8 +362,10 @@ class KnowledgeIngestionComponent(Component):
 
         for config in config_list:
             col_name = config.get("column_name")
-            vectorize = config.get("vectorize") == "True" or config.get("vectorize") is True
-            identifier = config.get("identifier") == "True" or config.get("identifier") is True
+            vectorize = config.get("vectorize") == "True" or config.get(
+                "vectorize") is True
+            identifier = config.get("identifier") == "True" or config.get(
+                "identifier") is True
 
             # Add to columns list
             metadata["columns"].append(
@@ -376,7 +401,8 @@ class KnowledgeIngestionComponent(Component):
             vector_store_dir.mkdir(parents=True, exist_ok=True)
 
             # Create embeddings model
-            embedding_function = self._build_embeddings(embedding_model, api_key)
+            embedding_function = self._build_embeddings(
+                embedding_model, api_key)
 
             # Convert DataFrame to Data objects (following Local DB pattern)
             data_objects = await self._convert_df_to_data_objects(df_source, config_list)
@@ -397,7 +423,8 @@ class KnowledgeIngestionComponent(Component):
             # Add documents to vector store
             if documents:
                 chroma.add_documents(documents)
-                self.log(f"Added {len(documents)} documents to vector store '{self.knowledge_base}'")
+                self.log(
+                    f"Added {len(documents)} documents to vector store '{self.knowledge_base}'")
 
         except (OSError, ValueError, RuntimeError) as e:
             self.log(f"Error creating vector store: {e}")
@@ -421,7 +448,8 @@ class KnowledgeIngestionComponent(Component):
         all_docs = chroma.get()
 
         # Extract all _id values from metadata
-        id_list = [metadata.get("_id") for metadata in all_docs["metadatas"] if metadata.get("_id")]
+        id_list = [metadata.get(
+            "_id") for metadata in all_docs["metadatas"] if metadata.get("_id")]
 
         # Get column roles
         content_cols = []
@@ -429,8 +457,10 @@ class KnowledgeIngestionComponent(Component):
 
         for config in config_list:
             col_name = config.get("column_name")
-            vectorize = config.get("vectorize") == "True" or config.get("vectorize") is True
-            identifier = config.get("identifier") == "True" or config.get("identifier") is True
+            vectorize = config.get("vectorize") == "True" or config.get(
+                "vectorize") is True
+            identifier = config.get("identifier") == "True" or config.get(
+                "identifier") is True
 
             if vectorize:
                 content_cols.append(col_name)
@@ -440,7 +470,8 @@ class KnowledgeIngestionComponent(Component):
         # Convert each row to a Data object
         for _, row in df_source.iterrows():
             # Build content text from identifier columns using list comprehension
-            identifier_parts = [str(row[col]) for col in content_cols if col in row and pd.notna(row[col])]
+            identifier_parts = [
+                str(row[col]) for col in content_cols if col in row and pd.notna(row[col])]
 
             # Join all parts into a single string
             page_content = " ".join(identifier_parts)
@@ -452,7 +483,8 @@ class KnowledgeIngestionComponent(Component):
 
             # Add identifier columns if they exist
             if identifier_cols:
-                identifier_parts = [str(row[col]) for col in identifier_cols if col in row and pd.notna(row[col])]
+                identifier_parts = [
+                    str(row[col]) for col in identifier_cols if col in row and pd.notna(row[col])]
                 page_content = " ".join(identifier_parts)
 
             # Add metadata columns as simple key-value pairs
@@ -460,15 +492,18 @@ class KnowledgeIngestionComponent(Component):
                 if col not in content_cols and col in row and pd.notna(row[col]):
                     # Convert to simple types for Chroma metadata
                     value = row[col]
-                    data_dict[col] = str(value)  # Convert complex types to string
+                    # Convert complex types to string
+                    data_dict[col] = str(value)
 
             # Hash the page_content for unique ID
-            page_content_hash = hashlib.sha256(page_content.encode()).hexdigest()
+            page_content_hash = hashlib.sha256(
+                page_content.encode()).hexdigest()
             data_dict["_id"] = page_content_hash
 
             # If duplicates are disallowed, and hash exists, prevent adding this row
             if not self.allow_duplicates and page_content_hash in id_list:
-                self.log(f"Skipping duplicate row with hash {page_content_hash}")
+                self.log(
+                    f"Skipping duplicate row with hash {page_content_hash}")
                 continue
 
             # Create Data object - everything except "text" becomes metadata
@@ -533,12 +568,15 @@ class KnowledgeIngestionComponent(Component):
     async def build_kb_info(self) -> Data:
         """Main ingestion routine → returns a dict with KB metadata."""
         try:
-            input_value = self.input_df[0] if isinstance(self.input_df, list) else self.input_df
-            df_source: DataFrame = convert_to_dataframe(input_value, auto_parse=False)
+            input_value = self.input_df[0] if isinstance(
+                self.input_df, list) else self.input_df
+            df_source: DataFrame = convert_to_dataframe(
+                input_value, auto_parse=False)
 
             # Validate column configuration (using Structured Output patterns)
             config_list = self._validate_column_config(df_source)
-            column_metadata = self._build_column_metadata(config_list, df_source)
+            column_metadata = self._build_column_metadata(
+                config_list, df_source)
 
             # Read the embedding info from the knowledge base folder
             kb_path = await self._kb_path()
@@ -553,9 +591,11 @@ class KnowledgeIngestionComponent(Component):
                 metadata = json.loads(metadata_path.read_text())
                 embedding_model = metadata.get("embedding_model")
                 try:
-                    api_key = decrypt_api_key(metadata["api_key"], settings_service)
+                    api_key = decrypt_api_key(
+                        metadata["api_key"], settings_service)
                 except (InvalidToken, TypeError, ValueError) as e:
-                    self.log(f"Could not decrypt API key. Please provide it manually. Error: {e}")
+                    self.log(
+                        f"Could not decrypt API key. Please provide it manually. Error: {e}")
 
             # Check if a custom API key was provided, update metadata if so
             if self.api_key:
@@ -646,7 +686,8 @@ class KnowledgeIngestionComponent(Component):
                     raise ValueError(msg)
 
                 # We need to test the API Key one time against the embedding model
-                embed_model = self._build_embeddings(embedding_model=field_value["02_embedding_model"], api_key=api_key)
+                embed_model = self._build_embeddings(
+                    embedding_model=field_value["02_embedding_model"], api_key=api_key)
 
                 # Try to generate a dummy embedding to validate the API key without blocking the event loop
                 try:
@@ -662,7 +703,8 @@ class KnowledgeIngestionComponent(Component):
                     raise ValueError(msg) from e
 
                 # Create the new knowledge base directory
-                kb_path = KNOWLEDGE_BASES_ROOT_PATH / kb_user / field_value["01_new_kb_name"]
+                kb_path = KNOWLEDGE_BASES_ROOT_PATH / \
+                    kb_user / field_value["01_new_kb_name"]
                 kb_path.mkdir(parents=True, exist_ok=True)
 
                 # Save the embedding metadata

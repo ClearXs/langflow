@@ -1,3 +1,4 @@
+import i18n
 from pathlib import Path
 
 import yaml
@@ -11,24 +12,31 @@ from lfx.inputs.inputs import FileInput, HandleInput
 
 
 class JsonAgentComponent(LCAgentComponent):
-    display_name = "JsonAgent"
-    description = "Construct a json agent from an LLM and tools."
+    display_name = i18n.t(
+        'components.langchain_utilities.json_agent.display_name')
+    description = i18n.t(
+        'components.langchain_utilities.json_agent.description')
     name = "JsonAgent"
     legacy: bool = True
+    icon = "LangChain"
 
     inputs = [
         *LCAgentComponent.get_base_inputs(),
         HandleInput(
             name="llm",
-            display_name="Language Model",
+            display_name=i18n.t(
+                'components.langchain_utilities.json_agent.llm.display_name'),
             input_types=["LanguageModel"],
             required=True,
+            info=i18n.t('components.langchain_utilities.json_agent.llm.info'),
         ),
         FileInput(
             name="path",
-            display_name="File Path",
+            display_name=i18n.t(
+                'components.langchain_utilities.json_agent.path.display_name'),
             file_types=["json", "yaml", "yml"],
             required=True,
+            info=i18n.t('components.langchain_utilities.json_agent.path.info'),
         ),
     ]
 

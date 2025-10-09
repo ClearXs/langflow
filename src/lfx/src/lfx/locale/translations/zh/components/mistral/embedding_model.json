@@ -1,0 +1,33 @@
+{
+  "display_name": "MistralAI嵌入",
+  "description": "使用MistralAI模型生成嵌入向量。",
+  "model": {
+    "display_name": "模型",
+    "info": "用于生成嵌入向量的MistralAI模型。"
+  },
+  "mistral_api_key": {
+    "display_name": "Mistral API密钥",
+    "info": "用于MistralAI身份验证的API密钥。"
+  },
+  "max_concurrent_requests": {
+    "display_name": "最大并发请求数",
+    "info": "向API发出的最大并发请求数。"
+  },
+  "max_retries": {
+    "display_name": "最大重试次数",
+    "info": "失败请求的最大重试次数。"
+  },
+  "timeout": {
+    "display_name": "请求超时",
+    "info": "API请求的超时时间(秒)。"
+  },
+  "endpoint": {
+    "display_name": "API端点",
+    "info": "MistralAI的API端点URL。"
+  },
+  "outputs": {
+    "embeddings": {
+      "display_name": "嵌入"
+    }
+  }
+}

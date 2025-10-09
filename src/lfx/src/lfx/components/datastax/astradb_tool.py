@@ -2,6 +2,7 @@ import os
 from datetime import datetime, timezone
 from typing import Any
 
+import i18n
 from astrapy import Collection, DataAPIClient, Database
 from langchain_core.tools import StructuredTool, Tool
 from pydantic import BaseModel, Field, create_model
@@ -14,124 +15,134 @@ from lfx.schema.table import EditMode
 
 
 class AstraDBToolComponent(LCToolComponent):
-    display_name: str = "Astra DB Tool"
-    description: str = "Tool to run hybrid vector and metadata search on DataStax Astra DB Collection"
+    display_name: str = i18n.t('components.datastax.astradb_tool.display_name')
+    description: str = i18n.t('components.datastax.astradb_tool.description')
     documentation: str = "https://docs.langflow.org/components-bundle-components"
     icon: str = "AstraDB"
 
     inputs = [
         StrInput(
             name="tool_name",
-            display_name="Tool Name",
-            info="The name of the tool to be passed to the LLM.",
+            display_name=i18n.t(
+                'components.datastax.astradb_tool.tool_name.display_name'),
+            info=i18n.t('components.datastax.astradb_tool.tool_name.info'),
             required=True,
         ),
         StrInput(
             name="tool_description",
-            display_name="Tool Description",
-            info="Describe the tool to LLM. Add any information that can help the LLM to use the tool.",
+            display_name=i18n.t(
+                'components.datastax.astradb_tool.tool_description.display_name'),
+            info=i18n.t(
+                'components.datastax.astradb_tool.tool_description.info'),
             required=True,
         ),
         StrInput(
             name="keyspace",
-            display_name="Keyspace Name",
-            info="The name of the keyspace within Astra where the collection is stored.",
+            display_name=i18n.t(
+                'components.datastax.astradb_tool.keyspace.display_name'),
+            info=i18n.t('components.datastax.astradb_tool.keyspace.info'),
             value="default_keyspace",
             advanced=True,
         ),
         StrInput(
             name="collection_name",
-            display_name="Collection Name",
-            info="The name of the collection within Astra DB where the vectors will be stored.",
+            display_name=i18n.t(
+                'components.datastax.astradb_tool.collection_name.display_name'),
+            info=i18n.t(
+                'components.datastax.astradb_tool.collection_name.info'),
             required=True,
         ),
         SecretStrInput(
             name="token",
-            display_name="Astra DB Application Token",
-            info="Authentication token for accessing Astra DB.",
+            display_name=i18n.t(
+                'components.datastax.astradb_tool.token.display_name'),
+            info=i18n.t('components.datastax.astradb_tool.token.info'),
             value="ASTRA_DB_APPLICATION_TOKEN",
             required=True,
         ),
         SecretStrInput(
             name="api_endpoint",
-            display_name="Database" if os.getenv("ASTRA_ENHANCED", "false").lower() == "true" else "API Endpoint",
-            info="API endpoint URL for the Astra DB service.",
+            display_name=i18n.t('components.datastax.astradb_tool.api_endpoint.display_name_enhanced'
+                                if os.getenv("ASTRA_ENHANCED", "false").lower() == "true"
+                                else 'components.datastax.astradb_tool.api_endpoint.display_name'),
+            info=i18n.t('components.datastax.astradb_tool.api_endpoint.info'),
             value="ASTRA_DB_API_ENDPOINT",
             required=True,
         ),
         StrInput(
             name="projection_attributes",
-            display_name="Projection Attributes",
-            info="Attributes to be returned by the tool separated by comma.",
+            display_name=i18n.t(
+                'components.datastax.astradb_tool.projection_attributes.display_name'),
+            info=i18n.t(
+                'components.datastax.astradb_tool.projection_attributes.info'),
             required=True,
             value="*",
             advanced=True,
         ),
         TableInput(
             name="tools_params_v2",
-            display_name="Tools Parameters",
-            info="Define the structure for the tool parameters. Describe the parameters "
-            "in a way the LLM can understand how to use them.",
+            display_name=i18n.t(
+                'components.datastax.astradb_tool.tools_params_v2.display_name'),
+            info=i18n.t(
+                'components.datastax.astradb_tool.tools_params_v2.info'),
             required=False,
             table_schema=[
                 {
                     "name": "name",
-                    "display_name": "Name",
+                    "display_name": i18n.t('components.datastax.astradb_tool.tools_params_v2.schema.name.display_name'),
                     "type": "str",
-                    "description": "Specify the name of the output field/parameter for the model.",
+                    "description": i18n.t('components.datastax.astradb_tool.tools_params_v2.schema.name.description'),
                     "default": "field",
                     "edit_mode": EditMode.INLINE,
                 },
                 {
                     "name": "attribute_name",
-                    "display_name": "Attribute Name",
+                    "display_name": i18n.t('components.datastax.astradb_tool.tools_params_v2.schema.attribute_name.display_name'),
                     "type": "str",
-                    "description": "Specify the attribute name to be filtered on the collection. "
-                    "Leave empty if the attribute name is the same as the name of the field.",
+                    "description": i18n.t('components.datastax.astradb_tool.tools_params_v2.schema.attribute_name.description'),
                     "default": "",
                     "edit_mode": EditMode.INLINE,
                 },
                 {
                     "name": "description",
-                    "display_name": "Description",
+                    "display_name": i18n.t('components.datastax.astradb_tool.tools_params_v2.schema.description.display_name'),
                     "type": "str",
-                    "description": "Describe the purpose of the output field.",
+                    "description": i18n.t('components.datastax.astradb_tool.tools_params_v2.schema.description.description'),
                     "default": "description of field",
                     "edit_mode": EditMode.POPOVER,
                 },
                 {
                     "name": "metadata",
-                    "display_name": "Is Metadata",
+                    "display_name": i18n.t('components.datastax.astradb_tool.tools_params_v2.schema.metadata.display_name'),
                     "type": "boolean",
                     "edit_mode": EditMode.INLINE,
-                    "description": ("Indicate if the field is included in the metadata field."),
+                    "description": i18n.t('components.datastax.astradb_tool.tools_params_v2.schema.metadata.description'),
                     "options": ["True", "False"],
                     "default": "False",
                 },
                 {
                     "name": "mandatory",
-                    "display_name": "Is Mandatory",
+                    "display_name": i18n.t('components.datastax.astradb_tool.tools_params_v2.schema.mandatory.display_name'),
                     "type": "boolean",
                     "edit_mode": EditMode.INLINE,
-                    "description": ("Indicate if the field is mandatory."),
+                    "description": i18n.t('components.datastax.astradb_tool.tools_params_v2.schema.mandatory.description'),
                     "options": ["True", "False"],
                     "default": "False",
                 },
                 {
                     "name": "is_timestamp",
-                    "display_name": "Is Timestamp",
+                    "display_name": i18n.t('components.datastax.astradb_tool.tools_params_v2.schema.is_timestamp.display_name'),
                     "type": "boolean",
                     "edit_mode": EditMode.INLINE,
-                    "description": ("Indicate if the field is a timestamp."),
+                    "description": i18n.t('components.datastax.astradb_tool.tools_params_v2.schema.is_timestamp.description'),
                     "options": ["True", "False"],
                     "default": "False",
                 },
                 {
                     "name": "operator",
-                    "display_name": "Operator",
+                    "display_name": i18n.t('components.datastax.astradb_tool.tools_params_v2.schema.operator.display_name'),
                     "type": "str",
-                    "description": "Set the operator for the field. "
-                    "https://docs.datastax.com/en/astra-db-serverless/api-reference/documents.html#operators",
+                    "description": i18n.t('components.datastax.astradb_tool.tools_params_v2.schema.operator.description'),
                     "default": "$eq",
                     "options": ["$gt", "$gte", "$lt", "$lte", "$eq", "$ne", "$in", "$nin", "$exists", "$all", "$size"],
                     "edit_mode": EditMode.INLINE,
@@ -141,45 +152,59 @@ class AstraDBToolComponent(LCToolComponent):
         ),
         DictInput(
             name="tool_params",
-            info="DEPRECATED: Attributes to filter and description to the model. "
-            "Add ! for mandatory (e.g: !customerId)",
-            display_name="Tool params",
+            info=i18n.t('components.datastax.astradb_tool.tool_params.info'),
+            display_name=i18n.t(
+                'components.datastax.astradb_tool.tool_params.display_name'),
             is_list=True,
             advanced=True,
         ),
         DictInput(
             name="static_filters",
-            info="Attributes to filter and correspoding value",
-            display_name="Static filters",
+            info=i18n.t(
+                'components.datastax.astradb_tool.static_filters.info'),
+            display_name=i18n.t(
+                'components.datastax.astradb_tool.static_filters.display_name'),
             advanced=True,
             is_list=True,
         ),
         IntInput(
             name="number_of_results",
-            display_name="Number of Results",
-            info="Number of results to return.",
+            display_name=i18n.t(
+                'components.datastax.astradb_tool.number_of_results.display_name'),
+            info=i18n.t(
+                'components.datastax.astradb_tool.number_of_results.info'),
             advanced=True,
             value=5,
         ),
         BoolInput(
             name="use_search_query",
-            display_name="Semantic Search",
-            info="When this parameter is activated, the search query parameter will be used to search the collection.",
+            display_name=i18n.t(
+                'components.datastax.astradb_tool.use_search_query.display_name'),
+            info=i18n.t(
+                'components.datastax.astradb_tool.use_search_query.info'),
             advanced=False,
             value=False,
         ),
         BoolInput(
             name="use_vectorize",
-            display_name="Use Astra DB Vectorize",
-            info="When this parameter is activated, Astra DB Vectorize method will be used to generate the embeddings.",
+            display_name=i18n.t(
+                'components.datastax.astradb_tool.use_vectorize.display_name'),
+            info=i18n.t('components.datastax.astradb_tool.use_vectorize.info'),
             advanced=False,
             value=False,
         ),
-        HandleInput(name="embedding", display_name="Embedding Model", input_types=["Embeddings"]),
+        HandleInput(
+            name="embedding",
+            display_name=i18n.t(
+                'components.datastax.astradb_tool.embedding.display_name'),
+            input_types=["Embeddings"]
+        ),
         StrInput(
             name="semantic_search_instruction",
-            display_name="Semantic Search Instruction",
-            info="The instruction to use for the semantic search.",
+            display_name=i18n.t(
+                'components.datastax.astradb_tool.semantic_search_instruction.display_name'),
+            info=i18n.t(
+                'components.datastax.astradb_tool.semantic_search_instruction.info'),
             required=True,
             value="Search query to find relevant documents.",
             advanced=True,
@@ -193,20 +218,41 @@ class AstraDBToolComponent(LCToolComponent):
     def _build_collection(self):
         try:
             from astrapy.admin import parse_api_endpoint
+            logger.debug(
+                i18n.t('components.datastax.astradb_tool.logs.astrapy_import_successful'))
         except ImportError as e:
-            msg = "Could not import Astra DB integration package. Please install it with `uv pip install astrapy`."
-            raise ImportError(msg) from e
+            error_msg = i18n.t(
+                'components.datastax.astradb_tool.errors.astrapy_import_failed')
+            logger.error(error_msg)
+            raise ImportError(error_msg) from e
+
         if self._cached_collection:
+            logger.debug(
+                i18n.t('components.datastax.astradb_tool.logs.using_cached_collection'))
             return self._cached_collection
 
         try:
+            logger.info(i18n.t('components.datastax.astradb_tool.logs.building_collection',
+                               collection=self.collection_name,
+                               keyspace=self.keyspace))
+
             environment = parse_api_endpoint(self.api_endpoint).environment
+            logger.debug(i18n.t('components.datastax.astradb_tool.logs.environment_detected',
+                                environment=environment))
+
             cached_client = DataAPIClient(self.token, environment=environment)
-            cached_db = cached_client.get_database(self.api_endpoint, keyspace=self.keyspace)
-            self._cached_collection = cached_db.get_collection(self.collection_name)
+            cached_db = cached_client.get_database(
+                self.api_endpoint, keyspace=self.keyspace)
+            self._cached_collection = cached_db.get_collection(
+                self.collection_name)
+
+            logger.info(
+                i18n.t('components.datastax.astradb_tool.logs.collection_built'))
         except Exception as e:
-            msg = f"Error building collection: {e}"
-            raise ValueError(msg) from e
+            error_msg = i18n.t('components.datastax.astradb_tool.errors.build_collection_failed',
+                               error=str(e))
+            logger.exception(error_msg)
+            raise ValueError(error_msg) from e
         else:
             return self._cached_collection
 
@@ -215,33 +261,42 @@ class AstraDBToolComponent(LCToolComponent):
 
         It is keep only for backward compatibility.
         """
-        logger.warning("This is the old way to define the tool parameters. Please use the new way.")
+        logger.warning(
+            i18n.t('components.datastax.astradb_tool.logs.deprecated_method_warning'))
         args: dict[str, tuple[Any, Field] | list[str]] = {}
 
         for key in self.tool_params:
             if key.startswith("!"):  # Mandatory
                 args[key[1:]] = (str, Field(description=self.tool_params[key]))
             else:  # Optional
-                args[key] = (str | None, Field(description=self.tool_params[key], default=None))
+                args[key] = (str | None, Field(
+                    description=self.tool_params[key], default=None))
 
         if self.use_search_query:
             args["search_query"] = (
                 str | None,
-                Field(description="Search query to find relevant documents.", default=None),
+                Field(
+                    description="Search query to find relevant documents.", default=None),
             )
 
         model = create_model("ToolInput", **args, __base__=BaseModel)
+        logger.debug(i18n.t('components.datastax.astradb_tool.logs.args_schema_created_v1',
+                            field_count=len(args)))
         return {"ToolInput": model}
 
     def create_args_schema_v2(self) -> dict[str, BaseModel]:
         """Create the tool input schema using the new tool parameters configuration."""
+        logger.debug(
+            i18n.t('components.datastax.astradb_tool.logs.creating_args_schema_v2'))
         args: dict[str, tuple[Any, Field] | list[str]] = {}
 
         for tool_param in self.tools_params_v2:
             if tool_param["mandatory"]:
-                args[tool_param["name"]] = (str, Field(description=tool_param["description"]))
+                args[tool_param["name"]] = (str, Field(
+                    description=tool_param["description"]))
             else:
-                args[tool_param["name"]] = (str | None, Field(description=tool_param["description"], default=None))
+                args[tool_param["name"]] = (str | None, Field(
+                    description=tool_param["description"], default=None))
 
         if self.use_search_query:
             args["search_query"] = (
@@ -250,6 +305,8 @@ class AstraDBToolComponent(LCToolComponent):
             )
 
         model = create_model("ToolInput", **args, __base__=BaseModel)
+        logger.debug(i18n.t('components.datastax.astradb_tool.logs.args_schema_created_v2',
+                            field_count=len(args)))
         return {"ToolInput": model}
 
     def build_tool(self) -> Tool:
@@ -258,7 +315,11 @@ class AstraDBToolComponent(LCToolComponent):
         Returns:
             Tool: The built Astra DB tool.
         """
-        schema_dict = self.create_args_schema() if len(self.tool_params.keys()) > 0 else self.create_args_schema_v2()
+        logger.info(i18n.t('components.datastax.astradb_tool.logs.building_tool',
+                           tool_name=self.tool_name))
+
+        schema_dict = self.create_args_schema() if len(
+            self.tool_params.keys()) > 0 else self.create_args_schema_v2()
 
         tool = StructuredTool.from_function(
             name=self.tool_name,
@@ -267,16 +328,26 @@ class AstraDBToolComponent(LCToolComponent):
             func=self.run_model,
             return_direct=False,
         )
-        self.status = "Astra DB Tool created"
+
+        success_msg = i18n.t(
+            'components.datastax.astradb_tool.status.tool_created')
+        self.status = success_msg
+        logger.info(i18n.t('components.datastax.astradb_tool.logs.tool_built',
+                           tool_name=self.tool_name))
 
         return tool
 
     def projection_args(self, input_str: str) -> dict | None:
         """Build the projection arguments for the Astra DB query."""
+        logger.debug(i18n.t('components.datastax.astradb_tool.logs.building_projection',
+                            input_str=input_str))
+
         elements = input_str.split(",")
         result = {}
 
         if elements == ["*"]:
+            logger.debug(
+                i18n.t('components.datastax.astradb_tool.logs.projection_all'))
             return None
 
         # Force the projection to exclude the $vector field as it is not required by the tool
@@ -289,6 +360,8 @@ class AstraDBToolComponent(LCToolComponent):
             else:
                 result[element] = True
 
+        logger.debug(i18n.t('components.datastax.astradb_tool.logs.projection_built',
+                            field_count=len(result)))
         return result
 
     def parse_timestamp(self, timestamp_str: str) -> datetime:
@@ -303,6 +376,9 @@ class AstraDBToolComponent(LCToolComponent):
         Raises:
             ValueError: If the timestamp cannot be parsed
         """
+        logger.debug(i18n.t('components.datastax.astradb_tool.logs.parsing_timestamp',
+                            timestamp=timestamp_str))
+
         # Common datetime formats to try
         formats = [
             "%Y-%m-%d",  # 2024-03-21
@@ -323,14 +399,18 @@ class AstraDBToolComponent(LCToolComponent):
                     date_obj = date_obj.replace(tzinfo=timezone.utc)
 
                 # Convert to UTC and format
-                return date_obj.astimezone(timezone.utc)
+                result = date_obj.astimezone(timezone.utc)
+                logger.debug(i18n.t('components.datastax.astradb_tool.logs.timestamp_parsed',
+                                    result=result.isoformat()))
+                return result
 
             except ValueError:
                 continue
 
-        msg = f"Could not parse date: {timestamp_str}"
-        logger.error(msg)
-        raise ValueError(msg)
+        error_msg = i18n.t('components.datastax.astradb_tool.errors.timestamp_parse_failed',
+                           timestamp=timestamp_str)
+        logger.error(error_msg)
+        raise ValueError(error_msg)
 
     def build_filter(self, args: dict, filter_settings: list) -> dict:
         """Build filter dictionary for Astra DB query.
@@ -341,6 +421,8 @@ class AstraDBToolComponent(LCToolComponent):
         Returns:
             Dictionary containing the filter conditions
         """
+        logger.debug(
+            i18n.t('components.datastax.astradb_tool.logs.building_filter'))
         filters = {**self.static_filters}
 
         for key, value in args.items():
@@ -348,12 +430,16 @@ class AstraDBToolComponent(LCToolComponent):
             if key == "search_query":
                 continue
 
-            filter_setting = next((x for x in filter_settings if x["name"] == key), None)
+            filter_setting = next(
+                (x for x in filter_settings if x["name"] == key), None)
             if filter_setting and value is not None:
                 field_name = filter_setting["attribute_name"] if filter_setting["attribute_name"] else key
-                filter_key = field_name if not filter_setting["metadata"] else f"metadata.{field_name}"
+                filter_key = field_name if not filter_setting[
+                    "metadata"] else f"metadata.{field_name}"
+
                 if filter_setting["operator"] == "$exists":
-                    filters[filter_key] = {**filters.get(filter_key, {}), filter_setting["operator"]: True}
+                    filters[filter_key] = {
+                        **filters.get(filter_key, {}), filter_setting["operator"]: True}
                 elif filter_setting["operator"] in ["$in", "$nin", "$all"]:
                     filters[filter_key] = {
                         **filters.get(filter_key, {}),
@@ -366,15 +452,23 @@ class AstraDBToolComponent(LCToolComponent):
                             filter_setting["operator"]: self.parse_timestamp(value),
                         }
                     except ValueError as e:
-                        msg = f"Error parsing timestamp: {e} - Use the prompt to specify the date in the correct format"
-                        logger.error(msg)
-                        raise ValueError(msg) from e
+                        error_msg = i18n.t('components.datastax.astradb_tool.errors.timestamp_error',
+                                           error=str(e))
+                        logger.error(error_msg)
+                        raise ValueError(error_msg) from e
                 else:
-                    filters[filter_key] = {**filters.get(filter_key, {}), filter_setting["operator"]: value}
+                    filters[filter_key] = {
+                        **filters.get(filter_key, {}), filter_setting["operator"]: value}
+
+        logger.debug(i18n.t('components.datastax.astradb_tool.logs.filter_built',
+                            filter_count=len(filters)))
         return filters
 
     def run_model(self, **args) -> Data | list[Data]:
         """Run the query to get the data from the Astra DB collection."""
+        logger.info(i18n.t('components.datastax.astradb_tool.logs.running_tool',
+                           tool_name=self.tool_name))
+
         collection = self._build_collection()
         sort = {}
 
@@ -382,15 +476,25 @@ class AstraDBToolComponent(LCToolComponent):
         filters = self.build_filter(args, self.tools_params_v2)
 
         # Build the vector search on
-        if self.use_search_query and args["search_query"] is not None and args["search_query"] != "":
+        if self.use_search_query and args.get("search_query") is not None and args["search_query"] != "":
+            logger.debug(
+                i18n.t('components.datastax.astradb_tool.logs.using_semantic_search'))
+
             if self.use_vectorize:
+                logger.debug(
+                    i18n.t('components.datastax.astradb_tool.logs.using_vectorize'))
                 sort["$vectorize"] = args["search_query"]
             else:
                 if self.embedding is None:
-                    msg = "Embedding model is not set. Please set the embedding model or use Astra DB Vectorize."
-                    logger.error(msg)
-                    raise ValueError(msg)
-                embedding_query = self.embedding.embed_query(args["search_query"])
+                    error_msg = i18n.t(
+                        'components.datastax.astradb_tool.errors.embedding_not_set')
+                    logger.error(error_msg)
+                    raise ValueError(error_msg)
+
+                logger.debug(
+                    i18n.t('components.datastax.astradb_tool.logs.generating_embedding'))
+                embedding_query = self.embedding.embed_query(
+                    args["search_query"])
                 sort["$vector"] = embedding_query
             del args["search_query"]
 
@@ -403,16 +507,26 @@ class AstraDBToolComponent(LCToolComponent):
         projection = self.projection_args(self.projection_attributes)
         if projection and len(projection) > 0:
             find_options["projection"] = projection
+            logger.debug(
+                i18n.t('components.datastax.astradb_tool.logs.projection_added'))
 
         try:
+            logger.debug(
+                i18n.t('components.datastax.astradb_tool.logs.executing_query'))
             results = collection.find(**find_options)
         except Exception as e:
-            msg = f"Error on Astra DB Tool {self.tool_name} request: {e}"
-            logger.error(msg)
-            raise ValueError(msg) from e
+            error_msg = i18n.t('components.datastax.astradb_tool.errors.query_failed',
+                               tool_name=self.tool_name,
+                               error=str(e))
+            logger.exception(error_msg)
+            raise ValueError(error_msg) from e
 
-        logger.info(f"Tool {self.tool_name} executed`")
+        logger.info(i18n.t('components.datastax.astradb_tool.logs.tool_executed',
+                           tool_name=self.tool_name))
 
         data: list[Data] = [Data(data=doc) for doc in results]
+        logger.info(i18n.t('components.datastax.astradb_tool.logs.results_processed',
+                           count=len(data)))
+
         self.status = data
         return data

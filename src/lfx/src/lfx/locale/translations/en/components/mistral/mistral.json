@@ -1,0 +1,40 @@
+{
+  "display_name": "MistralAI",
+  "description": "Generates text using MistralAI LLMs.",
+  "max_tokens": {
+    "display_name": "Max Tokens",
+    "info": "The maximum number of tokens to generate. Set to 0 for unlimited tokens."
+  },
+  "model_name": {
+    "display_name": "Model Name"
+  },
+  "mistral_api_base": {
+    "display_name": "Mistral API Base",
+    "info": "The base URL of the Mistral API. Defaults to https://api.mistral.ai/v1. You can change this to use other APIs like JinaChat, LocalAI and Prem."
+  },
+  "api_key": {
+    "display_name": "Mistral API Key",
+    "info": "The Mistral API Key to use for the Mistral model."
+  },
+  "temperature": {
+    "display_name": "Temperature"
+  },
+  "max_retries": {
+    "display_name": "Max Retries"
+  },
+  "timeout": {
+    "display_name": "Timeout"
+  },
+  "max_concurrent_requests": {
+    "display_name": "Max Concurrent Requests"
+  },
+  "top_p": {
+    "display_name": "Top P"
+  },
+  "random_seed": {
+    "display_name": "Random Seed"
+  },
+  "safe_mode": {
+    "display_name": "Safe Mode"
+  }
+}

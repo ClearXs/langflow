@@ -1,0 +1,49 @@
+{
+  "description": "在Google BigQuery上执行SQL查询。",
+  "service_account_json_file": {
+    "display_name": "上传服务账户JSON",
+    "info": "上传包含Google Cloud服务账户凭据的JSON文件。"
+  },
+  "query": {
+    "display_name": "SQL查询",
+    "info": "要在BigQuery上执行的SQL查询。"
+  },
+  "clean_query": {
+    "display_name": "清理查询",
+    "info": "启用后，将自动清理您的SQL查询。"
+  },
+  "outputs": {
+    "query_results": {
+      "display_name": "查询结果"
+    }
+  },
+  "errors": {
+    "no_project_id": "在服务账户凭据文件中未找到project_id。",
+    "file_not_found": "服务账户文件未找到：{error}",
+    "invalid_json": "服务账户凭据的JSON字符串无效",
+    "credentials_load_failed": "加载服务账户凭据时出错：{error}",
+    "execution_failed": "执行BigQuery SQL查询时出错：{error}",
+    "empty_query": "在输入文本中未找到有效的SQL查询。",
+    "auth_refresh_failed": "身份验证错误：无法刷新身份验证令牌。请尝试重新进行身份验证。",
+    "query_execution_failed": "执行BigQuery SQL查询时出错：{error}"
+  },
+  "logs": {
+    "cleaning_query": "正在清理SQL查询 - 长度：{length}个字符",
+    "extracted_from_code_block": "从代码块中提取SQL",
+    "extracted_sql_statements": "从文本中提取SQL语句",
+    "removed_quotes": "已从查询中删除周围的引号",
+    "query_cleaned": "查询已清理 - 原始：{original_length}，清理后：{cleaned_length}个字符",
+    "executing_query": "正在BigQuery上执行SQL查询",
+    "reading_credentials": "正在读取服务账户凭据文件",
+    "credentials_read": "凭据读取成功 - 项目ID：{project_id}",
+    "loading_credentials": "正在加载服务账户凭据",
+    "credentials_loaded": "服务账户凭据加载成功",
+    "creating_client": "正在为项目创建BigQuery客户端：{project_id}",
+    "client_created": "BigQuery客户端创建成功",
+    "cleaning_enabled": "查询清理已启用",
+    "cleaning_skipped": "查询清理已跳过（按原样使用查询）",
+    "executing_query_on_bigquery": "正在BigQuery上执行查询",
+    "query_preview": "查询预览：{preview}",
+    "query_executed": "查询执行成功 - 返回{rows}行"
+  }
+}

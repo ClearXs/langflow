@@ -1,0 +1,61 @@
+{
+  "display_name": "Knowledge Ingestion",
+  "description": "Create or update knowledge in Langflow.",
+  "new_knowledge_base": {
+    "display_name": "Create new knowledge",
+    "description": "Create new knowledge in Langflow."
+  },
+  "new_kb_name": {
+    "display_name": "Knowledge Name",
+    "info": "Name of the new knowledge to create."
+  },
+  "embedding_model": {
+    "display_name": "Choose Embedding",
+    "info": "Select the embedding model to use for this knowledge base."
+  },
+  "api_key": {
+    "display_name": "API Key",
+    "info": "Provider API key for embedding model"
+  },
+  "knowledge_base": {
+    "display_name": "Knowledge",
+    "info": "Select the knowledge to load data from."
+  },
+  "input_df": {
+    "display_name": "Input",
+    "info": "Table with all original columns (already chunked / processed). Accepts Data or DataFrame. If Data is provided, it is converted to a DataFrame automatically."
+  },
+  "column_config": {
+    "display_name": "Column Configuration",
+    "info": "Configure column behavior for the knowledge base.",
+    "column_name": {
+      "display_name": "Column Name",
+      "description": "Name of the column in the source DataFrame"
+    },
+    "vectorize": {
+      "display_name": "Vectorize",
+      "description": "Create embeddings for this column"
+    },
+    "identifier": {
+      "display_name": "Identifier",
+      "description": "Use this column as unique identifier"
+    }
+  },
+  "chunk_size": {
+    "display_name": "Chunk Size",
+    "info": "Batch size for processing embeddings"
+  },
+  "embedding_api_key": {
+    "display_name": "Embedding Provider API Key",
+    "info": "API key for the embedding provider to generate embeddings."
+  },
+  "allow_duplicates": {
+    "display_name": "Allow Duplicates",
+    "info": "Allow duplicate rows in the knowledge base"
+  },
+  "outputs": {
+    "dataframe_output": {
+      "display_name": "Results"
+    }
+  }
+}

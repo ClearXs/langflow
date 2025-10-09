@@ -1,0 +1,88 @@
+{
+  "description": "Generate an image based on the given text by employing AI models like Flux, Stable Diffusion, and other top models.",
+  "api_key": {
+    "display_name": "JigsawStack API Key",
+    "info": "Your JigsawStack API key for authentication"
+  },
+  "prompt": {
+    "display_name": "Prompt",
+    "info": "The text prompt to generate the image from. Must be between 1-5000 characters."
+  },
+  "aspect_ratio": {
+    "display_name": "Aspect Ratio",
+    "info": "The aspect ratio of the generated image. Must be one of: '1:1', '16:9', '21:9', '3:2', '2:3', '4:5', '5:4', '3:4', '4:3', '9:16', '9:21'. Default is 1:1."
+  },
+  "url": {
+    "display_name": "Webhook URL",
+    "info": "A valid URL where the generated image will be sent (webhook callback)."
+  },
+  "file_store_key": {
+    "display_name": "File Store Key",
+    "info": "The key used to store the image on JigsawStack File Storage. Not required if URL is specified."
+  },
+  "width": {
+    "display_name": "Width",
+    "info": "The width of the image. Must be between 256-1920 pixels."
+  },
+  "height": {
+    "display_name": "Height",
+    "info": "The height of the image. Must be between 256-1920 pixels."
+  },
+  "steps": {
+    "display_name": "Steps",
+    "info": "The number of denoising steps. Must be between 1-90. Higher values produce better quality images but take more time to generate."
+  },
+  "output_format": {
+    "display_name": "Output Format",
+    "info": "The output format of the generated image. Must be 'png' or 'svg'."
+  },
+  "negative_prompt": {
+    "display_name": "Negative Prompt",
+    "info": "The text prompt to avoid in the generated image. Must be between 1-5000 characters."
+  },
+  "seed": {
+    "display_name": "Seed",
+    "info": "Makes generation deterministic. Using the same seed and set of parameters will produce identical image each time."
+  },
+  "guidance": {
+    "display_name": "Guidance Scale",
+    "info": "Higher guidance forces the model to better follow the prompt, but may result in lower quality output. Must be between 1-28."
+  },
+  "outputs": {
+    "results": {
+      "display_name": "Image Generation Results"
+    }
+  },
+  "errors": {
+    "import_error": "JigsawStack package not found. Please install it using: pip install jigsawstack>=0.2.7",
+    "invalid_prompt": "Prompt must be between {min}-{max} characters.",
+    "invalid_aspect_ratio": "Aspect ratio must be one of: {ratios}",
+    "invalid_width": "Width must be between {min}-{max} pixels.",
+    "invalid_height": "Height must be between {min}-{max} pixels.",
+    "invalid_steps": "Steps must be between {min}-{max}.",
+    "invalid_guidance": "Guidance scale must be between {min}-{max}.",
+    "no_url_returned": "JigsawStack API returned unsuccessful response - no image URL",
+    "jigsawstack_error": "JigsawStack error: {error}",
+    "unexpected_error": "An unexpected error occurred: {error}"
+  },
+  "logs": {
+    "starting_generation": "Starting image generation",
+    "creating_client": "Creating JigsawStack client",
+    "prompt_validated": "Prompt validated ({length} characters)",
+    "using_prompt": "Using prompt: {prompt}...",
+    "using_aspect_ratio": "Using aspect ratio: {ratio}",
+    "using_webhook_url": "Using webhook URL: {url}",
+    "using_file_store_key": "Using file store key: {key}",
+    "using_width": "Using width: {width}px",
+    "using_height": "Using height: {height}px",
+    "using_format": "Using output format: {format}",
+    "using_steps": "Using {steps} denoising steps",
+    "using_advanced_config": "Using advanced configuration",
+    "using_negative_prompt": "Using negative prompt: {prompt}...",
+    "using_seed": "Using seed: {seed} (deterministic generation)",
+    "using_guidance": "Using guidance scale: {guidance}",
+    "calling_api": "Calling JigsawStack image generation API",
+    "generation_complete": "Image generation complete - URL: {url}",
+    "generation_success": "Image generated successfully."
+  }
+}

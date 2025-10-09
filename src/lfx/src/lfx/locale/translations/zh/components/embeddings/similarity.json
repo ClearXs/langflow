@@ -1,0 +1,39 @@
+{
+  "display_name": "嵌入相似度",
+  "description": "计算两个嵌入向量之间选定形式的相似度。",
+  "embedding_vectors": {
+    "display_name": "嵌入向量",
+    "info": "包含恰好两个要比较的嵌入向量数据对象的列表。"
+  },
+  "similarity_metric": {
+    "display_name": "相似度度量",
+    "info": "选择要使用的相似度度量。",
+    "options": {
+      "cosine": "余弦相似度",
+      "euclidean": "欧几里得距离",
+      "manhattan": "曼哈顿距离"
+    }
+  },
+  "outputs": {
+    "similarity_data": {
+      "display_name": "相似度数据"
+    }
+  },
+  "errors": {
+    "two_vectors_required": "需要恰好两个嵌入向量。",
+    "missing_embeddings_key": "数据中缺少'embeddings'键：{error}",
+    "dimension_mismatch": "嵌入必须具有相同的维度。得到{dim1}和{dim2}。",
+    "unknown_metric": "未知的相似度度量：{metric}",
+    "computation_failed": "计算相似度失败：{error}",
+    "data_creation_failed": "创建相似度数据对象失败：{error}"
+  },
+  "logs": {
+    "computing_similarity": "正在计算{count}个嵌入向量之间的相似度",
+    "embeddings_extracted": "已提取嵌入 - 维度1：{dim1}，维度2：{dim2}",
+    "using_metric": "使用相似度度量：{metric}",
+    "cosine_computed": "余弦相似度已计算：{score:.6f}",
+    "euclidean_computed": "欧几里得距离已计算：{score:.6f}",
+    "manhattan_computed": "曼哈顿距离已计算：{score:.6f}",
+    "similarity_data_created": "相似度数据对象创建成功"
+  }
+}

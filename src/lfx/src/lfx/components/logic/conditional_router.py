@@ -1,66 +1,57 @@
-from typing import Any, Dict, List, Union
 import re
-import json
-from datetime import datetime
-import i18n
 
+import i18n
 from lfx.custom.custom_component.component import Component
-from lfx.inputs.inputs import (
-    BoolInput,
-    DropdownInput,
-    HandleInput,
-    MessageTextInput,
-    MultilineInput,
-    IntInput,
-    FloatInput
-)
-from lfx.schema.data import Data
+from lfx.io import BoolInput, DropdownInput, IntInput, MessageInput, MessageTextInput, Output
+from lfx.log.logger import logger
 from lfx.schema.message import Message
-from lfx.template.field.base import Output
 
 
 class ConditionalRouterComponent(Component):
     display_name = i18n.t('components.logic.conditional_router.display_name')
     description = i18n.t('components.logic.conditional_router.description')
-    documentation: str = "https://docs.langflow.org/components-logic#conditional-router"
-    icon = "GitBranch"
+    documentation: str = "https://docs.langflow.org/components-logic#conditional-router-if-else-component"
+    icon = "split"
     name = "ConditionalRouter"
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.__iteration_updated = False
+
     inputs = [
-        HandleInput(
-            name="input_data",
+        MessageTextInput(
+            name="input_text",
             display_name=i18n.t(
-                'components.logic.conditional_router.input_data.display_name'),
-            info=i18n.t('components.logic.conditional_router.input_data.info'),
-            input_types=["Data", "Message", "Text"],
-            required=True,
-        ),
-        MultilineInput(
-            name="conditions",
-            display_name=i18n.t(
-                'components.logic.conditional_router.conditions.display_name'),
-            info=i18n.t('components.logic.conditional_router.conditions.info'),
-            placeholder='[\n  {"name": "route1", "condition": "length > 10", "description": "Long text"},\n  {"name": "route2", "condition": "contains(\\"error\\")", "description": "Contains error"}\n]',
+                'components.logic.conditional_router.input_text.display_name'),
+            info=i18n.t('components.logic.conditional_router.input_text.info'),
             required=True,
         ),
         DropdownInput(
-            name="evaluation_mode",
+            name="operator",
             display_name=i18n.t(
-                'components.logic.conditional_router.evaluation_mode.display_name'),
-            info=i18n.t(
-                'components.logic.conditional_router.evaluation_mode.info'),
-            options=["first_match", "all_matches", "best_match"],
-            value="first_match",
-            advanced=True,
+                'components.logic.conditional_router.operator.display_name'),
+            options=[
+                "equals",
+                "not equals",
+                "contains",
+                "starts with",
+                "ends with",
+                "regex",
+                "less than",
+                "less than or equal",
+                "greater than",
+                "greater than or equal",
+            ],
+            info=i18n.t('components.logic.conditional_router.operator.info'),
+            value="equals",
+            real_time_refresh=True,
         ),
         MessageTextInput(
-            name="default_route",
+            name="match_text",
             display_name=i18n.t(
-                'components.logic.conditional_router.default_route.display_name'),
-            info=i18n.t(
-                'components.logic.conditional_router.default_route.info'),
-            value="default",
-            advanced=True,
+                'components.logic.conditional_router.match_text.display_name'),
+            info=i18n.t('components.logic.conditional_router.match_text.info'),
+            required=True,
         ),
         BoolInput(
             name="case_sensitive",
@@ -71,39 +62,39 @@ class ConditionalRouterComponent(Component):
             value=True,
             advanced=True,
         ),
-        BoolInput(
-            name="include_metadata",
+        MessageInput(
+            name="true_case_message",
             display_name=i18n.t(
-                'components.logic.conditional_router.include_metadata.display_name'),
+                'components.logic.conditional_router.true_case_message.display_name'),
             info=i18n.t(
-                'components.logic.conditional_router.include_metadata.info'),
-            value=True,
+                'components.logic.conditional_router.true_case_message.info'),
+            advanced=True,
+        ),
+        MessageInput(
+            name="false_case_message",
+            display_name=i18n.t(
+                'components.logic.conditional_router.false_case_message.display_name'),
+            info=i18n.t(
+                'components.logic.conditional_router.false_case_message.info'),
             advanced=True,
         ),
         IntInput(
-            name="max_routes",
+            name="max_iterations",
             display_name=i18n.t(
-                'components.logic.conditional_router.max_routes.display_name'),
-            info=i18n.t('components.logic.conditional_router.max_routes.info'),
-            value=0,
-            range_spec=(0, 100),
-            advanced=True,
-        ),
-        BoolInput(
-            name="strict_mode",
-            display_name=i18n.t(
-                'components.logic.conditional_router.strict_mode.display_name'),
+                'components.logic.conditional_router.max_iterations.display_name'),
             info=i18n.t(
-                'components.logic.conditional_router.strict_mode.info'),
-            value=False,
+                'components.logic.conditional_router.max_iterations.info'),
+            value=10,
             advanced=True,
         ),
-        MessageTextInput(
-            name="text_key",
+        DropdownInput(
+            name="default_route",
             display_name=i18n.t(
-                'components.logic.conditional_router.text_key.display_name'),
-            info=i18n.t('components.logic.conditional_router.text_key.info'),
-            value="text",
+                'components.logic.conditional_router.default_route.display_name'),
+            options=["true_result", "false_result"],
+            info=i18n.t(
+                'components.logic.conditional_router.default_route.info'),
+            value="false_result",
             advanced=True,
         ),
     ]
@@ -111,358 +102,205 @@ class ConditionalRouterComponent(Component):
     outputs = [
         Output(
             display_name=i18n.t(
-                'components.logic.conditional_router.outputs.routed_data.display_name'),
-            name="routed_data",
-            method="route_data",
+                'components.logic.conditional_router.outputs.true_result.display_name'),
+            name="true_result",
+            method="true_response",
+            group_outputs=True
         ),
         Output(
             display_name=i18n.t(
-                'components.logic.conditional_router.outputs.routing_info.display_name'),
-            name="routing_info",
-            method="get_routing_info",
-        ),
-        Output(
-            display_name=i18n.t(
-                'components.logic.conditional_router.outputs.matched_routes.display_name'),
-            name="matched_routes",
-            method="get_matched_routes",
+                'components.logic.conditional_router.outputs.false_result.display_name'),
+            name="false_result",
+            method="false_response",
+            group_outputs=True
         ),
     ]
 
-    def update_build_config(self, build_config: dict[str, Any], field_value: Any, field_name: str | None = None) -> dict[str, Any]:
-        """Update build config based on user selection."""
-        if field_name == "evaluation_mode":
-            if field_value == "all_matches":
-                build_config["max_routes"]["show"] = True
-            else:
-                build_config["max_routes"]["show"] = False
+    def _pre_run_setup(self):
+        self.__iteration_updated = False
+        logger.debug(
+            i18n.t('components.logic.conditional_router.logs.pre_run_setup'))
 
-        if field_name == "strict_mode":
-            if field_value:
-                build_config["default_route"]["show"] = False
-            else:
-                build_config["default_route"]["show"] = True
+    def evaluate_condition(self, input_text: str, match_text: str, operator: str, *, case_sensitive: bool) -> bool:
+        logger.debug(i18n.t('components.logic.conditional_router.logs.evaluating',
+                            operator=operator,
+                            case_sensitive=case_sensitive))
 
-        return build_config
+        if not case_sensitive and operator != "regex":
+            input_text = input_text.lower()
+            match_text = match_text.lower()
 
-    def _validate_inputs(self) -> None:
-        """Validate component inputs."""
-        if not self.conditions or not self.conditions.strip():
-            error_message = i18n.t(
-                'components.logic.conditional_router.errors.empty_conditions')
-            self.status = error_message
-            raise ValueError(error_message)
+        result = False
 
-        try:
-            conditions = json.loads(self.conditions)
-            if not isinstance(conditions, list):
-                raise ValueError("Conditions must be a list")
-
-            if not conditions:
-                raise ValueError("At least one condition is required")
-
-            for i, condition in enumerate(conditions):
-                if not isinstance(condition, dict):
-                    raise ValueError(f"Condition {i} must be an object")
-
-                if "name" not in condition or "condition" not in condition:
-                    raise ValueError(
-                        f"Condition {i} must have 'name' and 'condition' fields")
-
-        except (json.JSONDecodeError, ValueError) as e:
-            error_message = i18n.t('components.logic.conditional_router.errors.invalid_conditions_format',
-                                   error=str(e))
-            self.status = error_message
-            raise ValueError(error_message) from e
-
-    def _get_text_content(self, data: Any) -> str:
-        """Extract text content from various data types."""
-        if isinstance(data, str):
-            return data
-        elif isinstance(data, Message):
-            return data.text or ""
-        elif isinstance(data, Data):
-            if hasattr(data, self.text_key):
-                return str(getattr(data, self.text_key))
-            elif hasattr(data, 'data') and isinstance(data.data, dict):
-                return str(data.data.get(self.text_key, data.data.get('text', '')))
-            else:
-                return str(data)
-        elif isinstance(data, dict):
-            return str(data.get(self.text_key, data.get('text', '')))
-        else:
-            return str(data)
-
-    def _evaluate_condition(self, condition_str: str, text: str, data: Any) -> bool:
-        """Evaluate a single condition against the data."""
-        try:
-            # Create evaluation context
-            context = {
-                'text': text,
-                'length': len(text),
-                'data': data,
-                'now': datetime.now(),
-            }
-
-            # Add helper functions
-            def contains(substring: str) -> bool:
-                if not self.case_sensitive:
-                    return substring.lower() in text.lower()
-                return substring in text
-
-            def startswith(prefix: str) -> bool:
-                if not self.case_sensitive:
-                    return text.lower().startswith(prefix.lower())
-                return text.startswith(prefix)
-
-            def endswith(suffix: str) -> bool:
-                if not self.case_sensitive:
-                    return text.lower().endswith(suffix.lower())
-                return text.endswith(suffix)
-
-            def matches(pattern: str) -> bool:
-                flags = re.IGNORECASE if not self.case_sensitive else 0
-                return bool(re.search(pattern, text, flags))
-
-            def count(substring: str) -> int:
-                if not self.case_sensitive:
-                    return text.lower().count(substring.lower())
-                return text.count(substring)
-
-            def is_empty() -> bool:
-                return len(text.strip()) == 0
-
-            def is_numeric() -> bool:
-                try:
-                    float(text)
-                    return True
-                except ValueError:
-                    return False
-
-            def word_count() -> int:
-                return len(text.split())
-
-            # Add helper functions to context
-            context.update({
-                'contains': contains,
-                'startswith': startswith,
-                'endswith': endswith,
-                'matches': matches,
-                'count': count,
-                'is_empty': is_empty,
-                'is_numeric': is_numeric,
-                'word_count': word_count,
-            })
-
-            # Evaluate the condition
-            result = eval(condition_str, {"__builtins__": {}}, context)
-            return bool(result)
-
-        except Exception as e:
-            if self.strict_mode:
-                error_message = i18n.t('components.logic.conditional_router.errors.condition_evaluation_error',
-                                       condition=condition_str, error=str(e))
-                raise ValueError(error_message) from e
-            else:
-                warning_message = i18n.t('components.logic.conditional_router.warnings.condition_evaluation_warning',
-                                         condition=condition_str, error=str(e))
-                self.status = warning_message
+        if operator == "equals":
+            result = input_text == match_text
+        elif operator == "not equals":
+            result = input_text != match_text
+        elif operator == "contains":
+            result = match_text in input_text
+        elif operator == "starts with":
+            result = input_text.startswith(match_text)
+        elif operator == "ends with":
+            result = input_text.endswith(match_text)
+        elif operator == "regex":
+            try:
+                result = bool(re.match(match_text, input_text))
+            except re.error as e:
+                logger.warning(i18n.t('components.logic.conditional_router.warnings.invalid_regex',
+                                      pattern=match_text,
+                                      error=str(e)))
+                return False
+        elif operator in ["less than", "less than or equal", "greater than", "greater than or equal"]:
+            try:
+                input_num = float(input_text)
+                match_num = float(match_text)
+                if operator == "less than":
+                    result = input_num < match_num
+                elif operator == "less than or equal":
+                    result = input_num <= match_num
+                elif operator == "greater than":
+                    result = input_num > match_num
+                elif operator == "greater than or equal":
+                    result = input_num >= match_num
+            except ValueError as e:
+                logger.warning(i18n.t('components.logic.conditional_router.warnings.invalid_number',
+                                      input_text=input_text,
+                                      match_text=match_text,
+                                      error=str(e)))
                 return False
 
-    def _evaluate_conditions(self, text: str, data: Any) -> List[Dict[str, Any]]:
-        """Evaluate all conditions and return matching ones."""
-        try:
-            conditions = json.loads(self.conditions)
-            matched_conditions = []
+        logger.debug(i18n.t('components.logic.conditional_router.logs.evaluation_result',
+                            result=result))
+        return result
 
-            for condition in conditions:
-                condition_name = condition.get("name", "unknown")
-                condition_str = condition.get("condition", "")
-                description = condition.get("description", "")
+    def iterate_and_stop_once(self, route_to_stop: str):
+        """Handles cycle iteration counting and branch exclusion.
 
-                try:
-                    is_match = self._evaluate_condition(
-                        condition_str, text, data)
+        Uses two complementary mechanisms:
+        1. stop() - ACTIVE/INACTIVE state for cycle management (gets reset each iteration)
+        2. exclude_branch_conditionally() - Persistent exclusion for conditional routing
 
-                    match_info = {
-                        "name": condition_name,
-                        "condition": condition_str,
-                        "description": description,
-                        "matched": is_match,
-                        "timestamp": datetime.now().isoformat(),
-                    }
+        When max_iterations is reached, breaks the cycle by allowing the default_route to execute.
+        """
+        if not self.__iteration_updated:
+            current_iteration = self.ctx.get(f"{self._id}_iteration", 0) + 1
+            self.update_ctx({f"{self._id}_iteration": current_iteration})
+            self.__iteration_updated = True
 
-                    if is_match:
-                        matched_conditions.append(match_info)
+            logger.debug(i18n.t('components.logic.conditional_router.logs.iteration_updated',
+                                iteration=current_iteration,
+                                max_iterations=self.max_iterations))
 
-                    # For first_match mode, return immediately on first match
-                    if self.evaluation_mode == "first_match" and is_match:
-                        break
+            # Check if max iterations reached and we're trying to stop the default route
+            if current_iteration >= self.max_iterations and route_to_stop == self.default_route:
+                logger.info(i18n.t('components.logic.conditional_router.logs.max_iterations_reached',
+                                   iteration=current_iteration,
+                                   default_route=self.default_route))
 
-                except Exception as e:
-                    match_info = {
-                        "name": condition_name,
-                        "condition": condition_str,
-                        "description": description,
-                        "matched": False,
-                        "error": str(e),
-                        "timestamp": datetime.now().isoformat(),
-                    }
-                    if not self.strict_mode:
-                        continue
-                    else:
-                        raise
+                # Clear ALL conditional exclusions to allow default route to execute
+                if self._id in self.graph.conditional_exclusion_sources:
+                    previous_exclusions = self.graph.conditional_exclusion_sources[self._id]
+                    self.graph.conditionally_excluded_vertices -= previous_exclusions
+                    del self.graph.conditional_exclusion_sources[self._id]
+                    logger.debug(i18n.t('components.logic.conditional_router.logs.cleared_exclusions',
+                                        count=len(previous_exclusions)))
 
-            # Limit results if max_routes is set
-            if self.max_routes > 0 and len(matched_conditions) > self.max_routes:
-                matched_conditions = matched_conditions[:self.max_routes]
+                # Switch which route to stop - stop the NON-default route to break the cycle
+                route_to_stop = "true_result" if route_to_stop == "false_result" else "false_result"
+                logger.debug(i18n.t('components.logic.conditional_router.logs.switched_route',
+                                    new_route=route_to_stop))
 
-            return matched_conditions
+                # Call stop to break the cycle
+                self.stop(route_to_stop)
+                # Don't apply conditional exclusion when breaking cycle
+                return
 
-        except Exception as e:
-            error_message = i18n.t('components.logic.conditional_router.errors.conditions_evaluation_error',
-                                   error=str(e))
-            self.status = error_message
-            raise ValueError(error_message) from e
+            # Normal case: Use BOTH mechanisms
+            logger.debug(i18n.t('components.logic.conditional_router.logs.stopping_route',
+                                route=route_to_stop))
 
-    def route_data(self) -> List[Data]:
-        """Route data based on conditions."""
-        try:
-            self._validate_inputs()
+            # 1. stop() for cycle management (marks INACTIVE, updates run manager, gets reset)
+            self.stop(route_to_stop)
 
-            # Extract text content
-            text = self._get_text_content(self.input_data)
+            # 2. Conditional exclusion for persistent routing (doesn't get reset except by this router)
+            self.graph.exclude_branch_conditionally(
+                self._id, output_name=route_to_stop)
 
-            # Evaluate conditions
-            matched_conditions = self._evaluate_conditions(
-                text, self.input_data)
+    def true_response(self) -> Message:
+        result = self.evaluate_condition(
+            self.input_text, self.match_text, self.operator, case_sensitive=self.case_sensitive
+        )
 
-            results = []
+        # Check if we should force output due to max_iterations on default route
+        current_iteration = self.ctx.get(f"{self._id}_iteration", 0)
+        force_output = current_iteration >= self.max_iterations and self.default_route == "true_result"
 
-            if matched_conditions:
-                # Process matched conditions
-                for match in matched_conditions:
-                    route_data = {
-                        "route_name": match["name"],
-                        "original_data": self.input_data,
-                        "text_content": text,
-                        "condition": match["condition"],
-                        "description": match.get("description", ""),
-                        "matched": True,
-                    }
-
-                    if self.include_metadata:
-                        route_data["metadata"] = {
-                            "evaluation_mode": self.evaluation_mode,
-                            "case_sensitive": self.case_sensitive,
-                            "timestamp": match["timestamp"],
-                            "text_length": len(text),
-                        }
-
-                    results.append(
-                        Data(data=route_data, text_key="text_content"))
-
-                success_message = i18n.t('components.logic.conditional_router.success.conditions_matched',
-                                         count=len(matched_conditions))
-                self.status = success_message
-
+        if result or force_output:
+            if force_output:
+                self.status = i18n.t('components.logic.conditional_router.status.forced_true',
+                                     iteration=current_iteration)
+                logger.info(i18n.t('components.logic.conditional_router.logs.forced_true_output',
+                                   iteration=current_iteration))
             else:
-                # No matches - use default route if not in strict mode
-                if self.strict_mode:
-                    error_message = i18n.t(
-                        'components.logic.conditional_router.errors.no_matches_strict_mode')
-                    self.status = error_message
-                    raise ValueError(error_message)
-                else:
-                    route_data = {
-                        "route_name": self.default_route,
-                        "original_data": self.input_data,
-                        "text_content": text,
-                        "condition": "default",
-                        "description": "Default route - no conditions matched",
-                        "matched": False,
-                    }
+                self.status = i18n.t(
+                    'components.logic.conditional_router.status.condition_true')
+                logger.debug(
+                    i18n.t('components.logic.conditional_router.logs.condition_true'))
 
-                    if self.include_metadata:
-                        route_data["metadata"] = {
-                            "evaluation_mode": self.evaluation_mode,
-                            "case_sensitive": self.case_sensitive,
-                            "timestamp": datetime.now().isoformat(),
-                            "text_length": len(text),
-                        }
+            if not force_output:  # Only stop the other branch if not forcing due to max iterations
+                self.iterate_and_stop_once("false_result")
+            return self.true_case_message
 
-                    results.append(
-                        Data(data=route_data, text_key="text_content"))
+        logger.debug(
+            i18n.t('components.logic.conditional_router.logs.condition_false'))
+        self.iterate_and_stop_once("true_result")
+        return Message(content="")
 
-                    warning_message = i18n.t('components.logic.conditional_router.warnings.using_default_route',
-                                             route=self.default_route)
-                    self.status = warning_message
+    def false_response(self) -> Message:
+        result = self.evaluate_condition(
+            self.input_text, self.match_text, self.operator, case_sensitive=self.case_sensitive
+        )
 
-            return results
+        # Check if we should force output due to max_iterations on default route
+        current_iteration = self.ctx.get(f"{self._id}_iteration", 0)
+        force_output = current_iteration >= self.max_iterations and self.default_route == "false_result"
 
-        except Exception as e:
-            error_message = i18n.t(
-                'components.logic.conditional_router.errors.routing_error', error=str(e))
-            self.status = error_message
-            raise ValueError(error_message) from e
+        if not result or force_output:
+            if force_output:
+                self.status = i18n.t('components.logic.conditional_router.status.forced_false',
+                                     iteration=current_iteration)
+                logger.info(i18n.t('components.logic.conditional_router.logs.forced_false_output',
+                                   iteration=current_iteration))
+            else:
+                self.status = i18n.t(
+                    'components.logic.conditional_router.status.condition_false')
+                logger.debug(
+                    i18n.t('components.logic.conditional_router.logs.condition_false'))
 
-    def get_routing_info(self) -> Data:
-        """Get detailed routing information."""
-        try:
-            text = self._get_text_content(self.input_data)
-            conditions = json.loads(self.conditions)
+            self.iterate_and_stop_once("true_result")
+            return self.false_case_message
 
-            routing_info = {
-                "input_text_length": len(text),
-                "total_conditions": len(conditions),
-                "evaluation_mode": self.evaluation_mode,
-                "case_sensitive": self.case_sensitive,
-                "strict_mode": self.strict_mode,
-                "default_route": self.default_route,
-                "max_routes": self.max_routes,
-                "timestamp": datetime.now().isoformat(),
-                "conditions_summary": [
-                    {
-                        "name": cond.get("name", "unknown"),
-                        "description": cond.get("description", ""),
-                        "condition": cond.get("condition", "")
-                    }
-                    for cond in conditions
-                ]
-            }
+        logger.debug(
+            i18n.t('components.logic.conditional_router.logs.condition_true'))
+        self.iterate_and_stop_once("false_result")
+        return Message(content="")
 
-            return Data(data=routing_info, text_key="evaluation_mode")
+    def update_build_config(self, build_config: dict, field_value: str, field_name: str | None = None) -> dict:
+        if field_name == "operator":
+            logger.debug(i18n.t('components.logic.conditional_router.logs.updating_config',
+                                operator=field_value))
 
-        except Exception as e:
-            error_message = i18n.t(
-                'components.logic.conditional_router.errors.routing_info_error', error=str(e))
-            self.status = error_message
-            raise ValueError(error_message) from e
-
-    def get_matched_routes(self) -> List[Data]:
-        """Get list of all matched route names."""
-        try:
-            text = self._get_text_content(self.input_data)
-            matched_conditions = self._evaluate_conditions(
-                text, self.input_data)
-
-            if not matched_conditions:
-                return [Data(data={"route_name": self.default_route, "is_default": True}, text_key="route_name")]
-
-            results = []
-            for match in matched_conditions:
-                route_info = {
-                    "route_name": match["name"],
-                    "description": match.get("description", ""),
-                    "condition": match["condition"],
-                    "is_default": False,
-                }
-                results.append(Data(data=route_info, text_key="route_name"))
-
-            return results
-
-        except Exception as e:
-            error_message = i18n.t(
-                'components.logic.conditional_router.errors.matched_routes_error', error=str(e))
-            self.status = error_message
-            raise ValueError(error_message) from e
+            if field_value == "regex":
+                build_config.pop("case_sensitive", None)
+                logger.debug(
+                    i18n.t('components.logic.conditional_router.logs.removed_case_sensitive'))
+            elif "case_sensitive" not in build_config:
+                case_sensitive_input = next(
+                    (input_field for input_field in self.inputs if input_field.name ==
+                     "case_sensitive"), None
+                )
+                if case_sensitive_input:
+                    build_config["case_sensitive"] = case_sensitive_input.to_dict()
+                    logger.debug(
+                        i18n.t('components.logic.conditional_router.logs.added_case_sensitive'))
+        return build_config

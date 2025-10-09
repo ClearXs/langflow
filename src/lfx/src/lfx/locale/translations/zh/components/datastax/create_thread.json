@@ -1,0 +1,25 @@
+{
+  "display_name": "创建助手线程",
+  "description": "创建线程并返回线程ID",
+  "env_set": {
+    "display_name": "环境设置",
+    "info": "用于允许与Dotenv组件链接的虚拟输入。"
+  },
+  "outputs": {
+    "thread_id": {
+      "display_name": "线程ID"
+    }
+  },
+  "status": {
+    "creating": "正在创建线程...",
+    "created": "线程创建成功 - ID：{thread_id}"
+  },
+  "errors": {
+    "creation_failed": "创建线程失败：{error}"
+  },
+  "logs": {
+    "client_initialized": "OpenAI客户端初始化成功",
+    "processing_inputs": "正在处理输入 - env_set：{env_set}",
+    "creating_thread": "正在创建新线程"
+  }
+}

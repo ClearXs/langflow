@@ -1,6 +1,6 @@
 {
-  "display_name": "智能路由器",
-  "description": "使用基于LLM的分类来路由输入消息。",
+  "display_name": "智能路由",
+  "description": "使用基于LLM的分类路由输入消息。",
   "llm": {
     "display_name": "语言模型",
     "info": "用于分类的LLM。"
@@ -11,21 +11,17 @@
   },
   "routes": {
     "display_name": "路由",
-    "info": "定义路由的类别。每行应包含路由/类别名称和可选的自定义输出值。"
-  },
-  "table_schema": {
-    "route_category": {
-      "display_name": "路由/类别",
-      "description": "路由/类别的名称（用于输出名称和类别匹配）"
-    },
-    "output_value": {
-      "display_name": "输出值",
-      "description": "此类别的自定义消息（如果填写，则覆盖默认输出消息）"
+    "info": "定义用于路由的类别。每行应有一个路由/类别名称和可选的自定义输出值。",
+    "schema": {
+      "route_category": {
+        "display_name": "路由/类别",
+        "description": "路由/类别的名称（用于输出名称和类别匹配）"
+      },
+      "output_value": {
+        "display_name": "输出值",
+        "description": "此类别的自定义消息（如果填写则覆盖默认输出消息）"
+      }
     }
-  },
-  "default_routes": {
-    "positive": "True",
-    "negative": "False"
   },
   "message": {
     "display_name": "覆盖输出",
@@ -39,51 +35,55 @@
     "display_name": "附加说明",
     "info": "基于LLM分类的附加说明。这些将添加到基础提示中。使用{input_text}表示输入文本，{routes}表示可用类别。"
   },
-  "default_category": "类别 {number}",
-  "outputs": {
-    "else": {
-      "display_name": "其他"
-    }
-  },
-  "prompts": {
-    "base_classification": "你是一个文本分类器。给定以下文本和类别，确定哪个类别最匹配该文本。\n\n要分类的文本：\"{input_text}\"\n\n可用类别：{categories}\n\n只回应最匹配文本的确切类别名称。如果没有很好的匹配，回应\"NONE\"。\n\n类别：",
-    "with_custom_instructions": "{base_prompt}\n\n附加说明：\n{custom_instructions}"
-  },
   "status": {
     "using_custom_prompt": "使用自定义提示作为附加说明",
     "using_default_prompt": "使用默认提示进行LLM分类",
-    "categorized_as": "分类为{category}",
-    "no_match_no_else": "未找到匹配且Else输出已禁用",
-    "else_output_disabled": "Else输出已禁用",
-    "match_already_found": "在process_case中已找到匹配（类别{category}），停止default_response",
-    "using_custom_prompt_default_check": "使用自定义提示作为附加说明（默认检查）",
-    "using_default_prompt_default_check": "使用默认提示进行LLM分类（默认检查）",
-    "else_using_override": "路由到Else（无匹配）- 使用覆盖输出",
-    "else_using_input_default": "路由到Else（无匹配）- 使用输入作为默认值"
-  },
-  "warnings": {
-    "empty_input_text": "输入文本为空",
-    "custom_prompt_format_failed": "格式化自定义提示失败：{error}",
-    "default_check_failed": "默认检查分类失败：{error}"
-  },
-  "errors": {
-    "output_update_failed": "更新输出失败：{error}",
-    "no_routes_defined": "未定义路由",
-    "no_llm_provided": "未提供用于分类的LLM",
-    "llm_categorization_failed": "LLM分类时出错：{error}",
-    "process_case_failed": "处理案例失败：{error}",
-    "default_response_failed": "默认响应失败：{error}"
-  },
-  "logs": {
     "prompt_sent": "发送给LLM的提示：\n{prompt}",
     "llm_response": "LLM响应：'{response}'",
-    "comparing_categories": "将'{response}'与类别{index}比较：route_category='{category}'",
+    "comparing_category": "正在比较'{response}'与类别{index}：route_category='{category}'",
     "match_found": "找到匹配！类别{index}与'{response}'匹配",
-    "no_match_found": "未找到'{response}'的匹配。可用类别：{available}",
-    "default_check_prompt_sent": "默认检查 - 发送给LLM的提示：\n{prompt}",
-    "default_check_llm_response": "默认检查 - LLM响应：'{response}'",
-    "default_check_comparing": "默认检查 - 将'{response}'与类别{index}比较：route_category='{category}'",
+    "no_match_found": "未找到'{response}'的匹配。可用类别：{categories}",
+    "categorized_as": "分类为{category}",
+    "match_already_found": "在process_case中已找到匹配（类别{index}），停止default_response",
+    "using_custom_prompt_default": "使用自定义提示作为附加说明（默认检查）",
+    "using_default_prompt_default": "使用默认提示进行LLM分类（默认检查）",
+    "default_check_prompt": "默认检查 - 发送给LLM的提示：\n{prompt}",
+    "default_check_response": "默认检查 - LLM响应：'{response}'",
+    "default_check_comparing": "默认检查 - 正在比较'{response}'与类别{index}：route_category='{category}'",
     "default_check_match_found": "默认检查 - 找到匹配！类别{index}与'{response}'匹配",
-    "default_check_no_match": "默认检查 - 未找到'{response}'的匹配。可用类别：{available}"
+    "default_check_no_match": "默认检查 - 未找到'{response}'的匹配。可用类别：{categories}",
+    "else_using_override": "路由到Else（无匹配）- 使用覆盖输出",
+    "else_using_input": "路由到Else（无匹配）- 使用输入作为默认值"
+  },
+  "warnings": {
+    "no_llm_provided": "未提供用于分类的LLM",
+    "no_match_no_else": "未找到匹配且Else输出已禁用",
+    "else_output_disabled": "Else输出已禁用"
+  },
+  "errors": {
+    "llm_categorization_failed": "LLM分类错误：{error}"
+  },
+  "logs": {
+    "updating_outputs": "正在更新字段的输出：{field_name}",
+    "output_added": "已添加输出{index}：{category}",
+    "else_output_added": "已添加Else输出",
+    "outputs_updated": "输出已更新 - 总计：{count}",
+    "processing_started": "开始使用LLM分类处理案例",
+    "prompt_sent": "发送给LLM的提示：\n{prompt}",
+    "llm_response": "LLM分类响应：'{response}'",
+    "comparing_category": "正在比较'{response}'与类别{index}：'{category}'",
+    "match_found": "找到类别{index}的匹配：'{response}'",
+    "no_match_found": "未找到'{response}'的匹配。可用：{categories}",
+    "using_override_output": "使用覆盖输出消息",
+    "using_custom_output": "使用匹配类别的自定义输出值",
+    "using_input_as_output": "使用输入文本作为输出",
+    "routing_to_else": "路由到Else输出",
+    "default_check_prompt": "默认检查 - 正在向LLM发送提示：\n{prompt}",
+    "default_check_response": "默认检查 - LLM响应：'{response}'",
+    "default_check_comparing": "默认检查 - 正在比较'{response}'与类别{index}：'{category}'",
+    "default_check_match_found": "默认检查 - 找到类别{index}的匹配：'{response}'",
+    "default_check_no_match": "默认检查 - 未找到'{response}'的匹配。可用：{categories}",
+    "default_check_error": "默认检查分类期间发生错误",
+    "stopping_default_output": "在其他分支中找到匹配 - 停止默认输出"
   }
 }

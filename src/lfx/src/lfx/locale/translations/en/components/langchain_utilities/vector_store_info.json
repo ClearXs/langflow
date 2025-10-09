@@ -1,0 +1,20 @@
+{
+  "display_name": "Vector Store Info",
+  "description": "Information about a VectorStore",
+  "vectorstore_name": {
+    "display_name": "Name",
+    "info": "Name of the VectorStore"
+  },
+  "vectorstore_description": {
+    "display_name": "Description",
+    "info": "Description of the VectorStore"
+  },
+  "input_vectorstore": {
+    "display_name": "Vector Store"
+  },
+  "outputs": {
+    "info": {
+      "display_name": "Vector Store Info"
+    }
+  }
+}

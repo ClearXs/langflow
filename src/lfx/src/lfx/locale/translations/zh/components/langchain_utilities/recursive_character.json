@@ -1,0 +1,20 @@
+{
+  "display_name": "递归字符文本分割器",
+  "description": "尝试将所有相关文本保持在一起进行分割。",
+  "chunk_size": {
+    "display_name": "块大小",
+    "info": "每个块的最大长度。"
+  },
+  "chunk_overlap": {
+    "display_name": "块重叠",
+    "info": "块之间的重叠量。"
+  },
+  "data_input": {
+    "display_name": "输入",
+    "info": "要分割的文本。"
+  },
+  "separators": {
+    "display_name": "分隔符",
+    "info": "用于分割的字符。\n如果留空,默认为[\"\\n\\n\", \"\\n\", \" \", \"\"]。"
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "display_name": "Custom Component",
+  "description": "Use as a template to create your own component.",
+  "input_value": {
+    "display_name": "Input Value",
+    "info": "This is a custom component Input"
+  },
+  "outputs": {
+    "output": {
+      "display_name": "Output"
+    }
+  },
+  "status": {
+    "building": "Building output...",
+    "output_created": "Output created successfully"
+  },
+  "errors": {
+    "build_failed": "Failed to build output: {error}"
+  },
+  "logs": {
+    "building_output": "Building output from input value",
+    "creating_data": "Creating Data object - Value length: {value_length}"
+  }
+}

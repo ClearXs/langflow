@@ -1,0 +1,24 @@
+{
+  "display_name": "自然语言文本分割器",
+  "description": "基于自然语言边界分割文本,针对指定语言进行优化。",
+  "chunk_size": {
+    "display_name": "块大小",
+    "info": "分割后每个块的最大字符数。"
+  },
+  "chunk_overlap": {
+    "display_name": "块重叠",
+    "info": "连续块之间重叠的字符数。"
+  },
+  "data_input": {
+    "display_name": "输入",
+    "info": "要分割的文本数据。"
+  },
+  "separator": {
+    "display_name": "分隔符",
+    "info": "分割文本时用作分隔符的字符。\n如果留空,默认为\"\\n\\n\"。"
+  },
+  "language": {
+    "display_name": "语言",
+    "info": "文本的语言。默认为\"English\"(英语)。支持多种语言以更好地识别文本边界。"
+  }
+}

@@ -1,0 +1,125 @@
+{
+  "description": "Store and search documents using OpenSearch with hybrid semantic and keyword search capabilities.",
+  "docs_metadata": {
+    "display_name": "Document Metadata",
+    "info": "Additional metadata key-value pairs to be added to all ingested documents. Useful for tagging documents with source information, categories, or other custom attributes.",
+    "schema": {
+      "key": "Key",
+      "key_desc": "Key name",
+      "value": "Value",
+      "value_desc": "Value of the metadata"
+    }
+  },
+  "opensearch_url": {
+    "display_name": "OpenSearch URL",
+    "info": "The connection URL for your OpenSearch cluster (e.g., http://localhost:9200 for local development or your cloud endpoint)."
+  },
+  "index_name": {
+    "display_name": "Index Name",
+    "info": "The OpenSearch index name where documents will be stored and searched. Will be created automatically if it doesn't exist."
+  },
+  "engine": {
+    "display_name": "Vector Engine",
+    "info": "Vector search engine for similarity calculations. 'jvector' is recommended for most use cases. Note: Amazon OpenSearch Serverless only supports 'nmslib' or 'faiss'."
+  },
+  "space_type": {
+    "display_name": "Distance Metric",
+    "info": "Distance metric for calculating vector similarity. 'l2' (Euclidean) is most common, 'cosinesimil' for cosine similarity, 'innerproduct' for dot product."
+  },
+  "ef_construction": {
+    "display_name": "EF Construction",
+    "info": "Size of the dynamic candidate list during index construction. Higher values improve recall but increase indexing time and memory usage."
+  },
+  "m": {
+    "display_name": "M Parameter",
+    "info": "Number of bidirectional connections for each vector in the HNSW graph. Higher values improve search quality but increase memory usage and indexing time."
+  },
+  "embedding": {
+    "display_name": "Embedding"
+  },
+  "vector_field": {
+    "display_name": "Vector Field Name",
+    "info": "Name of the field in OpenSearch documents that stores the vector embeddings for similarity search."
+  },
+  "number_of_results": {
+    "display_name": "Default Result Limit",
+    "info": "Default maximum number of search results to return when no limit is specified in the filter expression."
+  },
+  "filter_expression": {
+    "display_name": "Search Filters (JSON)",
+    "info": "Optional JSON configuration for search filtering, result limits, and score thresholds.\n\nFormat 1 - Explicit filters:\n{\"filter\": [{\"term\": {\"filename\":\"doc.pdf\"}}, {\"terms\":{\"owner\":[\"user1\",\"user2\"]}}], \"limit\": 10, \"score_threshold\": 1.6}\n\nFormat 2 - Context-style mapping:\n{\"data_sources\":[\"file.pdf\"], \"document_types\":[\"application/pdf\"], \"owners\":[\"user123\"]}\n\nUse __IMPOSSIBLE_VALUE__ as placeholder to ignore specific filters."
+  },
+  "auth_mode": {
+    "display_name": "Authentication Mode",
+    "info": "Authentication method: 'basic' for username/password authentication, or 'jwt' for JSON Web Token (Bearer) authentication."
+  },
+  "username": {
+    "display_name": "Username"
+  },
+  "password": {
+    "display_name": "OpenSearch Password"
+  },
+  "jwt_token": {
+    "display_name": "JWT Token",
+    "info": "Valid JSON Web Token for authentication. Will be sent in the Authorization header (with optional 'Bearer ' prefix)."
+  },
+  "jwt_header": {
+    "display_name": "JWT Header Name"
+  },
+  "bearer_prefix": {
+    "display_name": "Prefix 'Bearer '"
+  },
+  "use_ssl": {
+    "display_name": "Use SSL/TLS",
+    "info": "Enable SSL/TLS encryption for secure connections to OpenSearch."
+  },
+  "verify_certs": {
+    "display_name": "Verify SSL Certificates",
+    "info": "Verify SSL certificates when connecting. Disable for self-signed certificates in development environments."
+  },
+  "errors": {
+    "aoss_engine_incompatible": "Amazon OpenSearch Service Serverless only supports `nmslib` or `faiss` engines",
+    "jwt_token_missing": "Auth Mode is 'jwt' but no jwt_token was provided.",
+    "basic_auth_missing": "Auth Mode is 'basic' but username/password are missing.",
+    "embedding_required": "Embedding handle is required to embed documents.",
+    "embedding_required_for_search": "Embedding is required to run hybrid search (KNN + keyword).",
+    "invalid_filter_json": "Invalid filter_expression JSON: {error}",
+    "search_documents_failed": "search_documents error: {error}",
+    "update_config_failed": "update_build_config error: {error}"
+  },
+  "logs": {
+    "creating_index_mapping": "Creating index mapping - Dimension: {dim}, Engine: {engine}, Space type: {space_type}",
+    "aoss_detected": "Amazon OpenSearch Serverless (AOSS) detected",
+    "preparing_bulk_ingest": "Preparing bulk ingest for {count} documents",
+    "sample_metadata": "Sample metadata: {metadata}",
+    "bulk_ingest_completed": "Bulk ingest completed - {count} documents ingested",
+    "building_auth": "Building authentication configuration - Mode: {mode}",
+    "jwt_auth_configured": "JWT authentication configured",
+    "basic_auth_configured": "Basic authentication configured",
+    "building_client": "Building OpenSearch client - URL: {url}",
+    "client_created": "OpenSearch client created successfully",
+    "building_vector_store": "Building OpenSearch vector store",
+    "no_documents_to_ingest": "No documents to ingest.",
+    "processing_documents": "Processing {count} documents for ingestion",
+    "additional_metadata": "Additional metadata fields: {count}",
+    "generating_embeddings": "Generating embeddings for {count} documents",
+    "no_vectors_generated": "No vectors generated from documents.",
+    "vector_dimension": "Vector dimension: {dim}",
+    "indexing_documents": "Indexing {count} documents into '{index}' with proper KNN mapping...",
+    "successfully_indexed": "Successfully indexed {count} documents.",
+    "filter_parsed": "Filter expression parsed successfully",
+    "invalid_filter_json": "Invalid filter JSON, treating as no filters",
+    "explicit_filters": "Applied {count} explicit filter clause(s)",
+    "context_filters": "Applied {count} context-style filter clause(s)",
+    "starting_hybrid_search": "Starting hybrid search",
+    "search_query": "Search query: {query}",
+    "filter_expression_parsed": "Filter expression parsed successfully",
+    "embedding_query": "Embedding search query",
+    "search_params": "Search parameters - Limit: {limit}, Threshold: {threshold}, Filters: {filters}",
+    "executing_search": "Executing hybrid search query",
+    "search_completed": "Search completed - Found {count} result(s)",
+    "searching_documents": "Searching documents",
+    "documents_found": "Found {count} document(s)",
+    "auth_mode_changed": "Authentication mode changed to: {mode}"
+  }
+}

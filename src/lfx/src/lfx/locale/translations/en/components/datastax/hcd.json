@@ -1,0 +1,122 @@
+{
+  "display_name": "Hyper-Converged Database",
+  "description": "Implementation of Vector Store using Hyper-Converged Database (HCD) with search capabilities",
+  "collection_name": {
+    "display_name": "Collection Name",
+    "info": "The name of the collection within HCD where the vectors will be stored."
+  },
+  "username": {
+    "display_name": "HCD Username",
+    "info": "Authentication username for accessing HCD."
+  },
+  "password": {
+    "display_name": "HCD Password",
+    "info": "Authentication password for accessing HCD."
+  },
+  "api_endpoint": {
+    "display_name": "HCD API Endpoint",
+    "info": "API endpoint URL for the HCD service."
+  },
+  "namespace": {
+    "display_name": "Namespace",
+    "info": "Optional namespace within HCD to use for the collection."
+  },
+  "ca_certificate": {
+    "display_name": "CA Certificate",
+    "info": "Optional CA certificate for TLS connections to HCD."
+  },
+  "metric": {
+    "display_name": "Metric",
+    "info": "Optional distance metric for vector comparisons in the vector store."
+  },
+  "batch_size": {
+    "display_name": "Batch Size",
+    "info": "Optional number of data to process in a single batch."
+  },
+  "bulk_insert_batch_concurrency": {
+    "display_name": "Bulk Insert Batch Concurrency",
+    "info": "Optional concurrency level for bulk insert operations."
+  },
+  "bulk_insert_overwrite_concurrency": {
+    "display_name": "Bulk Insert Overwrite Concurrency",
+    "info": "Optional concurrency level for bulk insert operations that overwrite existing data."
+  },
+  "bulk_delete_concurrency": {
+    "display_name": "Bulk Delete Concurrency",
+    "info": "Optional concurrency level for bulk delete operations."
+  },
+  "setup_mode": {
+    "display_name": "Setup Mode",
+    "info": "Configuration mode for setting up the vector store, with options like 'Sync', 'Async', or 'Off'."
+  },
+  "pre_delete_collection": {
+    "display_name": "Pre Delete Collection",
+    "info": "Boolean flag to determine whether to delete the collection before creating a new one."
+  },
+  "metadata_indexing_include": {
+    "display_name": "Metadata Indexing Include",
+    "info": "Optional list of metadata fields to include in the indexing."
+  },
+  "embedding": {
+    "display_name": "Embedding or Astra Vectorize",
+    "info": "Allows either an embedding model or an Astra Vectorize configuration."
+  },
+  "metadata_indexing_exclude": {
+    "display_name": "Metadata Indexing Exclude",
+    "info": "Optional list of metadata fields to exclude from the indexing."
+  },
+  "collection_indexing_policy": {
+    "display_name": "Collection Indexing Policy",
+    "info": "Optional dictionary defining the indexing policy for the collection."
+  },
+  "number_of_results": {
+    "display_name": "Number of Results",
+    "info": "Number of results to return."
+  },
+  "search_type": {
+    "display_name": "Search Type",
+    "info": "Search type to use"
+  },
+  "search_score_threshold": {
+    "display_name": "Search Score Threshold",
+    "info": "Minimum similarity score threshold for search results. (when using 'Similarity with score threshold')"
+  },
+  "search_filter": {
+    "display_name": "Search Metadata Filter",
+    "info": "Optional dictionary of filters to apply to the search query."
+  },
+  "errors": {
+    "langchain_import_failed": "Could not import langchain Astra DB integration package. Please install it with `pip install langchain-astradb`.",
+    "astrapy_import_failed": "Could not import astrapy integration package. Please install it with `pip install astrapy`.",
+    "invalid_setup_mode": "Invalid setup mode: {mode}",
+    "initialization_failed": "Error initializing AstraDBVectorStore: {error}",
+    "invalid_input_type": "Vector Store Inputs must be Data objects.",
+    "add_documents_failed": "Error adding documents to AstraDBVectorStore: {error}",
+    "search_failed": "Error performing search in AstraDBVectorStore: {error}"
+  },
+  "logs": {
+    "langchain_import_successful": "Langchain Astra DB package imported successfully",
+    "astrapy_import_successful": "Astrapy package imported successfully",
+    "setup_mode_set": "Setup mode set to: {mode}",
+    "using_embedding_model": "Using embedding model",
+    "using_vectorize_config": "Using Astra Vectorize configuration",
+    "creating_token_provider": "Creating token provider with username: {username}",
+    "metadata_include_set": "Metadata indexing include fields set",
+    "metadata_exclude_set": "Metadata indexing exclude fields set",
+    "indexing_policy_set": "Collection indexing policy set",
+    "initializing_vector_store": "Initializing HCD Vector Store - Collection: {collection}, Namespace: {namespace}",
+    "vector_store_initialized": "HCD Vector Store initialized successfully",
+    "adding_documents": "Adding {count} documents to the Vector Store",
+    "documents_added": "{count} documents added successfully",
+    "no_documents": "No documents to add to the Vector Store",
+    "mapping_search_type": "Mapping search type: {search_type}",
+    "filter_applied": "Search filter applied with {count} conditions",
+    "search_query": "Search query: {query}",
+    "search_type_log": "Search type: {search_type}",
+    "number_of_results": "Number of results: {count}",
+    "performing_search": "Performing {search_type} search",
+    "retrieved_documents": "Retrieved documents: {count}",
+    "converted_to_data": "Converted documents to data: {count}",
+    "no_search_input": "No search input provided. Skipping search."
+  }
+}

@@ -1,3 +1,4 @@
+import i18n
 from langchain.chains import LLMCheckerChain
 
 from lfx.base.chains.model import LCChainComponent
@@ -6,8 +7,10 @@ from lfx.schema import Message
 
 
 class LLMCheckerChainComponent(LCChainComponent):
-    display_name = "LLMCheckerChain"
-    description = "Chain for question-answering with self-verification."
+    display_name = i18n.t(
+        'components.langchain_utilities.llm_checker.display_name')
+    description = i18n.t(
+        'components.langchain_utilities.llm_checker.description')
     documentation = "https://python.langchain.com/docs/modules/chains/additional/llm_checker"
     name = "LLMCheckerChain"
     legacy: bool = True
@@ -15,13 +18,16 @@ class LLMCheckerChainComponent(LCChainComponent):
     inputs = [
         MultilineInput(
             name="input_value",
-            display_name="Input",
-            info="The input value to pass to the chain.",
+            display_name=i18n.t(
+                'components.langchain_utilities.llm_checker.input_value.display_name'),
+            info=i18n.t(
+                'components.langchain_utilities.llm_checker.input_value.info'),
             required=True,
         ),
         HandleInput(
             name="llm",
-            display_name="Language Model",
+            display_name=i18n.t(
+                'components.langchain_utilities.llm_checker.llm.display_name'),
             input_types=["LanguageModel"],
             required=True,
         ),

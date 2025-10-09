@@ -1,0 +1,46 @@
+{
+  "description": "Analyze sentiment of text using JigsawStack AI. Detects overall sentiment, emotion, confidence scores, and provides sentence-level analysis.",
+  "api_key": {
+    "display_name": "JigsawStack API Key",
+    "info": "Your JigsawStack API key for authentication"
+  },
+  "text": {
+    "display_name": "Text",
+    "info": "Text to analyze for sentiment"
+  },
+  "outputs": {
+    "sentiment_data": {
+      "display_name": "Sentiment Data"
+    },
+    "sentiment_text": {
+      "display_name": "Sentiment Text"
+    }
+  },
+  "errors": {
+    "import_error": "JigsawStack package not found. Please install it using: pip install jigsawstack>=0.2.7",
+    "empty_text": "Text is required for sentiment analysis",
+    "api_request_failed": "JigsawStack API returned unsuccessful response",
+    "jigsawstack_error": "JigsawStack error: {error}",
+    "analysis_error": "Error analyzing sentiment: {error}",
+    "unexpected_error": "An unexpected error occurred: {error}"
+  },
+  "logs": {
+    "starting_analysis": "Starting sentiment analysis ({text_length} characters)",
+    "creating_client": "Creating JigsawStack client",
+    "analyzing_text": "Analyzing text: {preview}...",
+    "calling_api": "Calling JigsawStack sentiment analysis API",
+    "analysis_complete": "Sentiment analysis complete - Sentiment: {sentiment}, Emotion: {emotion}, Score: {score:.3f}, Sentences: {sentence_count}",
+    "analysis_summary": "Sentiment: {sentiment} | Emotion: {emotion} | Score: {score:.3f}",
+    "generating_text_output": "Generating formatted text output",
+    "text_output_generated": "Formatted text output generated successfully"
+  },
+  "output": {
+    "header": "Sentiment Analysis Results:",
+    "text": "Text: {text}",
+    "overall_sentiment": "Overall Sentiment: {sentiment}",
+    "emotion": "Emotion: {emotion}",
+    "score": "Score: {score}",
+    "sentence_analysis": "Sentence-by-sentence Analysis:",
+    "sentence_item": "{index}. {text}\n   Sentiment: {sentiment} | Emotion: {emotion} | Score: {score}"
+  }
+}

@@ -1,0 +1,114 @@
+{
+  "display_name": "Astra DB Graph",
+  "description": "Implementation of Graph Vector Store using Astra DB",
+  "token": {
+    "display_name": "Astra DB Application Token",
+    "info": "Authentication token for accessing Astra DB."
+  },
+  "api_endpoint": {
+    "display_name": "API Endpoint",
+    "display_name_enhanced": "Database",
+    "info": "API endpoint URL for the Astra DB service."
+  },
+  "collection_name": {
+    "display_name": "Collection Name",
+    "info": "The name of the collection within Astra DB where the vectors will be stored."
+  },
+  "metadata_incoming_links_key": {
+    "display_name": "Metadata incoming links key",
+    "info": "Metadata key used for incoming links."
+  },
+  "keyspace": {
+    "display_name": "Keyspace",
+    "info": "Optional keyspace within Astra DB to use for the collection."
+  },
+  "embedding_model": {
+    "display_name": "Embedding Model",
+    "info": "Allows an embedding model configuration."
+  },
+  "metric": {
+    "display_name": "Metric",
+    "info": "Optional distance metric for vector comparisons in the vector store."
+  },
+  "batch_size": {
+    "display_name": "Batch Size",
+    "info": "Optional number of data to process in a single batch."
+  },
+  "bulk_insert_batch_concurrency": {
+    "display_name": "Bulk Insert Batch Concurrency",
+    "info": "Optional concurrency level for bulk insert operations."
+  },
+  "bulk_insert_overwrite_concurrency": {
+    "display_name": "Bulk Insert Overwrite Concurrency",
+    "info": "Optional concurrency level for bulk insert operations that overwrite existing data."
+  },
+  "bulk_delete_concurrency": {
+    "display_name": "Bulk Delete Concurrency",
+    "info": "Optional concurrency level for bulk delete operations."
+  },
+  "setup_mode": {
+    "display_name": "Setup Mode",
+    "info": "Configuration mode for setting up the vector store, with options like 'Sync', or 'Off'."
+  },
+  "pre_delete_collection": {
+    "display_name": "Pre Delete Collection",
+    "info": "Boolean flag to determine whether to delete the collection before creating a new one."
+  },
+  "metadata_indexing_include": {
+    "display_name": "Metadata Indexing Include",
+    "info": "Optional list of metadata fields to include in the indexing."
+  },
+  "metadata_indexing_exclude": {
+    "display_name": "Metadata Indexing Exclude",
+    "info": "Optional list of metadata fields to exclude from the indexing."
+  },
+  "collection_indexing_policy": {
+    "display_name": "Collection Indexing Policy",
+    "info": "Optional JSON string for the 'indexing' field of the collection. See https://docs.datastax.com/en/astra-db-serverless/api-reference/collections.html#the-indexing-option"
+  },
+  "number_of_results": {
+    "display_name": "Number of Results",
+    "info": "Number of results to return."
+  },
+  "search_type": {
+    "display_name": "Search Type",
+    "info": "Search type to use"
+  },
+  "search_score_threshold": {
+    "display_name": "Search Score Threshold",
+    "info": "Minimum similarity score threshold for search results. (when using 'Similarity with score threshold')"
+  },
+  "search_filter": {
+    "display_name": "Search Metadata Filter",
+    "info": "Optional dictionary of filters to apply to the search query."
+  },
+  "errors": {
+    "langchain_import_failed": "Could not import langchain Astra DB integration package. Please install it with `pip install langchain-astradb`.",
+    "invalid_setup_mode": "Invalid setup mode: {mode}",
+    "initialization_failed": "Error initializing AstraDBGraphVectorStore: {error}",
+    "invalid_input_type": "Vector Store Inputs must be Data objects.",
+    "add_documents_failed": "Error adding documents to AstraDBGraphVectorStore: {error}",
+    "search_failed": "Error performing search in AstraDBGraphVectorStore: {error}"
+  },
+  "logs": {
+    "langchain_import_successful": "Langchain Astra DB package imported successfully",
+    "setup_mode_set": "Setup mode set to: {mode}",
+    "initializing": "Initializing Graph Vector Store {collection}",
+    "environment_detected": "Environment detected: {environment}",
+    "environment_parse_warning": "Warning: Could not import parse_api_endpoint, using None for environment",
+    "initialized": "Vector Store initialized: {collection}",
+    "adding_documents": "Adding {count} documents to the Vector Store",
+    "documents_added": "{count} documents added successfully",
+    "no_documents": "No documents to add to the Vector Store",
+    "mapping_search_type": "Mapping search type: {search_type}",
+    "filter_applied": "Search filter applied with {count} conditions",
+    "searching": "Searching for documents in AstraDBGraphVectorStore",
+    "search_query": "Search query: {query}",
+    "search_type_log": "Search type: {search_type}",
+    "number_of_results": "Number of results: {count}",
+    "removing_links": "Removing links from metadata",
+    "retrieved_documents": "Retrieved documents: {count}",
+    "converted_to_data": "Converted documents to data: {count}",
+    "no_search_input": "No search input provided. Skipping search."
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "display_name": "Text Translate",
+  "description": "Translate text from one language to another with support for multiple text formats.",
+  "api_key": {
+    "display_name": "JigsawStack API Key",
+    "info": "Your JigsawStack API key for authentication."
+  },
+  "target_language": {
+    "display_name": "Target Language",
+    "info": "The language code of the target language to translate to. Language code is identified by a unique ISO 639-1 two-letter code."
+  },
+  "text": {
+    "display_name": "Text",
+    "info": "The text to translate. This can be a single string or a list of strings. If a list is provided, each string will be translated separately."
+  },
+  "outputs": {
+    "translation_results": {
+      "display_name": "Translation Results"
+    }
+  }
+}

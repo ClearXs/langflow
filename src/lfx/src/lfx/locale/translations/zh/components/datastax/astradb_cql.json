@@ -1,0 +1,103 @@
+{
+  "display_name": "Astra DB CQL",
+  "description": "创建工具从DataStax Astra DB CQL表获取事务数据",
+  "tool_name": {
+    "display_name": "工具名称",
+    "info": "工具的名称。"
+  },
+  "tool_description": {
+    "display_name": "工具描述",
+    "info": "要传递给模型的工具描述。"
+  },
+  "keyspace": {
+    "display_name": "键空间",
+    "info": "数据存储在Astra DB中的键空间名称。"
+  },
+  "table_name": {
+    "display_name": "表名",
+    "info": "数据存储在Astra DB中的表名称。"
+  },
+  "token": {
+    "display_name": "Astra DB应用令牌",
+    "info": "访问Astra DB的身份验证令牌。"
+  },
+  "api_endpoint": {
+    "display_name": "API端点",
+    "info": "Astra DB服务的API端点URL。"
+  },
+  "projection_fields": {
+    "display_name": "投影字段",
+    "info": "以逗号分隔返回的属性。"
+  },
+  "tools_params": {
+    "display_name": "工具参数",
+    "info": "定义工具参数的结构。以LLM能够理解如何使用它们的方式描述参数。添加参数时要尊重表模式（分区键、集群键和索引字段）。",
+    "schema": {
+      "name": {
+        "display_name": "名称",
+        "description": "模型使用的字段/参数名称。"
+      },
+      "field_name": {
+        "display_name": "字段名称",
+        "description": "指定要在表上过滤的列名。如果属性名称与字段名称相同，则留空。"
+      },
+      "description": {
+        "display_name": "描述",
+        "description": "描述参数的目的。"
+      },
+      "mandatory": {
+        "display_name": "是否必需",
+        "description": "指示字段是否为必需。"
+      },
+      "is_timestamp": {
+        "display_name": "是否时间戳",
+        "description": "指示字段是否为时间戳。"
+      },
+      "operator": {
+        "display_name": "操作符",
+        "description": "设置字段的操作符。https://docs.datastax.com/en/astra-db-serverless/api-reference/documents.html#operators"
+      }
+    }
+  },
+  "partition_keys": {
+    "display_name": "已弃用：分区键",
+    "info": "字段名称和对模型的描述"
+  },
+  "clustering_keys": {
+    "display_name": "已弃用：集群键",
+    "info": "字段名称和对模型的描述"
+  },
+  "static_filters": {
+    "display_name": "静态过滤器",
+    "info": "字段名称和值。填写后，将不由LLM生成。"
+  },
+  "number_of_results": {
+    "display_name": "结果数量",
+    "info": "要返回的结果数量。"
+  },
+  "errors": {
+    "timestamp_parse_failed": "无法解析日期：{timestamp}",
+    "timestamp_error": "解析时间戳错误：{error} - 使用提示以正确格式指定日期",
+    "request_failed": "Astra DB CQL工具{tool_name}请求错误：{response}"
+  },
+  "logs": {
+    "parsing_timestamp": "正在解析时间戳：{timestamp}",
+    "timestamp_parsed": "时间戳解析成功：{formatted}",
+    "making_request": "正在向Astra DB发出请求 - 表：{table}，键空间：{keyspace}",
+    "processing_params": "正在处理{count}个参数",
+    "using_static_filter": "正在使用字段的静态过滤器：{field}",
+    "using_arg_value": "正在使用参数的参数值：{param}",
+    "request_url": "请求URL：{url}",
+    "request_successful": "请求成功 - 检索到{count}个结果",
+    "no_json_response": "没有JSON响应，状态码：{status_code}",
+    "creating_args_schema": "正在创建参数模式",
+    "args_schema_created": "参数模式已创建，包含{field_count}个字段",
+    "building_tool": "正在构建工具：{tool_name}",
+    "tool_built": "工具构建成功：{tool_name}",
+    "parsing_projection": "正在解析投影字段：{input_str}",
+    "projection_parsed": "投影已解析 - {count}个字段",
+    "running_tool": "正在运行工具：{tool_name}",
+    "tool_completed": "工具执行完成 - {count}个结果",
+    "no_results": "未返回结果"
+  }
+}

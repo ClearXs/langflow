@@ -1,0 +1,36 @@
+{
+  "description": "Call the Serper.dev Google Search API.",
+  "serper_api_key": {
+    "display_name": "Serper API Key"
+  },
+  "input_value": {
+    "display_name": "Input"
+  },
+  "k": {
+    "display_name": "Number of results"
+  },
+  "outputs": {
+    "results": {
+      "display_name": "Results"
+    }
+  },
+  "errors": {
+    "value_error": "Value error occurred while searching: {error}",
+    "key_error": "Key error occurred while processing results: {error}",
+    "connection_error": "Connection error occurred while searching: {error}",
+    "unexpected_error": "Unexpected error occurred while searching: {error}"
+  },
+  "logs": {
+    "searching": "Searching Serper with query: {query}",
+    "building_wrapper": "Building Serper API wrapper with k={k}",
+    "executing_search": "Executing Serper search",
+    "results_retrieved": "Retrieved {count} organic result(s)",
+    "dataframe_created": "DataFrame created with {rows} row(s)",
+    "status_success": "Found {count} search result(s)",
+    "text_search": "Performing text search with Serper",
+    "text_result_generated": "Text result generated - Length: {length} characters",
+    "no_results": "No results found.",
+    "creating_wrapper": "Creating GoogleSerperAPIWrapper instance",
+    "building": "Building Google Serper API component"
+  }
+}

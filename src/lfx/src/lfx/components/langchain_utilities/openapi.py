@@ -1,3 +1,4 @@
+import i18n
 from pathlib import Path
 
 import yaml
@@ -12,15 +13,38 @@ from lfx.inputs.inputs import BoolInput, FileInput, HandleInput
 
 
 class OpenAPIAgentComponent(LCAgentComponent):
-    display_name = "OpenAPI Agent"
-    description = "Agent to interact with OpenAPI API."
+    display_name = i18n.t(
+        'components.langchain_utilities.openapi.display_name')
+    description = i18n.t('components.langchain_utilities.openapi.description')
     name = "OpenAPIAgent"
     icon = "LangChain"
     inputs = [
         *LCAgentComponent.get_base_inputs(),
-        HandleInput(name="llm", display_name="Language Model", input_types=["LanguageModel"], required=True),
-        FileInput(name="path", display_name="File Path", file_types=["json", "yaml", "yml"], required=True),
-        BoolInput(name="allow_dangerous_requests", display_name="Allow Dangerous Requests", value=False, required=True),
+        HandleInput(
+            name="llm",
+            display_name=i18n.t(
+                'components.langchain_utilities.openapi.llm.display_name'),
+            input_types=["LanguageModel"],
+            required=True,
+            info=i18n.t('components.langchain_utilities.openapi.llm.info'),
+        ),
+        FileInput(
+            name="path",
+            display_name=i18n.t(
+                'components.langchain_utilities.openapi.path.display_name'),
+            file_types=["json", "yaml", "yml"],
+            required=True,
+            info=i18n.t('components.langchain_utilities.openapi.path.info'),
+        ),
+        BoolInput(
+            name="allow_dangerous_requests",
+            display_name=i18n.t(
+                'components.langchain_utilities.openapi.allow_dangerous_requests.display_name'),
+            value=False,
+            required=True,
+            info=i18n.t(
+                'components.langchain_utilities.openapi.allow_dangerous_requests.info'),
+        ),
     ]
 
     def build_agent(self) -> AgentExecutor:

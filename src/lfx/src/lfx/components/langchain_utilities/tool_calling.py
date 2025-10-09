@@ -1,3 +1,4 @@
+import i18n
 from langchain.agents import create_tool_calling_agent
 from langchain_core.prompts import ChatPromptTemplate
 
@@ -11,8 +12,10 @@ from lfx.schema.data import Data
 
 
 class ToolCallingAgentComponent(LCToolsAgentComponent):
-    display_name: str = "Tool Calling Agent"
-    description: str = "An agent designed to utilize various tools seamlessly within workflows."
+    display_name: str = i18n.t(
+        'components.langchain_utilities.tool_calling.display_name')
+    description: str = i18n.t(
+        'components.langchain_utilities.tool_calling.description')
     icon = "LangChain"
     name = "ToolCallingAgent"
 
@@ -20,23 +23,29 @@ class ToolCallingAgentComponent(LCToolsAgentComponent):
         *LCToolsAgentComponent.get_base_inputs(),
         HandleInput(
             name="llm",
-            display_name="Language Model",
+            display_name=i18n.t(
+                'components.langchain_utilities.tool_calling.llm.display_name'),
             input_types=["LanguageModel"],
             required=True,
-            info="Language model that the agent utilizes to perform tasks effectively.",
+            info=i18n.t(
+                'components.langchain_utilities.tool_calling.llm.info'),
         ),
         MessageTextInput(
             name="system_prompt",
-            display_name="System Prompt",
-            info="System prompt to guide the agent's behavior.",
+            display_name=i18n.t(
+                'components.langchain_utilities.tool_calling.system_prompt.display_name'),
+            info=i18n.t(
+                'components.langchain_utilities.tool_calling.system_prompt.info'),
             value="You are a helpful assistant that can use tools to answer questions and perform tasks.",
         ),
         DataInput(
             name="chat_history",
-            display_name="Chat Memory",
+            display_name=i18n.t(
+                'components.langchain_utilities.tool_calling.chat_history.display_name'),
             is_list=True,
             advanced=True,
-            info="This input stores the chat history, allowing the agent to remember previous conversations.",
+            info=i18n.t(
+                'components.langchain_utilities.tool_calling.chat_history.info'),
         ),
     ]
 

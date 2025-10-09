@@ -1,5 +1,6 @@
 import os
 
+import i18n
 import orjson
 
 from lfx.base.vectorstores.model import LCVectorStoreComponent, check_cached_vector_store
@@ -14,135 +15,166 @@ from lfx.inputs.inputs import (
     SecretStrInput,
     StrInput,
 )
+from lfx.log.logger import logger
 from lfx.schema.data import Data
 
 
 class AstraDBGraphVectorStoreComponent(LCVectorStoreComponent):
-    display_name: str = "Astra DB Graph"
-    description: str = "Implementation of Graph Vector Store using Astra DB"
+    display_name: str = i18n.t(
+        'components.datastax.astradb_graph.display_name')
+    description: str = i18n.t('components.datastax.astradb_graph.description')
     name = "AstraDBGraph"
     icon: str = "AstraDB"
 
     inputs = [
         SecretStrInput(
             name="token",
-            display_name="Astra DB Application Token",
-            info="Authentication token for accessing Astra DB.",
+            display_name=i18n.t(
+                'components.datastax.astradb_graph.token.display_name'),
+            info=i18n.t('components.datastax.astradb_graph.token.info'),
             value="ASTRA_DB_APPLICATION_TOKEN",
             required=True,
             advanced=os.getenv("ASTRA_ENHANCED", "false").lower() == "true",
         ),
         SecretStrInput(
             name="api_endpoint",
-            display_name="Database" if os.getenv("ASTRA_ENHANCED", "false").lower() == "true" else "API Endpoint",
-            info="API endpoint URL for the Astra DB service.",
+            display_name=i18n.t('components.datastax.astradb_graph.api_endpoint.display_name_enhanced'
+                                if os.getenv("ASTRA_ENHANCED", "false").lower() == "true"
+                                else 'components.datastax.astradb_graph.api_endpoint.display_name'),
+            info=i18n.t('components.datastax.astradb_graph.api_endpoint.info'),
             value="ASTRA_DB_API_ENDPOINT",
             required=True,
         ),
         StrInput(
             name="collection_name",
-            display_name="Collection Name",
-            info="The name of the collection within Astra DB where the vectors will be stored.",
+            display_name=i18n.t(
+                'components.datastax.astradb_graph.collection_name.display_name'),
+            info=i18n.t(
+                'components.datastax.astradb_graph.collection_name.info'),
             required=True,
         ),
         StrInput(
             name="metadata_incoming_links_key",
-            display_name="Metadata incoming links key",
-            info="Metadata key used for incoming links.",
+            display_name=i18n.t(
+                'components.datastax.astradb_graph.metadata_incoming_links_key.display_name'),
+            info=i18n.t(
+                'components.datastax.astradb_graph.metadata_incoming_links_key.info'),
             advanced=True,
         ),
         *LCVectorStoreComponent.inputs,
         StrInput(
             name="keyspace",
-            display_name="Keyspace",
-            info="Optional keyspace within Astra DB to use for the collection.",
+            display_name=i18n.t(
+                'components.datastax.astradb_graph.keyspace.display_name'),
+            info=i18n.t('components.datastax.astradb_graph.keyspace.info'),
             advanced=True,
         ),
         HandleInput(
             name="embedding_model",
-            display_name="Embedding Model",
+            display_name=i18n.t(
+                'components.datastax.astradb_graph.embedding_model.display_name'),
             input_types=["Embeddings"],
-            info="Allows an embedding model configuration.",
+            info=i18n.t(
+                'components.datastax.astradb_graph.embedding_model.info'),
         ),
         DropdownInput(
             name="metric",
-            display_name="Metric",
-            info="Optional distance metric for vector comparisons in the vector store.",
+            display_name=i18n.t(
+                'components.datastax.astradb_graph.metric.display_name'),
+            info=i18n.t('components.datastax.astradb_graph.metric.info'),
             options=["cosine", "dot_product", "euclidean"],
             value="cosine",
             advanced=True,
         ),
         IntInput(
             name="batch_size",
-            display_name="Batch Size",
-            info="Optional number of data to process in a single batch.",
+            display_name=i18n.t(
+                'components.datastax.astradb_graph.batch_size.display_name'),
+            info=i18n.t('components.datastax.astradb_graph.batch_size.info'),
             advanced=True,
         ),
         IntInput(
             name="bulk_insert_batch_concurrency",
-            display_name="Bulk Insert Batch Concurrency",
-            info="Optional concurrency level for bulk insert operations.",
+            display_name=i18n.t(
+                'components.datastax.astradb_graph.bulk_insert_batch_concurrency.display_name'),
+            info=i18n.t(
+                'components.datastax.astradb_graph.bulk_insert_batch_concurrency.info'),
             advanced=True,
         ),
         IntInput(
             name="bulk_insert_overwrite_concurrency",
-            display_name="Bulk Insert Overwrite Concurrency",
-            info="Optional concurrency level for bulk insert operations that overwrite existing data.",
+            display_name=i18n.t(
+                'components.datastax.astradb_graph.bulk_insert_overwrite_concurrency.display_name'),
+            info=i18n.t(
+                'components.datastax.astradb_graph.bulk_insert_overwrite_concurrency.info'),
             advanced=True,
         ),
         IntInput(
             name="bulk_delete_concurrency",
-            display_name="Bulk Delete Concurrency",
-            info="Optional concurrency level for bulk delete operations.",
+            display_name=i18n.t(
+                'components.datastax.astradb_graph.bulk_delete_concurrency.display_name'),
+            info=i18n.t(
+                'components.datastax.astradb_graph.bulk_delete_concurrency.info'),
             advanced=True,
         ),
         DropdownInput(
             name="setup_mode",
-            display_name="Setup Mode",
-            info="Configuration mode for setting up the vector store, with options like 'Sync', or 'Off'.",
+            display_name=i18n.t(
+                'components.datastax.astradb_graph.setup_mode.display_name'),
+            info=i18n.t('components.datastax.astradb_graph.setup_mode.info'),
             options=["Sync", "Off"],
             advanced=True,
             value="Sync",
         ),
         BoolInput(
             name="pre_delete_collection",
-            display_name="Pre Delete Collection",
-            info="Boolean flag to determine whether to delete the collection before creating a new one.",
+            display_name=i18n.t(
+                'components.datastax.astradb_graph.pre_delete_collection.display_name'),
+            info=i18n.t(
+                'components.datastax.astradb_graph.pre_delete_collection.info'),
             advanced=True,
             value=False,
         ),
         StrInput(
             name="metadata_indexing_include",
-            display_name="Metadata Indexing Include",
-            info="Optional list of metadata fields to include in the indexing.",
+            display_name=i18n.t(
+                'components.datastax.astradb_graph.metadata_indexing_include.display_name'),
+            info=i18n.t(
+                'components.datastax.astradb_graph.metadata_indexing_include.info'),
             advanced=True,
             list=True,
         ),
         StrInput(
             name="metadata_indexing_exclude",
-            display_name="Metadata Indexing Exclude",
-            info="Optional list of metadata fields to exclude from the indexing.",
+            display_name=i18n.t(
+                'components.datastax.astradb_graph.metadata_indexing_exclude.display_name'),
+            info=i18n.t(
+                'components.datastax.astradb_graph.metadata_indexing_exclude.info'),
             advanced=True,
             list=True,
         ),
         StrInput(
             name="collection_indexing_policy",
-            display_name="Collection Indexing Policy",
-            info='Optional JSON string for the "indexing" field of the collection. '
-            "See https://docs.datastax.com/en/astra-db-serverless/api-reference/collections.html#the-indexing-option",
+            display_name=i18n.t(
+                'components.datastax.astradb_graph.collection_indexing_policy.display_name'),
+            info=i18n.t(
+                'components.datastax.astradb_graph.collection_indexing_policy.info'),
             advanced=True,
         ),
         IntInput(
             name="number_of_results",
-            display_name="Number of Results",
-            info="Number of results to return.",
+            display_name=i18n.t(
+                'components.datastax.astradb_graph.number_of_results.display_name'),
+            info=i18n.t(
+                'components.datastax.astradb_graph.number_of_results.info'),
             advanced=True,
             value=4,
         ),
         DropdownInput(
             name="search_type",
-            display_name="Search Type",
-            info="Search type to use",
+            display_name=i18n.t(
+                'components.datastax.astradb_graph.search_type.display_name'),
+            info=i18n.t('components.datastax.astradb_graph.search_type.info'),
             options=[
                 "Similarity",
                 "Similarity with score threshold",
@@ -155,16 +187,19 @@ class AstraDBGraphVectorStoreComponent(LCVectorStoreComponent):
         ),
         FloatInput(
             name="search_score_threshold",
-            display_name="Search Score Threshold",
-            info="Minimum similarity score threshold for search results. "
-            "(when using 'Similarity with score threshold')",
+            display_name=i18n.t(
+                'components.datastax.astradb_graph.search_score_threshold.display_name'),
+            info=i18n.t(
+                'components.datastax.astradb_graph.search_score_threshold.info'),
             value=0,
             advanced=True,
         ),
         DictInput(
             name="search_filter",
-            display_name="Search Metadata Filter",
-            info="Optional dictionary of filters to apply to the search query.",
+            display_name=i18n.t(
+                'components.datastax.astradb_graph.search_filter.display_name'),
+            info=i18n.t(
+                'components.datastax.astradb_graph.search_filter.info'),
             advanced=True,
             is_list=True,
         ),
@@ -173,27 +208,32 @@ class AstraDBGraphVectorStoreComponent(LCVectorStoreComponent):
     @check_cached_vector_store
     def build_vector_store(self):
         try:
-            from astrapy.admin import parse_api_endpoint
             from langchain_astradb import AstraDBGraphVectorStore
             from langchain_astradb.utils.astradb import SetupMode
+            logger.debug(
+                i18n.t('components.datastax.astradb_graph.logs.langchain_import_successful'))
         except ImportError as e:
-            msg = (
-                "Could not import langchain Astra DB integration package. "
-                "Please install it with `pip install langchain-astradb`."
-            )
-            raise ImportError(msg) from e
+            error_msg = i18n.t(
+                'components.datastax.astradb_graph.errors.langchain_import_failed')
+            logger.error(error_msg)
+            raise ImportError(error_msg) from e
 
         try:
             if not self.setup_mode:
                 self.setup_mode = self._inputs["setup_mode"].options[0]
 
             setup_mode_value = SetupMode[self.setup_mode.upper()]
+            logger.debug(i18n.t('components.datastax.astradb_graph.logs.setup_mode_set',
+                                mode=self.setup_mode))
         except KeyError as e:
-            msg = f"Invalid setup mode: {self.setup_mode}"
-            raise ValueError(msg) from e
+            error_msg = i18n.t('components.datastax.astradb_graph.errors.invalid_setup_mode',
+                               mode=self.setup_mode)
+            logger.error(error_msg)
+            raise ValueError(error_msg) from e
 
         try:
-            self.log(f"Initializing Graph Vector Store {self.collection_name}")
+            logger.info(i18n.t('components.datastax.astradb_graph.logs.initializing',
+                               collection=self.collection_name))
 
             # Handle environment parsing with try-except to avoid circular import
             environment = None
@@ -201,9 +241,13 @@ class AstraDBGraphVectorStoreComponent(LCVectorStoreComponent):
                 try:
                     from astrapy.admin import parse_api_endpoint
 
-                    environment = parse_api_endpoint(self.api_endpoint).environment
+                    environment = parse_api_endpoint(
+                        self.api_endpoint).environment
+                    logger.debug(i18n.t('components.datastax.astradb_graph.logs.environment_detected',
+                                        environment=environment))
                 except ImportError:
-                    self.log("Warning: Could not import parse_api_endpoint, using None for environment")
+                    logger.warning(
+                        i18n.t('components.datastax.astradb_graph.logs.environment_parse_warning'))
                     environment = None
 
             vector_store = AstraDBGraphVectorStore(
@@ -221,17 +265,23 @@ class AstraDBGraphVectorStoreComponent(LCVectorStoreComponent):
                 bulk_delete_concurrency=self.bulk_delete_concurrency or None,
                 setup_mode=setup_mode_value,
                 pre_delete_collection=self.pre_delete_collection,
-                metadata_indexing_include=[s for s in self.metadata_indexing_include if s] or None,
-                metadata_indexing_exclude=[s for s in self.metadata_indexing_exclude if s] or None,
-                collection_indexing_policy=orjson.loads(self.collection_indexing_policy.encode("utf-8"))
+                metadata_indexing_include=[
+                    s for s in self.metadata_indexing_include if s] or None,
+                metadata_indexing_exclude=[
+                    s for s in self.metadata_indexing_exclude if s] or None,
+                collection_indexing_policy=orjson.loads(
+                    self.collection_indexing_policy.encode("utf-8"))
                 if self.collection_indexing_policy
                 else None,
             )
         except Exception as e:
-            msg = f"Error initializing AstraDBGraphVectorStore: {e}"
-            raise ValueError(msg) from e
+            error_msg = i18n.t('components.datastax.astradb_graph.errors.initialization_failed',
+                               error=str(e))
+            logger.exception(error_msg)
+            raise ValueError(error_msg) from e
 
-        self.log(f"Vector Store initialized: {vector_store.astra_env.collection_name}")
+        logger.info(i18n.t('components.datastax.astradb_graph.logs.initialized',
+                           collection=vector_store.astra_env.collection_name))
         self._add_documents_to_vector_store(vector_store)
 
         return vector_store
@@ -244,20 +294,31 @@ class AstraDBGraphVectorStoreComponent(LCVectorStoreComponent):
             if isinstance(_input, Data):
                 documents.append(_input.to_lc_document())
             else:
-                msg = "Vector Store Inputs must be Data objects."
-                raise TypeError(msg)
+                error_msg = i18n.t(
+                    'components.datastax.astradb_graph.errors.invalid_input_type')
+                logger.error(error_msg)
+                raise TypeError(error_msg)
 
         if documents:
-            self.log(f"Adding {len(documents)} documents to the Vector Store.")
+            logger.info(i18n.t('components.datastax.astradb_graph.logs.adding_documents',
+                               count=len(documents)))
             try:
                 vector_store.add_documents(documents)
+                logger.info(i18n.t('components.datastax.astradb_graph.logs.documents_added',
+                                   count=len(documents)))
             except Exception as e:
-                msg = f"Error adding documents to AstraDBGraphVectorStore: {e}"
-                raise ValueError(msg) from e
+                error_msg = i18n.t('components.datastax.astradb_graph.errors.add_documents_failed',
+                                   error=str(e))
+                logger.exception(error_msg)
+                raise ValueError(error_msg) from e
         else:
-            self.log("No documents to add to the Vector Store.")
+            logger.info(
+                i18n.t('components.datastax.astradb_graph.logs.no_documents'))
 
     def _map_search_type(self) -> str:
+        logger.debug(i18n.t('components.datastax.astradb_graph.logs.mapping_search_type',
+                            search_type=self.search_type))
+
         match self.search_type:
             case "Similarity":
                 return "similarity"
@@ -279,47 +340,61 @@ class AstraDBGraphVectorStoreComponent(LCVectorStoreComponent):
         }
 
         if self.search_filter:
-            clean_filter = {k: v for k, v in self.search_filter.items() if k and v}
+            clean_filter = {k: v for k,
+                            v in self.search_filter.items() if k and v}
             if len(clean_filter) > 0:
                 args["filter"] = clean_filter
+                logger.debug(i18n.t('components.datastax.astradb_graph.logs.filter_applied',
+                                    count=len(clean_filter)))
+
         return args
 
     def search_documents(self, vector_store=None) -> list[Data]:
         if not vector_store:
             vector_store = self.build_vector_store()
 
-        self.log("Searching for documents in AstraDBGraphVectorStore.")
-        self.log(f"Search query: {self.search_query}")
-        self.log(f"Search type: {self.search_type}")
-        self.log(f"Number of results: {self.number_of_results}")
+        logger.info(i18n.t('components.datastax.astradb_graph.logs.searching'))
+        logger.info(i18n.t('components.datastax.astradb_graph.logs.search_query',
+                           query=self.search_query))
+        logger.info(i18n.t('components.datastax.astradb_graph.logs.search_type_log',
+                           search_type=self.search_type))
+        logger.info(i18n.t('components.datastax.astradb_graph.logs.number_of_results',
+                           count=self.number_of_results))
 
         if self.search_query and isinstance(self.search_query, str) and self.search_query.strip():
             try:
                 search_type = self._map_search_type()
                 search_args = self._build_search_args()
 
-                docs = vector_store.search(query=self.search_query, search_type=search_type, **search_args)
+                docs = vector_store.search(
+                    query=self.search_query, search_type=search_type, **search_args)
 
-                # Drop links from the metadata. At this point the links don't add any value for building the
-                # context and haven't been restored to json which causes the conversion to fail.
-                self.log("Removing links from metadata.")
+                # Drop links from the metadata
+                logger.debug(
+                    i18n.t('components.datastax.astradb_graph.logs.removing_links'))
                 for doc in docs:
                     if "links" in doc.metadata:
                         doc.metadata.pop("links")
 
             except Exception as e:
-                msg = f"Error performing search in AstraDBGraphVectorStore: {e}"
-                raise ValueError(msg) from e
+                error_msg = i18n.t('components.datastax.astradb_graph.errors.search_failed',
+                                   error=str(e))
+                logger.exception(error_msg)
+                raise ValueError(error_msg) from e
 
-            self.log(f"Retrieved documents: {len(docs)}")
+            logger.info(i18n.t('components.datastax.astradb_graph.logs.retrieved_documents',
+                               count=len(docs)))
 
             data = docs_to_data(docs)
 
-            self.log(f"Converted documents to data: {len(data)}")
+            logger.info(i18n.t('components.datastax.astradb_graph.logs.converted_to_data',
+                               count=len(data)))
 
             self.status = data
             return data
-        self.log("No search input provided. Skipping search.")
+
+        logger.info(
+            i18n.t('components.datastax.astradb_graph.logs.no_search_input'))
         return []
 
     def get_retriever_kwargs(self):

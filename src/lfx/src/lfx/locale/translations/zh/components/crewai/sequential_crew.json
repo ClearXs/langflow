@@ -1,0 +1,27 @@
+{
+  "display_name": "顺序团队",
+  "description": "表示具有按顺序依次执行任务的代理组。",
+  "tasks": {
+    "display_name": "任务",
+    "info": "团队按顺序执行的顺序任务列表"
+  },
+  "status": {
+    "building": "正在构建顺序团队...",
+    "crew_created": "顺序团队创建成功，包含{agent_count}个代理和{task_count}个任务"
+  },
+  "errors": {
+    "import_failed": "CrewAI未安装。请使用`uv pip install crewai`安装。",
+    "build_failed": "构建顺序团队失败：{error}"
+  },
+  "logs": {
+    "imports_successful": "CrewAI依赖导入成功",
+    "deriving_agents": "正在从顺序任务中提取代理",
+    "agents_derived": "从任务中提取了{count}个代理",
+    "getting_tasks_agents": "正在获取顺序团队的任务和代理",
+    "using_derived_agents": "正在使用从任务中提取的{count}个代理",
+    "building_crew": "正在构建顺序团队",
+    "getting_tasks_agents_build": "正在检索用于构建团队的任务和代理",
+    "retrieved_items": "已检索{task_count}个任务和{agent_count}个代理",
+    "creating_sequential_crew": "正在创建包含{agent_count}个代理和{task_count}个任务的顺序团队"
+  }
+}

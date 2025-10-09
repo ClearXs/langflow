@@ -1,3 +1,4 @@
+import i18n
 from typing import Any
 from urllib.parse import urljoin
 
@@ -12,8 +13,8 @@ from lfx.inputs.inputs import DictInput, DropdownInput, FloatInput, IntInput, Se
 
 
 class LMStudioModelComponent(LCModelComponent):
-    display_name = "LM Studio"
-    description = "Generate text using LM Studio Local LLMs."
+    display_name = i18n.t('components.lmstudio.lmstudiomodel.display_name')
+    description = i18n.t('components.lmstudio.lmstudiomodel.description')
     icon = "LMStudio"
     name = "LMStudioModel"
 
@@ -49,42 +50,53 @@ class LMStudioModelComponent(LCModelComponent):
         *LCModelComponent.get_base_inputs(),
         IntInput(
             name="max_tokens",
-            display_name="Max Tokens",
+            display_name=i18n.t(
+                'components.lmstudio.lmstudiomodel.max_tokens.display_name'),
             advanced=True,
-            info="The maximum number of tokens to generate. Set to 0 for unlimited tokens.",
+            info=i18n.t('components.lmstudio.lmstudiomodel.max_tokens.info'),
             range_spec=RangeSpec(min=0, max=128000),
         ),
-        DictInput(name="model_kwargs", display_name="Model Kwargs", advanced=True),
+        DictInput(
+            name="model_kwargs",
+            display_name=i18n.t(
+                'components.lmstudio.lmstudiomodel.model_kwargs.display_name'),
+            advanced=True
+        ),
         DropdownInput(
             name="model_name",
-            display_name="Model Name",
+            display_name=i18n.t(
+                'components.lmstudio.lmstudiomodel.model_name.display_name'),
             advanced=False,
             refresh_button=True,
         ),
         StrInput(
             name="base_url",
-            display_name="Base URL",
+            display_name=i18n.t(
+                'components.lmstudio.lmstudiomodel.base_url.display_name'),
             advanced=False,
-            info="Endpoint of the LM Studio API. Defaults to 'http://localhost:1234/v1' if not specified.",
+            info=i18n.t('components.lmstudio.lmstudiomodel.base_url.info'),
             value="http://localhost:1234/v1",
         ),
         SecretStrInput(
             name="api_key",
-            display_name="LM Studio API Key",
-            info="The LM Studio API Key to use for LM Studio.",
+            display_name=i18n.t(
+                'components.lmstudio.lmstudiomodel.api_key.display_name'),
+            info=i18n.t('components.lmstudio.lmstudiomodel.api_key.info'),
             advanced=True,
             value="LMSTUDIO_API_KEY",
         ),
         FloatInput(
             name="temperature",
-            display_name="Temperature",
+            display_name=i18n.t(
+                'components.lmstudio.lmstudiomodel.temperature.display_name'),
             value=0.1,
             advanced=True,
         ),
         IntInput(
             name="seed",
-            display_name="Seed",
-            info="The seed controls the reproducibility of the job.",
+            display_name=i18n.t(
+                'components.lmstudio.lmstudiomodel.seed.display_name'),
+            info=i18n.t('components.lmstudio.lmstudiomodel.seed.info'),
             advanced=True,
             value=1,
         ),

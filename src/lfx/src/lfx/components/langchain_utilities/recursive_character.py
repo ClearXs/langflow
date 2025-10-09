@@ -1,3 +1,4 @@
+import i18n
 from typing import Any
 
 from langchain_text_splitters import RecursiveCharacterTextSplitter, TextSplitter
@@ -8,8 +9,10 @@ from lfx.utils.util import unescape_string
 
 
 class RecursiveCharacterTextSplitterComponent(LCTextSplitterComponent):
-    display_name: str = "Recursive Character Text Splitter"
-    description: str = "Split text trying to keep all related text together."
+    display_name: str = i18n.t(
+        'components.langchain_utilities.recursive_character.display_name')
+    description: str = i18n.t(
+        'components.langchain_utilities.recursive_character.description')
     documentation: str = "https://docs.langflow.org/components-processing"
     name = "RecursiveCharacterTextSplitter"
     icon = "LangChain"
@@ -17,27 +20,35 @@ class RecursiveCharacterTextSplitterComponent(LCTextSplitterComponent):
     inputs = [
         IntInput(
             name="chunk_size",
-            display_name="Chunk Size",
-            info="The maximum length of each chunk.",
+            display_name=i18n.t(
+                'components.langchain_utilities.recursive_character.chunk_size.display_name'),
+            info=i18n.t(
+                'components.langchain_utilities.recursive_character.chunk_size.info'),
             value=1000,
         ),
         IntInput(
             name="chunk_overlap",
-            display_name="Chunk Overlap",
-            info="The amount of overlap between chunks.",
+            display_name=i18n.t(
+                'components.langchain_utilities.recursive_character.chunk_overlap.display_name'),
+            info=i18n.t(
+                'components.langchain_utilities.recursive_character.chunk_overlap.info'),
             value=200,
         ),
         DataInput(
             name="data_input",
-            display_name="Input",
-            info="The texts to split.",
+            display_name=i18n.t(
+                'components.langchain_utilities.recursive_character.data_input.display_name'),
+            info=i18n.t(
+                'components.langchain_utilities.recursive_character.data_input.info'),
             input_types=["Document", "Data"],
             required=True,
         ),
         MessageTextInput(
             name="separators",
-            display_name="Separators",
-            info='The characters to split on.\nIf left empty defaults to ["\\n\\n", "\\n", " ", ""].',
+            display_name=i18n.t(
+                'components.langchain_utilities.recursive_character.separators.display_name'),
+            info=i18n.t(
+                'components.langchain_utilities.recursive_character.separators.info'),
             is_list=True,
         ),
     ]

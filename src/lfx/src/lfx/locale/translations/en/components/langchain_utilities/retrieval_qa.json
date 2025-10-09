@@ -1,0 +1,24 @@
+{
+  "display_name": "Retrieval QA",
+  "description": "Chain for question-answering querying sources from a retriever.",
+  "input_value": {
+    "display_name": "Input",
+    "info": "The input value to pass to the chain."
+  },
+  "chain_type": {
+    "display_name": "Chain Type",
+    "info": "Chain type to use."
+  },
+  "llm": {
+    "display_name": "Language Model"
+  },
+  "retriever": {
+    "display_name": "Retriever"
+  },
+  "memory": {
+    "display_name": "Memory"
+  },
+  "return_source_documents": {
+    "display_name": "Return Source Documents"
+  }
+}

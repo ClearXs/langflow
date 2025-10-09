@@ -1,0 +1,55 @@
+{
+  "description": "Generate text using Groq.",
+  "api_key": {
+    "display_name": "Groq API Key",
+    "info": "API key for the Groq API."
+  },
+  "base_url": {
+    "display_name": "Groq API Base",
+    "info": "Base URL path for API requests, leave blank if not using a proxy or service emulator."
+  },
+  "max_tokens": {
+    "display_name": "Max Output Tokens",
+    "info": "The maximum number of tokens to generate."
+  },
+  "temperature": {
+    "display_name": "Temperature",
+    "info": "Run inference with this temperature. Must be in the closed interval [0.0, 1.0]."
+  },
+  "n": {
+    "display_name": "N",
+    "info": "Number of chat completions to generate for each prompt. Note that the API may not return the full n completions if duplicates are generated."
+  },
+  "model_name": {
+    "display_name": "Model",
+    "info": "The name of the model to use."
+  },
+  "tool_model_enabled": {
+    "display_name": "Enable Tool Models",
+    "info": "Select if you want to use models that can work with tools. If yes, only those models will be shown."
+  },
+  "errors": {
+    "langchain_not_installed": "langchain_groq is not installed. Please install it with `pip install langchain_groq`.",
+    "package_not_installed": "langchain-groq is not installed. Please install it with `pip install langchain-groq`.",
+    "config_update_failed": "Error getting model names: {error}"
+  },
+  "logs": {
+    "fetching_models": "Fetching available Groq models - Tool enabled: {tool_enabled}",
+    "requesting_models": "Requesting models from: {url}",
+    "models_fetched": "Successfully fetched {count} model(s)",
+    "model_fetch_error": "Error getting model names: {error}",
+    "filtering_tool_models": "Filtering models that support tool calling",
+    "model_unsupported": "Model {model} is in unsupported list, skipping",
+    "tool_support_confirmed": "Model {model} supports tool calling",
+    "tool_support_not_found": "Model {model} does not support tool calling",
+    "tool_check_failed": "Failed to check tool support for model {model}: {error}",
+    "tool_models_filtered": "Filtered to {count} model(s) with tool support",
+    "updating_config": "Updating build configuration for field: {field}",
+    "fetching_available_models": "Fetching available models from API",
+    "model_fetch_fallback": "Error getting model names: {error}. Falling back to default list.",
+    "config_updated": "Configuration updated - {model_count} model(s) available, default: {default_model}",
+    "building_model": "Building Groq model: {model}",
+    "model_parameters": "Model parameters - Max tokens: {max_tokens}, Temperature: {temperature}, N: {n}, Streaming: {streaming}",
+    "model_built": "Groq model built successfully"
+  }
+}

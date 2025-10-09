@@ -1,3 +1,4 @@
+import i18n
 import json
 from typing import Any
 
@@ -17,33 +18,42 @@ MIN_ROWS_IN_TABLE = 3
 
 
 class AddContentToPage(LCToolComponent):
-    display_name: str = "Add Content to Page "
-    description: str = "Convert markdown text to Notion blocks and append them to a Notion page."
+    display_name: str = i18n.t(
+        'components.notion.add_content_to_page.display_name')
+    description: str = i18n.t(
+        'components.notion.add_content_to_page.description')
     documentation: str = "https://developers.notion.com/reference/patch-block-children"
     icon = "NotionDirectoryLoader"
 
     inputs = [
         MultilineInput(
             name="markdown_text",
-            display_name="Markdown Text",
-            info="The markdown text to convert to Notion blocks.",
+            display_name=i18n.t(
+                'components.notion.add_content_to_page.markdown_text.display_name'),
+            info=i18n.t(
+                'components.notion.add_content_to_page.markdown_text.info'),
         ),
         StrInput(
             name="block_id",
-            display_name="Page/Block ID",
-            info="The ID of the page/block to add the content.",
+            display_name=i18n.t(
+                'components.notion.add_content_to_page.block_id.display_name'),
+            info=i18n.t('components.notion.add_content_to_page.block_id.info'),
         ),
         SecretStrInput(
             name="notion_secret",
-            display_name="Notion Secret",
-            info="The Notion integration token.",
+            display_name=i18n.t(
+                'components.notion.add_content_to_page.notion_secret.display_name'),
+            info=i18n.t(
+                'components.notion.add_content_to_page.notion_secret.info'),
             required=True,
         ),
     ]
 
     class AddContentToPageSchema(BaseModel):
-        markdown_text: str = Field(..., description="The markdown text to convert to Notion blocks.")
-        block_id: str = Field(..., description="The ID of the page/block to add the content.")
+        markdown_text: str = Field(
+            ..., description="The markdown text to convert to Notion blocks.")
+        block_id: str = Field(...,
+                              description="The ID of the page/block to add the content.")
 
     def run_model(self) -> Data:
         result = self._add_content_to_page(self.markdown_text, self.block_id)
@@ -74,7 +84,8 @@ class AddContentToPage(LCToolComponent):
                 "children": blocks,
             }
 
-            response = requests.patch(url, headers=headers, json=data, timeout=10)
+            response = requests.patch(
+                url, headers=headers, json=data, timeout=10)
             response.raise_for_status()
 
             return response.json()
@@ -96,37 +107,46 @@ class AddContentToPage(LCToolComponent):
                     heading_level = text.count("#", 0, 6)
                     heading_text = text[heading_level:].strip()
                     if heading_level in range(3):
-                        blocks.append(self.create_block(f"heading_{heading_level + 1}", heading_text))
+                        blocks.append(self.create_block(
+                            f"heading_{heading_level + 1}", heading_text))
                 else:
                     blocks.append(self.create_block("paragraph", text))
         elif node.name == "h1":
-            blocks.append(self.create_block("heading_1", node.get_text(strip=True)))
+            blocks.append(self.create_block(
+                "heading_1", node.get_text(strip=True)))
         elif node.name == "h2":
-            blocks.append(self.create_block("heading_2", node.get_text(strip=True)))
+            blocks.append(self.create_block(
+                "heading_2", node.get_text(strip=True)))
         elif node.name == "h3":
-            blocks.append(self.create_block("heading_3", node.get_text(strip=True)))
+            blocks.append(self.create_block(
+                "heading_3", node.get_text(strip=True)))
         elif node.name == "p":
             code_node = node.find("code")
             if code_node:
                 code_text = code_node.get_text()
                 language, code = self.extract_language_and_code(code_text)
-                blocks.append(self.create_block("code", code, language=language))
+                blocks.append(self.create_block(
+                    "code", code, language=language))
             elif self.is_table(str(node)):
                 blocks.extend(self.process_table(node))
             else:
-                blocks.append(self.create_block("paragraph", node.get_text(strip=True)))
+                blocks.append(self.create_block(
+                    "paragraph", node.get_text(strip=True)))
         elif node.name == "ul":
             blocks.extend(self.process_list(node, "bulleted_list_item"))
         elif node.name == "ol":
             blocks.extend(self.process_list(node, "numbered_list_item"))
         elif node.name == "blockquote":
-            blocks.append(self.create_block("quote", node.get_text(strip=True)))
+            blocks.append(self.create_block(
+                "quote", node.get_text(strip=True)))
         elif node.name == "hr":
             blocks.append(self.create_block("divider", ""))
         elif node.name == "img":
-            blocks.append(self.create_block("image", "", image_url=node.get("src")))
+            blocks.append(self.create_block(
+                "image", "", image_url=node.get("src")))
         elif node.name == "a":
-            blocks.append(self.create_block("bookmark", node.get_text(strip=True), link_url=node.get("href")))
+            blocks.append(self.create_block("bookmark", node.get_text(
+                strip=True), link_url=node.get("href")))
         elif node.name == "table":
             blocks.extend(self.process_table(node))
 
@@ -177,16 +197,20 @@ class AddContentToPage(LCToolComponent):
             is_checklist = item_text.startswith("[ ]") or checked
 
             if is_checklist:
-                item_text = item_text.replace("[x]", "").replace("[ ]", "").strip()
-                blocks.append(self.create_block("to_do", item_text, checked=checked))
+                item_text = item_text.replace(
+                    "[x]", "").replace("[ ]", "").strip()
+                blocks.append(self.create_block(
+                    "to_do", item_text, checked=checked))
             else:
                 blocks.append(self.create_block(list_type, item_text))
         return blocks
 
     def process_table(self, node):
         blocks = []
-        header_row = node.find("thead").find("tr") if node.find("thead") else None
-        body_rows = node.find("tbody").find_all("tr") if node.find("tbody") else []
+        header_row = node.find("thead").find(
+            "tr") if node.find("thead") else None
+        body_rows = node.find("tbody").find_all(
+            "tr") if node.find("tbody") else []
 
         if header_row or body_rows:
             table_width = max(
@@ -194,16 +218,19 @@ class AddContentToPage(LCToolComponent):
                 *(len(row.find_all(["th", "td"])) for row in body_rows),
             )
 
-            table_block = self.create_block("table", "", table_width=table_width, has_column_header=bool(header_row))
+            table_block = self.create_block(
+                "table", "", table_width=table_width, has_column_header=bool(header_row))
             blocks.append(table_block)
 
             if header_row:
-                header_cells = [cell.get_text(strip=True) for cell in header_row.find_all(["th", "td"])]
+                header_cells = [cell.get_text(
+                    strip=True) for cell in header_row.find_all(["th", "td"])]
                 header_row_block = self.create_block("table_row", header_cells)
                 blocks.append(header_row_block)
 
             for row in body_rows:
-                cells = [cell.get_text(strip=True) for cell in row.find_all(["th", "td"])]
+                cells = [cell.get_text(strip=True)
+                         for cell in row.find_all(["th", "td"])]
                 row_block = self.create_block("table_row", cells)
                 blocks.append(row_block)
 
@@ -252,18 +279,23 @@ class AddContentToPage(LCToolComponent):
                     },
                 }
             ]
-            block[block_type]["language"] = kwargs.get("language", "plain text")
+            block[block_type]["language"] = kwargs.get(
+                "language", "plain text")
         elif block_type == "image":
-            block[block_type] = {"type": "external", "external": {"url": kwargs.get("image_url", "")}}
+            block[block_type] = {"type": "external", "external": {
+                "url": kwargs.get("image_url", "")}}
         elif block_type == "divider":
             pass
         elif block_type == "bookmark":
             block[block_type]["url"] = kwargs.get("link_url", "")
         elif block_type == "table":
             block[block_type]["table_width"] = kwargs.get("table_width", 0)
-            block[block_type]["has_column_header"] = kwargs.get("has_column_header", False)
-            block[block_type]["has_row_header"] = kwargs.get("has_row_header", False)
+            block[block_type]["has_column_header"] = kwargs.get(
+                "has_column_header", False)
+            block[block_type]["has_row_header"] = kwargs.get(
+                "has_row_header", False)
         elif block_type == "table_row":
-            block[block_type]["cells"] = [[{"type": "text", "text": {"content": cell}} for cell in content]]
+            block[block_type]["cells"] = [
+                [{"type": "text", "text": {"content": cell}} for cell in content]]
 
         return block

@@ -1,0 +1,44 @@
+{
+  "display_name": "Mem0聊天记忆",
+  "description": "使用Mem0记忆存储检索和存储聊天消息。",
+  "mem0_config": {
+    "display_name": "Mem0配置",
+    "info": "用于初始化Mem0记忆实例的配置字典。\n示例:\n{\n    \"graph_store\": {\n        \"provider\": \"neo4j\",\n        \"config\": {\n            \"url\": \"neo4j+s://your-neo4j-url\",\n            \"username\": \"neo4j\",\n            \"password\": \"your-password\"\n        }\n    },\n    \"version\": \"v1.1\"\n}"
+  },
+  "ingest_message": {
+    "display_name": "要摄取的消息",
+    "info": "要摄取到Mem0记忆中的消息内容。"
+  },
+  "existing_memory": {
+    "display_name": "现有记忆实例",
+    "info": "可选的现有Mem0记忆实例。如果未提供，将创建一个新实例。"
+  },
+  "user_id": {
+    "display_name": "用户ID",
+    "info": "与消息关联的用户标识符。"
+  },
+  "search_query": {
+    "display_name": "搜索查询",
+    "info": "用于在Mem0中搜索相关记忆的输入文本。"
+  },
+  "mem0_api_key": {
+    "display_name": "Mem0 API密钥",
+    "info": "Mem0平台的API密钥。留空以使用本地版本。"
+  },
+  "metadata": {
+    "display_name": "元数据",
+    "info": "与摄取的消息关联的附加元数据。"
+  },
+  "openai_api_key": {
+    "display_name": "OpenAI API密钥",
+    "info": "OpenAI的API密钥。如果在没有提供配置的情况下使用OpenAI嵌入，则为必需。"
+  },
+  "outputs": {
+    "memory": {
+      "display_name": "Mem0记忆"
+    },
+    "search_results": {
+      "display_name": "搜索结果"
+    }
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "display_name": "Text Embedder",
+  "description": "Generate embeddings for a given message using the specified embedding model.",
+  "embedding_model": {
+    "display_name": "Embedding Model",
+    "info": "The embedding model to use for generating embeddings."
+  },
+  "message": {
+    "display_name": "Message",
+    "info": "The message to generate embeddings for."
+  },
+  "outputs": {
+    "embeddings": {
+      "display_name": "Embedding Data"
+    }
+  },
+  "errors": {
+    "invalid_model": "Invalid or incompatible embedding model",
+    "no_text_content": "No text content found in message",
+    "invalid_embeddings": "Invalid embeddings generated",
+    "generation_failed": "Error generating embeddings: {error}"
+  },
+  "logs": {
+    "starting_generation": "Starting embedding generation",
+    "text_extracted": "Text content extracted - Length: {length} characters",
+    "generating_embeddings": "Generating embeddings using embedding model",
+    "embeddings_generated": "Embeddings generated successfully - Dimension: {dimension}",
+    "generation_completed": "Embedding generation completed"
+  }
+}

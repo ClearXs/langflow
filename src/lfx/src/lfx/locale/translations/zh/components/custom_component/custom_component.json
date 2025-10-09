@@ -1,0 +1,24 @@
+{
+  "display_name": "自定义组件",
+  "description": "用作创建自己组件的模板。",
+  "input_value": {
+    "display_name": "输入值",
+    "info": "这是一个自定义组件输入"
+  },
+  "outputs": {
+    "output": {
+      "display_name": "输出"
+    }
+  },
+  "status": {
+    "building": "正在构建输出...",
+    "output_created": "输出创建成功"
+  },
+  "errors": {
+    "build_failed": "构建输出失败：{error}"
+  },
+  "logs": {
+    "building_output": "正在从输入值构建输出",
+    "creating_data": "正在创建Data对象 - 值长度：{value_length}"
+  }
+}

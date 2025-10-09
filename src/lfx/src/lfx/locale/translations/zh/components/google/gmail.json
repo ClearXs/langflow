@@ -1,0 +1,55 @@
+{
+  "description": "使用OAuth 2.0服务账户凭据从Gmail加载电子邮件。提取和处理电子邮件内容，支持线程和对话上下文。",
+  "json_string": {
+    "display_name": "服务账户令牌的JSON字符串",
+    "info": "包含用于服务账户访问的OAuth 2.0访问令牌信息的JSON字符串"
+  },
+  "label_ids": {
+    "display_name": "标签ID",
+    "info": "用于过滤电子邮件的标签ID列表，用逗号分隔（例如：INBOX、SENT、UNREAD、IMPORTANT）。"
+  },
+  "max_results": {
+    "display_name": "最大结果数",
+    "info": "要加载的最大电子邮件数量。"
+  },
+  "outputs": {
+    "data": {
+      "display_name": "电子邮件数据"
+    }
+  },
+  "errors": {
+    "from_email_not_found": "在消息头中未找到发件人电子邮件。",
+    "no_plain_text": "在电子邮件中未找到纯文本部分。",
+    "response_email_not_found": "在线程中未找到回复电子邮件。",
+    "invalid_json": "提供的凭据JSON字符串无效。",
+    "credentials_creation_failed": "创建凭据失败：{error}",
+    "auth_refresh_failed": "身份验证错误：无法刷新身份验证令牌。请尝试重新进行身份验证。",
+    "loading_failed": "加载文档时出错：{error}"
+  },
+  "logs": {
+    "loader_initialized": "Gmail加载器已初始化 - 最大结果数：{max_results}，标签：{labels}",
+    "cleaning_message": "正在清理消息内容 - 长度：{length}个字符",
+    "message_cleaned": "消息已清理 - 原始：{original_length}，清理后：{cleaned_length}个字符",
+    "extracting_content": "正在从消息中提取电子邮件内容",
+    "from_email_found": "找到发件人电子邮件：{email}",
+    "content_extracted": "内容提取成功",
+    "getting_message_data": "正在获取消息数据，ID：{message_id}",
+    "processing_thread": "正在处理电子邮件线程：{thread_id}",
+    "thread_context_added": "线程上下文已添加到聊天会话",
+    "single_message": "作为单个消息处理（不在线程中）",
+    "starting_lazy_load": "开始从Gmail惰性加载电子邮件",
+    "no_messages_found": "未找到具有指定标签的消息。",
+    "messages_found": "找到{count}条符合条件的消息",
+    "processing_message": "正在处理消息{index}/{total} - ID：{message_id}",
+    "message_processing_error": "处理消息{message_id}时出错：{error}",
+    "loading_emails": "正在从Gmail加载电子邮件",
+    "parameters_parsed": "参数已解析 - 标签：{labels}，最大结果数：{max_results}",
+    "parsing_json": "正在解析JSON凭据字符串",
+    "json_parsed": "JSON凭据解析成功",
+    "creating_credentials": "正在从令牌信息创建OAuth凭据",
+    "credentials_created": "凭据创建成功",
+    "initializing_loader": "正在初始化Gmail加载器",
+    "loading_documents": "正在从Gmail加载文档",
+    "documents_loaded": "成功加载{count}个文档"
+  }
+}

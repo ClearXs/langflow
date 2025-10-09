@@ -1,0 +1,24 @@
+{
+  "display_name": "Runnable Executor",
+  "description": "Execute a runnable. It will try to guess the input and output keys.",
+  "input_value": {
+    "display_name": "Input"
+  },
+  "runnable": {
+    "display_name": "Agent Executor"
+  },
+  "input_key": {
+    "display_name": "Input Key"
+  },
+  "output_key": {
+    "display_name": "Output Key"
+  },
+  "use_stream": {
+    "display_name": "Stream"
+  },
+  "outputs": {
+    "text": {
+      "display_name": "Message"
+    }
+  }
+}

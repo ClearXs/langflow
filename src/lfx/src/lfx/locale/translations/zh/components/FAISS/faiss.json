@@ -1,0 +1,49 @@
+{
+  "description": "FAISS向量存储，为高维向量提供高效的相似性搜索功能。",
+  "index_name": {
+    "display_name": "索引名称",
+    "info": "FAISS索引文件的名称（不含扩展名）。"
+  },
+  "persist_directory": {
+    "display_name": "持久化目录",
+    "info": "保存FAISS索引的路径。它将相对于Langflow运行的位置。留空则使用当前目录。"
+  },
+  "allow_dangerous_deserialization": {
+    "display_name": "允许危险的反序列化",
+    "info": "设置为True以允许从不受信任的源加载pickle文件。仅当您信任数据源时才启用此选项。警告：这可能执行任意代码。"
+  },
+  "embedding": {
+    "display_name": "嵌入"
+  },
+  "number_of_results": {
+    "display_name": "结果数量",
+    "info": "从搜索中返回的相似文档数量。"
+  },
+  "errors": {
+    "directory_creation_failed": "创建持久化目录'{path}'失败：{error}",
+    "index_creation_failed": "创建FAISS索引失败：{error}",
+    "index_save_failed": "保存FAISS索引失败：{error}",
+    "index_load_failed": "加载FAISS索引失败：{error}",
+    "failed_to_load": "加载FAISS索引失败。",
+    "search_failed": "搜索操作失败：{error}"
+  },
+  "logs": {
+    "path_resolved": "路径已解析 - 原始：{original}，解析后：{resolved}",
+    "using_persist_directory": "使用持久化目录：{path}",
+    "using_current_directory": "使用当前目录作为持久化目录",
+    "building_vector_store": "正在构建FAISS向量存储",
+    "directory_created": "持久化目录已创建或已存在：{path}",
+    "preparing_data": "正在准备数据以供摄入",
+    "no_documents": "没有文档需要索引",
+    "creating_index": "正在从{count}个文档创建FAISS索引",
+    "index_created": "FAISS索引创建成功",
+    "index_saved": "FAISS索引已保存到'{path}'，名称为'{name}'",
+    "starting_search": "开始在FAISS中搜索文档",
+    "index_not_found": "在{path}未找到索引，正在构建新索引",
+    "loading_index": "正在从{path}加载FAISS索引",
+    "index_loaded": "FAISS索引加载成功",
+    "searching_with_query": "正在使用查询搜索：{query}",
+    "search_completed": "搜索完成 - 找到{count}个文档",
+    "no_query": "未提供搜索查询，返回空结果"
+  }
+}

@@ -1,87 +1,27 @@
 {
   "display_name": "Listen",
-  "description": "Listen for events, messages, or data from various sources with filtering and processing options.",
-  "listen_type": {
-    "display_name": "Listen Type",
-    "info": "Type of data source to listen to: event, message, data_stream, file_change, http_webhook, or queue."
-  },
-  "source_identifier": {
-    "display_name": "Source Identifier",
-    "info": "Identifier for the data source (e.g., event name, message channel, file path, webhook URL, queue name)."
-  },
-  "filter_conditions": {
-    "display_name": "Filter Conditions",
-    "info": "JSON object defining conditions to filter incoming data. Use field names with operators like _contains, _gt, _lt."
-  },
-  "listen_mode": {
-    "display_name": "Listen Mode",
-    "info": "How to listen for data: blocking (wait with timeout), non_blocking (check once), continuous (keep listening), single_shot (stop after first message)."
-  },
-  "timeout": {
-    "display_name": "Timeout (seconds)",
-    "info": "Maximum time to wait for data in blocking or single_shot modes."
-  },
-  "max_messages": {
-    "display_name": "Max Messages",
-    "info": "Maximum number of messages to collect before stopping (0 for unlimited)."
-  },
-  "poll_interval": {
-    "display_name": "Poll Interval (seconds)",
-    "info": "Time interval between checks for new data."
-  },
-  "auto_acknowledge": {
-    "display_name": "Auto Acknowledge",
-    "info": "Whether to automatically acknowledge received messages (relevant for queue-based sources)."
-  },
-  "include_metadata": {
-    "display_name": "Include Metadata",
-    "info": "Whether to include metadata about the listening process in the output."
-  },
-  "output_format": {
-    "display_name": "Output Format",
-    "info": "Format for the received data: data (Data object), message (Message), raw, or batch (multiple items)."
-  },
-  "persistent_connection": {
-    "display_name": "Persistent Connection",
-    "info": "Whether to maintain a persistent connection to the data source."
-  },
-  "authentication": {
-    "display_name": "Authentication",
-    "info": "JSON object containing authentication credentials for secured sources."
+  "description": "A component to listen for a notification.",
+  "context_key": {
+    "display_name": "Context Key",
+    "info": "The key of the context to listen for."
   },
   "outputs": {
-    "received_data": {
-      "display_name": "Received Data"
-    },
-    "listen_status": {
-      "display_name": "Listen Status"
-    },
-    "connection_info": {
-      "display_name": "Connection Info"
+    "data": {
+      "display_name": "Data"
     }
   },
-  "success": {
-    "listening_started": "Started listening to {type} source: {source}",
-    "listening_stopped": "Stopped listening. Received {count} messages.",
-    "data_received": "Successfully received {count} data items"
+  "status": {
+    "data_retrieved": "Data retrieved from context key: {key}"
   },
   "warnings": {
-    "filter_evaluation_error": "Error evaluating filter conditions: {error}",
-    "no_data_received_timeout": "No data received within timeout period of {timeout} seconds"
-  },
-  "info": {
-    "no_data_available": "No data currently available"
+    "key_not_found": "Context key '{key}' not found, returning empty data"
   },
   "errors": {
-    "empty_source_identifier": "Source identifier cannot be empty.",
-    "invalid_timeout": "Timeout must be greater than 0.",
-    "invalid_poll_interval": "Poll interval must be greater than 0.",
-    "invalid_filter_conditions": "Invalid JSON format in filter conditions: {error}",
-    "invalid_authentication": "Invalid JSON format in authentication: {error}",
-    "unsupported_listen_type": "Unsupported listen type: {type}",
-    "connection_creation_error": "Error creating connection: {error}",
-    "listening_error": "Error during listening: {error}",
-    "status_error": "Error getting listen status: {error}",
-    "connection_info_error": "Error getting connection information: {error}"
+    "retrieval_failed": "Failed to retrieve data for context key '{key}': {error}"
+  },
+  "logs": {
+    "listening": "Listening for data with context key: {key}",
+    "converting_to_data": "Converting {data_type} to Data object",
+    "data_retrieved": "Successfully retrieved data from context key: {key}"
   }
 }

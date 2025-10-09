@@ -1,0 +1,75 @@
+{
+  "display_name": "Astra助手代理",
+  "description": "使用DataStax Astra管理助手交互",
+  "model_name": {
+    "display_name": "模型"
+  },
+  "instructions": {
+    "display_name": "代理指令",
+    "info": "助手的指令，可以将其视为系统提示。"
+  },
+  "input_tools": {
+    "display_name": "工具",
+    "info": "这些是代理可以用来帮助完成任务的工具。"
+  },
+  "user_message": {
+    "display_name": "用户消息",
+    "info": "传递给运行的用户消息。"
+  },
+  "file": {
+    "display_name": "检索文件",
+    "info": "要与消息一起发送的文件。"
+  },
+  "input_thread_id": {
+    "display_name": "线程ID（可选）",
+    "info": "线程的ID"
+  },
+  "input_assistant_id": {
+    "display_name": "助手ID（可选）",
+    "info": "助手的ID"
+  },
+  "env_set": {
+    "display_name": "环境设置",
+    "info": "允许与Dotenv组件链接的虚拟输入。"
+  },
+  "outputs": {
+    "assistant_response": {
+      "display_name": "助手响应"
+    },
+    "tool_output": {
+      "display_name": "工具输出"
+    },
+    "output_thread_id": {
+      "display_name": "线程ID"
+    },
+    "output_assistant_id": {
+      "display_name": "助手ID"
+    },
+    "output_vs_id": {
+      "display_name": "向量存储ID"
+    }
+  },
+  "content_block_title": "助手步骤",
+  "errors": {
+    "no_text_in_result": "结果中没有文本，{result}",
+    "processing_failed": "处理助手交互失败：{error}"
+  },
+  "logs": {
+    "env_set_value": "env_set值为 {value}",
+    "wrapping_tools": "正在包装{count}个工具",
+    "using_assistant_id": "正在使用助手ID：{id}",
+    "using_thread_id": "正在使用线程ID：{id}",
+    "creating_assistant_manager": "正在使用模型创建助手管理器：{model}",
+    "uploading_file": "正在上传文件以进行检索",
+    "creating_vector_store": "正在创建向量存储",
+    "updating_assistant_tools": "正在使用文件搜索工具更新助手",
+    "file_search_enabled": "文件搜索功能已启用",
+    "running_thread": "正在使用用户消息运行线程",
+    "tool_used": "响应中使用了工具",
+    "file_search_used": "使用了文件搜索",
+    "response_received": "已接收助手响应",
+    "processing_events": "正在处理代理事件",
+    "processing_complete": "事件处理完成",
+    "exception_with_message": "发生异常，正在删除消息：{msg_id}"
+  }
+}

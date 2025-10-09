@@ -1,0 +1,73 @@
+{
+  "display_name": "Couchbase",
+  "description": "Couchbase Vector Store with search capabilities for similarity search and document storage",
+  "connection_string": {
+    "display_name": "Couchbase Cluster Connection String",
+    "info": "Connection string to connect to the Couchbase cluster (e.g., couchbase://localhost)"
+  },
+  "username": {
+    "display_name": "Couchbase Username",
+    "info": "Username for Couchbase authentication"
+  },
+  "password": {
+    "display_name": "Couchbase Password",
+    "info": "Password for Couchbase authentication"
+  },
+  "bucket_name": {
+    "display_name": "Bucket Name",
+    "info": "Name of the Couchbase bucket to store vectors"
+  },
+  "scope_name": {
+    "display_name": "Scope Name",
+    "info": "Name of the scope within the bucket"
+  },
+  "collection_name": {
+    "display_name": "Collection Name",
+    "info": "Name of the collection within the scope"
+  },
+  "index_name": {
+    "display_name": "Index Name",
+    "info": "Name of the search index to use for vector search"
+  },
+  "embedding": {
+    "display_name": "Embedding",
+    "info": "Embedding model to use for vectorizing documents"
+  },
+  "number_of_results": {
+    "display_name": "Number of Results",
+    "info": "Number of results to return from similarity search"
+  },
+  "status": {
+    "connecting": "Connecting to Couchbase cluster...",
+    "creating_with_documents": "Creating vector store with {count} documents...",
+    "creating_empty": "Creating empty vector store...",
+    "build_successful": "Vector store built successfully - Bucket: {bucket}, Collection: {collection}, Index: {index}",
+    "initializing_search": "Initializing search...",
+    "searching": "Searching for similar documents...",
+    "search_successful": "Search completed - Found {count} results"
+  },
+  "warnings": {
+    "empty_query": "No search query provided or query is empty"
+  },
+  "errors": {
+    "import_failed": "Failed to import Couchbase dependencies. Install it using `uv pip install langflow[couchbase] --pre`",
+    "connection_failed": "Failed to connect to Couchbase: {error}",
+    "build_failed": "Failed to build Couchbase vector store: {error}",
+    "search_failed": "Failed to search documents in Couchbase: {error}"
+  },
+  "logs": {
+    "imports_successful": "Couchbase dependencies imported successfully",
+    "connecting": "Connecting to Couchbase cluster: {connection_string}",
+    "waiting_for_ready": "Waiting for cluster to be ready...",
+    "connection_successful": "Successfully connected to Couchbase cluster",
+    "preparing_data": "Preparing ingest data",
+    "documents_prepared": "Prepared {count} documents for ingestion",
+    "creating_from_documents": "Creating vector store from {count} documents - Bucket: {bucket}, Collection: {collection}",
+    "store_created_with_documents": "Vector store created successfully with {count} documents",
+    "creating_empty_store": "Creating empty vector store - Bucket: {bucket}, Collection: {collection}",
+    "empty_store_created": "Empty vector store created successfully",
+    "building_for_search": "Building vector store for search",
+    "searching": "Searching for similar documents - Query: '{query}...', K: {k}",
+    "search_completed": "Search completed - Found {count} documents"
+  }
+}

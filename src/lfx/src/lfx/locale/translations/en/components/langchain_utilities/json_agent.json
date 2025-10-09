@@ -1,0 +1,12 @@
+{
+  "display_name": "JSON Agent",
+  "description": "Construct a JSON agent from an LLM and tools.",
+  "llm": {
+    "display_name": "Language Model",
+    "info": "An LLM Model Object (It can be found in any LLM Component)."
+  },
+  "path": {
+    "display_name": "File Path",
+    "info": "Path to the JSON, YAML, or YML file to process."
+  }
+}

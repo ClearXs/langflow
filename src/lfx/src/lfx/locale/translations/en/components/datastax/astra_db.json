@@ -1,0 +1,43 @@
+{
+  "display_name": "Astra DB Chat Memory",
+  "description": "Retrieves and store chat messages from Astra DB.",
+  "token": {
+    "display_name": "Astra DB Application Token",
+    "info": "Authentication token for accessing Astra DB."
+  },
+  "api_endpoint": {
+    "display_name": "Astra DB API Endpoint",
+    "info": "API endpoint URL for the Astra DB service."
+  },
+  "collection_name": {
+    "display_name": "Collection Name",
+    "info": "The name of the collection within Astra DB where the vectors will be stored."
+  },
+  "namespace": {
+    "display_name": "Namespace",
+    "info": "Optional namespace within Astra DB to use for the collection."
+  },
+  "session_id": {
+    "display_name": "Session ID",
+    "info": "The session ID of the chat. If empty, the current session ID parameter will be used."
+  },
+  "status": {
+    "building": "Building Astra DB chat memory...",
+    "message_history_created": "Message history created successfully - Collection: {collection}, Session: {session_id}"
+  },
+  "errors": {
+    "langchain_import_failed": "Could not import langchain Astra DB integration package. Please install it with `pip install langchain-astradb`.",
+    "astrapy_import_failed": "Could not import astrapy package. Please install it with `pip install astrapy`.",
+    "build_failed": "Failed to build Astra DB message history: {error}"
+  },
+  "logs": {
+    "langchain_import_successful": "Langchain Astra DB package imported successfully",
+    "astrapy_import_successful": "Astrapy package imported successfully",
+    "building_message_history": "Building message history - Collection: {collection}, Session ID: {session_id}",
+    "parsing_endpoint": "Parsing API endpoint",
+    "environment_detected": "Environment detected: {environment}",
+    "using_namespace": "Using namespace: {namespace}",
+    "no_namespace": "No namespace specified, using default",
+    "message_history_created": "Message history created successfully"
+  }
+}

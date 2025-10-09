@@ -1,3 +1,4 @@
+import i18n
 from langchain_community.utilities.sql_database import SQLDatabase
 from sqlalchemy import create_engine
 from sqlalchemy.pool import StaticPool
@@ -10,17 +11,31 @@ from lfx.io import (
 
 
 class SQLDatabaseComponent(Component):
-    display_name = "SQLDatabase"
-    description = "SQL Database"
+    display_name = i18n.t(
+        'components.langchain_utilities.sql_database.display_name')
+    description = i18n.t(
+        'components.langchain_utilities.sql_database.description')
     name = "SQLDatabase"
     icon = "LangChain"
 
     inputs = [
-        StrInput(name="uri", display_name="URI", info="URI to the database.", required=True),
+        StrInput(
+            name="uri",
+            display_name=i18n.t(
+                'components.langchain_utilities.sql_database.uri.display_name'),
+            info=i18n.t(
+                'components.langchain_utilities.sql_database.uri.info'),
+            required=True
+        ),
     ]
 
     outputs = [
-        Output(display_name="SQLDatabase", name="SQLDatabase", method="build_sqldatabase"),
+        Output(
+            display_name=i18n.t(
+                'components.langchain_utilities.sql_database.outputs.sql_database.display_name'),
+            name="SQLDatabase",
+            method="build_sqldatabase"
+        ),
     ]
 
     def clean_up_uri(self, uri: str) -> str:

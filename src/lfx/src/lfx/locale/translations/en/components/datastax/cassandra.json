@@ -1,0 +1,52 @@
+{
+  "display_name": "Cassandra Chat Memory",
+  "description": "Retrieves and store chat messages from Apache Cassandra.",
+  "database_ref": {
+    "display_name": "Contact Points / Astra Database ID",
+    "info": "Contact points for the database (or Astra DB database ID)"
+  },
+  "username": {
+    "display_name": "Username",
+    "info": "Username for the database (leave empty for Astra DB)."
+  },
+  "token": {
+    "display_name": "Password / Astra DB Token",
+    "info": "User password for the database (or Astra DB token)."
+  },
+  "keyspace": {
+    "display_name": "Keyspace",
+    "info": "Table Keyspace (or Astra DB namespace)."
+  },
+  "table_name": {
+    "display_name": "Table Name",
+    "info": "The name of the table (or Astra DB collection) where vectors will be stored."
+  },
+  "session_id": {
+    "display_name": "Session ID",
+    "info": "Session ID for the message."
+  },
+  "cluster_kwargs": {
+    "display_name": "Cluster arguments",
+    "info": "Optional dictionary of additional keyword arguments for the Cassandra cluster."
+  },
+  "status": {
+    "initializing": "Initializing Cassandra connection...",
+    "message_history_created": "Message history created successfully - Table: {table}, Keyspace: {keyspace}, Session: {session_id}"
+  },
+  "errors": {
+    "langchain_import_failed": "Could not import langchain Cassandra chat message histories. Please install it with `pip install langchain-community`.",
+    "cassio_import_failed": "Could not import cassio integration package. Please install it with `pip install cassio`.",
+    "build_failed": "Failed to build Cassandra message history: {error}"
+  },
+  "logs": {
+    "langchain_import_successful": "Langchain Cassandra package imported successfully",
+    "cassio_import_successful": "Cassio package imported successfully",
+    "detected_astra_db": "Detected Astra DB instance - Database ID: {database_id}",
+    "detected_cassandra_cluster": "Detected Cassandra cluster - Contact points: {contact_points}",
+    "detected_cassandra_single": "Detected Cassandra single node - Contact point: {contact_point}",
+    "initializing": "Initializing {'Astra DB' if is_astra else 'Cassandra'} connection",
+    "init_astra": "Initializing Astra DB connection with database ID and token",
+    "init_cassandra": "Initializing Cassandra connection - Username: {username}",
+    "creating_message_history": "Creating message history - Table: {table}, Keyspace: {keyspace}, Session ID: {session_id}"
+  }
+}

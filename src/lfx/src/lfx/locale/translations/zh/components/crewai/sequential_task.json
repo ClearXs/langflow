@@ -1,0 +1,49 @@
+{
+  "display_name": "顺序任务",
+  "description": "每个任务必须有描述、预期输出和负责执行的代理。",
+  "task_description": {
+    "display_name": "描述",
+    "info": "详细说明任务目的和执行的描述性文本。"
+  },
+  "expected_output": {
+    "display_name": "预期输出",
+    "info": "预期任务结果的明确定义。"
+  },
+  "tools": {
+    "display_name": "工具",
+    "info": "任务执行限定的工具/资源列表。默认使用代理工具。"
+  },
+  "agent": {
+    "display_name": "代理",
+    "info": "执行任务的CrewAI代理"
+  },
+  "task": {
+    "display_name": "任务",
+    "info": "执行任务的CrewAI任务"
+  },
+  "async_execution": {
+    "display_name": "异步执行",
+    "info": "指示异步任务执行的布尔标志。"
+  },
+  "outputs": {
+    "task": {
+      "display_name": "任务"
+    }
+  },
+  "status": {
+    "building": "正在构建顺序任务...",
+    "task_created": "顺序任务创建成功 - 总任务数：{total_count}"
+  },
+  "errors": {
+    "build_failed": "构建顺序任务失败：{error}"
+  },
+  "logs": {
+    "building_task": "正在构建顺序任务",
+    "creating_task": "正在使用代理创建任务",
+    "task_created": "任务创建成功",
+    "chaining_tasks": "正在与上一个任务链接",
+    "chained_with_list": "已与{count}个上一个任务链接",
+    "chained_with_single": "已与单个上一个任务链接",
+    "single_task": "正在创建单个任务，无链接"
+  }
+}

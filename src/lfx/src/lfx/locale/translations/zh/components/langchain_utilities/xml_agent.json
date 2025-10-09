@@ -1,0 +1,18 @@
+{
+  "display_name": "XML代理",
+  "description": "将工具格式化指令作为XML传递给语言模型的代理。",
+  "llm": {
+    "display_name": "语言模型"
+  },
+  "chat_history": {
+    "display_name": "聊天历史"
+  },
+  "system_prompt": {
+    "display_name": "系统提示词",
+    "info": "代理的系统提示词。"
+  },
+  "user_prompt": {
+    "display_name": "提示词",
+    "info": "此提示词必须包含'input'键。"
+  }
+}

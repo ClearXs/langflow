@@ -1,0 +1,27 @@
+{
+  "display_name": "自然语言转SQL",
+  "description": "从自然语言生成SQL。",
+  "input_value": {
+    "display_name": "输入",
+    "info": "要传递给链的输入值。"
+  },
+  "llm": {
+    "display_name": "语言模型"
+  },
+  "db": {
+    "display_name": "SQL数据库"
+  },
+  "top_k": {
+    "display_name": "Top K",
+    "info": "每个选择语句返回的结果数量。"
+  },
+  "prompt": {
+    "display_name": "提示词",
+    "info": "提示词必须包含`{question}`。"
+  },
+  "outputs": {
+    "text": {
+      "display_name": "消息"
+    }
+  }
+}

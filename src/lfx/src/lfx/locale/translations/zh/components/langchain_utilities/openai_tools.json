@@ -1,0 +1,18 @@
+{
+  "display_name": "OpenAI工具代理",
+  "description": "通过openai-tools使用工具的代理。",
+  "llm": {
+    "display_name": "语言模型"
+  },
+  "system_prompt": {
+    "display_name": "系统提示词",
+    "info": "代理的系统提示词。"
+  },
+  "user_prompt": {
+    "display_name": "提示词",
+    "info": "此提示词必须包含'input'键。"
+  },
+  "chat_history": {
+    "display_name": "聊天历史"
+  }
+}

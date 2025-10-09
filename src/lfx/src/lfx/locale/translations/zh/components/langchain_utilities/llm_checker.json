@@ -1,0 +1,11 @@
+{
+  "display_name": "LLM检查链",
+  "description": "具有自我验证功能的问答链。",
+  "input_value": {
+    "display_name": "输入",
+    "info": "要传递给链的输入值。"
+  },
+  "llm": {
+    "display_name": "语言模型"
+  }
+}

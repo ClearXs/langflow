@@ -1,0 +1,61 @@
+{
+  "description": "Perform object detection on images using JigsawStack's Object Detection Model, capable of image grounding, segmentation and computer use.",
+  "api_key": {
+    "display_name": "JigsawStack API Key",
+    "info": "Your JigsawStack API key for authentication"
+  },
+  "prompts": {
+    "display_name": "Prompts",
+    "info": "The prompts to ground the object detection model. You can pass a list of comma-separated prompts to extract different information from the image."
+  },
+  "url": {
+    "display_name": "URL",
+    "info": "The image URL. Not required if file_store_key is specified."
+  },
+  "file_store_key": {
+    "display_name": "File Store Key",
+    "info": "The key used to store the image on JigsawStack File Storage. Not required if url is specified."
+  },
+  "annotated_image": {
+    "display_name": "Return Annotated Image",
+    "info": "If true, will return a URL for annotated image with detected objects."
+  },
+  "features": {
+    "display_name": "Features",
+    "info": "Select the features to enable for object detection"
+  },
+  "return_type": {
+    "display_name": "Return Type",
+    "info": "Select the return type for the object detection results such as masks or annotations."
+  },
+  "outputs": {
+    "results": {
+      "display_name": "Object Detection Results"
+    }
+  },
+  "errors": {
+    "import_error": "JigsawStack package not found. Please install it using: pip install jigsawstack>=0.2.7",
+    "invalid_prompt": "Prompt must be a list of strings or a single string",
+    "missing_image_source": "Either URL or File Store Key must be provided to perform object detection",
+    "api_request_failed": "JigsawStack API returned unsuccessful response",
+    "jigsawstack_error": "JigsawStack error: {error}",
+    "unexpected_error": "An unexpected error occurred: {error}"
+  },
+  "logs": {
+    "starting_detection": "Starting object detection",
+    "creating_client": "Creating JigsawStack client",
+    "processing_prompts": "Processing detection prompts",
+    "prompts_list": "Using {count} prompt(s) from list",
+    "prompts_split": "Split prompts into {count} item(s)",
+    "prompts_single": "Using single prompt",
+    "prompts_parsed": "Parsed prompts: {prompts}",
+    "using_url": "Using image URL: {url}",
+    "using_file_store_key": "Using file store key: {key}",
+    "annotated_image_setting": "Annotated image return: {enabled}",
+    "features_enabled": "Enabled features: {features}",
+    "return_type_setting": "Return type: {type}",
+    "calling_api": "Calling JigsawStack object detection API",
+    "detection_complete": "Object detection complete - {count} object(s) detected, Annotated image: {has_annotated}",
+    "detection_success": "Object detection completed successfully - {count} object(s) found."
+  }
+}

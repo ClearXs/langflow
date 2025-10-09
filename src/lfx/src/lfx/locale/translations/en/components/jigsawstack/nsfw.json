@@ -1,0 +1,32 @@
+{
+  "description": "Detect if image or video contains NSFW (Not Safe For Work) content using AI-powered content moderation. Helps ensure content safety and compliance.",
+  "api_key": {
+    "display_name": "JigsawStack API Key",
+    "info": "Your JigsawStack API key for authentication"
+  },
+  "url": {
+    "display_name": "URL",
+    "info": "URL of the image or video to analyze for NSFW content"
+  },
+  "outputs": {
+    "nsfw_result": {
+      "display_name": "NSFW Analysis Result"
+    }
+  },
+  "errors": {
+    "import_error": "JigsawStack package not found. Please install it using: pip install jigsawstack>=0.2.7",
+    "empty_url": "URL is required for NSFW detection",
+    "api_request_failed": "JigsawStack API returned unsuccessful response",
+    "jigsawstack_error": "JigsawStack error: {error}",
+    "unexpected_error": "An unexpected error occurred: {error}"
+  },
+  "logs": {
+    "starting_detection": "Starting NSFW detection - URL: {url}",
+    "creating_client": "Creating JigsawStack client",
+    "analyzing_url": "Analyzing content from URL: {url}",
+    "calling_api": "Calling JigsawStack NSFW detection API",
+    "detection_complete": "NSFW detection complete - Is NSFW: {is_nsfw}, Confidence: {confidence}%",
+    "nsfw_detected": "⚠️ NSFW content detected (Confidence: {confidence}%)",
+    "safe_content": "✓ Safe content (Confidence: {confidence}%)"
+  }
+}

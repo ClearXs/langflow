@@ -1,0 +1,25 @@
+{
+  "display_name": "文本转SQL",
+  "description": "使用JigsawStack AI将自然语言转换为SQL查询。",
+  "api_key": {
+    "display_name": "JigsawStack API密钥",
+    "info": "用于身份验证的JigsawStack API密钥。"
+  },
+  "prompt": {
+    "display_name": "提示词",
+    "info": "要生成的SQL查询的自然语言描述。"
+  },
+  "sql_schema": {
+    "display_name": "SQL架构",
+    "info": "数据库架构信息。可以是CREATE TABLE语句或架构描述。指定此参数可通过应用特定于数据库的语法和优化来提高SQL生成的准确性。"
+  },
+  "file_store_key": {
+    "display_name": "文件存储键",
+    "info": "用于在Jigsawstack文件存储中存储数据库架构的键。如果已指定sql_schema,则不需要此参数。"
+  },
+  "outputs": {
+    "sql_query": {
+      "display_name": "SQL查询"
+    }
+  }
+}

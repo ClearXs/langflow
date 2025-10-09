@@ -1,0 +1,46 @@
+{
+  "display_name": "Run Assistant",
+  "description": "Executes an Assistant Run against a thread",
+  "assistant_id": {
+    "display_name": "Assistant ID",
+    "info": "The ID of the assistant to run.\n\nCan be retrieved using the List Assistants component or created with the Create Assistant component."
+  },
+  "user_message": {
+    "display_name": "User Message",
+    "info": "User message to pass to the run."
+  },
+  "thread_id": {
+    "display_name": "Thread ID",
+    "info": "Thread ID to use with the run. If not provided, a new thread will be created."
+  },
+  "env_set": {
+    "display_name": "Environment Set",
+    "info": "Dummy input to allow chaining with Dotenv Component."
+  },
+  "outputs": {
+    "assistant_response": {
+      "display_name": "Assistant Response"
+    }
+  },
+  "status": {
+    "adding_message": "Adding user message to thread...",
+    "running": "Running assistant...",
+    "completed": "Assistant run completed - Response length: {length} characters"
+  },
+  "errors": {
+    "thread_creation_failed": "Failed to create thread: {error}",
+    "stream_exception": "Stream exception occurred: {error}",
+    "run_failed": "Failed to run assistant: {error}"
+  },
+  "logs": {
+    "client_initialized": "OpenAI client initialized successfully",
+    "creating_new_thread": "Creating new thread (no thread_id provided)",
+    "thread_created": "New thread created - ID: {thread_id}",
+    "creating_thread_for_run": "Creating new thread for assistant run",
+    "thread_created_for_run": "Thread created for run - ID: {thread_id}",
+    "using_existing_thread": "Using existing thread - ID: {thread_id}",
+    "adding_user_message": "Adding user message to thread: {message_preview}",
+    "running_assistant": "Running assistant with ID: {assistant_id}",
+    "response_received": "Assistant response received - Length: {length} characters"
+  }
+}

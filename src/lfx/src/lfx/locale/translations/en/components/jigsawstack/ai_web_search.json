@@ -1,0 +1,47 @@
+{
+  "description": "Search the web with AI-powered insights and get structured results instantly",
+  "api_key": {
+    "display_name": "JigsawStack API Key",
+    "info": "Your JigsawStack API key for authentication"
+  },
+  "query": {
+    "display_name": "Search Query",
+    "info": "The search query to execute"
+  },
+  "ai_overview": {
+    "display_name": "AI Overview",
+    "info": "Generate an AI-powered overview/summary of the search results"
+  },
+  "safe_mode": {
+    "display_name": "Safe Mode",
+    "info": "Enable safe search to filter explicit content"
+  },
+  "spell_check": {
+    "display_name": "Spell Check",
+    "info": "Enable automatic spell checking and correction of the query"
+  },
+  "max_results": {
+    "display_name": "Max Results",
+    "info": "Maximum number of search results to return (default: 10)"
+  },
+  "outputs": {
+    "search_results": {
+      "display_name": "AI Web Search Results"
+    }
+  },
+  "errors": {
+    "import_error": "JigsawStack package not found. Please install it using: pip install jigsawstack>=0.2.7",
+    "empty_query": "Search query cannot be empty",
+    "api_request_failed": "JigsawStack API request failed",
+    "jigsawstack_error": "JigsawStack error: {error}",
+    "unexpected_error": "An unexpected error occurred: {error}"
+  },
+  "logs": {
+    "starting_search": "Starting AI web search - Query: '{query}'",
+    "creating_client": "Creating JigsawStack client",
+    "search_parameters": "Search parameters - Query: '{query}', AI Overview: {ai_overview}, Safe Mode: {safe_mode}, Spell Check: {spell_check}, Max Results: {max_results}",
+    "calling_api": "Calling JigsawStack AI search API",
+    "search_complete": "AI search complete - {results_count} result(s) found, AI Overview: {has_overview}",
+    "search_complete_status": "AI search completed successfully with {count} result(s)."
+  }
+}

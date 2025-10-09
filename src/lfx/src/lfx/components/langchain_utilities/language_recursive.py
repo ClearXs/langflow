@@ -1,3 +1,4 @@
+import i18n
 from typing import Any
 
 from langchain_text_splitters import Language, RecursiveCharacterTextSplitter, TextSplitter
@@ -7,8 +8,10 @@ from lfx.inputs.inputs import DataInput, DropdownInput, IntInput
 
 
 class LanguageRecursiveTextSplitterComponent(LCTextSplitterComponent):
-    display_name: str = "Language Recursive Text Splitter"
-    description: str = "Split text into chunks of a specified length based on language."
+    display_name: str = i18n.t(
+        'components.langchain_utilities.language_recursive.display_name')
+    description: str = i18n.t(
+        'components.langchain_utilities.language_recursive.description')
     documentation: str = "https://docs.langflow.org/components/text-splitters#languagerecursivetextsplitter"
     name = "LanguageRecursiveTextSplitter"
     icon = "LangChain"
@@ -16,25 +19,35 @@ class LanguageRecursiveTextSplitterComponent(LCTextSplitterComponent):
     inputs = [
         IntInput(
             name="chunk_size",
-            display_name="Chunk Size",
-            info="The maximum length of each chunk.",
+            display_name=i18n.t(
+                'components.langchain_utilities.language_recursive.chunk_size.display_name'),
+            info=i18n.t(
+                'components.langchain_utilities.language_recursive.chunk_size.info'),
             value=1000,
         ),
         IntInput(
             name="chunk_overlap",
-            display_name="Chunk Overlap",
-            info="The amount of overlap between chunks.",
+            display_name=i18n.t(
+                'components.langchain_utilities.language_recursive.chunk_overlap.display_name'),
+            info=i18n.t(
+                'components.langchain_utilities.language_recursive.chunk_overlap.info'),
             value=200,
         ),
         DataInput(
             name="data_input",
-            display_name="Input",
-            info="The texts to split.",
+            display_name=i18n.t(
+                'components.langchain_utilities.language_recursive.data_input.display_name'),
+            info=i18n.t(
+                'components.langchain_utilities.language_recursive.data_input.info'),
             input_types=["Document", "Data"],
             required=True,
         ),
         DropdownInput(
-            name="code_language", display_name="Code Language", options=[x.value for x in Language], value="python"
+            name="code_language",
+            display_name=i18n.t(
+                'components.langchain_utilities.language_recursive.code_language.display_name'),
+            options=[x.value for x in Language],
+            value="python"
         ),
     ]
 

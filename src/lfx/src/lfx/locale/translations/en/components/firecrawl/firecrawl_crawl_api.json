@@ -1,0 +1,48 @@
+{
+  "description": "Crawl a URL and all its subpages, extracting content and metadata using Firecrawl API.",
+  "api_key": {
+    "display_name": "Firecrawl API Key",
+    "info": "The API key to authenticate with Firecrawl API. Get your key at https://firecrawl.dev"
+  },
+  "url": {
+    "display_name": "URL",
+    "info": "The starting URL to crawl. The crawler will follow links from this page based on the crawler options."
+  },
+  "timeout": {
+    "display_name": "Timeout",
+    "info": "Timeout in milliseconds for the crawl request. If not set, uses the default API timeout."
+  },
+  "idempotency_key": {
+    "display_name": "Idempotency Key",
+    "info": "Optional idempotency key to ensure unique requests. If not provided, a random UUID will be generated. Use the same key to avoid duplicate crawls."
+  },
+  "crawlerOptions": {
+    "display_name": "Crawler Options",
+    "info": "Configuration for the crawler behavior (maxDepth, limit, allowExternalLinks, etc.). See Firecrawl documentation for all available options."
+  },
+  "scrapeOptions": {
+    "display_name": "Scrape Options",
+    "info": "Configuration for how each page is scraped (onlyMainContent, formats, includeTags, etc.). These options apply to every page crawled."
+  },
+  "outputs": {
+    "data": {
+      "display_name": "Crawl Results"
+    }
+  },
+  "errors": {
+    "import_failed": "Could not import firecrawl integration package. Please install it with `pip install firecrawl-py`.",
+    "crawl_failed": "Failed to crawl URL '{url}': {error}"
+  },
+  "logs": {
+    "firecrawl_imported": "Firecrawl package imported successfully",
+    "starting_crawl": "Starting crawl for URL: {url}",
+    "scrape_options_added": "Scrape options added to parameters",
+    "default_params_set": "Default parameters set - Max depth: {max_depth}, Limit: {limit}",
+    "main_content_only": "Only main content extraction enabled: {enabled}",
+    "idempotency_key_generated": "Idempotency key generated: {key}",
+    "idempotency_key_provided": "Using provided idempotency key: {key}",
+    "firecrawl_app_initialized": "Firecrawl app initialized with API key",
+    "executing_crawl": "Executing crawl operation",
+    "crawl_completed": "Crawl completed successfully - {count} page(s) crawled"
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "display_name": "Vector Store Router Agent",
+  "description": "Construct an agent from a Vector Store Router.",
+  "llm": {
+    "display_name": "Language Model",
+    "info": "Language model to use for the agent."
+  },
+  "vectorstores": {
+    "display_name": "Vector Stores",
+    "info": "List of VectorStoreInfo objects containing information about available vector stores."
+  }
+}

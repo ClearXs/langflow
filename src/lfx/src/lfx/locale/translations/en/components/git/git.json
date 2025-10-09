@@ -1,0 +1,65 @@
+{
+  "description": "Load and filter documents from a local or remote Git repository. Use a local repo path or clone from a remote URL.",
+  "repo_source": {
+    "display_name": "Repository Source",
+    "info": "Select whether to use a local repo path or clone from a remote URL.",
+    "options": {
+      "local": "Local",
+      "remote": "Remote"
+    }
+  },
+  "repo_path": {
+    "display_name": "Local Repository Path",
+    "info": "The local path to the existing Git repository (used if 'Local' is selected)."
+  },
+  "clone_url": {
+    "display_name": "Clone URL",
+    "info": "The URL of the Git repository to clone (used if 'Remote' is selected)."
+  },
+  "branch": {
+    "display_name": "Branch",
+    "info": "The branch to load files from. Defaults to 'main'."
+  },
+  "file_filter": {
+    "display_name": "File Filter",
+    "info": "Patterns to filter files. For example:\nInclude only .py files: '*.py'\nExclude .py files: '!*.py'\nMultiple patterns can be separated by commas."
+  },
+  "content_filter": {
+    "display_name": "Content Filter",
+    "info": "A regex pattern to filter files based on their content."
+  },
+  "outputs": {
+    "data": {
+      "display_name": "Documents"
+    }
+  },
+  "errors": {
+    "gitloader_creation_failed": "Failed to create Git loader: {error}",
+    "loading_failed": "Failed to load documents: {error}"
+  },
+  "logs": {
+    "binary_file_detected": "Binary file detected: {path}",
+    "binary_check_failed": "Binary check failed for {path}: {error}",
+    "file_excluded": "File excluded by pattern '{pattern}': {path}",
+    "file_included": "File included: {path}",
+    "content_check_skipped_binary": "Content check skipped (binary file): {path}",
+    "invalid_regex": "Invalid regex pattern '{pattern}': {error}",
+    "content_matched": "Content matched: {path}",
+    "content_check_failed": "Content check failed for {path}: {error}",
+    "building_filter": "Building combined filter - File patterns: {file_patterns}, Content pattern: {content_pattern}",
+    "file_not_exists": "File does not exist: {path}",
+    "filter_error": "Filter error for {path}: {error}",
+    "temp_dir_created": "Temporary directory created: {path}",
+    "temp_dir_removed": "Temporary directory removed: {path}",
+    "temp_dir_remove_failed": "Failed to remove temporary directory {path}: {error}",
+    "config_updated_local": "Configuration updated for local repository",
+    "config_updated_remote": "Configuration updated for remote repository",
+    "building_gitloader": "Building Git loader",
+    "using_local_repo": "Using local repository: {path}",
+    "using_remote_repo": "Using remote repository: {url}",
+    "using_branch": "Using branch: {branch}",
+    "gitloader_created": "Git loader created successfully",
+    "loading_documents": "Loading documents from Git repository",
+    "documents_loaded": "Successfully loaded {count} document(s)"
+  }
+}

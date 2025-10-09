@@ -1,0 +1,12 @@
+{
+  "display_name": "向量存储路由代理",
+  "description": "从向量存储路由器构建代理。",
+  "llm": {
+    "display_name": "语言模型",
+    "info": "代理使用的语言模型。"
+  },
+  "vectorstores": {
+    "display_name": "向量存储",
+    "info": "包含可用向量存储信息的VectorStoreInfo对象列表。"
+  }
+}

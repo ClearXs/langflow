@@ -187,6 +187,7 @@ async def _determine_loading_strategy(settings_service: "SettingsService") -> di
 
 async def get_and_cache_all_types_dict(
     settings_service: "SettingsService",
+    force_refresh: bool = False
 ):
     """Retrieves and caches the complete dictionary of component types and templates.
 
@@ -195,7 +196,7 @@ async def get_and_cache_all_types_dict(
     lazy loading setting. Merges built-in and custom components into the cache and returns the
     resulting dictionary.
     """
-    if component_cache.all_types_dict is None:
+    if component_cache.all_types_dict is None or force_refresh:
         await logger.adebug("Building components cache")
 
         langflow_components = await import_langflow_components()

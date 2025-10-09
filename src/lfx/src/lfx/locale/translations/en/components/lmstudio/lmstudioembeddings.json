@@ -1,0 +1,20 @@
+{
+  "display_name": "LM Studio Embeddings",
+  "description": "Generate embeddings using LM Studio.",
+  "model": {
+    "display_name": "Model",
+    "info": "The LM Studio model to use for generating embeddings."
+  },
+  "base_url": {
+    "display_name": "LM Studio Base URL",
+    "info": "The base URL of the LM Studio server."
+  },
+  "api_key": {
+    "display_name": "LM Studio API Key",
+    "info": "API key for authenticating with LM Studio."
+  },
+  "temperature": {
+    "display_name": "Model Temperature",
+    "info": "Controls the randomness of the model's output. Lower values make output more focused and deterministic."
+  }
+}

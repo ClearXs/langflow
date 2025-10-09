@@ -1,0 +1,60 @@
+{
+  "description": "使用Google生成式AI生成文本。",
+  "max_output_tokens": {
+    "display_name": "最大输出令牌数",
+    "info": "要生成的最大令牌数。"
+  },
+  "model_name": {
+    "display_name": "模型",
+    "info": "要使用的模型名称。"
+  },
+  "api_key": {
+    "display_name": "Google API密钥",
+    "info": "用于Google生成式AI的Google API密钥。"
+  },
+  "top_p": {
+    "display_name": "Top P",
+    "info": "采样时要考虑的令牌的最大累积概率。"
+  },
+  "temperature": {
+    "display_name": "温度",
+    "info": "控制随机性。较低的值更具确定性，较高的值更具创造性。"
+  },
+  "n": {
+    "display_name": "N",
+    "info": "为每个提示生成的聊天完成数。注意：如果生成重复项，API可能不会返回完整的n个完成。"
+  },
+  "top_k": {
+    "display_name": "Top K",
+    "info": "使用top-k采样进行解码：考虑top_k个最可能的令牌集。必须为正数。"
+  },
+  "tool_model_enabled": {
+    "display_name": "启用工具模型",
+    "info": "是否使用工具模型。"
+  },
+  "errors": {
+    "package_not_installed": "使用Google生成式AI模型需要'langchain_google_genai'包。",
+    "langchain_not_installed": "未安装langchain_google_genai。",
+    "config_update_failed": "获取模型名称时出错：{error}"
+  },
+  "logs": {
+    "building_model": "正在构建Google生成式AI模型：{model}",
+    "model_parameters": "模型参数 - 最大令牌数：{max_tokens}，温度：{temperature}，Top K：{top_k}，Top P：{top_p}，N：{n}",
+    "model_built": "Google生成式AI模型构建成功",
+    "fetching_models": "正在获取可用模型 - 工具启用：{tool_enabled}",
+    "configuring_api": "正在配置Google生成式AI API",
+    "listing_models": "正在从API列出可用模型",
+    "models_fetched": "成功获取{count}个模型",
+    "model_fetch_error": "获取模型名称时出错：{error}",
+    "filtering_tool_models": "正在过滤支持工具调用的模型",
+    "tool_support_confirmed": "模型{model}支持工具调用",
+    "tool_support_not_found": "模型{model}不支持工具调用",
+    "tool_check_failed": "检查模型{model}的工具支持失败：{error}",
+    "tool_models_filtered": "过滤到{count}个支持工具的模型",
+    "updating_config": "正在更新字段的构建配置：{field}",
+    "no_api_key": "未提供API密钥，使用默认模型列表",
+    "fetching_available_models": "正在从API获取可用模型",
+    "model_fetch_fallback": "获取模型名称时出错：{error}。回退到默认列表。",
+    "config_updated": "配置已更新 - {model_count}个可用模型，默认：{default_model}"
+  }
+}

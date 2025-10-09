@@ -1,3 +1,4 @@
+import i18n
 from spider.spider import Spider
 
 from lfx.base.langchain_utilities.spider_constants import MODES
@@ -15,84 +16,107 @@ from lfx.schema.data import Data
 
 
 class SpiderTool(Component):
-    display_name: str = "Spider Web Crawler & Scraper"
-    description: str = "Spider API for web crawling and scraping."
+    display_name: str = i18n.t(
+        'components.langchain_utilities.spider.display_name')
+    description: str = i18n.t(
+        'components.langchain_utilities.spider.description')
     output_types: list[str] = ["Document"]
     documentation: str = "https://spider.cloud/docs/api"
 
     inputs = [
         SecretStrInput(
             name="spider_api_key",
-            display_name="Spider API Key",
+            display_name=i18n.t(
+                'components.langchain_utilities.spider.spider_api_key.display_name'),
             required=True,
             password=True,
-            info="The Spider API Key, get it from https://spider.cloud",
+            info=i18n.t(
+                'components.langchain_utilities.spider.spider_api_key.info'),
         ),
         StrInput(
             name="url",
-            display_name="URL",
+            display_name=i18n.t(
+                'components.langchain_utilities.spider.url.display_name'),
             required=True,
-            info="The URL to scrape or crawl",
+            info=i18n.t('components.langchain_utilities.spider.url.info'),
         ),
         DropdownInput(
             name="mode",
-            display_name="Mode",
+            display_name=i18n.t(
+                'components.langchain_utilities.spider.mode.display_name'),
             required=True,
             options=MODES,
             value=MODES[0],
-            info="The mode of operation: scrape or crawl",
+            info=i18n.t('components.langchain_utilities.spider.mode.info'),
         ),
         IntInput(
             name="limit",
-            display_name="Limit",
-            info="The maximum amount of pages allowed to crawl per website. Set to 0 to crawl all pages.",
+            display_name=i18n.t(
+                'components.langchain_utilities.spider.limit.display_name'),
+            info=i18n.t('components.langchain_utilities.spider.limit.info'),
             advanced=True,
         ),
         IntInput(
             name="depth",
-            display_name="Depth",
-            info="The crawl limit for maximum depth. If 0, no limit will be applied.",
+            display_name=i18n.t(
+                'components.langchain_utilities.spider.depth.display_name'),
+            info=i18n.t('components.langchain_utilities.spider.depth.info'),
             advanced=True,
         ),
         StrInput(
             name="blacklist",
-            display_name="Blacklist",
-            info="Blacklist paths that you do not want to crawl. Use Regex patterns.",
+            display_name=i18n.t(
+                'components.langchain_utilities.spider.blacklist.display_name'),
+            info=i18n.t(
+                'components.langchain_utilities.spider.blacklist.info'),
             advanced=True,
         ),
         StrInput(
             name="whitelist",
-            display_name="Whitelist",
-            info="Whitelist paths that you want to crawl, ignoring all other routes. Use Regex patterns.",
+            display_name=i18n.t(
+                'components.langchain_utilities.spider.whitelist.display_name'),
+            info=i18n.t(
+                'components.langchain_utilities.spider.whitelist.info'),
             advanced=True,
         ),
         BoolInput(
             name="readability",
-            display_name="Use Readability",
-            info="Use readability to pre-process the content for reading.",
+            display_name=i18n.t(
+                'components.langchain_utilities.spider.readability.display_name'),
+            info=i18n.t(
+                'components.langchain_utilities.spider.readability.info'),
             advanced=True,
         ),
         IntInput(
             name="request_timeout",
-            display_name="Request Timeout",
-            info="Timeout for the request in seconds.",
+            display_name=i18n.t(
+                'components.langchain_utilities.spider.request_timeout.display_name'),
+            info=i18n.t(
+                'components.langchain_utilities.spider.request_timeout.info'),
             advanced=True,
         ),
         BoolInput(
             name="metadata",
-            display_name="Metadata",
-            info="Include metadata in the response.",
+            display_name=i18n.t(
+                'components.langchain_utilities.spider.metadata.display_name'),
+            info=i18n.t('components.langchain_utilities.spider.metadata.info'),
             advanced=True,
         ),
         DictInput(
             name="params",
-            display_name="Additional Parameters",
-            info="Additional parameters to pass to the API. If provided, other inputs will be ignored.",
+            display_name=i18n.t(
+                'components.langchain_utilities.spider.params.display_name'),
+            info=i18n.t('components.langchain_utilities.spider.params.info'),
         ),
     ]
 
     outputs = [
-        Output(display_name="Markdown", name="content", method="crawl"),
+        Output(
+            display_name=i18n.t(
+                'components.langchain_utilities.spider.outputs.content.display_name'),
+            name="content",
+            method="crawl"
+        ),
     ]
 
     def crawl(self) -> list[Data]:
@@ -134,7 +158,8 @@ class SpiderTool(Component):
                     )
                 )
             else:
-                records.append(Data(data={"content": record["content"], "url": record["url"]}))
+                records.append(
+                    Data(data={"content": record["content"], "url": record["url"]}))
         return records
 
 

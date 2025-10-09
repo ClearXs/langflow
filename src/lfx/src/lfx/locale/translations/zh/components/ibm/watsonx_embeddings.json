@@ -1,0 +1,45 @@
+{
+  "description": "使用IBM watsonx.ai模型生成嵌入。",
+  "url": {
+    "display_name": "watsonx API端点",
+    "info": "API的基础URL。"
+  },
+  "project_id": {
+    "display_name": "watsonx项目ID",
+    "info": "与基础模型关联的项目ID或部署空间ID。"
+  },
+  "api_key": {
+    "display_name": "Watsonx API密钥",
+    "info": "用于模型的API密钥。"
+  },
+  "model_name": {
+    "display_name": "模型名称"
+  },
+  "truncate_input_tokens": {
+    "display_name": "截断输入令牌"
+  },
+  "input_text": {
+    "display_name": "在输出中包含原始文本"
+  },
+  "errors": {
+    "fetch_timeout": "从watsonx.ai获取模型时请求超时。使用默认模型列表。",
+    "fetch_http_error": "从watsonx.ai获取模型时HTTP错误{status}。使用默认模型列表。",
+    "fetch_failed": "从watsonx.ai获取模型时出错：{error}。使用默认模型列表。",
+    "config_update_failed": "更新模型选项时出错：{error}",
+    "build_failed": "构建watsonx.ai嵌入时出错：{error}"
+  },
+  "logs": {
+    "fetching_models": "正在从watsonx.ai获取可用模型 - 基础URL：{base_url}",
+    "requesting_models": "正在从端点请求模型：{endpoint}",
+    "models_fetched": "成功从{base_url}获取{count}个模型",
+    "updating_config": "正在更新构建配置 - 字段：{field}，值：{value}",
+    "fetching_models_for_url": "正在为URL获取模型：{url}",
+    "models_updated": "已更新模型选项：在{url}中找到{count}个模型",
+    "building_embeddings": "正在构建watsonx.ai嵌入 - 模型：{model}，URL：{url}",
+    "creating_credentials": "正在创建watsonx.ai凭据",
+    "creating_api_client": "正在创建watsonx.ai API客户端",
+    "configuring_parameters": "正在配置嵌入参数 - 截断令牌：{truncate_tokens}，包含文本：{include_text}",
+    "creating_embeddings_instance": "正在创建WatsonxEmbeddings实例",
+    "embeddings_built": "watsonx.ai嵌入构建成功"
+  }
+}

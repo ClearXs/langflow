@@ -1,0 +1,34 @@
+{
+  "display_name": "知识检索",
+  "description": "从知识库中搜索和检索数据。",
+  "knowledge_base": {
+    "display_name": "知识库",
+    "info": "选择要加载数据的知识库。"
+  },
+  "api_key": {
+    "display_name": "嵌入提供商API密钥",
+    "info": "用于生成嵌入的嵌入提供商的API密钥。"
+  },
+  "search_query": {
+    "display_name": "搜索查询",
+    "info": "用于过滤知识库数据的可选搜索查询。"
+  },
+  "top_k": {
+    "display_name": "Top K结果数",
+    "info": "从知识库返回的顶部结果数量。"
+  },
+  "include_metadata": {
+    "display_name": "包含元数据",
+    "info": "是否在输出中包含所有元数据。如果为false,则仅返回内容。"
+  },
+  "include_embeddings": {
+    "display_name": "包含嵌入",
+    "info": "是否在输出中包含嵌入。仅在启用'包含元数据'时适用。"
+  },
+  "outputs": {
+    "retrieve_data": {
+      "display_name": "结果",
+      "info": "返回所选知识库的数据。"
+    }
+  }
+}

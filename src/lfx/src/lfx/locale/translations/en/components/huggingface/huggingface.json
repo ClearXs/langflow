@@ -1,0 +1,71 @@
+{
+  "description": "Generate text using Hugging Face Inference APIs.",
+  "model_id": {
+    "display_name": "Model ID",
+    "info": "Select a model from Hugging Face Hub"
+  },
+  "custom_model": {
+    "display_name": "Custom Model ID",
+    "info": "Enter a custom model ID from Hugging Face Hub"
+  },
+  "max_new_tokens": {
+    "display_name": "Max New Tokens",
+    "info": "Maximum number of generated tokens"
+  },
+  "top_k": {
+    "display_name": "Top K",
+    "info": "The number of highest probability vocabulary tokens to keep for top-k-filtering"
+  },
+  "top_p": {
+    "display_name": "Top P",
+    "info": "If set to < 1, only the smallest set of most probable tokens with probabilities that add up to `top_p` or higher are kept for generation"
+  },
+  "typical_p": {
+    "display_name": "Typical P",
+    "info": "Typical Decoding mass."
+  },
+  "temperature": {
+    "display_name": "Temperature",
+    "info": "The value used to module the logits distribution"
+  },
+  "repetition_penalty": {
+    "display_name": "Repetition Penalty",
+    "info": "The parameter for repetition penalty. 1.0 means no penalty."
+  },
+  "inference_endpoint": {
+    "display_name": "Inference Endpoint",
+    "info": "Custom inference endpoint URL."
+  },
+  "task": {
+    "display_name": "Task",
+    "info": "The task to call the model with. Should be a task that returns `generated_text` or `summary_text`."
+  },
+  "huggingfacehub_api_token": {
+    "display_name": "HuggingFace Hub API Token"
+  },
+  "model_kwargs": {
+    "display_name": "Model Keyword Arguments"
+  },
+  "retry_attempts": {
+    "display_name": "Retry Attempts"
+  },
+  "errors": {
+    "custom_model_required": "Custom model ID is required when 'custom' is selected",
+    "config_update_failed": "Error updating build config: {error}",
+    "connection_failed": "Could not connect to Hugging Face Endpoints API: {error}"
+  },
+  "logs": {
+    "getting_api_url": "Getting API URL",
+    "using_custom_model": "Using custom model: {model} - URL: {url}",
+    "using_standard_model": "Using standard model: {model} - URL: {url}",
+    "using_custom_endpoint": "Using custom endpoint: {endpoint}",
+    "updating_config": "Updating build config - Field: {field}, Value: {value}",
+    "showing_custom_field": "Showing custom model field",
+    "hiding_custom_field": "Hiding custom model field",
+    "creating_endpoint": "Creating HuggingFace endpoint - URL: {url}, Task: {task}, Retry attempts: {retry_attempts}",
+    "attempting_connection": "Attempting to connect to HuggingFace endpoint",
+    "building_model": "Building HuggingFace language model",
+    "model_parameters": "Model parameters - Task: {task}, Max tokens: {max_tokens}, Temperature: {temperature}, Top K: {top_k}, Top P: {top_p}, Typical P: {typical_p}, Repetition penalty: {repetition_penalty}",
+    "model_built": "HuggingFace model built successfully"
+  }
+}

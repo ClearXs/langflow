@@ -1,0 +1,16 @@
+{
+  "display_name": "Add Content to Page",
+  "description": "Convert markdown text to Notion blocks and append them to a Notion page.",
+  "markdown_text": {
+    "display_name": "Markdown Text",
+    "info": "The markdown text to convert to Notion blocks."
+  },
+  "block_id": {
+    "display_name": "Page/Block ID",
+    "info": "The ID of the page/block to add the content."
+  },
+  "notion_secret": {
+    "display_name": "Notion Secret",
+    "info": "The Notion integration token."
+  }
+}

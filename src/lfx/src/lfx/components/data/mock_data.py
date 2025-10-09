@@ -3,6 +3,7 @@ from typing import Any
 import i18n
 
 from lfx.custom.custom_component.component import Component
+from lfx.field_typing.range_spec import RangeSpec
 from lfx.io import IntInput, MessageTextInput, DropdownInput, Output
 from lfx.schema.data import Data
 
@@ -20,7 +21,7 @@ class MockDataComponent(Component):
                 'components.data.mock_data.number_of_rows.display_name'),
             info=i18n.t('components.data.mock_data.number_of_rows.info'),
             value=10,
-            range_spec=(1, 1000),
+            range_spec=RangeSpec(min=1, max=1000, step=1),
         ),
         DropdownInput(
             name="data_type",

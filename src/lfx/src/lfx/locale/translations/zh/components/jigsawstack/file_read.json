@@ -1,0 +1,36 @@
+{
+  "description": "从JigsawStack文件存储无缝读取任何先前上传的文件，并在AI应用程序中使用。",
+  "api_key": {
+    "display_name": "JigsawStack API密钥",
+    "info": "用于身份验证的JigsawStack API密钥"
+  },
+  "key": {
+    "display_name": "密钥",
+    "info": "用于从JigsawStack文件存储检索文件的密钥。"
+  },
+  "outputs": {
+    "file_path": {
+      "display_name": "文件路径"
+    }
+  },
+  "errors": {
+    "import_error": "未找到JigsawStack包。请使用以下命令安装：pip install jigsawstack>=0.2.7",
+    "empty_key": "从JigsawStack文件存储读取文件需要密钥。",
+    "jigsawstack_error": "JigsawStack错误：{error}",
+    "unexpected_error": "发生意外错误：{error}"
+  },
+  "logs": {
+    "starting_read": "正在开始读取文件 - 密钥：{key}",
+    "creating_client": "正在创建JigsawStack客户端",
+    "downloading_file": "正在从JigsawStack存储下载文件 - 密钥：{key}",
+    "detecting_extension": "正在检测文件扩展名",
+    "extension_detected": "已检测到文件扩展名：{extension}",
+    "creating_temp_file": "正在创建临时文件",
+    "wrote_binary": "已写入二进制内容（{size}字节）",
+    "wrote_text": "已写入文本内容（{size}字节）",
+    "file_saved": "文件已保存到临时路径：{path}（大小：{size}字节，扩展名：{extension}）",
+    "read_complete": "文件读取完成，密钥：{key}",
+    "analyzing_binary": "正在分析二进制内容以检测文件类型",
+    "detected_type": "已检测到文件类型：{type}"
+  }
+}

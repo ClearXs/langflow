@@ -1,0 +1,39 @@
+{
+  "description": "使用提供的凭据从Google Drive加载文档。",
+  "json_string": {
+    "display_name": "服务账户令牌的JSON字符串",
+    "info": "包含用于服务账户访问的OAuth 2.0访问令牌信息的JSON字符串"
+  },
+  "document_id": {
+    "display_name": "文档ID",
+    "info": "单个Google Drive文档ID"
+  },
+  "outputs": {
+    "docs": {
+      "display_name": "已加载的文档"
+    }
+  },
+  "errors": {
+    "no_credentials": "未提供凭据。",
+    "single_document_expected": "需要单个文档ID",
+    "invalid_json": "无效的JSON字符串",
+    "credentials_creation_failed": "创建凭据失败：{error}",
+    "auth_refresh_failed": "身份验证错误：无法刷新身份验证令牌。请尝试重新进行身份验证。",
+    "loading_failed": "加载文档时出错：{error}",
+    "single_document_load_expected": "预期加载单个文档，但得到了{count}个文档。"
+  },
+  "logs": {
+    "credentials_loaded": "已从提供的凭据属性加载凭据",
+    "loading_document": "正在从Google Drive加载文档",
+    "document_id_validated": "文档ID已验证：{document_id}",
+    "parsing_json": "正在解析JSON凭据字符串",
+    "json_parsed": "JSON凭据解析成功",
+    "creating_credentials": "正在从令牌信息创建OAuth凭据",
+    "credentials_created": "OAuth凭据创建成功",
+    "initializing_loader": "正在初始化Google Drive加载器",
+    "loading_from_drive": "正在从Google Drive加载文档 - ID：{document_id}",
+    "documents_loaded": "成功从Google Drive加载{count}个文档",
+    "converting_to_data": "正在将文档转换为Data格式",
+    "load_successful": "文档加载成功"
+  }
+}

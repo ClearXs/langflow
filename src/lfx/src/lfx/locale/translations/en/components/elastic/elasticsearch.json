@@ -1,0 +1,80 @@
+{
+  "description": "Elasticsearch Vector Store with advanced, customizable search capabilities.",
+  "elasticsearch_url": {
+    "display_name": "Elasticsearch URL",
+    "info": "URL for self-managed Elasticsearch deployments (e.g., http://localhost:9200). Do not use with Elastic Cloud deployments, use Elastic Cloud ID instead."
+  },
+  "cloud_id": {
+    "display_name": "Elastic Cloud ID",
+    "info": "Use this for Elastic Cloud deployments. Do not use together with 'Elasticsearch URL'."
+  },
+  "index_name": {
+    "display_name": "Index Name",
+    "info": "The index name where the vectors will be stored in Elasticsearch cluster."
+  },
+  "username": {
+    "display_name": "Username",
+    "info": "Elasticsearch username (e.g., 'elastic'). Required for both local and Elastic Cloud setups unless API keys are used."
+  },
+  "password": {
+    "display_name": "Elasticsearch Password",
+    "info": "Elasticsearch password for the specified user. Required for both local and Elastic Cloud setups unless API keys are used."
+  },
+  "embedding": {
+    "display_name": "Embedding"
+  },
+  "search_type": {
+    "display_name": "Search Type"
+  },
+  "number_of_results": {
+    "display_name": "Number of Results",
+    "info": "Number of results to return."
+  },
+  "search_score_threshold": {
+    "display_name": "Search Score Threshold",
+    "info": "Minimum similarity score threshold for search results."
+  },
+  "api_key": {
+    "display_name": "Elastic API Key",
+    "info": "API Key for Elastic Cloud authentication. If used, 'username' and 'password' are not required."
+  },
+  "verify_certs": {
+    "display_name": "Verify SSL Certificates",
+    "info": "Whether to verify SSL certificates when connecting to Elasticsearch."
+  },
+  "errors": {
+    "both_cloud_and_url": "Both 'cloud_id' and 'elasticsearch_url' provided. Please use only one based on your deployment (Cloud or Local).",
+    "vector_store_creation_failed": "Failed to create Elasticsearch vector store: {error}",
+    "invalid_input_type": "Vector Store Inputs must be Data objects.",
+    "invalid_search_type": "Invalid search type: {search_type}",
+    "search_failed": "Error occurred while querying the Elasticsearch VectorStore, there is no Data into the VectorStore.",
+    "get_all_failed": "Failed to retrieve all documents: {error}"
+  },
+  "logs": {
+    "building_vector_store": "Building Elasticsearch vector store - Index: {index}",
+    "using_cloud_id": "Using Elastic Cloud ID for connection",
+    "using_url": "Using Elasticsearch URL: {url}",
+    "using_api_key": "Using API key for authentication",
+    "ssl_verification_disabled": "SSL certificate verification disabled",
+    "creating_custom_client": "Creating custom Elasticsearch client",
+    "vector_store_created": "Elasticsearch vector store created successfully",
+    "adding_documents": "Adding {count} documents to vector store",
+    "documents_added": "{count} documents added successfully",
+    "preparing_documents": "Preparing documents for ingestion",
+    "documents_prepared": "Prepared {count} documents",
+    "adding_documents_to_store": "Adding {count} documents to the Vector Store.",
+    "documents_added_successfully": "Documents added successfully to vector store",
+    "no_documents_to_add": "No documents to add to the Vector Store.",
+    "searching_with_query": "Searching with query: {query}",
+    "performing_similarity_search": "Performing similarity search",
+    "performing_mmr_search": "Performing MMR search",
+    "search_completed": "Search completed - Found {count} result(s)",
+    "retrieving_all_documents": "Retrieving all documents from vector store",
+    "all_documents_retrieved": "Retrieved all documents - Total: {count}",
+    "getting_all_documents": "Getting all documents from index",
+    "search_response_received": "Search response received - Hits: {hits}",
+    "documents_retrieved": "Retrieved {count} document(s)",
+    "starting_search": "Starting document search",
+    "search_documents_completed": "Document search completed - {count} document(s) retrieved"
+  }
+}

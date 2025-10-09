@@ -1,0 +1,18 @@
+{
+  "display_name": "OpenAI Tools Agent",
+  "description": "Agent that uses tools via openai-tools.",
+  "llm": {
+    "display_name": "Language Model"
+  },
+  "system_prompt": {
+    "display_name": "System Prompt",
+    "info": "System prompt for the agent."
+  },
+  "user_prompt": {
+    "display_name": "Prompt",
+    "info": "This prompt must contain 'input' key."
+  },
+  "chat_history": {
+    "display_name": "Chat History"
+  }
+}

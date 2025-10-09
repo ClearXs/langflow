@@ -1,0 +1,47 @@
+{
+  "description": "Generates a JSON string with your Google OAuth token.",
+  "scopes": {
+    "display_name": "Scopes",
+    "info": "Input scopes for your application (comma-separated list of OAuth scopes)."
+  },
+  "oauth_credentials": {
+    "display_name": "Credentials File",
+    "info": "Input OAuth Credentials file (e.g., credentials.json)."
+  },
+  "outputs": {
+    "output": {
+      "display_name": "OAuth Token"
+    }
+  },
+  "errors": {
+    "invalid_scope_format": "Invalid scope format. Please provide valid Google OAuth scopes.",
+    "incorrect_scope": "Incorrect scope. Please check the scopes field.",
+    "no_credentials_file": "OAuth 2.0 Credentials file not provided.",
+    "refresh_failed": "Failed to refresh credentials: {error}",
+    "oauth_flow_failed": "OAuth flow failed: {error}",
+    "json_conversion_failed": "Failed to convert credentials to JSON: {error}"
+  },
+  "logs": {
+    "validating_scopes": "Validating OAuth scopes format",
+    "scopes_validated": "OAuth scopes validated successfully",
+    "building_oauth_token": "Building Google OAuth token",
+    "scopes_parsed": "Parsed {count} scope(s)",
+    "token_file_found": "Existing token file found",
+    "credentials_loaded_from_file": "Credentials loaded from token file",
+    "token_load_failed": "Failed to load token from file: {error}",
+    "credentials_invalid": "Credentials are invalid or missing",
+    "refreshing_credentials": "Refreshing expired credentials",
+    "credentials_refreshed": "Credentials refreshed successfully",
+    "initiating_oauth_flow": "Initiating OAuth authorization flow",
+    "credentials_file_provided": "OAuth credentials file provided",
+    "creating_oauth_flow": "Creating OAuth flow from client secrets",
+    "starting_local_server": "Starting local server for OAuth authorization",
+    "oauth_completed": "OAuth authorization completed successfully",
+    "saving_token": "Saving token to file",
+    "token_saved": "Token saved to token.json",
+    "token_save_failed": "Failed to save token to file: {error}",
+    "converting_to_json": "Converting credentials to JSON format",
+    "token_generated": "OAuth token generated successfully",
+    "status_ready": "OAuth token ready"
+  }
+}

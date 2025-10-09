@@ -111,7 +111,8 @@ class ComposioSlackAPIComponent(ComposioBaseComponent):
         },
     }
 
-    _all_fields = {field for action_data in _actions_data.values() for field in action_data["action_fields"]}
+    _all_fields = {field for action_data in _actions_data.values()
+                   for field in action_data["action_fields"]}
     _bool_variables = {
         "SLACK_LIST_ALL_SLACK_TEAM_USERS_WITH_PAGINATION_include_locale",
         "SLACK_SENDS_A_MESSAGE_TO_A_SLACK_CHANNEL_as_user",
@@ -539,7 +540,8 @@ class ComposioSlackAPIComponent(ComposioBaseComponent):
 
         try:
             self._build_action_maps()
-            display_name = self.action[0]["name"] if isinstance(self.action, list) and self.action else self.action
+            display_name = self.action[0]["name"] if isinstance(
+                self.action, list) and self.action else self.action
             action_key = self._display_to_key_map.get(display_name)
             if not action_key:
                 msg = f"Invalid action: {display_name}"
@@ -574,7 +576,8 @@ class ComposioSlackAPIComponent(ComposioBaseComponent):
             return result.get("data", [])
         except Exception as e:
             logger.error(f"Error executing action: {e}")
-            display_name = self.action[0]["name"] if isinstance(self.action, list) and self.action else str(self.action)
+            display_name = self.action[0]["name"] if isinstance(
+                self.action, list) and self.action else str(self.action)
             msg = f"Failed to execute {display_name}: {e!s}"
             raise ValueError(msg) from e
 

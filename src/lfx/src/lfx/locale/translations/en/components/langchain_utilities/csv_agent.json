@@ -1,0 +1,31 @@
+{
+  "display_name": "CSV Agent",
+  "description": "Construct a CSV agent from a CSV and tools.",
+  "llm": {
+    "display_name": "Language Model",
+    "info": "An LLM Model Object (It can be found in any LLM Component)."
+  },
+  "path": {
+    "display_name": "File Path",
+    "info": "A CSV File or File Path."
+  },
+  "agent_type": {
+    "display_name": "Agent Type"
+  },
+  "input_value": {
+    "display_name": "Text",
+    "info": "Text to be passed as input and extract info from the CSV File."
+  },
+  "pandas_kwargs": {
+    "display_name": "Pandas Kwargs",
+    "info": "Pandas Kwargs to be passed to the agent."
+  },
+  "outputs": {
+    "response": {
+      "display_name": "Response"
+    },
+    "agent": {
+      "display_name": "Agent"
+    }
+  }
+}

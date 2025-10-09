@@ -1,0 +1,49 @@
+{
+  "description": "FAISS Vector Store with efficient similarity search capabilities for high-dimensional vectors.",
+  "index_name": {
+    "display_name": "Index Name",
+    "info": "Name of the FAISS index file (without extension)."
+  },
+  "persist_directory": {
+    "display_name": "Persist Directory",
+    "info": "Path to save the FAISS index. It will be relative to where Langflow is running. Leave empty to use the current directory."
+  },
+  "allow_dangerous_deserialization": {
+    "display_name": "Allow Dangerous Deserialization",
+    "info": "Set to True to allow loading pickle files from untrusted sources. Only enable this if you trust the source of the data. WARNING: This can execute arbitrary code."
+  },
+  "embedding": {
+    "display_name": "Embedding"
+  },
+  "number_of_results": {
+    "display_name": "Number of Results",
+    "info": "Number of similar documents to return from the search."
+  },
+  "errors": {
+    "directory_creation_failed": "Failed to create persist directory '{path}': {error}",
+    "index_creation_failed": "Failed to create FAISS index: {error}",
+    "index_save_failed": "Failed to save FAISS index: {error}",
+    "index_load_failed": "Failed to load FAISS index: {error}",
+    "failed_to_load": "Failed to load the FAISS index.",
+    "search_failed": "Search operation failed: {error}"
+  },
+  "logs": {
+    "path_resolved": "Path resolved - Original: {original}, Resolved: {resolved}",
+    "using_persist_directory": "Using persist directory: {path}",
+    "using_current_directory": "Using current directory as persist directory",
+    "building_vector_store": "Building FAISS vector store",
+    "directory_created": "Persist directory created or already exists: {path}",
+    "preparing_data": "Preparing data for ingestion",
+    "no_documents": "No documents to index",
+    "creating_index": "Creating FAISS index from {count} document(s)",
+    "index_created": "FAISS index created successfully",
+    "index_saved": "FAISS index saved to '{path}' with name '{name}'",
+    "starting_search": "Starting document search in FAISS",
+    "index_not_found": "Index not found at {path}, building new index",
+    "loading_index": "Loading FAISS index from {path}",
+    "index_loaded": "FAISS index loaded successfully",
+    "searching_with_query": "Searching with query: {query}",
+    "search_completed": "Search completed - Found {count} document(s)",
+    "no_query": "No search query provided, returning empty results"
+  }
+}

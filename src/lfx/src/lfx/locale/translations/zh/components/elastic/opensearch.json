@@ -1,0 +1,125 @@
+{
+  "description": "使用OpenSearch存储和搜索文档，结合语义和关键词混合搜索功能。",
+  "docs_metadata": {
+    "display_name": "文档元数据",
+    "info": "要添加到所有摄入文档的额外元数据键值对。用于标记文档的来源信息、类别或其他自定义属性。",
+    "schema": {
+      "key": "键",
+      "key_desc": "键名",
+      "value": "值",
+      "value_desc": "元数据的值"
+    }
+  },
+  "opensearch_url": {
+    "display_name": "OpenSearch URL",
+    "info": "OpenSearch集群的连接URL（例如，本地开发为http://localhost:9200或您的云端点）。"
+  },
+  "index_name": {
+    "display_name": "索引名称",
+    "info": "文档将存储和搜索的OpenSearch索引名称。如果不存在将自动创建。"
+  },
+  "engine": {
+    "display_name": "向量引擎",
+    "info": "用于相似度计算的向量搜索引擎。大多数情况推荐使用'jvector'。注意：Amazon OpenSearch Serverless仅支持'nmslib'或'faiss'。"
+  },
+  "space_type": {
+    "display_name": "距离度量",
+    "info": "计算向量相似度的距离度量。'l2'（欧几里得）最常见，'cosinesimil'用于余弦相似度，'innerproduct'用于内积。"
+  },
+  "ef_construction": {
+    "display_name": "EF构造",
+    "info": "索引构造期间动态候选列表的大小。较高的值提高召回率但增加索引时间和内存使用。"
+  },
+  "m": {
+    "display_name": "M参数",
+    "info": "HNSW图中每个向量的双向连接数。较高的值提高搜索质量但增加内存使用和索引时间。"
+  },
+  "embedding": {
+    "display_name": "嵌入"
+  },
+  "vector_field": {
+    "display_name": "向量字段名称",
+    "info": "OpenSearch文档中存储向量嵌入用于相似性搜索的字段名称。"
+  },
+  "number_of_results": {
+    "display_name": "默认结果限制",
+    "info": "当过滤表达式中未指定限制时返回的默认最大搜索结果数。"
+  },
+  "filter_expression": {
+    "display_name": "搜索过滤器（JSON）",
+    "info": "用于搜索过滤、结果限制和分数阈值的可选JSON配置。\n\n格式1 - 显式过滤器：\n{\"filter\": [{\"term\": {\"filename\":\"doc.pdf\"}}, {\"terms\":{\"owner\":[\"user1\",\"user2\"]}}], \"limit\": 10, \"score_threshold\": 1.6}\n\n格式2 - 上下文样式映射：\n{\"data_sources\":[\"file.pdf\"], \"document_types\":[\"application/pdf\"], \"owners\":[\"user123\"]}\n\n使用__IMPOSSIBLE_VALUE__作为占位符以忽略特定过滤器。"
+  },
+  "auth_mode": {
+    "display_name": "认证模式",
+    "info": "认证方法：'basic'用于用户名/密码认证，或'jwt'用于JSON Web Token（Bearer）认证。"
+  },
+  "username": {
+    "display_name": "用户名"
+  },
+  "password": {
+    "display_name": "OpenSearch密码"
+  },
+  "jwt_token": {
+    "display_name": "JWT令牌",
+    "info": "用于认证的有效JSON Web Token。将在Authorization头中发送（带可选的'Bearer '前缀）。"
+  },
+  "jwt_header": {
+    "display_name": "JWT头名称"
+  },
+  "bearer_prefix": {
+    "display_name": "添加'Bearer '前缀"
+  },
+  "use_ssl": {
+    "display_name": "使用SSL/TLS",
+    "info": "启用SSL/TLS加密以安全连接到OpenSearch。"
+  },
+  "verify_certs": {
+    "display_name": "验证SSL证书",
+    "info": "连接时验证SSL证书。在开发环境中对自签名证书禁用。"
+  },
+  "errors": {
+    "aoss_engine_incompatible": "Amazon OpenSearch Service Serverless仅支持`nmslib`或`faiss`引擎",
+    "jwt_token_missing": "认证模式为'jwt'但未提供jwt_token。",
+    "basic_auth_missing": "认证模式为'basic'但缺少用户名/密码。",
+    "embedding_required": "需要嵌入句柄来嵌入文档。",
+    "embedding_required_for_search": "需要嵌入来运行混合搜索（KNN +关键词）。",
+    "invalid_filter_json": "无效的filter_expression JSON：{error}",
+    "search_documents_failed": "search_documents错误：{error}",
+    "update_config_failed": "update_build_config错误：{error}"
+  },
+  "logs": {
+    "creating_index_mapping": "正在创建索引映射 - 维度：{dim}，引擎：{engine}，空间类型：{space_type}",
+    "aoss_detected": "检测到Amazon OpenSearch Serverless（AOSS）",
+    "preparing_bulk_ingest": "正在为{count}个文档准备批量摄入",
+    "sample_metadata": "示例元数据：{metadata}",
+    "bulk_ingest_completed": "批量摄入完成 - 已摄入{count}个文档",
+    "building_auth": "正在构建认证配置 - 模式：{mode}",
+    "jwt_auth_configured": "JWT认证已配置",
+    "basic_auth_configured": "基本认证已配置",
+    "building_client": "正在构建OpenSearch客户端 - URL：{url}",
+    "client_created": "OpenSearch客户端创建成功",
+    "building_vector_store": "正在构建OpenSearch向量存储",
+    "no_documents_to_ingest": "没有文档需要摄入。",
+    "processing_documents": "正在处理{count}个文档以供摄入",
+    "additional_metadata": "额外元数据字段：{count}",
+    "generating_embeddings": "正在为{count}个文档生成嵌入",
+    "no_vectors_generated": "未从文档生成向量。",
+    "vector_dimension": "向量维度：{dim}",
+    "indexing_documents": "正在将{count}个文档索引到'{index}'，使用适当的KNN映射...",
+    "successfully_indexed": "成功索引{count}个文档。",
+    "filter_parsed": "过滤表达式解析成功",
+    "invalid_filter_json": "无效的过滤器JSON，视为无过滤器",
+    "explicit_filters": "应用了{count}个显式过滤子句",
+    "context_filters": "应用了{count}个上下文样式过滤子句",
+    "starting_hybrid_search": "开始混合搜索",
+    "search_query": "搜索查询：{query}",
+    "filter_expression_parsed": "过滤表达式解析成功",
+    "embedding_query": "正在嵌入搜索查询",
+    "search_params": "搜索参数 - 限制：{limit}，阈值：{threshold}，过滤器：{filters}",
+    "executing_search": "正在执行混合搜索查询",
+    "search_completed": "搜索完成 - 找到{count}个结果",
+    "searching_documents": "正在搜索文档",
+    "documents_found": "找到{count}个文档",
+    "auth_mode_changed": "认证模式已更改为：{mode}"
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "display_name": "Hierarchical Task",
+  "description": "Each task must have a description, an expected output and an agent responsible for execution.",
+  "task_description": {
+    "display_name": "Description",
+    "info": "Descriptive text detailing task's purpose and execution."
+  },
+  "expected_output": {
+    "display_name": "Expected Output",
+    "info": "Clear definition of expected task outcome."
+  },
+  "tools": {
+    "display_name": "Tools",
+    "info": "List of tools/resources limited for task execution. Uses the Agent tools by default."
+  },
+  "outputs": {
+    "task": {
+      "display_name": "Task"
+    }
+  },
+  "status": {
+    "building": "Building hierarchical task...",
+    "task_created": "Hierarchical task created successfully"
+  },
+  "errors": {
+    "build_failed": "Failed to build hierarchical task: {error}"
+  },
+  "logs": {
+    "building_task": "Building hierarchical task",
+    "task_details": "Task details - Description length: {description_length}, Tools: {tool_count}"
+  }
+}

@@ -1,67 +1,57 @@
 {
-  "display_name": "数据条件路由器",
-  "description": "基于字段值和复杂条件逻辑路由数据，支持各种操作符和数据类型。",
-  "input_data": {
-    "display_name": "输入数据",
-    "info": "要基于字段条件进行评估和路由的数据对象。"
+  "display_name": "条件路由（旧版）",
+  "description": "基于应用于指定键的条件路由Data对象，包括布尔验证。",
+  "data_input": {
+    "display_name": "数据输入",
+    "info": "要处理的Data对象或Data对象列表"
   },
-  "routing_rules": {
-    "display_name": "路由规则",
-    "info": "路由规则的JSON数组。每个规则包含带有字段路径、操作符和值的条件。"
+  "key_name": {
+    "display_name": "键名",
+    "info": "要检查的Data对象中的键名"
   },
-  "evaluation_strategy": {
-    "display_name": "评估策略",
-    "info": "当多个规则匹配时选择路由的策略：first_match、all_matches、priority_based或score_based。"
+  "operator": {
+    "display_name": "运算符",
+    "info": "用于比较值的运算符。'boolean validator'将值视为布尔值。"
   },
-  "default_route": {
-    "display_name": "默认路由",
-    "info": "当没有规则匹配时使用的路由名称（启用fail_on_no_match时忽略）。"
-  },
-  "strict_typing": {
-    "display_name": "严格类型",
-    "info": "比较值时是否强制执行类型转换。"
-  },
-  "null_safe_comparison": {
-    "display_name": "空值安全比较",
-    "info": "在比较中是否安全处理null/None值。"
-  },
-  "max_routes": {
-    "display_name": "最大路由数",
-    "info": "支持多重匹配的策略返回的最大路由数（0表示无限制）。"
-  },
-  "include_route_metadata": {
-    "display_name": "包含路由元数据",
-    "info": "是否在输出中包含详细的路由元数据。"
-  },
-  "fail_on_no_match": {
-    "display_name": "无匹配时失败",
-    "info": "当没有规则匹配时是否抛出错误，而不是使用默认路由。"
+  "compare_value": {
+    "display_name": "匹配文本",
+    "info": "要比较的值（不用于boolean validator）"
   },
   "outputs": {
-    "routed_data": {
-      "display_name": "路由数据"
+    "true_output": {
+      "display_name": "True输出"
     },
-    "routing_summary": {
-      "display_name": "路由摘要"
-    },
-    "matched_rules": {
-      "display_name": "匹配的规则"
+    "false_output": {
+      "display_name": "False输出"
     }
   },
-  "success": {
-    "routes_matched": "{count}个路由成功匹配"
+  "status": {
+    "condition_met": "条件满足：{description}",
+    "condition_not_met": "条件不满足：{description}"
   },
-  "warnings": {
-    "condition_evaluation_error": "评估字段'{field}'的条件时出现警告：{error}",
-    "using_default_route": "没有规则匹配，使用默认路由：{route}"
+  "conditions": {
+    "boolean_validation": "'{key}'的布尔验证",
+    "comparison": "{key} {operator} {value}"
   },
   "errors": {
-    "empty_routing_rules": "路由规则不能为空。",
-    "invalid_input_data": "输入必须是数据对象。",
-    "invalid_routing_rules_format": "无效的路由规则格式：{error}",
-    "no_matches_fail_mode": "没有规则匹配且启用了fail_on_no_match。",
-    "routing_error": "路由过程中出错：{error}",
-    "routing_summary_error": "生成路由摘要时出错：{error}",
-    "matched_rules_error": "获取匹配规则时出错：{error}"
+    "not_data_object": "输入不是Data对象",
+    "key_not_found": "在Data中未找到键'{key}'",
+    "processing_failed": "数据处理失败：{error}"
+  },
+  "logs": {
+    "comparing": "正在比较值 - 运算符：{operator}，项：'{item_value}'，比较：'{compare_value}'",
+    "comparison_result": "比较结果：{result}",
+    "parsing_boolean": "正在解析布尔值：{value}（类型：{value_type}）",
+    "boolean_result": "布尔解析结果：{result}",
+    "validating_input": "正在验证输入数据",
+    "validation_passed": "输入验证通过",
+    "processing_list": "正在处理{count}个数据项的列表",
+    "list_results": "列表处理完成 - True：{true_count}，False：{false_count}",
+    "processing_single": "正在处理单个数据项",
+    "validation_failed": "验证失败：{error}",
+    "processing_item": "正在处理项 - 键：'{key}'，值：'{value}'，运算符：{operator}",
+    "updating_config": "正在更新运算符的构建配置：{operator}",
+    "hidden_compare_value": "已为boolean validator隐藏compare_value字段",
+    "shown_compare_value": "已显示compare_value字段"
   }
 }

@@ -1,0 +1,48 @@
+{
+  "description": "Uses Docling to process input documents running the Docling models locally.",
+  "pipeline": {
+    "display_name": "Pipeline",
+    "info": "Docling pipeline to use"
+  },
+  "ocr_engine": {
+    "display_name": "OCR Engine",
+    "info": "OCR engine to use. None will disable OCR."
+  },
+  "do_picture_classification": {
+    "display_name": "Picture Classification",
+    "info": "If enabled, the Docling pipeline will classify the pictures type."
+  },
+  "pic_desc_llm": {
+    "display_name": "Picture Description LLM",
+    "info": "If connected, the model to use for running the picture description task."
+  },
+  "pic_desc_prompt": {
+    "display_name": "Picture Description Prompt",
+    "info": "The user prompt to use when invoking the model."
+  },
+  "errors": {
+    "docling_import_failed": "Docling is an optional dependency. Install with `uv pip install 'langflow[docling]'` or refer to the documentation on how to install optional dependencies.",
+    "process_crashed": "Worker process crashed unexpectedly without producing result. Exit code: {exit_code}",
+    "process_timeout": "Process timed out after {timeout} seconds",
+    "processing_error": "Error during processing: {error}",
+    "missing_ocr_dependency": "Missing OCR dependency: {dependency}. {install_command} Alternatively, you can set OCR Engine to 'None' to disable OCR processing.",
+    "runtime_error": "Runtime error occurred: {error}"
+  },
+  "logs": {
+    "docling_import_successful": "Docling package imported successfully",
+    "no_files": "No files to process.",
+    "processing_files": "Processing {count} file(s) with Docling",
+    "pic_desc_enabled": "Picture description LLM enabled",
+    "creating_worker": "Creating worker process - Pipeline: {pipeline}, OCR: {ocr_engine}",
+    "worker_started": "Worker process started",
+    "monitoring_process": "Monitoring process with {timeout}s timeout",
+    "process_completed": "Process completed and result retrieved",
+    "result_received": "Result received from worker process",
+    "terminating_sigterm": "Attempting graceful process termination with SIGTERM",
+    "terminating_sigkill": "Process didn't respond to SIGTERM, using SIGKILL",
+    "process_still_alive": "Warning: Process still alive after SIGKILL",
+    "cancelled_by_user": "Docling process cancelled by user",
+    "cleanup_warning": "Warning: Error during queue cleanup - {error}",
+    "processing_completed": "Processing completed - {count} document(s) processed"
+  }
+}

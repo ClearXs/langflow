@@ -1,3 +1,4 @@
+import i18n
 import warnings
 
 import requests
@@ -43,8 +44,8 @@ ND_MODEL_MAPPING = {
 
 
 class NotDiamondComponent(Component):
-    display_name = "Not Diamond Router"
-    description = "Call the right model at the right time with the world's most powerful AI model router."
+    display_name = i18n.t('components.notdiamond.notdiamond.display_name')
+    description = i18n.t('components.notdiamond.notdiamond.description')
     documentation: str = "https://docs.notdiamond.ai/"
     icon = "NotDiamond"
     name = "NotDiamond"
@@ -54,56 +55,74 @@ class NotDiamondComponent(Component):
         self._selected_model_name = None
 
     inputs = [
-        MessageInput(name="input_value", display_name="Input", required=True),
+        MessageInput(
+            name="input_value",
+            display_name=i18n.t(
+                'components.notdiamond.notdiamond.input_value.display_name'),
+            required=True
+        ),
         MessageTextInput(
             name="system_message",
-            display_name="System Message",
-            info="System message to pass to the model.",
+            display_name=i18n.t(
+                'components.notdiamond.notdiamond.system_message.display_name'),
+            info=i18n.t(
+                'components.notdiamond.notdiamond.system_message.info'),
             advanced=False,
         ),
         HandleInput(
             name="models",
-            display_name="Language Models",
+            display_name=i18n.t(
+                'components.notdiamond.notdiamond.models.display_name'),
             input_types=["LanguageModel"],
             required=True,
             is_list=True,
-            info="Link the models you want to route between.",
+            info=i18n.t('components.notdiamond.notdiamond.models.info'),
         ),
         SecretStrInput(
             name="api_key",
-            display_name="Not Diamond API Key",
-            info="The Not Diamond API Key to use for routing.",
+            display_name=i18n.t(
+                'components.notdiamond.notdiamond.api_key.display_name'),
+            info=i18n.t('components.notdiamond.notdiamond.api_key.info'),
             advanced=False,
             value="NOTDIAMOND_API_KEY",
             required=True,
         ),
         StrInput(
             name="preference_id",
-            display_name="Preference ID",
-            info="The ID of the router preference that was configured via the Dashboard.",
+            display_name=i18n.t(
+                'components.notdiamond.notdiamond.preference_id.display_name'),
+            info=i18n.t('components.notdiamond.notdiamond.preference_id.info'),
             advanced=False,
         ),
         DropdownInput(
             name="tradeoff",
-            display_name="Tradeoff",
-            info="The tradeoff between cost and latency for the router to determine the best LLM for a given query.",
+            display_name=i18n.t(
+                'components.notdiamond.notdiamond.tradeoff.display_name'),
+            info=i18n.t('components.notdiamond.notdiamond.tradeoff.info'),
             advanced=False,
             options=["quality", "cost", "latency"],
             value="quality",
         ),
         BoolInput(
             name="hash_content",
-            display_name="Hash Content",
-            info="Whether to hash the content before being sent to the NotDiamond API.",
+            display_name=i18n.t(
+                'components.notdiamond.notdiamond.hash_content.display_name'),
+            info=i18n.t('components.notdiamond.notdiamond.hash_content.info'),
             advanced=False,
             value=False,
         ),
     ]
 
     outputs = [
-        Output(display_name="Output", name="output", method="model_select"),
         Output(
-            display_name="Selected Model",
+            display_name=i18n.t(
+                'components.notdiamond.notdiamond.outputs.output.display_name'),
+            name="output",
+            method="model_select"
+        ),
+        Output(
+            display_name=i18n.t(
+                'components.notdiamond.notdiamond.outputs.selected_model.display_name'),
             name="selected_model",
             method="get_selected_model",
             required_inputs=["output"],
@@ -114,7 +133,8 @@ class NotDiamondComponent(Component):
         return self._selected_model_name
 
     def model_select(self) -> Message:
-        api_key = SecretStr(self.api_key).get_secret_value() if self.api_key else None
+        api_key = SecretStr(
+            self.api_key).get_secret_value() if self.api_key else None
         input_value = self.input_value
         system_message = self.system_message
         messages = self._format_input(input_value, system_message)
@@ -219,10 +239,13 @@ class NotDiamondComponent(Component):
         openai_messages = []
         for msg in messages:
             if isinstance(msg, HumanMessage):
-                openai_messages.append({"role": "user", "content": msg.content})
+                openai_messages.append(
+                    {"role": "user", "content": msg.content})
             elif isinstance(msg, AIMessage):
-                openai_messages.append({"role": "assistant", "content": msg.content})
+                openai_messages.append(
+                    {"role": "assistant", "content": msg.content})
             elif isinstance(msg, SystemMessage):
-                openai_messages.append({"role": "system", "content": msg.content})
+                openai_messages.append(
+                    {"role": "system", "content": msg.content})
 
         return openai_messages

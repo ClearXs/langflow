@@ -1,11 +1,12 @@
+import i18n
 from lfx.custom.custom_component.component import Component
 from lfx.io import MessageTextInput, Output, QueryInput, SecretStrInput, StrInput
 from lfx.schema.data import Data
 
 
 class JigsawStackTextToSQLComponent(Component):
-    display_name = "Text to SQL"
-    description = "Convert natural language to SQL queries using JigsawStack AI"
+    display_name = i18n.t('components.jigsawstack.text_to_sql.display_name')
+    description = i18n.t('components.jigsawstack.text_to_sql.description')
     documentation = "https://jigsawstack.com/docs/api-reference/ai/text-to-sql"
     icon = "JigsawStack"
     name = "JigsawStackTextToSQL"
@@ -13,42 +14,45 @@ class JigsawStackTextToSQLComponent(Component):
     inputs = [
         SecretStrInput(
             name="api_key",
-            display_name="JigsawStack API Key",
-            info="Your JigsawStack API key for authentication",
+            display_name=i18n.t(
+                'components.jigsawstack.text_to_sql.api_key.display_name'),
+            info=i18n.t('components.jigsawstack.text_to_sql.api_key.info'),
             required=True,
         ),
         QueryInput(
             name="prompt",
-            display_name="Prompt",
-            info="Natural language description of the SQL query you want to generate",
+            display_name=i18n.t(
+                'components.jigsawstack.text_to_sql.prompt.display_name'),
+            info=i18n.t('components.jigsawstack.text_to_sql.prompt.info'),
             required=True,
             tool_mode=True,
         ),
         MessageTextInput(
             name="sql_schema",
-            display_name="SQL Schema",
-            info=(
-                "The database schema information. Can be a CREATE TABLE statement or schema description. "
-                "Specifying this parameter improves SQL generation accuracy by applying "
-                "database-specific syntax and optimizations."
-            ),
+            display_name=i18n.t(
+                'components.jigsawstack.text_to_sql.sql_schema.display_name'),
+            info=i18n.t('components.jigsawstack.text_to_sql.sql_schema.info'),
             required=False,
             tool_mode=True,
         ),
         StrInput(
             name="file_store_key",
-            display_name="File Store Key",
-            info=(
-                "The key used to store the database schema on Jigsawstack file Storage. "
-                "Not required if sql_schema is specified."
-            ),
+            display_name=i18n.t(
+                'components.jigsawstack.text_to_sql.file_store_key.display_name'),
+            info=i18n.t(
+                'components.jigsawstack.text_to_sql.file_store_key.info'),
             required=False,
             tool_mode=True,
         ),
     ]
 
     outputs = [
-        Output(display_name="SQL Query", name="sql_query", method="generate_sql"),
+        Output(
+            display_name=i18n.t(
+                'components.jigsawstack.text_to_sql.outputs.sql_query.display_name'),
+            name="sql_query",
+            method="generate_sql"
+        ),
     ]
 
     def generate_sql(self) -> Data:

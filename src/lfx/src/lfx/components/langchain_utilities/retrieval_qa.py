@@ -1,3 +1,4 @@
+import i18n
 from typing import cast
 
 from langchain.chains import RetrievalQA
@@ -8,46 +9,56 @@ from lfx.schema import Message
 
 
 class RetrievalQAComponent(LCChainComponent):
-    display_name = "Retrieval QA"
-    description = "Chain for question-answering querying sources from a retriever."
+    display_name = i18n.t(
+        'components.langchain_utilities.retrieval_qa.display_name')
+    description = i18n.t(
+        'components.langchain_utilities.retrieval_qa.description')
     name = "RetrievalQA"
     legacy: bool = True
     icon = "LangChain"
     inputs = [
         MultilineInput(
             name="input_value",
-            display_name="Input",
-            info="The input value to pass to the chain.",
+            display_name=i18n.t(
+                'components.langchain_utilities.retrieval_qa.input_value.display_name'),
+            info=i18n.t(
+                'components.langchain_utilities.retrieval_qa.input_value.info'),
             required=True,
         ),
         DropdownInput(
             name="chain_type",
-            display_name="Chain Type",
-            info="Chain type to use.",
+            display_name=i18n.t(
+                'components.langchain_utilities.retrieval_qa.chain_type.display_name'),
+            info=i18n.t(
+                'components.langchain_utilities.retrieval_qa.chain_type.info'),
             options=["Stuff", "Map Reduce", "Refine", "Map Rerank"],
             value="Stuff",
             advanced=True,
         ),
         HandleInput(
             name="llm",
-            display_name="Language Model",
+            display_name=i18n.t(
+                'components.langchain_utilities.retrieval_qa.llm.display_name'),
             input_types=["LanguageModel"],
             required=True,
         ),
         HandleInput(
             name="retriever",
-            display_name="Retriever",
+            display_name=i18n.t(
+                'components.langchain_utilities.retrieval_qa.retriever.display_name'),
             input_types=["Retriever"],
             required=True,
         ),
         HandleInput(
             name="memory",
-            display_name="Memory",
+            display_name=i18n.t(
+                'components.langchain_utilities.retrieval_qa.memory.display_name'),
             input_types=["BaseChatMemory"],
         ),
         BoolInput(
             name="return_source_documents",
-            display_name="Return Source Documents",
+            display_name=i18n.t(
+                'components.langchain_utilities.retrieval_qa.return_source_documents.display_name'),
             value=False,
         ),
     ]
@@ -79,5 +90,6 @@ class RetrievalQAComponent(LCChainComponent):
             references_str = self.create_references_from_data(source_docs)
             result_str = f"{result_str}\n{references_str}"
         # put the entire result to debug history, query and content
-        self.status = {**result, "source_documents": source_docs, "output": result_str}
+        self.status = {
+            **result, "source_documents": source_docs, "output": result_str}
         return cast("Message", result_str)

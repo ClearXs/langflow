@@ -1,0 +1,11 @@
+{
+  "display_name": "LLM Checker Chain",
+  "description": "Chain for question-answering with self-verification.",
+  "input_value": {
+    "display_name": "Input",
+    "info": "The input value to pass to the chain."
+  },
+  "llm": {
+    "display_name": "Language Model"
+  }
+}

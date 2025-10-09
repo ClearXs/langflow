@@ -1,0 +1,8 @@
+{
+  "display_name": "假嵌入",
+  "description": "生成假嵌入，用于初始测试和连接组件。",
+  "dimensions": {
+    "display_name": "维度",
+    "info": "输出嵌入结果应具有的维度数。"
+  }
+}

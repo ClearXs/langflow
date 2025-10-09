@@ -1,0 +1,33 @@
+{
+  "display_name": "VOCR",
+  "description": "Extract data from any document type in a consistent structure with fine-tuned vLLMs for the highest accuracy.",
+  "api_key": {
+    "display_name": "JigsawStack API Key",
+    "info": "Your JigsawStack API key for authentication."
+  },
+  "prompts": {
+    "display_name": "Prompts",
+    "info": "The prompts used to describe the image. Default prompt is 'Describe the image in detail'. You can pass a list of comma-separated prompts to extract different information from the image."
+  },
+  "url": {
+    "display_name": "URL",
+    "info": "The image or document URL. Not required if file_store_key is specified."
+  },
+  "file_store_key": {
+    "display_name": "File Store Key",
+    "info": "The key used to store the image on Jigsawstack File Storage. Not required if url is specified."
+  },
+  "page_range_start": {
+    "display_name": "Page Range Start",
+    "info": "Page range start limit for the document. If not specified, all pages will be processed."
+  },
+  "page_range_end": {
+    "display_name": "Page Range End",
+    "info": "Page range end limit for the document. If not specified, all pages will be processed."
+  },
+  "outputs": {
+    "vocr_results": {
+      "display_name": "VOCR Results"
+    }
+  }
+}

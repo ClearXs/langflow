@@ -1,0 +1,24 @@
+{
+  "display_name": "检索问答",
+  "description": "从检索器查询来源进行问答的链。",
+  "input_value": {
+    "display_name": "输入",
+    "info": "要传递给链的输入值。"
+  },
+  "chain_type": {
+    "display_name": "链类型",
+    "info": "要使用的链类型。"
+  },
+  "llm": {
+    "display_name": "语言模型"
+  },
+  "retriever": {
+    "display_name": "检索器"
+  },
+  "memory": {
+    "display_name": "记忆"
+  },
+  "return_source_documents": {
+    "display_name": "返回源文档"
+  }
+}

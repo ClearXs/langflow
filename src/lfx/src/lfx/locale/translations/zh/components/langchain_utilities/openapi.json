@@ -1,0 +1,16 @@
+{
+  "display_name": "OpenAPI代理",
+  "description": "与OpenAPI API交互的代理。",
+  "llm": {
+    "display_name": "语言模型",
+    "info": "LLM模型对象(可以在任何LLM组件中找到)。"
+  },
+  "path": {
+    "display_name": "文件路径",
+    "info": "OpenAPI规范文件的路径(JSON、YAML或YML)。"
+  },
+  "allow_dangerous_requests": {
+    "display_name": "允许危险请求",
+    "info": "允许代理进行潜在的危险请求。请谨慎使用。"
+  }
+}

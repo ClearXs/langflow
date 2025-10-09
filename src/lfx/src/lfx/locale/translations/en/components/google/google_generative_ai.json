@@ -1,0 +1,60 @@
+{
+  "description": "Generate text using Google Generative AI.",
+  "max_output_tokens": {
+    "display_name": "Max Output Tokens",
+    "info": "The maximum number of tokens to generate."
+  },
+  "model_name": {
+    "display_name": "Model",
+    "info": "The name of the model to use."
+  },
+  "api_key": {
+    "display_name": "Google API Key",
+    "info": "The Google API Key to use for the Google Generative AI."
+  },
+  "top_p": {
+    "display_name": "Top P",
+    "info": "The maximum cumulative probability of tokens to consider when sampling."
+  },
+  "temperature": {
+    "display_name": "Temperature",
+    "info": "Controls randomness. Lower values are more deterministic, higher values are more creative."
+  },
+  "n": {
+    "display_name": "N",
+    "info": "Number of chat completions to generate for each prompt. Note that the API may not return the full n completions if duplicates are generated."
+  },
+  "top_k": {
+    "display_name": "Top K",
+    "info": "Decode using top-k sampling: consider the set of top_k most probable tokens. Must be positive."
+  },
+  "tool_model_enabled": {
+    "display_name": "Tool Model Enabled",
+    "info": "Whether to use the tool model."
+  },
+  "errors": {
+    "package_not_installed": "The 'langchain_google_genai' package is required to use the Google Generative AI model.",
+    "langchain_not_installed": "langchain_google_genai is not installed.",
+    "config_update_failed": "Error getting model names: {error}"
+  },
+  "logs": {
+    "building_model": "Building Google Generative AI model: {model}",
+    "model_parameters": "Model parameters - Max tokens: {max_tokens}, Temperature: {temperature}, Top K: {top_k}, Top P: {top_p}, N: {n}",
+    "model_built": "Google Generative AI model built successfully",
+    "fetching_models": "Fetching available models - Tool enabled: {tool_enabled}",
+    "configuring_api": "Configuring Google Generative AI API",
+    "listing_models": "Listing available models from API",
+    "models_fetched": "Successfully fetched {count} model(s)",
+    "model_fetch_error": "Error getting model names: {error}",
+    "filtering_tool_models": "Filtering models that support tool calling",
+    "tool_support_confirmed": "Model {model} supports tool calling",
+    "tool_support_not_found": "Model {model} does not support tool calling",
+    "tool_check_failed": "Failed to check tool support for model {model}: {error}",
+    "tool_models_filtered": "Filtered to {count} model(s) with tool support",
+    "updating_config": "Updating build configuration for field: {field}",
+    "no_api_key": "No API key provided, using default model list",
+    "fetching_available_models": "Fetching available models from API",
+    "model_fetch_fallback": "Error getting model names: {error}. Falling back to default list.",
+    "config_updated": "Configuration updated - {model_count} model(s) available, default: {default_model}"
+  }
+}

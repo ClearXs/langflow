@@ -1,0 +1,51 @@
+{
+  "description": "Uses Docling to process input documents connecting to your instance of Docling Serve.",
+  "api_url": {
+    "display_name": "Server Address",
+    "info": "URL of the Docling Serve instance."
+  },
+  "max_concurrency": {
+    "display_name": "Concurrency",
+    "info": "Maximum number of concurrent requests for the server."
+  },
+  "max_poll_timeout": {
+    "display_name": "Maximum Poll Time",
+    "info": "Maximum waiting time for the document conversion to complete (in seconds)."
+  },
+  "api_headers": {
+    "display_name": "HTTP Headers",
+    "info": "Optional dictionary of additional headers required for connecting to Docling Serve."
+  },
+  "docling_serve_opts": {
+    "display_name": "Docling Options",
+    "info": "Optional dictionary of additional options. See https://github.com/docling-project/docling-serve/blob/main/docs/usage.md for more information."
+  },
+  "errors": {
+    "conversion_request_failed": "Failed to send conversion request: {error}",
+    "processing_timeout": "Processing time {processing_time}s exceeds the maximum poll timeout {max_poll_timeout}s. Please increase the max_poll_timeout parameter or review why the processing takes long on the server.",
+    "too_many_http_errors": "The status requests got HTTP response {status_code} too many times (max retries: {max_retries}).",
+    "task_failed": "Document conversion task {task_id} failed on the server.",
+    "result_retrieval_failed": "Failed to retrieve conversion result: {error}",
+    "validation_failed": "Error validating the document: {error}",
+    "processing_failed": "Docling remote processing failed: {error}"
+  },
+  "logs": {
+    "using_api_url": "Using Docling Serve API URL: {url}",
+    "converting_document": "Converting document: {filename}",
+    "sending_conversion_request": "Sending conversion request to server",
+    "task_created": "Conversion task created - Task ID: {task_id}",
+    "polling_status": "Polling status (attempt {poll_count}) for task {task_id}",
+    "http_error": "HTTP error {status_code} occurred (failures: {failures}/{max_retries})",
+    "task_status": "Task status: {status}",
+    "task_completed": "Task {task_id} completed successfully - Processing time: {processing_time:.2f}s",
+    "no_json_content": "No JSON DoclingDocument found in the result.",
+    "document_validated": "Document validated successfully: {filename}",
+    "docling_options": "Using Docling options: {options}",
+    "starting_processing": "Starting processing of {count} file(s) with max concurrency {concurrency}",
+    "skipping_no_path": "Skipping file at index {index} - No path provided",
+    "submitting_file": "Submitting file {index}: {filename}",
+    "waiting_for_results": "Waiting for results from {count} conversion task(s)",
+    "file_processed_successfully": "File processed successfully",
+    "processing_completed": "Processing completed - {success}/{total} file(s) processed successfully"
+  }
+}

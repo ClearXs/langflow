@@ -1,0 +1,29 @@
+{
+  "display_name": "LM Studio",
+  "description": "Generate text using LM Studio Local LLMs.",
+  "max_tokens": {
+    "display_name": "Max Tokens",
+    "info": "The maximum number of tokens to generate. Set to 0 for unlimited tokens."
+  },
+  "model_kwargs": {
+    "display_name": "Model Kwargs"
+  },
+  "model_name": {
+    "display_name": "Model Name"
+  },
+  "base_url": {
+    "display_name": "Base URL",
+    "info": "Endpoint of the LM Studio API. Defaults to 'http://localhost:1234/v1' if not specified."
+  },
+  "api_key": {
+    "display_name": "LM Studio API Key",
+    "info": "The LM Studio API Key to use for LM Studio."
+  },
+  "temperature": {
+    "display_name": "Temperature"
+  },
+  "seed": {
+    "display_name": "Seed",
+    "info": "The seed controls the reproducibility of the job."
+  }
+}

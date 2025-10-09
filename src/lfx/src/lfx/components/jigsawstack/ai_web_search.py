@@ -1,136 +1,175 @@
+import i18n
 from lfx.custom.custom_component.component import Component
-from lfx.io import BoolInput, DropdownInput, Output, QueryInput, SecretStrInput
+from lfx.io import BoolInput, IntInput, MessageTextInput, Output, SecretStrInput
+from lfx.log.logger import logger
 from lfx.schema.data import Data
-from lfx.schema.message import Message
 
 
 class JigsawStackAIWebSearchComponent(Component):
     display_name = "AI Web Search"
-    description = "Effortlessly search the Web and get access to high-quality results powered with AI."
-    documentation = "https://jigsawstack.com/docs/api-reference/web/ai-search"
+    description = i18n.t('components.jigsawstack.ai_web_search.description')
+    documentation = "https://jigsawstack.com/docs/api-reference/ai/search"
     icon = "JigsawStack"
-    name = "JigsawStackAISearch"
+    name = "JigsawStackAIWebSearch"
+
     inputs = [
         SecretStrInput(
             name="api_key",
-            display_name="JigsawStack API Key",
-            info="Your JigsawStack API key for authentication",
+            display_name=i18n.t(
+                'components.jigsawstack.ai_web_search.api_key.display_name'),
+            info=i18n.t('components.jigsawstack.ai_web_search.api_key.info'),
             required=True,
         ),
-        QueryInput(
+        MessageTextInput(
             name="query",
-            display_name="Query",
-            info="The search value. The maximum query character length is 400",
+            display_name=i18n.t(
+                'components.jigsawstack.ai_web_search.query.display_name'),
+            info=i18n.t('components.jigsawstack.ai_web_search.query.info'),
             required=True,
             tool_mode=True,
         ),
         BoolInput(
             name="ai_overview",
-            display_name="AI Overview",
-            info="Include AI powered overview in the search results",
-            required=False,
+            display_name=i18n.t(
+                'components.jigsawstack.ai_web_search.ai_overview.display_name'),
+            info=i18n.t(
+                'components.jigsawstack.ai_web_search.ai_overview.info'),
             value=True,
+            advanced=True,
         ),
-        DropdownInput(
-            name="safe_search",
-            display_name="Safe Search",
-            info="Enable safe search to filter out adult content",
-            required=False,
-            options=["moderate", "strict", "off"],
-            value="off",
+        BoolInput(
+            name="safe_mode",
+            display_name=i18n.t(
+                'components.jigsawstack.ai_web_search.safe_mode.display_name'),
+            info=i18n.t('components.jigsawstack.ai_web_search.safe_mode.info'),
+            value=False,
+            advanced=True,
         ),
         BoolInput(
             name="spell_check",
-            display_name="Spell Check",
-            info="Spell check the search query",
-            required=False,
+            display_name=i18n.t(
+                'components.jigsawstack.ai_web_search.spell_check.display_name'),
+            info=i18n.t(
+                'components.jigsawstack.ai_web_search.spell_check.info'),
             value=True,
+            advanced=True,
+        ),
+        IntInput(
+            name="max_results",
+            display_name=i18n.t(
+                'components.jigsawstack.ai_web_search.max_results.display_name'),
+            info=i18n.t(
+                'components.jigsawstack.ai_web_search.max_results.info'),
+            value=10,
+            advanced=True,
         ),
     ]
 
     outputs = [
-        Output(display_name="AI Search Results", name="search_results", method="search"),
-        Output(display_name="Content Text", name="content_text", method="get_content_text"),
+        Output(
+            display_name=i18n.t(
+                'components.jigsawstack.ai_web_search.outputs.search_results.display_name'),
+            name="search_results",
+            method="search"
+        ),
     ]
 
     def search(self) -> Data:
+        """Search the web using AI.
+
+        Returns:
+            Data: Search results or error information.
+
+        Raises:
+            ImportError: If JigsawStack package is not installed.
+            ValueError: If query is empty or API request fails.
+        """
+        logger.info(i18n.t('components.jigsawstack.ai_web_search.logs.starting_search',
+                           query=self.query))
+
         try:
             from jigsawstack import JigsawStack, JigsawStackError
         except ImportError as e:
-            jigsawstack_import_error = (
-                "JigsawStack package not found. Please install it using: pip install jigsawstack>=0.2.7"
-            )
-            raise ImportError(jigsawstack_import_error) from e
+            error_msg = i18n.t(
+                'components.jigsawstack.ai_web_search.errors.import_error')
+            logger.error(error_msg)
+            raise ImportError(error_msg) from e
 
         try:
+            if not self.query or not self.query.strip():
+                error_msg = i18n.t(
+                    'components.jigsawstack.ai_web_search.errors.empty_query')
+                logger.error(error_msg)
+                raise ValueError(error_msg)
+
+            logger.debug(
+                i18n.t('components.jigsawstack.ai_web_search.logs.creating_client'))
             client = JigsawStack(api_key=self.api_key)
 
-            # build request object
-            search_params = {}
-            if self.query:
-                search_params["query"] = self.query
-            if self.ai_overview is not None:
-                search_params["ai_overview"] = self.ai_overview
-            if self.safe_search:
-                search_params["safe_search"] = self.safe_search
-            if self.spell_check is not None:
-                search_params["spell_check"] = self.spell_check
-
-            # Call web scraping
-            response = client.web.search(search_params)
-
-            api_error_msg = "JigsawStack API returned unsuccessful response"
-            if not response.get("success", False):
-                raise ValueError(api_error_msg)
-
-            # Create comprehensive data object
-            result_data = {
-                "query": self.query,
-                "ai_overview": response.get("ai_overview", ""),
-                "spell_fixed": response.get("spell_fixed", False),
-                "is_safe": response.get("is_safe", True),
-                "results": response.get("results", []),
-                "success": True,
+            # Build search parameters
+            search_params = {
+                "query": self.query.strip(),
+                "ai_overview": self.ai_overview,
+                "safe_mode": self.safe_mode,
+                "spell_check": self.spell_check,
             }
 
-            self.status = f"Search complete for: {response.get('query', '')}"
+            if self.max_results:
+                search_params["max_results"] = self.max_results
+
+            logger.debug(i18n.t('components.jigsawstack.ai_web_search.logs.search_parameters',
+                                query=search_params["query"],
+                                ai_overview=self.ai_overview,
+                                safe_mode=self.safe_mode,
+                                spell_check=self.spell_check,
+                                max_results=self.max_results))
+
+            # Call web search
+            logger.info(
+                i18n.t('components.jigsawstack.ai_web_search.logs.calling_api'))
+            response = client.web.ai_search(search_params)
+
+            if not response.get("success", False):
+                error_msg = i18n.t(
+                    'components.jigsawstack.ai_web_search.errors.api_request_failed')
+                logger.error(error_msg)
+                raise ValueError(error_msg)
+
+            result_data = response
+
+            # Log result statistics
+            results_count = len(result_data.get("results", []))
+            has_overview = "ai_overview" in result_data
+
+            logger.info(i18n.t('components.jigsawstack.ai_web_search.logs.search_complete',
+                               results_count=results_count,
+                               has_overview=has_overview))
+
+            status_msg = i18n.t('components.jigsawstack.ai_web_search.logs.search_complete_status',
+                                count=results_count)
+            self.status = status_msg
 
             return Data(data=result_data)
 
         except JigsawStackError as e:
-            error_data = {"error": str(e), "success": False}
+            error_msg = i18n.t('components.jigsawstack.ai_web_search.errors.jigsawstack_error',
+                               error=str(e))
+            logger.error(error_msg)
             self.status = f"Error: {e!s}"
+            error_data = {"error": str(e), "success": False}
             return Data(data=error_data)
 
-    def get_content_text(self) -> Message:
-        try:
-            from jigsawstack import JigsawStack, JigsawStackError
-        except ImportError:
-            return Message(text="Error: JigsawStack package not found.")
+        except ValueError as e:
+            error_msg = str(e)
+            logger.error(error_msg)
+            self.status = f"Error: {e!s}"
+            error_data = {"error": error_msg, "success": False}
+            return Data(data=error_data)
 
-        try:
-            # Initialize JigsawStack client
-            client = JigsawStack(api_key=self.api_key)
-            search_params = {}
-            if self.query:
-                search_params["query"] = self.query
-            if self.ai_overview is not None:
-                search_params["ai_overview"] = self.ai_overview
-            if self.safe_search:
-                search_params["safe_search"] = self.safe_search
-            if self.spell_check is not None:
-                search_params["spell_check"] = self.spell_check
-
-            # Call web scraping
-            response = client.web.search(search_params)
-
-            request_failed_msg = "Request Failed"
-            if not response.get("success", False):
-                raise JigsawStackError(request_failed_msg)
-
-            # Return the content as text
-            content = response.get("ai_overview", "")
-            return Message(text=content)
-
-        except JigsawStackError as e:
-            return Message(text=f"Error while using AI Search: {e!s}")
+        except Exception as e:
+            error_msg = i18n.t('components.jigsawstack.ai_web_search.errors.unexpected_error',
+                               error=str(e))
+            logger.exception(error_msg)
+            self.status = f"Error: {e!s}"
+            error_data = {"error": str(e), "success": False}
+            return Data(data=error_data)

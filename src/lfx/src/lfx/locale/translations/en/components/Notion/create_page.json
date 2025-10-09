@@ -1,0 +1,16 @@
+{
+  "display_name": "Create Page",
+  "description": "A component for creating Notion pages.",
+  "database_id": {
+    "display_name": "Database ID",
+    "info": "The ID of the Notion database."
+  },
+  "notion_secret": {
+    "display_name": "Notion Secret",
+    "info": "The Notion integration token."
+  },
+  "properties_json": {
+    "display_name": "Properties (JSON)",
+    "info": "The properties of the new page as a JSON string."
+  }
+}

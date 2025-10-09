@@ -1,0 +1,54 @@
+{
+  "display_name": "Graph RAG",
+  "description": "Graph RAG traversal for vector store.",
+  "embedding_model": {
+    "display_name": "Embedding Model",
+    "info": "Specify the Embedding Model. Not required for Astra Vectorize collections."
+  },
+  "vector_store": {
+    "display_name": "Vector Store Connection",
+    "info": "Connection to Vector Store."
+  },
+  "edge_definition": {
+    "display_name": "Edge Definition",
+    "info": "Edge definition for the graph traversal. Comma-separated values."
+  },
+  "strategy": {
+    "display_name": "Traversal Strategies"
+  },
+  "search_query": {
+    "display_name": "Search Query"
+  },
+  "graphrag_strategy_kwargs": {
+    "display_name": "Strategy Parameters",
+    "info": "Optional dictionary of additional parameters for the retrieval strategy. Please see https://datastax.github.io/graph-rag/reference/graph_retriever/strategies/ for details."
+  },
+  "status": {
+    "searching": "Searching documents using Graph RAG...",
+    "search_completed": "Graph RAG search completed - {count} documents retrieved"
+  },
+  "errors": {
+    "strategies_load_failed": "Failed to load traversal strategies: {error}",
+    "strategy_not_found": "Strategy '{strategy}' not found in strategies module",
+    "search_failed": "Graph RAG search failed: {error}",
+    "edge_definition_empty": "Edge definition cannot be empty",
+    "edge_definition_parse_failed": "Failed to parse edge definition: {error}",
+    "id_module_import_failed": "Could not import Id from graph_retriever.edges.metadata",
+    "edge_definition_evaluation_failed": "Failed to evaluate edge definition: {error}"
+  },
+  "logs": {
+    "strategies_loaded": "Loaded {count} traversal strategies",
+    "searching_documents": "Searching documents - Strategy: {strategy}, Edge: {edge_definition}",
+    "additional_params": "Additional strategy parameters: {params}",
+    "edge_definition_evaluated": "Edge definition evaluated: {edge_def}",
+    "strategy_class_loaded": "Strategy class loaded: {strategy}",
+    "creating_retriever": "Creating Graph Retriever",
+    "invoking_retriever": "Invoking retriever with query: {query}",
+    "documents_retrieved": "Retrieved {count} documents",
+    "edge_definition_parsed": "Edge definition parsed into values: {values}",
+    "id_module_imported": "Id module imported successfully",
+    "id_function_evaluated": "Id() function evaluated",
+    "value_added": "Value added to edge definition: {value}",
+    "edge_definition_evaluation_completed": "Edge definition evaluation completed: {result}"
+  }
+}

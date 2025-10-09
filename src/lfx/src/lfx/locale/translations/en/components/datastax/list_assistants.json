@@ -1,0 +1,22 @@
+{
+  "display_name": "List Assistants",
+  "description": "Returns a list of assistant IDs",
+  "outputs": {
+    "assistants": {
+      "display_name": "Assistants"
+    }
+  },
+  "status": {
+    "listing": "Listing assistants...",
+    "listed": "Found {count} assistant(s)"
+  },
+  "errors": {
+    "listing_failed": "Failed to list assistants: {error}"
+  },
+  "logs": {
+    "client_initialized": "OpenAI client initialized successfully",
+    "listing_assistants": "Listing all assistants",
+    "assistant_ids": "Assistant IDs: {ids}",
+    "no_assistants": "No assistants found"
+  }
+}

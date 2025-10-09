@@ -1,3 +1,4 @@
+import i18n
 import json
 from pathlib import Path
 from typing import Any
@@ -25,16 +26,18 @@ KNOWLEDGE_BASES_ROOT_PATH = Path(knowledge_directory).expanduser()
 
 
 class KnowledgeRetrievalComponent(Component):
-    display_name = "Knowledge Retrieval"
-    description = "Search and retrieve data from knowledge."
+    display_name = i18n.t('components.knowledge_bases.retrieval.display_name')
+    description = i18n.t('components.knowledge_bases.retrieval.description')
     icon = "download"
     name = "KnowledgeRetrieval"
 
     inputs = [
         DropdownInput(
             name="knowledge_base",
-            display_name="Knowledge",
-            info="Select the knowledge to load data from.",
+            display_name=i18n.t(
+                'components.knowledge_bases.retrieval.knowledge_base.display_name'),
+            info=i18n.t(
+                'components.knowledge_bases.retrieval.knowledge_base.info'),
             required=True,
             options=[],
             refresh_button=True,
@@ -42,36 +45,44 @@ class KnowledgeRetrievalComponent(Component):
         ),
         SecretStrInput(
             name="api_key",
-            display_name="Embedding Provider API Key",
-            info="API key for the embedding provider to generate embeddings.",
+            display_name=i18n.t(
+                'components.knowledge_bases.retrieval.api_key.display_name'),
+            info=i18n.t('components.knowledge_bases.retrieval.api_key.info'),
             advanced=True,
             required=False,
         ),
         MessageTextInput(
             name="search_query",
-            display_name="Search Query",
-            info="Optional search query to filter knowledge base data.",
+            display_name=i18n.t(
+                'components.knowledge_bases.retrieval.search_query.display_name'),
+            info=i18n.t(
+                'components.knowledge_bases.retrieval.search_query.info'),
             tool_mode=True,
         ),
         IntInput(
             name="top_k",
-            display_name="Top K Results",
-            info="Number of top results to return from the knowledge base.",
+            display_name=i18n.t(
+                'components.knowledge_bases.retrieval.top_k.display_name'),
+            info=i18n.t('components.knowledge_bases.retrieval.top_k.info'),
             value=5,
             advanced=True,
             required=False,
         ),
         BoolInput(
             name="include_metadata",
-            display_name="Include Metadata",
-            info="Whether to include all metadata in the output. If false, only content is returned.",
+            display_name=i18n.t(
+                'components.knowledge_bases.retrieval.include_metadata.display_name'),
+            info=i18n.t(
+                'components.knowledge_bases.retrieval.include_metadata.info'),
             value=True,
             advanced=False,
         ),
         BoolInput(
             name="include_embeddings",
-            display_name="Include Embeddings",
-            info="Whether to include embeddings in the output. Only applicable if 'Include Metadata' is enabled.",
+            display_name=i18n.t(
+                'components.knowledge_bases.retrieval.include_embeddings.display_name'),
+            info=i18n.t(
+                'components.knowledge_bases.retrieval.include_embeddings.info'),
             value=False,
             advanced=True,
         ),
@@ -80,9 +91,11 @@ class KnowledgeRetrievalComponent(Component):
     outputs = [
         Output(
             name="retrieve_data",
-            display_name="Results",
+            display_name=i18n.t(
+                'components.knowledge_bases.retrieval.outputs.retrieve_data.display_name'),
             method="retrieve_data",
-            info="Returns the data from the selected knowledge base.",
+            info=i18n.t(
+                'components.knowledge_bases.retrieval.outputs.retrieve_data.info'),
         ),
     ]
 
@@ -105,7 +118,8 @@ class KnowledgeRetrievalComponent(Component):
         metadata: dict[str, Any] = {}
         metadata_file = kb_path / "embedding_metadata.json"
         if not metadata_file.exists():
-            logger.warning(f"Embedding metadata file not found at {metadata_file}")
+            logger.warning(
+                f"Embedding metadata file not found at {metadata_file}")
             return metadata
 
         try:
@@ -119,16 +133,19 @@ class KnowledgeRetrievalComponent(Component):
         if "api_key" in metadata and metadata.get("api_key"):
             settings_service = get_settings_service()
             try:
-                decrypted_key = decrypt_api_key(metadata["api_key"], settings_service)
+                decrypted_key = decrypt_api_key(
+                    metadata["api_key"], settings_service)
                 metadata["api_key"] = decrypted_key
             except (InvalidToken, TypeError, ValueError) as e:
-                logger.error(f"Could not decrypt API key. Please provide it manually. Error: {e}")
+                logger.error(
+                    f"Could not decrypt API key. Please provide it manually. Error: {e}")
                 metadata["api_key"] = None
         return metadata
 
     def _build_embeddings(self, metadata: dict):
         """Build embedding model from metadata."""
-        runtime_api_key = self.api_key.get_secret_value() if isinstance(self.api_key, SecretStr) else self.api_key
+        runtime_api_key = self.api_key.get_secret_value() if isinstance(
+            self.api_key, SecretStr) else self.api_key
         provider = metadata.get("embedding_provider")
         model = metadata.get("embedding_model")
         api_key = runtime_api_key or metadata.get("api_key")
@@ -206,7 +223,8 @@ class KnowledgeRetrievalComponent(Component):
         # If a search query is provided, perform a similarity search
         if self.search_query:
             # Use the search query to perform a similarity search
-            logger.info(f"Performing similarity search with query: {self.search_query}")
+            logger.info(
+                f"Performing similarity search with query: {self.search_query}")
             results = chroma.similarity_search_with_score(
                 query=self.search_query or "",
                 k=self.top_k,
@@ -218,23 +236,28 @@ class KnowledgeRetrievalComponent(Component):
             )
 
             # For each result, make it a tuple to match the expected output format
-            results = [(doc, 0) for doc in results]  # Assign a dummy score of 0
+            results = [(doc, 0)
+                       for doc in results]  # Assign a dummy score of 0
 
         # If include_embeddings is enabled, get embeddings for the results
         id_to_embedding = {}
         if self.include_embeddings and results:
-            doc_ids = [doc[0].metadata.get("_id") for doc in results if doc[0].metadata.get("_id")]
+            doc_ids = [doc[0].metadata.get(
+                "_id") for doc in results if doc[0].metadata.get("_id")]
 
             # Only proceed if we have valid document IDs
             if doc_ids:
                 # Access underlying client to get embeddings
-                collection = chroma._client.get_collection(name=self.knowledge_base)
-                embeddings_result = collection.get(where={"_id": {"$in": doc_ids}}, include=["metadatas", "embeddings"])
+                collection = chroma._client.get_collection(
+                    name=self.knowledge_base)
+                embeddings_result = collection.get(where={"_id": {"$in": doc_ids}}, include=[
+                                                   "metadatas", "embeddings"])
 
                 # Create a mapping from document ID to embedding
                 for i, metadata in enumerate(embeddings_result.get("metadatas", [])):
                     if metadata and "_id" in metadata:
-                        id_to_embedding[metadata["_id"]] = embeddings_result["embeddings"][i]
+                        id_to_embedding[metadata["_id"]
+                                        ] = embeddings_result["embeddings"][i]
 
         # Build output data based on include_metadata setting
         data_list = []
@@ -248,7 +271,8 @@ class KnowledgeRetrievalComponent(Component):
                 # Include all metadata, embeddings, and content
                 kwargs.update(doc[0].metadata)
             if self.include_embeddings:
-                kwargs["_embeddings"] = id_to_embedding.get(doc[0].metadata.get("_id"))
+                kwargs["_embeddings"] = id_to_embedding.get(
+                    doc[0].metadata.get("_id"))
 
             data_list.append(Data(**kwargs))
 

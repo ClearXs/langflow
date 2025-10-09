@@ -1,0 +1,65 @@
+{
+  "display_name": "Composio工具",
+  "description": "使用Composio工具集运行代理操作",
+  "entity_id": {
+    "display_name": "实体ID"
+  },
+  "api_key": {
+    "display_name": "Composio API密钥",
+    "info": "参考 https://docs.composio.dev/faq/api_key/api_key"
+  },
+  "tool_name": {
+    "display_name": "工具名称",
+    "placeholder": "选择一个工具...",
+    "info": "要使用的工具名称"
+  },
+  "actions": {
+    "display_name": "操作",
+    "placeholder": "选择操作",
+    "helper_text": "请先连接再选择操作。",
+    "info": "要使用的操作"
+  },
+  "outputs": {
+    "tools": {
+      "display_name": "工具"
+    }
+  },
+  "status": {
+    "tools_built": "成功构建{count}个Composio工具"
+  },
+  "warnings": {
+    "no_tool_name": "validate_tool没有可用的工具名称",
+    "no_tool_name_connection": "连接检查没有可用的工具名称",
+    "invalid_redirect_url": "工具包的重定向URL无效：{toolkit}",
+    "no_toolkits": "从所选操作中未识别到工具包"
+  },
+  "errors": {
+    "get_actions_failed": "获取{tool}的操作时出错：{error}",
+    "oauth_creation_failed": "创建OAuth连接时出错：{error}",
+    "connection_check_failed": "检查连接状态时出错：{error}",
+    "build_tools_failed": "构建Composio工具失败：{error}",
+    "api_key_required": "需要Composio API密钥",
+    "wrapper_build_failed": "构建Composio包装器时出错：{error}",
+    "invalid_api_key": "请在组件设置中提供有效的Composio API密钥"
+  },
+  "logs": {
+    "validating_tool": "正在验证工具：{tool_name}",
+    "tool_validated": "工具已在索引处验证：{index}",
+    "getting_actions": "正在获取工具包的操作：{toolkit}",
+    "actions_retrieved": "为工具包{toolkit}检索了{count}个操作",
+    "actions_config_updated": "操作配置已更新，包含{count}个选项",
+    "updating_config": "正在更新字段的构建配置：{field_name}",
+    "clearing_config": "由于API密钥为空，正在清除配置",
+    "building_tool_list": "正在构建可用工具列表",
+    "tool_list_built": "工具列表已构建，包含{count}个工具",
+    "checking_connection": "正在检查工具包的连接：{toolkit}",
+    "active_connection_found": "为工具包找到活动连接：{toolkit}",
+    "no_active_connection": "未找到工具包{toolkit}的活动连接，正在创建OAuth连接",
+    "oauth_link_created": "已为工具包{toolkit}创建OAuth授权链接",
+    "building_tools": "正在从所选操作构建Composio工具",
+    "actions_selected": "已选择{count}个操作用于工具构建",
+    "toolkits_identified": "已识别{count}个工具包：{toolkits}",
+    "building_wrapper": "正在构建Composio包装器",
+    "wrapper_built": "Composio包装器构建成功"
+  }
+}

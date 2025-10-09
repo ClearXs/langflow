@@ -1,0 +1,14 @@
+{
+  "display_name": "对话链",
+  "description": "用于进行对话并从记忆中加载上下文的链。",
+  "input_value": {
+    "display_name": "输入",
+    "info": "要传递给链的输入值。"
+  },
+  "llm": {
+    "display_name": "语言模型"
+  },
+  "memory": {
+    "display_name": "记忆"
+  }
+}

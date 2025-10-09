@@ -1,0 +1,24 @@
+{
+  "display_name": "可运行执行器",
+  "description": "执行可运行对象。它将尝试猜测输入和输出键。",
+  "input_value": {
+    "display_name": "输入"
+  },
+  "runnable": {
+    "display_name": "代理执行器"
+  },
+  "input_key": {
+    "display_name": "输入键"
+  },
+  "output_key": {
+    "display_name": "输出键"
+  },
+  "use_stream": {
+    "display_name": "流式输出"
+  },
+  "outputs": {
+    "text": {
+      "display_name": "消息"
+    }
+  }
+}

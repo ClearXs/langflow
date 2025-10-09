@@ -1,0 +1,51 @@
+{
+  "description": "使用Docling连接到您的Docling Serve实例来处理输入文档。",
+  "api_url": {
+    "display_name": "服务器地址",
+    "info": "Docling Serve实例的URL。"
+  },
+  "max_concurrency": {
+    "display_name": "并发数",
+    "info": "服务器的最大并发请求数。"
+  },
+  "max_poll_timeout": {
+    "display_name": "最大轮询时间",
+    "info": "文档转换完成的最长等待时间（秒）。"
+  },
+  "api_headers": {
+    "display_name": "HTTP头",
+    "info": "连接到Docling Serve所需的可选附加头字典。"
+  },
+  "docling_serve_opts": {
+    "display_name": "Docling选项",
+    "info": "可选的附加选项字典。有关更多信息，请参阅 https://github.com/docling-project/docling-serve/blob/main/docs/usage.md。"
+  },
+  "errors": {
+    "conversion_request_failed": "发送转换请求失败：{error}",
+    "processing_timeout": "处理时间{processing_time}秒超过最大轮询超时{max_poll_timeout}秒。请增加max_poll_timeout参数或检查服务器上处理时间过长的原因。",
+    "too_many_http_errors": "状态请求收到HTTP响应{status_code}的次数过多（最大重试次数：{max_retries}）。",
+    "task_failed": "文档转换任务{task_id}在服务器上失败。",
+    "result_retrieval_failed": "检索转换结果失败：{error}",
+    "validation_failed": "验证文档时出错：{error}",
+    "processing_failed": "Docling远程处理失败：{error}"
+  },
+  "logs": {
+    "using_api_url": "使用Docling Serve API URL：{url}",
+    "converting_document": "正在转换文档：{filename}",
+    "sending_conversion_request": "正在向服务器发送转换请求",
+    "task_created": "转换任务已创建 - 任务ID：{task_id}",
+    "polling_status": "正在轮询状态（第{poll_count}次尝试），任务{task_id}",
+    "http_error": "发生HTTP错误{status_code}（失败次数：{failures}/{max_retries}）",
+    "task_status": "任务状态：{status}",
+    "task_completed": "任务{task_id}成功完成 - 处理时间：{processing_time:.2f}秒",
+    "no_json_content": "结果中未找到JSON DoclingDocument。",
+    "document_validated": "文档验证成功：{filename}",
+    "docling_options": "使用Docling选项：{options}",
+    "starting_processing": "开始处理{count}个文件，最大并发数{concurrency}",
+    "skipping_no_path": "跳过索引{index}处的文件 - 未提供路径",
+    "submitting_file": "正在提交文件{index}：{filename}",
+    "waiting_for_results": "正在等待{count}个转换任务的结果",
+    "file_processed_successfully": "文件处理成功",
+    "processing_completed": "处理完成 - 成功处理{success}/{total}个文件"
+  }
+}

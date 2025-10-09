@@ -1,0 +1,16 @@
+{
+  "display_name": "LLM数学链",
+  "description": "解释提示并执行Python代码进行数学计算的链。",
+  "input_value": {
+    "display_name": "输入",
+    "info": "要传递给链的输入值。"
+  },
+  "llm": {
+    "display_name": "语言模型"
+  },
+  "outputs": {
+    "text": {
+      "display_name": "消息"
+    }
+  }
+}

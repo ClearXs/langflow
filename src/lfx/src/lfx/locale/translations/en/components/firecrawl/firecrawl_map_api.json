@@ -1,0 +1,46 @@
+{
+  "description": "Map URLs to discover all accessible links and site structure using Firecrawl API.",
+  "api_key": {
+    "display_name": "Firecrawl API Key",
+    "info": "The API key to use Firecrawl API."
+  },
+  "urls": {
+    "display_name": "URLs",
+    "info": "List of URLs to create maps from (separated by commas or new lines)."
+  },
+  "ignore_sitemap": {
+    "display_name": "Ignore Sitemap",
+    "info": "When true, the sitemap.xml file will be ignored during mapping."
+  },
+  "sitemap_only": {
+    "display_name": "Sitemap Only",
+    "info": "When true, only links found in the sitemap will be returned."
+  },
+  "include_subdomains": {
+    "display_name": "Include Subdomains",
+    "info": "When true, subdomains of the provided URL will also be scanned."
+  },
+  "outputs": {
+    "data": {
+      "display_name": "Site Map Data"
+    }
+  },
+  "errors": {
+    "import_failed": "Could not import firecrawl integration package. Please install it with `pip install firecrawl-py`.",
+    "urls_required": "URLs are required",
+    "no_valid_urls": "No valid URLs provided",
+    "mapping_failed": "Error during mapping: {error}"
+  },
+  "logs": {
+    "firecrawl_imported": "Firecrawl package imported successfully",
+    "parsing_urls": "Parsing URLs from input",
+    "urls_parsed": "Parsed {count} valid URL(s)",
+    "params_configured": "Parameters configured - Ignore sitemap: {ignore_sitemap}, Sitemap only: {sitemap_only}, Include subdomains: {include_subdomains}",
+    "app_initialized": "Firecrawl app initialized with API key",
+    "starting_mapping": "Starting mapping for {count} URL(s)",
+    "mapping_url": "Mapping URL {index}/{total}: {url}",
+    "url_mapped": "URL mapped successfully: {url} - Found {count} link(s)",
+    "no_links_found": "No links found for URL: {url}",
+    "mapping_completed": "Mapping completed - Total: {total_links} link(s) from {urls_processed} URL(s)"
+  }
+}

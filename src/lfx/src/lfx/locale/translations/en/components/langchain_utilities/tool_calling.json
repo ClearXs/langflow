@@ -1,0 +1,16 @@
+{
+  "display_name": "Tool Calling Agent",
+  "description": "An agent designed to utilize various tools seamlessly within workflows.",
+  "llm": {
+    "display_name": "Language Model",
+    "info": "Language model that the agent utilizes to perform tasks effectively."
+  },
+  "system_prompt": {
+    "display_name": "System Prompt",
+    "info": "System prompt to guide the agent's behavior."
+  },
+  "chat_history": {
+    "display_name": "Chat Memory",
+    "info": "This input stores the chat history, allowing the agent to remember previous conversations."
+  }
+}

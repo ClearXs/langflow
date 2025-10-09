@@ -1,0 +1,57 @@
+{
+  "display_name": "导出Docling文档",
+  "description": "将DoclingDocument导出为markdown、html或其他格式。",
+  "data_inputs": {
+    "display_name": "数据或数据框",
+    "info": "包含要导出文档的数据。"
+  },
+  "export_format": {
+    "display_name": "导出格式",
+    "info": "选择导出格式以转换输入。"
+  },
+  "image_mode": {
+    "display_name": "图片导出模式",
+    "info": "指定如何在输出中导出图片。占位符会将图片替换为字符串，而嵌入式会将图片作为base64编码的图片包含在内。"
+  },
+  "md_image_placeholder": {
+    "display_name": "图片占位符",
+    "info": "指定markdown导出的图片占位符。"
+  },
+  "md_page_break_placeholder": {
+    "display_name": "分页符占位符",
+    "info": "在markdown输出的页面之间添加此占位符。"
+  },
+  "doc_key": {
+    "display_name": "文档键",
+    "info": "用于DoclingDocument列的键。"
+  },
+  "outputs": {
+    "data": {
+      "display_name": "导出的数据"
+    },
+    "dataframe": {
+      "display_name": "数据框"
+    }
+  },
+  "errors": {
+    "extraction_failed": "提取文档失败：{error}",
+    "export_failed": "导出文档时出错：{error}",
+    "dataframe_creation_failed": "创建数据框失败：{error}"
+  },
+  "logs": {
+    "markdown_options_enabled": "已启用Markdown特定选项",
+    "html_options_enabled": "已启用HTML特定选项",
+    "text_options_enabled": "已启用{format}选项",
+    "extracting_documents": "正在使用键提取文档：{doc_key}",
+    "documents_extracted": "已提取{count}个文档",
+    "exporting_documents": "正在将{count}个文档导出为{format}格式（图片模式：{image_mode}）",
+    "exporting_document": "正在导出文档{index}/{total}",
+    "markdown_exported": "Markdown导出完成 - 长度：{length}个字符",
+    "html_exported": "HTML导出完成 - 长度：{length}个字符",
+    "text_exported": "文本导出完成 - 长度：{length}个字符",
+    "doctags_exported": "DocTags导出完成 - 长度：{length}个字符",
+    "export_completed": "导出完成 - 已导出{count}个文档",
+    "creating_dataframe": "正在从导出的文档创建数据框",
+    "dataframe_created": "已创建包含{rows}行的数据框"
+  }
+}

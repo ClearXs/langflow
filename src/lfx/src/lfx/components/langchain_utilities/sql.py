@@ -1,3 +1,4 @@
+import i18n
 from langchain.agents import AgentExecutor
 from langchain_community.agent_toolkits import SQLDatabaseToolkit
 from langchain_community.agent_toolkits.sql.base import create_sql_agent
@@ -9,26 +10,53 @@ from lfx.io import Output
 
 
 class SQLAgentComponent(LCAgentComponent):
-    display_name = "SQLAgent"
-    description = "Construct an SQL agent from an LLM and tools."
+    display_name = i18n.t('components.langchain_utilities.sql.display_name')
+    description = i18n.t('components.langchain_utilities.sql.description')
     name = "SQLAgent"
     icon = "LangChain"
     inputs = [
         *LCAgentComponent.get_base_inputs(),
-        HandleInput(name="llm", display_name="Language Model", input_types=["LanguageModel"], required=True),
-        MessageTextInput(name="database_uri", display_name="Database URI", required=True),
+        HandleInput(
+            name="llm",
+            display_name=i18n.t(
+                'components.langchain_utilities.sql.llm.display_name'),
+            input_types=["LanguageModel"],
+            required=True,
+            info=i18n.t('components.langchain_utilities.sql.llm.info'),
+        ),
+        MessageTextInput(
+            name="database_uri",
+            display_name=i18n.t(
+                'components.langchain_utilities.sql.database_uri.display_name'),
+            required=True,
+            info=i18n.t(
+                'components.langchain_utilities.sql.database_uri.info'),
+        ),
         HandleInput(
             name="extra_tools",
-            display_name="Extra Tools",
+            display_name=i18n.t(
+                'components.langchain_utilities.sql.extra_tools.display_name'),
             input_types=["Tool"],
             is_list=True,
             advanced=True,
+            info=i18n.t('components.langchain_utilities.sql.extra_tools.info'),
         ),
     ]
 
     outputs = [
-        Output(display_name="Response", name="response", method="message_response"),
-        Output(display_name="Agent", name="agent", method="build_agent", tool_mode=False),
+        Output(
+            display_name=i18n.t(
+                'components.langchain_utilities.sql.outputs.response.display_name'),
+            name="response",
+            method="message_response"
+        ),
+        Output(
+            display_name=i18n.t(
+                'components.langchain_utilities.sql.outputs.agent.display_name'),
+            name="agent",
+            method="build_agent",
+            tool_mode=False
+        ),
     ]
 
     def build_agent(self) -> AgentExecutor:

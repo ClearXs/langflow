@@ -1,0 +1,37 @@
+{
+  "display_name": "语义文本分割器",
+  "description": "使用语义相似性将文本分割为语义上有意义的块。",
+  "data_inputs": {
+    "display_name": "数据输入",
+    "info": "包含要分割的文本和元数据的Data对象列表。"
+  },
+  "embeddings": {
+    "display_name": "嵌入模型",
+    "info": "用于语义相似性的嵌入模型。必填。"
+  },
+  "breakpoint_threshold_type": {
+    "display_name": "断点阈值类型",
+    "info": "确定断点的方法。选项:'percentile'(百分位)、'standard_deviation'(标准差)、'interquartile'(四分位数)。默认为'percentile'。"
+  },
+  "breakpoint_threshold_amount": {
+    "display_name": "断点阈值数量",
+    "info": "断点阈值的数值。"
+  },
+  "number_of_chunks": {
+    "display_name": "块数量",
+    "info": "要将文本分割成的块数。"
+  },
+  "sentence_split_regex": {
+    "display_name": "句子分割正则表达式",
+    "info": "用于分割句子的正则表达式。可选。"
+  },
+  "buffer_size": {
+    "display_name": "缓冲区大小",
+    "info": "缓冲区的大小。"
+  },
+  "outputs": {
+    "chunks": {
+      "display_name": "分块"
+    }
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "display_name": "SQL代理",
+  "description": "从LLM和工具构建SQL代理。",
+  "llm": {
+    "display_name": "语言模型",
+    "info": "LLM模型对象(可以在任何LLM组件中找到)。"
+  },
+  "database_uri": {
+    "display_name": "数据库URI",
+    "info": "连接到SQL数据库的URI(例如: sqlite:///path/to/db.db 或 postgresql://user:pass@host:port/db)。"
+  },
+  "extra_tools": {
+    "display_name": "额外工具",
+    "info": "提供给代理的额外工具，以增强功能。"
+  },
+  "outputs": {
+    "response": {
+      "display_name": "响应"
+    },
+    "agent": {
+      "display_name": "代理"
+    }
+  }
+}

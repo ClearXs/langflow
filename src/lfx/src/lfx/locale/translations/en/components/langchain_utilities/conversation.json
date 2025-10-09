@@ -1,0 +1,14 @@
+{
+  "display_name": "Conversation Chain",
+  "description": "Chain to have a conversation and load context from memory.",
+  "input_value": {
+    "display_name": "Input",
+    "info": "The input value to pass to the chain."
+  },
+  "llm": {
+    "display_name": "Language Model"
+  },
+  "memory": {
+    "display_name": "Memory"
+  }
+}

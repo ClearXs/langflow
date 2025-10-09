@@ -1,68 +1,71 @@
 {
-  "display_name": "条件路由器",
-  "description": "基于条件逻辑评估将数据路由到不同路径。",
-  "input_data": {
-    "display_name": "输入数据",
-    "info": "要基于条件进行评估和路由的数据。"
+  "display_name": "条件分支",
+  "description": "根据文本比较将输入消息路由到相应的输出。",
+  "input_text": {
+    "display_name": "文本输入",
+    "info": "操作的主要文本输入。"
   },
-  "conditions": {
-    "display_name": "条件",
-    "info": "路由条件的JSON数组。每个条件应包含'name'、'condition'和可选的'description'字段。"
+  "operator": {
+    "display_name": "运算符",
+    "info": "用于比较文本的运算符。"
   },
-  "evaluation_mode": {
-    "display_name": "评估模式",
-    "info": "如何处理多个匹配条件：first_match（首次匹配后停止），all_matches（返回所有），best_match（返回最高评分）。"
-  },
-  "default_route": {
-    "display_name": "默认路由",
-    "info": "当没有条件匹配时使用的路由名称（严格模式下忽略）。"
+  "match_text": {
+    "display_name": "匹配文本",
+    "info": "要比较的文本输入。"
   },
   "case_sensitive": {
     "display_name": "区分大小写",
-    "info": "文本比较是否应区分大小写。"
+    "info": "如果为true，比较将区分大小写。"
   },
-  "include_metadata": {
-    "display_name": "包含元数据",
-    "info": "是否在输出中包含评估元数据。"
+  "true_case_message": {
+    "display_name": "条件为真",
+    "info": "条件为True时传递的消息。"
   },
-  "max_routes": {
-    "display_name": "最大路由数",
-    "info": "使用'all_matches'模式时返回的最大路由数（0表示无限制）。"
+  "false_case_message": {
+    "display_name": "条件为假",
+    "info": "条件为False时传递的消息。"
   },
-  "strict_mode": {
-    "display_name": "严格模式",
-    "info": "在严格模式下，如果没有条件匹配则抛出错误，而不是使用默认路由。"
+  "max_iterations": {
+    "display_name": "最大迭代次数",
+    "info": "条件路由器的最大迭代次数。"
   },
-  "text_key": {
-    "display_name": "文本键",
-    "info": "从数据对象中提取文本内容的键。"
+  "default_route": {
+    "display_name": "默认路由",
+    "info": "达到最大迭代次数时采取的默认路由。"
   },
   "outputs": {
-    "routed_data": {
-      "display_name": "路由数据"
+    "true_result": {
+      "display_name": "真"
     },
-    "routing_info": {
-      "display_name": "路由信息"
-    },
-    "matched_routes": {
-      "display_name": "匹配的路由"
+    "false_result": {
+      "display_name": "假"
     }
   },
-  "success": {
-    "conditions_matched": "{count}个条件成功匹配"
+  "status": {
+    "condition_true": "条件评估为True",
+    "condition_false": "条件评估为False",
+    "forced_true": "已达到最大迭代次数（{iteration}）- 强制True输出",
+    "forced_false": "已达到最大迭代次数（{iteration}）- 强制False输出"
   },
   "warnings": {
-    "condition_evaluation_warning": "评估条件'{condition}'时出现警告：{error}",
-    "using_default_route": "没有条件匹配，使用默认路由：{route}"
+    "invalid_regex": "无效的正则表达式模式'{pattern}'：{error}",
+    "invalid_number": "比较的数字格式无效 - 输入：'{input_text}'，匹配：'{match_text}'，错误：{error}"
   },
-  "errors": {
-    "empty_conditions": "条件不能为空。",
-    "invalid_conditions_format": "无效的条件格式：{error}",
-    "condition_evaluation_error": "评估条件'{condition}'时出错：{error}",
-    "conditions_evaluation_error": "评估条件时出错：{error}",
-    "no_matches_strict_mode": "没有条件匹配且启用了严格模式。",
-    "routing_error": "路由过程中出错：{error}",
-    "routing_info_error": "获取路由信息时出错：{error}",
-    "matched_routes_error": "获取匹配路由时出错：{error}"
+  "logs": {
+    "pre_run_setup": "预运行设置已完成 - 迭代计数器已重置",
+    "evaluating": "正在评估条件 - 运算符：{operator}，区分大小写：{case_sensitive}",
+    "evaluation_result": "条件评估结果：{result}",
+    "iteration_updated": "迭代已更新 - 当前：{iteration}，最大：{max_iterations}",
+    "max_iterations_reached": "已达到最大迭代次数（{iteration}）- 默认路由：{default_route}",
+    "cleared_exclusions": "已清除{count}个条件排除",
+    "switched_route": "已切换要停止的路由：{new_route}",
+    "stopping_route": "正在停止路由：{route}",
+    "condition_true": "条件评估为True - 路由到true分支",
+    "condition_false": "条件评估为False - 路由到false分支",
+    "forced_true_output": "由于达到最大迭代次数而强制True输出：{iteration}",
+    "forced_false_output": "由于达到最大迭代次数而强制False输出：{iteration}",
+    "updating_config": "正在更新运算符的构建配置：{operator}",
+    "removed_case_sensitive": "已为正则表达式运算符移除case_sensitive字段",
+    "added_case_sensitive": "已将case_sensitive字段添加到构建配置"
   }
 }

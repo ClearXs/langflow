@@ -1,0 +1,16 @@
+{
+  "display_name": "HTML链接提取器",
+  "description": "从HTML内容中提取超链接。",
+  "kind": {
+    "display_name": "类型",
+    "info": "要提取的边的类型。默认为'hyperlink'。"
+  },
+  "drop_fragments": {
+    "display_name": "删除URL片段",
+    "info": "是否从提取的链接中删除URL片段(例如,'#section')。"
+  },
+  "data_input": {
+    "display_name": "输入",
+    "info": "要从中提取链接的HTML文档。"
+  }
+}

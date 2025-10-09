@@ -1,0 +1,26 @@
+{
+  "display_name": "Dotenv",
+  "description": "Load .env file into environment variables",
+  "dotenv_file_content": {
+    "display_name": "Dotenv File Content",
+    "info": "Paste the content of your .env file directly. Since contents are sensitive, using a Global variable set as 'password' is recommended."
+  },
+  "outputs": {
+    "env_set": {
+      "display_name": "Environment Set"
+    }
+  },
+  "status": {
+    "loading": "Loading environment variables...",
+    "loaded": "Environment variables loaded successfully from .env"
+  },
+  "warnings": {
+    "no_variables_found": "No variables found in .env file"
+  },
+  "errors": {
+    "load_failed": "Failed to load environment variables: {error}"
+  },
+  "logs": {
+    "loading_env_vars": "Loading environment variables from .env content"
+  }
+}

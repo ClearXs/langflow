@@ -1,0 +1,71 @@
+{
+  "description": "使用Hugging Face推理API生成文本。",
+  "model_id": {
+    "display_name": "模型ID",
+    "info": "从Hugging Face Hub选择一个模型"
+  },
+  "custom_model": {
+    "display_name": "自定义模型ID",
+    "info": "输入来自Hugging Face Hub的自定义模型ID"
+  },
+  "max_new_tokens": {
+    "display_name": "最大新令牌数",
+    "info": "生成的最大令牌数"
+  },
+  "top_k": {
+    "display_name": "Top K",
+    "info": "用于top-k过滤的最高概率词汇令牌数量"
+  },
+  "top_p": {
+    "display_name": "Top P",
+    "info": "如果设置为<1，则仅保留概率总和达到`top_p`或更高的最小最可能令牌集用于生成"
+  },
+  "typical_p": {
+    "display_name": "Typical P",
+    "info": "典型解码质量。"
+  },
+  "temperature": {
+    "display_name": "温度",
+    "info": "用于调节logits分布的值"
+  },
+  "repetition_penalty": {
+    "display_name": "重复惩罚",
+    "info": "重复惩罚参数。1.0表示无惩罚。"
+  },
+  "inference_endpoint": {
+    "display_name": "推理端点",
+    "info": "自定义推理端点URL。"
+  },
+  "task": {
+    "display_name": "任务",
+    "info": "调用模型的任务。应该是返回`generated_text`或`summary_text`的任务。"
+  },
+  "huggingfacehub_api_token": {
+    "display_name": "HuggingFace Hub API令牌"
+  },
+  "model_kwargs": {
+    "display_name": "模型关键字参数"
+  },
+  "retry_attempts": {
+    "display_name": "重试次数"
+  },
+  "errors": {
+    "custom_model_required": "选择'custom'时需要自定义模型ID",
+    "config_update_failed": "更新构建配置时出错：{error}",
+    "connection_failed": "无法连接到Hugging Face端点API：{error}"
+  },
+  "logs": {
+    "getting_api_url": "正在获取API URL",
+    "using_custom_model": "正在使用自定义模型：{model} - URL：{url}",
+    "using_standard_model": "正在使用标准模型：{model} - URL：{url}",
+    "using_custom_endpoint": "正在使用自定义端点：{endpoint}",
+    "updating_config": "正在更新构建配置 - 字段：{field}，值：{value}",
+    "showing_custom_field": "正在显示自定义模型字段",
+    "hiding_custom_field": "正在隐藏自定义模型字段",
+    "creating_endpoint": "正在创建HuggingFace端点 - URL：{url}，任务：{task}，重试次数：{retry_attempts}",
+    "attempting_connection": "正在尝试连接到HuggingFace端点",
+    "building_model": "正在构建HuggingFace语言模型",
+    "model_parameters": "模型参数 - 任务：{task}，最大令牌数：{max_tokens}，温度：{temperature}，Top K：{top_k}，Top P：{top_p}，Typical P：{typical_p}，重复惩罚：{repetition_penalty}",
+    "model_built": "HuggingFace模型构建成功"
+  }
+}

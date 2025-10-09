@@ -1,0 +1,53 @@
+{
+  "description": "Generate text using DeepSeek LLMs.",
+  "max_tokens": {
+    "display_name": "Max Tokens",
+    "info": "Maximum number of tokens to generate. Set to 0 for unlimited."
+  },
+  "model_kwargs": {
+    "display_name": "Model Kwargs",
+    "info": "Additional keyword arguments to pass to the model."
+  },
+  "json_mode": {
+    "display_name": "JSON Mode",
+    "info": "If True, it will output JSON regardless of passing a schema."
+  },
+  "model_name": {
+    "display_name": "Model Name",
+    "info": "DeepSeek model to use"
+  },
+  "api_base": {
+    "display_name": "DeepSeek API Base",
+    "info": "Base URL for API requests. Defaults to https://api.deepseek.com"
+  },
+  "api_key": {
+    "display_name": "DeepSeek API Key",
+    "info": "The DeepSeek API Key"
+  },
+  "temperature": {
+    "display_name": "Temperature",
+    "info": "Controls randomness in responses"
+  },
+  "seed": {
+    "display_name": "Seed",
+    "info": "The seed controls the reproducibility of the job."
+  },
+  "errors": {
+    "fetch_models_failed": "Error fetching models: {error}",
+    "langchain_import_failed": "langchain-openai not installed. Please install with `pip install langchain-openai`",
+    "build_model_failed": "Failed to build DeepSeek model: {error}"
+  },
+  "logs": {
+    "no_api_key": "No API key provided, using default models list",
+    "fetching_models": "Fetching models from: {url}",
+    "models_fetched": "Successfully fetched {count} models",
+    "updating_models_list": "Updating models list",
+    "models_list_updated": "Models list updated with {count} models",
+    "langchain_import_successful": "Langchain OpenAI package imported successfully",
+    "building_model": "Building DeepSeek model - Model: {model}, Temperature: {temperature}, Max Tokens: {max_tokens}",
+    "json_mode_enabled": "JSON mode enabled",
+    "model_built": "DeepSeek model built successfully",
+    "extracted_error_message": "Extracted error message: {message}",
+    "openai_not_available": "OpenAI package not available for error message extraction"
+  }
+}

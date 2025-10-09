@@ -1,0 +1,20 @@
+{
+  "display_name": "Recursive Character Text Splitter",
+  "description": "Split text trying to keep all related text together.",
+  "chunk_size": {
+    "display_name": "Chunk Size",
+    "info": "The maximum length of each chunk."
+  },
+  "chunk_overlap": {
+    "display_name": "Chunk Overlap",
+    "info": "The amount of overlap between chunks."
+  },
+  "data_input": {
+    "display_name": "Input",
+    "info": "The texts to split."
+  },
+  "separators": {
+    "display_name": "Separators",
+    "info": "The characters to split on.\nIf left empty defaults to [\"\\n\\n\", \"\\n\", \" \", \"\"]."
+  }
+}

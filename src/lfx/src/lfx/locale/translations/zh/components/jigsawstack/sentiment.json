@@ -1,0 +1,46 @@
+{
+  "description": "使用JigsawStack AI分析文本情感。检测总体情感、情绪、置信度分数，并提供句子级别的分析。",
+  "api_key": {
+    "display_name": "JigsawStack API密钥",
+    "info": "用于身份验证的JigsawStack API密钥"
+  },
+  "text": {
+    "display_name": "文本",
+    "info": "要分析情感的文本"
+  },
+  "outputs": {
+    "sentiment_data": {
+      "display_name": "情感数据"
+    },
+    "sentiment_text": {
+      "display_name": "情感文本"
+    }
+  },
+  "errors": {
+    "import_error": "未找到JigsawStack包。请使用以下命令安装：pip install jigsawstack>=0.2.7",
+    "empty_text": "情感分析需要文本",
+    "api_request_failed": "JigsawStack API返回失败响应",
+    "jigsawstack_error": "JigsawStack错误：{error}",
+    "analysis_error": "分析情感时出错：{error}",
+    "unexpected_error": "发生意外错误：{error}"
+  },
+  "logs": {
+    "starting_analysis": "正在开始情感分析（{text_length}字符）",
+    "creating_client": "正在创建JigsawStack客户端",
+    "analyzing_text": "正在分析文本：{preview}...",
+    "calling_api": "正在调用JigsawStack情感分析API",
+    "analysis_complete": "情感分析完成 - 情感：{sentiment}，情绪：{emotion}，分数：{score:.3f}，句子数：{sentence_count}",
+    "analysis_summary": "情感：{sentiment} | 情绪：{emotion} | 分数：{score:.3f}",
+    "generating_text_output": "正在生成格式化文本输出",
+    "text_output_generated": "格式化文本输出生成成功"
+  },
+  "output": {
+    "header": "情感分析结果：",
+    "text": "文本：{text}",
+    "overall_sentiment": "总体情感：{sentiment}",
+    "emotion": "情绪：{emotion}",
+    "score": "分数：{score}",
+    "sentence_analysis": "逐句分析：",
+    "sentence_item": "{index}. {text}\n   情感：{sentiment} | 情绪：{emotion} | 分数：{score}"
+  }
+}

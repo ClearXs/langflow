@@ -1,0 +1,38 @@
+{
+  "display_name": "层级团队",
+  "description": "表示具有层级结构的代理组，定义它们应该如何在管理者下协作以及应该执行的任务。",
+  "agents": {
+    "display_name": "代理",
+    "info": "将在层级管理下工作的代理列表"
+  },
+  "tasks": {
+    "display_name": "任务",
+    "info": "团队要执行的层级任务列表"
+  },
+  "manager_llm": {
+    "display_name": "管理者语言模型",
+    "info": "管理者代理用于协调任务的语言模型（如果提供了manager_agent则可选）"
+  },
+  "manager_agent": {
+    "display_name": "管理者代理",
+    "info": "协调层级团队的自定义管理者代理（如果提供了manager_llm则可选）"
+  },
+  "status": {
+    "building": "正在构建层级团队...",
+    "crew_created": "层级团队创建成功，包含{agent_count}个代理和{task_count}个任务"
+  },
+  "errors": {
+    "import_failed": "CrewAI未安装。请使用`uv pip install crewai`安装。",
+    "build_failed": "构建层级团队失败：{error}"
+  },
+  "logs": {
+    "imports_successful": "CrewAI依赖导入成功",
+    "building_crew": "正在构建层级团队",
+    "getting_tasks_agents": "正在检索任务和代理",
+    "retrieved_items": "已检索{task_count}个任务和{agent_count}个代理",
+    "getting_manager_llm": "正在获取管理者语言模型",
+    "manager_llm_set": "管理者语言模型已配置",
+    "manager_agent_set": "自定义管理者代理已配置",
+    "creating_hierarchical_crew": "正在创建包含{agent_count}个代理和{task_count}个任务的层级团队"
+  }
+}

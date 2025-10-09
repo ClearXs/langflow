@@ -1,0 +1,53 @@
+{
+  "description": "使用DeepSeek大语言模型生成文本。",
+  "max_tokens": {
+    "display_name": "最大令牌数",
+    "info": "要生成的最大令牌数。设置为0表示无限制。"
+  },
+  "model_kwargs": {
+    "display_name": "模型参数",
+    "info": "传递给模型的额外关键字参数。"
+  },
+  "json_mode": {
+    "display_name": "JSON模式",
+    "info": "如果为True，无论是否传递架构都将输出JSON。"
+  },
+  "model_name": {
+    "display_name": "模型名称",
+    "info": "要使用的DeepSeek模型"
+  },
+  "api_base": {
+    "display_name": "DeepSeek API基础URL",
+    "info": "API请求的基础URL。默认为 https://api.deepseek.com"
+  },
+  "api_key": {
+    "display_name": "DeepSeek API密钥",
+    "info": "DeepSeek API密钥"
+  },
+  "temperature": {
+    "display_name": "温度",
+    "info": "控制响应的随机性"
+  },
+  "seed": {
+    "display_name": "种子",
+    "info": "种子控制任务的可重现性。"
+  },
+  "errors": {
+    "fetch_models_failed": "获取模型时出错：{error}",
+    "langchain_import_failed": "未安装langchain-openai。请使用`pip install langchain-openai`安装",
+    "build_model_failed": "构建DeepSeek模型失败：{error}"
+  },
+  "logs": {
+    "no_api_key": "未提供API密钥，使用默认模型列表",
+    "fetching_models": "正在从以下位置获取模型：{url}",
+    "models_fetched": "成功获取{count}个模型",
+    "updating_models_list": "正在更新模型列表",
+    "models_list_updated": "模型列表已更新，包含{count}个模型",
+    "langchain_import_successful": "Langchain OpenAI包导入成功",
+    "building_model": "正在构建DeepSeek模型 - 模型：{model}，温度：{temperature}，最大令牌数：{max_tokens}",
+    "json_mode_enabled": "JSON模式已启用",
+    "model_built": "DeepSeek模型构建成功",
+    "extracted_error_message": "提取的错误消息：{message}",
+    "openai_not_available": "OpenAI包不可用于提取错误消息"
+  }
+}

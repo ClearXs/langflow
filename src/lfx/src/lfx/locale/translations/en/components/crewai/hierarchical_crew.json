@@ -1,0 +1,38 @@
+{
+  "display_name": "Hierarchical Crew",
+  "description": "Represents a group of agents with hierarchical structure, defining how they should collaborate under a manager and the tasks they should perform.",
+  "agents": {
+    "display_name": "Agents",
+    "info": "List of agents that will work under hierarchical management"
+  },
+  "tasks": {
+    "display_name": "Tasks",
+    "info": "List of hierarchical tasks to be executed by the crew"
+  },
+  "manager_llm": {
+    "display_name": "Manager LLM",
+    "info": "Language model for the manager agent to coordinate tasks (optional if manager_agent is provided)"
+  },
+  "manager_agent": {
+    "display_name": "Manager Agent",
+    "info": "Custom manager agent to coordinate the hierarchical crew (optional if manager_llm is provided)"
+  },
+  "status": {
+    "building": "Building hierarchical crew...",
+    "crew_created": "Hierarchical crew created successfully with {agent_count} agents and {task_count} tasks"
+  },
+  "errors": {
+    "import_failed": "CrewAI is not installed. Please install it with `uv pip install crewai`.",
+    "build_failed": "Failed to build hierarchical crew: {error}"
+  },
+  "logs": {
+    "imports_successful": "CrewAI dependencies imported successfully",
+    "building_crew": "Building hierarchical crew",
+    "getting_tasks_agents": "Retrieving tasks and agents",
+    "retrieved_items": "Retrieved {task_count} tasks and {agent_count} agents",
+    "getting_manager_llm": "Getting manager language model",
+    "manager_llm_set": "Manager LLM configured",
+    "manager_agent_set": "Custom manager agent configured",
+    "creating_hierarchical_crew": "Creating hierarchical crew with {agent_count} agents and {task_count} tasks"
+  }
+}

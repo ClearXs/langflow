@@ -1,3 +1,4 @@
+import i18n
 import os
 
 from mem0 import Memory, MemoryClient
@@ -10,70 +11,79 @@ from lfx.schema.data import Data
 
 
 class Mem0MemoryComponent(LCChatMemoryComponent):
-    display_name = "Mem0 Chat Memory"
-    description = "Retrieves and stores chat messages using Mem0 memory storage."
+    display_name = i18n.t('components.mem0.mem0_chat_memory.display_name')
+    description = i18n.t('components.mem0.mem0_chat_memory.description')
     name = "mem0_chat_memory"
     icon: str = "Mem0"
     inputs = [
         NestedDictInput(
             name="mem0_config",
-            display_name="Mem0 Configuration",
-            info="""Configuration dictionary for initializing Mem0 memory instance.
-                    Example:
-                    {
-                        "graph_store": {
-                            "provider": "neo4j",
-                            "config": {
-                                "url": "neo4j+s://your-neo4j-url",
-                                "username": "neo4j",
-                                "password": "your-password"
-                            }
-                        },
-                        "version": "v1.1"
-                    }""",
+            display_name=i18n.t(
+                'components.mem0.mem0_chat_memory.mem0_config.display_name'),
+            info=i18n.t('components.mem0.mem0_chat_memory.mem0_config.info'),
             input_types=["Data"],
         ),
         MessageTextInput(
             name="ingest_message",
-            display_name="Message to Ingest",
-            info="The message content to be ingested into Mem0 memory.",
+            display_name=i18n.t(
+                'components.mem0.mem0_chat_memory.ingest_message.display_name'),
+            info=i18n.t(
+                'components.mem0.mem0_chat_memory.ingest_message.info'),
         ),
         HandleInput(
             name="existing_memory",
-            display_name="Existing Memory Instance",
+            display_name=i18n.t(
+                'components.mem0.mem0_chat_memory.existing_memory.display_name'),
             input_types=["Memory"],
-            info="Optional existing Mem0 memory instance. If not provided, a new instance will be created.",
+            info=i18n.t(
+                'components.mem0.mem0_chat_memory.existing_memory.info'),
         ),
         MessageTextInput(
-            name="user_id", display_name="User ID", info="Identifier for the user associated with the messages."
+            name="user_id",
+            display_name=i18n.t(
+                'components.mem0.mem0_chat_memory.user_id.display_name'),
+            info=i18n.t('components.mem0.mem0_chat_memory.user_id.info')
         ),
         MessageTextInput(
-            name="search_query", display_name="Search Query", info="Input text for searching related memories in Mem0."
+            name="search_query",
+            display_name=i18n.t(
+                'components.mem0.mem0_chat_memory.search_query.display_name'),
+            info=i18n.t('components.mem0.mem0_chat_memory.search_query.info')
         ),
         SecretStrInput(
             name="mem0_api_key",
-            display_name="Mem0 API Key",
-            info="API key for Mem0 platform. Leave empty to use the local version.",
+            display_name=i18n.t(
+                'components.mem0.mem0_chat_memory.mem0_api_key.display_name'),
+            info=i18n.t('components.mem0.mem0_chat_memory.mem0_api_key.info'),
         ),
         DictInput(
             name="metadata",
-            display_name="Metadata",
-            info="Additional metadata to associate with the ingested message.",
+            display_name=i18n.t(
+                'components.mem0.mem0_chat_memory.metadata.display_name'),
+            info=i18n.t('components.mem0.mem0_chat_memory.metadata.info'),
             advanced=True,
         ),
         SecretStrInput(
             name="openai_api_key",
-            display_name="OpenAI API Key",
+            display_name=i18n.t(
+                'components.mem0.mem0_chat_memory.openai_api_key.display_name'),
             required=False,
-            info="API key for OpenAI. Required if using OpenAI Embeddings without a provided configuration.",
+            info=i18n.t(
+                'components.mem0.mem0_chat_memory.openai_api_key.info'),
         ),
     ]
 
     outputs = [
-        Output(name="memory", display_name="Mem0 Memory", method="ingest_data"),
+        Output(
+            name="memory",
+            display_name=i18n.t(
+                'components.mem0.mem0_chat_memory.outputs.memory.display_name'),
+            method="ingest_data"
+        ),
         Output(
             name="search_results",
-            display_name="Search Results",
+            display_name=i18n.t(
+                'components.mem0.mem0_chat_memory.outputs.search_results.display_name'),
             method="build_search_results",
         ),
     ]
@@ -98,7 +108,8 @@ class Mem0MemoryComponent(LCChatMemoryComponent):
         mem0_memory = self.existing_memory or self.build_mem0()
 
         if not self.ingest_message or not self.user_id:
-            logger.warning("Missing 'ingest_message' or 'user_id'; cannot ingest data.")
+            logger.warning(
+                "Missing 'ingest_message' or 'user_id'; cannot ingest data.")
             return mem0_memory
 
         metadata = self.metadata or {}
@@ -106,7 +117,8 @@ class Mem0MemoryComponent(LCChatMemoryComponent):
         logger.info("Ingesting message for user_id: %s", self.user_id)
 
         try:
-            mem0_memory.add(self.ingest_message, user_id=self.user_id, metadata=metadata)
+            mem0_memory.add(self.ingest_message,
+                            user_id=self.user_id, metadata=metadata)
         except Exception:
             logger.exception("Failed to add message to Mem0 memory.")
             raise
@@ -124,7 +136,8 @@ class Mem0MemoryComponent(LCChatMemoryComponent):
         try:
             if search_query:
                 logger.info("Performing search with query.")
-                related_memories = mem0_memory.search(query=search_query, user_id=user_id)
+                related_memories = mem0_memory.search(
+                    query=search_query, user_id=user_id)
             else:
                 logger.info("Retrieving all memories for user_id: %s", user_id)
                 related_memories = mem0_memory.get_all(user_id=user_id)

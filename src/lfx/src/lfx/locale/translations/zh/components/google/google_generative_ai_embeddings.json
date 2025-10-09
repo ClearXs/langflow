@@ -1,0 +1,32 @@
+{
+  "description": "使用langchain-google-genai包中的GoogleGenerativeAIEmbeddings类连接到Google的生成式AI嵌入服务。",
+  "api_key": {
+    "display_name": "Google生成式AI API密钥"
+  },
+  "model_name": {
+    "display_name": "模型名称",
+    "info": "要使用的Google生成式AI嵌入模型的名称（例如：models/text-embedding-004）。"
+  },
+  "outputs": {
+    "embeddings": {
+      "display_name": "嵌入"
+    }
+  },
+  "errors": {
+    "api_key_required": "需要API密钥",
+    "min_dimension": "输出维度必须至少为1",
+    "max_dimension": "输出维度不能超过{max}。Google的嵌入模型仅支持最多{max}维。",
+    "embedding_failed": "嵌入内容时出错：{error}"
+  },
+  "logs": {
+    "building_embeddings": "正在使用模型构建Google生成式AI嵌入：{model}",
+    "embedding_documents": "正在嵌入{count}个文档 - 批次大小：{batch_size}，维度：{dimensionality}",
+    "processing_batch": "正在处理批次{batch_num}，包含{batch_size}个文档",
+    "batch_completed": "批次{batch_num}已完成 - 生成了{embeddings_count}个嵌入",
+    "documents_embedded": "所有文档嵌入成功 - 总计：{total}个嵌入",
+    "embedding_query": "正在嵌入查询 - 文本长度：{text_length}个字符，维度：{dimensionality}",
+    "query_embedded": "查询嵌入成功 - 维度：{dimension}",
+    "embeddings_built": "Google生成式AI嵌入实例创建成功",
+    "ready": "Google生成式AI嵌入已就绪，模型：{model}"
+  }
+}

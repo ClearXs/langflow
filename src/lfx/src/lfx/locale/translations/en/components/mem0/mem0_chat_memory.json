@@ -1,0 +1,44 @@
+{
+  "display_name": "Mem0 Chat Memory",
+  "description": "Retrieves and stores chat messages using Mem0 memory storage.",
+  "mem0_config": {
+    "display_name": "Mem0 Configuration",
+    "info": "Configuration dictionary for initializing Mem0 memory instance.\nExample:\n{\n    \"graph_store\": {\n        \"provider\": \"neo4j\",\n        \"config\": {\n            \"url\": \"neo4j+s://your-neo4j-url\",\n            \"username\": \"neo4j\",\n            \"password\": \"your-password\"\n        }\n    },\n    \"version\": \"v1.1\"\n}"
+  },
+  "ingest_message": {
+    "display_name": "Message to Ingest",
+    "info": "The message content to be ingested into Mem0 memory."
+  },
+  "existing_memory": {
+    "display_name": "Existing Memory Instance",
+    "info": "Optional existing Mem0 memory instance. If not provided, a new instance will be created."
+  },
+  "user_id": {
+    "display_name": "User ID",
+    "info": "Identifier for the user associated with the messages."
+  },
+  "search_query": {
+    "display_name": "Search Query",
+    "info": "Input text for searching related memories in Mem0."
+  },
+  "mem0_api_key": {
+    "display_name": "Mem0 API Key",
+    "info": "API key for Mem0 platform. Leave empty to use the local version."
+  },
+  "metadata": {
+    "display_name": "Metadata",
+    "info": "Additional metadata to associate with the ingested message."
+  },
+  "openai_api_key": {
+    "display_name": "OpenAI API Key",
+    "info": "API key for OpenAI. Required if using OpenAI Embeddings without a provided configuration."
+  },
+  "outputs": {
+    "memory": {
+      "display_name": "Mem0 Memory"
+    },
+    "search_results": {
+      "display_name": "Search Results"
+    }
+  }
+}

@@ -1,85 +1,53 @@
 {
-  "display_name": "Flow Tool",
-  "description": "Execute other flows as tools with parameter passing and result handling.",
-  "flow_id": {
-    "display_name": "Flow ID",
-    "info": "ID of the flow to execute from the flow registry."
+  "display_name": "Flow as Tool",
+  "description": "Construct a Tool from a function that runs the loaded Flow.",
+  "flow_name": {
+    "display_name": "Flow Name",
+    "info": "The name of the flow to run."
   },
-  "flow_file": {
-    "display_name": "Flow File",
-    "info": "JSON file containing the flow definition to execute."
+  "tool_name": {
+    "display_name": "Name",
+    "info": "The name of the tool."
   },
-  "input_parameters": {
-    "display_name": "Input Parameters",
-    "info": "JSON object containing parameters to pass to the target flow."
+  "tool_description": {
+    "display_name": "Description",
+    "info": "The description of the tool; defaults to the Flow's description."
   },
-  "input_data": {
-    "display_name": "Input Data",
-    "info": "Data object to pass to the target flow as input."
-  },
-  "execution_mode": {
-    "display_name": "Execution Mode",
-    "info": "How to execute the flow: sync (wait for completion), async (concurrent), or background (queued)."
-  },
-  "timeout": {
-    "display_name": "Timeout (seconds)",
-    "info": "Maximum time to wait for flow execution to complete."
-  },
-  "max_retries": {
-    "display_name": "Max Retries",
-    "info": "Maximum number of times to retry failed executions."
-  },
-  "pass_current_context": {
-    "display_name": "Pass Current Context",
-    "info": "Whether to pass the current flow's context (session, flow ID, etc.) to the target flow."
-  },
-  "include_execution_metadata": {
-    "display_name": "Include Execution Metadata",
-    "info": "Whether to include execution details (timing, retries, etc.) in the result."
-  },
-  "output_format": {
-    "display_name": "Output Format",
-    "info": "Format for the execution result: auto (detect), data (Data object), message (Message), or raw."
-  },
-  "cache_results": {
-    "display_name": "Cache Results",
-    "info": "Whether to cache execution results for repeated calls with same parameters."
-  },
-  "error_handling": {
-    "display_name": "Error Handling",
-    "info": "How to handle execution errors: raise (throw exception), return_error (return error data), or return_null."
+  "return_direct": {
+    "display_name": "Return Direct",
+    "info": "Return the result directly from the Tool."
   },
   "outputs": {
-    "result": {
-      "display_name": "Flow Result"
-    },
-    "execution_info": {
-      "display_name": "Execution Info"
-    },
-    "flow_metadata": {
-      "display_name": "Flow Metadata"
+    "tool": {
+      "display_name": "Tool"
     }
   },
-  "success": {
-    "flow_loaded_from_file": "Flow loaded successfully from file: {file}",
-    "flow_loaded_from_id": "Flow loaded successfully with ID: {flow_id}",
-    "flow_executed": "Flow executed successfully in {time:.2f} seconds"
-  },
-  "warnings": {
-    "both_flow_identifiers": "Both flow ID and flow file provided. Flow file will be used."
+  "status": {
+    "loading_flow": "Loading flow: {flow_name}",
+    "building_graph": "Building graph from flow data",
+    "building_tool": "Building tool from flow",
+    "tool_created": "{description}\nArguments:\n{args}"
   },
   "errors": {
-    "missing_flow_identifier": "Either flow_id or flow_file must be provided.",
-    "invalid_input_parameters": "Invalid JSON format in input parameters: {error}",
-    "invalid_timeout": "Timeout must be greater than 0.",
-    "flow_file_not_found": "Flow file not found: {file}",
-    "invalid_flow_file": "Invalid flow file format in {file}: {error}",
-    "flow_load_error": "Error loading flow: {error}",
-    "flow_registry_not_implemented": "Flow registry lookup is not implemented.",
-    "no_flow_source": "No flow source specified.",
-    "execution_timeout": "Flow execution timed out after {timeout} seconds.",
-    "execution_error": "Error executing flow: {error}",
-    "execution_info_error": "Error getting execution information: {error}",
-    "flow_metadata_error": "Error getting flow metadata: {error}"
+    "flow_name_required": "Flow name is required",
+    "flow_not_found": "Flow '{flow_name}' not found",
+    "tool_creation_failed": "Failed to create tool from flow: {error}"
+  },
+  "warnings": {
+    "run_id_failed": "Failed to set run_id for the flow graph"
+  },
+  "logs": {
+    "fetching_flow_names": "Fetching available flow names",
+    "flow_names_fetched": "Fetched {count} flow names",
+    "searching_flow": "Searching for flow: {flow_name}",
+    "flow_found": "Flow found: {flow_name}",
+    "flow_not_found": "Flow not found: {flow_name}",
+    "updating_flow_list": "Updating flow name list",
+    "loading_flow": "Loading flow: {flow_name}",
+    "building_graph": "Building graph from flow payload",
+    "run_id_set": "Run ID set successfully: {run_id}",
+    "getting_inputs": "Extracting flow inputs",
+    "creating_tool": "Creating tool '{name}' with {input_count} inputs",
+    "tool_created": "Tool '{name}' created successfully from flow '{flow_name}'"
   }
 }

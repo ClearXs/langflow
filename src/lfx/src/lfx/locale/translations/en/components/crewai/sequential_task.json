@@ -1,0 +1,49 @@
+{
+  "display_name": "Sequential Task",
+  "description": "Each task must have a description, an expected output and an agent responsible for execution.",
+  "task_description": {
+    "display_name": "Description",
+    "info": "Descriptive text detailing task's purpose and execution."
+  },
+  "expected_output": {
+    "display_name": "Expected Output",
+    "info": "Clear definition of expected task outcome."
+  },
+  "tools": {
+    "display_name": "Tools",
+    "info": "List of tools/resources limited for task execution. Uses the Agent tools by default."
+  },
+  "agent": {
+    "display_name": "Agent",
+    "info": "CrewAI Agent that will perform the task"
+  },
+  "task": {
+    "display_name": "Task",
+    "info": "CrewAI Task that will perform the task"
+  },
+  "async_execution": {
+    "display_name": "Async Execution",
+    "info": "Boolean flag indicating asynchronous task execution."
+  },
+  "outputs": {
+    "task": {
+      "display_name": "Task"
+    }
+  },
+  "status": {
+    "building": "Building sequential task...",
+    "task_created": "Sequential task created successfully - Total tasks: {total_count}"
+  },
+  "errors": {
+    "build_failed": "Failed to build sequential task: {error}"
+  },
+  "logs": {
+    "building_task": "Building sequential task",
+    "creating_task": "Creating task with agent",
+    "task_created": "Task created successfully",
+    "chaining_tasks": "Chaining with previous task(s)",
+    "chained_with_list": "Chained with {count} previous tasks",
+    "chained_with_single": "Chained with single previous task",
+    "single_task": "Creating single task without chaining"
+  }
+}

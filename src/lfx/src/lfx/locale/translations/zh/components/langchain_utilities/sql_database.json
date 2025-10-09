@@ -1,0 +1,13 @@
+{
+  "display_name": "SQL数据库",
+  "description": "SQL数据库连接和操作。",
+  "uri": {
+    "display_name": "URI",
+    "info": "数据库的URI(例如: sqlite:///path/to/db.db 或 postgresql://user:pass@host:port/db)。"
+  },
+  "outputs": {
+    "sql_database": {
+      "display_name": "SQL数据库"
+    }
+  }
+}

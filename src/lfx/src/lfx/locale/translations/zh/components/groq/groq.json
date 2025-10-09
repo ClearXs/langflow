@@ -1,0 +1,55 @@
+{
+  "description": "使用Groq生成文本。",
+  "api_key": {
+    "display_name": "Groq API密钥",
+    "info": "Groq API的API密钥。"
+  },
+  "base_url": {
+    "display_name": "Groq API基础URL",
+    "info": "API请求的基础URL路径，如果不使用代理或服务模拟器，请留空。"
+  },
+  "max_tokens": {
+    "display_name": "最大输出令牌数",
+    "info": "要生成的最大令牌数。"
+  },
+  "temperature": {
+    "display_name": "温度",
+    "info": "使用此温度运行推理。必须在闭区间[0.0, 1.0]内。"
+  },
+  "n": {
+    "display_name": "N",
+    "info": "为每个提示生成的聊天完成数。注意：如果生成重复项，API可能不会返回完整的n个完成。"
+  },
+  "model_name": {
+    "display_name": "模型",
+    "info": "要使用的模型名称。"
+  },
+  "tool_model_enabled": {
+    "display_name": "启用工具模型",
+    "info": "如果您想使用可以与工具一起工作的模型，请选择此项。如果选择是，则只显示这些模型。"
+  },
+  "errors": {
+    "langchain_not_installed": "未安装langchain_groq。请使用`pip install langchain_groq`安装。",
+    "package_not_installed": "未安装langchain-groq。请使用`pip install langchain-groq`安装。",
+    "config_update_failed": "获取模型名称时出错：{error}"
+  },
+  "logs": {
+    "fetching_models": "正在获取可用的Groq模型 - 工具启用：{tool_enabled}",
+    "requesting_models": "正在从以下地址请求模型：{url}",
+    "models_fetched": "成功获取{count}个模型",
+    "model_fetch_error": "获取模型名称时出错：{error}",
+    "filtering_tool_models": "正在过滤支持工具调用的模型",
+    "model_unsupported": "模型{model}在不支持列表中，跳过",
+    "tool_support_confirmed": "模型{model}支持工具调用",
+    "tool_support_not_found": "模型{model}不支持工具调用",
+    "tool_check_failed": "检查模型{model}的工具支持失败：{error}",
+    "tool_models_filtered": "过滤到{count}个支持工具的模型",
+    "updating_config": "正在更新字段的构建配置：{field}",
+    "fetching_available_models": "正在从API获取可用模型",
+    "model_fetch_fallback": "获取模型名称时出错：{error}。回退到默认列表。",
+    "config_updated": "配置已更新 - {model_count}个可用模型，默认：{default_model}",
+    "building_model": "正在构建Groq模型：{model}",
+    "model_parameters": "模型参数 - 最大令牌数：{max_tokens}，温度：{temperature}，N：{n}，流式传输：{streaming}",
+    "model_built": "Groq模型构建成功"
+  }
+}

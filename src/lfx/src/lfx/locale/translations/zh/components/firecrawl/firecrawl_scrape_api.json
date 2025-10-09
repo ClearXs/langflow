@@ -1,0 +1,42 @@
+{
+  "description": "使用Firecrawl API抓取URL并提取各种格式的内容。",
+  "api_key": {
+    "display_name": "Firecrawl API密钥",
+    "info": "使用Firecrawl API的API密钥。"
+  },
+  "url": {
+    "display_name": "URL",
+    "info": "要抓取的URL。"
+  },
+  "timeout": {
+    "display_name": "超时",
+    "info": "抓取请求的超时时间（毫秒）。"
+  },
+  "scrapeOptions": {
+    "display_name": "抓取选项",
+    "info": "页面如何抓取的配置（formats、onlyMainContent、includeTags、excludeTags、headers等）。"
+  },
+  "extractorOptions": {
+    "display_name": "提取器选项",
+    "info": "从抓取的内容中提取特定数据的选项（schema、prompt等）。"
+  },
+  "outputs": {
+    "data": {
+      "display_name": "抓取的数据"
+    }
+  },
+  "errors": {
+    "import_failed": "无法导入firecrawl集成包。请使用`pip install firecrawl-py`安装。",
+    "url_required": "需要URL",
+    "scrape_failed": "抓取URL '{url}'失败：{error}"
+  },
+  "logs": {
+    "firecrawl_imported": "Firecrawl包导入成功",
+    "starting_scrape": "开始抓取URL：{url}",
+    "extractor_options_added": "提取器选项已添加到参数",
+    "params_configured": "参数已配置 - 格式：{formats}，仅主要内容：{only_main}",
+    "app_initialized": "Firecrawl应用已使用API密钥初始化",
+    "executing_scrape": "正在执行抓取操作",
+    "scrape_completed": "抓取成功完成 - 内容长度：{length}个字符"
+  }
+}

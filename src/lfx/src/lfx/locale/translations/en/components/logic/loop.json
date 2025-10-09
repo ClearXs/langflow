@@ -1,92 +1,49 @@
 {
   "display_name": "Loop",
-  "description": "Execute iterative operations with support for various loop types, conditions, and parallel processing.",
-  "loop_type": {
-    "display_name": "Loop Type",
-    "info": "Type of loop to execute: for_each (iterate over data), while/until (conditional), range (numeric), or infinite."
-  },
-  "input_data": {
-    "display_name": "Input Data",
-    "info": "Data to iterate over or use as input for each loop iteration."
-  },
-  "loop_condition": {
-    "display_name": "Loop Condition",
-    "info": "JSON object defining loop conditions. Use 'condition' field with expressions like 'item > 0' or 'index < 10'."
-  },
-  "range_start": {
-    "display_name": "Range Start",
-    "info": "Starting value for range-type loops."
-  },
-  "range_end": {
-    "display_name": "Range End",
-    "info": "Ending value for range-type loops (exclusive)."
-  },
-  "range_step": {
-    "display_name": "Range Step",
-    "info": "Step size for range-type loops."
-  },
-  "max_iterations": {
-    "display_name": "Max Iterations",
-    "info": "Maximum number of iterations to prevent infinite loops."
-  },
-  "delay_between_iterations": {
-    "display_name": "Delay Between Iterations (seconds)",
-    "info": "Time to wait between each iteration."
-  },
-  "break_on_error": {
-    "display_name": "Break on Error",
-    "info": "Whether to stop the loop when an error occurs in processing an item."
-  },
-  "collect_results": {
-    "display_name": "Collect Results",
-    "info": "Whether to collect and return results from each iteration."
-  },
-  "output_mode": {
-    "display_name": "Output Mode",
-    "info": "How to format the loop results: all_results, last_result, aggregated, or streaming."
-  },
-  "include_index": {
-    "display_name": "Include Index",
-    "info": "Whether to include the iteration index in each result."
-  },
-  "parallel_execution": {
-    "display_name": "Parallel Execution",
-    "info": "Whether to process items in parallel batches for better performance."
-  },
-  "batch_size": {
-    "display_name": "Batch Size",
-    "info": "Number of items to process in each parallel batch."
+  "description": "Iterates over a list of Data objects, outputting one item at a time and aggregating results from loop inputs.",
+  "data": {
+    "display_name": "Inputs",
+    "info": "The initial list of Data objects or DataFrame to iterate over."
   },
   "outputs": {
-    "loop_results": {
-      "display_name": "Loop Results"
+    "item": {
+      "display_name": "Item"
     },
-    "loop_stats": {
-      "display_name": "Loop Statistics"
-    },
-    "current_item": {
-      "display_name": "Current Item"
+    "done": {
+      "display_name": "Done"
     }
   },
-  "success": {
-    "loop_completed": "Loop completed successfully. {iterations} iterations in {duration:.2f} seconds."
+  "status": {
+    "initialized": "Loop initialized with {count} items",
+    "processing_item": "Processing item {index} of {total}",
+    "completed": "Loop iteration completed",
+    "done": "Loop completed with {count} aggregated results"
   },
   "warnings": {
-    "condition_evaluation_error": "Error evaluating condition '{condition}': {error}",
-    "item_processing_error": "Error processing item at index {index}: {error}",
-    "max_iterations_reached": "Loop stopped after reaching maximum iterations limit ({max_iterations})"
+    "index_out_of_range": "Index {index} out of range, returning empty Data"
   },
   "errors": {
-    "invalid_range": "Range start must be less than range end.",
-    "invalid_step": "Range step must be greater than 0.",
-    "invalid_max_iterations": "Max iterations must be greater than 0.",
-    "invalid_delay": "Delay between iterations cannot be negative.",
-    "invalid_batch_size": "Batch size must be greater than 0.",
-    "invalid_loop_condition": "Invalid JSON format in loop condition: {error}",
-    "unsupported_loop_type": "Unsupported loop type: {type}",
-    "processing_error": "Error processing item at index {index}: {error}",
-    "loop_execution_error": "Error during loop execution: {error}",
-    "stats_error": "Error getting loop statistics: {error}",
-    "current_item_error": "Error getting current item: {error}"
+    "validation_failed": "Data validation failed: {error}",
+    "invalid_data_type": "The 'data' input must be a DataFrame, a list of Data objects, or a single Data object."
+  },
+  "logs": {
+    "already_initialized": "Loop already initialized, skipping initialization",
+    "initializing": "Initializing loop data",
+    "data_validated": "Data validated successfully - {count} items",
+    "initialized": "Loop initialized with {count} items",
+    "validating_data": "Validating data input - Type: {data_type}",
+    "converting_dataframe": "Converting DataFrame to list of Data objects",
+    "wrapping_single_data": "Wrapping single Data object in list",
+    "data_list_valid": "Data list is valid with {count} items",
+    "evaluating_stop": "Evaluating stop condition - Current index: {current_index}, Data length: {data_length}, Should stop: {should_stop}",
+    "loop_completed": "Loop iteration completed - stopping item output",
+    "outputting_item": "Outputting item {index} of {total}",
+    "index_incremented": "Index incremented to {new_index}",
+    "dependency_updated": "Loop dependency updated: {dependency_id}",
+    "triggering_done": "Triggering done output - loop completed",
+    "done_output": "Done output triggered with {count} aggregated items",
+    "loop_not_done": "Loop not done yet - stopping done output",
+    "loop_variables": "Retrieved loop variables - Data count: {data_count}, Current index: {current_index}",
+    "item_aggregated": "Item aggregated - Aggregated: {aggregated_count}, Total: {total_count}"
   }
 }

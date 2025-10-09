@@ -1,0 +1,40 @@
+{
+  "display_name": "MistralAI",
+  "description": "使用MistralAI大语言模型生成文本。",
+  "max_tokens": {
+    "display_name": "最大令牌数",
+    "info": "要生成的最大令牌数。设置为0表示无限制令牌。"
+  },
+  "model_name": {
+    "display_name": "模型名称"
+  },
+  "mistral_api_base": {
+    "display_name": "Mistral API基础URL",
+    "info": "Mistral API的基础URL。默认为https://api.mistral.ai/v1。您可以更改此设置以使用其他API，如JinaChat、LocalAI和Prem。"
+  },
+  "api_key": {
+    "display_name": "Mistral API密钥",
+    "info": "用于Mistral模型的API密钥。"
+  },
+  "temperature": {
+    "display_name": "温度"
+  },
+  "max_retries": {
+    "display_name": "最大重试次数"
+  },
+  "timeout": {
+    "display_name": "超时"
+  },
+  "max_concurrent_requests": {
+    "display_name": "最大并发请求数"
+  },
+  "top_p": {
+    "display_name": "Top P"
+  },
+  "random_seed": {
+    "display_name": "随机种子"
+  },
+  "safe_mode": {
+    "display_name": "安全模式"
+  }
+}

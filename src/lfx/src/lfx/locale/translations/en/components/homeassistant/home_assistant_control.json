@@ -1,0 +1,37 @@
+{
+  "description": "A very simple tool to control Home Assistant devices. Only action (turn_on, turn_off, toggle) and entity_id need to be provided.",
+  "ha_token": {
+    "display_name": "Home Assistant Token",
+    "info": "Home Assistant Long-Lived Access Token"
+  },
+  "base_url": {
+    "display_name": "Home Assistant URL",
+    "info": "e.g., http://192.168.0.10:8123"
+  },
+  "default_action": {
+    "display_name": "Default Action (Optional)",
+    "info": "One of turn_on, turn_off, toggle"
+  },
+  "default_entity_id": {
+    "display_name": "Default Entity ID (Optional)",
+    "info": "Default entity ID to control (e.g., switch.unknown_switch_3)"
+  },
+  "errors": {
+    "timeout": "Request timeout: {error}",
+    "connection_failed": "Failed to connect to Home Assistant at {base_url}: {error}",
+    "http_error": "HTTP error {status}: {error}",
+    "request_failed": "Failed to call service: {error}",
+    "invalid_entity_format": "Invalid entity_id format: {entity_id}. Expected format: domain.entity_name",
+    "unexpected_error": "An unexpected error occurred: {error}"
+  },
+  "logs": {
+    "running_with_defaults": "Running control with defaults - Action: {action}, Entity: {entity_id}",
+    "building_tool": "Building Home Assistant Control tool",
+    "tool_invoked": "Tool invoked by agent - Action: {action}, Entity: {entity_id}",
+    "extracting_domain": "Extracting domain from entity_id: {entity_id}",
+    "calling_service": "Calling Home Assistant service - URL: {url}, Domain: {domain}, Action: {action}",
+    "control_successful": "Successfully controlled {entity_id} with action {action}",
+    "returning_error_response": "Returning error response",
+    "formatting_success_response": "Formatting success response as JSON"
+  }
+}

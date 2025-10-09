@@ -1,0 +1,18 @@
+{
+  "display_name": "MariTalk",
+  "description": "使用MariTalk大语言模型生成文本。",
+  "max_tokens": {
+    "display_name": "最大令牌数",
+    "info": "要生成的最大令牌数。设置为0表示无限制令牌。"
+  },
+  "model_name": {
+    "display_name": "模型名称"
+  },
+  "api_key": {
+    "display_name": "MariTalk API密钥",
+    "info": "用于身份验证的MariTalk API密钥。"
+  },
+  "temperature": {
+    "display_name": "温度"
+  }
+}

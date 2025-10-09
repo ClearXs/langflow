@@ -4,6 +4,7 @@ from datetime import datetime, timezone
 from http import HTTPStatus
 from typing import Any
 
+import i18n
 import requests
 from langchain_core.tools import StructuredTool, Tool
 from pydantic import BaseModel, Field, create_model
@@ -16,112 +17,123 @@ from lfx.schema.table import EditMode
 
 
 class AstraDBCQLToolComponent(LCToolComponent):
-    display_name: str = "Astra DB CQL"
-    description: str = "Create a tool to get transactional data from DataStax Astra DB CQL Table"
+    display_name: str = i18n.t('components.datastax.astradb_cql.display_name')
+    description: str = i18n.t('components.datastax.astradb_cql.description')
     documentation: str = "https://docs.langflow.org/Components/components-tools#astra-db-cql-tool"
     icon: str = "AstraDB"
 
     inputs = [
-        StrInput(name="tool_name", display_name="Tool Name", info="The name of the tool.", required=True),
+        StrInput(
+            name="tool_name",
+            display_name=i18n.t(
+                'components.datastax.astradb_cql.tool_name.display_name'),
+            info=i18n.t('components.datastax.astradb_cql.tool_name.info'),
+            required=True
+        ),
         StrInput(
             name="tool_description",
-            display_name="Tool Description",
-            info="The tool description to be passed to the model.",
+            display_name=i18n.t(
+                'components.datastax.astradb_cql.tool_description.display_name'),
+            info=i18n.t(
+                'components.datastax.astradb_cql.tool_description.info'),
             required=True,
         ),
         StrInput(
             name="keyspace",
-            display_name="Keyspace",
+            display_name=i18n.t(
+                'components.datastax.astradb_cql.keyspace.display_name'),
             value="default_keyspace",
-            info="The keyspace name within Astra DB where the data is stored.",
+            info=i18n.t('components.datastax.astradb_cql.keyspace.info'),
             required=True,
             advanced=True,
         ),
         StrInput(
             name="table_name",
-            display_name="Table Name",
-            info="The name of the table within Astra DB where the data is stored.",
+            display_name=i18n.t(
+                'components.datastax.astradb_cql.table_name.display_name'),
+            info=i18n.t('components.datastax.astradb_cql.table_name.info'),
             required=True,
         ),
         SecretStrInput(
             name="token",
-            display_name="Astra DB Application Token",
-            info="Authentication token for accessing Astra DB.",
+            display_name=i18n.t(
+                'components.datastax.astradb_cql.token.display_name'),
+            info=i18n.t('components.datastax.astradb_cql.token.info'),
             value="ASTRA_DB_APPLICATION_TOKEN",
             required=True,
         ),
         StrInput(
             name="api_endpoint",
-            display_name="API Endpoint",
-            info="API endpoint URL for the Astra DB service.",
+            display_name=i18n.t(
+                'components.datastax.astradb_cql.api_endpoint.display_name'),
+            info=i18n.t('components.datastax.astradb_cql.api_endpoint.info'),
             value="ASTRA_DB_API_ENDPOINT",
             required=True,
         ),
         StrInput(
             name="projection_fields",
-            display_name="Projection fields",
-            info="Attributes to return separated by comma.",
+            display_name=i18n.t(
+                'components.datastax.astradb_cql.projection_fields.display_name'),
+            info=i18n.t(
+                'components.datastax.astradb_cql.projection_fields.info'),
             required=True,
             value="*",
             advanced=True,
         ),
         TableInput(
             name="tools_params",
-            display_name="Tools Parameters",
-            info="Define the structure for the tool parameters. Describe the parameters "
-            "in a way the LLM can understand how to use them. Add the parameters "
-            "respecting the table schema (Partition Keys, Clustering Keys and Indexed Fields).",
+            display_name=i18n.t(
+                'components.datastax.astradb_cql.tools_params.display_name'),
+            info=i18n.t('components.datastax.astradb_cql.tools_params.info'),
             required=False,
             table_schema=[
                 {
                     "name": "name",
-                    "display_name": "Name",
+                    "display_name": i18n.t('components.datastax.astradb_cql.tools_params.schema.name.display_name'),
                     "type": "str",
-                    "description": "Name of the field/parameter to be used by the model.",
+                    "description": i18n.t('components.datastax.astradb_cql.tools_params.schema.name.description'),
                     "default": "field",
                     "edit_mode": EditMode.INLINE,
                 },
                 {
                     "name": "field_name",
-                    "display_name": "Field Name",
+                    "display_name": i18n.t('components.datastax.astradb_cql.tools_params.schema.field_name.display_name'),
                     "type": "str",
-                    "description": "Specify the column name to be filtered on the table. "
-                    "Leave empty if the attribute name is the same as the name of the field.",
+                    "description": i18n.t('components.datastax.astradb_cql.tools_params.schema.field_name.description'),
                     "default": "",
                     "edit_mode": EditMode.INLINE,
                 },
                 {
                     "name": "description",
-                    "display_name": "Description",
+                    "display_name": i18n.t('components.datastax.astradb_cql.tools_params.schema.description.display_name'),
                     "type": "str",
-                    "description": "Describe the purpose of the parameter.",
+                    "description": i18n.t('components.datastax.astradb_cql.tools_params.schema.description.description'),
                     "default": "description of tool parameter",
                     "edit_mode": EditMode.POPOVER,
                 },
                 {
                     "name": "mandatory",
-                    "display_name": "Is Mandatory",
+                    "display_name": i18n.t('components.datastax.astradb_cql.tools_params.schema.mandatory.display_name'),
                     "type": "boolean",
                     "edit_mode": EditMode.INLINE,
-                    "description": ("Indicate if the field is mandatory."),
+                    "description": i18n.t('components.datastax.astradb_cql.tools_params.schema.mandatory.description'),
                     "options": ["True", "False"],
                     "default": "False",
                 },
                 {
                     "name": "is_timestamp",
-                    "display_name": "Is Timestamp",
+                    "display_name": i18n.t('components.datastax.astradb_cql.tools_params.schema.is_timestamp.display_name'),
                     "type": "boolean",
                     "edit_mode": EditMode.INLINE,
-                    "description": ("Indicate if the field is a timestamp."),
+                    "description": i18n.t('components.datastax.astradb_cql.tools_params.schema.is_timestamp.description'),
                     "options": ["True", "False"],
                     "default": "False",
                 },
                 {
                     "name": "operator",
-                    "display_name": "Operator",
+                    "display_name": i18n.t('components.datastax.astradb_cql.tools_params.schema.operator.display_name'),
                     "type": "str",
-                    "description": "Set the operator for the field. "
-                    "https://docs.datastax.com/en/astra-db-serverless/api-reference/documents.html#operators",
+                    "description": i18n.t('components.datastax.astradb_cql.tools_params.schema.operator.description'),
                     "default": "$eq",
                     "options": ["$gt", "$gte", "$lt", "$lte", "$eq", "$ne", "$in", "$nin", "$exists", "$all", "$size"],
                     "edit_mode": EditMode.INLINE,
@@ -131,31 +143,37 @@ class AstraDBCQLToolComponent(LCToolComponent):
         ),
         DictInput(
             name="partition_keys",
-            display_name="DEPRECATED: Partition Keys",
+            display_name=i18n.t(
+                'components.datastax.astradb_cql.partition_keys.display_name'),
             is_list=True,
-            info="Field name and description to the model",
+            info=i18n.t('components.datastax.astradb_cql.partition_keys.info'),
             required=False,
             advanced=True,
         ),
         DictInput(
             name="clustering_keys",
-            display_name="DEPRECATED: Clustering Keys",
+            display_name=i18n.t(
+                'components.datastax.astradb_cql.clustering_keys.display_name'),
             is_list=True,
-            info="Field name and description to the model",
+            info=i18n.t(
+                'components.datastax.astradb_cql.clustering_keys.info'),
             required=False,
             advanced=True,
         ),
         DictInput(
             name="static_filters",
-            display_name="Static Filters",
+            display_name=i18n.t(
+                'components.datastax.astradb_cql.static_filters.display_name'),
             is_list=True,
             advanced=True,
-            info="Field name and value. When filled, it will not be generated by the LLM.",
+            info=i18n.t('components.datastax.astradb_cql.static_filters.info'),
         ),
         IntInput(
             name="number_of_results",
-            display_name="Number of Results",
-            info="Number of results to return.",
+            display_name=i18n.t(
+                'components.datastax.astradb_cql.number_of_results.display_name'),
+            info=i18n.t(
+                'components.datastax.astradb_cql.number_of_results.info'),
             advanced=True,
             value=5,
         ),
@@ -173,6 +191,9 @@ class AstraDBCQLToolComponent(LCToolComponent):
         Raises:
             ValueError: If the timestamp cannot be parsed
         """
+        logger.debug(i18n.t('components.datastax.astradb_cql.logs.parsing_timestamp',
+                            timestamp=timestamp_str))
+
         # Common datetime formats to try
         formats = [
             "%Y-%m-%d",  # 2024-03-21
@@ -194,18 +215,30 @@ class AstraDBCQLToolComponent(LCToolComponent):
 
                 # Convert to UTC and format
                 utc_date = date_obj.astimezone(timezone.utc)
-                return utc_date.strftime("%Y-%m-%dT%H:%M:%S.000Z")
+                formatted = utc_date.strftime("%Y-%m-%dT%H:%M:%S.000Z")
+                logger.debug(i18n.t('components.datastax.astradb_cql.logs.timestamp_parsed',
+                                    formatted=formatted))
+                return formatted
             except ValueError:
                 continue
 
-        msg = f"Could not parse date: {timestamp_str}"
-        logger.error(msg)
-        raise ValueError(msg)
+        error_msg = i18n.t('components.datastax.astradb_cql.errors.timestamp_parse_failed',
+                           timestamp=timestamp_str)
+        logger.error(error_msg)
+        raise ValueError(error_msg)
 
     def astra_rest(self, args):
-        headers = {"Accept": "application/json", "X-Cassandra-Token": f"{self.token}"}
+        logger.info(i18n.t('components.datastax.astradb_cql.logs.making_request',
+                           table=self.table_name,
+                           keyspace=self.keyspace))
+
+        headers = {"Accept": "application/json",
+                   "X-Cassandra-Token": f"{self.token}"}
         astra_url = f"{self.api_endpoint}/api/rest/v2/keyspaces/{self.keyspace}/{self.table_name}/"
         where = {}
+
+        logger.debug(i18n.t('components.datastax.astradb_cql.logs.processing_params',
+                            count=len(self.tools_params)))
 
         for param in self.tools_params:
             field_name = param["field_name"] if param["field_name"] else param["name"]
@@ -213,8 +246,12 @@ class AstraDBCQLToolComponent(LCToolComponent):
 
             if field_name in self.static_filters:
                 field_value = self.static_filters[field_name]
+                logger.debug(i18n.t('components.datastax.astradb_cql.logs.using_static_filter',
+                                    field=field_name))
             elif param["name"] in args:
                 field_value = args[param["name"]]
+                logger.debug(i18n.t('components.datastax.astradb_cql.logs.using_arg_value',
+                                    param=param["name"]))
 
             if field_value is None:
                 continue
@@ -223,19 +260,22 @@ class AstraDBCQLToolComponent(LCToolComponent):
                 try:
                     field_value = self.parse_timestamp(field_value)
                 except ValueError as e:
-                    msg = f"Error parsing timestamp: {e} - Use the prompt to specify the date in the correct format"
-                    logger.error(msg)
-                    raise ValueError(msg) from e
+                    error_msg = i18n.t('components.datastax.astradb_cql.errors.timestamp_error',
+                                       error=str(e))
+                    logger.error(error_msg)
+                    raise ValueError(error_msg) from e
 
             if param["operator"] == "$exists":
-                where[field_name] = {**where.get(field_name, {}), param["operator"]: True}
+                where[field_name] = {
+                    **where.get(field_name, {}), param["operator"]: True}
             elif param["operator"] in ["$in", "$nin", "$all"]:
                 where[field_name] = {
                     **where.get(field_name, {}),
                     param["operator"]: field_value.split(",") if isinstance(field_value, str) else field_value,
                 }
             else:
-                where[field_name] = {**where.get(field_name, {}), param["operator"]: field_value}
+                where[field_name] = {
+                    **where.get(field_name, {}), param["operator"]: field_value}
 
         url = f"{astra_url}?page-size={self.number_of_results}"
         url += f"&where={json.dumps(where)}"
@@ -243,44 +283,60 @@ class AstraDBCQLToolComponent(LCToolComponent):
         if self.projection_fields != "*":
             url += f"&fields={urllib.parse.quote(self.projection_fields.replace(' ', ''))}"
 
+        logger.debug(i18n.t('components.datastax.astradb_cql.logs.request_url',
+                            url=url))
+
         res = requests.request("GET", url=url, headers=headers, timeout=10)
 
         if int(res.status_code) >= HTTPStatus.BAD_REQUEST:
-            msg = f"Error on Astra DB CQL Tool {self.tool_name} request: {res.text}"
-            logger.error(msg)
-            raise ValueError(msg)
+            error_msg = i18n.t('components.datastax.astradb_cql.errors.request_failed',
+                               tool_name=self.tool_name,
+                               response=res.text)
+            logger.error(error_msg)
+            raise ValueError(error_msg)
 
         try:
             res_data = res.json()
+            result_count = len(res_data["data"])
+            logger.info(i18n.t('components.datastax.astradb_cql.logs.request_successful',
+                               count=result_count))
             return res_data["data"]
         except ValueError:
+            logger.warning(i18n.t('components.datastax.astradb_cql.logs.no_json_response',
+                                  status_code=res.status_code))
             return res.status_code
 
     def create_args_schema(self) -> dict[str, BaseModel]:
+        logger.debug(
+            i18n.t('components.datastax.astradb_cql.logs.creating_args_schema'))
         args: dict[str, tuple[Any, Field]] = {}
 
         for param in self.tools_params:
             field_name = param["field_name"] if param["field_name"] else param["name"]
             if field_name not in self.static_filters:
                 if param["mandatory"]:
-                    args[param["name"]] = (str, Field(description=param["description"]))
+                    args[param["name"]] = (str, Field(
+                        description=param["description"]))
                 else:
-                    args[param["name"]] = (str | None, Field(description=param["description"], default=None))
+                    args[param["name"]] = (str | None, Field(
+                        description=param["description"], default=None))
 
         model = create_model("ToolInput", **args, __base__=BaseModel)
+        logger.debug(i18n.t('components.datastax.astradb_cql.logs.args_schema_created',
+                            field_count=len(args)))
         return {"ToolInput": model}
 
     def build_tool(self) -> Tool:
         """Builds a Astra DB CQL Table tool.
 
-        Args:
-            name (str, optional): The name of the tool.
-
         Returns:
-            Tool: The built Astra DB tool.
+            Tool: The built Astra DB CQL tool.
         """
+        logger.info(i18n.t('components.datastax.astradb_cql.logs.building_tool',
+                           tool_name=self.tool_name))
+
         schema_dict = self.create_args_schema()
-        return StructuredTool.from_function(
+        tool = StructuredTool.from_function(
             name=self.tool_name,
             args_schema=schema_dict["ToolInput"],
             description=self.tool_description,
@@ -288,7 +344,13 @@ class AstraDBCQLToolComponent(LCToolComponent):
             return_direct=False,
         )
 
+        logger.info(i18n.t('components.datastax.astradb_cql.logs.tool_built',
+                           tool_name=self.tool_name))
+        return tool
+
     def projection_args(self, input_str: str) -> dict:
+        logger.debug(i18n.t('components.datastax.astradb_cql.logs.parsing_projection',
+                            input_str=input_str))
         elements = input_str.split(",")
         result = {}
 
@@ -298,15 +360,24 @@ class AstraDBCQLToolComponent(LCToolComponent):
             else:
                 result[element] = True
 
+        logger.debug(i18n.t('components.datastax.astradb_cql.logs.projection_parsed',
+                            count=len(result)))
         return result
 
     def run_model(self, **args) -> Data | list[Data]:
+        logger.info(i18n.t('components.datastax.astradb_cql.logs.running_tool',
+                           tool_name=self.tool_name))
+
         results = self.astra_rest(args)
         data: list[Data] = []
 
         if isinstance(results, list):
             data = [Data(data=doc) for doc in results]
+            logger.info(i18n.t('components.datastax.astradb_cql.logs.tool_completed',
+                               count=len(data)))
         else:
+            logger.warning(
+                i18n.t('components.datastax.astradb_cql.logs.no_results'))
             self.status = results
             return []
 

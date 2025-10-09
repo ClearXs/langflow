@@ -1,0 +1,64 @@
+{
+  "description": "使用AI引导的提示和可选模式从URL中提取结构化数据。",
+  "api_key": {
+    "display_name": "Firecrawl API密钥",
+    "info": "使用Firecrawl API的API密钥。"
+  },
+  "urls": {
+    "display_name": "URL列表",
+    "info": "要从中提取数据的URL列表（用逗号或换行符分隔）。"
+  },
+  "prompt": {
+    "display_name": "提示",
+    "info": "用于引导提取过程的提示。描述您想从页面中提取什么信息。"
+  },
+  "schema": {
+    "display_name": "模式",
+    "info": "可选模式，用于定义提取数据的结构。必须是具有'type'字段的有效JSON模式。"
+  },
+  "enable_web_search": {
+    "display_name": "启用网络搜索",
+    "info": "当为true时，提取将使用网络搜索来查找提供的URL之外的其他数据。"
+  },
+  "ignore_sitemap": {
+    "display_name": "忽略站点地图",
+    "info": "当为true时，网站扫描期间将忽略sitemap.xml文件。"
+  },
+  "include_subdomains": {
+    "display_name": "包含子域",
+    "info": "当为true时，也将扫描和提取提供的URL的子域。"
+  },
+  "show_sources": {
+    "display_name": "显示来源",
+    "info": "当为true时，响应中将包含用于提取数据的来源。"
+  },
+  "outputs": {
+    "data": {
+      "display_name": "提取的数据"
+    }
+  },
+  "errors": {
+    "import_failed": "无法导入firecrawl集成包。请使用`pip install firecrawl-py`安装。",
+    "api_key_required": "需要API密钥",
+    "urls_required": "需要URL",
+    "no_valid_urls": "未提供有效的URL",
+    "prompt_required": "需要提示",
+    "extraction_failed": "提取过程中出错：{error}"
+  },
+  "logs": {
+    "firecrawl_imported": "Firecrawl包导入成功",
+    "parsing_urls": "正在解析输入的URL",
+    "urls_parsed": "已解析{count}个有效URL",
+    "prompt_received": "已接收提示 - 长度：{length}个字符",
+    "enhanced_prompt": "{prompt}。请以全面、结构化的格式提取所有实例。",
+    "prompt_enhanced": "提示已增强以进行全面提取",
+    "params_configured": "参数已配置 - 网络搜索：{web_search}，超时：{timeout}秒",
+    "schema_added_dict": "模式已添加到参数（字典格式）",
+    "schema_added_object": "模式已添加到参数（对象格式）",
+    "schema_invalid": "提供的模式没有有效结构，跳过",
+    "schema_error": "无效的模式：{error}",
+    "starting_extraction": "开始从{count}个URL提取",
+    "app_initialized": "Firecrawl应用已使用API密钥初始化",
+    "extraction_completed": "提取成功完成 - 已提取{items}项"
+  }
+}

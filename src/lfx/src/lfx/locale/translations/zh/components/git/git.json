@@ -1,0 +1,65 @@
+{
+  "description": "从本地或远程Git仓库加载和过滤文档。使用本地仓库路径或从远程URL克隆。",
+  "repo_source": {
+    "display_name": "仓库源",
+    "info": "选择使用本地仓库路径还是从远程URL克隆。",
+    "options": {
+      "local": "本地",
+      "remote": "远程"
+    }
+  },
+  "repo_path": {
+    "display_name": "本地仓库路径",
+    "info": "现有Git仓库的本地路径（选择'本地'时使用）。"
+  },
+  "clone_url": {
+    "display_name": "克隆URL",
+    "info": "要克隆的Git仓库的URL（选择'远程'时使用）。"
+  },
+  "branch": {
+    "display_name": "分支",
+    "info": "要从中加载文件的分支。默认为'main'。"
+  },
+  "file_filter": {
+    "display_name": "文件过滤器",
+    "info": "用于过滤文件的模式。例如：\n仅包含.py文件：'*.py'\n排除.py文件：'!*.py'\n多个模式可以用逗号分隔。"
+  },
+  "content_filter": {
+    "display_name": "内容过滤器",
+    "info": "基于文件内容过滤的正则表达式模式。"
+  },
+  "outputs": {
+    "data": {
+      "display_name": "文档"
+    }
+  },
+  "errors": {
+    "gitloader_creation_failed": "创建Git加载器失败：{error}",
+    "loading_failed": "加载文档失败：{error}"
+  },
+  "logs": {
+    "binary_file_detected": "检测到二进制文件：{path}",
+    "binary_check_failed": "{path}的二进制检查失败：{error}",
+    "file_excluded": "文件被模式'{pattern}'排除：{path}",
+    "file_included": "文件已包含：{path}",
+    "content_check_skipped_binary": "内容检查已跳过（二进制文件）：{path}",
+    "invalid_regex": "无效的正则表达式模式'{pattern}'：{error}",
+    "content_matched": "内容匹配：{path}",
+    "content_check_failed": "{path}的内容检查失败：{error}",
+    "building_filter": "正在构建组合过滤器 - 文件模式：{file_patterns}，内容模式：{content_pattern}",
+    "file_not_exists": "文件不存在：{path}",
+    "filter_error": "{path}的过滤错误：{error}",
+    "temp_dir_created": "临时目录已创建：{path}",
+    "temp_dir_removed": "临时目录已删除：{path}",
+    "temp_dir_remove_failed": "删除临时目录{path}失败：{error}",
+    "config_updated_local": "已更新本地仓库的配置",
+    "config_updated_remote": "已更新远程仓库的配置",
+    "building_gitloader": "正在构建Git加载器",
+    "using_local_repo": "使用本地仓库：{path}",
+    "using_remote_repo": "使用远程仓库：{url}",
+    "using_branch": "使用分支：{branch}",
+    "gitloader_created": "Git加载器创建成功",
+    "loading_documents": "正在从Git仓库加载文档",
+    "documents_loaded": "成功加载{count}个文档"
+  }
+}

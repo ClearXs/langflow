@@ -1,0 +1,29 @@
+{
+  "display_name": "LM Studio",
+  "description": "使用LM Studio本地大语言模型生成文本。",
+  "max_tokens": {
+    "display_name": "最大令牌数",
+    "info": "要生成的最大令牌数。设置为0表示无限制令牌。"
+  },
+  "model_kwargs": {
+    "display_name": "模型参数"
+  },
+  "model_name": {
+    "display_name": "模型名称"
+  },
+  "base_url": {
+    "display_name": "基础URL",
+    "info": "LM Studio API的端点。如果未指定，默认为'http://localhost:1234/v1'。"
+  },
+  "api_key": {
+    "display_name": "LM Studio API密钥",
+    "info": "用于LM Studio的API密钥。"
+  },
+  "temperature": {
+    "display_name": "温度"
+  },
+  "seed": {
+    "display_name": "种子",
+    "info": "种子控制作业的可重复性。"
+  }
+}

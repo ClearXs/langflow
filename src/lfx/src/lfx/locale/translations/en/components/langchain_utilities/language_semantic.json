@@ -1,0 +1,37 @@
+{
+  "display_name": "Semantic Text Splitter",
+  "description": "Split text into semantically meaningful chunks using semantic similarity.",
+  "data_inputs": {
+    "display_name": "Data Inputs",
+    "info": "List of Data objects containing text and metadata to split."
+  },
+  "embeddings": {
+    "display_name": "Embeddings",
+    "info": "Embeddings model to use for semantic similarity. Required."
+  },
+  "breakpoint_threshold_type": {
+    "display_name": "Breakpoint Threshold Type",
+    "info": "Method to determine breakpoints. Options: 'percentile', 'standard_deviation', 'interquartile'. Defaults to 'percentile'."
+  },
+  "breakpoint_threshold_amount": {
+    "display_name": "Breakpoint Threshold Amount",
+    "info": "Numerical amount for the breakpoint threshold."
+  },
+  "number_of_chunks": {
+    "display_name": "Number of Chunks",
+    "info": "Number of chunks to split the text into."
+  },
+  "sentence_split_regex": {
+    "display_name": "Sentence Split Regex",
+    "info": "Regular expression to split sentences. Optional."
+  },
+  "buffer_size": {
+    "display_name": "Buffer Size",
+    "info": "Size of the buffer."
+  },
+  "outputs": {
+    "chunks": {
+      "display_name": "Chunks"
+    }
+  }
+}

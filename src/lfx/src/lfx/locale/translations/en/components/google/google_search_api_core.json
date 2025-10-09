@@ -1,0 +1,36 @@
+{
+  "description": "Call Google Search API and return results as a DataFrame.",
+  "google_api_key": {
+    "display_name": "Google API Key"
+  },
+  "google_cse_id": {
+    "display_name": "Google CSE ID"
+  },
+  "input_value": {
+    "display_name": "Input"
+  },
+  "k": {
+    "display_name": "Number of results"
+  },
+  "outputs": {
+    "results": {
+      "display_name": "Results"
+    }
+  },
+  "errors": {
+    "invalid_api_key": "Invalid Google API Key",
+    "invalid_cse_id": "Invalid Google CSE ID",
+    "invalid_configuration": "Invalid configuration: {error}",
+    "connection_error": "Connection error: {error}",
+    "search_error": "Error occurred while searching: {error}",
+    "unexpected_error": "Unexpected error: {error}"
+  },
+  "logs": {
+    "searching": "Searching Google with query: {query}",
+    "creating_wrapper": "Creating Google Search API wrapper with k={k}",
+    "executing_search": "Executing Google search",
+    "search_completed": "Search completed successfully - {count} result(s) found",
+    "status_success": "Found {count} search result(s)",
+    "building": "Building Google Search API component"
+  }
+}

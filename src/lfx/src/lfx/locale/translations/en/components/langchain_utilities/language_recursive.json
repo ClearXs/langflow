@@ -1,0 +1,19 @@
+{
+  "display_name": "Language Recursive Text Splitter",
+  "description": "Split text into chunks of a specified length based on language.",
+  "chunk_size": {
+    "display_name": "Chunk Size",
+    "info": "The maximum length of each chunk."
+  },
+  "chunk_overlap": {
+    "display_name": "Chunk Overlap",
+    "info": "The amount of overlap between chunks."
+  },
+  "data_input": {
+    "display_name": "Input",
+    "info": "The texts to split."
+  },
+  "code_language": {
+    "display_name": "Code Language"
+  }
+}

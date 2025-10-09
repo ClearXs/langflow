@@ -1,11 +1,14 @@
+import i18n
 from lfx.base.chains.model import LCChainComponent
 from lfx.inputs.inputs import HandleInput, MultilineInput
 from lfx.schema.message import Message
 
 
 class ConversationChainComponent(LCChainComponent):
-    display_name = "ConversationChain"
-    description = "Chain to have a conversation and load context from memory."
+    display_name = i18n.t(
+        'components.langchain_utilities.conversation.display_name')
+    description = i18n.t(
+        'components.langchain_utilities.conversation.description')
     name = "ConversationChain"
     legacy: bool = True
     icon = "LangChain"
@@ -13,19 +16,23 @@ class ConversationChainComponent(LCChainComponent):
     inputs = [
         MultilineInput(
             name="input_value",
-            display_name="Input",
-            info="The input value to pass to the chain.",
+            display_name=i18n.t(
+                'components.langchain_utilities.conversation.input_value.display_name'),
+            info=i18n.t(
+                'components.langchain_utilities.conversation.input_value.info'),
             required=True,
         ),
         HandleInput(
             name="llm",
-            display_name="Language Model",
+            display_name=i18n.t(
+                'components.langchain_utilities.conversation.llm.display_name'),
             input_types=["LanguageModel"],
             required=True,
         ),
         HandleInput(
             name="memory",
-            display_name="Memory",
+            display_name=i18n.t(
+                'components.langchain_utilities.conversation.memory.display_name'),
             input_types=["BaseChatMemory"],
         ),
     ]

@@ -1,0 +1,65 @@
+{
+  "display_name": "Composio Tools",
+  "description": "Use Composio toolset to run actions with your agent",
+  "entity_id": {
+    "display_name": "Entity ID"
+  },
+  "api_key": {
+    "display_name": "Composio API Key",
+    "info": "Refer to https://docs.composio.dev/faq/api_key/api_key"
+  },
+  "tool_name": {
+    "display_name": "Tool Name",
+    "placeholder": "Select a tool...",
+    "info": "The name of the tool to use"
+  },
+  "actions": {
+    "display_name": "Actions",
+    "placeholder": "Select action",
+    "helper_text": "Please connect before selecting actions.",
+    "info": "The actions to use"
+  },
+  "outputs": {
+    "tools": {
+      "display_name": "Tools"
+    }
+  },
+  "status": {
+    "tools_built": "Successfully built {count} Composio tools"
+  },
+  "warnings": {
+    "no_tool_name": "No tool name available for validate_tool",
+    "no_tool_name_connection": "No tool name available for connection check",
+    "invalid_redirect_url": "Invalid redirect URL for toolkit: {toolkit}",
+    "no_toolkits": "No toolkits identified from selected actions"
+  },
+  "errors": {
+    "get_actions_failed": "Error getting actions for {tool}: {error}",
+    "oauth_creation_failed": "Error creating OAuth connection: {error}",
+    "connection_check_failed": "Error checking connection status: {error}",
+    "build_tools_failed": "Failed to build Composio tools: {error}",
+    "api_key_required": "Composio API Key is required",
+    "wrapper_build_failed": "Error building Composio wrapper: {error}",
+    "invalid_api_key": "Please provide a valid Composio API Key in the component settings"
+  },
+  "logs": {
+    "validating_tool": "Validating tool: {tool_name}",
+    "tool_validated": "Tool validated at index: {index}",
+    "getting_actions": "Getting actions for toolkit: {toolkit}",
+    "actions_retrieved": "Retrieved {count} actions for toolkit: {toolkit}",
+    "actions_config_updated": "Actions configuration updated with {count} options",
+    "updating_config": "Updating build config for field: {field_name}",
+    "clearing_config": "Clearing configuration due to empty API key",
+    "building_tool_list": "Building available tools list",
+    "tool_list_built": "Tool list built with {count} tools",
+    "checking_connection": "Checking connection for toolkit: {toolkit}",
+    "active_connection_found": "Active connection found for toolkit: {toolkit}",
+    "no_active_connection": "No active connection found for toolkit: {toolkit}, creating OAuth connection",
+    "oauth_link_created": "OAuth authorization link created for toolkit: {toolkit}",
+    "building_tools": "Building Composio tools from selected actions",
+    "actions_selected": "{count} actions selected for tool building",
+    "toolkits_identified": "Identified {count} toolkits: {toolkits}",
+    "building_wrapper": "Building Composio wrapper",
+    "wrapper_built": "Composio wrapper built successfully"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "display_name": "LLM Math Chain",
+  "description": "Chain that interprets a prompt and executes python code to do math.",
+  "input_value": {
+    "display_name": "Input",
+    "info": "The input value to pass to the chain."
+  },
+  "llm": {
+    "display_name": "Language Model"
+  },
+  "outputs": {
+    "text": {
+      "display_name": "Message"
+    }
+  }
+}

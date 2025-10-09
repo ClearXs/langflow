@@ -1,0 +1,50 @@
+{
+  "display_name": "Astra DB",
+  "description": "在Astra DB中摄取和搜索文档",
+  "new_database": {
+    "description": "请等待几分钟以完成创建。",
+    "display_name": "创建新数据库",
+    "name": {
+      "display_name": "名称",
+      "info": "在Astra DB中创建的新数据库名称。"
+    },
+    "cloud_provider": {
+      "display_name": "云提供商",
+      "info": "新数据库的云提供商。"
+    },
+    "region": {
+      "display_name": "区域",
+      "info": "新数据库的区域。"
+    }
+  },
+  "new_collection": {
+    "description": "请等待几秒钟以完成创建。",
+    "display_name": "创建新集合",
+    "name": {
+      "display_name": "名称",
+      "info": "在Astra DB中创建的新集合名称。"
+    },
+    "provider": {
+      "display_name": "嵌入生成方法",
+      "info": "用于生成嵌入的提供商。",
+      "helper_text": "要创建具有更多嵌入提供商选项的集合，请访问<a class=\"underline\" href=\"https://astra.datastax.com/\" target=\"_blank\" rel=\"noopener noreferrer\">Astra DB中的数据库</a>"
+    },
+    "model": {
+      "display_name": "嵌入模型",
+      "info": "用于生成嵌入的模型。"
+    },
+    "dimension": {
+      "display_name": "维度",
+      "info": "要生成的嵌入维度。"
+    }
+  },
+  "search_method": {
+    "display_name": "搜索方法",
+    "info": "确定内容匹配方式：向量查找语义相似性，混合搜索（推荐）结合两种方法并使用重排序器。"
+  },
+  "errors": {
+    "database_name_required": "创建新数据库需要数据库名称。",
+    "collection_name_required": "创建新集合需要集合名称。",
+    "invalid_input_type": "向量存储输入必须是Data对象。"
+  }
+}

@@ -1,0 +1,48 @@
+{
+  "description": "即时抓取任何网站，无需编写CSS选择器代码即可在几秒钟内获得一致的结构化数据",
+  "api_key": {
+    "display_name": "JigsawStack API密钥",
+    "info": "用于身份验证的JigsawStack API密钥"
+  },
+  "url": {
+    "display_name": "URL",
+    "info": "要抓取的页面URL。url或html二选一，但不能同时使用。"
+  },
+  "html": {
+    "display_name": "HTML",
+    "info": "要抓取的HTML内容。url或html二选一，但不能同时使用。"
+  },
+  "element_prompts": {
+    "display_name": "元素提示",
+    "info": "要抓取的页面项目（最多5个）。例如：'价格'、'标题'"
+  },
+  "root_element_selector": {
+    "display_name": "根元素选择器",
+    "info": "CSS选择器，将抓取范围限制在特定元素及其子元素"
+  },
+  "outputs": {
+    "scrape_results": {
+      "display_name": "AI抓取结果"
+    }
+  },
+  "errors": {
+    "import_error": "未找到JigsawStack包。请使用以下命令安装：pip install jigsawstack>=0.2.7",
+    "url_or_html_required": "必须提供'url'或'html'之一用于抓取",
+    "max_elements_exceeded": "最多允许{max}个元素提示",
+    "empty_element_prompts": "元素提示不能为空",
+    "api_request_failed": "JigsawStack API请求失败",
+    "jigsawstack_error": "JigsawStack错误：{error}",
+    "unexpected_error": "发生意外错误：{error}"
+  },
+  "logs": {
+    "starting_scrape": "正在开始AI抓取过程",
+    "creating_client": "正在创建JigsawStack客户端",
+    "using_url": "正在使用URL进行抓取：{url}",
+    "using_html": "正在使用HTML内容进行抓取（长度：{length}字符）",
+    "processing_element_prompts": "正在处理元素提示",
+    "element_prompts_parsed": "已解析{count}个元素提示：{prompts}",
+    "using_root_selector": "正在使用根元素选择器：{selector}",
+    "calling_api": "正在调用JigsawStack AI抓取API",
+    "scrape_complete": "AI抓取过程已完成。"
+  }
+}

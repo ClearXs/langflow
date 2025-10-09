@@ -1,3 +1,4 @@
+import i18n
 from langchain.chains import LLMMathChain
 
 from lfx.base.chains.model import LCChainComponent
@@ -7,8 +8,9 @@ from lfx.template.field.base import Output
 
 
 class LLMMathChainComponent(LCChainComponent):
-    display_name = "LLMMathChain"
-    description = "Chain that interprets a prompt and executes python code to do math."
+    display_name = i18n.t(
+        'components.langchain_utilities.llm_math.display_name')
+    description = i18n.t('components.langchain_utilities.llm_math.description')
     documentation = "https://python.langchain.com/docs/modules/chains/additional/llm_math"
     name = "LLMMathChain"
     legacy: bool = True
@@ -16,19 +18,29 @@ class LLMMathChainComponent(LCChainComponent):
     inputs = [
         MultilineInput(
             name="input_value",
-            display_name="Input",
-            info="The input value to pass to the chain.",
+            display_name=i18n.t(
+                'components.langchain_utilities.llm_math.input_value.display_name'),
+            info=i18n.t(
+                'components.langchain_utilities.llm_math.input_value.info'),
             required=True,
         ),
         HandleInput(
             name="llm",
-            display_name="Language Model",
+            display_name=i18n.t(
+                'components.langchain_utilities.llm_math.llm.display_name'),
             input_types=["LanguageModel"],
             required=True,
         ),
     ]
 
-    outputs = [Output(display_name="Message", name="text", method="invoke_chain")]
+    outputs = [
+        Output(
+            display_name=i18n.t(
+                'components.langchain_utilities.llm_math.outputs.text.display_name'),
+            name="text",
+            method="invoke_chain"
+        )
+    ]
 
     def invoke_chain(self) -> Message:
         chain = LLMMathChain.from_llm(llm=self.llm)

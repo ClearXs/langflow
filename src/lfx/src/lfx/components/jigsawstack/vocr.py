@@ -1,12 +1,12 @@
+import i18n
 from lfx.custom.custom_component.component import Component
 from lfx.io import IntInput, MessageTextInput, Output, SecretStrInput, StrInput
 from lfx.schema.data import Data
 
 
 class JigsawStackVOCRComponent(Component):
-    display_name = "VOCR"
-    description = "Extract data from any document type in a consistent structure with fine-tuned \
-        vLLMs for the highest accuracy"
+    display_name = i18n.t('components.jigsawstack.vocr.display_name')
+    description = i18n.t('components.jigsawstack.vocr.description')
     documentation = "https://jigsawstack.com/docs/api-reference/ai/vocr"
     icon = "JigsawStack"
     name = "JigsawStackVOCR"
@@ -14,48 +14,58 @@ class JigsawStackVOCRComponent(Component):
     inputs = [
         SecretStrInput(
             name="api_key",
-            display_name="JigsawStack API Key",
-            info="Your JigsawStack API key for authentication",
+            display_name=i18n.t(
+                'components.jigsawstack.vocr.api_key.display_name'),
+            info=i18n.t('components.jigsawstack.vocr.api_key.info'),
             required=True,
         ),
         MessageTextInput(
             name="prompts",
-            display_name="Prompts",
-            info="The prompts used to describe the image. Default prompt is Describe the image in detail. \
-                You can pass a list of comma-separated prompts to extract different information from the image.",
+            display_name=i18n.t(
+                'components.jigsawstack.vocr.prompts.display_name'),
+            info=i18n.t('components.jigsawstack.vocr.prompts.info'),
             required=False,
             tool_mode=True,
         ),
         StrInput(
             name="url",
-            display_name="URL",
-            info="The image or document url. Not required if file_store_key is specified.",
+            display_name=i18n.t(
+                'components.jigsawstack.vocr.url.display_name'),
+            info=i18n.t('components.jigsawstack.vocr.url.info'),
             required=False,
             tool_mode=True,
         ),
         StrInput(
             name="file_store_key",
-            display_name="File Store Key",
-            info="The key used to store the image on Jigsawstack File Storage. Not required if url is specified.",
+            display_name=i18n.t(
+                'components.jigsawstack.vocr.file_store_key.display_name'),
+            info=i18n.t('components.jigsawstack.vocr.file_store_key.info'),
             required=False,
             tool_mode=True,
         ),
         IntInput(
             name="page_range_start",
-            display_name="Page Range",
-            info="Page range start limit for the document. If not specified, all pages will be processed.",
+            display_name=i18n.t(
+                'components.jigsawstack.vocr.page_range_start.display_name'),
+            info=i18n.t('components.jigsawstack.vocr.page_range_start.info'),
             required=False,
         ),
         IntInput(
             name="page_range_end",
-            display_name="Page Range End",
-            info="Page range end limit for the document. If not specified, all pages will be processed.",
+            display_name=i18n.t(
+                'components.jigsawstack.vocr.page_range_end.display_name'),
+            info=i18n.t('components.jigsawstack.vocr.page_range_end.info'),
             required=False,
         ),
     ]
 
     outputs = [
-        Output(display_name="VOCR results", name="vocr_results", method="vocr"),
+        Output(
+            display_name=i18n.t(
+                'components.jigsawstack.vocr.outputs.vocr_results.display_name'),
+            name="vocr_results",
+            method="vocr"
+        ),
     ]
 
     def vocr(self) -> Data:
@@ -78,7 +88,8 @@ class JigsawStackVOCRComponent(Component):
                 elif isinstance(self.prompts, str):
                     if "," in self.prompts:
                         # Split by comma and strip whitespace
-                        params["prompt"] = [p.strip() for p in self.prompts.split(",")]
+                        params["prompt"] = [p.strip()
+                                            for p in self.prompts.split(",")]
                     else:
                         params["prompt"] = [self.prompts.strip()]
                 else:
@@ -90,7 +101,8 @@ class JigsawStackVOCRComponent(Component):
                 params["file_store_key"] = self.file_store_key
 
             if self.page_range_start and self.page_range_end:
-                params["page_range"] = [self.page_range_start, self.page_range_end]
+                params["page_range"] = [
+                    self.page_range_start, self.page_range_end]
 
             # Call VOCR
             response = client.vision.vocr(params)

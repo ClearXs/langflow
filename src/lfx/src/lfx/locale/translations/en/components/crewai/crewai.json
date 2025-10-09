@@ -1,0 +1,62 @@
+{
+  "display_name": "CrewAI Agent",
+  "description": "Represents an agent of CrewAI. Create AI agents with specific roles, goals, and capabilities.",
+  "role": {
+    "display_name": "Role",
+    "info": "The role of the agent (e.g., 'Researcher', 'Writer', 'Analyst')"
+  },
+  "goal": {
+    "display_name": "Goal",
+    "info": "The objective of the agent - what it aims to accomplish"
+  },
+  "backstory": {
+    "display_name": "Backstory",
+    "info": "The backstory of the agent - context about its expertise and background"
+  },
+  "tools": {
+    "display_name": "Tools",
+    "info": "Tools at agent's disposal to accomplish tasks"
+  },
+  "llm": {
+    "display_name": "Language Model",
+    "info": "Language model that will power the agent's reasoning and responses"
+  },
+  "memory": {
+    "display_name": "Memory",
+    "info": "Whether the agent should have memory to remember previous interactions"
+  },
+  "verbose": {
+    "display_name": "Verbose"
+  },
+  "allow_delegation": {
+    "display_name": "Allow Delegation",
+    "info": "Whether the agent is allowed to delegate tasks to other agents"
+  },
+  "allow_code_execution": {
+    "display_name": "Allow Code Execution",
+    "info": "Whether the agent is allowed to execute code during task execution"
+  },
+  "kwargs": {
+    "display_name": "Additional Arguments",
+    "info": "Additional keyword arguments for agent configuration"
+  },
+  "outputs": {
+    "agent": {
+      "display_name": "Agent"
+    }
+  },
+  "status": {
+    "creating_agent": "Creating CrewAI agent...",
+    "agent_created": "CrewAI agent created successfully - Role: {role}"
+  },
+  "errors": {
+    "import_failed": "CrewAI is not installed. Please install it with `uv pip install crewai`.",
+    "creation_failed": "Failed to create CrewAI agent: {error}"
+  },
+  "logs": {
+    "imports_successful": "CrewAI dependencies imported successfully",
+    "creating_agent": "Creating CrewAI agent with role: {role}",
+    "converting_llm": "Converting language model for CrewAI",
+    "converting_tools": "Converting {count} tools for CrewAI agent"
+  }
+}

@@ -1,0 +1,133 @@
+{
+  "display_name": "Astra DB工具",
+  "description": "在DataStax Astra DB集合上运行混合向量和元数据搜索的工具",
+  "tool_name": {
+    "display_name": "工具名称",
+    "info": "要传递给LLM的工具名称。"
+  },
+  "tool_description": {
+    "display_name": "工具描述",
+    "info": "向LLM描述工具。添加任何可以帮助LLM使用工具的信息。"
+  },
+  "keyspace": {
+    "display_name": "键空间名称",
+    "info": "集合存储在Astra中的键空间名称。"
+  },
+  "collection_name": {
+    "display_name": "集合名称",
+    "info": "Astra DB中存储向量的集合名称。"
+  },
+  "token": {
+    "display_name": "Astra DB应用令牌",
+    "info": "访问Astra DB的身份验证令牌。"
+  },
+  "api_endpoint": {
+    "display_name": "API端点",
+    "display_name_enhanced": "数据库",
+    "info": "Astra DB服务的API端点URL。"
+  },
+  "projection_attributes": {
+    "display_name": "投影属性",
+    "info": "工具返回的属性，以逗号分隔。"
+  },
+  "tools_params_v2": {
+    "display_name": "工具参数",
+    "info": "定义工具参数的结构。以LLM能够理解如何使用它们的方式描述参数。",
+    "schema": {
+      "name": {
+        "display_name": "名称",
+        "description": "指定模型的输出字段/参数名称。"
+      },
+      "attribute_name": {
+        "display_name": "属性名称",
+        "description": "指定要在集合上过滤的属性名称。如果属性名称与字段名称相同，则留空。"
+      },
+      "description": {
+        "display_name": "描述",
+        "description": "描述输出字段的目的。"
+      },
+      "metadata": {
+        "display_name": "是否元数据",
+        "description": "指示字段是否包含在元数据字段中。"
+      },
+      "mandatory": {
+        "display_name": "是否必需",
+        "description": "指示字段是否为必需。"
+      },
+      "is_timestamp": {
+        "display_name": "是否时间戳",
+        "description": "指示字段是否为时间戳。"
+      },
+      "operator": {
+        "display_name": "操作符",
+        "description": "设置字段的操作符。https://docs.datastax.com/en/astra-db-serverless/api-reference/documents.html#operators"
+      }
+    }
+  },
+  "tool_params": {
+    "display_name": "工具参数",
+    "info": "已弃用：要过滤的属性和对模型的描述。为必需项添加!（例如：!customerId）"
+  },
+  "static_filters": {
+    "display_name": "静态过滤器",
+    "info": "要过滤的属性和相应的值"
+  },
+  "number_of_results": {
+    "display_name": "结果数量",
+    "info": "要返回的结果数量。"
+  },
+  "use_search_query": {
+    "display_name": "语义搜索",
+    "info": "激活此参数时，将使用搜索查询参数搜索集合。"
+  },
+  "use_vectorize": {
+    "display_name": "使用Astra DB向量化",
+    "info": "激活此参数时，将使用Astra DB向量化方法生成嵌入。"
+  },
+  "embedding": {
+    "display_name": "嵌入模型"
+  },
+  "semantic_search_instruction": {
+    "display_name": "语义搜索指令",
+    "info": "用于语义搜索的指令。"
+  },
+  "status": {
+    "tool_created": "Astra DB工具已创建"
+  },
+  "errors": {
+    "astrapy_import_failed": "无法导入Astra DB集成包。请使用`uv pip install astrapy`安装。",
+    "build_collection_failed": "构建集合错误：{error}",
+    "timestamp_parse_failed": "无法解析日期：{timestamp}",
+    "timestamp_error": "解析时间戳错误：{error} - 使用提示以正确格式指定日期",
+    "embedding_not_set": "嵌入模型未设置。请设置嵌入模型或使用Astra DB向量化。",
+    "query_failed": "Astra DB工具{tool_name}请求错误：{error}"
+  },
+  "logs": {
+    "astrapy_import_successful": "Astrapy包导入成功",
+    "using_cached_collection": "正在使用缓存的集合",
+    "building_collection": "正在构建集合：{collection}，键空间：{keyspace}",
+    "environment_detected": "检测到环境：{environment}",
+    "collection_built": "集合构建成功",
+    "deprecated_method_warning": "这是定义工具参数的旧方法。请使用新方法。",
+    "args_schema_created_v1": "参数模式已创建（v1），包含{field_count}个字段",
+    "creating_args_schema_v2": "正在创建参数模式（v2）",
+    "args_schema_created_v2": "参数模式已创建（v2），包含{field_count}个字段",
+    "building_tool": "正在构建工具：{tool_name}",
+    "tool_built": "工具构建成功：{tool_name}",
+    "building_projection": "正在构建投影参数：{input_str}",
+    "projection_all": "使用*投影（所有字段）",
+    "projection_built": "投影已构建，包含{field_count}个字段",
+    "parsing_timestamp": "正在解析时间戳：{timestamp}",
+    "timestamp_parsed": "时间戳解析成功：{result}",
+    "building_filter": "正在构建过滤条件",
+    "filter_built": "过滤器已构建，包含{filter_count}个条件",
+    "running_tool": "正在运行工具：{tool_name}",
+    "using_semantic_search": "正在使用语义搜索",
+    "using_vectorize": "正在使用Astra DB向量化生成嵌入",
+    "generating_embedding": "正在使用嵌入模型生成嵌入",
+    "projection_added": "投影已添加到查询选项",
+    "executing_query": "正在对集合执行查询",
+    "tool_executed": "工具{tool_name}执行成功",
+    "results_processed": "已处理{count}个结果"
+  }
+}

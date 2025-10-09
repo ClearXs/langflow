@@ -1,0 +1,54 @@
+{
+  "display_name": "Confluence",
+  "description": "Load and process documents from Confluence wiki collaboration platform",
+  "url": {
+    "display_name": "Site URL",
+    "info": "The base URL of the Confluence Space. Example: https://<company>.atlassian.net/wiki"
+  },
+  "username": {
+    "display_name": "Username",
+    "info": "Atlassian User Email. Example: email@example.com"
+  },
+  "api_key": {
+    "display_name": "Confluence API Key",
+    "info": "Atlassian API Token. Create at: https://id.atlassian.com/manage-profile/security/api-tokens"
+  },
+  "space_key": {
+    "display_name": "Space Key",
+    "info": "The key identifier of the Confluence space to load documents from"
+  },
+  "cloud": {
+    "display_name": "Use Cloud?",
+    "info": "Whether to use Confluence Cloud (true) or Server/Data Center (false)"
+  },
+  "content_format": {
+    "display_name": "Content Format",
+    "info": "Specify content format for loaded documents (STORAGE, VIEW, EDITOR, EXPORT_VIEW, or ANONYMOUS_EXPORT_VIEW)"
+  },
+  "max_pages": {
+    "display_name": "Max Pages",
+    "info": "Maximum number of pages to retrieve in total (default: 1000)"
+  },
+  "outputs": {
+    "data": {
+      "display_name": "Data"
+    }
+  },
+  "status": {
+    "connecting": "Connecting to Confluence space: {space_key}",
+    "loading": "Loading documents from Confluence...",
+    "converting": "Converting {count} documents to Data objects",
+    "completed": "Successfully loaded {count} documents from space: {space_key}"
+  },
+  "errors": {
+    "loader_build_failed": "Failed to build Confluence loader: {error}",
+    "load_failed": "Failed to load documents from Confluence space '{space_key}': {error}"
+  },
+  "logs": {
+    "building_loader": "Building Confluence loader",
+    "loader_built": "Confluence loader built - Space: {space_key}, Max Pages: {max_pages}",
+    "loading_documents": "Starting to load documents from Confluence space: {space_key}",
+    "fetching_pages": "Fetching pages from Confluence",
+    "pages_loaded": "Loaded {count} pages from Confluence"
+  }
+}

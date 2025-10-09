@@ -1,0 +1,25 @@
+{
+  "display_name": "Text to SQL",
+  "description": "Convert natural language to SQL queries using JigsawStack AI.",
+  "api_key": {
+    "display_name": "JigsawStack API Key",
+    "info": "Your JigsawStack API key for authentication."
+  },
+  "prompt": {
+    "display_name": "Prompt",
+    "info": "Natural language description of the SQL query you want to generate."
+  },
+  "sql_schema": {
+    "display_name": "SQL Schema",
+    "info": "The database schema information. Can be a CREATE TABLE statement or schema description. Specifying this parameter improves SQL generation accuracy by applying database-specific syntax and optimizations."
+  },
+  "file_store_key": {
+    "display_name": "File Store Key",
+    "info": "The key used to store the database schema on Jigsawstack file Storage. Not required if sql_schema is specified."
+  },
+  "outputs": {
+    "sql_query": {
+      "display_name": "SQL Query"
+    }
+  }
+}

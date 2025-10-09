@@ -1,0 +1,17 @@
+{
+  "display_name": "Prompt Hub",
+  "description": "Prompt Component that uses LangChain Hub prompts",
+  "langchain_api_key": {
+    "display_name": "LangChain API Key",
+    "info": "The LangChain API Key to use."
+  },
+  "langchain_hub_prompt": {
+    "display_name": "LangChain Hub Prompt",
+    "info": "The LangChain Hub prompt to use, i.e., 'efriis/my-first-prompt'"
+  },
+  "outputs": {
+    "prompt": {
+      "display_name": "Build Prompt"
+    }
+  }
+}

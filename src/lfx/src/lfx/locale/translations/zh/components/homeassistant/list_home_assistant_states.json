@@ -1,0 +1,39 @@
+{
+  "description": "从Home Assistant检索状态。Agent只需指定'filter_domain'（可选）。令牌和base_url不会暴露给Agent。",
+  "ha_token": {
+    "display_name": "Home Assistant令牌",
+    "info": "Home Assistant长期访问令牌"
+  },
+  "base_url": {
+    "display_name": "Home Assistant URL",
+    "info": "例如：http://192.168.0.10:8123"
+  },
+  "filter_domain": {
+    "display_name": "默认过滤域（可选）",
+    "info": "light、switch、sensor等（留空则获取全部）"
+  },
+  "errors": {
+    "timeout": "请求超时：{error}",
+    "connection_failed": "连接Home Assistant失败，地址：{base_url}：{error}",
+    "http_error": "HTTP错误 {status}：{error}",
+    "request_failed": "获取状态失败：{error}",
+    "processing_failed": "处理响应时出错：{error}",
+    "unexpected_format": "错误：响应格式异常。",
+    "formatting_failed": "错误：处理响应失败。详细信息：{error}"
+  },
+  "logs": {
+    "running_with_filter": "使用过滤域运行：{filter_domain}",
+    "building_tool": "正在构建列出Home Assistant状态工具",
+    "tool_invoked": "Agent调用工具，过滤域：{filter_domain}",
+    "fetching_states": "正在从{base_url}获取状态，过滤器：{filter_domain}",
+    "requesting_url": "正在请求URL：{url}",
+    "states_retrieved": "从Home Assistant检索到{count}个状态",
+    "applying_filter": "正在应用域过滤器：{domain}",
+    "filtered_states": "为域{domain}过滤了{total_count}个状态中的{filtered_count}个",
+    "returning_all_states": "正在返回所有{count}个状态",
+    "formatting_response": "正在格式化类型为{result_type}的响应",
+    "formatted_list": "已格式化包含{count}项的列表",
+    "formatted_dict": "已格式化字典响应",
+    "formatted_string": "已格式化字符串响应"
+  }
+}

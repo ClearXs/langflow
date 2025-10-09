@@ -1,0 +1,25 @@
+{
+  "display_name": "Create Assistant Thread",
+  "description": "Creates a thread and returns the thread id",
+  "env_set": {
+    "display_name": "Environment Set",
+    "info": "Dummy input to allow chaining with Dotenv Component."
+  },
+  "outputs": {
+    "thread_id": {
+      "display_name": "Thread ID"
+    }
+  },
+  "status": {
+    "creating": "Creating thread...",
+    "created": "Thread created successfully - ID: {thread_id}"
+  },
+  "errors": {
+    "creation_failed": "Failed to create thread: {error}"
+  },
+  "logs": {
+    "client_initialized": "OpenAI client initialized successfully",
+    "processing_inputs": "Processing inputs - env_set: {env_set}",
+    "creating_thread": "Creating new thread"
+  }
+}

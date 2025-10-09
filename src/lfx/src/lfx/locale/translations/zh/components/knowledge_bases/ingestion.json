@@ -1,0 +1,61 @@
+{
+  "display_name": "知识摄取",
+  "description": "在Langflow中创建或更新知识。",
+  "new_knowledge_base": {
+    "display_name": "创建新知识",
+    "description": "在Langflow中创建新知识。"
+  },
+  "new_kb_name": {
+    "display_name": "知识名称",
+    "info": "要创建的新知识的名称。"
+  },
+  "embedding_model": {
+    "display_name": "选择嵌入模型",
+    "info": "选择用于此知识库的嵌入模型。"
+  },
+  "api_key": {
+    "display_name": "API密钥",
+    "info": "嵌入模型的提供商API密钥"
+  },
+  "knowledge_base": {
+    "display_name": "知识库",
+    "info": "选择要加载数据的知识库。"
+  },
+  "input_df": {
+    "display_name": "输入",
+    "info": "包含所有原始列的表格(已分块/处理)。接受Data或DataFrame。如果提供Data,将自动转换为DataFrame。"
+  },
+  "column_config": {
+    "display_name": "列配置",
+    "info": "配置知识库的列行为。",
+    "column_name": {
+      "display_name": "列名",
+      "description": "源DataFrame中的列名称"
+    },
+    "vectorize": {
+      "display_name": "向量化",
+      "description": "为此列创建嵌入"
+    },
+    "identifier": {
+      "display_name": "标识符",
+      "description": "使用此列作为唯一标识符"
+    }
+  },
+  "chunk_size": {
+    "display_name": "块大小",
+    "info": "处理嵌入的批次大小"
+  },
+  "embedding_api_key": {
+    "display_name": "嵌入提供商API密钥",
+    "info": "用于生成嵌入的嵌入提供商的API密钥。"
+  },
+  "allow_duplicates": {
+    "display_name": "允许重复",
+    "info": "允许知识库中存在重复行"
+  },
+  "outputs": {
+    "dataframe_output": {
+      "display_name": "结果"
+    }
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "description": "调用Google搜索API并将结果作为DataFrame返回。",
+  "google_api_key": {
+    "display_name": "Google API密钥"
+  },
+  "google_cse_id": {
+    "display_name": "Google CSE ID"
+  },
+  "input_value": {
+    "display_name": "输入"
+  },
+  "k": {
+    "display_name": "结果数量"
+  },
+  "outputs": {
+    "results": {
+      "display_name": "结果"
+    }
+  },
+  "errors": {
+    "invalid_api_key": "Google API密钥无效",
+    "invalid_cse_id": "Google CSE ID无效",
+    "invalid_configuration": "配置无效：{error}",
+    "connection_error": "连接错误：{error}",
+    "search_error": "搜索时发生错误：{error}",
+    "unexpected_error": "意外错误：{error}"
+  },
+  "logs": {
+    "searching": "正在使用查询搜索Google：{query}",
+    "creating_wrapper": "正在创建Google搜索API包装器，k={k}",
+    "executing_search": "正在执行Google搜索",
+    "search_completed": "搜索成功完成 - 找到{count}个结果",
+    "status_success": "找到{count}个搜索结果",
+    "building": "正在构建Google搜索API组件"
+  }
+}

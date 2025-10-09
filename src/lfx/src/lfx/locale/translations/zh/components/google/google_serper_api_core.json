@@ -1,0 +1,36 @@
+{
+  "description": "调用Serper.dev Google搜索API。",
+  "serper_api_key": {
+    "display_name": "Serper API密钥"
+  },
+  "input_value": {
+    "display_name": "输入"
+  },
+  "k": {
+    "display_name": "结果数量"
+  },
+  "outputs": {
+    "results": {
+      "display_name": "结果"
+    }
+  },
+  "errors": {
+    "value_error": "搜索时发生值错误：{error}",
+    "key_error": "处理结果时发生键错误：{error}",
+    "connection_error": "搜索时发生连接错误：{error}",
+    "unexpected_error": "搜索时发生意外错误：{error}"
+  },
+  "logs": {
+    "searching": "正在使用查询搜索Serper：{query}",
+    "building_wrapper": "正在构建Serper API包装器，k={k}",
+    "executing_search": "正在执行Serper搜索",
+    "results_retrieved": "检索到{count}个自然搜索结果",
+    "dataframe_created": "DataFrame已创建，包含{rows}行",
+    "status_success": "找到{count}个搜索结果",
+    "text_search": "正在使用Serper执行文本搜索",
+    "text_result_generated": "文本结果已生成 - 长度：{length}个字符",
+    "no_results": "未找到结果。",
+    "creating_wrapper": "正在创建GoogleSerperAPIWrapper实例",
+    "building": "正在构建Google Serper API组件"
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "display_name": "Astra向量化",
+  "description": "Astra向量化服务器端嵌入的配置选项。",
+  "provider": {
+    "display_name": "提供商"
+  },
+  "model_name": {
+    "display_name": "模型名称",
+    "info": "用于所选提供商的嵌入模型。每个提供商有不同的可用模型集（完整列表见 https://docs.datastax.com/en/astra-db-serverless/databases/embedding-generation.html）：\n\n{models_list}"
+  },
+  "api_key_name": {
+    "display_name": "API密钥名称",
+    "info": "存储在Astra上的嵌入提供商API密钥的名称。如果设置，它将覆盖身份验证参数中的'ProviderKey'。"
+  },
+  "authentication": {
+    "display_name": "身份验证参数"
+  },
+  "provider_api_key": {
+    "display_name": "提供商API密钥",
+    "info": "Astra身份验证的替代方案，在每次请求Astra DB时为提供商传递API密钥。当为集合配置了向量化，但Astra的密钥管理系统中没有存储相应的提供商密钥时，可以使用此选项。"
+  },
+  "model_parameters": {
+    "display_name": "模型参数"
+  },
+  "outputs": {
+    "config": {
+      "display_name": "向量化配置"
+    }
+  },
+  "status": {
+    "building": "正在构建Astra向量化配置...",
+    "config_created": "配置创建成功 - 提供商：{provider}，模型：{model}"
+  },
+  "errors": {
+    "build_failed": "构建Astra向量化配置失败：{error}"
+  },
+  "logs": {
+    "building_config": "正在构建Astra向量化配置 - 提供商：{provider}，模型：{model}",
+    "provider_mapped": "提供商'{provider}'映射到'{provider_value}'",
+    "api_key_name_set": "API密钥名称设置为：{key_name}"
+  }
+}

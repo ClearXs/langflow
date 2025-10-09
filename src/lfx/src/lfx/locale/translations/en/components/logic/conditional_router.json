@@ -1,68 +1,71 @@
 {
-  "display_name": "Conditional Router",
-  "description": "Route data to different paths based on conditional logic evaluation.",
-  "input_data": {
-    "display_name": "Input Data",
-    "info": "Data to be evaluated and routed based on conditions."
+  "display_name": "If-Else",
+  "description": "Routes an input message to a corresponding output based on text comparison.",
+  "input_text": {
+    "display_name": "Text Input",
+    "info": "The primary text input for the operation."
   },
-  "conditions": {
-    "display_name": "Conditions",
-    "info": "JSON array of routing conditions. Each condition should have 'name', 'condition', and optional 'description' fields."
+  "operator": {
+    "display_name": "Operator",
+    "info": "The operator to apply for comparing the texts."
   },
-  "evaluation_mode": {
-    "display_name": "Evaluation Mode",
-    "info": "How to handle multiple matching conditions: first_match (stop at first), all_matches (return all), best_match (return highest scoring)."
-  },
-  "default_route": {
-    "display_name": "Default Route",
-    "info": "Name of the route to use when no conditions match (ignored in strict mode)."
+  "match_text": {
+    "display_name": "Match Text",
+    "info": "The text input to compare against."
   },
   "case_sensitive": {
     "display_name": "Case Sensitive",
-    "info": "Whether text comparisons should be case sensitive."
+    "info": "If true, the comparison will be case sensitive."
   },
-  "include_metadata": {
-    "display_name": "Include Metadata",
-    "info": "Whether to include evaluation metadata in the output."
+  "true_case_message": {
+    "display_name": "Case True",
+    "info": "The message to pass if the condition is True."
   },
-  "max_routes": {
-    "display_name": "Max Routes",
-    "info": "Maximum number of routes to return when using 'all_matches' mode (0 for unlimited)."
+  "false_case_message": {
+    "display_name": "Case False",
+    "info": "The message to pass if the condition is False."
   },
-  "strict_mode": {
-    "display_name": "Strict Mode",
-    "info": "In strict mode, throw error if no conditions match instead of using default route."
+  "max_iterations": {
+    "display_name": "Max Iterations",
+    "info": "The maximum number of iterations for the conditional router."
   },
-  "text_key": {
-    "display_name": "Text Key",
-    "info": "Key to extract text content from Data objects."
+  "default_route": {
+    "display_name": "Default Route",
+    "info": "The default route to take when max iterations are reached."
   },
   "outputs": {
-    "routed_data": {
-      "display_name": "Routed Data"
+    "true_result": {
+      "display_name": "True"
     },
-    "routing_info": {
-      "display_name": "Routing Info"
-    },
-    "matched_routes": {
-      "display_name": "Matched Routes"
+    "false_result": {
+      "display_name": "False"
     }
   },
-  "success": {
-    "conditions_matched": "{count} condition(s) matched successfully"
+  "status": {
+    "condition_true": "Condition evaluated to True",
+    "condition_false": "Condition evaluated to False",
+    "forced_true": "Max iterations ({iteration}) reached - forcing True output",
+    "forced_false": "Max iterations ({iteration}) reached - forcing False output"
   },
   "warnings": {
-    "condition_evaluation_warning": "Warning evaluating condition '{condition}': {error}",
-    "using_default_route": "No conditions matched, using default route: {route}"
+    "invalid_regex": "Invalid regex pattern '{pattern}': {error}",
+    "invalid_number": "Invalid number format for comparison - Input: '{input_text}', Match: '{match_text}', Error: {error}"
   },
-  "errors": {
-    "empty_conditions": "Conditions cannot be empty.",
-    "invalid_conditions_format": "Invalid conditions format: {error}",
-    "condition_evaluation_error": "Error evaluating condition '{condition}': {error}",
-    "conditions_evaluation_error": "Error evaluating conditions: {error}",
-    "no_matches_strict_mode": "No conditions matched and strict mode is enabled.",
-    "routing_error": "Error during routing: {error}",
-    "routing_info_error": "Error getting routing information: {error}",
-    "matched_routes_error": "Error getting matched routes: {error}"
+  "logs": {
+    "pre_run_setup": "Pre-run setup completed - iteration counter reset",
+    "evaluating": "Evaluating condition - Operator: {operator}, Case Sensitive: {case_sensitive}",
+    "evaluation_result": "Condition evaluation result: {result}",
+    "iteration_updated": "Iteration updated - Current: {iteration}, Max: {max_iterations}",
+    "max_iterations_reached": "Max iterations reached ({iteration}) - Default route: {default_route}",
+    "cleared_exclusions": "Cleared {count} conditional exclusions",
+    "switched_route": "Switched route to stop: {new_route}",
+    "stopping_route": "Stopping route: {route}",
+    "condition_true": "Condition evaluated to True - routing to true branch",
+    "condition_false": "Condition evaluated to False - routing to false branch",
+    "forced_true_output": "Forced True output due to max iterations: {iteration}",
+    "forced_false_output": "Forced False output due to max iterations: {iteration}",
+    "updating_config": "Updating build config for operator: {operator}",
+    "removed_case_sensitive": "Removed case_sensitive field for regex operator",
+    "added_case_sensitive": "Added case_sensitive field to build config"
   }
 }

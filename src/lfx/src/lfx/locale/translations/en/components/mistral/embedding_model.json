@@ -1,0 +1,33 @@
+{
+  "display_name": "MistralAI Embeddings",
+  "description": "Generate embeddings using MistralAI models.",
+  "model": {
+    "display_name": "Model",
+    "info": "The MistralAI model to use for generating embeddings."
+  },
+  "mistral_api_key": {
+    "display_name": "Mistral API Key",
+    "info": "API key for authenticating with MistralAI."
+  },
+  "max_concurrent_requests": {
+    "display_name": "Max Concurrent Requests",
+    "info": "Maximum number of concurrent requests to the API."
+  },
+  "max_retries": {
+    "display_name": "Max Retries",
+    "info": "Maximum number of retries for failed requests."
+  },
+  "timeout": {
+    "display_name": "Request Timeout",
+    "info": "Timeout for API requests in seconds."
+  },
+  "endpoint": {
+    "display_name": "API Endpoint",
+    "info": "The API endpoint URL for MistralAI."
+  },
+  "outputs": {
+    "embeddings": {
+      "display_name": "Embeddings"
+    }
+  }
+}

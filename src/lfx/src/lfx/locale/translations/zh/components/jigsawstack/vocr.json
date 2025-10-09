@@ -1,0 +1,33 @@
+{
+  "display_name": "视觉OCR",
+  "description": "使用微调的视觉语言模型从任何文档类型中提取数据,以一致的结构实现最高准确度。",
+  "api_key": {
+    "display_name": "JigsawStack API密钥",
+    "info": "用于身份验证的JigsawStack API密钥。"
+  },
+  "prompts": {
+    "display_name": "提示词",
+    "info": "用于描述图像的提示词。默认提示词为'详细描述图像'。您可以传递用逗号分隔的提示词列表,以从图像中提取不同的信息。"
+  },
+  "url": {
+    "display_name": "URL",
+    "info": "图像或文档的URL。如果已指定file_store_key,则不需要此参数。"
+  },
+  "file_store_key": {
+    "display_name": "文件存储键",
+    "info": "用于在Jigsawstack文件存储中存储图像的键。如果已指定url,则不需要此参数。"
+  },
+  "page_range_start": {
+    "display_name": "页面范围起始",
+    "info": "文档的页面范围起始限制。如果未指定,将处理所有页面。"
+  },
+  "page_range_end": {
+    "display_name": "页面范围结束",
+    "info": "文档的页面范围结束限制。如果未指定,将处理所有页面。"
+  },
+  "outputs": {
+    "vocr_results": {
+      "display_name": "VOCR结果"
+    }
+  }
+}

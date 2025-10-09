@@ -1,0 +1,39 @@
+{
+  "display_name": "Embedding Similarity",
+  "description": "Compute selected form of similarity between two embedding vectors.",
+  "embedding_vectors": {
+    "display_name": "Embedding Vectors",
+    "info": "A list containing exactly two data objects with embedding vectors to compare."
+  },
+  "similarity_metric": {
+    "display_name": "Similarity Metric",
+    "info": "Select the similarity metric to use.",
+    "options": {
+      "cosine": "Cosine Similarity",
+      "euclidean": "Euclidean Distance",
+      "manhattan": "Manhattan Distance"
+    }
+  },
+  "outputs": {
+    "similarity_data": {
+      "display_name": "Similarity Data"
+    }
+  },
+  "errors": {
+    "two_vectors_required": "Exactly two embedding vectors are required.",
+    "missing_embeddings_key": "Missing 'embeddings' key in data: {error}",
+    "dimension_mismatch": "Embeddings must have the same dimensions. Got {dim1} and {dim2}.",
+    "unknown_metric": "Unknown similarity metric: {metric}",
+    "computation_failed": "Failed to compute similarity: {error}",
+    "data_creation_failed": "Failed to create similarity data object: {error}"
+  },
+  "logs": {
+    "computing_similarity": "Computing similarity between {count} embedding vector(s)",
+    "embeddings_extracted": "Embeddings extracted - Dimension 1: {dim1}, Dimension 2: {dim2}",
+    "using_metric": "Using similarity metric: {metric}",
+    "cosine_computed": "Cosine similarity computed: {score:.6f}",
+    "euclidean_computed": "Euclidean distance computed: {score:.6f}",
+    "manhattan_computed": "Manhattan distance computed: {score:.6f}",
+    "similarity_data_created": "Similarity data object created successfully"
+  }
+}

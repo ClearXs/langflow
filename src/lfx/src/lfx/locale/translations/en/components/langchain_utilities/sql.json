@@ -1,0 +1,24 @@
+{
+  "display_name": "SQL Agent",
+  "description": "Construct an SQL agent from an LLM and tools.",
+  "llm": {
+    "display_name": "Language Model",
+    "info": "An LLM Model Object (It can be found in any LLM Component)."
+  },
+  "database_uri": {
+    "display_name": "Database URI",
+    "info": "URI to connect to the SQL database (e.g., sqlite:///path/to/db.db or postgresql://user:pass@host:port/db)."
+  },
+  "extra_tools": {
+    "display_name": "Extra Tools",
+    "info": "Additional tools to provide to the agent for enhanced functionality."
+  },
+  "outputs": {
+    "response": {
+      "display_name": "Response"
+    },
+    "agent": {
+      "display_name": "Agent"
+    }
+  }
+}

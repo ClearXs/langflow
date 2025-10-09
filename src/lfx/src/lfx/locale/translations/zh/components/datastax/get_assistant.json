@@ -1,0 +1,28 @@
+{
+  "display_name": "获取助手名称",
+  "description": "通过ID检索助手名称",
+  "assistant_id": {
+    "display_name": "助手ID",
+    "info": "要检索的助手的ID"
+  },
+  "env_set": {
+    "display_name": "环境设置",
+    "info": "用于允许与Dotenv组件链接的虚拟输入。"
+  },
+  "outputs": {
+    "assistant_name": {
+      "display_name": "助手名称"
+    }
+  },
+  "status": {
+    "retrieving": "正在检索助手...",
+    "retrieved": "助手检索成功 - ID：{assistant_id}，名称：{assistant_name}"
+  },
+  "errors": {
+    "retrieval_failed": "检索助手'{assistant_id}'失败：{error}"
+  },
+  "logs": {
+    "client_initialized": "OpenAI客户端初始化成功",
+    "retrieving_assistant": "正在检索ID为 {assistant_id} 的助手"
+  }
+}

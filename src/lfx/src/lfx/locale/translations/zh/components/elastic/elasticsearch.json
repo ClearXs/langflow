@@ -1,0 +1,80 @@
+{
+  "description": "具有高级可自定义搜索功能的Elasticsearch向量存储。",
+  "elasticsearch_url": {
+    "display_name": "Elasticsearch URL",
+    "info": "自管理Elasticsearch部署的URL（例如http://localhost:9200）。不要与Elastic Cloud部署一起使用，请改用Elastic Cloud ID。"
+  },
+  "cloud_id": {
+    "display_name": "Elastic Cloud ID",
+    "info": "用于Elastic Cloud部署。不要与'Elasticsearch URL'一起使用。"
+  },
+  "index_name": {
+    "display_name": "索引名称",
+    "info": "向量将存储在Elasticsearch集群中的索引名称。"
+  },
+  "username": {
+    "display_name": "用户名",
+    "info": "Elasticsearch用户名（例如'elastic'）。除非使用API密钥，否则本地和Elastic Cloud设置都需要。"
+  },
+  "password": {
+    "display_name": "Elasticsearch密码",
+    "info": "指定用户的Elasticsearch密码。除非使用API密钥，否则本地和Elastic Cloud设置都需要。"
+  },
+  "embedding": {
+    "display_name": "嵌入"
+  },
+  "search_type": {
+    "display_name": "搜索类型"
+  },
+  "number_of_results": {
+    "display_name": "结果数量",
+    "info": "要返回的结果数量。"
+  },
+  "search_score_threshold": {
+    "display_name": "搜索分数阈值",
+    "info": "搜索结果的最小相似度分数阈值。"
+  },
+  "api_key": {
+    "display_name": "Elastic API密钥",
+    "info": "用于Elastic Cloud身份验证的API密钥。如果使用，则不需要'用户名'和'密码'。"
+  },
+  "verify_certs": {
+    "display_name": "验证SSL证书",
+    "info": "连接到Elasticsearch时是否验证SSL证书。"
+  },
+  "errors": {
+    "both_cloud_and_url": "同时提供了'cloud_id'和'elasticsearch_url'。请根据您的部署（云或本地）仅使用一个。",
+    "vector_store_creation_failed": "创建Elasticsearch向量存储失败：{error}",
+    "invalid_input_type": "向量存储输入必须是Data对象。",
+    "invalid_search_type": "无效的搜索类型：{search_type}",
+    "search_failed": "查询Elasticsearch向量存储时发生错误，向量存储中没有数据。",
+    "get_all_failed": "检索所有文档失败：{error}"
+  },
+  "logs": {
+    "building_vector_store": "正在构建Elasticsearch向量存储 - 索引：{index}",
+    "using_cloud_id": "使用Elastic Cloud ID连接",
+    "using_url": "使用Elasticsearch URL：{url}",
+    "using_api_key": "使用API密钥进行身份验证",
+    "ssl_verification_disabled": "SSL证书验证已禁用",
+    "creating_custom_client": "正在创建自定义Elasticsearch客户端",
+    "vector_store_created": "Elasticsearch向量存储创建成功",
+    "adding_documents": "正在向向量存储添加{count}个文档",
+    "documents_added": "成功添加{count}个文档",
+    "preparing_documents": "正在准备文档以供摄入",
+    "documents_prepared": "已准备{count}个文档",
+    "adding_documents_to_store": "正在向向量存储添加{count}个文档。",
+    "documents_added_successfully": "文档已成功添加到向量存储",
+    "no_documents_to_add": "没有文档要添加到向量存储。",
+    "searching_with_query": "正在使用查询搜索：{query}",
+    "performing_similarity_search": "正在执行相似性搜索",
+    "performing_mmr_search": "正在执行MMR搜索",
+    "search_completed": "搜索完成 - 找到{count}个结果",
+    "retrieving_all_documents": "正在从向量存储检索所有文档",
+    "all_documents_retrieved": "已检索所有文档 - 总计：{count}",
+    "getting_all_documents": "正在从索引获取所有文档",
+    "search_response_received": "已接收搜索响应 - 命中数：{hits}",
+    "documents_retrieved": "已检索{count}个文档",
+    "starting_search": "开始文档搜索",
+    "search_documents_completed": "文档搜索完成 - 检索到{count}个文档"
+  }
+}

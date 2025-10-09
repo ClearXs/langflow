@@ -1,0 +1,17 @@
+{
+  "display_name": "提示词中心",
+  "description": "使用LangChain Hub提示词的提示词组件",
+  "langchain_api_key": {
+    "display_name": "LangChain API密钥",
+    "info": "要使用的LangChain API密钥。"
+  },
+  "langchain_hub_prompt": {
+    "display_name": "LangChain Hub提示词",
+    "info": "要使用的LangChain Hub提示词,例如:'efriis/my-first-prompt'"
+  },
+  "outputs": {
+    "prompt": {
+      "display_name": "构建提示词"
+    }
+  }
+}

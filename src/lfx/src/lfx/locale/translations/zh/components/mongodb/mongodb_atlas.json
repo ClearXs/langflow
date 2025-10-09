@@ -1,0 +1,55 @@
+{
+  "display_name": "MongoDB Atlas",
+  "description": "具有搜索功能的MongoDB Atlas向量存储",
+  "mongodb_atlas_cluster_uri": {
+    "display_name": "MongoDB Atlas集群URI"
+  },
+  "enable_mtls": {
+    "display_name": "启用mTLS"
+  },
+  "mongodb_atlas_client_cert": {
+    "display_name": "MongoDB Atlas组合客户端证书",
+    "info": "客户端证书与私钥组合，格式如下:\n -----BEGIN PRIVATE KEY-----\n...\n -----END PRIVATE KEY-----\n-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----\n"
+  },
+  "db_name": {
+    "display_name": "数据库名称"
+  },
+  "collection_name": {
+    "display_name": "集合名称"
+  },
+  "index_name": {
+    "display_name": "索引名称",
+    "info": "Atlas搜索索引的名称，应该是向量搜索。"
+  },
+  "insert_mode": {
+    "display_name": "插入模式",
+    "info": "如何将新文档插入到集合中。"
+  },
+  "embedding": {
+    "display_name": "嵌入"
+  },
+  "number_of_results": {
+    "display_name": "结果数量",
+    "info": "要返回的结果数量。"
+  },
+  "index_field": {
+    "display_name": "索引字段",
+    "info": "要索引的字段。"
+  },
+  "filter_field": {
+    "display_name": "过滤字段",
+    "info": "用于过滤索引的字段。"
+  },
+  "number_dimensions": {
+    "display_name": "维度数量",
+    "info": "嵌入上下文长度。"
+  },
+  "similarity": {
+    "display_name": "相似度",
+    "info": "用于测量向量之间相似度的方法。"
+  },
+  "quantization": {
+    "display_name": "量化",
+    "info": "量化通过将32位浮点数转换为较小的数据类型来降低内存成本"
+  }
+}

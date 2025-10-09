@@ -2,6 +2,7 @@ import asyncio
 from asyncio import to_thread
 from typing import TYPE_CHECKING, Any, cast
 
+import i18n
 from astra_assistants.astra_assistants_manager import AssistantManager
 from langchain_core.agents import AgentFinish
 
@@ -26,120 +27,125 @@ if TYPE_CHECKING:
 
 
 class AstraAssistantManager(ComponentWithCache):
-    display_name = "Astra Assistant Agent"
+    display_name = i18n.t(
+        'components.datastax.astra_assistant_manager.display_name')
     name = "Astra Assistant Agent"
-    description = "Manages Assistant Interactions"
+    description = i18n.t(
+        'components.datastax.astra_assistant_manager.description')
     icon = "AstraDB"
 
     inputs = [
         DropdownInput(
             name="model_name",
-            display_name="Model",
+            display_name=i18n.t(
+                'components.datastax.astra_assistant_manager.model_name.display_name'),
             advanced=False,
             options=litellm_model_names,
             value="gpt-4o-mini",
         ),
         MultilineInput(
             name="instructions",
-            display_name="Agent Instructions",
-            info="Instructions for the assistant, think of these as the system prompt.",
+            display_name=i18n.t(
+                'components.datastax.astra_assistant_manager.instructions.display_name'),
+            info=i18n.t(
+                'components.datastax.astra_assistant_manager.instructions.info'),
         ),
         HandleInput(
             name="input_tools",
-            display_name="Tools",
+            display_name=i18n.t(
+                'components.datastax.astra_assistant_manager.input_tools.display_name'),
             input_types=["Tool"],
             is_list=True,
             required=False,
-            info="These are the tools that the agent can use to help with tasks.",
+            info=i18n.t(
+                'components.datastax.astra_assistant_manager.input_tools.info'),
         ),
-        # DropdownInput(
-        #    display_name="Tools",
-        #    name="tool",
-        #    options=tool_names,
-        # ),
         MultilineInput(
-            name="user_message", display_name="User Message", info="User message to pass to the run.", tool_mode=True
+            name="user_message",
+            display_name=i18n.t(
+                'components.datastax.astra_assistant_manager.user_message.display_name'),
+            info=i18n.t(
+                'components.datastax.astra_assistant_manager.user_message.info'),
+            tool_mode=True
         ),
         FileInput(
             name="file",
-            display_name="File(s) for retrieval",
+            display_name=i18n.t(
+                'components.datastax.astra_assistant_manager.file.display_name'),
             list=True,
-            info="Files to be sent with the message.",
+            info=i18n.t(
+                'components.datastax.astra_assistant_manager.file.info'),
             required=False,
             show=True,
             file_types=[
-                "txt",
-                "md",
-                "mdx",
-                "csv",
-                "json",
-                "yaml",
-                "yml",
-                "xml",
-                "html",
-                "htm",
-                "pdf",
-                "docx",
-                "py",
-                "sh",
-                "sql",
-                "js",
-                "ts",
-                "tsx",
-                "jpg",
-                "jpeg",
-                "png",
-                "bmp",
-                "image",
-                "zip",
-                "tar",
-                "tgz",
-                "bz2",
-                "gz",
-                "c",
-                "cpp",
-                "cs",
-                "css",
-                "go",
-                "java",
-                "php",
-                "rb",
-                "tex",
-                "doc",
-                "docx",
-                "ppt",
-                "pptx",
-                "xls",
-                "xlsx",
-                "jsonl",
+                "txt", "md", "mdx", "csv", "json", "yaml", "yml", "xml", "html", "htm",
+                "pdf", "docx", "py", "sh", "sql", "js", "ts", "tsx", "jpg", "jpeg",
+                "png", "bmp", "image", "zip", "tar", "tgz", "bz2", "gz", "c", "cpp",
+                "cs", "css", "go", "java", "php", "rb", "tex", "doc", "ppt", "pptx",
+                "xls", "xlsx", "jsonl",
             ],
         ),
         MultilineInput(
             name="input_thread_id",
-            display_name="Thread ID (optional)",
-            info="ID of the thread",
+            display_name=i18n.t(
+                'components.datastax.astra_assistant_manager.input_thread_id.display_name'),
+            info=i18n.t(
+                'components.datastax.astra_assistant_manager.input_thread_id.info'),
             advanced=True,
         ),
         MultilineInput(
             name="input_assistant_id",
-            display_name="Assistant ID (optional)",
-            info="ID of the assistant",
+            display_name=i18n.t(
+                'components.datastax.astra_assistant_manager.input_assistant_id.display_name'),
+            info=i18n.t(
+                'components.datastax.astra_assistant_manager.input_assistant_id.info'),
             advanced=True,
         ),
         MultilineInput(
             name="env_set",
-            display_name="Environment Set",
-            info="Dummy input to allow chaining with Dotenv Component.",
+            display_name=i18n.t(
+                'components.datastax.astra_assistant_manager.env_set.display_name'),
+            info=i18n.t(
+                'components.datastax.astra_assistant_manager.env_set.info'),
             advanced=True,
         ),
     ]
 
     outputs = [
-        Output(display_name="Assistant Response", name="assistant_response", method="get_assistant_response"),
-        Output(display_name="Tool output", name="tool_output", method="get_tool_output", hidden=True),
-        Output(display_name="Thread Id", name="output_thread_id", method="get_thread_id", hidden=True),
-        Output(display_name="Assistant Id", name="output_assistant_id", method="get_assistant_id", hidden=True),
-        Output(display_name="Vector Store Id", name="output_vs_id", method="get_vs_id", hidden=True),
+        Output(
+            display_name=i18n.t(
+                'components.datastax.astra_assistant_manager.outputs.assistant_response.display_name'),
+            name="assistant_response",
+            method="get_assistant_response"
+        ),
+        Output(
+            display_name=i18n.t(
+                'components.datastax.astra_assistant_manager.outputs.tool_output.display_name'),
+            name="tool_output",
+            method="get_tool_output",
+            hidden=True
+        ),
+        Output(
+            display_name=i18n.t(
+                'components.datastax.astra_assistant_manager.outputs.output_thread_id.display_name'),
+            name="output_thread_id",
+            method="get_thread_id",
+            hidden=True
+        ),
+        Output(
+            display_name=i18n.t(
+                'components.datastax.astra_assistant_manager.outputs.output_assistant_id.display_name'),
+            name="output_assistant_id",
+            method="get_assistant_id",
+            hidden=True
+        ),
+        Output(
+            display_name=i18n.t(
+                'components.datastax.astra_assistant_manager.outputs.output_vs_id.display_name'),
+            name="output_vs_id",
+            method="get_vs_id",
+            hidden=True
+        ),
     ]
 
     def __init__(self, **kwargs) -> None:
@@ -186,12 +192,18 @@ class AstraAssistantManager(ComponentWithCache):
                 self.initialized = True
 
     async def process_inputs(self) -> None:
-        await logger.ainfo(f"env_set is {self.env_set}")
+        await logger.ainfo(i18n.t('components.datastax.astra_assistant_manager.logs.env_set_value',
+                                  value=self.env_set))
         await logger.ainfo(self.input_tools)
+
         tools = []
         tool_obj = None
         if self.input_tools is None:
             self.input_tools = []
+
+        logger.debug(i18n.t('components.datastax.astra_assistant_manager.logs.wrapping_tools',
+                            count=len(self.input_tools)))
+
         for tool in self.input_tools:
             tool_obj = wrap_base_tool_as_tool_interface(tool)
             tools.append(tool_obj)
@@ -200,8 +212,12 @@ class AstraAssistantManager(ComponentWithCache):
         thread_id = None
         if self.input_assistant_id:
             assistant_id = self.input_assistant_id
+            logger.debug(i18n.t('components.datastax.astra_assistant_manager.logs.using_assistant_id',
+                                id=assistant_id))
         if self.input_thread_id:
             thread_id = self.input_thread_id
+            logger.debug(i18n.t('components.datastax.astra_assistant_manager.logs.using_thread_id',
+                                id=thread_id))
 
         if hasattr(self, "graph"):
             session_id = self.graph.session_id
@@ -214,9 +230,13 @@ class AstraAssistantManager(ComponentWithCache):
             sender=MESSAGE_SENDER_AI,
             sender_name=self.display_name or "Astra Assistant",
             properties={"icon": "Bot", "state": "partial"},
-            content_blocks=[ContentBlock(title="Assistant Steps", contents=[])],
+            content_blocks=[ContentBlock(title=i18n.t(
+                'components.datastax.astra_assistant_manager.content_block_title'), contents=[])],
             session_id=session_id,
         )
+
+        logger.info(i18n.t('components.datastax.astra_assistant_manager.logs.creating_assistant_manager',
+                           model=self.model_name))
 
         assistant_manager = AssistantManager(
             instructions=self.instructions,
@@ -229,30 +249,49 @@ class AstraAssistantManager(ComponentWithCache):
         )
 
         if self.file:
+            logger.info(
+                i18n.t('components.datastax.astra_assistant_manager.logs.uploading_file'))
             file = await to_thread(sync_upload, self.file, assistant_manager.client)
-            vector_store = assistant_manager.client.beta.vector_stores.create(name="my_vs", file_ids=[file.id])
+
+            logger.debug(i18n.t(
+                'components.datastax.astra_assistant_manager.logs.creating_vector_store'))
+            vector_store = assistant_manager.client.beta.vector_stores.create(
+                name="my_vs", file_ids=[file.id])
+
             assistant_tools = assistant_manager.assistant.tools
             assistant_tools += [{"type": "file_search"}]
+
+            logger.debug(i18n.t(
+                'components.datastax.astra_assistant_manager.logs.updating_assistant_tools'))
             assistant = assistant_manager.client.beta.assistants.update(
                 assistant_manager.assistant.id,
                 tools=assistant_tools,
-                tool_resources={"file_search": {"vector_store_ids": [vector_store.id]}},
+                tool_resources={"file_search": {
+                    "vector_store_ids": [vector_store.id]}},
             )
             assistant_manager.assistant = assistant
+            logger.info(
+                i18n.t('components.datastax.astra_assistant_manager.logs.file_search_enabled'))
 
         async def step_iterator():
             # Initial event
             yield {"event": "on_chain_start", "name": "AstraAssistant", "data": {"input": {"text": self.user_message}}}
 
+            logger.info(
+                i18n.t('components.datastax.astra_assistant_manager.logs.running_thread'))
             content = self.user_message
             result = await assistant_manager.run_thread(content=content, tool=tool_obj)
 
             # Tool usage if present
             if "output" in result and "arguments" in result:
+                logger.debug(
+                    i18n.t('components.datastax.astra_assistant_manager.logs.tool_used'))
                 yield {"event": "on_tool_start", "name": "tool", "data": {"input": {"text": str(result["arguments"])}}}
                 yield {"event": "on_tool_end", "name": "tool", "data": {"output": result["output"]}}
 
             if "file_search" in result and result["file_search"] is not None:
+                logger.debug(
+                    i18n.t('components.datastax.astra_assistant_manager.logs.file_search_used'))
                 yield {"event": "on_tool_start", "name": "tool", "data": {"input": {"text": self.user_message}}}
                 file_search_str = ""
                 for chunk in result["file_search"].to_dict().get("chunks", []):
@@ -271,12 +310,17 @@ class AstraAssistantManager(ComponentWithCache):
                 yield {"event": "on_tool_end", "name": "tool", "data": {"output": file_search_str}}
 
             if "text" not in result:
-                msg = f"No text in result, {result}"
-                raise ValueError(msg)
+                error_msg = i18n.t('components.datastax.astra_assistant_manager.errors.no_text_in_result',
+                                   result=str(result))
+                logger.error(error_msg)
+                raise ValueError(error_msg)
 
+            logger.info(
+                i18n.t('components.datastax.astra_assistant_manager.logs.response_received'))
             self._assistant_response = Message(text=result["text"])
             if "decision" in result:
-                self._tool_output = Message(text=str(result["decision"].is_complete))
+                self._tool_output = Message(
+                    text=str(result["decision"].is_complete))
             else:
                 self._tool_output = Message(text=result["text"])
             self._thread_id = Message(text=assistant_manager.thread.id)
@@ -291,16 +335,24 @@ class AstraAssistantManager(ComponentWithCache):
 
         try:
             if hasattr(self, "send_message"):
+                logger.debug(
+                    i18n.t('components.datastax.astra_assistant_manager.logs.processing_events'))
                 processed_result = await process_agent_events(
                     step_iterator(),
                     agent_message,
                     cast("SendMessageFunctionType", self.send_message),
                 )
                 self.status = processed_result
+                logger.info(
+                    i18n.t('components.datastax.astra_assistant_manager.logs.processing_complete'))
         except ExceptionWithMessageError as e:
             msg_id = e.agent_message.id
+            logger.error(i18n.t('components.datastax.astra_assistant_manager.logs.exception_with_message',
+                                msg_id=msg_id))
             await delete_message(id_=msg_id)
             await self._send_message_event(e.agent_message, category="remove_message")
             raise
-        except Exception:
+        except Exception as e:
+            logger.exception(i18n.t('components.datastax.astra_assistant_manager.errors.processing_failed',
+                                    error=str(e)))
             raise

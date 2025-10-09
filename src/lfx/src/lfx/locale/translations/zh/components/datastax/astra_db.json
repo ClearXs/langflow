@@ -1,0 +1,43 @@
+{
+  "display_name": "Astra DB聊天记忆",
+  "description": "从Astra DB检索和存储聊天消息。",
+  "token": {
+    "display_name": "Astra DB应用令牌",
+    "info": "访问Astra DB的身份验证令牌。"
+  },
+  "api_endpoint": {
+    "display_name": "Astra DB API端点",
+    "info": "Astra DB服务的API端点URL。"
+  },
+  "collection_name": {
+    "display_name": "集合名称",
+    "info": "Astra DB中存储向量的集合名称。"
+  },
+  "namespace": {
+    "display_name": "命名空间",
+    "info": "Astra DB中用于集合的可选命名空间。"
+  },
+  "session_id": {
+    "display_name": "会话ID",
+    "info": "聊天的会话ID。如果为空，将使用当前会话ID参数。"
+  },
+  "status": {
+    "building": "正在构建Astra DB聊天记忆...",
+    "message_history_created": "消息历史创建成功 - 集合：{collection}，会话：{session_id}"
+  },
+  "errors": {
+    "langchain_import_failed": "无法导入langchain Astra DB集成包。请使用`pip install langchain-astradb`安装。",
+    "astrapy_import_failed": "无法导入astrapy包。请使用`pip install astrapy`安装。",
+    "build_failed": "构建Astra DB消息历史失败：{error}"
+  },
+  "logs": {
+    "langchain_import_successful": "Langchain Astra DB包导入成功",
+    "astrapy_import_successful": "Astrapy包导入成功",
+    "building_message_history": "正在构建消息历史 - 集合：{collection}，会话ID：{session_id}",
+    "parsing_endpoint": "正在解析API端点",
+    "environment_detected": "检测到环境：{environment}",
+    "using_namespace": "正在使用命名空间：{namespace}",
+    "no_namespace": "未指定命名空间，使用默认值",
+    "message_history_created": "消息历史创建成功"
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "display_name": "Get Environment Variable",
+  "description": "Gets the value of an environment variable from the system.",
+  "env_var_name": {
+    "display_name": "Environment Variable Name",
+    "info": "Name of the environment variable to get"
+  },
+  "outputs": {
+    "env_var_value": {
+      "display_name": "Environment Variable Value"
+    }
+  },
+  "status": {
+    "getting": "Getting environment variable...",
+    "retrieved": "Environment variable '{var_name}' retrieved successfully"
+  },
+  "errors": {
+    "env_var_not_set": "Environment variable '{var_name}' not set",
+    "retrieval_failed": "Failed to retrieve environment variable '{var_name}': {error}"
+  },
+  "logs": {
+    "getting_env_var": "Getting environment variable: {var_name}",
+    "value_length": "Environment variable value length: {length} characters"
+  }
+}

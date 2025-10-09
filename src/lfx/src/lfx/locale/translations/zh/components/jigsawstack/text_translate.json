@@ -1,0 +1,21 @@
+{
+  "display_name": "文本翻译",
+  "description": "支持多种文本格式的语言翻译服务。",
+  "api_key": {
+    "display_name": "JigsawStack API密钥",
+    "info": "用于身份验证的JigsawStack API密钥。"
+  },
+  "target_language": {
+    "display_name": "目标语言",
+    "info": "要翻译到的目标语言代码。语言代码由唯一的ISO 639-1双字母代码标识。"
+  },
+  "text": {
+    "display_name": "文本",
+    "info": "要翻译的文本。可以是单个字符串或字符串列表。如果提供列表,每个字符串将单独翻译。"
+  },
+  "outputs": {
+    "translation_results": {
+      "display_name": "翻译结果"
+    }
+  }
+}

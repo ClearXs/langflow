@@ -1,0 +1,12 @@
+{
+  "display_name": "JSON代理",
+  "description": "从LLM和工具构建JSON代理。",
+  "llm": {
+    "display_name": "语言模型",
+    "info": "LLM模型对象(可以在任何LLM组件中找到)。"
+  },
+  "path": {
+    "display_name": "文件路径",
+    "info": "要处理的JSON、YAML或YML文件的路径。"
+  }
+}

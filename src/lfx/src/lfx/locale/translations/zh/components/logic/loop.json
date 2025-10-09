@@ -1,92 +1,49 @@
 {
   "display_name": "循环",
-  "description": "执行迭代操作，支持各种循环类型、条件和并行处理。",
-  "loop_type": {
-    "display_name": "循环类型",
-    "info": "要执行的循环类型：for_each（遍历数据）、while/until（条件循环）、range（数值范围）或infinite（无限循环）。"
-  },
-  "input_data": {
-    "display_name": "输入数据",
-    "info": "要遍历的数据或用作每次循环迭代输入的数据。"
-  },
-  "loop_condition": {
-    "display_name": "循环条件",
-    "info": "定义循环条件的JSON对象。在'condition'字段中使用表达式，如'item > 0'或'index < 10'。"
-  },
-  "range_start": {
-    "display_name": "范围起始值",
-    "info": "范围类型循环的起始值。"
-  },
-  "range_end": {
-    "display_name": "范围结束值",
-    "info": "范围类型循环的结束值（不包含）。"
-  },
-  "range_step": {
-    "display_name": "范围步长",
-    "info": "范围类型循环的步长大小。"
-  },
-  "max_iterations": {
-    "display_name": "最大迭代次数",
-    "info": "防止无限循环的最大迭代次数。"
-  },
-  "delay_between_iterations": {
-    "display_name": "迭代间延迟（秒）",
-    "info": "每次迭代之间等待的时间。"
-  },
-  "break_on_error": {
-    "display_name": "遇错即停",
-    "info": "处理项目时发生错误是否停止循环。"
-  },
-  "collect_results": {
-    "display_name": "收集结果",
-    "info": "是否收集并返回每次迭代的结果。"
-  },
-  "output_mode": {
-    "display_name": "输出模式",
-    "info": "如何格式化循环结果：all_results、last_result、aggregated或streaming。"
-  },
-  "include_index": {
-    "display_name": "包含索引",
-    "info": "是否在每个结果中包含迭代索引。"
-  },
-  "parallel_execution": {
-    "display_name": "并行执行",
-    "info": "是否批量并行处理项目以提高性能。"
-  },
-  "batch_size": {
-    "display_name": "批处理大小",
-    "info": "每个并行批次中处理的项目数。"
+  "description": "遍历Data对象列表，一次输出一个项目，并从循环输入中聚合结果。",
+  "data": {
+    "display_name": "输入",
+    "info": "要遍历的初始Data对象列表或DataFrame。"
   },
   "outputs": {
-    "loop_results": {
-      "display_name": "循环结果"
+    "item": {
+      "display_name": "项目"
     },
-    "loop_stats": {
-      "display_name": "循环统计"
-    },
-    "current_item": {
-      "display_name": "当前项目"
+    "done": {
+      "display_name": "完成"
     }
   },
-  "success": {
-    "loop_completed": "循环成功完成。{iterations}次迭代在{duration:.2f}秒内完成。"
+  "status": {
+    "initialized": "循环已初始化，包含{count}个项目",
+    "processing_item": "正在处理第{index}个项目，共{total}个",
+    "completed": "循环迭代已完成",
+    "done": "循环已完成，包含{count}个聚合结果"
   },
   "warnings": {
-    "condition_evaluation_error": "评估条件'{condition}'时出错：{error}",
-    "item_processing_error": "处理索引{index}处的项目时出错：{error}",
-    "max_iterations_reached": "循环在达到最大迭代次数限制（{max_iterations}）后停止"
+    "index_out_of_range": "索引{index}超出范围，返回空Data"
   },
   "errors": {
-    "invalid_range": "范围起始值必须小于结束值。",
-    "invalid_step": "范围步长必须大于0。",
-    "invalid_max_iterations": "最大迭代次数必须大于0。",
-    "invalid_delay": "迭代间延迟不能为负数。",
-    "invalid_batch_size": "批处理大小必须大于0。",
-    "invalid_loop_condition": "循环条件中的JSON格式无效：{error}",
-    "unsupported_loop_type": "不支持的循环类型：{type}",
-    "processing_error": "处理索引{index}处的项目时出错：{error}",
-    "loop_execution_error": "循环执行过程中出错：{error}",
-    "stats_error": "获取循环统计信息时出错：{error}",
-    "current_item_error": "获取当前项目时出错：{error}"
+    "validation_failed": "数据验证失败：{error}",
+    "invalid_data_type": "'data'输入必须是DataFrame、Data对象列表或单个Data对象。"
+  },
+  "logs": {
+    "already_initialized": "循环已初始化，跳过初始化",
+    "initializing": "正在初始化循环数据",
+    "data_validated": "数据验证成功 - {count}个项目",
+    "initialized": "循环已初始化，包含{count}个项目",
+    "validating_data": "正在验证数据输入 - 类型：{data_type}",
+    "converting_dataframe": "正在将DataFrame转换为Data对象列表",
+    "wrapping_single_data": "正在将单个Data对象包装到列表中",
+    "data_list_valid": "数据列表有效，包含{count}个项目",
+    "evaluating_stop": "正在评估停止条件 - 当前索引：{current_index}，数据长度：{data_length}，应该停止：{should_stop}",
+    "loop_completed": "循环迭代已完成 - 停止项目输出",
+    "outputting_item": "正在输出第{index}个项目，共{total}个",
+    "index_incremented": "索引已递增至{new_index}",
+    "dependency_updated": "循环依赖已更新：{dependency_id}",
+    "triggering_done": "正在触发完成输出 - 循环已完成",
+    "done_output": "完成输出已触发，包含{count}个聚合项目",
+    "loop_not_done": "循环尚未完成 - 停止完成输出",
+    "loop_variables": "已检索循环变量 - 数据计数：{data_count}，当前索引：{current_index}",
+    "item_aggregated": "项目已聚合 - 已聚合：{aggregated_count}，总计：{total_count}"
   }
 }

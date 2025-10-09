@@ -1,0 +1,30 @@
+{
+  "display_name": "文本嵌入器",
+  "description": "使用指定的嵌入模型为给定消息生成嵌入。",
+  "embedding_model": {
+    "display_name": "嵌入模型",
+    "info": "用于生成嵌入的嵌入模型。"
+  },
+  "message": {
+    "display_name": "消息",
+    "info": "要生成嵌入的消息。"
+  },
+  "outputs": {
+    "embeddings": {
+      "display_name": "嵌入数据"
+    }
+  },
+  "errors": {
+    "invalid_model": "无效或不兼容的嵌入模型",
+    "no_text_content": "消息中未找到文本内容",
+    "invalid_embeddings": "生成的嵌入无效",
+    "generation_failed": "生成嵌入时出错：{error}"
+  },
+  "logs": {
+    "starting_generation": "开始生成嵌入",
+    "text_extracted": "已提取文本内容 - 长度：{length}个字符",
+    "generating_embeddings": "正在使用嵌入模型生成嵌入",
+    "embeddings_generated": "嵌入生成成功 - 维度：{dimension}",
+    "generation_completed": "嵌入生成完成"
+  }
+}

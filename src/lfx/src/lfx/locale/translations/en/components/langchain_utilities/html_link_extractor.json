@@ -1,0 +1,16 @@
+{
+  "display_name": "HTML Link Extractor",
+  "description": "Extract hyperlinks from HTML content.",
+  "kind": {
+    "display_name": "Kind",
+    "info": "The kind of edge to extract. Default is 'hyperlink'."
+  },
+  "drop_fragments": {
+    "display_name": "Drop URL Fragments",
+    "info": "Whether to drop URL fragments (e.g., '#section') from extracted links."
+  },
+  "data_input": {
+    "display_name": "Input",
+    "info": "The HTML documents from which to extract links."
+  }
+}

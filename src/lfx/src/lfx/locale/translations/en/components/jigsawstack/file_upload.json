@@ -1,0 +1,49 @@
+{
+  "description": "Store any file seamlessly on JigsawStack File Storage and use it in your AI applications. Supports various file types including images, documents, and more.",
+  "api_key": {
+    "display_name": "JigsawStack API Key",
+    "info": "Your JigsawStack API key for authentication"
+  },
+  "file": {
+    "display_name": "File",
+    "info": "Upload file to be stored on JigsawStack File Storage."
+  },
+  "key": {
+    "display_name": "Key",
+    "info": "The key used to store the file on JigsawStack File Storage. If not provided, a unique key will be generated."
+  },
+  "overwrite": {
+    "display_name": "Overwrite Existing File",
+    "info": "If true, will overwrite the existing file with the same key. If false, will return an error if the file already exists."
+  },
+  "temp_public_url": {
+    "display_name": "Return Temporary Public URL",
+    "info": "If true, will return a temporary public URL which lasts for a limited time. If false, will return the file store key which can only be accessed by the owner."
+  },
+  "outputs": {
+    "file_upload_result": {
+      "display_name": "File Store Result"
+    }
+  },
+  "errors": {
+    "import_error": "JigsawStack package not found. Please install it using: pip install jigsawstack>=0.2.7",
+    "file_not_found": "File not found: {path}",
+    "not_a_file": "Path is not a file: {path}",
+    "file_read_error": "Error reading file: {error}",
+    "jigsawstack_error": "JigsawStack error: {error}",
+    "unexpected_error": "An unexpected error occurred: {error}"
+  },
+  "logs": {
+    "starting_upload": "Starting file upload - File: {file}",
+    "creating_client": "Creating JigsawStack client",
+    "reading_file": "Reading file: {path} (Size: {size} bytes)",
+    "file_read": "File content read successfully ({size} bytes)",
+    "using_key": "Using custom key: {key}",
+    "auto_generate_key": "Auto-generating unique key",
+    "overwrite_setting": "Overwrite setting: {overwrite}",
+    "temp_url_setting": "Temporary public URL setting: {temp_url}",
+    "uploading_file": "Uploading file '{name}' ({size} bytes) to JigsawStack storage",
+    "upload_complete": "Upload complete - Key: {key}",
+    "upload_success": "File '{name}' uploaded successfully."
+  }
+}

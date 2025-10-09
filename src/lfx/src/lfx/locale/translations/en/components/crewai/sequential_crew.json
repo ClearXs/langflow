@@ -1,0 +1,27 @@
+{
+  "display_name": "Sequential Crew",
+  "description": "Represents a group of agents with tasks that are executed sequentially, one after another in order.",
+  "tasks": {
+    "display_name": "Tasks",
+    "info": "List of sequential tasks to be executed in order by the crew"
+  },
+  "status": {
+    "building": "Building sequential crew...",
+    "crew_created": "Sequential crew created successfully with {agent_count} agents and {task_count} tasks"
+  },
+  "errors": {
+    "import_failed": "CrewAI is not installed. Please install it with `uv pip install crewai`.",
+    "build_failed": "Failed to build sequential crew: {error}"
+  },
+  "logs": {
+    "imports_successful": "CrewAI dependencies imported successfully",
+    "deriving_agents": "Deriving agents from sequential tasks",
+    "agents_derived": "Derived {count} agents from tasks",
+    "getting_tasks_agents": "Getting tasks and agents for sequential crew",
+    "using_derived_agents": "Using {count} derived agents from tasks",
+    "building_crew": "Building sequential crew",
+    "getting_tasks_agents_build": "Retrieving tasks and agents for crew build",
+    "retrieved_items": "Retrieved {task_count} tasks and {agent_count} agents",
+    "creating_sequential_crew": "Creating sequential crew with {agent_count} agents and {task_count} tasks"
+  }
+}

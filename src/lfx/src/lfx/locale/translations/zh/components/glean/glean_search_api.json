@@ -1,0 +1,54 @@
+{
+  "description": "使用Glean的企业搜索API在整个组织中查找相关内容。",
+  "glean_api_url": {
+    "display_name": "Glean API URL",
+    "info": "您的Glean API实例的基础URL（例如：https://your-company.glean.com/api/index/v1）。"
+  },
+  "glean_access_token": {
+    "display_name": "Glean访问令牌",
+    "info": "用于身份验证的Glean API访问令牌。"
+  },
+  "query": {
+    "display_name": "查询",
+    "info": "要在Glean中执行的搜索查询。"
+  },
+  "page_size": {
+    "display_name": "页面大小",
+    "info": "要返回的最大搜索结果数（默认：10）。"
+  },
+  "request_options": {
+    "display_name": "请求选项",
+    "info": "搜索请求的附加选项（可选）。"
+  },
+  "outputs": {
+    "dataframe": {
+      "display_name": "搜索结果数据框"
+    }
+  },
+  "tool_description": "在Glean中搜索相关结果。",
+  "errors": {
+    "no_results": "未找到良好的Glean搜索结果",
+    "search_failed": "Glean搜索API出错：{error}",
+    "http_error": "HTTP错误{status}：{error}",
+    "request_failed": "请求失败：{error}",
+    "fetch_failed": "获取内容失败：{error}"
+  },
+  "logs": {
+    "preparing_request": "正在准备对{url}的请求，查询：{query}",
+    "fetching_results": "正在从Glean API获取结果",
+    "results_fetched": "从Glean获取了{count}个结果",
+    "executing_search": "正在执行搜索，查询：{query}",
+    "results_processed": "已处理{count}个结果",
+    "sending_request": "正在向{url}发送POST请求",
+    "request_successful": "请求成功 - 状态：{status}",
+    "response_parsed": "响应已解析 - 找到{count}个结果",
+    "building_tool": "正在构建Glean搜索工具",
+    "tool_built": "Langchain的Glean搜索API工具",
+    "running_model": "正在运行Glean搜索模型",
+    "fetching_content": "正在从Glean搜索API获取内容",
+    "content_fetched": "内容获取成功 - {count}项",
+    "building_wrapper": "正在构建Glean API包装器",
+    "converting_to_dataframe": "正在将搜索结果转换为数据框",
+    "dataframe_created": "数据框已创建，包含{rows}行"
+  }
+}

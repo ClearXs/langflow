@@ -1,0 +1,49 @@
+{
+  "description": "Execute SQL queries on Google BigQuery.",
+  "service_account_json_file": {
+    "display_name": "Upload Service Account JSON",
+    "info": "Upload the JSON file containing Google Cloud service account credentials."
+  },
+  "query": {
+    "display_name": "SQL Query",
+    "info": "The SQL query to execute on BigQuery."
+  },
+  "clean_query": {
+    "display_name": "Clean Query",
+    "info": "When enabled, this will automatically clean up your SQL query."
+  },
+  "outputs": {
+    "query_results": {
+      "display_name": "Query Results"
+    }
+  },
+  "errors": {
+    "no_project_id": "No project_id found in service account credentials file.",
+    "file_not_found": "Service account file not found: {error}",
+    "invalid_json": "Invalid JSON string for service account credentials",
+    "credentials_load_failed": "Error loading service account credentials: {error}",
+    "execution_failed": "Error executing BigQuery SQL query: {error}",
+    "empty_query": "No valid SQL query found in input text.",
+    "auth_refresh_failed": "Authentication error: Unable to refresh authentication token. Please try to reauthenticate.",
+    "query_execution_failed": "Error executing BigQuery SQL query: {error}"
+  },
+  "logs": {
+    "cleaning_query": "Cleaning SQL query - Length: {length} characters",
+    "extracted_from_code_block": "SQL extracted from code block",
+    "extracted_sql_statements": "SQL statements extracted from text",
+    "removed_quotes": "Removed surrounding quotes from query",
+    "query_cleaned": "Query cleaned - Original: {original_length}, Cleaned: {cleaned_length} characters",
+    "executing_query": "Executing SQL query on BigQuery",
+    "reading_credentials": "Reading service account credentials file",
+    "credentials_read": "Credentials read successfully - Project ID: {project_id}",
+    "loading_credentials": "Loading service account credentials",
+    "credentials_loaded": "Service account credentials loaded successfully",
+    "creating_client": "Creating BigQuery client for project: {project_id}",
+    "client_created": "BigQuery client created successfully",
+    "cleaning_enabled": "Query cleaning enabled",
+    "cleaning_skipped": "Query cleaning skipped (using query as-is)",
+    "executing_query_on_bigquery": "Executing query on BigQuery",
+    "query_preview": "Query preview: {preview}",
+    "query_executed": "Query executed successfully - {rows} row(s) returned"
+  }
+}

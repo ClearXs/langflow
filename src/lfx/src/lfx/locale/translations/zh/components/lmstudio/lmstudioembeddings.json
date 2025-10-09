@@ -1,0 +1,20 @@
+{
+  "display_name": "LM Studio嵌入",
+  "description": "使用LM Studio生成嵌入向量。",
+  "model": {
+    "display_name": "模型",
+    "info": "用于生成嵌入向量的LM Studio模型。"
+  },
+  "base_url": {
+    "display_name": "LM Studio基础URL",
+    "info": "LM Studio服务器的基础URL。"
+  },
+  "api_key": {
+    "display_name": "LM Studio API密钥",
+    "info": "用于LM Studio身份验证的API密钥。"
+  },
+  "temperature": {
+    "display_name": "模型温度",
+    "info": "控制模型输出的随机性。较低的值使输出更集中和确定。"
+  }
+}

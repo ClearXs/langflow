@@ -1,3 +1,4 @@
+import i18n
 from langchain.agents import create_xml_agent
 from langchain_core.prompts import ChatPromptTemplate, HumanMessagePromptTemplate, PromptTemplate
 
@@ -11,19 +12,35 @@ from lfx.schema.data import Data
 
 
 class XMLAgentComponent(LCToolsAgentComponent):
-    display_name: str = "XML Agent"
-    description: str = "Agent that uses tools formatting instructions as xml to the Language Model."
+    display_name: str = i18n.t(
+        'components.langchain_utilities.xml_agent.display_name')
+    description: str = i18n.t(
+        'components.langchain_utilities.xml_agent.description')
     icon = "LangChain"
     beta = True
     name = "XMLAgent"
     inputs = [
         *LCToolsAgentComponent.get_base_inputs(),
-        HandleInput(name="llm", display_name="Language Model", input_types=["LanguageModel"], required=True),
-        DataInput(name="chat_history", display_name="Chat History", is_list=True, advanced=True),
+        HandleInput(
+            name="llm",
+            display_name=i18n.t(
+                'components.langchain_utilities.xml_agent.llm.display_name'),
+            input_types=["LanguageModel"],
+            required=True
+        ),
+        DataInput(
+            name="chat_history",
+            display_name=i18n.t(
+                'components.langchain_utilities.xml_agent.chat_history.display_name'),
+            is_list=True,
+            advanced=True
+        ),
         MultilineInput(
             name="system_prompt",
-            display_name="System Prompt",
-            info="System prompt for the agent.",
+            display_name=i18n.t(
+                'components.langchain_utilities.xml_agent.system_prompt.display_name'),
+            info=i18n.t(
+                'components.langchain_utilities.xml_agent.system_prompt.info'),
             value="""You are a helpful assistant. Help the user answer any questions.
 
 You have access to the following tools:
@@ -50,7 +67,12 @@ Question: {input}
             """,  # noqa: E501
         ),
         MultilineInput(
-            name="user_prompt", display_name="Prompt", info="This prompt must contain 'input' key.", value="{input}"
+            name="user_prompt",
+            display_name=i18n.t(
+                'components.langchain_utilities.xml_agent.user_prompt.display_name'),
+            info=i18n.t(
+                'components.langchain_utilities.xml_agent.user_prompt.info'),
+            value="{input}"
         ),
     ]
 
@@ -64,7 +86,8 @@ Question: {input}
         messages = [
             ("system", self.system_prompt),
             ("placeholder", "{chat_history}"),
-            HumanMessagePromptTemplate(prompt=PromptTemplate(input_variables=["input"], template=self.user_prompt)),
+            HumanMessagePromptTemplate(prompt=PromptTemplate(
+                input_variables=["input"], template=self.user_prompt)),
             ("ai", "{agent_scratchpad}"),
         ]
         prompt = ChatPromptTemplate.from_messages(messages)

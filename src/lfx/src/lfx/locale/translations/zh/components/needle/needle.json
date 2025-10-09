@@ -1,0 +1,25 @@
+{
+  "display_name": "Needle检索器",
+  "description": "使用Needle API搜索集合的检索器。",
+  "needle_api_key": {
+    "display_name": "Needle API密钥",
+    "info": "您的Needle API密钥。"
+  },
+  "collection_id": {
+    "display_name": "集合ID",
+    "info": "Needle集合的ID。"
+  },
+  "query": {
+    "display_name": "用户查询",
+    "info": "在此输入您的问题。在工具模式下，您还可以指定top_k参数(最小值: 20)。"
+  },
+  "top_k": {
+    "display_name": "Top K结果",
+    "info": "要返回的搜索结果数量(最小值: 20)。"
+  },
+  "outputs": {
+    "result": {
+      "display_name": "结果"
+    }
+  }
+}

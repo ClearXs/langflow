@@ -1,0 +1,16 @@
+{
+  "display_name": "创建页面",
+  "description": "用于创建Notion页面的组件。",
+  "database_id": {
+    "display_name": "数据库ID",
+    "info": "Notion数据库的ID。"
+  },
+  "notion_secret": {
+    "display_name": "Notion密钥",
+    "info": "Notion集成令牌。"
+  },
+  "properties_json": {
+    "display_name": "属性 (JSON)",
+    "info": "新页面的属性，以JSON字符串形式提供。"
+  }
+}

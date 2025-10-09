@@ -1,0 +1,43 @@
+{
+  "display_name": "Chunk Docling Document",
+  "description": "Chunk a Docling document into smaller pieces using HybridChunker.",
+  "data": {
+    "display_name": "Docling Documents",
+    "info": "List of Docling documents to chunk"
+  },
+  "tokenizer": {
+    "display_name": "Tokenizer",
+    "info": "Tokenizer to use for chunking (e.g., 'nltk', 'spacy')"
+  },
+  "max_tokens": {
+    "display_name": "Max Tokens",
+    "info": "Maximum number of tokens per chunk"
+  },
+  "outputs": {
+    "chunks": {
+      "display_name": "Chunks"
+    }
+  },
+  "status": {
+    "processing": "Processing documents for chunking...",
+    "completed": "Chunking completed - Created {total_chunks} chunks from {total_docs} document(s)"
+  },
+  "errors": {
+    "docling_import_failed": "Could not import docling packages. Please install with `pip install docling docling-core`",
+    "validation_failed": "Failed to validate document {index}: {error}",
+    "chunking_failed": "Failed to chunk document {index}: {error}",
+    "invalid_max_tokens": "Invalid max_tokens value: {error}",
+    "chunking_process_failed": "Chunking process failed: {error}"
+  },
+  "logs": {
+    "docling_import_successful": "Docling packages imported successfully",
+    "no_data": "No documents provided for chunking",
+    "processing_documents": "Processing {count} document(s) for chunking",
+    "chunker_config": "Chunker configuration - Tokenizer: {tokenizer}, Max Tokens: {max_tokens}",
+    "processing_document": "Processing document {index}/{total}",
+    "no_json": "Document {index} has no JSON data, skipping",
+    "document_validated": "Document {index} validated successfully",
+    "chunks_created": "Document {index} chunked into {chunk_count} pieces",
+    "chunk_added": "Chunk {chunk_index} added - Text length: {text_length} characters"
+  }
+}

@@ -1,3 +1,4 @@
+import i18n
 from langchain.docstore.document import Document
 from langchain_experimental.text_splitter import SemanticChunker
 
@@ -16,9 +17,11 @@ from lfx.schema.data import Data
 class SemanticTextSplitterComponent(LCTextSplitterComponent):
     """Split text into semantically meaningful chunks using semantic similarity."""
 
-    display_name: str = "Semantic Text Splitter"
+    display_name: str = i18n.t(
+        'components.langchain_utilities.language_semantic.display_name')
     name: str = "SemanticTextSplitter"
-    description: str = "Split text into semantically meaningful chunks using semantic similarity."
+    description: str = i18n.t(
+        'components.langchain_utilities.language_semantic.description')
     documentation = "https://python.langchain.com/docs/how_to/semantic-chunker/"
     beta = True  # this component is beta because it is imported from langchain_experimental
     icon = "LangChain"
@@ -26,60 +29,76 @@ class SemanticTextSplitterComponent(LCTextSplitterComponent):
     inputs = [
         HandleInput(
             name="data_inputs",
-            display_name="Data Inputs",
-            info="List of Data objects containing text and metadata to split.",
+            display_name=i18n.t(
+                'components.langchain_utilities.language_semantic.data_inputs.display_name'),
+            info=i18n.t(
+                'components.langchain_utilities.language_semantic.data_inputs.info'),
             input_types=["Data"],
             is_list=True,
             required=True,
         ),
         HandleInput(
             name="embeddings",
-            display_name="Embeddings",
-            info="Embeddings model to use for semantic similarity. Required.",
+            display_name=i18n.t(
+                'components.langchain_utilities.language_semantic.embeddings.display_name'),
+            info=i18n.t(
+                'components.langchain_utilities.language_semantic.embeddings.info'),
             input_types=["Embeddings"],
             is_list=False,
             required=True,
         ),
         DropdownInput(
             name="breakpoint_threshold_type",
-            display_name="Breakpoint Threshold Type",
-            info=(
-                "Method to determine breakpoints. Options: 'percentile', "
-                "'standard_deviation', 'interquartile'. Defaults to 'percentile'."
-            ),
+            display_name=i18n.t(
+                'components.langchain_utilities.language_semantic.breakpoint_threshold_type.display_name'),
+            info=i18n.t(
+                'components.langchain_utilities.language_semantic.breakpoint_threshold_type.info'),
             value="percentile",
             options=["percentile", "standard_deviation", "interquartile"],
         ),
         FloatInput(
             name="breakpoint_threshold_amount",
-            display_name="Breakpoint Threshold Amount",
-            info="Numerical amount for the breakpoint threshold.",
+            display_name=i18n.t(
+                'components.langchain_utilities.language_semantic.breakpoint_threshold_amount.display_name'),
+            info=i18n.t(
+                'components.langchain_utilities.language_semantic.breakpoint_threshold_amount.info'),
             value=0.5,
         ),
         IntInput(
             name="number_of_chunks",
-            display_name="Number of Chunks",
-            info="Number of chunks to split the text into.",
+            display_name=i18n.t(
+                'components.langchain_utilities.language_semantic.number_of_chunks.display_name'),
+            info=i18n.t(
+                'components.langchain_utilities.language_semantic.number_of_chunks.info'),
             value=5,
         ),
         MessageTextInput(
             name="sentence_split_regex",
-            display_name="Sentence Split Regex",
-            info="Regular expression to split sentences. Optional.",
+            display_name=i18n.t(
+                'components.langchain_utilities.language_semantic.sentence_split_regex.display_name'),
+            info=i18n.t(
+                'components.langchain_utilities.language_semantic.sentence_split_regex.info'),
             value="",
             advanced=True,
         ),
         IntInput(
             name="buffer_size",
-            display_name="Buffer Size",
-            info="Size of the buffer.",
+            display_name=i18n.t(
+                'components.langchain_utilities.language_semantic.buffer_size.display_name'),
+            info=i18n.t(
+                'components.langchain_utilities.language_semantic.buffer_size.info'),
             value=0,
             advanced=True,
         ),
     ]
 
     outputs = [
-        Output(display_name="Chunks", name="chunks", method="split_text"),
+        Output(
+            display_name=i18n.t(
+                'components.langchain_utilities.language_semantic.outputs.chunks.display_name'),
+            name="chunks",
+            method="split_text"
+        ),
     ]
 
     def _docs_to_data(self, docs: list[Document]) -> list[Data]:

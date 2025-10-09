@@ -1,0 +1,29 @@
+{
+  "display_name": "Self Query Retriever",
+  "description": "Retriever that uses a vector store and an LLM to generate the vector store queries.",
+  "query": {
+    "display_name": "Query",
+    "info": "Query to be passed as input."
+  },
+  "vectorstore": {
+    "display_name": "Vector Store",
+    "info": "Vector Store to be passed as input."
+  },
+  "attribute_infos": {
+    "display_name": "Metadata Field Info",
+    "info": "Metadata Field Info to be passed as input."
+  },
+  "document_content_description": {
+    "display_name": "Document Content Description",
+    "info": "Document Content Description to be passed as input."
+  },
+  "llm": {
+    "display_name": "LLM",
+    "info": "LLM to be passed as input."
+  },
+  "outputs": {
+    "documents": {
+      "display_name": "Retrieved Documents"
+    }
+  }
+}

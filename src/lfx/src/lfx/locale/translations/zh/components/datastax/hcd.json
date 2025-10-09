@@ -1,0 +1,122 @@
+{
+  "display_name": "超融合数据库",
+  "description": "使用超融合数据库(HCD)实现的向量存储，具有搜索功能",
+  "collection_name": {
+    "display_name": "集合名称",
+    "info": "HCD中存储向量的集合名称。"
+  },
+  "username": {
+    "display_name": "HCD用户名",
+    "info": "访问HCD的身份验证用户名。"
+  },
+  "password": {
+    "display_name": "HCD密码",
+    "info": "访问HCD的身份验证密码。"
+  },
+  "api_endpoint": {
+    "display_name": "HCD API端点",
+    "info": "HCD服务的API端点URL。"
+  },
+  "namespace": {
+    "display_name": "命名空间",
+    "info": "HCD中用于集合的可选命名空间。"
+  },
+  "ca_certificate": {
+    "display_name": "CA证书",
+    "info": "连接HCD的TLS连接的可选CA证书。"
+  },
+  "metric": {
+    "display_name": "度量",
+    "info": "向量存储中用于向量比较的可选距离度量。"
+  },
+  "batch_size": {
+    "display_name": "批次大小",
+    "info": "单个批次中处理的可选数据数量。"
+  },
+  "bulk_insert_batch_concurrency": {
+    "display_name": "批量插入批次并发",
+    "info": "批量插入操作的可选并发级别。"
+  },
+  "bulk_insert_overwrite_concurrency": {
+    "display_name": "批量插入覆盖并发",
+    "info": "覆盖现有数据的批量插入操作的可选并发级别。"
+  },
+  "bulk_delete_concurrency": {
+    "display_name": "批量删除并发",
+    "info": "批量删除操作的可选并发级别。"
+  },
+  "setup_mode": {
+    "display_name": "设置模式",
+    "info": "设置向量存储的配置模式，选项包括'Sync'、'Async'或'Off'。"
+  },
+  "pre_delete_collection": {
+    "display_name": "预删除集合",
+    "info": "布尔标志，用于确定是否在创建新集合之前删除集合。"
+  },
+  "metadata_indexing_include": {
+    "display_name": "元数据索引包含",
+    "info": "要包含在索引中的可选元数据字段列表。"
+  },
+  "embedding": {
+    "display_name": "嵌入或Astra Vectorize",
+    "info": "允许使用嵌入模型或Astra Vectorize配置。"
+  },
+  "metadata_indexing_exclude": {
+    "display_name": "元数据索引排除",
+    "info": "要从索引中排除的可选元数据字段列表。"
+  },
+  "collection_indexing_policy": {
+    "display_name": "集合索引策略",
+    "info": "定义集合索引策略的可选字典。"
+  },
+  "number_of_results": {
+    "display_name": "结果数量",
+    "info": "要返回的结果数量。"
+  },
+  "search_type": {
+    "display_name": "搜索类型",
+    "info": "要使用的搜索类型"
+  },
+  "search_score_threshold": {
+    "display_name": "搜索分数阈值",
+    "info": "搜索结果的最小相似度分数阈值。（使用'带分数阈值的相似性'时）"
+  },
+  "search_filter": {
+    "display_name": "搜索元数据过滤器",
+    "info": "应用于搜索查询的可选过滤器字典。"
+  },
+  "errors": {
+    "langchain_import_failed": "无法导入langchain Astra DB集成包。请使用`pip install langchain-astradb`安装。",
+    "astrapy_import_failed": "无法导入astrapy集成包。请使用`pip install astrapy`安装。",
+    "invalid_setup_mode": "无效的设置模式：{mode}",
+    "initialization_failed": "初始化AstraDBVectorStore错误：{error}",
+    "invalid_input_type": "向量存储输入必须是Data对象。",
+    "add_documents_failed": "向AstraDBVectorStore添加文档时出错：{error}",
+    "search_failed": "在AstraDBVectorStore中执行搜索时出错：{error}"
+  },
+  "logs": {
+    "langchain_import_successful": "Langchain Astra DB包导入成功",
+    "astrapy_import_successful": "Astrapy包导入成功",
+    "setup_mode_set": "设置模式设置为：{mode}",
+    "using_embedding_model": "正在使用嵌入模型",
+    "using_vectorize_config": "正在使用Astra Vectorize配置",
+    "creating_token_provider": "正在使用用户名创建令牌提供程序：{username}",
+    "metadata_include_set": "已设置元数据索引包含字段",
+    "metadata_exclude_set": "已设置元数据索引排除字段",
+    "indexing_policy_set": "已设置集合索引策略",
+    "initializing_vector_store": "正在初始化HCD向量存储 - 集合：{collection}，命名空间：{namespace}",
+    "vector_store_initialized": "HCD向量存储初始化成功",
+    "adding_documents": "正在向向量存储添加{count}个文档",
+    "documents_added": "{count}个文档添加成功",
+    "no_documents": "没有文档要添加到向量存储",
+    "mapping_search_type": "正在映射搜索类型：{search_type}",
+    "filter_applied": "已应用包含{count}个条件的搜索过滤器",
+    "search_query": "搜索查询：{query}",
+    "search_type_log": "搜索类型：{search_type}",
+    "number_of_results": "结果数量：{count}",
+    "performing_search": "正在执行{search_type}搜索",
+    "retrieved_documents": "检索到的文档：{count}",
+    "converted_to_data": "已将文档转换为数据：{count}",
+    "no_search_input": "未提供搜索输入。跳过搜索。"
+  }
+}

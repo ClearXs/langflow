@@ -1,0 +1,48 @@
+{
+  "description": "使用Firecrawl API爬取URL及其所有子页面，提取内容和元数据。",
+  "api_key": {
+    "display_name": "Firecrawl API密钥",
+    "info": "用于向Firecrawl API进行身份验证的API密钥。在https://firecrawl.dev获取您的密钥"
+  },
+  "url": {
+    "display_name": "URL",
+    "info": "要爬取的起始URL。爬虫将根据爬虫选项从此页面跟随链接。"
+  },
+  "timeout": {
+    "display_name": "超时",
+    "info": "爬取请求的超时时间（毫秒）。如果未设置，则使用默认的API超时。"
+  },
+  "idempotency_key": {
+    "display_name": "幂等键",
+    "info": "可选的幂等键以确保唯一请求。如果未提供，将生成随机UUID。使用相同的键可避免重复爬取。"
+  },
+  "crawlerOptions": {
+    "display_name": "爬虫选项",
+    "info": "爬虫行为的配置（maxDepth、limit、allowExternalLinks等）。有关所有可用选项，请参阅Firecrawl文档。"
+  },
+  "scrapeOptions": {
+    "display_name": "抓取选项",
+    "info": "每个页面如何抓取的配置（onlyMainContent、formats、includeTags等）。这些选项适用于爬取的每个页面。"
+  },
+  "outputs": {
+    "data": {
+      "display_name": "爬取结果"
+    }
+  },
+  "errors": {
+    "import_failed": "无法导入firecrawl集成包。请使用`pip install firecrawl-py`安装。",
+    "crawl_failed": "爬取URL '{url}'失败：{error}"
+  },
+  "logs": {
+    "firecrawl_imported": "Firecrawl包导入成功",
+    "starting_crawl": "开始爬取URL：{url}",
+    "scrape_options_added": "抓取选项已添加到参数",
+    "default_params_set": "已设置默认参数 - 最大深度：{max_depth}，限制：{limit}",
+    "main_content_only": "仅主要内容提取已启用：{enabled}",
+    "idempotency_key_generated": "已生成幂等键：{key}",
+    "idempotency_key_provided": "使用提供的幂等键：{key}",
+    "firecrawl_app_initialized": "Firecrawl应用已使用API密钥初始化",
+    "executing_crawl": "正在执行爬取操作",
+    "crawl_completed": "爬取成功完成 - 已爬取{count}个页面"
+  }
+}

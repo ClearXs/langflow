@@ -1,0 +1,52 @@
+{
+  "display_name": "Cassandra聊天记忆",
+  "description": "从Apache Cassandra检索和存储聊天消息。",
+  "database_ref": {
+    "display_name": "联系点 / Astra数据库ID",
+    "info": "数据库的联系点（或Astra DB数据库ID）"
+  },
+  "username": {
+    "display_name": "用户名",
+    "info": "数据库的用户名（Astra DB请留空）。"
+  },
+  "token": {
+    "display_name": "密码 / Astra DB令牌",
+    "info": "数据库的用户密码（或Astra DB令牌）。"
+  },
+  "keyspace": {
+    "display_name": "键空间",
+    "info": "表键空间（或Astra DB命名空间）。"
+  },
+  "table_name": {
+    "display_name": "表名",
+    "info": "存储向量的表（或Astra DB集合）名称。"
+  },
+  "session_id": {
+    "display_name": "会话ID",
+    "info": "消息的会话ID。"
+  },
+  "cluster_kwargs": {
+    "display_name": "集群参数",
+    "info": "Cassandra集群的可选附加关键字参数字典。"
+  },
+  "status": {
+    "initializing": "正在初始化Cassandra连接...",
+    "message_history_created": "消息历史创建成功 - 表：{table}，键空间：{keyspace}，会话：{session_id}"
+  },
+  "errors": {
+    "langchain_import_failed": "无法导入langchain Cassandra聊天消息历史。请使用`pip install langchain-community`安装。",
+    "cassio_import_failed": "无法导入cassio集成包。请使用`pip install cassio`安装。",
+    "build_failed": "构建Cassandra消息历史失败：{error}"
+  },
+  "logs": {
+    "langchain_import_successful": "Langchain Cassandra包导入成功",
+    "cassio_import_successful": "Cassio包导入成功",
+    "detected_astra_db": "检测到Astra DB实例 - 数据库ID：{database_id}",
+    "detected_cassandra_cluster": "检测到Cassandra集群 - 联系点：{contact_points}",
+    "detected_cassandra_single": "检测到Cassandra单节点 - 联系点：{contact_point}",
+    "initializing": "正在初始化{'Astra DB' if is_astra else 'Cassandra'}连接",
+    "init_astra": "正在使用数据库ID和令牌初始化Astra DB连接",
+    "init_cassandra": "正在初始化Cassandra连接 - 用户名：{username}",
+    "creating_message_history": "正在创建消息历史 - 表：{table}，键空间：{keyspace}，会话ID：{session_id}"
+  }
+}

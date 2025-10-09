@@ -1,6 +1,8 @@
+import i18n
 from lfx.base.agents.crewai.crew import convert_llm, convert_tools
 from lfx.custom.custom_component.component import Component
 from lfx.io import BoolInput, DictInput, HandleInput, MultilineInput, Output
+from lfx.log.logger import logger
 
 
 class CrewAIAgentComponent(Component):
@@ -16,93 +18,153 @@ class CrewAIAgentComponent(Component):
         Agent: CrewAI agent.
     """
 
-    display_name = "CrewAI Agent"
-    description = "Represents an agent of CrewAI."
+    display_name = i18n.t('components.crewai.crewai.display_name')
+    description = i18n.t('components.crewai.crewai.description')
     documentation: str = "https://docs.crewai.com/how-to/LLM-Connections/"
     icon = "CrewAI"
     legacy = True
     replacement = "agents.Agent"
 
     inputs = [
-        MultilineInput(name="role", display_name="Role", info="The role of the agent."),
-        MultilineInput(name="goal", display_name="Goal", info="The objective of the agent."),
-        MultilineInput(name="backstory", display_name="Backstory", info="The backstory of the agent."),
+        MultilineInput(
+            name="role",
+            display_name=i18n.t('components.crewai.crewai.role.display_name'),
+            info=i18n.t('components.crewai.crewai.role.info')
+        ),
+        MultilineInput(
+            name="goal",
+            display_name=i18n.t('components.crewai.crewai.goal.display_name'),
+            info=i18n.t('components.crewai.crewai.goal.info')
+        ),
+        MultilineInput(
+            name="backstory",
+            display_name=i18n.t(
+                'components.crewai.crewai.backstory.display_name'),
+            info=i18n.t('components.crewai.crewai.backstory.info')
+        ),
         HandleInput(
             name="tools",
-            display_name="Tools",
+            display_name=i18n.t('components.crewai.crewai.tools.display_name'),
             input_types=["Tool"],
             is_list=True,
-            info="Tools at agents disposal",
+            info=i18n.t('components.crewai.crewai.tools.info'),
             value=[],
         ),
         HandleInput(
             name="llm",
-            display_name="Language Model",
-            info="Language model that will run the agent.",
+            display_name=i18n.t('components.crewai.crewai.llm.display_name'),
+            info=i18n.t('components.crewai.crewai.llm.info'),
             input_types=["LanguageModel"],
         ),
         BoolInput(
             name="memory",
-            display_name="Memory",
-            info="Whether the agent should have memory or not",
+            display_name=i18n.t(
+                'components.crewai.crewai.memory.display_name'),
+            info=i18n.t('components.crewai.crewai.memory.info'),
             advanced=True,
             value=True,
         ),
         BoolInput(
             name="verbose",
-            display_name="Verbose",
+            display_name=i18n.t(
+                'components.crewai.crewai.verbose.display_name'),
             advanced=True,
             value=False,
         ),
         BoolInput(
             name="allow_delegation",
-            display_name="Allow Delegation",
-            info="Whether the agent is allowed to delegate tasks to other agents.",
+            display_name=i18n.t(
+                'components.crewai.crewai.allow_delegation.display_name'),
+            info=i18n.t('components.crewai.crewai.allow_delegation.info'),
             value=True,
         ),
         BoolInput(
             name="allow_code_execution",
-            display_name="Allow Code Execution",
-            info="Whether the agent is allowed to execute code.",
+            display_name=i18n.t(
+                'components.crewai.crewai.allow_code_execution.display_name'),
+            info=i18n.t('components.crewai.crewai.allow_code_execution.info'),
             value=False,
             advanced=True,
         ),
         DictInput(
             name="kwargs",
-            display_name="kwargs",
-            info="kwargs of agent.",
+            display_name=i18n.t(
+                'components.crewai.crewai.kwargs.display_name'),
+            info=i18n.t('components.crewai.crewai.kwargs.info'),
             is_list=True,
             advanced=True,
         ),
     ]
 
     outputs = [
-        Output(display_name="Agent", name="output", method="build_output"),
+        Output(
+            display_name=i18n.t(
+                'components.crewai.crewai.outputs.agent.display_name'),
+            name="output",
+            method="build_output"
+        ),
     ]
 
     def build_output(self):
+        """Build and return a CrewAI agent.
+
+        Returns:
+            Agent: Configured CrewAI agent instance.
+
+        Raises:
+            ImportError: If CrewAI is not installed.
+            ValueError: If agent creation fails.
+        """
         try:
             from crewai import Agent
+            logger.debug(
+                i18n.t('components.crewai.crewai.logs.imports_successful'))
         except ImportError as e:
-            msg = "CrewAI is not installed. Please install it with `uv pip install crewai`."
-            raise ImportError(msg) from e
+            error_msg = i18n.t('components.crewai.crewai.errors.import_failed')
+            logger.error(error_msg)
+            raise ImportError(error_msg) from e
 
-        kwargs = self.kwargs or {}
+        try:
+            logger.info(i18n.t('components.crewai.crewai.logs.creating_agent',
+                               role=self.role))
+            self.status = i18n.t(
+                'components.crewai.crewai.status.creating_agent')
 
-        # Define the Agent
-        agent = Agent(
-            role=self.role,
-            goal=self.goal,
-            backstory=self.backstory,
-            llm=convert_llm(self.llm),
-            verbose=self.verbose,
-            memory=self.memory,
-            tools=convert_tools(self.tools),
-            allow_delegation=self.allow_delegation,
-            allow_code_execution=self.allow_code_execution,
-            **kwargs,
-        )
+            kwargs = self.kwargs or {}
 
-        self.status = repr(agent)
+            # Convert LLM and tools
+            logger.debug(
+                i18n.t('components.crewai.crewai.logs.converting_llm'))
+            converted_llm = convert_llm(self.llm)
 
-        return agent
+            logger.debug(i18n.t('components.crewai.crewai.logs.converting_tools',
+                                count=len(self.tools) if self.tools else 0))
+            converted_tools = convert_tools(self.tools)
+
+            # Define the Agent
+            agent = Agent(
+                role=self.role,
+                goal=self.goal,
+                backstory=self.backstory,
+                llm=converted_llm,
+                verbose=self.verbose,
+                memory=self.memory,
+                tools=converted_tools,
+                allow_delegation=self.allow_delegation,
+                allow_code_execution=self.allow_code_execution,
+                **kwargs,
+            )
+
+            success_msg = i18n.t('components.crewai.crewai.status.agent_created',
+                                 role=self.role)
+            self.status = repr(agent)
+            logger.info(success_msg)
+
+            return agent
+
+        except Exception as e:
+            error_msg = i18n.t('components.crewai.crewai.errors.creation_failed',
+                               error=str(e))
+            logger.exception(error_msg)
+            self.status = error_msg
+            raise ValueError(error_msg) from e

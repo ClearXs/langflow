@@ -1,0 +1,22 @@
+{
+  "display_name": "列出助手",
+  "description": "返回助手ID列表",
+  "outputs": {
+    "assistants": {
+      "display_name": "助手列表"
+    }
+  },
+  "status": {
+    "listing": "正在列出助手...",
+    "listed": "找到{count}个助手"
+  },
+  "errors": {
+    "listing_failed": "列出助手失败：{error}"
+  },
+  "logs": {
+    "client_initialized": "OpenAI客户端初始化成功",
+    "listing_assistants": "正在列出所有助手",
+    "assistant_ids": "助手ID：{ids}",
+    "no_assistants": "未找到助手"
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "display_name": "自查询检索器",
+  "description": "使用向量存储和LLM生成向量存储查询的检索器。",
+  "query": {
+    "display_name": "查询",
+    "info": "要作为输入传递的查询。"
+  },
+  "vectorstore": {
+    "display_name": "向量存储",
+    "info": "要作为输入传递的向量存储。"
+  },
+  "attribute_infos": {
+    "display_name": "元数据字段信息",
+    "info": "要作为输入传递的元数据字段信息。"
+  },
+  "document_content_description": {
+    "display_name": "文档内容描述",
+    "info": "要作为输入传递的文档内容描述。"
+  },
+  "llm": {
+    "display_name": "大语言模型",
+    "info": "要作为输入传递的LLM。"
+  },
+  "outputs": {
+    "documents": {
+      "display_name": "检索到的文档"
+    }
+  }
+}

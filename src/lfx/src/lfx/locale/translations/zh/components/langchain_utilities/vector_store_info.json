@@ -1,0 +1,20 @@
+{
+  "display_name": "向量存储信息",
+  "description": "关于向量存储的信息",
+  "vectorstore_name": {
+    "display_name": "名称",
+    "info": "向量存储的名称"
+  },
+  "vectorstore_description": {
+    "display_name": "描述",
+    "info": "向量存储的描述"
+  },
+  "input_vectorstore": {
+    "display_name": "向量存储"
+  },
+  "outputs": {
+    "info": {
+      "display_name": "向量存储信息"
+    }
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "description": "Scrape a URL and extract its content in various formats using Firecrawl API.",
+  "api_key": {
+    "display_name": "Firecrawl API Key",
+    "info": "The API key to use Firecrawl API."
+  },
+  "url": {
+    "display_name": "URL",
+    "info": "The URL to scrape."
+  },
+  "timeout": {
+    "display_name": "Timeout",
+    "info": "Timeout in milliseconds for the scraping request."
+  },
+  "scrapeOptions": {
+    "display_name": "Scrape Options",
+    "info": "Configuration for how the page is scraped (formats, onlyMainContent, includeTags, excludeTags, headers, etc.)."
+  },
+  "extractorOptions": {
+    "display_name": "Extractor Options",
+    "info": "Options for extracting specific data from the scraped content (schema, prompt, etc.)."
+  },
+  "outputs": {
+    "data": {
+      "display_name": "Scraped Data"
+    }
+  },
+  "errors": {
+    "import_failed": "Could not import firecrawl integration package. Please install it with `pip install firecrawl-py`.",
+    "url_required": "URL is required",
+    "scrape_failed": "Failed to scrape URL '{url}': {error}"
+  },
+  "logs": {
+    "firecrawl_imported": "Firecrawl package imported successfully",
+    "starting_scrape": "Starting scrape for URL: {url}",
+    "extractor_options_added": "Extractor options added to parameters",
+    "params_configured": "Parameters configured - Formats: {formats}, Only main content: {only_main}",
+    "app_initialized": "Firecrawl app initialized with API key",
+    "executing_scrape": "Executing scrape operation",
+    "scrape_completed": "Scrape completed successfully - Content length: {length} characters"
+  }
+}

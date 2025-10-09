@@ -1,0 +1,79 @@
+{
+  "description": "使用IBM watsonx.ai基础模型生成文本。",
+  "url": {
+    "display_name": "watsonx API端点",
+    "info": "API的基础URL。"
+  },
+  "project_id": {
+    "display_name": "watsonx项目ID",
+    "info": "与基础模型关联的项目ID或部署空间ID。"
+  },
+  "api_key": {
+    "display_name": "Watsonx API密钥",
+    "info": "用于模型的API密钥。"
+  },
+  "model_name": {
+    "display_name": "模型名称"
+  },
+  "max_tokens": {
+    "display_name": "最大令牌数",
+    "info": "要生成的最大令牌数。"
+  },
+  "stop_sequence": {
+    "display_name": "停止序列",
+    "info": "生成应停止的序列。"
+  },
+  "temperature": {
+    "display_name": "温度",
+    "info": "控制随机性，较高的值会增加多样性。"
+  },
+  "top_p": {
+    "display_name": "Top P",
+    "info": "令牌选择的累积概率截止值。较低的值意味着从较小、权重更高的核心进行采样。"
+  },
+  "frequency_penalty": {
+    "display_name": "频率惩罚",
+    "info": "令牌使用频率的惩罚。"
+  },
+  "presence_penalty": {
+    "display_name": "存在惩罚",
+    "info": "先前文本中令牌存在的惩罚。"
+  },
+  "seed": {
+    "display_name": "随机种子",
+    "info": "模型的随机种子。"
+  },
+  "logprobs": {
+    "display_name": "对数概率",
+    "info": "是否返回输出令牌的对数概率。"
+  },
+  "top_logprobs": {
+    "display_name": "Top对数概率",
+    "info": "在每个位置返回的最可能令牌数。"
+  },
+  "logit_bias": {
+    "display_name": "Logit偏差",
+    "info": "要偏向或抑制的令牌ID的JSON字符串（例如：{\"1003\": -100, \"1004\": 100}）。"
+  },
+  "errors": {
+    "fetch_failed": "获取模型时出错：{error}。使用默认模型。",
+    "config_update_failed": "更新模型选项时出错：{error}",
+    "invalid_logit_bias": "logit_bias JSON格式无效：{error}。使用默认值。"
+  },
+  "logs": {
+    "fetching_models": "正在从watsonx.ai获取可用模型 - 基础URL：{base_url}",
+    "requesting_models": "正在从端点请求模型：{endpoint}",
+    "models_fetched": "成功获取{count}个模型",
+    "using_default_models": "正在使用默认模型：{count}个模型",
+    "updating_config": "正在更新构建配置 - 字段：{field}，值：{value}",
+    "fetching_models_for_url": "正在为URL获取模型：{url}",
+    "models_updated": "已更新模型选项：在{url}中找到{count}个模型",
+    "building_model": "正在构建watsonx.ai模型 - 模型：{model}，URL：{url}",
+    "parsing_logit_bias": "正在解析logit_bias JSON",
+    "logit_bias_parsed": "Logit偏差解析成功：{bias}",
+    "using_default_logit_bias": "正在使用默认logit_bias",
+    "configuring_parameters": "正在配置聊天参数 - 最大令牌数：{max_tokens}，温度：{temperature}，Top P：{top_p}，流式传输：{streaming}",
+    "creating_chat_instance": "正在创建ChatWatsonx实例",
+    "model_built": "watsonx.ai模型构建成功"
+  }
+}

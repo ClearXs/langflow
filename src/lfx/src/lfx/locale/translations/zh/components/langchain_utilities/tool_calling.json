@@ -1,0 +1,16 @@
+{
+  "display_name": "工具调用代理",
+  "description": "旨在工作流中无缝利用各种工具的代理。",
+  "llm": {
+    "display_name": "语言模型",
+    "info": "代理用于有效执行任务的语言模型。"
+  },
+  "system_prompt": {
+    "display_name": "系统提示词",
+    "info": "指导代理行为的系统提示词。"
+  },
+  "chat_history": {
+    "display_name": "聊天记忆",
+    "info": "此输入存储聊天历史记录，使代理能够记住以前的对话。"
+  }
+}

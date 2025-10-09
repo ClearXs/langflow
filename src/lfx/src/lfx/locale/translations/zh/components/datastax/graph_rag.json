@@ -1,0 +1,54 @@
+{
+  "display_name": "图RAG",
+  "description": "向量存储的图RAG遍历。",
+  "embedding_model": {
+    "display_name": "嵌入模型",
+    "info": "指定嵌入模型。Astra Vectorize集合不需要。"
+  },
+  "vector_store": {
+    "display_name": "向量存储连接",
+    "info": "向量存储的连接。"
+  },
+  "edge_definition": {
+    "display_name": "边定义",
+    "info": "图遍历的边定义。逗号分隔的值。"
+  },
+  "strategy": {
+    "display_name": "遍历策略"
+  },
+  "search_query": {
+    "display_name": "搜索查询"
+  },
+  "graphrag_strategy_kwargs": {
+    "display_name": "策略参数",
+    "info": "检索策略的可选附加参数字典。详情请参阅 https://datastax.github.io/graph-rag/reference/graph_retriever/strategies/"
+  },
+  "status": {
+    "searching": "正在使用图RAG搜索文档...",
+    "search_completed": "图RAG搜索完成 - 检索到{count}个文档"
+  },
+  "errors": {
+    "strategies_load_failed": "加载遍历策略失败：{error}",
+    "strategy_not_found": "在策略模块中未找到策略'{strategy}'",
+    "search_failed": "图RAG搜索失败：{error}",
+    "edge_definition_empty": "边定义不能为空",
+    "edge_definition_parse_failed": "解析边定义失败：{error}",
+    "id_module_import_failed": "无法从graph_retriever.edges.metadata导入Id",
+    "edge_definition_evaluation_failed": "评估边定义失败：{error}"
+  },
+  "logs": {
+    "strategies_loaded": "已加载{count}个遍历策略",
+    "searching_documents": "正在搜索文档 - 策略：{strategy}，边：{edge_definition}",
+    "additional_params": "附加策略参数：{params}",
+    "edge_definition_evaluated": "边定义已评估：{edge_def}",
+    "strategy_class_loaded": "策略类已加载：{strategy}",
+    "creating_retriever": "正在创建图检索器",
+    "invoking_retriever": "正在使用查询调用检索器：{query}",
+    "documents_retrieved": "检索到{count}个文档",
+    "edge_definition_parsed": "边定义已解析为值：{values}",
+    "id_module_imported": "Id模块导入成功",
+    "id_function_evaluated": "Id()函数已评估",
+    "value_added": "值已添加到边定义：{value}",
+    "edge_definition_evaluation_completed": "边定义评估完成：{result}"
+  }
+}

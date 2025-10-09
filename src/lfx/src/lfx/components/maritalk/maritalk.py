@@ -1,3 +1,4 @@
+import i18n
 from langchain_community.chat_models import ChatMaritalk
 
 from lfx.base.models.model import LCModelComponent
@@ -7,33 +8,42 @@ from lfx.inputs.inputs import DropdownInput, FloatInput, IntInput, SecretStrInpu
 
 
 class MaritalkModelComponent(LCModelComponent):
-    display_name = "MariTalk"
-    description = "Generates text using MariTalk LLMs."
+    display_name = i18n.t('components.maritalk.maritalk.display_name')
+    description = i18n.t('components.maritalk.maritalk.description')
     icon = "Maritalk"
     name = "Maritalk"
     inputs = [
         *LCModelComponent.get_base_inputs(),
         IntInput(
             name="max_tokens",
-            display_name="Max Tokens",
+            display_name=i18n.t(
+                'components.maritalk.maritalk.max_tokens.display_name'),
             advanced=True,
             value=512,
-            info="The maximum number of tokens to generate. Set to 0 for unlimited tokens.",
+            info=i18n.t('components.maritalk.maritalk.max_tokens.info'),
         ),
         DropdownInput(
             name="model_name",
-            display_name="Model Name",
+            display_name=i18n.t(
+                'components.maritalk.maritalk.model_name.display_name'),
             advanced=False,
             options=["sabia-2-small", "sabia-2-medium"],
             value=["sabia-2-small"],
         ),
         SecretStrInput(
             name="api_key",
-            display_name="MariTalk API Key",
-            info="The MariTalk API Key to use for authentication.",
+            display_name=i18n.t(
+                'components.maritalk.maritalk.api_key.display_name'),
+            info=i18n.t('components.maritalk.maritalk.api_key.info'),
             advanced=False,
         ),
-        FloatInput(name="temperature", display_name="Temperature", value=0.1, range_spec=RangeSpec(min=0, max=1)),
+        FloatInput(
+            name="temperature",
+            display_name=i18n.t(
+                'components.maritalk.maritalk.temperature.display_name'),
+            value=0.1,
+            range_spec=RangeSpec(min=0, max=1)
+        ),
     ]
 
     def build_model(self) -> LanguageModel:  # type: ignore[type-var]

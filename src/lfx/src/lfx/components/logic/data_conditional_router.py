@@ -1,22 +1,11 @@
-from typing import Any, Dict, List, Union, Optional
-import json
-import operator
-from datetime import datetime, date
-from decimal import Decimal
-import i18n
+from typing import Any
 
+import i18n
 from lfx.custom.custom_component.component import Component
-from lfx.inputs.inputs import (
-    BoolInput,
-    DropdownInput,
-    HandleInput,
-    MessageTextInput,
-    MultilineInput,
-    IntInput,
-    FloatInput
-)
+from lfx.io import DataInput, DropdownInput, MessageTextInput, Output
+from lfx.log.logger import logger
 from lfx.schema.data import Data
-from lfx.template.field.base import Output
+from lfx.schema.dotdict import dotdict
 
 
 class DataConditionalRouterComponent(Component):
@@ -24,513 +13,217 @@ class DataConditionalRouterComponent(Component):
         'components.logic.data_conditional_router.display_name')
     description = i18n.t(
         'components.logic.data_conditional_router.description')
-    documentation: str = "https://docs.langflow.org/components-logic#data-conditional-router"
-    icon = "GitBranch"
+    icon = "split"
     name = "DataConditionalRouter"
+    legacy = True
+    replacement = ["logic.ConditionalRouter"]
 
     inputs = [
-        HandleInput(
-            name="input_data",
+        DataInput(
+            name="data_input",
             display_name=i18n.t(
-                'components.logic.data_conditional_router.input_data.display_name'),
+                'components.logic.data_conditional_router.data_input.display_name'),
             info=i18n.t(
-                'components.logic.data_conditional_router.input_data.info'),
-            input_types=["Data"],
-            required=True,
-        ),
-        MultilineInput(
-            name="routing_rules",
-            display_name=i18n.t(
-                'components.logic.data_conditional_router.routing_rules.display_name'),
-            info=i18n.t(
-                'components.logic.data_conditional_router.routing_rules.info'),
-            placeholder='[\n  {\n    "name": "high_priority",\n    "conditions": [\n      {"field": "priority", "operator": ">=", "value": 5},\n      {"field": "status", "operator": "==", "value": "active"}\n    ],\n    "logic": "AND"\n  }\n]',
-            required=True,
-        ),
-        DropdownInput(
-            name="evaluation_strategy",
-            display_name=i18n.t(
-                'components.logic.data_conditional_router.evaluation_strategy.display_name'),
-            info=i18n.t(
-                'components.logic.data_conditional_router.evaluation_strategy.info'),
-            options=["first_match", "all_matches",
-                     "priority_based", "score_based"],
-            value="first_match",
-            advanced=True,
+                'components.logic.data_conditional_router.data_input.info'),
+            is_list=True,
         ),
         MessageTextInput(
-            name="default_route",
+            name="key_name",
             display_name=i18n.t(
-                'components.logic.data_conditional_router.default_route.display_name'),
+                'components.logic.data_conditional_router.key_name.display_name'),
             info=i18n.t(
-                'components.logic.data_conditional_router.default_route.info'),
-            value="default",
-            advanced=True,
+                'components.logic.data_conditional_router.key_name.info'),
         ),
-        BoolInput(
-            name="strict_typing",
+        DropdownInput(
+            name="operator",
             display_name=i18n.t(
-                'components.logic.data_conditional_router.strict_typing.display_name'),
+                'components.logic.data_conditional_router.operator.display_name'),
+            options=["equals", "not equals", "contains",
+                     "starts with", "ends with", "boolean validator"],
             info=i18n.t(
-                'components.logic.data_conditional_router.strict_typing.info'),
-            value=True,
-            advanced=True,
+                'components.logic.data_conditional_router.operator.info'),
+            value="equals",
         ),
-        BoolInput(
-            name="null_safe_comparison",
+        MessageTextInput(
+            name="compare_value",
             display_name=i18n.t(
-                'components.logic.data_conditional_router.null_safe_comparison.display_name'),
+                'components.logic.data_conditional_router.compare_value.display_name'),
             info=i18n.t(
-                'components.logic.data_conditional_router.null_safe_comparison.info'),
-            value=True,
-            advanced=True,
-        ),
-        IntInput(
-            name="max_routes",
-            display_name=i18n.t(
-                'components.logic.data_conditional_router.max_routes.display_name'),
-            info=i18n.t(
-                'components.logic.data_conditional_router.max_routes.info'),
-            value=0,
-            range_spec=(0, 100),
-            advanced=True,
-        ),
-        BoolInput(
-            name="include_route_metadata",
-            display_name=i18n.t(
-                'components.logic.data_conditional_router.include_route_metadata.display_name'),
-            info=i18n.t(
-                'components.logic.data_conditional_router.include_route_metadata.info'),
-            value=True,
-            advanced=True,
-        ),
-        BoolInput(
-            name="fail_on_no_match",
-            display_name=i18n.t(
-                'components.logic.data_conditional_router.fail_on_no_match.display_name'),
-            info=i18n.t(
-                'components.logic.data_conditional_router.fail_on_no_match.info'),
-            value=False,
-            advanced=True,
+                'components.logic.data_conditional_router.compare_value.info'),
         ),
     ]
 
     outputs = [
         Output(
             display_name=i18n.t(
-                'components.logic.data_conditional_router.outputs.routed_data.display_name'),
-            name="routed_data",
-            method="route_data",
+                'components.logic.data_conditional_router.outputs.true_output.display_name'),
+            name="true_output",
+            method="process_data"
         ),
         Output(
             display_name=i18n.t(
-                'components.logic.data_conditional_router.outputs.routing_summary.display_name'),
-            name="routing_summary",
-            method="get_routing_summary",
-        ),
-        Output(
-            display_name=i18n.t(
-                'components.logic.data_conditional_router.outputs.matched_rules.display_name'),
-            name="matched_rules",
-            method="get_matched_rules",
+                'components.logic.data_conditional_router.outputs.false_output.display_name'),
+            name="false_output",
+            method="process_data"
         ),
     ]
 
-    # Supported operators
-    OPERATORS = {
-        "==": operator.eq,
-        "!=": operator.ne,
-        ">": operator.gt,
-        ">=": operator.ge,
-        "<": operator.lt,
-        "<=": operator.le,
-        "contains": lambda a, b: b in str(a),
-        "not_contains": lambda a, b: b not in str(a),
-        "starts_with": lambda a, b: str(a).startswith(str(b)),
-        "ends_with": lambda a, b: str(a).endswith(str(b)),
-        "regex": lambda a, b: bool(__import__('re').search(str(b), str(a))),
-        "in": lambda a, b: a in b if isinstance(b, (list, tuple, set)) else False,
-        "not_in": lambda a, b: a not in b if isinstance(b, (list, tuple, set)) else True,
-        "is_null": lambda a, b: a is None,
-        "is_not_null": lambda a, b: a is not None,
-        "between": lambda a, b: b[0] <= a <= b[1] if isinstance(b, (list, tuple)) and len(b) == 2 else False,
-    }
+    def compare_values(self, item_value: str, compare_value: str, operator: str) -> bool:
+        logger.debug(i18n.t('components.logic.data_conditional_router.logs.comparing',
+                            operator=operator,
+                            item_value=item_value,
+                            compare_value=compare_value))
 
-    def update_build_config(self, build_config: dict[str, Any], field_value: Any, field_name: str | None = None) -> dict[str, Any]:
-        """Update build config based on user selection."""
-        if field_name == "evaluation_strategy":
-            if field_value in ["all_matches", "score_based"]:
-                build_config["max_routes"]["show"] = True
-            else:
-                build_config["max_routes"]["show"] = False
+        result = False
+        if operator == "equals":
+            result = item_value == compare_value
+        elif operator == "not equals":
+            result = item_value != compare_value
+        elif operator == "contains":
+            result = compare_value in item_value
+        elif operator == "starts with":
+            result = item_value.startswith(compare_value)
+        elif operator == "ends with":
+            result = item_value.endswith(compare_value)
+        elif operator == "boolean validator":
+            result = self.parse_boolean(item_value)
 
-        if field_name == "fail_on_no_match":
-            if field_value:
-                build_config["default_route"]["show"] = False
-            else:
-                build_config["default_route"]["show"] = True
+        logger.debug(i18n.t('components.logic.data_conditional_router.logs.comparison_result',
+                            result=result))
+        return result
 
-        return build_config
+    def parse_boolean(self, value):
+        logger.debug(i18n.t('components.logic.data_conditional_router.logs.parsing_boolean',
+                            value=value,
+                            value_type=type(value).__name__))
 
-    def _validate_inputs(self) -> None:
-        """Validate component inputs."""
-        if not self.routing_rules or not self.routing_rules.strip():
-            error_message = i18n.t(
-                'components.logic.data_conditional_router.errors.empty_routing_rules')
-            self.status = error_message
-            raise ValueError(error_message)
+        result = False
+        if isinstance(value, bool):
+            result = value
+        elif isinstance(value, str):
+            result = value.lower() in {"true", "1", "yes", "y", "on"}
+        else:
+            result = bool(value)
 
-        if not isinstance(self.input_data, Data):
-            error_message = i18n.t(
-                'components.logic.data_conditional_router.errors.invalid_input_data')
-            self.status = error_message
-            raise ValueError(error_message)
+        logger.debug(i18n.t('components.logic.data_conditional_router.logs.boolean_result',
+                            result=result))
+        return result
 
-        try:
-            rules = json.loads(self.routing_rules)
-            if not isinstance(rules, list):
-                raise ValueError("Routing rules must be a list")
+    def validate_input(self, data_item: Data) -> bool:
+        logger.debug(
+            i18n.t('components.logic.data_conditional_router.logs.validating_input'))
 
-            if not rules:
-                raise ValueError("At least one routing rule is required")
-
-            for i, rule in enumerate(rules):
-                self._validate_rule(rule, i)
-
-        except (json.JSONDecodeError, ValueError) as e:
-            error_message = i18n.t('components.logic.data_conditional_router.errors.invalid_routing_rules_format',
-                                   error=str(e))
-            self.status = error_message
-            raise ValueError(error_message) from e
-
-    def _validate_rule(self, rule: Dict[str, Any], index: int) -> None:
-        """Validate a single routing rule."""
-        if not isinstance(rule, dict):
-            raise ValueError(f"Rule {index} must be an object")
-
-        required_fields = ["name", "conditions"]
-        for field in required_fields:
-            if field not in rule:
-                raise ValueError(f"Rule {index} must have '{field}' field")
-
-        if not isinstance(rule["conditions"], list):
-            raise ValueError(f"Rule {index} conditions must be a list")
-
-        logic = rule.get("logic", "AND").upper()
-        if logic not in ["AND", "OR"]:
-            raise ValueError(f"Rule {index} logic must be 'AND' or 'OR'")
-
-        for j, condition in enumerate(rule["conditions"]):
-            if not isinstance(condition, dict):
-                raise ValueError(
-                    f"Rule {index} condition {j} must be an object")
-
-            required_condition_fields = ["field", "operator"]
-            for field in required_condition_fields:
-                if field not in condition:
-                    raise ValueError(
-                        f"Rule {index} condition {j} must have '{field}' field")
-
-            if condition["operator"] not in self.OPERATORS:
-                valid_operators = list(self.OPERATORS.keys())
-                raise ValueError(
-                    f"Rule {index} condition {j} has invalid operator. Valid operators: {valid_operators}")
-
-    def _get_field_value(self, data: Data, field_path: str) -> Any:
-        """Get field value from data using dot notation."""
-        try:
-            if not hasattr(data, 'data'):
-                return None
-
-            value = data.data
-            for field in field_path.split('.'):
-                if isinstance(value, dict):
-                    value = value.get(field)
-                elif hasattr(value, field):
-                    value = getattr(value, field)
-                else:
-                    return None
-
-                if value is None:
-                    return None
-
-            return value
-
-        except Exception:
-            return None
-
-    def _convert_value_type(self, value: Any, target_value: Any) -> Any:
-        """Convert value to match target type if strict typing is enabled."""
-        if not self.strict_typing or target_value is None:
-            return value
-
-        try:
-            target_type = type(target_value)
-
-            if target_type == bool:
-                if isinstance(value, str):
-                    return value.lower() in ['true', '1', 'yes', 'on']
-                return bool(value)
-            elif target_type == int:
-                return int(float(value))  # Handle "5.0" -> 5
-            elif target_type == float:
-                return float(value)
-            elif target_type == str:
-                return str(value)
-            elif target_type in [list, tuple, set]:
-                if isinstance(value, str):
-                    # Try to parse as JSON
-                    try:
-                        parsed = json.loads(value)
-                        return target_type(parsed) if isinstance(parsed, (list, tuple)) else value
-                    except json.JSONDecodeError:
-                        return value
-
-            return value
-
-        except (ValueError, TypeError):
-            return value
-
-    def _evaluate_condition(self, condition: Dict[str, Any], data: Data) -> bool:
-        """Evaluate a single condition against the data."""
-        try:
-            field_path = condition["field"]
-            operator_name = condition["operator"]
-            expected_value = condition.get("value")
-
-            # Get field value
-            actual_value = self._get_field_value(data, field_path)
-
-            # Handle null-safe comparison
-            if self.null_safe_comparison:
-                if operator_name == "is_null":
-                    return actual_value is None
-                elif operator_name == "is_not_null":
-                    return actual_value is not None
-                elif actual_value is None and operator_name not in ["is_null", "is_not_null"]:
-                    return False
-
-            # Convert types if needed
-            if expected_value is not None:
-                actual_value = self._convert_value_type(
-                    actual_value, expected_value)
-
-            # Get operator function
-            operator_func = self.OPERATORS[operator_name]
-
-            # Special handling for operators that don't need expected_value
-            if operator_name in ["is_null", "is_not_null"]:
-                return operator_func(actual_value, None)
-
-            # Evaluate condition
-            return operator_func(actual_value, expected_value)
-
-        except Exception as e:
-            warning_message = i18n.t('components.logic.data_conditional_router.warnings.condition_evaluation_error',
-                                     field=condition.get("field", "unknown"), error=str(e))
-            self.status = warning_message
+        if not isinstance(data_item, Data):
+            error_msg = i18n.t(
+                'components.logic.data_conditional_router.errors.not_data_object')
+            self.status = error_msg
+            logger.warning(error_msg)
             return False
 
-    def _evaluate_rule(self, rule: Dict[str, Any], data: Data) -> Dict[str, Any]:
-        """Evaluate a routing rule against the data."""
-        conditions = rule["conditions"]
-        logic = rule.get("logic", "AND").upper()
+        if self.key_name not in data_item.data:
+            error_msg = i18n.t('components.logic.data_conditional_router.errors.key_not_found',
+                               key=self.key_name)
+            self.status = error_msg
+            logger.warning(error_msg)
+            return False
 
-        results = []
-        for condition in conditions:
-            result = self._evaluate_condition(condition, data)
-            results.append(result)
+        logger.debug(
+            i18n.t('components.logic.data_conditional_router.logs.validation_passed'))
+        return True
 
-        # Apply logic
-        if logic == "AND":
-            matched = all(results)
-        else:  # OR
-            matched = any(results)
-
-        return {
-            "name": rule["name"],
-            "matched": matched,
-            "description": rule.get("description", ""),
-            "priority": rule.get("priority", 0),
-            "score": rule.get("score", 1.0),
-            "conditions_evaluated": len(conditions),
-            "conditions_passed": sum(results),
-            "logic": logic,
-            "timestamp": datetime.now().isoformat(),
-        }
-
-    def _select_routes(self, rule_results: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-        """Select which routes to use based on evaluation strategy."""
-        matched_rules = [rule for rule in rule_results if rule["matched"]]
-
-        if not matched_rules:
-            return []
-
-        if self.evaluation_strategy == "first_match":
-            return [matched_rules[0]]
-
-        elif self.evaluation_strategy == "all_matches":
-            if self.max_routes > 0:
-                return matched_rules[:self.max_routes]
-            return matched_rules
-
-        elif self.evaluation_strategy == "priority_based":
-            # Sort by priority (highest first)
-            sorted_rules = sorted(
-                matched_rules, key=lambda x: x["priority"], reverse=True)
-            if self.max_routes > 0:
-                return sorted_rules[:self.max_routes]
-            return sorted_rules
-
-        elif self.evaluation_strategy == "score_based":
-            # Sort by score (highest first)
-            sorted_rules = sorted(
-                matched_rules, key=lambda x: x["score"], reverse=True)
-            if self.max_routes > 0:
-                return sorted_rules[:self.max_routes]
-            return sorted_rules
-
-        return matched_rules
-
-    def route_data(self) -> List[Data]:
-        """Route data based on conditions."""
+    def process_data(self) -> Data | list[Data]:
         try:
-            self._validate_inputs()
+            if isinstance(self.data_input, list):
+                logger.info(i18n.t('components.logic.data_conditional_router.logs.processing_list',
+                                   count=len(self.data_input)))
 
-            # Parse routing rules
-            rules = json.loads(self.routing_rules)
+                true_output = []
+                false_output = []
+                for item in self.data_input:
+                    if self.validate_input(item):
+                        result = self.process_single_data(item)
+                        if result:
+                            true_output.append(item)
+                        else:
+                            false_output.append(item)
 
-            # Evaluate all rules
-            rule_results = []
-            for rule in rules:
-                result = self._evaluate_rule(rule, self.input_data)
-                rule_results.append(result)
+                logger.info(i18n.t('components.logic.data_conditional_router.logs.list_results',
+                                   true_count=len(true_output),
+                                   false_count=len(false_output)))
 
-            # Select routes based on strategy
-            selected_routes = self._select_routes(rule_results)
+                self.stop("false_output" if true_output else "true_output")
+                return true_output or false_output
 
-            results = []
+            logger.debug(
+                i18n.t('components.logic.data_conditional_router.logs.processing_single'))
 
-            if selected_routes:
-                # Create routed data for each selected route
-                for route in selected_routes:
-                    route_data = {
-                        "route_name": route["name"],
-                        "original_data": self.input_data.data if hasattr(self.input_data, 'data') else self.input_data,
-                        "route_matched": True,
-                    }
+            if not self.validate_input(self.data_input):
+                error_data = Data(data={"error": self.status})
+                logger.error(i18n.t('components.logic.data_conditional_router.logs.validation_failed',
+                                    error=self.status))
+                return error_data
 
-                    if self.include_route_metadata:
-                        route_data["route_metadata"] = {
-                            "description": route["description"],
-                            "priority": route["priority"],
-                            "score": route["score"],
-                            "conditions_evaluated": route["conditions_evaluated"],
-                            "conditions_passed": route["conditions_passed"],
-                            "logic": route["logic"],
-                            "evaluation_strategy": self.evaluation_strategy,
-                            "timestamp": route["timestamp"],
-                        }
+            result = self.process_single_data(self.data_input)
+            self.stop("false_output" if result else "true_output")
+            return self.data_input
 
-                    results.append(Data(data=route_data))
+        except Exception as e:
+            error_msg = i18n.t('components.logic.data_conditional_router.errors.processing_failed',
+                               error=str(e))
+            logger.exception(error_msg)
+            self.status = error_msg
+            return Data(data={"error": error_msg})
 
-                success_message = i18n.t('components.logic.data_conditional_router.success.routes_matched',
-                                         count=len(selected_routes))
-                self.status = success_message
+    def process_single_data(self, data_item: Data) -> bool:
+        item_value = data_item.data[self.key_name]
+        operator = self.operator
 
+        logger.debug(i18n.t('components.logic.data_conditional_router.logs.processing_item',
+                            key=self.key_name,
+                            value=item_value,
+                            operator=operator))
+
+        if operator == "boolean validator":
+            condition_met = self.parse_boolean(item_value)
+            condition_description = i18n.t('components.logic.data_conditional_router.conditions.boolean_validation',
+                                           key=self.key_name)
+        else:
+            compare_value = self.compare_value
+            condition_met = self.compare_values(
+                str(item_value), compare_value, operator)
+            condition_description = i18n.t('components.logic.data_conditional_router.conditions.comparison',
+                                           key=self.key_name,
+                                           operator=operator,
+                                           value=compare_value)
+
+        if condition_met:
+            status_msg = i18n.t('components.logic.data_conditional_router.status.condition_met',
+                                description=condition_description)
+            self.status = status_msg
+            logger.info(status_msg)
+            return True
+
+        status_msg = i18n.t('components.logic.data_conditional_router.status.condition_not_met',
+                            description=condition_description)
+        self.status = status_msg
+        logger.info(status_msg)
+        return False
+
+    def update_build_config(self, build_config: dotdict, field_value: Any, field_name: str | None = None):
+        if field_name == "operator":
+            logger.debug(i18n.t('components.logic.data_conditional_router.logs.updating_config',
+                                operator=field_value))
+
+            if field_value == "boolean validator":
+                build_config["compare_value"]["show"] = False
+                build_config["compare_value"]["advanced"] = True
+                build_config["compare_value"]["value"] = None
+                logger.debug(
+                    i18n.t('components.logic.data_conditional_router.logs.hidden_compare_value'))
             else:
-                # No matches
-                if self.fail_on_no_match:
-                    error_message = i18n.t(
-                        'components.logic.data_conditional_router.errors.no_matches_fail_mode')
-                    self.status = error_message
-                    raise ValueError(error_message)
-                else:
-                    # Use default route
-                    route_data = {
-                        "route_name": self.default_route,
-                        "original_data": self.input_data.data if hasattr(self.input_data, 'data') else self.input_data,
-                        "route_matched": False,
-                    }
+                build_config["compare_value"]["show"] = True
+                build_config["compare_value"]["advanced"] = False
+                logger.debug(
+                    i18n.t('components.logic.data_conditional_router.logs.shown_compare_value'))
 
-                    if self.include_route_metadata:
-                        route_data["route_metadata"] = {
-                            "description": "Default route - no conditions matched",
-                            "evaluation_strategy": self.evaluation_strategy,
-                            "timestamp": datetime.now().isoformat(),
-                            "total_rules_evaluated": len(rules),
-                        }
-
-                    results.append(Data(data=route_data))
-
-                    warning_message = i18n.t('components.logic.data_conditional_router.warnings.using_default_route',
-                                             route=self.default_route)
-                    self.status = warning_message
-
-            return results
-
-        except Exception as e:
-            error_message = i18n.t(
-                'components.logic.data_conditional_router.errors.routing_error', error=str(e))
-            self.status = error_message
-            raise ValueError(error_message) from e
-
-    def get_routing_summary(self) -> Data:
-        """Get summary of routing evaluation."""
-        try:
-            rules = json.loads(self.routing_rules)
-            rule_results = []
-
-            for rule in rules:
-                result = self._evaluate_rule(rule, self.input_data)
-                rule_results.append(result)
-
-            matched_count = sum(
-                1 for result in rule_results if result["matched"])
-
-            summary = {
-                "total_rules": len(rules),
-                "matched_rules": matched_count,
-                "evaluation_strategy": self.evaluation_strategy,
-                "strict_typing": self.strict_typing,
-                "null_safe_comparison": self.null_safe_comparison,
-                "fail_on_no_match": self.fail_on_no_match,
-                "default_route": self.default_route,
-                "timestamp": datetime.now().isoformat(),
-                "rule_results": rule_results,
-            }
-
-            return Data(data=summary)
-
-        except Exception as e:
-            error_message = i18n.t('components.logic.data_conditional_router.errors.routing_summary_error',
-                                   error=str(e))
-            self.status = error_message
-            raise ValueError(error_message) from e
-
-    def get_matched_rules(self) -> List[Data]:
-        """Get list of all matched rules."""
-        try:
-            rules = json.loads(self.routing_rules)
-            rule_results = []
-
-            for rule in rules:
-                result = self._evaluate_rule(rule, self.input_data)
-                if result["matched"]:
-                    rule_results.append(result)
-
-            if not rule_results:
-                return [Data(data={
-                    "route_name": self.default_route,
-                    "matched": False,
-                    "is_default": True,
-                    "timestamp": datetime.now().isoformat(),
-                })]
-
-            return [Data(data=result) for result in rule_results]
-
-        except Exception as e:
-            error_message = i18n.t('components.logic.data_conditional_router.errors.matched_rules_error',
-                                   error=str(e))
-            self.status = error_message
-            raise ValueError(error_message) from e
+        return build_config

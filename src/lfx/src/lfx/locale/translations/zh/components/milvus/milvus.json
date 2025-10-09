@@ -1,0 +1,63 @@
+{
+  "display_name": "Milvus",
+  "description": "具有搜索功能的Milvus向量存储",
+  "collection_name": {
+    "display_name": "集合名称",
+    "info": "要使用的Milvus集合名称。"
+  },
+  "collection_description": {
+    "display_name": "集合描述",
+    "info": "Milvus集合的描述。"
+  },
+  "uri": {
+    "display_name": "连接URI",
+    "info": "连接到Milvus服务器的URI。"
+  },
+  "password": {
+    "display_name": "Milvus令牌",
+    "info": "如果连接不需要令牌，请忽略此字段。"
+  },
+  "connection_args": {
+    "display_name": "其他连接参数",
+    "info": "Milvus的额外连接参数。"
+  },
+  "primary_field": {
+    "display_name": "主字段名称",
+    "info": "集合中主字段的名称。"
+  },
+  "text_field": {
+    "display_name": "文本字段名称",
+    "info": "集合中文本字段的名称。"
+  },
+  "vector_field": {
+    "display_name": "向量字段名称",
+    "info": "集合中向量字段的名称。"
+  },
+  "consistency_level": {
+    "display_name": "一致性级别",
+    "info": "Milvus操作的一致性级别。"
+  },
+  "index_params": {
+    "display_name": "索引参数",
+    "info": "创建索引的参数。"
+  },
+  "search_params": {
+    "display_name": "搜索参数",
+    "info": "搜索操作的参数。"
+  },
+  "drop_old": {
+    "display_name": "删除旧集合",
+    "info": "如果集合存在，是否删除旧集合。"
+  },
+  "timeout": {
+    "display_name": "超时",
+    "info": "Milvus操作的超时时间(秒)。"
+  },
+  "embedding": {
+    "display_name": "嵌入"
+  },
+  "number_of_results": {
+    "display_name": "结果数量",
+    "info": "要返回的结果数量。"
+  }
+}
