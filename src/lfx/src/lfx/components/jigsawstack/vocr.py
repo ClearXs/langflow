@@ -1,3 +1,4 @@
+import os
 import i18n
 from lfx.custom.custom_component.component import Component
 from lfx.io import IntInput, MessageTextInput, Output, SecretStrInput, StrInput
@@ -10,6 +11,8 @@ class JigsawStackVOCRComponent(Component):
     documentation = "https://jigsawstack.com/docs/api-reference/ai/vocr"
     icon = "JigsawStack"
     name = "JigsawStackVOCR"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     inputs = [
         SecretStrInput(

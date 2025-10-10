@@ -1,3 +1,4 @@
+import os
 import i18n
 import requests
 from langchain_openai import ChatOpenAI
@@ -25,6 +26,8 @@ class XAIModelComponent(LCModelComponent):
     description = i18n.t('components.xai.xai.description')
     icon = "xAI"
     name = "xAIModel"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     inputs = [
         *LCModelComponent.get_base_inputs(),

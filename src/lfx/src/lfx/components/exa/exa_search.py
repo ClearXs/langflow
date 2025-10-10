@@ -1,3 +1,4 @@
+import os
 import i18n
 from langchain_core.tools import tool
 from metaphor_python import Metaphor
@@ -15,6 +16,8 @@ class ExaSearchToolkit(Component):
     beta = True
     name = "ExaSearch"
     icon = "ExaSearch"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     inputs = [
         SecretStrInput(

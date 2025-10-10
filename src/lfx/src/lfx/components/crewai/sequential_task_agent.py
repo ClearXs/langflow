@@ -1,3 +1,4 @@
+import os
 import i18n
 from lfx.base.agents.crewai.tasks import SequentialTask
 from lfx.custom.custom_component.component import Component
@@ -13,6 +14,8 @@ class SequentialTaskAgentComponent(Component):
     icon = "CrewAI"
     legacy = True
     replacement = "agents.Agent"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     inputs = [
         # Agent inputs

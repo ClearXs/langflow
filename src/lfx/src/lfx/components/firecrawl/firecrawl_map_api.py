@@ -1,3 +1,4 @@
+import os
 import i18n
 from lfx.custom.custom_component.component import Component
 from lfx.io import (
@@ -15,6 +16,8 @@ class FirecrawlMapApi(Component):
     description: str = i18n.t(
         'components.firecrawl.firecrawl_map_api.description')
     name = "FirecrawlMapApi"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     documentation: str = "https://docs.firecrawl.dev/api-reference/endpoint/map"
 

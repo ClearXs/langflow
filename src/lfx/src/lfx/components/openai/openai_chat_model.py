@@ -1,3 +1,4 @@
+import os
 import i18n
 from typing import Any
 
@@ -17,6 +18,8 @@ class OpenAIModelComponent(LCModelComponent):
     description = i18n.t('components.openai.openai_chat_model.description')
     icon = "OpenAI"
     name = "OpenAIModel"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     inputs = [
         *LCModelComponent.get_base_inputs(),

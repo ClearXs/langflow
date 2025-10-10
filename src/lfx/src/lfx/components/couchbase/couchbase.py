@@ -1,4 +1,5 @@
 from datetime import timedelta
+import os
 
 import i18n
 from langchain_community.vectorstores import CouchbaseVectorStore
@@ -16,6 +17,8 @@ class CouchbaseVectorStoreComponent(LCVectorStoreComponent):
     name = "Couchbase"
     icon = "Couchbase"
     documentation = "https://docs.couchbase.com/python-sdk/current/howtos/full-text-searching-with-sdk.html"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     inputs = [
         SecretStrInput(

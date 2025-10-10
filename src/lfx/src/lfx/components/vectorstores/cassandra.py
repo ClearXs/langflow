@@ -1,3 +1,4 @@
+import os
 import i18n
 from langchain_community.vectorstores import Cassandra
 
@@ -20,6 +21,8 @@ class CassandraVectorStoreComponent(LCVectorStoreComponent):
     documentation = "https://python.langchain.com/docs/modules/data_connection/vectorstores/integrations/cassandra"
     name = "Cassandra"
     icon = "Cassandra"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     inputs = [
         MessageTextInput(

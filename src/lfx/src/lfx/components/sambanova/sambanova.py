@@ -1,3 +1,4 @@
+import os
 import i18n
 from langchain_sambanova import ChatSambaNovaCloud
 from pydantic.v1 import SecretStr
@@ -15,6 +16,8 @@ class SambaNovaComponent(LCModelComponent):
     documentation = "https://cloud.sambanova.ai/"
     icon = "SambaNova"
     name = "SambaNovaModel"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     inputs = [
         *LCModelComponent.get_base_inputs(),

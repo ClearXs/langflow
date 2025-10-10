@@ -1,5 +1,6 @@
 import inspect
 from abc import ABC
+import os
 
 import i18n
 import graph_retriever.strategies as strategies_module
@@ -57,6 +58,8 @@ class GraphRAGComponent(LCVectorStoreComponent):
     description: str = i18n.t('components.datastax.graph_rag.description')
     name = "Graph RAG"
     icon: str = "AstraDB"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     inputs = [
         HandleInput(

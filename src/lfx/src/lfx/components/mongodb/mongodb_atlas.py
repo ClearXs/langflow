@@ -1,3 +1,4 @@
+import os
 import i18n
 import tempfile
 import time
@@ -18,6 +19,9 @@ class MongoVectorStoreComponent(LCVectorStoreComponent):
     description = i18n.t('components.mongodb.mongodb_atlas.description')
     name = "MongoDBAtlasVector"
     icon = "MongoDB"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
+
     INSERT_MODES = ["append", "overwrite"]
     SIMILARITY_OPTIONS = ["cosine", "euclidean", "dotProduct"]
     QUANTIZATION_OPTIONS = ["scalar", "binary"]

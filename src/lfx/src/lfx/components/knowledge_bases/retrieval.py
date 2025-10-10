@@ -1,3 +1,4 @@
+import os
 import i18n
 import json
 from pathlib import Path
@@ -30,6 +31,8 @@ class KnowledgeRetrievalComponent(Component):
     description = i18n.t('components.knowledge_bases.retrieval.description')
     icon = "download"
     name = "KnowledgeRetrieval"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     inputs = [
         DropdownInput(

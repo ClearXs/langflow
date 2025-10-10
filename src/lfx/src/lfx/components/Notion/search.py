@@ -1,3 +1,4 @@
+import os
 import i18n
 from typing import Any
 
@@ -16,6 +17,8 @@ class NotionSearch(LCToolComponent):
     description: str = i18n.t('components.notion.search.description')
     documentation: str = "https://docs.langflow.org/integrations/notion/search"
     icon = "NotionDirectoryLoader"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     inputs = [
         SecretStrInput(

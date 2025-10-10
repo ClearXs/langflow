@@ -1,3 +1,4 @@
+import os
 import i18n
 from langchain_cohere import ChatCohere
 from pydantic.v1 import SecretStr
@@ -15,6 +16,8 @@ class CohereComponent(LCModelComponent):
     documentation = "https://python.langchain.com/docs/integrations/llms/cohere/"
     icon = "Cohere"
     name = "CohereModel"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     inputs = [
         *LCModelComponent.get_base_inputs(),

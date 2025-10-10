@@ -1,3 +1,4 @@
+import os
 import i18n
 import requests
 from langchain.tools import StructuredTool
@@ -15,6 +16,8 @@ class NotionPageContent(LCToolComponent):
     description = i18n.t('components.notion.page_content_viewer.description')
     documentation = "https://docs.langflow.org/integrations/notion/page-content-viewer"
     icon = "NotionDirectoryLoader"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     inputs = [
         StrInput(

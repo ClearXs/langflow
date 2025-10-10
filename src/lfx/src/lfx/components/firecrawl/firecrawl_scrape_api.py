@@ -1,3 +1,4 @@
+import os
 import i18n
 from lfx.custom.custom_component.component import Component
 from lfx.io import (
@@ -16,6 +17,8 @@ class FirecrawlScrapeApi(Component):
     description: str = i18n.t(
         'components.firecrawl.firecrawl_scrape_api.description')
     name = "FirecrawlScrapeApi"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     documentation: str = "https://docs.firecrawl.dev/api-reference/endpoint/scrape"
 

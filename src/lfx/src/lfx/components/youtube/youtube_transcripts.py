@@ -1,3 +1,4 @@
+import os
 import i18n
 import pandas as pd
 import youtube_transcript_api
@@ -21,6 +22,8 @@ class YouTubeTranscriptsComponent(Component):
         'components.youtube.youtube_transcripts.description')
     icon: str = "YouTube"
     name = "YouTubeTranscripts"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     inputs = [
         MultilineInput(

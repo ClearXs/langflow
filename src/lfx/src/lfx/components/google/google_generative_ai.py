@@ -1,3 +1,4 @@
+import os
 import i18n
 from typing import Any
 
@@ -18,6 +19,8 @@ class GoogleGenerativeAIComponent(LCModelComponent):
     description = i18n.t('components.google.google_generative_ai.description')
     icon = "GoogleGenerativeAI"
     name = "GoogleGenerativeAIModel"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     inputs = [
         *LCModelComponent.get_base_inputs(),

@@ -1,3 +1,4 @@
+import os
 import i18n
 
 from lfx.custom.custom_component.component import Component
@@ -13,6 +14,8 @@ class AgentQL(Component):
     documentation: str = "https://docs.agentql.com/"
     icon = "Globe"
     name = "AgentQL"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     inputs = [
         MessageTextInput(

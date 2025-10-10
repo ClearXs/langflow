@@ -1,3 +1,4 @@
+import os
 import i18n
 from langchain_community.retrievers.needle import NeedleRetriever
 
@@ -13,6 +14,8 @@ class NeedleComponent(Component):
     documentation = "https://docs.needle-ai.com"
     icon = "Needle"
     name = "needle"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     inputs = [
         SecretStrInput(

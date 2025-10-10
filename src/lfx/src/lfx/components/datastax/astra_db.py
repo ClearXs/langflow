@@ -13,6 +13,8 @@ class AstraDBChatMemory(LCChatMemoryComponent):
     name = "AstraDBChatMemory"
     icon: str = "AstraDB"
 
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
+
     inputs = [
         SecretStrInput(
             name="token",

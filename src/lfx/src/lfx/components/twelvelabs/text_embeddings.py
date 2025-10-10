@@ -1,3 +1,4 @@
+import os
 import i18n
 from twelvelabs import TwelveLabs
 
@@ -40,6 +41,9 @@ class TwelveLabsTextEmbeddingsComponent(LCEmbeddingsModel):
     description = i18n.t('components.twelvelabs.text_embeddings.description')
     icon = "TwelveLabs"
     name = "TwelveLabsTextEmbeddings"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
+
     documentation = "https://github.com/twelvelabs-io/twelvelabs-developer-experience/blob/main/integrations/Langflow/TWELVE_LABS_COMPONENTS_README.md"
 
     inputs = [

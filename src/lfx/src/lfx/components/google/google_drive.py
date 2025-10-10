@@ -1,3 +1,4 @@
+import os
 import i18n
 import json
 from json.decoder import JSONDecodeError
@@ -20,6 +21,8 @@ class GoogleDriveComponent(Component):
     description = i18n.t('components.google.google_drive.description')
     icon = "Google"
     legacy: bool = True
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     inputs = [
         SecretStrInput(

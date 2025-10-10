@@ -1,3 +1,4 @@
+import os
 from langchain.prompts import PromptTemplate
 from langchain.retrievers import MultiQueryRetriever
 
@@ -12,6 +13,8 @@ class MultiQueryRetrieverComponent(CustomComponent):
     documentation = "https://python.langchain.com/docs/modules/data_connection/retrievers/how_to/MultiQueryRetriever"
     name = "MultiQueryRetriever"
     legacy = True
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     inputs = [
         HandleInput(

@@ -1,3 +1,4 @@
+import os
 import i18n
 import httpx
 
@@ -13,6 +14,8 @@ class TavilySearchComponent(Component):
     display_name = i18n.t('components.tavily.tavily_search.display_name')
     description = i18n.t('components.tavily.tavily_search.description')
     icon = "TavilyIcon"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     inputs = [
         SecretStrInput(

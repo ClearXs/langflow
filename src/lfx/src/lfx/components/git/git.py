@@ -1,3 +1,4 @@
+import os
 import i18n
 import re
 import tempfile
@@ -19,6 +20,8 @@ class GitLoaderComponent(Component):
     description = i18n.t('components.git.git.description')
     trace_type = "tool"
     icon = "GitLoader"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     inputs = [
         DropdownInput(

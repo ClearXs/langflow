@@ -1,3 +1,4 @@
+import os
 import i18n
 from typing import TYPE_CHECKING
 
@@ -19,6 +20,8 @@ class TextEmbedderComponent(Component):
     icon = "binary"
     legacy: bool = True
     replacement = ["models.EmbeddingModel"]
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     inputs = [
         HandleInput(

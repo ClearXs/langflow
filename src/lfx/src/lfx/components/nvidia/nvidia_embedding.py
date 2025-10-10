@@ -1,3 +1,4 @@
+import os
 import i18n
 from typing import Any
 
@@ -13,6 +14,8 @@ class NVIDIAEmbeddingsComponent(LCEmbeddingsModel):
         'components.nvidia.nvidia_embedding.display_name')
     description: str = i18n.t('components.nvidia.nvidia_embedding.description')
     icon = "NVIDIA"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     inputs = [
         DropdownInput(

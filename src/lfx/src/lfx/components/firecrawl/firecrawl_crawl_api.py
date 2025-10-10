@@ -1,3 +1,4 @@
+import os
 import i18n
 import uuid
 
@@ -12,6 +13,8 @@ class FirecrawlCrawlApi(Component):
     description: str = i18n.t(
         'components.firecrawl.firecrawl_crawl_api.description')
     name = "FirecrawlCrawlApi"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     documentation: str = "https://docs.firecrawl.dev/v1/api-reference/endpoint/crawl-post"
 

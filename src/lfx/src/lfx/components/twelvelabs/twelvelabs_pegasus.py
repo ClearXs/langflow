@@ -1,3 +1,4 @@
+import os
 import i18n
 import json
 import subprocess
@@ -42,6 +43,9 @@ class TwelveLabsPegasus(Component):
         'components.twelvelabs.twelvelabs_pegasus.description')
     icon = "TwelveLabs"
     name = "TwelveLabsPegasus"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
+
     documentation = "https://github.com/twelvelabs-io/twelvelabs-developer-experience/blob/main/integrations/Langflow/TWELVE_LABS_COMPONENTS_README.md"
 
     inputs = [

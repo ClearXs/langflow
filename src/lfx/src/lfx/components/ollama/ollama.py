@@ -1,3 +1,4 @@
+import os
 import i18n
 import asyncio
 from typing import Any
@@ -21,6 +22,8 @@ class ChatOllamaComponent(LCModelComponent):
     description = i18n.t('components.ollama.ollama.description')
     icon = "Ollama"
     name = "OllamaModel"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     # Define constants for JSON keys
     JSON_MODELS_KEY = "models"

@@ -1,3 +1,4 @@
+import os
 import i18n
 from copy import deepcopy
 from pathlib import Path
@@ -25,6 +26,8 @@ class LocalDBComponent(LCVectorStoreComponent):
     legacy = True
     replacement = ["knowledgebases.KnowledgeRetrieval",
                    "knowledgebases.KnowledgeIngestion"]
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     inputs = [
         TabInput(

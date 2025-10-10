@@ -1,3 +1,4 @@
+import os
 import i18n
 # from lfx.field_typing import Data
 
@@ -22,6 +23,8 @@ class GoogleGenerativeAIEmbeddingsComponent(Component):
     documentation: str = "https://python.langchain.com/v0.2/docs/integrations/text_embedding/google_generative_ai/"
     icon = "GoogleGenerativeAI"
     name = "Google Generative AI Embeddings"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     inputs = [
         SecretStrInput(

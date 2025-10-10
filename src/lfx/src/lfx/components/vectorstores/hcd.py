@@ -1,3 +1,4 @@
+import os
 import i18n
 from lfx.base.vectorstores.model import LCVectorStoreComponent, check_cached_vector_store
 from lfx.helpers.data import docs_to_data
@@ -19,6 +20,8 @@ class HCDVectorStoreComponent(LCVectorStoreComponent):
     description: str = i18n.t('components.vectorstores.hcd.description')
     name = "HCD"
     icon: str = "HCD"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     inputs = [
         StrInput(

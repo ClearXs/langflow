@@ -1,3 +1,4 @@
+import os
 import i18n
 from langchain_community.utilities.wikipedia import WikipediaAPIWrapper
 
@@ -12,6 +13,8 @@ class WikipediaComponent(Component):
     display_name = i18n.t('components.wikipedia.wikipedia.display_name')
     description = i18n.t('components.wikipedia.wikipedia.description')
     icon = "Wikipedia"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     inputs = [
         MultilineInput(

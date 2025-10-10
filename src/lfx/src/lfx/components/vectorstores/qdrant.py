@@ -1,3 +1,4 @@
+import os
 import i18n
 from langchain.embeddings.base import Embeddings
 from langchain_community.vectorstores import Qdrant
@@ -18,6 +19,8 @@ class QdrantVectorStoreComponent(LCVectorStoreComponent):
     display_name = i18n.t('components.vectorstores.qdrant.display_name')
     description = i18n.t('components.vectorstores.qdrant.description')
     icon = "Qdrant"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     inputs = [
         StrInput(

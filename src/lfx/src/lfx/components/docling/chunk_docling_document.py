@@ -1,3 +1,4 @@
+import os
 import i18n
 from lfx.custom import Component
 from lfx.io import DataInput, MessageTextInput, Output
@@ -12,6 +13,8 @@ class ChunkDoclingDocument(Component):
         'components.docling.chunk_docling_document.description')
     icon = "Docling"
     name = "ChunkDoclingDocument"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     inputs = [
         DataInput(

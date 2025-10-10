@@ -1,3 +1,4 @@
+import os
 import i18n
 from langchain_community.vectorstores import UpstashVectorStore
 
@@ -18,6 +19,8 @@ class UpstashVectorStoreComponent(LCVectorStoreComponent):
     description = i18n.t('components.vectorstores.upstash.description')
     name = "Upstash"
     icon = "Upstash"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     inputs = [
         StrInput(

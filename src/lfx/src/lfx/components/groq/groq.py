@@ -1,3 +1,4 @@
+import os
 import i18n
 import requests
 from pydantic.v1 import SecretStr
@@ -15,6 +16,8 @@ class GroqModel(LCModelComponent):
     description: str = i18n.t('components.groq.groq.description')
     icon = "Groq"
     name = "GroqModel"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     inputs = [
         *LCModelComponent.get_base_inputs(),

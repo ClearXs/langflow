@@ -1,3 +1,4 @@
+import os
 import i18n
 from langflow.base.models.aws_constants import AWS_REGIONS, AWS_MODEL_IDs
 from langflow.base.models.model import LCModelComponent
@@ -15,6 +16,8 @@ class AmazonBedrockConverseComponent(LCModelComponent):
     icon = "Amazon"
     name = "AmazonBedrockConverseModel"
     beta = True
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     inputs = [
         *LCModelComponent._base_inputs,

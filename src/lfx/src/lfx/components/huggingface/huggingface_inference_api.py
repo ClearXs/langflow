@@ -1,3 +1,4 @@
+import os
 import i18n
 from urllib.parse import urlparse
 
@@ -21,6 +22,8 @@ class HuggingFaceInferenceAPIEmbeddingsComponent(LCEmbeddingsModel):
     documentation = "https://huggingface.co/docs/text-embeddings-inference/index"
     icon = "HuggingFace"
     name = "HuggingFaceInferenceAPIEmbeddings"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     inputs = [
         SecretStrInput(

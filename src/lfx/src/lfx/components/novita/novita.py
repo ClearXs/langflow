@@ -1,3 +1,4 @@
+import os
 import i18n
 import requests
 from langchain_openai import ChatOpenAI
@@ -24,6 +25,8 @@ class NovitaModelComponent(LCModelComponent):
     description = i18n.t('components.novita.novita.description')
     icon = "Novita"
     name = "NovitaModel"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     inputs = [
         *LCModelComponent.get_base_inputs(),

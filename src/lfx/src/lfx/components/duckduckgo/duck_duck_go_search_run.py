@@ -1,3 +1,4 @@
+import os
 from langchain_community.tools import DuckDuckGoSearchRun
 
 from lfx.custom.custom_component.component import Component
@@ -14,6 +15,8 @@ class DuckDuckGoSearchComponent(Component):
     description = "Search the web using DuckDuckGo with customizable result limits"
     documentation = "https://python.langchain.com/docs/integrations/tools/ddg"
     icon = "DuckDuckGo"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     inputs = [
         MessageTextInput(

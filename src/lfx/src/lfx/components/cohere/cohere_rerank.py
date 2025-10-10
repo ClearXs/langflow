@@ -1,3 +1,4 @@
+import os
 import i18n
 from lfx.base.compressors.model import LCCompressorComponent
 from lfx.field_typing import BaseDocumentCompressor
@@ -12,6 +13,8 @@ class CohereRerankComponent(LCCompressorComponent):
     description = i18n.t('components.cohere.cohere_rerank.description')
     name = "CohereRerank"
     icon = "Cohere"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     inputs = [
         *LCCompressorComponent.inputs,

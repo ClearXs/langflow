@@ -1,3 +1,4 @@
+import os
 import i18n
 from uuid import UUID
 
@@ -12,6 +13,8 @@ class CassandraChatMemory(LCChatMemoryComponent):
     description = i18n.t('components.cassandra.cassandra_chat.description')
     name = "CassandraChatMemory"
     icon = "Cassandra"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     inputs = [
         MessageTextInput(

@@ -1,3 +1,4 @@
+import os
 import i18n
 from typing import Any
 
@@ -37,6 +38,8 @@ class SerpComponent(Component):
     description = i18n.t('components.serpapi.serp.description')
     name = "Serp"
     icon = "SerpSearch"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     inputs = [
         SecretStrInput(

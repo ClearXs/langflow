@@ -1,3 +1,4 @@
+import os
 import i18n
 from collections import defaultdict
 from typing import Any
@@ -24,6 +25,8 @@ class OpenRouterComponent(LCModelComponent):
     display_name = i18n.t('components.openrouter.openrouter.display_name')
     description = i18n.t('components.openrouter.openrouter.description')
     icon = "OpenRouter"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     inputs = [
         *LCModelComponent.get_base_inputs(),

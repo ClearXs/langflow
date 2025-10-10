@@ -1,3 +1,4 @@
+import os
 import i18n
 import json
 from typing import Any
@@ -20,6 +21,8 @@ class WatsonxAIComponent(LCModelComponent):
     icon = "WatsonxAI"
     name = "IBMwatsonxModel"
     beta = False
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     _default_models = ["ibm/granite-3-2b-instruct",
                        "ibm/granite-3-8b-instruct", "ibm/granite-13b-instruct-v2"]

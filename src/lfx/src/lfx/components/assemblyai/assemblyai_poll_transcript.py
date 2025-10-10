@@ -1,3 +1,4 @@
+import os
 import assemblyai as aai
 import i18n
 
@@ -15,6 +16,8 @@ class AssemblyAITranscriptionJobPoller(Component):
         'components.assemblyai.assemblyai_poll_transcript.description')
     documentation = "https://www.assemblyai.com/docs"
     icon = "AssemblyAI"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     inputs = [
         SecretStrInput(

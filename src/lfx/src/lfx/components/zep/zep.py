@@ -1,3 +1,4 @@
+import os
 import i18n
 from lfx.base.memory.model import LCChatMemoryComponent
 from lfx.field_typing.constants import Memory
@@ -11,6 +12,8 @@ class ZepChatMemory(LCChatMemoryComponent):
     icon = "ZepMemory"
     legacy = True
     replacement = ["helpers.Memory"]
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     inputs = [
         MessageTextInput(

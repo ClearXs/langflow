@@ -1,4 +1,5 @@
 import json
+import os
 import re
 import i18n
 
@@ -44,6 +45,8 @@ class AgentComponent(ToolCallingAgentComponent):
     icon = "bot"
     beta = False
     name = "Agent"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     memory_inputs = [set_advanced_true(component_input)
                      for component_input in MemoryComponent().inputs]

@@ -1,3 +1,4 @@
+import os
 import i18n
 import json
 from typing import Any
@@ -19,6 +20,8 @@ class ListHomeAssistantStates(LCToolComponent):
         'components.homeassistant.list_home_assistant_states.description')
     documentation: str = "https://developers.home-assistant.io/docs/api/rest/"
     icon = "HomeAssistant"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     # 1) Define fields to be received in LangFlow UI
     inputs = [

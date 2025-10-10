@@ -1,3 +1,4 @@
+import os
 import i18n
 from langchain_community.vectorstores import PGVector
 
@@ -14,6 +15,8 @@ class PGVectorStoreComponent(LCVectorStoreComponent):
     documentation = "https://python.langchain.com/docs/integrations/vectorstores/pgvector"
     name = "pgvector"
     icon = "cpu"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     inputs = [
         SecretStrInput(

@@ -19,7 +19,7 @@ class FaissVectorStoreComponent(LCVectorStoreComponent):
     name = "FAISS"
     icon = "FAISS"
 
-    ignore: bool = bool(os.getenv("LANGFLOW_IGNORE_COMPONENT", False))
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     inputs = [
         StrInput(

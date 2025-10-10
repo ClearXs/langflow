@@ -1,4 +1,5 @@
 import json
+import os
 import urllib
 from datetime import datetime, timezone
 from http import HTTPStatus
@@ -21,6 +22,8 @@ class AstraDBCQLToolComponent(LCToolComponent):
     description: str = i18n.t('components.datastax.astradb_cql.description')
     documentation: str = "https://docs.langflow.org/Components/components-tools#astra-db-cql-tool"
     icon: str = "AstraDB"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     inputs = [
         StrInput(

@@ -1,3 +1,4 @@
+import os
 import i18n
 from lfx.custom.custom_component.component import Component
 from lfx.field_typing.range_spec import RangeSpec
@@ -11,6 +12,9 @@ class VectaraRagComponent(Component):
     documentation = "https://docs.vectara.com/docs"
     icon = "Vectara"
     name = "VectaraRAG"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
+
     SUMMARIZER_PROMPTS = [
         "vectara-summary-ext-24-05-sml",
         "vectara-summary-ext-24-05-med-omni",

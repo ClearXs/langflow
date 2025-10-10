@@ -1,3 +1,4 @@
+import os
 import i18n
 from pathlib import Path
 
@@ -16,6 +17,8 @@ class FaissVectorStoreComponent(LCVectorStoreComponent):
     description: str = i18n.t('components.vectorstores.faiss.description')
     name = "FAISS"
     icon = "FAISS"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     inputs = [
         StrInput(

@@ -1,3 +1,4 @@
+import os
 import i18n
 from typing import Any
 
@@ -18,6 +19,8 @@ class ExportDoclingDocumentComponent(Component):
     documentation = "https://docling-project.github.io/docling/"
     icon = "Docling"
     name = "ExportDoclingDocument"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     inputs = [
         HandleInput(

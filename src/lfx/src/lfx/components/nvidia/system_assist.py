@@ -1,3 +1,4 @@
+import os
 import i18n
 import asyncio
 
@@ -15,6 +16,8 @@ class NvidiaSystemAssistComponent(ComponentWithCache):
     documentation = "https://docs.langflow.org/integrations-nvidia-g-assist"
     icon = "NVIDIA"
     rise_initialized = False
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     inputs = [
         MessageTextInput(

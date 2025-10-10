@@ -1,3 +1,4 @@
+import os
 from lfx.custom.custom_component.custom_component import CustomComponent
 from lfx.memory import aget_messages, astore_message
 from lfx.schema.message import Message
@@ -7,6 +8,8 @@ class StoreMessageComponent(CustomComponent):
     display_name = "Store Message"
     description = "Stores a chat message."
     name = "StoreMessage"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     def build_config(self):
         return {

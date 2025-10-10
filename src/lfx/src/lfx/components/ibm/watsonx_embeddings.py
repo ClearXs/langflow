@@ -1,3 +1,4 @@
+import os
 import i18n
 from typing import Any
 
@@ -19,6 +20,8 @@ class WatsonxEmbeddingsComponent(LCEmbeddingsModel):
     description = i18n.t('components.ibm.watsonx_embeddings.description')
     icon = "WatsonxAI"
     name = "WatsonxEmbeddingsComponent"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     # models present in all the regions
     _default_models = [

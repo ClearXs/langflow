@@ -1,3 +1,4 @@
+import os
 import i18n
 import httpx
 from httpx import HTTPError
@@ -14,6 +15,8 @@ class WikidataComponent(Component):
     display_name = i18n.t('components.wikipedia.wikidata.display_name')
     description = i18n.t('components.wikipedia.wikidata.description')
     icon = "Wikipedia"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     inputs = [
         MultilineInput(

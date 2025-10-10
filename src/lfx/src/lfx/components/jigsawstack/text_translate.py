@@ -1,3 +1,4 @@
+import os
 import i18n
 from lfx.custom.custom_component.component import Component
 from lfx.io import MessageTextInput, Output, SecretStrInput, StrInput
@@ -10,6 +11,9 @@ class JigsawStackTextTranslateComponent(Component):
     documentation = "https://jigsawstack.com/docs/api-reference/ai/translate"
     icon = "JigsawStack"
     name = "JigsawStackTextTranslate"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
+    
     inputs = [
         SecretStrInput(
             name="api_key",

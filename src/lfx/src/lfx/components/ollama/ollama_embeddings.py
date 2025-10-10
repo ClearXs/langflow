@@ -1,3 +1,4 @@
+import os
 from typing import Any
 from urllib.parse import urljoin
 
@@ -18,6 +19,8 @@ class OllamaEmbeddingsComponent(LCModelComponent):
     documentation = "https://python.langchain.com/docs/integrations/text_embedding/ollama"
     icon = "Ollama"
     name = "OllamaEmbeddings"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     inputs = [
         DropdownInput(

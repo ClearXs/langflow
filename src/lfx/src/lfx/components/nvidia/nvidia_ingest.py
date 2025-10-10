@@ -1,3 +1,4 @@
+import os
 import i18n
 from urllib.parse import urlparse
 
@@ -14,6 +15,8 @@ class NvidiaIngestComponent(BaseFileComponent):
     documentation: str = "https://docs.nvidia.com/nemo/retriever/extraction/overview/"
     icon = "NVIDIA"
     beta = True
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     try:
         from nv_ingest_client.util.file_processing.extract import EXTENSION_TO_DOCUMENT_TYPE

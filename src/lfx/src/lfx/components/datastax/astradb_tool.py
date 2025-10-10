@@ -20,6 +20,8 @@ class AstraDBToolComponent(LCToolComponent):
     documentation: str = "https://docs.langflow.org/components-bundle-components"
     icon: str = "AstraDB"
 
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
+
     inputs = [
         StrInput(
             name="tool_name",

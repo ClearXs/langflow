@@ -1,3 +1,4 @@
+import os
 import i18n
 from contextlib import contextmanager
 
@@ -17,6 +18,8 @@ class YouTubeCommentsComponent(Component):
     display_name: str = i18n.t('components.youtube.comments.display_name')
     description: str = i18n.t('components.youtube.comments.description')
     icon: str = "YouTube"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     # Constants
     COMMENTS_DISABLED_STATUS = 403

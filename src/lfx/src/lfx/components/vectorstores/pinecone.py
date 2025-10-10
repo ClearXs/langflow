@@ -1,3 +1,4 @@
+import os
 import i18n
 import numpy as np
 from langchain_core.vectorstores import VectorStore
@@ -13,6 +14,9 @@ class PineconeVectorStoreComponent(LCVectorStoreComponent):
     description = i18n.t('components.vectorstores.pinecone.description')
     name = "Pinecone"
     icon = "Pinecone"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
+
     inputs = [
         StrInput(
             name="index_name",

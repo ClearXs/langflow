@@ -1,3 +1,4 @@
+import os
 import i18n
 import json
 from typing import Any
@@ -18,6 +19,8 @@ class NotionListPages(LCToolComponent):
     description: str = i18n.t('components.notion.list_pages.description')
     documentation: str = "https://docs.langflow.org/integrations/notion/list-pages"
     icon = "NotionDirectoryLoader"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     inputs = [
         SecretStrInput(

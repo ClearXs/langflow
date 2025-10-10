@@ -1,3 +1,4 @@
+import os
 import i18n
 import json
 from typing import Any
@@ -28,6 +29,8 @@ class OpenSearchVectorStoreComponent(LCVectorStoreComponent):
     description: str = i18n.t('components.vectorstores.opensearch.description')
     name = "OpenSearch"
     icon = "OpenSearch"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     inputs = [
         StrInput(

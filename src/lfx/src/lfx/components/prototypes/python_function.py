@@ -1,3 +1,4 @@
+import os
 import i18n
 from collections.abc import Callable
 
@@ -16,6 +17,8 @@ class PythonFunctionComponent(Component):
     icon = "Python"
     name = "PythonFunction"
     legacy = True
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     inputs = [
         CodeInput(

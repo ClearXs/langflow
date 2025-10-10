@@ -1,3 +1,4 @@
+import os
 import re
 
 from lfx.custom.custom_component.component import Component
@@ -8,6 +9,8 @@ class CodeBlockExtractor(Component):
     display_name = "Code Block Extractor"
     description = "Extracts code block from text."
     name = "CodeBlockExtractor"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     inputs = [Input(name="text", field_type=Text, description="Text to extract code blocks from.")]
 

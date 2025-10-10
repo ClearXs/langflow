@@ -1,3 +1,4 @@
+import os
 import i18n
 from lfx.custom import Component
 from lfx.field_typing.range_spec import RangeSpec
@@ -43,6 +44,8 @@ class CleanlabRemediator(Component):
     description = i18n.t('components.cleanlab.cleanlab_remediator.description')
     icon = "Cleanlab"
     name = "CleanlabRemediator"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     inputs = [
         MessageTextInput(

@@ -1,3 +1,4 @@
+import os
 import assemblyai as aai
 import i18n
 
@@ -14,6 +15,8 @@ class AssemblyAIListTranscripts(Component):
         'components.assemblyai.assemblyai_list_transcripts.description')
     documentation = "https://www.assemblyai.com/docs"
     icon = "AssemblyAI"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     inputs = [
         SecretStrInput(

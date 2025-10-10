@@ -1,5 +1,6 @@
 # Standard library imports
 from collections.abc import Sequence
+import os
 from typing import Any
 
 import i18n
@@ -31,6 +32,8 @@ class ComposioAPIComponent(LCToolComponent):
     name = "ComposioAPI"
     icon = "Composio"
     documentation: str = "https://docs.composio.dev"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     inputs = [
         # Basic configuration inputs

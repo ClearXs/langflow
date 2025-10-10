@@ -1,3 +1,4 @@
+import os
 import i18n
 import requests
 from langchain.tools import StructuredTool
@@ -17,6 +18,8 @@ class NotionDatabaseProperties(LCToolComponent):
         'components.notion.list_database_properties.description')
     documentation: str = "https://docs.langflow.org/integrations/notion/list-database-properties"
     icon = "NotionDirectoryLoader"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     inputs = [
         StrInput(

@@ -13,6 +13,8 @@ class GetEnvVar(Component):
     description = i18n.t('components.datastax.getenvvar.description')
     icon = "AstraDB"
 
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
+
     inputs = [
         StrInput(
             name="env_var_name",

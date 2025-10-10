@@ -1,3 +1,4 @@
+import os
 from langchain_core.documents import Document
 
 from lfx.custom.custom_component.custom_component import CustomComponent
@@ -9,6 +10,8 @@ class DocumentsToDataComponent(CustomComponent):
     description = "Convert LangChain Documents into Data."
     icon = "LangChain"
     name = "DocumentsToData"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     field_config = {
         "documents": {"display_name": "Documents"},

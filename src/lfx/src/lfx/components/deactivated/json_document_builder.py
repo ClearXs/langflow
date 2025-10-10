@@ -12,6 +12,7 @@
 # - **Document:** The Document containing the JSON object.
 
 
+import os
 import orjson
 from langchain_core.documents import Document
 
@@ -25,6 +26,8 @@ class JSONDocumentBuilder(CustomComponent):
     name = "JSONDocumentBuilder"
     documentation: str = "https://docs.langflow.org/components/utilities#json-document-builder"
     legacy = True
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     inputs = [
         StrInput(

@@ -1,3 +1,4 @@
+import os
 import i18n
 import time
 from concurrent.futures import ThreadPoolExecutor
@@ -36,6 +37,9 @@ class PegasusIndexVideo(Component):
     description = i18n.t('components.twelvelabs.pegasus_index.description')
     icon = "TwelveLabs"
     name = "TwelveLabsPegasusIndexVideo"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
+
     documentation = "https://github.com/twelvelabs-io/twelvelabs-developer-experience/blob/main/integrations/Langflow/TWELVE_LABS_COMPONENTS_README.md"
 
     inputs = [

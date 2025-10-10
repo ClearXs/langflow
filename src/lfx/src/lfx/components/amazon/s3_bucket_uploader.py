@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 from typing import Any
 import i18n
@@ -53,6 +54,8 @@ class S3BucketUploaderComponent(Component):
     description = i18n.t('components.amazon.s3_bucket_uploader.description')
     icon = "Amazon"
     name = "s3bucketuploader"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     inputs = [
         SecretStrInput(

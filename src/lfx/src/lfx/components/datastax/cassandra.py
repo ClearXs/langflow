@@ -1,3 +1,4 @@
+import os
 import i18n
 from lfx.base.memory.model import LCChatMemoryComponent
 from lfx.field_typing.constants import Memory
@@ -10,6 +11,8 @@ class CassandraChatMemory(LCChatMemoryComponent):
     description = i18n.t('components.datastax.cassandra.description')
     name = "CassandraChatMemory"
     icon = "Cassandra"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     inputs = [
         MessageTextInput(

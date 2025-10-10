@@ -1,3 +1,4 @@
+import os
 from langchain_core.vectorstores import VectorStoreRetriever
 
 from lfx.custom.custom_component.custom_component import CustomComponent
@@ -10,6 +11,8 @@ class VectorStoreRetrieverComponent(CustomComponent):
     description = "A vector store retriever"
     name = "VectorStoreRetriever"
     icon = "LangChain"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     inputs = [
         HandleInput(

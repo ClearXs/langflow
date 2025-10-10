@@ -1,3 +1,4 @@
+import os
 from lfx.custom.custom_component.custom_component import CustomComponent
 from lfx.schema.message import Message
 from lfx.utils.constants import MESSAGE_SENDER_AI, MESSAGE_SENDER_USER
@@ -7,6 +8,8 @@ class MessageComponent(CustomComponent):
     display_name = "Message"
     description = "Creates a Message object given a Session ID."
     name = "Message"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     def build_config(self):
         return {

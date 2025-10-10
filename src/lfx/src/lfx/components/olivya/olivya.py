@@ -1,3 +1,4 @@
+import os
 import i18n
 import json
 
@@ -15,6 +16,8 @@ class OlivyaComponent(Component):
     documentation: str = "http://docs.langflow.org/components/olivya"
     icon = "Olivya"
     name = "OlivyaComponent"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     inputs = [
         MessageTextInput(

@@ -1,3 +1,4 @@
+import os
 import i18n
 from typing import Any
 
@@ -15,6 +16,8 @@ class EmbeddingSimilarityComponent(Component):
     icon = "equal"
     legacy: bool = True
     replacement = ["datastax.AstraDB"]
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     inputs = [
         DataInput(

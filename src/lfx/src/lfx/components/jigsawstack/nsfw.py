@@ -1,3 +1,4 @@
+import os
 import i18n
 from lfx.custom.custom_component.component import Component
 from lfx.io import Output, SecretStrInput, StrInput
@@ -11,6 +12,8 @@ class JigsawStackNSFWComponent(Component):
     documentation = "https://jigsawstack.com/docs/api-reference/ai/nsfw"
     icon = "JigsawStack"
     name = "JigsawStackNSFW"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     inputs = [
         SecretStrInput(

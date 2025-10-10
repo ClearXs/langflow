@@ -1,3 +1,4 @@
+import os
 import i18n
 from typing import Any
 
@@ -22,6 +23,8 @@ class HuggingFaceEndpointsComponent(LCModelComponent):
     description: str = i18n.t('components.huggingface.huggingface.description')
     icon = "HuggingFace"
     name = "HuggingFaceModel"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     inputs = [
         *LCModelComponent.get_base_inputs(),

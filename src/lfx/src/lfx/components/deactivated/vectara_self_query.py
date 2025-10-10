@@ -1,5 +1,6 @@
 # mypy: disable-error-code="attr-defined"
 import json
+import os
 
 from langchain.chains.query_constructor.base import AttributeInfo
 from langchain.retrievers.self_query.base import SelfQueryRetriever
@@ -17,6 +18,8 @@ class VectaraSelfQueryRetriverComponent(CustomComponent):
     name = "VectaraSelfQueryRetriver"
     icon = "Vectara"
     legacy = True
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     inputs = [
         HandleInput(

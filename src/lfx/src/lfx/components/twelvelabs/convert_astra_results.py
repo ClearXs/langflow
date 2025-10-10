@@ -1,3 +1,4 @@
+import os
 import i18n
 from typing import Any
 
@@ -16,6 +17,9 @@ class ConvertAstraToTwelveLabs(Component):
         'components.twelvelabs.convert_astra_results.description')
     icon = "TwelveLabs"
     name = "ConvertAstraToTwelveLabs"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
+
     documentation = "https://github.com/twelvelabs-io/twelvelabs-developer-experience/blob/main/integrations/Langflow/TWELVE_LABS_COMPONENTS_README.md"
 
     inputs = [

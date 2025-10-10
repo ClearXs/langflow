@@ -30,6 +30,8 @@ class LangWatchComponent(Component):
     icon: str = "Langwatch"
     name: str = "LangWatchEvaluator"
 
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
+
     inputs = [
         DropdownInput(
             name="evaluator_name",

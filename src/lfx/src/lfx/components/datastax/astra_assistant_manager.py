@@ -1,5 +1,6 @@
 import asyncio
 from asyncio import to_thread
+import os
 from typing import TYPE_CHECKING, Any, cast
 
 import i18n
@@ -33,6 +34,8 @@ class AstraAssistantManager(ComponentWithCache):
     description = i18n.t(
         'components.datastax.astra_assistant_manager.description')
     icon = "AstraDB"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     inputs = [
         DropdownInput(

@@ -1,4 +1,5 @@
 # mypy: disable-error-code="attr-defined"
+import os
 from langchain_community.retrievers import MetalRetriever
 
 from lfx.base.vectorstores.model import check_cached_vector_store
@@ -11,6 +12,8 @@ class MetalRetrieverComponent(CustomComponent):
     description: str = "Retriever that uses the Metal API."
     name = "MetalRetriever"
     legacy = True
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     inputs = [
         SecretStrInput(

@@ -1,3 +1,4 @@
+import os
 import i18n
 from lfx.base.models.aws_constants import AWS_EMBEDDING_MODEL_IDS, AWS_REGIONS
 from lfx.base.models.model import LCModelComponent
@@ -14,6 +15,8 @@ class AmazonBedrockEmbeddingsComponent(LCModelComponent):
         'components.amazon.amazon_bedrock_embedding.description')
     icon = "Amazon"
     name = "AmazonBedrockEmbeddings"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     inputs = [
         DropdownInput(

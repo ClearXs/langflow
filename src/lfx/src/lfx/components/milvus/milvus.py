@@ -1,3 +1,4 @@
+import os
 import i18n
 from lfx.base.vectorstores.model import LCVectorStoreComponent, check_cached_vector_store
 from lfx.helpers.data import docs_to_data
@@ -21,6 +22,8 @@ class MilvusVectorStoreComponent(LCVectorStoreComponent):
     description: str = i18n.t('components.milvus.milvus.description')
     name = "Milvus"
     icon = "Milvus"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     inputs = [
         StrInput(

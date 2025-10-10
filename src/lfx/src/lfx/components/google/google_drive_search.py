@@ -1,3 +1,4 @@
+import os
 import i18n
 import json
 
@@ -18,6 +19,8 @@ class GoogleDriveSearchComponent(Component):
     icon = "Google"
     legacy: bool = True
     replacement = ["composio.ComposioGoogleDriveAPIComponent"]
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     inputs = [
         SecretStrInput(

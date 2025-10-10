@@ -1,3 +1,4 @@
+import os
 import i18n
 import json
 import re
@@ -20,6 +21,8 @@ class BigQueryExecutorComponent(Component):
     name = "BigQueryExecutor"
     icon = "Google"
     beta: bool = True
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     inputs = [
         FileInput(
