@@ -1,0 +1,33 @@
+{
+  "display_name": "拨打电话",
+  "description": "用于从Olivya平台创建外呼电话请求的组件。",
+  "api_key": {
+    "display_name": "Olivya API密钥",
+    "info": "用于身份验证的API密钥"
+  },
+  "from_number": {
+    "display_name": "来源号码",
+    "info": "代理的电话号码"
+  },
+  "to_number": {
+    "display_name": "目标号码",
+    "info": "接收者的电话号码"
+  },
+  "first_message": {
+    "display_name": "首条消息",
+    "info": "代理的开场白"
+  },
+  "system_prompt": {
+    "display_name": "系统提示",
+    "info": "用于指导交互的系统提示"
+  },
+  "conversation_history": {
+    "display_name": "对话历史",
+    "info": "对话的摘要"
+  },
+  "outputs": {
+    "output": {
+      "display_name": "输出"
+    }
+  }
+}

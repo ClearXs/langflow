@@ -1,0 +1,17 @@
+{
+  "display_name": "PGVector",
+  "description": "PGVector Vector Store with search capabilities",
+  "pg_server_url": {
+    "display_name": "PostgreSQL Server Connection String"
+  },
+  "collection_name": {
+    "display_name": "Table"
+  },
+  "embedding": {
+    "display_name": "Embedding"
+  },
+  "number_of_results": {
+    "display_name": "Number of Results",
+    "info": "Number of results to return."
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "display_name": "Serp Search API",
+  "description": "Call Serp Search API with result limiting",
+  "serpapi_api_key": {
+    "display_name": "SerpAPI API Key"
+  },
+  "input_value": {
+    "display_name": "Input"
+  },
+  "search_params": {
+    "display_name": "Parameters"
+  },
+  "max_results": {
+    "display_name": "Max Results"
+  },
+  "max_snippet_length": {
+    "display_name": "Max Snippet Length"
+  },
+  "outputs": {
+    "data": {
+      "display_name": "Data"
+    },
+    "text": {
+      "display_name": "Text"
+    }
+  }
+}

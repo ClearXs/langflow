@@ -1,3 +1,4 @@
+import i18n
 from langchain_community.utilities.wolfram_alpha import WolframAlphaAPIWrapper
 
 from lfx.base.langchain_utilities.model import LCToolComponent
@@ -9,20 +10,35 @@ from lfx.schema.dataframe import DataFrame
 
 
 class WolframAlphaAPIComponent(LCToolComponent):
-    display_name = "WolframAlpha API"
-    description = """Enables queries to WolframAlpha for computational data, facts, and calculations across various \
-topics, delivering structured responses."""
+    display_name = i18n.t(
+        'components.wolframalpha.wolfram_alpha_api.display_name')
+    description = i18n.t(
+        'components.wolframalpha.wolfram_alpha_api.description')
     name = "WolframAlphaAPI"
 
     outputs = [
-        Output(display_name="DataFrame", name="dataframe", method="fetch_content_dataframe"),
+        Output(
+            display_name=i18n.t(
+                'components.wolframalpha.wolfram_alpha_api.outputs.dataframe'),
+            name="dataframe",
+            method="fetch_content_dataframe"
+        ),
     ]
 
     inputs = [
         MultilineInput(
-            name="input_value", display_name="Input Query", info="Example query: 'What is the population of France?'"
+            name="input_value",
+            display_name=i18n.t(
+                'components.wolframalpha.wolfram_alpha_api.input_value.display_name'),
+            info=i18n.t(
+                'components.wolframalpha.wolfram_alpha_api.input_value.info')
         ),
-        SecretStrInput(name="app_id", display_name="WolframAlpha App ID", required=True),
+        SecretStrInput(
+            name="app_id",
+            display_name=i18n.t(
+                'components.wolframalpha.wolfram_alpha_api.app_id.display_name'),
+            required=True
+        ),
     ]
 
     icon = "WolframAlphaAPI"

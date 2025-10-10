@@ -36,6 +36,8 @@ class SmartRouterComponent(Component):
             required=True,
         ),
         TableInput(
+            trigger_text=i18n.t(
+                'components.inputs.input_mixin.open_table'),
             name="routes",
             display_name=i18n.t(
                 'components.logic.llm_conditional_router.routes.display_name'),

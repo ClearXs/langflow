@@ -1,0 +1,19 @@
+{
+  "display_name": "NVIDIA Rerank",
+  "description": "Rerank documents using the NVIDIA API.",
+  "api_key": {
+    "display_name": "NVIDIA API Key"
+  },
+  "base_url": {
+    "display_name": "Base URL",
+    "info": "The base URL of the NVIDIA API. Defaults to https://integrate.api.nvidia.com/v1."
+  },
+  "model": {
+    "display_name": "Model"
+  },
+  "outputs": {
+    "reranked_documents": {
+      "display_name": "Reranked Documents"
+    }
+  }
+}

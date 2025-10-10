@@ -1,3 +1,4 @@
+import i18n
 import requests
 from langchain_openai import ChatOpenAI
 from pydantic.v1 import SecretStr
@@ -19,8 +20,8 @@ from lfx.inputs.inputs import (
 
 
 class NovitaModelComponent(LCModelComponent):
-    display_name = "Novita AI"
-    description = "Generates text using Novita AI LLMs (OpenAI compatible)."
+    display_name = i18n.t('components.novita.novita.display_name')
+    description = i18n.t('components.novita.novita.description')
     icon = "Novita"
     name = "NovitaModel"
 
@@ -28,26 +29,30 @@ class NovitaModelComponent(LCModelComponent):
         *LCModelComponent.get_base_inputs(),
         IntInput(
             name="max_tokens",
-            display_name="Max Tokens",
+            display_name=i18n.t(
+                'components.novita.novita.max_tokens.display_name'),
             advanced=True,
-            info="The maximum number of tokens to generate. Set to 0 for unlimited tokens.",
+            info=i18n.t('components.novita.novita.max_tokens.info'),
             range_spec=RangeSpec(min=0, max=128000),
         ),
         DictInput(
             name="model_kwargs",
-            display_name="Model Kwargs",
+            display_name=i18n.t(
+                'components.novita.novita.model_kwargs.display_name'),
             advanced=True,
-            info="Additional keyword arguments to pass to the model.",
+            info=i18n.t('components.novita.novita.model_kwargs.info'),
         ),
         BoolInput(
             name="json_mode",
-            display_name="JSON Mode",
+            display_name=i18n.t(
+                'components.novita.novita.json_mode.display_name'),
             advanced=True,
-            info="If True, it will output JSON regardless of passing a schema.",
+            info=i18n.t('components.novita.novita.json_mode.info'),
         ),
         DropdownInput(
             name="model_name",
-            display_name="Model Name",
+            display_name=i18n.t(
+                'components.novita.novita.model_name.display_name'),
             advanced=False,
             options=MODEL_NAMES,
             value=MODEL_NAMES[0],
@@ -55,24 +60,32 @@ class NovitaModelComponent(LCModelComponent):
         ),
         SecretStrInput(
             name="api_key",
-            display_name="Novita API Key",
-            info="The Novita API Key to use for Novita AI models.",
+            display_name=i18n.t(
+                'components.novita.novita.api_key.display_name'),
+            info=i18n.t('components.novita.novita.api_key.info'),
             advanced=False,
             value="NOVITA_API_KEY",
             real_time_refresh=True,
         ),
-        SliderInput(name="temperature", display_name="Temperature", value=0.1, range_spec=RangeSpec(min=0, max=1)),
+        SliderInput(
+            name="temperature",
+            display_name=i18n.t(
+                'components.novita.novita.temperature.display_name'),
+            value=0.1,
+            range_spec=RangeSpec(min=0, max=1)
+        ),
         IntInput(
             name="seed",
-            display_name="Seed",
-            info="The seed controls the reproducibility of the job.",
+            display_name=i18n.t('components.novita.novita.seed.display_name'),
+            info=i18n.t('components.novita.novita.seed.info'),
             advanced=True,
             value=1,
         ),
         HandleInput(
             name="output_parser",
-            display_name="Output Parser",
-            info="The parser to use to parse the output of the model",
+            display_name=i18n.t(
+                'components.novita.novita.output_parser.display_name'),
+            info=i18n.t('components.novita.novita.output_parser.info'),
             advanced=True,
             input_types=["OutputParser"],
         ),
@@ -112,7 +125,8 @@ class NovitaModelComponent(LCModelComponent):
         try:
             output = ChatOpenAI(
                 model=model_name,
-                api_key=(SecretStr(api_key).get_secret_value() if api_key else None),
+                api_key=(SecretStr(api_key).get_secret_value()
+                         if api_key else None),
                 max_tokens=max_tokens or None,
                 temperature=temperature,
                 model_kwargs=model_kwargs,

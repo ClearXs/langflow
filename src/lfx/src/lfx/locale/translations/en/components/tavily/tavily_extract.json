@@ -1,0 +1,25 @@
+{
+  "display_name": "Tavily Extract API",
+  "description": "**Tavily Extract** extract raw content from URLs.",
+  "api_key": {
+    "display_name": "Tavily API Key",
+    "info": "Your Tavily API Key."
+  },
+  "urls": {
+    "display_name": "URLs",
+    "info": "Comma-separated list of URLs to extract content from."
+  },
+  "extract_depth": {
+    "display_name": "Extract Depth",
+    "info": "The depth of the extraction process."
+  },
+  "include_images": {
+    "display_name": "Include Images",
+    "info": "Include a list of images extracted from the URLs."
+  },
+  "outputs": {
+    "dataframe": {
+      "display_name": "DataFrame"
+    }
+  }
+}

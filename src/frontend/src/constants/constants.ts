@@ -166,11 +166,6 @@ export const FLOW_NOT_BUILT_TITLE = "Flow not built";
 export const FLOW_NOT_BUILT_DESCRIPTION =
   "Please build the flow before chatting.";
 
-/**
- * The base text for subtitle of Text Dialog
- * @constant
- */
-export const TEXT_DIALOG_TITLE = "Edit text content";
 
 /**
  * The base text for subtitle of Import Dialog
@@ -184,22 +179,6 @@ export const IMPORT_DIALOG_SUBTITLE =
  * @constant
  */
 export const TOOLTIP_EMPTY = "No compatible components found.";
-
-export const CSVViewErrorTitle = "CSV output";
-
-export const CSVNoDataError = "No data available";
-
-export const PDFViewConstant = "Expand the output to see the PDF";
-
-export const CSVError = "Error loading CSV";
-
-export const PDFLoadErrorTitle = "Error loading PDF";
-
-export const PDFCheckFlow = "Please check your flow and try again";
-
-export const PDFErrorTitle = "PDF Output";
-
-export const PDFLoadError = "Run the flow to see the pdf";
 
 export const IMGViewConstant = "Expand the view to see the image";
 
@@ -715,7 +694,6 @@ export const ALERT_SAVE_WITH_API =
 
 export const SAVE_WITH_API_CHECKBOX = "Save with my API keys";
 export const EDIT_TEXT_MODAL_TITLE = "Edit Text";
-export const EDIT_TEXT_PLACEHOLDER = "Type message here.";
 export const INPUT_HANDLER_HOVER = "Avaliable input components:";
 export const OUTPUT_HANDLER_HOVER = "Avaliable output components:";
 export const TEXT_INPUT_MODAL_TITLE = "Inputs";
@@ -936,15 +914,6 @@ export const defaultShortcuts = [
   },
 ];
 
-export const DEFAULT_TABLE_ALERT_MSG = `Oops! It seems there's no data to display right now. Please check back later.`;
-
-export const DEFAULT_TABLE_ALERT_TITLE = "No Data Available";
-
-export const NO_COLUMN_DEFINITION_ALERT_TITLE = "No Column Definitions";
-
-export const NO_COLUMN_DEFINITION_ALERT_DESCRIPTION =
-  "There are no column definitions available for this table.";
-
 export const LOCATIONS_TO_RETURN = ["/flow/", "/settings/"];
 
 export const MAX_BATCH_SIZE = 50;
@@ -1033,17 +1002,9 @@ export const GRADIENT_CLASS =
 export const GRADIENT_CLASS_DISABLED =
   "linear-gradient(to right, hsl(var(--muted) / 0.3), hsl(var(--muted)))";
 
-export const RECEIVING_INPUT_VALUE = "Receiving input";
-export const SELECT_AN_OPTION = "Select an option";
-
 export const ICON_STROKE_WIDTH = 1.5;
 
-export const DEFAULT_PLACEHOLDER = "Type something...";
-
-export const DEFAULT_TOOLSET_PLACEHOLDER = "Used as a tool";
-
 export const SAVE_API_KEY_ALERT = "API key saved successfully";
-export const PLAYGROUND_BUTTON_NAME = "Playground";
 export const POLLING_MESSAGES = {
   ENDPOINT_NOT_AVAILABLE: "Endpoint not available",
   STREAMING_NOT_SUPPORTED: "Streaming not supported",

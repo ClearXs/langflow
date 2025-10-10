@@ -1,0 +1,31 @@
+{
+  "display_name": "YouTube Comments",
+  "description": "Retrieves and analyzes comments from YouTube videos.",
+  "video_url": {
+    "display_name": "Video URL",
+    "info": "The URL of the YouTube video to get comments from."
+  },
+  "api_key": {
+    "display_name": "YouTube API Key",
+    "info": "Your YouTube Data API key."
+  },
+  "max_results": {
+    "display_name": "Max Results",
+    "info": "The maximum number of comments to return."
+  },
+  "sort_by": {
+    "display_name": "Sort By",
+    "info": "Sort comments by time or relevance."
+  },
+  "include_replies": {
+    "display_name": "Include Replies",
+    "info": "Whether to include replies to comments."
+  },
+  "include_metrics": {
+    "display_name": "Include Metrics",
+    "info": "Include metrics like like count and reply count."
+  },
+  "outputs": {
+    "comments": "Comments"
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "display_name": "Weaviate",
+  "description": "Weaviate Vector Store with search capabilities",
+  "url": {
+    "display_name": "Weaviate URL"
+  },
+  "api_key": {
+    "display_name": "API Key"
+  },
+  "index_name": {
+    "display_name": "Index Name",
+    "info": "Requires capitalized index name."
+  },
+  "text_key": {
+    "display_name": "Text Key"
+  },
+  "embedding": {
+    "display_name": "Embedding"
+  },
+  "number_of_results": {
+    "display_name": "Number of Results",
+    "info": "Number of results to return."
+  },
+  "search_by_text": {
+    "display_name": "Search By Text"
+  }
+}

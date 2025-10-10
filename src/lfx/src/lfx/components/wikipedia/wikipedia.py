@@ -1,3 +1,4 @@
+import i18n
 from langchain_community.utilities.wikipedia import WikipediaAPIWrapper
 
 from lfx.custom.custom_component.component import Component
@@ -8,26 +9,53 @@ from lfx.schema.dataframe import DataFrame
 
 
 class WikipediaComponent(Component):
-    display_name = "Wikipedia"
-    description = "Call Wikipedia API."
+    display_name = i18n.t('components.wikipedia.wikipedia.display_name')
+    description = i18n.t('components.wikipedia.wikipedia.description')
     icon = "Wikipedia"
 
     inputs = [
         MultilineInput(
             name="input_value",
-            display_name="Input",
+            display_name=i18n.t(
+                'components.wikipedia.wikipedia.input_value.display_name'),
             tool_mode=True,
         ),
-        MessageTextInput(name="lang", display_name="Language", value="en"),
-        IntInput(name="k", display_name="Number of results", value=4, required=True),
-        BoolInput(name="load_all_available_meta", display_name="Load all available meta", value=False, advanced=True),
+        MessageTextInput(
+            name="lang",
+            display_name=i18n.t(
+                'components.wikipedia.wikipedia.lang.display_name'),
+            value="en"
+        ),
         IntInput(
-            name="doc_content_chars_max", display_name="Document content characters max", value=4000, advanced=True
+            name="k",
+            display_name=i18n.t(
+                'components.wikipedia.wikipedia.k.display_name'),
+            value=4,
+            required=True
+        ),
+        BoolInput(
+            name="load_all_available_meta",
+            display_name=i18n.t(
+                'components.wikipedia.wikipedia.load_all_available_meta.display_name'),
+            value=False,
+            advanced=True
+        ),
+        IntInput(
+            name="doc_content_chars_max",
+            display_name=i18n.t(
+                'components.wikipedia.wikipedia.doc_content_chars_max.display_name'),
+            value=4000,
+            advanced=True
         ),
     ]
 
     outputs = [
-        Output(display_name="DataFrame", name="dataframe", method="fetch_content_dataframe"),
+        Output(
+            display_name=i18n.t(
+                'components.wikipedia.wikipedia.outputs.dataframe'),
+            name="dataframe",
+            method="fetch_content_dataframe"
+        ),
     ]
 
     def run_model(self) -> DataFrame:

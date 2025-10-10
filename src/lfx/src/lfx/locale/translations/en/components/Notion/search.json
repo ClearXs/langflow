@@ -1,0 +1,20 @@
+{
+  "display_name": "Search",
+  "description": "Searches all pages and databases that have been shared with an integration.",
+  "notion_secret": {
+    "display_name": "Notion Secret",
+    "info": "The Notion integration token."
+  },
+  "query": {
+    "display_name": "Search Query",
+    "info": "The text that the API compares page and database titles against."
+  },
+  "filter_value": {
+    "display_name": "Filter Type",
+    "info": "Limits the results to either only pages or only databases."
+  },
+  "sort_direction": {
+    "display_name": "Sort Direction",
+    "info": "The direction to sort the results."
+  }
+}

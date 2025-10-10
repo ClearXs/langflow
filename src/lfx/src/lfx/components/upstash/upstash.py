@@ -1,3 +1,4 @@
+import i18n
 from langchain_community.vectorstores import UpstashVectorStore
 
 from lfx.base.vectorstores.model import LCVectorStoreComponent, check_cached_vector_store
@@ -13,52 +14,59 @@ from lfx.schema.data import Data
 
 
 class UpstashVectorStoreComponent(LCVectorStoreComponent):
-    display_name = "Upstash"
-    description = "Upstash Vector Store with search capabilities"
+    display_name = i18n.t('components.upstash.upstash.display_name')
+    description = i18n.t('components.upstash.upstash.description')
     name = "Upstash"
     icon = "Upstash"
 
     inputs = [
         StrInput(
             name="index_url",
-            display_name="Index URL",
-            info="The URL of the Upstash index.",
+            display_name=i18n.t(
+                'components.upstash.upstash.index_url.display_name'),
+            info=i18n.t('components.upstash.upstash.index_url.info'),
             required=True,
         ),
         SecretStrInput(
             name="index_token",
-            display_name="Upstash Index Token",
-            info="The token for the Upstash index.",
+            display_name=i18n.t(
+                'components.upstash.upstash.index_token.display_name'),
+            info=i18n.t('components.upstash.upstash.index_token.info'),
             required=True,
         ),
         StrInput(
             name="text_key",
-            display_name="Text Key",
-            info="The key in the record to use as text.",
+            display_name=i18n.t(
+                'components.upstash.upstash.text_key.display_name'),
+            info=i18n.t('components.upstash.upstash.text_key.info'),
             value="text",
             advanced=True,
         ),
         StrInput(
             name="namespace",
-            display_name="Namespace",
-            info="Leave empty for default namespace.",
+            display_name=i18n.t(
+                'components.upstash.upstash.namespace.display_name'),
+            info=i18n.t('components.upstash.upstash.namespace.info'),
         ),
         *LCVectorStoreComponent.inputs,
         MultilineInput(
             name="metadata_filter",
-            display_name="Metadata Filter",
-            info="Filters documents by metadata. Look at the documentation for more information.",
+            display_name=i18n.t(
+                'components.upstash.upstash.metadata_filter.display_name'),
+            info=i18n.t('components.upstash.upstash.metadata_filter.info'),
         ),
         HandleInput(
             name="embedding",
-            display_name="Embedding",
+            display_name=i18n.t(
+                'components.upstash.upstash.embedding.display_name'),
             input_types=["Embeddings"],
-            info="To use Upstash's embeddings, don't provide an embedding.",
+            info=i18n.t('components.upstash.upstash.embedding.info'),
         ),
         IntInput(
             name="number_of_results",
-            display_name="Number of Results",
-            info="Number of results to return.",
+            display_name=i18n.t(
+                'components.upstash.upstash.number_of_results.display_name'),
+            info=i18n.t('components.upstash.upstash.number_of_results.info'),
             value=4,
             advanced=True,
         ),

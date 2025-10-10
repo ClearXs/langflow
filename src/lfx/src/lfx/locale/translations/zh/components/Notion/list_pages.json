@@ -1,0 +1,16 @@
+{
+  "display_name": "列出页面",
+  "description": "使用过滤和排序查询Notion数据库。输入应该是包含'filter'和'sorts'对象的JSON字符串。示例输入:\n{\"filter\": {\"property\": \"Status\", \"select\": {\"equals\": \"Done\"}}, \"sorts\": [{\"timestamp\": \"created_time\", \"direction\": \"descending\"}]}",
+  "notion_secret": {
+    "display_name": "Notion密钥",
+    "info": "Notion集成令牌。"
+  },
+  "database_id": {
+    "display_name": "数据库ID",
+    "info": "要查询的Notion数据库的ID。"
+  },
+  "query_json": {
+    "display_name": "数据库查询 (JSON)",
+    "info": "包含用于查询数据库的过滤器和排序的JSON字符串。留空表示不使用过滤器或排序。"
+  }
+}

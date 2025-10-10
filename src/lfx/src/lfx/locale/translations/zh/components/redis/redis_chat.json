@@ -1,0 +1,32 @@
+{
+  "display_name": "Redis 聊天记忆",
+  "description": "从 Redis 检索和存储聊天消息。",
+  "host": {
+    "display_name": "主机名",
+    "info": "IP 地址或主机名。"
+  },
+  "port": {
+    "display_name": "端口",
+    "info": "Redis 端口号。"
+  },
+  "database": {
+    "display_name": "数据库",
+    "info": "Redis 数据库。"
+  },
+  "username": {
+    "display_name": "用户名",
+    "info": "Redis 用户名。"
+  },
+  "password": {
+    "display_name": "Redis 密码",
+    "info": "用户名的密码。"
+  },
+  "key_prefix": {
+    "display_name": "键前缀",
+    "info": "键前缀。"
+  },
+  "session_id": {
+    "display_name": "会话 ID",
+    "info": "消息的会话 ID。"
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "display_name": "Vectara",
+  "description": "具有搜索功能的 Vectara 向量存储",
+  "vectara_customer_id": {
+    "display_name": "Vectara 客户 ID"
+  },
+  "vectara_corpus_id": {
+    "display_name": "Vectara 语料库 ID"
+  },
+  "vectara_api_key": {
+    "display_name": "Vectara API 密钥"
+  },
+  "embedding": {
+    "display_name": "嵌入"
+  },
+  "number_of_results": {
+    "display_name": "结果数量",
+    "info": "要返回的结果数量。"
+  }
+}

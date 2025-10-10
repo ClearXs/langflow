@@ -1,0 +1,13 @@
+{
+  "display_name": "TwelveLabs 视频嵌入",
+  "description": "使用 TwelveLabs 视频嵌入模型从视频生成嵌入向量。",
+  "api_key": {
+    "display_name": "TwelveLabs API 密钥"
+  },
+  "model_name": {
+    "display_name": "模型"
+  },
+  "request_timeout": {
+    "display_name": "请求超时"
+  }
+}

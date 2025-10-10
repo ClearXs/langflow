@@ -1,3 +1,4 @@
+import i18n
 from typing import Any
 
 from lfx.custom import Component
@@ -9,8 +10,10 @@ from lfx.schema.message import Message
 class ConvertAstraToTwelveLabs(Component):
     """Convert Astra DB search results to TwelveLabs Pegasus inputs."""
 
-    display_name = "Convert Astra DB to Pegasus Input"
-    description = "Converts Astra DB search results to inputs compatible with TwelveLabs Pegasus."
+    display_name = i18n.t(
+        'components.twelvelabs.convert_astra_results.display_name')
+    description = i18n.t(
+        'components.twelvelabs.convert_astra_results.description')
     icon = "TwelveLabs"
     name = "ConvertAstraToTwelveLabs"
     documentation = "https://github.com/twelvelabs-io/twelvelabs-developer-experience/blob/main/integrations/Langflow/TWELVE_LABS_COMPONENTS_README.md"
@@ -18,9 +21,11 @@ class ConvertAstraToTwelveLabs(Component):
     inputs = [
         HandleInput(
             name="astra_results",
-            display_name="Astra DB Results",
+            display_name=i18n.t(
+                'components.twelvelabs.convert_astra_results.astra_results.display_name'),
             input_types=["Data"],
-            info="Search results from Astra DB component",
+            info=i18n.t(
+                'components.twelvelabs.convert_astra_results.astra_results.info'),
             required=True,
             is_list=True,
         )
@@ -29,13 +34,15 @@ class ConvertAstraToTwelveLabs(Component):
     outputs = [
         Output(
             name="index_id",
-            display_name="Index ID",
+            display_name=i18n.t(
+                'components.twelvelabs.convert_astra_results.outputs.index_id.display_name'),
             type_=Message,
             method="get_index_id",
         ),
         Output(
             name="video_id",
-            display_name="Video ID",
+            display_name=i18n.t(
+                'components.twelvelabs.convert_astra_results.outputs.video_id.display_name'),
             type_=Message,
             method="get_video_id",
         ),
@@ -52,7 +59,8 @@ class ConvertAstraToTwelveLabs(Component):
             return
 
         # Convert to list if single item
-        results = self.astra_results if isinstance(self.astra_results, list) else [self.astra_results]
+        results = self.astra_results if isinstance(
+            self.astra_results, list) else [self.astra_results]
 
         # Try to extract index information from metadata
         for doc in results:

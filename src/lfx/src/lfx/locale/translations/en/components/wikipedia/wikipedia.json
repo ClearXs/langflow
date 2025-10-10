@@ -1,0 +1,22 @@
+{
+  "display_name": "Wikipedia",
+  "description": "Call Wikipedia API.",
+  "input_value": {
+    "display_name": "Input"
+  },
+  "lang": {
+    "display_name": "Language"
+  },
+  "k": {
+    "display_name": "Number of Results"
+  },
+  "load_all_available_meta": {
+    "display_name": "Load All Available Meta"
+  },
+  "doc_content_chars_max": {
+    "display_name": "Document Content Characters Max"
+  },
+  "outputs": {
+    "dataframe": "DataFrame"
+  }
+}

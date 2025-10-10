@@ -1,0 +1,19 @@
+{
+  "display_name": "Python Function",
+  "description": "Define and execute a Python function that returns a Data object or a Message.",
+  "function_code": {
+    "display_name": "Function Code",
+    "info": "The code for the function."
+  },
+  "outputs": {
+    "function_output": {
+      "display_name": "Function Callable"
+    },
+    "function_output_data": {
+      "display_name": "Function Output (Data)"
+    },
+    "function_output_str": {
+      "display_name": "Function Output (Message)"
+    }
+  }
+}

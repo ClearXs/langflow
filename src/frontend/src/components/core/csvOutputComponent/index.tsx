@@ -1,18 +1,14 @@
-import type { AllNodeType } from "@/types/flow";
-import "ag-grid-community/styles/ag-grid.css"; // Mandatory CSS required by the grid
-import "ag-grid-community/styles/ag-theme-balham.css"; // Optional Theme applied to the grid
-import { useEffect, useMemo, useState } from "react";
-import {
-  CSVError,
-  CSVNoDataError,
-  CSVViewErrorTitle,
-} from "../../../constants/constants";
-import { useDarkStore } from "../../../stores/darkStore";
-import type { VertexBuildTypeAPI } from "../../../types/api";
-import ForwardedIconComponent from "../../common/genericIconComponent";
-import Loading from "../../ui/loading";
-import TableComponent from "../parameterRenderComponent/components/tableComponent";
-import { convertCSVToData } from "./helpers/convert-data-function";
+import type { AllNodeType } from '@/types/flow';
+import 'ag-grid-community/styles/ag-grid.css'; // Mandatory CSS required by the grid
+import 'ag-grid-community/styles/ag-theme-balham.css'; // Optional Theme applied to the grid
+import { useEffect, useMemo, useState } from 'react';
+import { useDarkStore } from '../../../stores/darkStore';
+import type { VertexBuildTypeAPI } from '../../../types/api';
+import ForwardedIconComponent from '../../common/genericIconComponent';
+import Loading from '../../ui/loading';
+import TableComponent from '../parameterRenderComponent/components/tableComponent';
+import { convertCSVToData } from './helpers/convert-data-function';
+import { useMessageLocale } from '@/i18n/locale';
 
 function CsvOutputComponent({
   csvNode,
@@ -25,35 +21,39 @@ function CsvOutputComponent({
   const jsonString = csvNodeArtifacts?.replace(/'/g, '"');
   let file = null;
   try {
-    file = JSON?.parse(jsonString) || "";
+    file = JSON?.parse(jsonString) || '';
   } catch (_e) {
-    console.error("Error parsing JSON");
+    console.error('Error parsing JSON');
   }
+
+  const messageLocale = useMessageLocale();
 
   if (!file) {
     return (
-      <div className="align-center flex h-full w-full flex-col items-center justify-center gap-5">
-        <div className="align-center flex w-full justify-center gap-2">
-          <ForwardedIconComponent name="Table" />
-          {CSVViewErrorTitle}
+      <div className='align-center flex h-full w-full flex-col items-center justify-center gap-5'>
+        <div className='align-center flex w-full justify-center gap-2'>
+          <ForwardedIconComponent name='Table' />
+          {messageLocale.CSV_VIEW_ERROR_TITLE}
         </div>
-        <div className="align-center flex w-full justify-center">
-          <div className="langflow-chat-desc align-center flex justify-center px-6 py-8">
-            <div className="langflow-chat-desc-span">{CSVError}</div>
+        <div className='align-center flex w-full justify-center'>
+          <div className='langflow-chat-desc align-center flex justify-center px-6 py-8'>
+            <div className='langflow-chat-desc-span'>
+              {messageLocale.CSV_ERROR}
+            </div>
           </div>
         </div>
       </div>
     );
   }
 
-  const separator = csvNode?.data?.node?.template?.separator?.value || ",";
+  const separator = csvNode?.data?.node?.template?.separator?.value || ',';
 
   const dark = useDarkStore.getState().dark;
 
   const [rowData, setRowData] = useState([]);
   const [colDefs, setColDefs] = useState([]);
 
-  const [status, setStatus] = useState("loading");
+  const [status, setStatus] = useState('loading');
   const defaultColDef = useMemo(() => {
     return {
       width: 200,
@@ -63,69 +63,73 @@ function CsvOutputComponent({
   }, []);
 
   useEffect(() => {
-    setStatus("loading");
+    setStatus('loading');
     if (file) {
       const { rowData: data, colDefs: columns } = convertCSVToData(
         file,
-        separator,
+        separator
       );
       setRowData(data);
       setColDefs(columns);
 
       setTimeout(() => {
-        setStatus("loaded");
+        setStatus('loaded');
       }, 1000);
     } else {
-      setStatus("nodata");
+      setStatus('nodata');
     }
   }, [separator]);
 
   return (
-    <div className="h-full rounded-md border bg-muted">
-      {status === "nodata" && (
-        <div className="align-center flex h-full w-full flex-col items-center justify-center gap-5">
-          <div className="align-center flex w-full justify-center gap-2">
-            <ForwardedIconComponent name="Table" />
-            {CSVViewErrorTitle}
+    <div className='h-full rounded-md border bg-muted'>
+      {status === 'nodata' && (
+        <div className='align-center flex h-full w-full flex-col items-center justify-center gap-5'>
+          <div className='align-center flex w-full justify-center gap-2'>
+            <ForwardedIconComponent name='Table' />
+            {messageLocale.CSV_VIEW_ERROR_TITLE}
           </div>
-          <div className="align-center flex w-full justify-center">
-            <div className="langflow-chat-desc align-center flex justify-center px-6 py-8">
-              <div className="langflow-chat-desc-span">{CSVNoDataError}</div>
+          <div className='align-center flex w-full justify-center'>
+            <div className='langflow-chat-desc align-center flex justify-center px-6 py-8'>
+              <div className='langflow-chat-desc-span'>
+                {messageLocale.CSV_NO_DATA_ERROR}
+              </div>
             </div>
           </div>
         </div>
       )}
-      {status === "error" && (
-        <div className="align-center flex h-full w-full flex-col items-center justify-center gap-5">
-          <div className="align-center flex w-full justify-center gap-2">
-            <ForwardedIconComponent name="Table" />
-            {CSVViewErrorTitle}
+      {status === 'error' && (
+        <div className='align-center flex h-full w-full flex-col items-center justify-center gap-5'>
+          <div className='align-center flex w-full justify-center gap-2'>
+            <ForwardedIconComponent name='Table' />
+            {messageLocale.CSV_VIEW_ERROR_TITLE}
           </div>
-          <div className="align-center flex w-full justify-center">
-            <div className="langflow-chat-desc align-center flex justify-center px-6 py-8">
-              <div className="langflow-chat-desc-span">{CSVError}</div>
+          <div className='align-center flex w-full justify-center'>
+            <div className='langflow-chat-desc align-center flex justify-center px-6 py-8'>
+              <div className='langflow-chat-desc-span'>
+                {messageLocale.CSV_ERROR}
+              </div>
             </div>
           </div>
         </div>
       )}
 
-      {status === "loaded" && (
+      {status === 'loaded' && (
         <div
-          className={`${dark ? "ag-theme-balham-dark" : "ag-theme-balham"}`}
-          style={{ height: "100%", width: "100%" }}
+          className={`${dark ? 'ag-theme-balham-dark' : 'ag-theme-balham'}`}
+          style={{ height: '100%', width: '100%' }}
         >
           <TableComponent
-            key={"csv-output"}
+            key={'csv-output'}
             rowData={rowData}
             columnDefs={colDefs}
             defaultColDef={defaultColDef}
             scrollbarWidth={8}
-            overlayNoRowsTemplate="No data available"
+            overlayNoRowsTemplate='No data available'
           />
         </div>
       )}
-      {status === "loading" && (
-        <div className="flex h-full w-full items-center justify-center align-middle">
+      {status === 'loading' && (
+        <div className='flex h-full w-full items-center justify-center align-middle'>
           <Loading />
         </div>
       )}

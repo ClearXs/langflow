@@ -1,0 +1,36 @@
+{
+  "display_name": "Vertex AI",
+  "description": "使用 Vertex AI 大语言模型生成文本。",
+  "credentials": {
+    "display_name": "凭证",
+    "info": "JSON 凭证文件。留空以回退到环境变量"
+  },
+  "model_name": {
+    "display_name": "模型名称"
+  },
+  "project": {
+    "display_name": "项目",
+    "info": "项目 ID。"
+  },
+  "location": {
+    "display_name": "位置"
+  },
+  "max_output_tokens": {
+    "display_name": "最大输出令牌数"
+  },
+  "max_retries": {
+    "display_name": "最大重试次数"
+  },
+  "temperature": {
+    "display_name": "温度"
+  },
+  "top_k": {
+    "display_name": "Top K"
+  },
+  "top_p": {
+    "display_name": "Top P"
+  },
+  "verbose": {
+    "display_name": "详细模式"
+  }
+}

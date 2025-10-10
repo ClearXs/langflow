@@ -1,3 +1,4 @@
+import i18n
 from uuid import UUID
 
 from langchain_community.graph_vectorstores import CassandraGraphVectorStore
@@ -16,67 +17,92 @@ from lfx.schema.data import Data
 
 
 class CassandraGraphVectorStoreComponent(LCVectorStoreComponent):
-    display_name = "Cassandra Graph"
-    description = "Cassandra Graph Vector Store"
+    display_name = i18n.t(
+        'components.vectorstores.cassandra_graph.display_name')
+    description = i18n.t('components.vectorstores.cassandra_graph.description')
     name = "CassandraGraph"
     icon = "Cassandra"
 
     inputs = [
         MessageTextInput(
             name="database_ref",
-            display_name="Contact Points / Astra Database ID",
-            info="Contact points for the database (or Astra DB database ID)",
+            display_name=i18n.t(
+                'components.vectorstores.cassandra_graph.database_ref.display_name'),
+            info=i18n.t(
+                'components.vectorstores.cassandra_graph.database_ref.info'),
             required=True,
         ),
         MessageTextInput(
-            name="username", display_name="Username", info="Username for the database (leave empty for Astra DB)."
+            name="username",
+            display_name=i18n.t(
+                'components.vectorstores.cassandra_graph.username.display_name'),
+            info=i18n.t(
+                'components.vectorstores.cassandra_graph.username.info')
         ),
         SecretStrInput(
             name="token",
-            display_name="Password / Astra DB Token",
-            info="User password for the database (or Astra DB token).",
+            display_name=i18n.t(
+                'components.vectorstores.cassandra_graph.token.display_name'),
+            info=i18n.t('components.vectorstores.cassandra_graph.token.info'),
             required=True,
         ),
         MessageTextInput(
             name="keyspace",
-            display_name="Keyspace",
-            info="Table Keyspace (or Astra DB namespace).",
+            display_name=i18n.t(
+                'components.vectorstores.cassandra_graph.keyspace.display_name'),
+            info=i18n.t(
+                'components.vectorstores.cassandra_graph.keyspace.info'),
             required=True,
         ),
         MessageTextInput(
             name="table_name",
-            display_name="Table Name",
-            info="The name of the table (or Astra DB collection) where vectors will be stored.",
+            display_name=i18n.t(
+                'components.vectorstores.cassandra_graph.table_name.display_name'),
+            info=i18n.t(
+                'components.vectorstores.cassandra_graph.table_name.info'),
             required=True,
         ),
         DropdownInput(
             name="setup_mode",
-            display_name="Setup Mode",
-            info="Configuration mode for setting up the Cassandra table, with options like 'Sync' or 'Off'.",
+            display_name=i18n.t(
+                'components.vectorstores.cassandra_graph.setup_mode.display_name'),
+            info=i18n.t(
+                'components.vectorstores.cassandra_graph.setup_mode.info'),
             options=["Sync", "Off"],
             value="Sync",
             advanced=True,
         ),
         DictInput(
             name="cluster_kwargs",
-            display_name="Cluster arguments",
-            info="Optional dictionary of additional keyword arguments for the Cassandra cluster.",
+            display_name=i18n.t(
+                'components.vectorstores.cassandra_graph.cluster_kwargs.display_name'),
+            info=i18n.t(
+                'components.vectorstores.cassandra_graph.cluster_kwargs.info'),
             advanced=True,
             list=True,
         ),
         *LCVectorStoreComponent.inputs,
-        HandleInput(name="embedding", display_name="Embedding", input_types=["Embeddings"]),
+        HandleInput(
+            name="embedding",
+            display_name=i18n.t(
+                'components.vectorstores.cassandra_graph.embedding.display_name'),
+            input_types=["Embeddings"]
+        ),
         IntInput(
             name="number_of_results",
-            display_name="Number of Results",
-            info="Number of results to return.",
+            display_name=i18n.t(
+                'components.vectorstores.cassandra_graph.number_of_results.display_name'),
+            info=i18n.t(
+                'components.vectorstores.cassandra_graph.number_of_results.info'),
             value=4,
             advanced=True,
         ),
         DropdownInput(
             name="search_type",
-            display_name="Search Type",
-            info="Search type to use",
+            display_name=i18n.t(
+                'components.vectorstores.cassandra_graph.search_type.display_name'),
+            info=i18n.t(
+                'components.vectorstores.cassandra_graph.search_type.info'),
             options=[
                 "Traversal",
                 "MMR traversal",
@@ -89,23 +115,27 @@ class CassandraGraphVectorStoreComponent(LCVectorStoreComponent):
         ),
         IntInput(
             name="depth",
-            display_name="Depth of traversal",
-            info="The maximum depth of edges to traverse. (when using 'Traversal' or 'MMR traversal')",
+            display_name=i18n.t(
+                'components.vectorstores.cassandra_graph.depth.display_name'),
+            info=i18n.t('components.vectorstores.cassandra_graph.depth.info'),
             value=1,
             advanced=True,
         ),
         FloatInput(
             name="search_score_threshold",
-            display_name="Search Score Threshold",
-            info="Minimum similarity score threshold for search results. "
-            "(when using 'Similarity with score threshold')",
+            display_name=i18n.t(
+                'components.vectorstores.cassandra_graph.search_score_threshold.display_name'),
+            info=i18n.t(
+                'components.vectorstores.cassandra_graph.search_score_threshold.info'),
             value=0,
             advanced=True,
         ),
         DictInput(
             name="search_filter",
-            display_name="Search Metadata Filter",
-            info="Optional dictionary of filters to apply to the search query.",
+            display_name=i18n.t(
+                'components.vectorstores.cassandra_graph.search_filter.display_name'),
+            info=i18n.t(
+                'components.vectorstores.cassandra_graph.search_filter.info'),
             advanced=True,
             list=True,
         ),
@@ -200,7 +230,8 @@ class CassandraGraphVectorStoreComponent(LCVectorStoreComponent):
 
                 self.log(f"Search args: {search_args}")
 
-                docs = vector_store.search(query=self.search_query, search_type=search_type, **search_args)
+                docs = vector_store.search(
+                    query=self.search_query, search_type=search_type, **search_args)
             except KeyError as e:
                 if "content" in str(e):
                     msg = (
@@ -225,7 +256,8 @@ class CassandraGraphVectorStoreComponent(LCVectorStoreComponent):
         }
 
         if self.search_filter:
-            clean_filter = {k: v for k, v in self.search_filter.items() if k and v}
+            clean_filter = {k: v for k,
+                            v in self.search_filter.items() if k and v}
             if len(clean_filter) > 0:
                 args["filter"] = clean_filter
         return args

@@ -38,18 +38,21 @@ class FieldTypes(str, Enum):
     MCP = "mcp"
 
 
-SerializableFieldTypes = Annotated[FieldTypes, PlainSerializer(lambda v: v.value, return_type=str)]
+SerializableFieldTypes = Annotated[FieldTypes, PlainSerializer(
+    lambda v: v.value, return_type=str)]
 
 
 # Base mixin for common input field attributes and methods
-class BaseInputMixin(BaseModel, validate_assignment=True):  # type: ignore[call-arg]
+# type: ignore[call-arg]
+class BaseInputMixin(BaseModel, validate_assignment=True):
     model_config = ConfigDict(
         arbitrary_types_allowed=True,
         extra="forbid",
         populate_by_name=True,
     )
 
-    field_type: SerializableFieldTypes = Field(default=FieldTypes.TEXT, alias="type")
+    field_type: SerializableFieldTypes = Field(
+        default=FieldTypes.TEXT, alias="type")
 
     required: bool = False
     """Specifies if the field is required. Defaults to False."""
@@ -310,7 +313,7 @@ class SliderMixin(BaseModel):
 class TableMixin(BaseModel):
     # For now we'll use simple types - in a full implementation these would be proper schema classes
     table_schema: dict | list | None = None
-    trigger_text: str = Field(default="Open table")
+    trigger_text: str = Field(default="Open Table")
     trigger_icon: str = Field(default="Table")
     table_icon: str = Field(default="Table")
     table_options: dict | None = None

@@ -1,3 +1,4 @@
+import i18n
 import httpx
 from httpx import HTTPError
 from langchain_core.tools import ToolException
@@ -10,22 +11,28 @@ from lfx.template.field.base import Output
 
 
 class WikidataComponent(Component):
-    display_name = "Wikidata"
-    description = "Performs a search using the Wikidata API."
+    display_name = i18n.t('components.wikipedia.wikidata.display_name')
+    description = i18n.t('components.wikipedia.wikidata.description')
     icon = "Wikipedia"
 
     inputs = [
         MultilineInput(
             name="query",
-            display_name="Query",
-            info="The text query for similarity search on Wikidata.",
+            display_name=i18n.t(
+                'components.wikipedia.wikidata.query.display_name'),
+            info=i18n.t('components.wikipedia.wikidata.query.info'),
             required=True,
             tool_mode=True,
         ),
     ]
 
     outputs = [
-        Output(display_name="DataFrame", name="dataframe", method="fetch_content_dataframe"),
+        Output(
+            display_name=i18n.t(
+                'components.wikipedia.wikidata.outputs.dataframe'),
+            name="dataframe",
+            method="fetch_content_dataframe"
+        ),
     ]
 
     def run_model(self) -> DataFrame:

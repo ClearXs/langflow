@@ -1,0 +1,47 @@
+{
+  "display_name": "Qdrant",
+  "description": "具有搜索功能的 Qdrant 向量存储",
+  "collection_name": {
+    "display_name": "集合名称"
+  },
+  "host": {
+    "display_name": "主机"
+  },
+  "port": {
+    "display_name": "端口"
+  },
+  "grpc_port": {
+    "display_name": "gRPC 端口"
+  },
+  "api_key": {
+    "display_name": "Qdrant API 密钥"
+  },
+  "prefix": {
+    "display_name": "前缀"
+  },
+  "timeout": {
+    "display_name": "超时"
+  },
+  "path": {
+    "display_name": "路径"
+  },
+  "url": {
+    "display_name": "URL"
+  },
+  "distance_func": {
+    "display_name": "距离函数"
+  },
+  "content_payload_key": {
+    "display_name": "内容负载键"
+  },
+  "metadata_payload_key": {
+    "display_name": "元数据负载键"
+  },
+  "embedding": {
+    "display_name": "嵌入模型"
+  },
+  "number_of_results": {
+    "display_name": "结果数量",
+    "info": "要返回的结果数量。"
+  }
+}

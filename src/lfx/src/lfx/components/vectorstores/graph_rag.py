@@ -1,3 +1,4 @@
+import i18n
 import inspect
 from abc import ABC
 
@@ -42,47 +43,54 @@ class GraphRAGComponent(LCVectorStoreComponent):
             Processes the edge definition input and returns it as a tuple.
     """
 
-    display_name: str = "Graph RAG"
-    description: str = "Graph RAG traversal for vector store."
+    display_name: str = i18n.t(
+        'components.vectorstores.graph_rag.display_name')
+    description: str = i18n.t('components.vectorstores.graph_rag.description')
     name = "Graph RAG"
     icon: str = "AstraDB"
 
     inputs = [
         HandleInput(
             name="embedding_model",
-            display_name="Embedding Model",
+            display_name=i18n.t(
+                'components.vectorstores.graph_rag.embedding_model.display_name'),
             input_types=["Embeddings"],
-            info="Specify the Embedding Model. Not required for Astra Vectorize collections.",
+            info=i18n.t(
+                'components.vectorstores.graph_rag.embedding_model.info'),
             required=False,
         ),
         HandleInput(
             name="vector_store",
-            display_name="Vector Store Connection",
+            display_name=i18n.t(
+                'components.vectorstores.graph_rag.vector_store.display_name'),
             input_types=["VectorStore"],
-            info="Connection to Vector Store.",
+            info=i18n.t('components.vectorstores.graph_rag.vector_store.info'),
         ),
         StrInput(
             name="edge_definition",
-            display_name="Edge Definition",
-            info="Edge definition for the graph traversal.",
+            display_name=i18n.t(
+                'components.vectorstores.graph_rag.edge_definition.display_name'),
+            info=i18n.t(
+                'components.vectorstores.graph_rag.edge_definition.info'),
         ),
         DropdownInput(
             name="strategy",
-            display_name="Traversal Strategies",
+            display_name=i18n.t(
+                'components.vectorstores.graph_rag.strategy.display_name'),
             options=traversal_strategies(),
         ),
         MultilineInput(
             name="search_query",
-            display_name="Search Query",
+            display_name=i18n.t(
+                'components.vectorstores.graph_rag.search_query.display_name'),
             tool_mode=True,
         ),
         NestedDictInput(
             name="graphrag_strategy_kwargs",
-            display_name="Strategy Parameters",
-            info=(
-                "Optional dictionary of additional parameters for the retrieval strategy. "
-                "Please see https://datastax.github.io/graph-rag/reference/graph_retriever/strategies/ for details."
-            ),
+            display_name=i18n.t(
+                'components.vectorstores.graph_rag.graphrag_strategy_kwargs.display_name'),
+            info=i18n.t(
+                'components.vectorstores.graph_rag.graphrag_strategy_kwargs.info'),
             advanced=True,
         ),
     ]
@@ -135,7 +143,8 @@ class GraphRAGComponent(LCVectorStoreComponent):
         evaluated_values = []
         for value in self._edge_definition_from_input():
             if value == "Id()":
-                evaluated_values.append(Id())  # Evaluate Id() as a function call
+                # Evaluate Id() as a function call
+                evaluated_values.append(Id())
             else:
                 evaluated_values.append(value)
         return tuple(evaluated_values)

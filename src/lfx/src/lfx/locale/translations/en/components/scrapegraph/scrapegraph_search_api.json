@@ -1,0 +1,17 @@
+{
+  "display_name": "ScrapeGraph Search API",
+  "description": "Given a search prompt, it will return search results using ScrapeGraph's search functionality.",
+  "api_key": {
+    "display_name": "ScrapeGraph API Key",
+    "info": "The API key to use ScrapeGraph API."
+  },
+  "user_prompt": {
+    "display_name": "Search Prompt",
+    "info": "The search prompt to use."
+  },
+  "outputs": {
+    "data": {
+      "display_name": "Data"
+    }
+  }
+}

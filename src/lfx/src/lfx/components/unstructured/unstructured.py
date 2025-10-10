@@ -1,3 +1,4 @@
+import i18n
 from langchain_unstructured import UnstructuredLoader
 
 from lfx.base.data.base_file import BaseFileComponent
@@ -6,10 +7,8 @@ from lfx.schema.data import Data
 
 
 class UnstructuredComponent(BaseFileComponent):
-    display_name = "Unstructured API"
-    description = (
-        "Uses Unstructured.io API to extract clean text from raw source documents. Supports a wide range of file types."
-    )
+    display_name = i18n.t('components.unstructured.unstructured.display_name')
+    description = i18n.t('components.unstructured.unstructured.description')
     documentation = (
         "https://python.langchain.com/api_reference/unstructured/document_loaders/"
         "langchain_unstructured.document_loaders.UnstructuredLoader.html"
@@ -53,32 +52,35 @@ class UnstructuredComponent(BaseFileComponent):
         *BaseFileComponent.get_base_inputs(),
         SecretStrInput(
             name="api_key",
-            display_name="Unstructured.io Serverless API Key",
+            display_name=i18n.t(
+                'components.unstructured.unstructured.api_key.display_name'),
             required=True,
-            info="Unstructured API Key. Create at: https://app.unstructured.io/",
+            info=i18n.t('components.unstructured.unstructured.api_key.info'),
         ),
         MessageTextInput(
             name="api_url",
-            display_name="Unstructured.io API URL",
+            display_name=i18n.t(
+                'components.unstructured.unstructured.api_url.display_name'),
             required=False,
-            info="Unstructured API URL.",
+            info=i18n.t('components.unstructured.unstructured.api_url.info'),
         ),
         DropdownInput(
             name="chunking_strategy",
-            display_name="Chunking Strategy",
-            info="Chunking strategy to use, see https://docs.unstructured.io/api-reference/api-services/chunking",
+            display_name=i18n.t(
+                'components.unstructured.unstructured.chunking_strategy.display_name'),
+            info=i18n.t(
+                'components.unstructured.unstructured.chunking_strategy.info'),
             options=["", "basic", "by_title", "by_page", "by_similarity"],
             real_time_refresh=False,
             value="",
         ),
         NestedDictInput(
             name="unstructured_args",
-            display_name="Additional Arguments",
+            display_name=i18n.t(
+                'components.unstructured.unstructured.unstructured_args.display_name'),
             required=False,
-            info=(
-                "Optional dictionary of additional arguments to the Loader. "
-                "See https://docs.unstructured.io/api-reference/api-services/api-parameters for more information."
-            ),
+            info=i18n.t(
+                'components.unstructured.unstructured.unstructured_args.info'),
         ),
     ]
 
@@ -111,11 +113,13 @@ class UnstructuredComponent(BaseFileComponent):
 
         documents = loader.load()
 
-        processed_data: list[Data | None] = [Data.from_document(doc) if doc else None for doc in documents]
+        processed_data: list[Data | None] = [
+            Data.from_document(doc) if doc else None for doc in documents]
 
         # Rename the `source` field to `self.SERVER_FILE_PATH_FIELDNAME`, to avoid conflicts with the `source` field
         for data in processed_data:
             if data and "source" in data.data:
-                data.data[self.SERVER_FILE_PATH_FIELDNAME] = data.data.pop("source")
+                data.data[self.SERVER_FILE_PATH_FIELDNAME] = data.data.pop(
+                    "source")
 
         return self.rollup_data(file_list, processed_data)

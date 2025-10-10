@@ -1,0 +1,32 @@
+{
+  "display_name": "Upstash",
+  "description": "具有搜索功能的 Upstash 向量存储",
+  "index_url": {
+    "display_name": "索引 URL",
+    "info": "Upstash 索引的 URL。"
+  },
+  "index_token": {
+    "display_name": "Upstash 索引令牌",
+    "info": "Upstash 索引的令牌。"
+  },
+  "text_key": {
+    "display_name": "文本键",
+    "info": "记录中用作文本的键。"
+  },
+  "namespace": {
+    "display_name": "命名空间",
+    "info": "留空以使用默认命名空间。"
+  },
+  "metadata_filter": {
+    "display_name": "元数据过滤器",
+    "info": "按元数据过滤文档。更多信息请查看文档。"
+  },
+  "embedding": {
+    "display_name": "嵌入",
+    "info": "要使用 Upstash 的嵌入功能，请不要提供嵌入模型。"
+  },
+  "number_of_results": {
+    "display_name": "结果数量",
+    "info": "要返回的结果数量。"
+  }
+}

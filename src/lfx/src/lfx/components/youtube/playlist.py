@@ -1,3 +1,4 @@
+import i18n
 from pytube import Playlist  # Ensure you have pytube installed
 
 from lfx.custom.custom_component.component import Component
@@ -8,21 +9,27 @@ from lfx.template.field.base import Output
 
 
 class YouTubePlaylistComponent(Component):
-    display_name = "YouTube Playlist"
-    description = "Extracts all video URLs from a YouTube playlist."
-    icon = "YouTube"  # Replace with a suitable icon
+    display_name = i18n.t('components.youtube.playlist.display_name')
+    description = i18n.t('components.youtube.playlist.description')
+    icon = "YouTube"
 
     inputs = [
         MessageTextInput(
             name="playlist_url",
-            display_name="Playlist URL",
-            info="URL of the YouTube playlist.",
+            display_name=i18n.t(
+                'components.youtube.playlist.playlist_url.display_name'),
+            info=i18n.t('components.youtube.playlist.playlist_url.info'),
             required=True,
         ),
     ]
 
     outputs = [
-        Output(display_name="Video URLs", name="video_urls", method="extract_video_urls"),
+        Output(
+            display_name=i18n.t(
+                'components.youtube.playlist.outputs.video_urls'),
+            name="video_urls",
+            method="extract_video_urls"
+        ),
     ]
 
     def extract_video_urls(self) -> DataFrame:

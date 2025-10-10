@@ -1,0 +1,85 @@
+{
+  "display_name": "Astra DB 图",
+  "description": "使用 Astra DB 实现的图向量存储",
+  "token": {
+    "display_name": "Astra DB 应用令牌",
+    "info": "用于访问 Astra DB 的身份验证令牌。"
+  },
+  "api_endpoint": {
+    "display_name": "数据库",
+    "display_name_alt": "API 端点",
+    "info": "Astra DB 服务的 API 端点 URL。"
+  },
+  "collection_name": {
+    "display_name": "集合名称",
+    "info": "Astra DB 中将存储向量的集合名称。"
+  },
+  "metadata_incoming_links_key": {
+    "display_name": "元数据传入链接键",
+    "info": "用于传入链接的元数据键。"
+  },
+  "keyspace": {
+    "display_name": "键空间",
+    "info": "用于集合的 Astra DB 中的可选键空间。"
+  },
+  "embedding_model": {
+    "display_name": "嵌入模型",
+    "info": "允许配置嵌入模型。"
+  },
+  "metric": {
+    "display_name": "度量",
+    "info": "向量存储中用于向量比较的可选距离度量。"
+  },
+  "batch_size": {
+    "display_name": "批量大小",
+    "info": "单个批次中要处理的可选数据数量。"
+  },
+  "bulk_insert_batch_concurrency": {
+    "display_name": "批量插入批次并发",
+    "info": "批量插入操作的可选并发级别。"
+  },
+  "bulk_insert_overwrite_concurrency": {
+    "display_name": "批量插入覆盖并发",
+    "info": "覆盖现有数据的批量插入操作的可选并发级别。"
+  },
+  "bulk_delete_concurrency": {
+    "display_name": "批量删除并发",
+    "info": "批量删除操作的可选并发级别。"
+  },
+  "setup_mode": {
+    "display_name": "设置模式",
+    "info": "设置向量存储的配置模式，选项包括 'Sync' 或 'Off'。"
+  },
+  "pre_delete_collection": {
+    "display_name": "预删除集合",
+    "info": "布尔标志，用于确定在创建新集合之前是否删除集合。"
+  },
+  "metadata_indexing_include": {
+    "display_name": "元数据索引包含",
+    "info": "要包含在索引中的可选元数据字段列表。"
+  },
+  "metadata_indexing_exclude": {
+    "display_name": "元数据索引排除",
+    "info": "要从索引中排除的可选元数据字段列表。"
+  },
+  "collection_indexing_policy": {
+    "display_name": "集合索引策略",
+    "info": "集合的 \"indexing\" 字段的可选 JSON 字符串。参见 https://docs.datastax.com/en/astra-db-serverless/api-reference/collections.html#the-indexing-option"
+  },
+  "number_of_results": {
+    "display_name": "结果数量",
+    "info": "要返回的结果数量。"
+  },
+  "search_type": {
+    "display_name": "搜索类型",
+    "info": "要使用的搜索类型"
+  },
+  "search_score_threshold": {
+    "display_name": "搜索分数阈值",
+    "info": "搜索结果的最小相似度分数阈值。（使用 '带分数阈值的相似度' 时）"
+  },
+  "search_filter": {
+    "display_name": "搜索元数据过滤器",
+    "info": "要应用于搜索查询的可选过滤器字典。"
+  }
+}

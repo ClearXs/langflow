@@ -1,3 +1,4 @@
+import i18n
 from typing import Any
 
 from langchain_community.utilities.searchapi import SearchApiAPIWrapper
@@ -10,26 +11,61 @@ from lfx.schema.dataframe import DataFrame
 
 
 class SearchComponent(Component):
-    display_name: str = "SearchApi"
-    description: str = "Calls the SearchApi API with result limiting. Supports Google, Bing and DuckDuckGo."
+    display_name: str = i18n.t('components.searchapi.search.display_name')
+    description: str = i18n.t('components.searchapi.search.description')
     documentation: str = "https://www.searchapi.io/docs/google"
     icon = "SearchAPI"
 
     inputs = [
-        DropdownInput(name="engine", display_name="Engine", value="google", options=["google", "bing", "duckduckgo"]),
-        SecretStrInput(name="api_key", display_name="SearchAPI API Key", required=True),
+        DropdownInput(
+            name="engine",
+            display_name=i18n.t(
+                'components.searchapi.search.engine.display_name'),
+            value="google",
+            options=["google", "bing", "duckduckgo"]
+        ),
+        SecretStrInput(
+            name="api_key",
+            display_name=i18n.t(
+                'components.searchapi.search.api_key.display_name'),
+            required=True
+        ),
         MultilineInput(
             name="input_value",
-            display_name="Input",
+            display_name=i18n.t(
+                'components.searchapi.search.input_value.display_name'),
             tool_mode=True,
         ),
-        DictInput(name="search_params", display_name="Search parameters", advanced=True, is_list=True),
-        IntInput(name="max_results", display_name="Max Results", value=5, advanced=True),
-        IntInput(name="max_snippet_length", display_name="Max Snippet Length", value=100, advanced=True),
+        DictInput(
+            name="search_params",
+            display_name=i18n.t(
+                'components.searchapi.search.search_params.display_name'),
+            advanced=True,
+            is_list=True
+        ),
+        IntInput(
+            name="max_results",
+            display_name=i18n.t(
+                'components.searchapi.search.max_results.display_name'),
+            value=5,
+            advanced=True
+        ),
+        IntInput(
+            name="max_snippet_length",
+            display_name=i18n.t(
+                'components.searchapi.search.max_snippet_length.display_name'),
+            value=100,
+            advanced=True
+        ),
     ]
 
     outputs = [
-        Output(display_name="DataFrame", name="dataframe", method="fetch_content_dataframe"),
+        Output(
+            display_name=i18n.t(
+                'components.searchapi.search.outputs.dataframe.display_name'),
+            name="dataframe",
+            method="fetch_content_dataframe"
+        ),
     ]
 
     def _build_wrapper(self):
@@ -46,7 +82,8 @@ class SearchComponent(Component):
         ) -> list[Data]:
             params = params or {}
             full_results = wrapper.results(query=query, **params)
-            organic_results = full_results.get("organic_results", [])[:max_results]
+            organic_results = full_results.get(
+                "organic_results", [])[:max_results]
 
             return [
                 Data(

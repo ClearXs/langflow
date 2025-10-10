@@ -1,0 +1,95 @@
+{
+  "display_name": "Ollama",
+  "description": "使用Ollama本地大语言模型生成文本。",
+  "base_url": {
+    "display_name": "基础URL",
+    "info": "Ollama API的端点。"
+  },
+  "model_name": {
+    "display_name": "模型名称",
+    "info": "访问 https://ollama.com/library 查看更多模型。"
+  },
+  "temperature": {
+    "display_name": "温度"
+  },
+  "format": {
+    "display_name": "格式",
+    "info": "指定输出的格式(例如json)。"
+  },
+  "metadata": {
+    "display_name": "元数据",
+    "info": "添加到运行跟踪的元数据。"
+  },
+  "mirostat": {
+    "display_name": "Mirostat",
+    "info": "启用/禁用Mirostat采样以控制困惑度。"
+  },
+  "mirostat_eta": {
+    "display_name": "Mirostat Eta",
+    "info": "Mirostat算法的学习率。(默认: 0.1)"
+  },
+  "mirostat_tau": {
+    "display_name": "Mirostat Tau",
+    "info": "控制输出的连贯性和多样性之间的平衡。(默认: 5.0)"
+  },
+  "num_ctx": {
+    "display_name": "上下文窗口大小",
+    "info": "用于生成令牌的上下文窗口大小。(默认: 2048)"
+  },
+  "num_gpu": {
+    "display_name": "GPU数量",
+    "info": "用于计算的GPU数量。(macOS上默认为1，设为0禁用)"
+  },
+  "num_thread": {
+    "display_name": "线程数量",
+    "info": "计算期间使用的线程数。(默认: 检测以获得最佳性能)"
+  },
+  "repeat_last_n": {
+    "display_name": "重复回溯N",
+    "info": "模型回溯多远以防止重复。(默认: 64, 0 = 禁用, -1 = num_ctx)"
+  },
+  "repeat_penalty": {
+    "display_name": "重复惩罚",
+    "info": "生成文本中重复的惩罚。(默认: 1.1)"
+  },
+  "tfs_z": {
+    "display_name": "TFS Z",
+    "info": "尾部自由采样值。(默认: 1)"
+  },
+  "timeout": {
+    "display_name": "超时",
+    "info": "请求流的超时时间。"
+  },
+  "top_k": {
+    "display_name": "Top K",
+    "info": "将令牌选择限制为top K。(默认: 40)"
+  },
+  "top_p": {
+    "display_name": "Top P",
+    "info": "与top-k一起使用。(默认: 0.9)"
+  },
+  "verbose": {
+    "display_name": "详细输出",
+    "info": "是否打印响应文本。"
+  },
+  "tags": {
+    "display_name": "标签",
+    "info": "要添加到运行跟踪的逗号分隔标签列表。"
+  },
+  "stop_tokens": {
+    "display_name": "停止令牌",
+    "info": "用于通知模型停止生成文本的逗号分隔令牌列表。"
+  },
+  "system": {
+    "display_name": "系统",
+    "info": "用于生成文本的系统。"
+  },
+  "tool_model_enabled": {
+    "display_name": "启用工具模型",
+    "info": "是否在模型中启用工具调用。"
+  },
+  "template": {
+    "display_name": "模板",
+    "info": "用于生成文本的模板。"
+  }
+}

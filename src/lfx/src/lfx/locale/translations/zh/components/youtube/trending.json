@@ -1,0 +1,35 @@
+{
+  "display_name": "YouTube 热门",
+  "description": "检索 YouTube 热门视频并提供过滤选项。",
+  "api_key": {
+    "display_name": "YouTube API 密钥",
+    "info": "您的 YouTube Data API 密钥。"
+  },
+  "region": {
+    "display_name": "地区",
+    "info": "要获取热门视频的地区。"
+  },
+  "category": {
+    "display_name": "类别",
+    "info": "要检索的视频类别。"
+  },
+  "max_results": {
+    "display_name": "最大结果数",
+    "info": "要返回的最大热门视频数量（1-50）。"
+  },
+  "include_statistics": {
+    "display_name": "包含统计数据",
+    "info": "包含视频统计数据（浏览量、点赞数、评论数）。"
+  },
+  "include_content_details": {
+    "display_name": "包含内容详情",
+    "info": "包含视频时长和质量信息。"
+  },
+  "include_thumbnails": {
+    "display_name": "包含缩略图",
+    "info": "包含视频缩略图 URL。"
+  },
+  "outputs": {
+    "trending_videos": "热门视频"
+  }
+}

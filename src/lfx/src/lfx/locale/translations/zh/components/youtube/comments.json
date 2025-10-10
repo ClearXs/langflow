@@ -1,0 +1,31 @@
+{
+  "display_name": "YouTube 评论",
+  "description": "从 YouTube 视频中检索和分析评论。",
+  "video_url": {
+    "display_name": "视频 URL",
+    "info": "要获取评论的 YouTube 视频的 URL。"
+  },
+  "api_key": {
+    "display_name": "YouTube API 密钥",
+    "info": "您的 YouTube Data API 密钥。"
+  },
+  "max_results": {
+    "display_name": "最大结果数",
+    "info": "要返回的最大评论数量。"
+  },
+  "sort_by": {
+    "display_name": "排序方式",
+    "info": "按时间或相关性对评论进行排序。"
+  },
+  "include_replies": {
+    "display_name": "包含回复",
+    "info": "是否包含评论的回复。"
+  },
+  "include_metrics": {
+    "display_name": "包含指标",
+    "info": "包含点赞数和回复数等指标。"
+  },
+  "outputs": {
+    "comments": "评论"
+  }
+}

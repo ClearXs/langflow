@@ -1,0 +1,48 @@
+{
+  "display_name": "Vertex AI Embeddings",
+  "description": "Generate embeddings using Google Cloud Vertex AI models.",
+  "credentials": {
+    "display_name": "Credentials",
+    "info": "JSON credentials file. Leave empty to fallback to environment variables"
+  },
+  "location": {
+    "display_name": "Location"
+  },
+  "project": {
+    "display_name": "Project",
+    "info": "The project ID."
+  },
+  "max_output_tokens": {
+    "display_name": "Max Output Tokens"
+  },
+  "max_retries": {
+    "display_name": "Max Retries"
+  },
+  "model_name": {
+    "display_name": "Model Name"
+  },
+  "n": {
+    "display_name": "N"
+  },
+  "request_parallelism": {
+    "display_name": "Request Parallelism"
+  },
+  "stop_sequences": {
+    "display_name": "Stop"
+  },
+  "streaming": {
+    "display_name": "Streaming"
+  },
+  "temperature": {
+    "display_name": "Temperature"
+  },
+  "top_k": {
+    "display_name": "Top K"
+  },
+  "top_p": {
+    "display_name": "Top P"
+  },
+  "outputs": {
+    "embeddings": "Embeddings"
+  }
+}

@@ -1,0 +1,75 @@
+{
+  "display_name": "NVIDIA检索器提取",
+  "description": "使用NVIDIA的NeMo API从文档中提取多模态数据。",
+  "base_url": {
+    "display_name": "基础URL",
+    "info": "NVIDIA NeMo检索器提取API的URL。"
+  },
+  "api_key": {
+    "display_name": "NVIDIA API密钥"
+  },
+  "extract_text": {
+    "display_name": "提取文本",
+    "info": "从文档中提取文本"
+  },
+  "extract_charts": {
+    "display_name": "提取图表",
+    "info": "从图表中提取文本"
+  },
+  "extract_tables": {
+    "display_name": "提取表格",
+    "info": "从表格中提取文本"
+  },
+  "extract_images": {
+    "display_name": "提取图像",
+    "info": "从文档中提取图像"
+  },
+  "extract_infographics": {
+    "display_name": "提取信息图",
+    "info": "从文档中提取信息图"
+  },
+  "text_depth": {
+    "display_name": "文本深度",
+    "info": "提取文本的层级(在分割之前应用)。不同文档类型对'block'、'line'、'span'的支持各不相同。"
+  },
+  "split_text": {
+    "display_name": "分割文本",
+    "info": "将文本分割成更小的块"
+  },
+  "chunk_size": {
+    "display_name": "块大小",
+    "info": "每个块的令牌数"
+  },
+  "chunk_overlap": {
+    "display_name": "块重叠",
+    "info": "与前一个块重叠的令牌数"
+  },
+  "filter_images": {
+    "display_name": "过滤图像",
+    "info": "过滤图像(查看高级选项了解过滤条件)。"
+  },
+  "min_image_size": {
+    "display_name": "最小图像尺寸过滤器",
+    "info": "最小图像宽度/长度(像素)"
+  },
+  "min_aspect_ratio": {
+    "display_name": "最小宽高比过滤器",
+    "info": "允许的最小宽高比(宽度/高度)。比此值窄的图像将被过滤掉。"
+  },
+  "max_aspect_ratio": {
+    "display_name": "最大宽高比过滤器",
+    "info": "允许的最大宽高比(宽度/高度)。比此值高的图像将被过滤掉。"
+  },
+  "dedup_images": {
+    "display_name": "去重图像",
+    "info": "过滤重复的图像。"
+  },
+  "caption_images": {
+    "display_name": "图像标题",
+    "info": "使用NVIDIA标题模型为图像生成标题。"
+  },
+  "high_resolution": {
+    "display_name": "高分辨率(仅PDF)",
+    "info": "以高分辨率模式处理PDF，以便从扫描PDF中获得更好的提取质量。"
+  }
+}

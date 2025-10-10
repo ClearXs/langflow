@@ -1,3 +1,4 @@
+import i18n
 import json
 from typing import Any
 
@@ -13,39 +14,36 @@ from lfx.schema.data import Data
 
 
 class NotionListPages(LCToolComponent):
-    display_name: str = "List Pages "
-    description: str = (
-        "Query a Notion database with filtering and sorting. "
-        "The input should be a JSON string containing the 'filter' and 'sorts' objects. "
-        "Example input:\n"
-        '{"filter": {"property": "Status", "select": {"equals": "Done"}}, '
-        '"sorts": [{"timestamp": "created_time", "direction": "descending"}]}'
-    )
+    display_name: str = i18n.t('components.notion.list_pages.display_name')
+    description: str = i18n.t('components.notion.list_pages.description')
     documentation: str = "https://docs.langflow.org/integrations/notion/list-pages"
     icon = "NotionDirectoryLoader"
 
     inputs = [
         SecretStrInput(
             name="notion_secret",
-            display_name="Notion Secret",
-            info="The Notion integration token.",
+            display_name=i18n.t(
+                'components.notion.list_pages.notion_secret.display_name'),
+            info=i18n.t('components.notion.list_pages.notion_secret.info'),
             required=True,
         ),
         StrInput(
             name="database_id",
-            display_name="Database ID",
-            info="The ID of the Notion database to query.",
+            display_name=i18n.t(
+                'components.notion.list_pages.database_id.display_name'),
+            info=i18n.t('components.notion.list_pages.database_id.info'),
         ),
         MultilineInput(
             name="query_json",
-            display_name="Database query (JSON)",
-            info="A JSON string containing the filters and sorts that will be used for querying the database. "
-            "Leave empty for no filters or sorts.",
+            display_name=i18n.t(
+                'components.notion.list_pages.query_json.display_name'),
+            info=i18n.t('components.notion.list_pages.query_json.info'),
         ),
     ]
 
     class NotionListPagesSchema(BaseModel):
-        database_id: str = Field(..., description="The ID of the Notion database to query.")
+        database_id: str = Field(...,
+                                 description="The ID of the Notion database to query.")
         query_json: str | None = Field(
             default="",
             description="A JSON string containing the filters and sorts for querying the database. "
@@ -109,7 +107,8 @@ class NotionListPages(LCToolComponent):
                 return f"Invalid JSON format for query: {e}"
 
         try:
-            response = requests.post(url, headers=headers, json=query_payload, timeout=10)
+            response = requests.post(
+                url, headers=headers, json=query_payload, timeout=10)
             response.raise_for_status()
             results = response.json()
             return results["results"]

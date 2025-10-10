@@ -1,0 +1,14 @@
+{
+  "display_name": "WolframAlpha API",
+  "description": "Enables queries to WolframAlpha for computational data, facts, and calculations across various topics, delivering structured responses.",
+  "input_value": {
+    "display_name": "Input Query",
+    "info": "Example query: 'What is the population of France?'"
+  },
+  "app_id": {
+    "display_name": "WolframAlpha App ID"
+  },
+  "outputs": {
+    "dataframe": "DataFrame"
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "display_name": "Pinecone",
+  "description": "Pinecone Vector Store with search capabilities",
+  "index_name": {
+    "display_name": "Index Name"
+  },
+  "namespace": {
+    "display_name": "Namespace",
+    "info": "Namespace for the index."
+  },
+  "distance_strategy": {
+    "display_name": "Distance Strategy"
+  },
+  "pinecone_api_key": {
+    "display_name": "Pinecone API Key"
+  },
+  "text_key": {
+    "display_name": "Text Key",
+    "info": "Key in the record to use as text."
+  },
+  "embedding": {
+    "display_name": "Embedding"
+  },
+  "number_of_results": {
+    "display_name": "Number of Results",
+    "info": "Number of results to return."
+  }
+}

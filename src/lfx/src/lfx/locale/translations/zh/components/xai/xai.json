@@ -1,0 +1,35 @@
+{
+  "display_name": "xAI",
+  "description": "使用 xAI 模型（如 Grok）生成文本。",
+  "max_tokens": {
+    "display_name": "最大令牌数",
+    "info": "生成的最大令牌数。设置为 0 表示无限制令牌。"
+  },
+  "model_kwargs": {
+    "display_name": "模型参数",
+    "info": "传递给模型的其他关键字参数。"
+  },
+  "json_mode": {
+    "display_name": "JSON 模式",
+    "info": "如果为 True，无论是否传递架构，都将输出 JSON。"
+  },
+  "model_name": {
+    "display_name": "模型名称",
+    "info": "要使用的 xAI 模型"
+  },
+  "base_url": {
+    "display_name": "xAI API 基础 URL",
+    "info": "xAI API 的基础 URL。默认为 https://api.x.ai/v1"
+  },
+  "api_key": {
+    "display_name": "xAI API 密钥",
+    "info": "用于模型的 xAI API 密钥。"
+  },
+  "temperature": {
+    "display_name": "温度"
+  },
+  "seed": {
+    "display_name": "种子",
+    "info": "种子控制作业的可重现性。"
+  }
+}

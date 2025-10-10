@@ -1,0 +1,20 @@
+{
+  "display_name": "Vectara",
+  "description": "Vectara Vector Store with search capabilities",
+  "vectara_customer_id": {
+    "display_name": "Vectara Customer ID"
+  },
+  "vectara_corpus_id": {
+    "display_name": "Vectara Corpus ID"
+  },
+  "vectara_api_key": {
+    "display_name": "Vectara API Key"
+  },
+  "embedding": {
+    "display_name": "Embedding"
+  },
+  "number_of_results": {
+    "display_name": "Number of Results",
+    "info": "Number of results to return."
+  }
+}

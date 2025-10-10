@@ -1,18 +1,16 @@
 import { saveAs } from "file-saver";
 import OpenSeadragon from "openseadragon";
 import { useEffect, useRef, useState } from "react";
-import {
-  IMGViewErrorMSG,
-  IMGViewErrorTitle,
-} from "../../../constants/constants";
 import useAlertStore from "../../../stores/alertStore";
 import { Separator } from "../../ui/separator";
 import ForwardedIconComponent from "../genericIconComponent";
+import { useMessageLocale } from "@/i18n/locale";
 
 export default function ImageViewer({ image }: { image: string }) {
   const viewerRef = useRef(null);
   const [_errorDownloading, _setErrordownloading] = useState(false);
   const setErrorList = useAlertStore((state) => state.setErrorData);
+  const messageLocale = useMessageLocale()
   const [_initialMsg, _setInicialMsg] = useState("Please build your flow");
 
   useEffect(() => {
@@ -87,11 +85,11 @@ export default function ImageViewer({ image }: { image: string }) {
     <div className="align-center flex h-full w-full flex-col justify-center gap-5 rounded-md border border-border bg-muted">
       <div className="align-center flex justify-center gap-2">
         <ForwardedIconComponent name="Image" />
-        {IMGViewErrorTitle}
+        {messageLocale.IMG_VIEW_ERROR_TITLE}
       </div>
       <div className="align-center flex justify-center">
         <div className="langflow-chat-desc align-center flex justify-center">
-          <div className="langflow-chat-desc-span">{IMGViewErrorMSG}</div>
+          <div className="langflow-chat-desc-span">{messageLocale.IMG_VIEW_ERROR_MSG}</div>
         </div>
       </div>
     </div>

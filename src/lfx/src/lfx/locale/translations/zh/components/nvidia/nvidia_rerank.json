@@ -1,0 +1,19 @@
+{
+  "display_name": "NVIDIA重排序",
+  "description": "使用NVIDIA API重新排序文档。",
+  "api_key": {
+    "display_name": "NVIDIA API密钥"
+  },
+  "base_url": {
+    "display_name": "基础URL",
+    "info": "NVIDIA API的基础URL。默认为https://integrate.api.nvidia.com/v1。"
+  },
+  "model": {
+    "display_name": "模型"
+  },
+  "outputs": {
+    "reranked_documents": {
+      "display_name": "重排序文档"
+    }
+  }
+}

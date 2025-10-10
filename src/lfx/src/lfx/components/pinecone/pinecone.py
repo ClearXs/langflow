@@ -1,3 +1,4 @@
+import i18n
 import numpy as np
 from langchain_core.vectorstores import VectorStore
 
@@ -8,34 +9,59 @@ from lfx.schema.data import Data
 
 
 class PineconeVectorStoreComponent(LCVectorStoreComponent):
-    display_name = "Pinecone"
-    description = "Pinecone Vector Store with search capabilities"
+    display_name = i18n.t('components.pinecone.pinecone.display_name')
+    description = i18n.t('components.pinecone.pinecone.description')
+    documentation = "https://python.langchain.com/docs/integrations/vectorstores/pinecone"
     name = "Pinecone"
     icon = "Pinecone"
+
     inputs = [
-        StrInput(name="index_name", display_name="Index Name", required=True),
-        StrInput(name="namespace", display_name="Namespace", info="Namespace for the index."),
+        StrInput(
+            name="index_name",
+            display_name=i18n.t(
+                'components.pinecone.pinecone.index_name.display_name'),
+            required=True
+        ),
+        StrInput(
+            name="namespace",
+            display_name=i18n.t(
+                'components.pinecone.pinecone.namespace.display_name'),
+            info=i18n.t('components.pinecone.pinecone.namespace.info')
+        ),
         DropdownInput(
             name="distance_strategy",
-            display_name="Distance Strategy",
+            display_name=i18n.t(
+                'components.pinecone.pinecone.distance_strategy.display_name'),
             options=["Cosine", "Euclidean", "Dot Product"],
             value="Cosine",
             advanced=True,
         ),
-        SecretStrInput(name="pinecone_api_key", display_name="Pinecone API Key", required=True),
+        SecretStrInput(
+            name="pinecone_api_key",
+            display_name=i18n.t(
+                'components.pinecone.pinecone.pinecone_api_key.display_name'),
+            required=True
+        ),
         StrInput(
             name="text_key",
-            display_name="Text Key",
-            info="Key in the record to use as text.",
+            display_name=i18n.t(
+                'components.pinecone.pinecone.text_key.display_name'),
+            info=i18n.t('components.pinecone.pinecone.text_key.info'),
             value="text",
             advanced=True,
         ),
         *LCVectorStoreComponent.inputs,
-        HandleInput(name="embedding", display_name="Embedding", input_types=["Embeddings"]),
+        HandleInput(
+            name="embedding",
+            display_name=i18n.t(
+                'components.pinecone.pinecone.embedding.display_name'),
+            input_types=["Embeddings"]
+        ),
         IntInput(
             name="number_of_results",
-            display_name="Number of Results",
-            info="Number of results to return.",
+            display_name=i18n.t(
+                'components.pinecone.pinecone.number_of_results.display_name'),
+            info=i18n.t('components.pinecone.pinecone.number_of_results.info'),
             value=4,
             advanced=True,
         ),
@@ -57,7 +83,8 @@ class PineconeVectorStoreComponent(LCVectorStoreComponent):
             wrapped_embeddings = Float32Embeddings(self.embedding)
 
             # Convert distance strategy
-            distance_strategy = self.distance_strategy.replace(" ", "_").upper()
+            distance_strategy = self.distance_strategy.replace(
+                " ", "_").upper()
             distance_strategy = DistanceStrategy[distance_strategy]
 
             # Initialize Pinecone instance with wrapped embeddings

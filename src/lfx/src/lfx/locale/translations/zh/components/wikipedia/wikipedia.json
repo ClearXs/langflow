@@ -1,0 +1,22 @@
+{
+  "display_name": "Wikipedia",
+  "description": "调用 Wikipedia API。",
+  "input_value": {
+    "display_name": "输入"
+  },
+  "lang": {
+    "display_name": "语言"
+  },
+  "k": {
+    "display_name": "结果数量"
+  },
+  "load_all_available_meta": {
+    "display_name": "加载所有可用元数据"
+  },
+  "doc_content_chars_max": {
+    "display_name": "文档内容最大字符数"
+  },
+  "outputs": {
+    "dataframe": "数据框"
+  }
+}

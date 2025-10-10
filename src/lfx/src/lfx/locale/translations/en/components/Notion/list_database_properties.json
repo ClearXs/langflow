@@ -1,0 +1,12 @@
+{
+  "display_name": "List Database Properties",
+  "description": "Retrieve properties of a Notion database.",
+  "database_id": {
+    "display_name": "Database ID",
+    "info": "The ID of the Notion database."
+  },
+  "notion_secret": {
+    "display_name": "Notion Secret",
+    "info": "The Notion integration token."
+  }
+}

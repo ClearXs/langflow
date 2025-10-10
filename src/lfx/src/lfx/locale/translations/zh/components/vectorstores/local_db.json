@@ -1,0 +1,49 @@
+{
+  "display_name": "本地数据库",
+  "description": "具有搜索功能的本地向量存储",
+  "mode": {
+    "display_name": "模式",
+    "info": "选择操作模式"
+  },
+  "collection_name": {
+    "display_name": "集合名称",
+    "display_name_ingest": "命名您的集合"
+  },
+  "persist_directory": {
+    "display_name": "持久化目录",
+    "info": "保存向量存储的自定义基本目录。集合将存储在 '{directory}/vector_stores/{collection_name}' 下。如果未指定，将使用系统的缓存文件夹。"
+  },
+  "existing_collections": {
+    "display_name": "现有集合",
+    "info": "选择先前创建的集合以搜索其存储的数据。"
+  },
+  "embedding": {
+    "display_name": "嵌入"
+  },
+  "allow_duplicates": {
+    "display_name": "允许重复",
+    "info": "如果为 false，将不会添加已在向量存储中的文档。"
+  },
+  "search_type": {
+    "display_name": "搜索类型"
+  },
+  "ingest_data": {
+    "display_name": "摄取数据",
+    "info": "要存储的数据。它将被嵌入并索引以进行语义搜索。"
+  },
+  "search_query": {
+    "display_name": "搜索查询",
+    "info": "输入文本以在选定的集合中搜索相似内容。"
+  },
+  "number_of_results": {
+    "display_name": "结果数量",
+    "info": "要返回的结果数量。"
+  },
+  "limit": {
+    "display_name": "限制",
+    "info": "当允许重复为 False 时，限制要比较的记录数量。"
+  },
+  "outputs": {
+    "dataframe": "数据框"
+  }
+}

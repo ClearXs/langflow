@@ -1,0 +1,16 @@
+{
+  "display_name": "List Pages",
+  "description": "Query a Notion database with filtering and sorting. The input should be a JSON string containing the 'filter' and 'sorts' objects. Example input:\n{\"filter\": {\"property\": \"Status\", \"select\": {\"equals\": \"Done\"}}, \"sorts\": [{\"timestamp\": \"created_time\", \"direction\": \"descending\"}]}",
+  "notion_secret": {
+    "display_name": "Notion Secret",
+    "info": "The Notion integration token."
+  },
+  "database_id": {
+    "display_name": "Database ID",
+    "info": "The ID of the Notion database to query."
+  },
+  "query_json": {
+    "display_name": "Database Query (JSON)",
+    "info": "A JSON string containing the filters and sorts that will be used for querying the database. Leave empty for no filters or sorts."
+  }
+}

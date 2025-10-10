@@ -1,3 +1,4 @@
+import i18n
 import asyncio
 from typing import Any
 from urllib.parse import urljoin
@@ -16,8 +17,8 @@ HTTP_STATUS_OK = 200
 
 
 class ChatOllamaComponent(LCModelComponent):
-    display_name = "Ollama"
-    description = "Generate text using Ollama Local LLMs."
+    display_name = i18n.t('components.ollama.ollama.display_name')
+    description = i18n.t('components.ollama.ollama.description')
     icon = "Ollama"
     name = "OllamaModel"
 
@@ -31,112 +32,168 @@ class ChatOllamaComponent(LCModelComponent):
     inputs = [
         MessageTextInput(
             name="base_url",
-            display_name="Base URL",
-            info="Endpoint of the Ollama API.",
+            display_name=i18n.t(
+                'components.ollama.ollama.base_url.display_name'),
+            info=i18n.t('components.ollama.ollama.base_url.info'),
             value="",
             real_time_refresh=True,
         ),
         DropdownInput(
             name="model_name",
-            display_name="Model Name",
+            display_name=i18n.t(
+                'components.ollama.ollama.model_name.display_name'),
             options=[],
-            info="Refer to https://ollama.com/library for more models.",
+            info=i18n.t('components.ollama.ollama.model_name.info'),
             refresh_button=True,
             real_time_refresh=True,
         ),
         SliderInput(
             name="temperature",
-            display_name="Temperature",
+            display_name=i18n.t(
+                'components.ollama.ollama.temperature.display_name'),
             value=0.1,
             range_spec=RangeSpec(min=0, max=1, step=0.01),
             advanced=True,
         ),
         MessageTextInput(
-            name="format", display_name="Format", info="Specify the format of the output (e.g., json).", advanced=True
+            name="format",
+            display_name=i18n.t(
+                'components.ollama.ollama.format.display_name'),
+            info=i18n.t('components.ollama.ollama.format.info'),
+            advanced=True
         ),
-        DictInput(name="metadata", display_name="Metadata", info="Metadata to add to the run trace.", advanced=True),
+        DictInput(
+            name="metadata",
+            display_name=i18n.t(
+                'components.ollama.ollama.metadata.display_name'),
+            info=i18n.t('components.ollama.ollama.metadata.info'),
+            advanced=True
+        ),
         DropdownInput(
             name="mirostat",
-            display_name="Mirostat",
+            display_name=i18n.t(
+                'components.ollama.ollama.mirostat.display_name'),
             options=["Disabled", "Mirostat", "Mirostat 2.0"],
-            info="Enable/disable Mirostat sampling for controlling perplexity.",
+            info=i18n.t('components.ollama.ollama.mirostat.info'),
             value="Disabled",
             advanced=True,
             real_time_refresh=True,
         ),
         FloatInput(
             name="mirostat_eta",
-            display_name="Mirostat Eta",
-            info="Learning rate for Mirostat algorithm. (Default: 0.1)",
+            display_name=i18n.t(
+                'components.ollama.ollama.mirostat_eta.display_name'),
+            info=i18n.t('components.ollama.ollama.mirostat_eta.info'),
             advanced=True,
         ),
         FloatInput(
             name="mirostat_tau",
-            display_name="Mirostat Tau",
-            info="Controls the balance between coherence and diversity of the output. (Default: 5.0)",
+            display_name=i18n.t(
+                'components.ollama.ollama.mirostat_tau.display_name'),
+            info=i18n.t('components.ollama.ollama.mirostat_tau.info'),
             advanced=True,
         ),
         IntInput(
             name="num_ctx",
-            display_name="Context Window Size",
-            info="Size of the context window for generating tokens. (Default: 2048)",
+            display_name=i18n.t(
+                'components.ollama.ollama.num_ctx.display_name'),
+            info=i18n.t('components.ollama.ollama.num_ctx.info'),
             advanced=True,
         ),
         IntInput(
             name="num_gpu",
-            display_name="Number of GPUs",
-            info="Number of GPUs to use for computation. (Default: 1 on macOS, 0 to disable)",
+            display_name=i18n.t(
+                'components.ollama.ollama.num_gpu.display_name'),
+            info=i18n.t('components.ollama.ollama.num_gpu.info'),
             advanced=True,
         ),
         IntInput(
             name="num_thread",
-            display_name="Number of Threads",
-            info="Number of threads to use during computation. (Default: detected for optimal performance)",
+            display_name=i18n.t(
+                'components.ollama.ollama.num_thread.display_name'),
+            info=i18n.t('components.ollama.ollama.num_thread.info'),
             advanced=True,
         ),
         IntInput(
             name="repeat_last_n",
-            display_name="Repeat Last N",
-            info="How far back the model looks to prevent repetition. (Default: 64, 0 = disabled, -1 = num_ctx)",
+            display_name=i18n.t(
+                'components.ollama.ollama.repeat_last_n.display_name'),
+            info=i18n.t('components.ollama.ollama.repeat_last_n.info'),
             advanced=True,
         ),
         FloatInput(
             name="repeat_penalty",
-            display_name="Repeat Penalty",
-            info="Penalty for repetitions in generated text. (Default: 1.1)",
+            display_name=i18n.t(
+                'components.ollama.ollama.repeat_penalty.display_name'),
+            info=i18n.t('components.ollama.ollama.repeat_penalty.info'),
             advanced=True,
         ),
-        FloatInput(name="tfs_z", display_name="TFS Z", info="Tail free sampling value. (Default: 1)", advanced=True),
-        IntInput(name="timeout", display_name="Timeout", info="Timeout for the request stream.", advanced=True),
-        IntInput(
-            name="top_k", display_name="Top K", info="Limits token selection to top K. (Default: 40)", advanced=True
+        FloatInput(
+            name="tfs_z",
+            display_name=i18n.t('components.ollama.ollama.tfs_z.display_name'),
+            info=i18n.t('components.ollama.ollama.tfs_z.info'),
+            advanced=True
         ),
-        FloatInput(name="top_p", display_name="Top P", info="Works together with top-k. (Default: 0.9)", advanced=True),
-        BoolInput(name="verbose", display_name="Verbose", info="Whether to print out response text.", advanced=True),
+        IntInput(
+            name="timeout",
+            display_name=i18n.t(
+                'components.ollama.ollama.timeout.display_name'),
+            info=i18n.t('components.ollama.ollama.timeout.info'),
+            advanced=True
+        ),
+        IntInput(
+            name="top_k",
+            display_name=i18n.t('components.ollama.ollama.top_k.display_name'),
+            info=i18n.t('components.ollama.ollama.top_k.info'),
+            advanced=True
+        ),
+        FloatInput(
+            name="top_p",
+            display_name=i18n.t('components.ollama.ollama.top_p.display_name'),
+            info=i18n.t('components.ollama.ollama.top_p.info'),
+            advanced=True
+        ),
+        BoolInput(
+            name="verbose",
+            display_name=i18n.t(
+                'components.ollama.ollama.verbose.display_name'),
+            info=i18n.t('components.ollama.ollama.verbose.info'),
+            advanced=True
+        ),
         MessageTextInput(
             name="tags",
-            display_name="Tags",
-            info="Comma-separated list of tags to add to the run trace.",
+            display_name=i18n.t('components.ollama.ollama.tags.display_name'),
+            info=i18n.t('components.ollama.ollama.tags.info'),
             advanced=True,
         ),
         MessageTextInput(
             name="stop_tokens",
-            display_name="Stop Tokens",
-            info="Comma-separated list of tokens to signal the model to stop generating text.",
+            display_name=i18n.t(
+                'components.ollama.ollama.stop_tokens.display_name'),
+            info=i18n.t('components.ollama.ollama.stop_tokens.info'),
             advanced=True,
         ),
         MessageTextInput(
-            name="system", display_name="System", info="System to use for generating text.", advanced=True
+            name="system",
+            display_name=i18n.t(
+                'components.ollama.ollama.system.display_name'),
+            info=i18n.t('components.ollama.ollama.system.info'),
+            advanced=True
         ),
         BoolInput(
             name="tool_model_enabled",
-            display_name="Tool Model Enabled",
-            info="Whether to enable tool calling in the model.",
+            display_name=i18n.t(
+                'components.ollama.ollama.tool_model_enabled.display_name'),
+            info=i18n.t('components.ollama.ollama.tool_model_enabled.info'),
             value=True,
             real_time_refresh=True,
         ),
         MessageTextInput(
-            name="template", display_name="Template", info="Template to use for generating text.", advanced=True
+            name="template",
+            display_name=i18n.t(
+                'components.ollama.ollama.template.display_name'),
+            info=i18n.t('components.ollama.ollama.template.info'),
+            advanced=True
         ),
         *LCModelComponent.get_base_inputs(),
     ]
@@ -245,12 +302,14 @@ class ChatOllamaComponent(LCModelComponent):
                     raise ValueError(msg)
         if field_name in {"model_name", "base_url", "tool_model_enabled"}:
             if await self.is_valid_ollama_url(self.base_url):
-                tool_model_enabled = build_config["tool_model_enabled"].get("value", False) or self.tool_model_enabled
+                tool_model_enabled = build_config["tool_model_enabled"].get(
+                    "value", False) or self.tool_model_enabled
                 build_config["model_name"]["options"] = await self.get_models(
                     self.base_url, tool_model_enabled=tool_model_enabled
                 )
             elif await self.is_valid_ollama_url(build_config["base_url"].get("value", "")):
-                tool_model_enabled = build_config["tool_model_enabled"].get("value", False) or self.tool_model_enabled
+                tool_model_enabled = build_config["tool_model_enabled"].get(
+                    "value", False) or self.tool_model_enabled
                 build_config["model_name"]["options"] = await self.get_models(
                     build_config["base_url"].get("value", ""), tool_model_enabled=tool_model_enabled
                 )
@@ -315,7 +374,8 @@ class ChatOllamaComponent(LCModelComponent):
                     json_data = show_response.json()
                     if asyncio.iscoroutine(json_data):
                         json_data = await json_data
-                    capabilities = json_data.get(self.JSON_CAPABILITIES_KEY, [])
+                    capabilities = json_data.get(
+                        self.JSON_CAPABILITIES_KEY, [])
                     await logger.adebug(f"Model: {model_name}, Capabilities: {capabilities}")
 
                     if self.DESIRED_CAPABILITY in capabilities and (

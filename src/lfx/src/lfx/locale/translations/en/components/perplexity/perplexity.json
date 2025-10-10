@@ -1,0 +1,26 @@
+{
+  "display_name": "Perplexity",
+  "description": "Generate text using Perplexity LLMs.",
+  "model_name": {
+    "display_name": "Model Name"
+  },
+  "max_tokens": {
+    "display_name": "Max Output Tokens",
+    "info": "The maximum number of tokens to generate."
+  },
+  "api_key": {
+    "display_name": "Perplexity API Key",
+    "info": "The Perplexity API Key to use for the Perplexity model."
+  },
+  "temperature": {
+    "display_name": "Temperature"
+  },
+  "top_p": {
+    "display_name": "Top P",
+    "info": "The maximum cumulative probability of tokens to consider when sampling."
+  },
+  "n": {
+    "display_name": "N",
+    "info": "Number of chat completions to generate for each prompt. The API may not return the full n completions if duplicates are generated."
+  }
+}

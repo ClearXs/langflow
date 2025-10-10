@@ -1,3 +1,4 @@
+import i18n
 from typing import Any
 from urllib.error import HTTPError
 
@@ -14,8 +15,8 @@ from lfx.template.field.base import Output
 class YouTubeChannelComponent(Component):
     """A component that retrieves detailed information about YouTube channels."""
 
-    display_name: str = "YouTube Channel"
-    description: str = "Retrieves detailed information and statistics about YouTube channels as a DataFrame."
+    display_name: str = i18n.t('components.youtube.channel.display_name')
+    description: str = i18n.t('components.youtube.channel.description')
     icon: str = "YouTube"
 
     # Constants
@@ -27,41 +28,51 @@ class YouTubeChannelComponent(Component):
     inputs = [
         MessageTextInput(
             name="channel_url",
-            display_name="Channel URL or ID",
-            info="The URL or ID of the YouTube channel.",
+            display_name=i18n.t(
+                'components.youtube.channel.channel_url.display_name'),
+            info=i18n.t('components.youtube.channel.channel_url.info'),
             tool_mode=True,
             required=True,
         ),
         SecretStrInput(
             name="api_key",
-            display_name="YouTube API Key",
-            info="Your YouTube Data API key.",
+            display_name=i18n.t(
+                'components.youtube.channel.api_key.display_name'),
+            info=i18n.t('components.youtube.channel.api_key.info'),
             required=True,
         ),
         BoolInput(
             name="include_statistics",
-            display_name="Include Statistics",
+            display_name=i18n.t(
+                'components.youtube.channel.include_statistics.display_name'),
             value=True,
-            info="Include channel statistics (views, subscribers, videos).",
+            info=i18n.t('components.youtube.channel.include_statistics.info'),
         ),
         BoolInput(
             name="include_branding",
-            display_name="Include Branding",
+            display_name=i18n.t(
+                'components.youtube.channel.include_branding.display_name'),
             value=True,
-            info="Include channel branding settings (banner, thumbnails).",
+            info=i18n.t('components.youtube.channel.include_branding.info'),
             advanced=True,
         ),
         BoolInput(
             name="include_playlists",
-            display_name="Include Playlists",
+            display_name=i18n.t(
+                'components.youtube.channel.include_playlists.display_name'),
             value=False,
-            info="Include channel's public playlists.",
+            info=i18n.t('components.youtube.channel.include_playlists.info'),
             advanced=True,
         ),
     ]
 
     outputs = [
-        Output(name="channel_df", display_name="Channel Info", method="get_channel_info"),
+        Output(
+            name="channel_df",
+            display_name=i18n.t(
+                'components.youtube.channel.outputs.channel_df'),
+            method="get_channel_info"
+        ),
     ]
 
     def _extract_channel_id(self, channel_url: str) -> str:
@@ -96,7 +107,8 @@ class YouTubeChannelComponent(Component):
             if identifier_type == "handle":
                 channel_name = channel_name.lstrip("@")
 
-            request = youtube.search().list(part="id", q=channel_name, type="channel", maxResults=1)
+            request = youtube.search().list(part="id", q=channel_name,
+                                            type="channel", maxResults=1)
             response = request.execute()
 
             if response["items"]:
@@ -159,7 +171,8 @@ class YouTubeChannelComponent(Component):
                 parts.append("brandingSettings")
 
             # Get channel information
-            channel_response = youtube.channels().list(part=",".join(parts), id=channel_id).execute()
+            channel_response = youtube.channels().list(
+                part=",".join(parts), id=channel_id).execute()
 
             if not channel_response["items"]:
                 return DataFrame(pd.DataFrame({"error": ["Channel not found"]}))
@@ -214,7 +227,8 @@ class YouTubeChannelComponent(Component):
                     # Create a DataFrame for playlists
                     playlists_df = pd.DataFrame(playlists)
                     # Join with main DataFrame
-                    channel_df = pd.concat([channel_df] * len(playlists_df), ignore_index=True)
+                    channel_df = pd.concat(
+                        [channel_df] * len(playlists_df), ignore_index=True)
                     for column in playlists_df.columns:
                         channel_df[column] = playlists_df[column].to_numpy()
 

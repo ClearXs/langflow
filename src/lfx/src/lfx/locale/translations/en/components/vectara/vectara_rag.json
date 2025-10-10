@@ -1,0 +1,53 @@
+{
+  "display_name": "Vectara RAG",
+  "description": "Vectara's full end to end RAG",
+  "vectara_customer_id": {
+    "display_name": "Vectara Customer ID"
+  },
+  "vectara_corpus_id": {
+    "display_name": "Vectara Corpus ID"
+  },
+  "vectara_api_key": {
+    "display_name": "Vectara API Key"
+  },
+  "search_query": {
+    "display_name": "Search Query",
+    "info": "The query to receive an answer on."
+  },
+  "lexical_interpolation": {
+    "display_name": "Hybrid Search Factor",
+    "info": "How much to weigh lexical scores compared to the embedding score. 0 means lexical search is not used at all, and 1 means only lexical search is used."
+  },
+  "filter": {
+    "display_name": "Metadata Filters",
+    "info": "The filter string to narrow the search to according to metadata attributes."
+  },
+  "reranker": {
+    "display_name": "Reranker Type",
+    "info": "How to rerank the retrieved search results."
+  },
+  "reranker_k": {
+    "display_name": "Number of Results to Rerank"
+  },
+  "diversity_bias": {
+    "display_name": "Diversity Bias",
+    "info": "Ranges from 0 to 1, with higher values indicating greater diversity (only applies to MMR reranker)."
+  },
+  "max_results": {
+    "display_name": "Max Results to Summarize",
+    "info": "The maximum number of search results to be available to the prompt."
+  },
+  "response_lang": {
+    "display_name": "Response Language",
+    "info": "Use the ISO 639-1 or 639-3 language code or auto to automatically detect the language."
+  },
+  "prompt": {
+    "display_name": "Prompt Name",
+    "info": "Only vectara-summary-ext-24-05-sml is for Growth customers; all other prompts are for Scale customers only."
+  },
+  "outputs": {
+    "answer": {
+      "display_name": "Answer"
+    }
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "display_name": "Place Call",
+  "description": "A component to create an outbound call request from Olivya's platform.",
+  "api_key": {
+    "display_name": "Olivya API Key",
+    "info": "Your API key for authentication"
+  },
+  "from_number": {
+    "display_name": "From Number",
+    "info": "The Agent's phone number"
+  },
+  "to_number": {
+    "display_name": "To Number",
+    "info": "The recipient's phone number"
+  },
+  "first_message": {
+    "display_name": "First Message",
+    "info": "The Agent's introductory message"
+  },
+  "system_prompt": {
+    "display_name": "System Prompt",
+    "info": "The system prompt to guide the interaction"
+  },
+  "conversation_history": {
+    "display_name": "Conversation History",
+    "info": "The summary of the conversation"
+  },
+  "outputs": {
+    "output": {
+      "display_name": "Output"
+    }
+  }
+}

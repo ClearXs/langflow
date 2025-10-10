@@ -1,3 +1,4 @@
+import i18n
 from copy import deepcopy
 from pathlib import Path
 
@@ -17,92 +18,110 @@ from lfx.template.field.base import Output
 class LocalDBComponent(LCVectorStoreComponent):
     """Chroma Vector Store with search capabilities."""
 
-    display_name: str = "Local DB"
-    description: str = "Local Vector Store with search capabilities"
+    display_name: str = i18n.t('components.vectorstores.local_db.display_name')
+    description: str = i18n.t('components.vectorstores.local_db.description')
     name = "LocalDB"
     icon = "database"
     legacy = True
-    replacement = ["knowledgebases.KnowledgeRetrieval", "knowledgebases.KnowledgeIngestion"]
+    replacement = ["knowledgebases.KnowledgeRetrieval",
+                   "knowledgebases.KnowledgeIngestion"]
 
     inputs = [
         TabInput(
             name="mode",
-            display_name="Mode",
+            display_name=i18n.t(
+                'components.vectorstores.local_db.mode.display_name'),
             options=["Ingest", "Retrieve"],
-            info="Select the operation mode",
+            info=i18n.t('components.vectorstores.local_db.mode.info'),
             value="Ingest",
             real_time_refresh=True,
             show=True,
         ),
         MessageTextInput(
             name="collection_name",
-            display_name="Collection Name",
+            display_name=i18n.t(
+                'components.vectorstores.local_db.collection_name.display_name'),
             value="langflow",
             required=True,
         ),
         MessageTextInput(
             name="persist_directory",
-            display_name="Persist Directory",
-            info=(
-                "Custom base directory to save the vector store. "
-                "Collections will be stored under '{directory}/vector_stores/{collection_name}'. "
-                "If not specified, it will use your system's cache folder."
-            ),
+            display_name=i18n.t(
+                'components.vectorstores.local_db.persist_directory.display_name'),
+            info=i18n.t(
+                'components.vectorstores.local_db.persist_directory.info'),
             advanced=True,
         ),
         DropdownInput(
             name="existing_collections",
-            display_name="Existing Collections",
+            display_name=i18n.t(
+                'components.vectorstores.local_db.existing_collections.display_name'),
             options=[],  # Will be populated dynamically
-            info="Select a previously created collection to search through its stored data.",
+            info=i18n.t(
+                'components.vectorstores.local_db.existing_collections.info'),
             show=False,
             combobox=True,
         ),
-        HandleInput(name="embedding", display_name="Embedding", required=True, input_types=["Embeddings"]),
+        HandleInput(
+            name="embedding",
+            display_name=i18n.t(
+                'components.vectorstores.local_db.embedding.display_name'),
+            required=True,
+            input_types=["Embeddings"]
+        ),
         BoolInput(
             name="allow_duplicates",
-            display_name="Allow Duplicates",
+            display_name=i18n.t(
+                'components.vectorstores.local_db.allow_duplicates.display_name'),
             advanced=True,
-            info="If false, will not add documents that are already in the Vector Store.",
+            info=i18n.t(
+                'components.vectorstores.local_db.allow_duplicates.info'),
         ),
         DropdownInput(
             name="search_type",
-            display_name="Search Type",
+            display_name=i18n.t(
+                'components.vectorstores.local_db.search_type.display_name'),
             options=["Similarity", "MMR"],
             value="Similarity",
             advanced=True,
         ),
         HandleInput(
             name="ingest_data",
-            display_name="Ingest Data",
+            display_name=i18n.t(
+                'components.vectorstores.local_db.ingest_data.display_name'),
             input_types=["Data", "DataFrame"],
             is_list=True,
-            info="Data to store. It will be embedded and indexed for semantic search.",
+            info=i18n.t('components.vectorstores.local_db.ingest_data.info'),
             show=True,
         ),
         MultilineInput(
             name="search_query",
-            display_name="Search Query",
+            display_name=i18n.t(
+                'components.vectorstores.local_db.search_query.display_name'),
             tool_mode=True,
-            info="Enter text to search for similar content in the selected collection.",
+            info=i18n.t('components.vectorstores.local_db.search_query.info'),
             show=False,
         ),
         IntInput(
             name="number_of_results",
-            display_name="Number of Results",
-            info="Number of results to return.",
+            display_name=i18n.t(
+                'components.vectorstores.local_db.number_of_results.display_name'),
+            info=i18n.t(
+                'components.vectorstores.local_db.number_of_results.info'),
             advanced=True,
             value=10,
         ),
         IntInput(
             name="limit",
-            display_name="Limit",
+            display_name=i18n.t(
+                'components.vectorstores.local_db.limit.display_name'),
             advanced=True,
-            info="Limit the number of records to compare when Allow Duplicates is False.",
+            info=i18n.t('components.vectorstores.local_db.limit.info'),
         ),
     ]
     outputs = [
-        Output(display_name="DataFrame", name="dataframe", method="perform_search"),
+        Output(display_name=i18n.t('components.vectorstores.local_db.outputs.dataframe'),
+               name="dataframe", method="perform_search"),
     ]
 
     def get_vector_store_directory(self, base_dir: str | Path) -> Path:
@@ -126,7 +145,8 @@ class LocalDBComponent(LCVectorStoreComponent):
         from lfx.services.cache.utils import CACHE_DIR
 
         # Get the base directory (either custom or cache)
-        base_dir = Path(self.persist_directory) if self.persist_directory else Path(CACHE_DIR)
+        base_dir = Path(
+            self.persist_directory) if self.persist_directory else Path(CACHE_DIR)
         # Get the vector_stores subdirectory
         vector_stores_dir = base_dir / "vector_stores"
         if not vector_stores_dir.exists():
@@ -159,7 +179,8 @@ class LocalDBComponent(LCVectorStoreComponent):
                     build_config["ingest_data"]["show"] = True
                 if "collection_name" in build_config:
                     build_config["collection_name"]["show"] = True
-                    build_config["collection_name"]["display_name"] = "Name Your Collection"
+                    build_config["collection_name"]["display_name"] = i18n.t(
+                        'components.vectorstores.local_db.collection_name.display_name_ingest')
                 if "persist" in build_config:
                     build_config["persist"]["show"] = True
                 if "persist_directory" in build_config:
@@ -181,7 +202,8 @@ class LocalDBComponent(LCVectorStoreComponent):
                 # Show existing collections dropdown and update its options
                 if "existing_collections" in build_config:
                     build_config["existing_collections"]["show"] = True
-                    build_config["existing_collections"]["options"] = self.list_existing_collections()
+                    build_config["existing_collections"]["options"] = self.list_existing_collections(
+                    )
                 # Hide collection_name in Retrieve mode since we use existing_collections
         elif field_name == "existing_collections":
             # Update collection_name when an existing collection is selected
@@ -208,10 +230,12 @@ class LocalDBComponent(LCVectorStoreComponent):
         if self.persist_directory:
             base_dir = self.resolve_path(self.persist_directory)
             persist_directory = str(self.get_vector_store_directory(base_dir))
-            logger.debug(f"Using custom persist directory: {persist_directory}")
+            logger.debug(
+                f"Using custom persist directory: {persist_directory}")
         else:
             persist_directory = self.get_default_persist_dir()
-            logger.debug(f"Using default persist directory: {persist_directory}")
+            logger.debug(
+                f"Using default persist directory: {persist_directory}")
 
         chroma = Chroma(
             persist_directory=persist_directory,
@@ -238,7 +262,8 @@ class LocalDBComponent(LCVectorStoreComponent):
         if self.allow_duplicates:
             stored_data = []
         else:
-            stored_data = chroma_collection_to_data(vector_store.get(limit=self.limit))
+            stored_data = chroma_collection_to_data(
+                vector_store.get(limit=self.limit))
             for value in deepcopy(stored_data):
                 del value.id
                 stored_documents_without_id.append(value)

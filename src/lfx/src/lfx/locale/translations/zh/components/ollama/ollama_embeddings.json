@@ -1,0 +1,15 @@
+{
+  "display_name": "Ollama嵌入",
+  "description": "使用Ollama模型生成嵌入向量。",
+  "model_name": {
+    "display_name": "Ollama模型"
+  },
+  "base_url": {
+    "display_name": "Ollama基础URL"
+  },
+  "outputs": {
+    "embeddings": {
+      "display_name": "嵌入向量"
+    }
+  }
+}

@@ -1,39 +1,118 @@
+import i18n
 from lfx.base.models.model import LCModelComponent
 from lfx.field_typing import Embeddings
 from lfx.io import BoolInput, FileInput, FloatInput, IntInput, MessageTextInput, Output
 
 
 class VertexAIEmbeddingsComponent(LCModelComponent):
-    display_name = "Vertex AI Embeddings"
-    description = "Generate embeddings using Google Cloud Vertex AI models."
+    display_name = i18n.t(
+        'components.vertexai.vertexai_embeddings.display_name')
+    description = i18n.t('components.vertexai.vertexai_embeddings.description')
     icon = "VertexAI"
     name = "VertexAIEmbeddings"
 
     inputs = [
         FileInput(
             name="credentials",
-            display_name="Credentials",
-            info="JSON credentials file. Leave empty to fallback to environment variables",
+            display_name=i18n.t(
+                'components.vertexai.vertexai_embeddings.credentials.display_name'),
+            info=i18n.t(
+                'components.vertexai.vertexai_embeddings.credentials.info'),
             value="",
             file_types=["json"],
             required=True,
         ),
-        MessageTextInput(name="location", display_name="Location", value="us-central1", advanced=True),
-        MessageTextInput(name="project", display_name="Project", info="The project ID.", advanced=True),
-        IntInput(name="max_output_tokens", display_name="Max Output Tokens", advanced=True),
-        IntInput(name="max_retries", display_name="Max Retries", value=1, advanced=True),
-        MessageTextInput(name="model_name", display_name="Model Name", value="textembedding-gecko", required=True),
-        IntInput(name="n", display_name="N", value=1, advanced=True),
-        IntInput(name="request_parallelism", value=5, display_name="Request Parallelism", advanced=True),
-        MessageTextInput(name="stop_sequences", display_name="Stop", advanced=True, is_list=True),
-        BoolInput(name="streaming", display_name="Streaming", value=False, advanced=True),
-        FloatInput(name="temperature", value=0.0, display_name="Temperature"),
-        IntInput(name="top_k", display_name="Top K", advanced=True),
-        FloatInput(name="top_p", display_name="Top P", value=0.95, advanced=True),
+        MessageTextInput(
+            name="location",
+            display_name=i18n.t(
+                'components.vertexai.vertexai_embeddings.location.display_name'),
+            value="us-central1",
+            advanced=True
+        ),
+        MessageTextInput(
+            name="project",
+            display_name=i18n.t(
+                'components.vertexai.vertexai_embeddings.project.display_name'),
+            info=i18n.t(
+                'components.vertexai.vertexai_embeddings.project.info'),
+            advanced=True
+        ),
+        IntInput(
+            name="max_output_tokens",
+            display_name=i18n.t(
+                'components.vertexai.vertexai_embeddings.max_output_tokens.display_name'),
+            advanced=True
+        ),
+        IntInput(
+            name="max_retries",
+            display_name=i18n.t(
+                'components.vertexai.vertexai_embeddings.max_retries.display_name'),
+            value=1,
+            advanced=True
+        ),
+        MessageTextInput(
+            name="model_name",
+            display_name=i18n.t(
+                'components.vertexai.vertexai_embeddings.model_name.display_name'),
+            value="textembedding-gecko",
+            required=True
+        ),
+        IntInput(
+            name="n",
+            display_name=i18n.t(
+                'components.vertexai.vertexai_embeddings.n.display_name'),
+            value=1,
+            advanced=True
+        ),
+        IntInput(
+            name="request_parallelism",
+            value=5,
+            display_name=i18n.t(
+                'components.vertexai.vertexai_embeddings.request_parallelism.display_name'),
+            advanced=True
+        ),
+        MessageTextInput(
+            name="stop_sequences",
+            display_name=i18n.t(
+                'components.vertexai.vertexai_embeddings.stop_sequences.display_name'),
+            advanced=True,
+            is_list=True
+        ),
+        BoolInput(
+            name="streaming",
+            display_name=i18n.t(
+                'components.vertexai.vertexai_embeddings.streaming.display_name'),
+            value=False,
+            advanced=True
+        ),
+        FloatInput(
+            name="temperature",
+            value=0.0,
+            display_name=i18n.t(
+                'components.vertexai.vertexai_embeddings.temperature.display_name')
+        ),
+        IntInput(
+            name="top_k",
+            display_name=i18n.t(
+                'components.vertexai.vertexai_embeddings.top_k.display_name'),
+            advanced=True
+        ),
+        FloatInput(
+            name="top_p",
+            display_name=i18n.t(
+                'components.vertexai.vertexai_embeddings.top_p.display_name'),
+            value=0.95,
+            advanced=True
+        ),
     ]
 
     outputs = [
-        Output(display_name="Embeddings", name="embeddings", method="build_embeddings"),
+        Output(
+            display_name=i18n.t(
+                'components.vertexai.vertexai_embeddings.outputs.embeddings'),
+            name="embeddings",
+            method="build_embeddings"
+        ),
     ]
 
     def build_embeddings(self) -> Embeddings:
@@ -46,7 +125,8 @@ class VertexAIEmbeddingsComponent(LCModelComponent):
         from google.oauth2 import service_account
 
         if self.credentials:
-            gcloud_credentials = service_account.Credentials.from_service_account_file(self.credentials)
+            gcloud_credentials = service_account.Credentials.from_service_account_file(
+                self.credentials)
         else:
             # will fallback to environment variable or inferred from gcloud CLI
             gcloud_credentials = None

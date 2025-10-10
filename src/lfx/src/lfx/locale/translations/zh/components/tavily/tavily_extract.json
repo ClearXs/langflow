@@ -1,0 +1,25 @@
+{
+  "display_name": "Tavily 提取 API",
+  "description": "**Tavily Extract** 从 URL 中提取原始内容。",
+  "api_key": {
+    "display_name": "Tavily API 密钥",
+    "info": "您的 Tavily API 密钥。"
+  },
+  "urls": {
+    "display_name": "URL 列表",
+    "info": "要提取内容的 URL 列表，用逗号分隔。"
+  },
+  "extract_depth": {
+    "display_name": "提取深度",
+    "info": "提取过程的深度。"
+  },
+  "include_images": {
+    "display_name": "包含图片",
+    "info": "包含从 URL 中提取的图片列表。"
+  },
+  "outputs": {
+    "dataframe": {
+      "display_name": "数据框"
+    }
+  }
+}

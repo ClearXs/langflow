@@ -1,3 +1,4 @@
+import i18n
 from typing import TYPE_CHECKING
 
 from langchain_community.vectorstores import Vectara
@@ -14,25 +15,42 @@ if TYPE_CHECKING:
 class VectaraVectorStoreComponent(LCVectorStoreComponent):
     """Vectara Vector Store with search capabilities."""
 
-    display_name: str = "Vectara"
-    description: str = "Vectara Vector Store with search capabilities"
+    display_name: str = i18n.t('components.vectara.vectara.display_name')
+    description: str = i18n.t('components.vectara.vectara.description')
     name = "Vectara"
     icon = "Vectara"
 
     inputs = [
-        StrInput(name="vectara_customer_id", display_name="Vectara Customer ID", required=True),
-        StrInput(name="vectara_corpus_id", display_name="Vectara Corpus ID", required=True),
-        SecretStrInput(name="vectara_api_key", display_name="Vectara API Key", required=True),
+        StrInput(
+            name="vectara_customer_id",
+            display_name=i18n.t(
+                'components.vectara.vectara.vectara_customer_id.display_name'),
+            required=True
+        ),
+        StrInput(
+            name="vectara_corpus_id",
+            display_name=i18n.t(
+                'components.vectara.vectara.vectara_corpus_id.display_name'),
+            required=True
+        ),
+        SecretStrInput(
+            name="vectara_api_key",
+            display_name=i18n.t(
+                'components.vectara.vectara.vectara_api_key.display_name'),
+            required=True
+        ),
         HandleInput(
             name="embedding",
-            display_name="Embedding",
+            display_name=i18n.t(
+                'components.vectara.vectara.embedding.display_name'),
             input_types=["Embeddings"],
         ),
         *LCVectorStoreComponent.inputs,
         IntInput(
             name="number_of_results",
-            display_name="Number of Results",
-            info="Number of results to return.",
+            display_name=i18n.t(
+                'components.vectara.vectara.number_of_results.display_name'),
+            info=i18n.t('components.vectara.vectara.number_of_results.info'),
             value=4,
             advanced=True,
         ),

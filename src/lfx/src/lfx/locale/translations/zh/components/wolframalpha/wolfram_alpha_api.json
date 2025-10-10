@@ -1,0 +1,14 @@
+{
+  "display_name": "WolframAlpha API",
+  "description": "支持向 WolframAlpha 查询各种主题的计算数据、事实和计算，提供结构化的响应。",
+  "input_value": {
+    "display_name": "输入查询",
+    "info": "示例查询：'法国的人口是多少？'"
+  },
+  "app_id": {
+    "display_name": "WolframAlpha 应用 ID"
+  },
+  "outputs": {
+    "dataframe": "数据框"
+  }
+}

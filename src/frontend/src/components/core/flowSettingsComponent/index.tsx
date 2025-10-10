@@ -8,6 +8,7 @@ import useFlowStore from "@/stores/flowStore";
 import useFlowsManagerStore from "@/stores/flowsManagerStore";
 import type { FlowType } from "@/types/flow";
 import EditFlowSettings from "../editFlowSettingsComponent";
+import { useTranslation } from "react-i18next";
 
 type FlowSettingsComponentProps = {
   flowData?: FlowType;
@@ -72,6 +73,8 @@ const FlowSettingsComponent = ({
   const [disableSave, setDisableSave] = useState(true);
   const autoSaving = useFlowsManagerStore((state) => state.autoSaving);
   const formRef = useRef<HTMLFormElement>(null);
+  
+  const { t } = useTranslation();
 
   useEffect(() => {
     setName(flow?.name ?? "");
@@ -138,7 +141,7 @@ const FlowSettingsComponent = ({
             type="button"
             onClick={() => close()}
           >
-            Cancel
+            {t("components.button.cancel")}
           </Button>
           <Form.Submit asChild>
             <Button
@@ -148,7 +151,7 @@ const FlowSettingsComponent = ({
               loading={isSaving}
               disabled={disableSave}
             >
-              Save
+              {t("components.button.save")}
             </Button>
           </Form.Submit>
         </div>

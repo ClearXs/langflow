@@ -1,0 +1,27 @@
+{
+  "display_name": "搜索API",
+  "description": "调用 SearchApi API 并限制结果数量。支持 Google、Bing 和 DuckDuckGo。",
+  "engine": {
+    "display_name": "搜索引擎"
+  },
+  "api_key": {
+    "display_name": "SearchAPI API 密钥"
+  },
+  "input_value": {
+    "display_name": "输入"
+  },
+  "search_params": {
+    "display_name": "搜索参数"
+  },
+  "max_results": {
+    "display_name": "最大结果数"
+  },
+  "max_snippet_length": {
+    "display_name": "最大摘要长度"
+  },
+  "outputs": {
+    "dataframe": {
+      "display_name": "数据框"
+    }
+  }
+}

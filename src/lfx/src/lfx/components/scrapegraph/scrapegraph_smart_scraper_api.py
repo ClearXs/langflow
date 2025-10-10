@@ -1,3 +1,4 @@
+import i18n
 from lfx.custom.custom_component.component import Component
 from lfx.io import (
     MessageTextInput,
@@ -8,37 +9,51 @@ from lfx.schema.data import Data
 
 
 class ScrapeGraphSmartScraperApi(Component):
-    display_name: str = "ScrapeGraph Smart Scraper API"
-    description: str = "Given a URL, it will return the structured data of the website."
+    display_name: str = i18n.t(
+        'components.scrapegraph.scrapegraph_smart_scraper_api.display_name')
+    description: str = i18n.t(
+        'components.scrapegraph.scrapegraph_smart_scraper_api.description')
     name = "ScrapeGraphSmartScraperApi"
 
     output_types: list[str] = ["Document"]
     documentation: str = "https://docs.scrapegraphai.com/services/smartscraper"
+    icon = "ScrapeGraph"
 
     inputs = [
         SecretStrInput(
             name="api_key",
-            display_name="ScrapeGraph API Key",
+            display_name=i18n.t(
+                'components.scrapegraph.scrapegraph_smart_scraper_api.api_key.display_name'),
             required=True,
             password=True,
-            info="The API key to use ScrapeGraph API.",
+            info=i18n.t(
+                'components.scrapegraph.scrapegraph_smart_scraper_api.api_key.info'),
         ),
         MessageTextInput(
             name="url",
-            display_name="URL",
+            display_name=i18n.t(
+                'components.scrapegraph.scrapegraph_smart_scraper_api.url.display_name'),
             tool_mode=True,
-            info="The URL to scrape.",
+            info=i18n.t(
+                'components.scrapegraph.scrapegraph_smart_scraper_api.url.info'),
         ),
         MessageTextInput(
             name="prompt",
-            display_name="Prompt",
+            display_name=i18n.t(
+                'components.scrapegraph.scrapegraph_smart_scraper_api.prompt.display_name'),
             tool_mode=True,
-            info="The prompt to use for the smart scraper.",
+            info=i18n.t(
+                'components.scrapegraph.scrapegraph_smart_scraper_api.prompt.info'),
         ),
     ]
 
     outputs = [
-        Output(display_name="Data", name="data", method="scrape"),
+        Output(
+            display_name=i18n.t(
+                'components.scrapegraph.scrapegraph_smart_scraper_api.outputs.data.display_name'),
+            name="data",
+            method="scrape"
+        ),
     ]
 
     def scrape(self) -> list[Data]:

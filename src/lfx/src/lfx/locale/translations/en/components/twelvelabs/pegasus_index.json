@@ -1,0 +1,29 @@
+{
+  "display_name": "TwelveLabs Pegasus Index Video",
+  "description": "Index videos using TwelveLabs and add the video_id to metadata.",
+  "videodata": {
+    "display_name": "Video Data",
+    "info": "Video Data objects (from VideoFile or SplitVideo)"
+  },
+  "api_key": {
+    "display_name": "TwelveLabs API Key",
+    "info": "Enter your TwelveLabs API Key."
+  },
+  "model_name": {
+    "display_name": "Model",
+    "info": "Pegasus model to use for indexing"
+  },
+  "index_name": {
+    "display_name": "Index Name",
+    "info": "Name of the index to use. If the index doesn't exist, it will be created."
+  },
+  "index_id": {
+    "display_name": "Index ID",
+    "info": "ID of an existing index to use. If provided, index_name will be ignored."
+  },
+  "outputs": {
+    "indexed_data": {
+      "display_name": "Indexed Data"
+    }
+  }
+}

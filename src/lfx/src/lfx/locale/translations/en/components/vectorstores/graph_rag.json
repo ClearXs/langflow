@@ -1,0 +1,26 @@
+{
+  "display_name": "Graph RAG",
+  "description": "Graph RAG traversal for vector store.",
+  "embedding_model": {
+    "display_name": "Embedding Model",
+    "info": "Specify the Embedding Model. Not required for Astra Vectorize collections."
+  },
+  "vector_store": {
+    "display_name": "Vector Store Connection",
+    "info": "Connection to Vector Store."
+  },
+  "edge_definition": {
+    "display_name": "Edge Definition",
+    "info": "Edge definition for the graph traversal."
+  },
+  "strategy": {
+    "display_name": "Traversal Strategies"
+  },
+  "search_query": {
+    "display_name": "Search Query"
+  },
+  "graphrag_strategy_kwargs": {
+    "display_name": "Strategy Parameters",
+    "info": "Optional dictionary of additional parameters for the retrieval strategy. Please see https://datastax.github.io/graph-rag/reference/graph_retriever/strategies/ for details."
+  }
+}

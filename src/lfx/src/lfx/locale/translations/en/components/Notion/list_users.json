@@ -1,0 +1,8 @@
+{
+  "display_name": "List Users",
+  "description": "Retrieve users from Notion.",
+  "notion_secret": {
+    "display_name": "Notion Secret",
+    "info": "The Notion integration token."
+  }
+}

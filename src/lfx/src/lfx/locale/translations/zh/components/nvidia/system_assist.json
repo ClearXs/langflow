@@ -1,0 +1,13 @@
+{
+  "display_name": "NVIDIA系统助手",
+  "description": "(仅Windows) 提示NVIDIA系统助手与NVIDIA GPU驱动程序交互。用户可以查询GPU规格、状态，并要求NV-API执行多项GPU编辑操作。提示必须是人类可读的语言。",
+  "prompt": {
+    "display_name": "系统助手提示",
+    "info": "输入NVIDIA系统助手要处理的提示。例如:'我的GPU是什么?'"
+  },
+  "outputs": {
+    "response": {
+      "display_name": "响应"
+    }
+  }
+}

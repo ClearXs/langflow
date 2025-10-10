@@ -1,3 +1,4 @@
+import i18n
 from typing import Any
 
 import requests
@@ -11,34 +12,37 @@ from lfx.schema.data import Data
 
 
 class NotionSearch(LCToolComponent):
-    display_name: str = "Search "
-    description: str = "Searches all pages and databases that have been shared with an integration."
+    display_name: str = i18n.t('components.notion.search.display_name')
+    description: str = i18n.t('components.notion.search.description')
     documentation: str = "https://docs.langflow.org/integrations/notion/search"
     icon = "NotionDirectoryLoader"
 
     inputs = [
         SecretStrInput(
             name="notion_secret",
-            display_name="Notion Secret",
-            info="The Notion integration token.",
+            display_name=i18n.t(
+                'components.notion.search.notion_secret.display_name'),
+            info=i18n.t('components.notion.search.notion_secret.info'),
             required=True,
         ),
         StrInput(
             name="query",
-            display_name="Search Query",
-            info="The text that the API compares page and database titles against.",
+            display_name=i18n.t('components.notion.search.query.display_name'),
+            info=i18n.t('components.notion.search.query.info'),
         ),
         DropdownInput(
             name="filter_value",
-            display_name="Filter Type",
-            info="Limits the results to either only pages or only databases.",
+            display_name=i18n.t(
+                'components.notion.search.filter_value.display_name'),
+            info=i18n.t('components.notion.search.filter_value.info'),
             options=["page", "database"],
             value="page",
         ),
         DropdownInput(
             name="sort_direction",
-            display_name="Sort Direction",
-            info="The direction to sort the results.",
+            display_name=i18n.t(
+                'components.notion.search.sort_direction.display_name'),
+            info=i18n.t('components.notion.search.sort_direction.info'),
             options=["ascending", "descending"],
             value="descending",
         ),
@@ -46,11 +50,14 @@ class NotionSearch(LCToolComponent):
 
     class NotionSearchSchema(BaseModel):
         query: str = Field(..., description="The search query text.")
-        filter_value: str = Field(default="page", description="Filter type: 'page' or 'database'.")
-        sort_direction: str = Field(default="descending", description="Sort direction: 'ascending' or 'descending'.")
+        filter_value: str = Field(
+            default="page", description="Filter type: 'page' or 'database'.")
+        sort_direction: str = Field(
+            default="descending", description="Sort direction: 'ascending' or 'descending'.")
 
     def run_model(self) -> list[Data]:
-        results = self._search_notion(self.query, self.filter_value, self.sort_direction)
+        results = self._search_notion(
+            self.query, self.filter_value, self.sort_direction)
         records = []
         combined_text = f"Results found: {len(results)}\n\n"
 

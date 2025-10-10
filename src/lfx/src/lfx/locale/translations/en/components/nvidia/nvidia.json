@@ -1,0 +1,36 @@
+{
+  "display_name": "NVIDIA",
+  "description": "Generates text using NVIDIA LLMs.",
+  "max_tokens": {
+    "display_name": "Max Tokens",
+    "info": "The maximum number of tokens to generate. Set to 0 for unlimited tokens."
+  },
+  "model_name": {
+    "display_name": "Model Name",
+    "info": "The name of the NVIDIA model to use."
+  },
+  "detailed_thinking": {
+    "display_name": "Detailed Thinking",
+    "info": "If true, the model will return a detailed thought process. Only supported by reasoning models."
+  },
+  "tool_model_enabled": {
+    "display_name": "Enable Tool Models",
+    "info": "If enabled, only show models that support tool-calling."
+  },
+  "base_url": {
+    "display_name": "NVIDIA Base URL",
+    "info": "The base URL of the NVIDIA API. Defaults to https://integrate.api.nvidia.com/v1."
+  },
+  "api_key": {
+    "display_name": "NVIDIA API Key",
+    "info": "The NVIDIA API Key."
+  },
+  "temperature": {
+    "display_name": "Temperature",
+    "info": "Run inference with this temperature."
+  },
+  "seed": {
+    "display_name": "Seed",
+    "info": "The seed controls the reproducibility of the job."
+  }
+}

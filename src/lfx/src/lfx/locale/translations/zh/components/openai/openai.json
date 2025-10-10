@@ -1,0 +1,71 @@
+{
+  "display_name": "OpenAI嵌入",
+  "description": "使用OpenAI模型生成嵌入向量。",
+  "default_headers": {
+    "display_name": "默认请求头",
+    "info": "用于API请求的默认请求头。"
+  },
+  "default_query": {
+    "display_name": "默认查询",
+    "info": "用于API请求的默认查询参数。"
+  },
+  "chunk_size": {
+    "display_name": "块大小"
+  },
+  "client": {
+    "display_name": "客户端"
+  },
+  "deployment": {
+    "display_name": "部署"
+  },
+  "embedding_ctx_length": {
+    "display_name": "嵌入上下文长度"
+  },
+  "max_retries": {
+    "display_name": "最大重试次数"
+  },
+  "model": {
+    "display_name": "模型"
+  },
+  "model_kwargs": {
+    "display_name": "模型关键字参数"
+  },
+  "openai_api_key": {
+    "display_name": "OpenAI API密钥"
+  },
+  "openai_api_base": {
+    "display_name": "OpenAI API基础URL"
+  },
+  "openai_api_type": {
+    "display_name": "OpenAI API类型"
+  },
+  "openai_api_version": {
+    "display_name": "OpenAI API版本"
+  },
+  "openai_organization": {
+    "display_name": "OpenAI组织"
+  },
+  "openai_proxy": {
+    "display_name": "OpenAI代理"
+  },
+  "request_timeout": {
+    "display_name": "请求超时"
+  },
+  "show_progress_bar": {
+    "display_name": "显示进度条"
+  },
+  "skip_empty": {
+    "display_name": "跳过空值"
+  },
+  "tiktoken_model_name": {
+    "display_name": "TikToken模型名称"
+  },
+  "tiktoken_enable": {
+    "display_name": "启用TikToken",
+    "info": "如果为False，您必须安装transformers。"
+  },
+  "dimensions": {
+    "display_name": "维度",
+    "info": "输出嵌入向量应具有的维度数。仅某些模型支持。"
+  }
+}

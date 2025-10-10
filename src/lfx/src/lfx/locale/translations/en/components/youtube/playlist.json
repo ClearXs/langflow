@@ -1,0 +1,11 @@
+{
+  "display_name": "YouTube Playlist",
+  "description": "Extracts all video URLs from a YouTube playlist.",
+  "playlist_url": {
+    "display_name": "Playlist URL",
+    "info": "URL of the YouTube playlist."
+  },
+  "outputs": {
+    "video_urls": "Video URLs"
+  }
+}

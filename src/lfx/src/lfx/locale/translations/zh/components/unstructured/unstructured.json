@@ -1,0 +1,20 @@
+{
+  "display_name": "Unstructured API",
+  "description": "使用 Unstructured.io API 从原始源文档中提取干净的文本。支持多种文件类型。",
+  "api_key": {
+    "display_name": "Unstructured.io 无服务器 API 密钥",
+    "info": "Unstructured API 密钥。在 https://app.unstructured.io/ 创建"
+  },
+  "api_url": {
+    "display_name": "Unstructured.io API URL",
+    "info": "Unstructured API URL。"
+  },
+  "chunking_strategy": {
+    "display_name": "分块策略",
+    "info": "要使用的分块策略，参见 https://docs.unstructured.io/api-reference/api-services/chunking"
+  },
+  "unstructured_args": {
+    "display_name": "附加参数",
+    "info": "可选的加载器附加参数字典。更多信息请参见 https://docs.unstructured.io/api-reference/api-services/api-parameters"
+  }
+}

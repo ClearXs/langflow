@@ -1,0 +1,26 @@
+{
+  "display_name": "Perplexity",
+  "description": "使用 Perplexity 大语言模型生成文本。",
+  "model_name": {
+    "display_name": "模型名称"
+  },
+  "max_tokens": {
+    "display_name": "最大输出令牌数",
+    "info": "要生成的最大令牌数。"
+  },
+  "api_key": {
+    "display_name": "Perplexity API 密钥",
+    "info": "用于 Perplexity 模型的 API 密钥。"
+  },
+  "temperature": {
+    "display_name": "温度"
+  },
+  "top_p": {
+    "display_name": "Top P",
+    "info": "采样时要考虑的令牌累计概率上限。"
+  },
+  "n": {
+    "display_name": "N",
+    "info": "为每个提示生成的聊天完成数。如果生成重复项，API 可能不会返回完整的 n 个完成。"
+  }
+}

@@ -1,0 +1,43 @@
+{
+  "display_name": "Chroma DB",
+  "description": "Chroma Vector Store with search capabilities",
+  "collection_name": {
+    "display_name": "Collection Name"
+  },
+  "persist_directory": {
+    "display_name": "Persist Directory"
+  },
+  "embedding": {
+    "display_name": "Embedding"
+  },
+  "chroma_server_cors_allow_origins": {
+    "display_name": "Server CORS Allow Origins"
+  },
+  "chroma_server_host": {
+    "display_name": "Server Host"
+  },
+  "chroma_server_http_port": {
+    "display_name": "Server HTTP Port"
+  },
+  "chroma_server_grpc_port": {
+    "display_name": "Server gRPC Port"
+  },
+  "chroma_server_ssl_enabled": {
+    "display_name": "Server SSL Enabled"
+  },
+  "allow_duplicates": {
+    "display_name": "Allow Duplicates",
+    "info": "If false, will not add documents that are already in the Vector Store."
+  },
+  "search_type": {
+    "display_name": "Search Type"
+  },
+  "number_of_results": {
+    "display_name": "Number of Results",
+    "info": "Number of results to return."
+  },
+  "limit": {
+    "display_name": "Limit",
+    "info": "Limit the number of records to compare when Allow Duplicates is False."
+  }
+}

@@ -1,0 +1,55 @@
+{
+  "display_name": "MongoDB Atlas",
+  "description": "MongoDB Atlas Vector Store with search capabilities",
+  "mongodb_atlas_cluster_uri": {
+    "display_name": "MongoDB Atlas Cluster URI"
+  },
+  "enable_mtls": {
+    "display_name": "Enable mTLS"
+  },
+  "mongodb_atlas_client_cert": {
+    "display_name": "MongoDB Atlas Combined Client Certificate",
+    "info": "Client Certificate combined with the private key in the following format:\n -----BEGIN PRIVATE KEY-----\n...\n -----END PRIVATE KEY-----\n-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----\n"
+  },
+  "db_name": {
+    "display_name": "Database Name"
+  },
+  "collection_name": {
+    "display_name": "Collection Name"
+  },
+  "index_name": {
+    "display_name": "Index Name",
+    "info": "The name of Atlas Search index, it should be a Vector Search."
+  },
+  "insert_mode": {
+    "display_name": "Insert Mode",
+    "info": "How to insert new documents into the collection."
+  },
+  "embedding": {
+    "display_name": "Embedding"
+  },
+  "number_of_results": {
+    "display_name": "Number of Results",
+    "info": "Number of results to return."
+  },
+  "index_field": {
+    "display_name": "Index Field",
+    "info": "The field to index."
+  },
+  "filter_field": {
+    "display_name": "Filter Field",
+    "info": "The field to filter the index."
+  },
+  "number_dimensions": {
+    "display_name": "Number of Dimensions",
+    "info": "Embedding Context Length."
+  },
+  "similarity": {
+    "display_name": "Similarity",
+    "info": "The method used to measure the similarity between vectors."
+  },
+  "quantization": {
+    "display_name": "Quantization",
+    "info": "Quantization reduces memory costs converting 32-bit floats to smaller data types"
+  }
+}

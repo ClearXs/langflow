@@ -1,0 +1,27 @@
+{
+  "display_name": "SearchApi",
+  "description": "Calls the SearchApi API with result limiting. Supports Google, Bing and DuckDuckGo.",
+  "engine": {
+    "display_name": "Engine"
+  },
+  "api_key": {
+    "display_name": "SearchAPI API Key"
+  },
+  "input_value": {
+    "display_name": "Input"
+  },
+  "search_params": {
+    "display_name": "Search Parameters"
+  },
+  "max_results": {
+    "display_name": "Max Results"
+  },
+  "max_snippet_length": {
+    "display_name": "Max Snippet Length"
+  },
+  "outputs": {
+    "dataframe": {
+      "display_name": "DataFrame"
+    }
+  }
+}

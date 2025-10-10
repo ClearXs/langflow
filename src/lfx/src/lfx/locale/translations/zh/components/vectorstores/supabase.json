@@ -1,0 +1,23 @@
+{
+  "display_name": "Supabase",
+  "description": "具有搜索功能的 Supabase 向量存储",
+  "supabase_url": {
+    "display_name": "Supabase URL"
+  },
+  "supabase_service_key": {
+    "display_name": "Supabase 服务密钥"
+  },
+  "table_name": {
+    "display_name": "表名"
+  },
+  "query_name": {
+    "display_name": "查询名称"
+  },
+  "embedding": {
+    "display_name": "嵌入"
+  },
+  "number_of_results": {
+    "display_name": "结果数量",
+    "info": "要返回的结果数量。"
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "display_name": "Wikidata",
+  "description": "使用 Wikidata API 执行搜索。",
+  "query": {
+    "display_name": "查询",
+    "info": "在 Wikidata 上进行相似性搜索的文本查询。"
+  },
+  "outputs": {
+    "dataframe": "数据框"
+  }
+}

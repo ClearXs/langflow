@@ -1,0 +1,32 @@
+{
+  "display_name": "OpenRouter",
+  "description": "OpenRouter provides unified access to multiple AI models from different providers through a single API.",
+  "api_key": {
+    "display_name": "OpenRouter API Key",
+    "info": "Your OpenRouter API key"
+  },
+  "site_url": {
+    "display_name": "Site URL",
+    "info": "Your site URL for OpenRouter rankings"
+  },
+  "app_name": {
+    "display_name": "App Name",
+    "info": "Your app name for OpenRouter rankings"
+  },
+  "provider": {
+    "display_name": "Provider",
+    "info": "The AI model provider"
+  },
+  "model_name": {
+    "display_name": "Model",
+    "info": "The model to use for chat completion"
+  },
+  "temperature": {
+    "display_name": "Temperature",
+    "info": "Controls randomness. Lower values are more deterministic, higher values are more creative."
+  },
+  "max_tokens": {
+    "display_name": "Max Tokens",
+    "info": "Maximum number of tokens to generate"
+  }
+}

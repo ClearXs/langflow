@@ -1,3 +1,4 @@
+import i18n
 from contextlib import contextmanager
 
 import pandas as pd
@@ -13,48 +14,57 @@ from lfx.template.field.base import Output
 class YouTubeSearchComponent(Component):
     """A component that searches YouTube videos."""
 
-    display_name: str = "YouTube Search"
-    description: str = "Searches YouTube videos based on query."
+    display_name: str = i18n.t('components.youtube.search.display_name')
+    description: str = i18n.t('components.youtube.search.description')
     icon: str = "YouTube"
 
     inputs = [
         MessageTextInput(
             name="query",
-            display_name="Search Query",
-            info="The search query to look for on YouTube.",
+            display_name=i18n.t(
+                'components.youtube.search.query.display_name'),
+            info=i18n.t('components.youtube.search.query.info'),
             tool_mode=True,
             required=True,
         ),
         SecretStrInput(
             name="api_key",
-            display_name="YouTube API Key",
-            info="Your YouTube Data API key.",
+            display_name=i18n.t(
+                'components.youtube.search.api_key.display_name'),
+            info=i18n.t('components.youtube.search.api_key.info'),
             required=True,
         ),
         IntInput(
             name="max_results",
-            display_name="Max Results",
+            display_name=i18n.t(
+                'components.youtube.search.max_results.display_name'),
             value=10,
-            info="The maximum number of results to return.",
+            info=i18n.t('components.youtube.search.max_results.info'),
         ),
         DropdownInput(
             name="order",
-            display_name="Sort Order",
+            display_name=i18n.t(
+                'components.youtube.search.order.display_name'),
             options=["relevance", "date", "rating", "title", "viewCount"],
             value="relevance",
-            info="Sort order for the search results.",
+            info=i18n.t('components.youtube.search.order.info'),
         ),
         BoolInput(
             name="include_metadata",
-            display_name="Include Metadata",
+            display_name=i18n.t(
+                'components.youtube.search.include_metadata.display_name'),
             value=True,
-            info="Include video metadata like description and statistics.",
+            info=i18n.t('components.youtube.search.include_metadata.info'),
             advanced=True,
         ),
     ]
 
     outputs = [
-        Output(name="results", display_name="Search Results", method="search_videos"),
+        Output(
+            name="results",
+            display_name=i18n.t('components.youtube.search.outputs.results'),
+            method="search_videos"
+        ),
     ]
 
     @contextmanager
@@ -98,7 +108,8 @@ class YouTubeSearchComponent(Component):
 
                     if self.include_metadata:
                         # Get video details for additional metadata
-                        video_response = youtube.videos().list(part="statistics,contentDetails", id=video_id).execute()
+                        video_response = youtube.videos().list(
+                            part="statistics,contentDetails", id=video_id).execute()
 
                         if video_response.get("items"):
                             video_details = video_response["items"][0]

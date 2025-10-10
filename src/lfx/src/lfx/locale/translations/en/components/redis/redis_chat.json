@@ -1,0 +1,32 @@
+{
+  "display_name": "Redis Chat Memory",
+  "description": "Retrieves and store chat messages from Redis.",
+  "host": {
+    "display_name": "Hostname",
+    "info": "IP address or hostname."
+  },
+  "port": {
+    "display_name": "Port",
+    "info": "Redis Port Number."
+  },
+  "database": {
+    "display_name": "Database",
+    "info": "Redis database."
+  },
+  "username": {
+    "display_name": "Username",
+    "info": "The Redis user name."
+  },
+  "password": {
+    "display_name": "Redis Password",
+    "info": "The password for username."
+  },
+  "key_prefix": {
+    "display_name": "Key Prefix",
+    "info": "Key prefix."
+  },
+  "session_id": {
+    "display_name": "Session ID",
+    "info": "Session ID for the message."
+  }
+}

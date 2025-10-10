@@ -1,3 +1,4 @@
+import i18n
 from urllib import parse
 
 from langchain_community.chat_message_histories.redis import RedisChatMessageHistory
@@ -8,26 +9,65 @@ from lfx.inputs.inputs import IntInput, MessageTextInput, SecretStrInput, StrInp
 
 
 class RedisIndexChatMemory(LCChatMemoryComponent):
-    display_name = "Redis Chat Memory"
-    description = "Retrieves and store chat messages from Redis."
+    display_name = i18n.t('components.redis.redis_chat.display_name')
+    description = i18n.t('components.redis.redis_chat.description')
     name = "RedisChatMemory"
     icon = "Redis"
 
     inputs = [
         StrInput(
-            name="host", display_name="hostname", required=True, value="localhost", info="IP address or hostname."
+            name="host",
+            display_name=i18n.t(
+                'components.redis.redis_chat.host.display_name'),
+            required=True,
+            value="localhost",
+            info=i18n.t('components.redis.redis_chat.host.info')
         ),
-        IntInput(name="port", display_name="port", required=True, value=6379, info="Redis Port Number."),
-        StrInput(name="database", display_name="database", required=True, value="0", info="Redis database."),
+        IntInput(
+            name="port",
+            display_name=i18n.t(
+                'components.redis.redis_chat.port.display_name'),
+            required=True,
+            value=6379,
+            info=i18n.t('components.redis.redis_chat.port.info')
+        ),
+        StrInput(
+            name="database",
+            display_name=i18n.t(
+                'components.redis.redis_chat.database.display_name'),
+            required=True,
+            value="0",
+            info=i18n.t('components.redis.redis_chat.database.info')
+        ),
         MessageTextInput(
-            name="username", display_name="Username", value="", info="The Redis user name.", advanced=True
+            name="username",
+            display_name=i18n.t(
+                'components.redis.redis_chat.username.display_name'),
+            value="",
+            info=i18n.t('components.redis.redis_chat.username.info'),
+            advanced=True
         ),
         SecretStrInput(
-            name="password", display_name="Redis Password", value="", info="The password for username.", advanced=True
+            name="password",
+            display_name=i18n.t(
+                'components.redis.redis_chat.password.display_name'),
+            value="",
+            info=i18n.t('components.redis.redis_chat.password.info'),
+            advanced=True
         ),
-        StrInput(name="key_prefix", display_name="Key prefix", info="Key prefix.", advanced=True),
+        StrInput(
+            name="key_prefix",
+            display_name=i18n.t(
+                'components.redis.redis_chat.key_prefix.display_name'),
+            info=i18n.t('components.redis.redis_chat.key_prefix.info'),
+            advanced=True
+        ),
         MessageTextInput(
-            name="session_id", display_name="Session ID", info="Session ID for the message.", advanced=True
+            name="session_id",
+            display_name=i18n.t(
+                'components.redis.redis_chat.session_id.display_name'),
+            info=i18n.t('components.redis.redis_chat.session_id.info'),
+            advanced=True
         ),
     ]
 

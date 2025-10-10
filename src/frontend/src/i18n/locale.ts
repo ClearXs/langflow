@@ -547,3 +547,194 @@ export const useSidebarBundles = () => {
     []
   );
 };
+
+export const useShortcutsLocale = () => {
+  const { t } = useTranslation();
+
+  return useMemo(
+    () => [
+      {
+        display_name: t('shortcuts.controls'),
+        name: 'Advanced Settings',
+        shortcut: 'mod+shift+a',
+      },
+      {
+        display_name: t('shortcuts.searchComponentsSidebar'),
+        name: 'Search Components Sidebar',
+        shortcut: '/',
+      },
+      {
+        display_name: t('shortcuts.minimize'),
+        name: 'Minimize',
+        shortcut: 'mod+.',
+      },
+      {
+        display_name: t('shortcuts.code'),
+        name: 'Code',
+        shortcut: 'space',
+      },
+      {
+        display_name: t('shortcuts.copy'),
+        name: 'Copy',
+        shortcut: 'mod+c',
+      },
+      {
+        display_name: t('shortcuts.duplicate'),
+        name: 'Duplicate',
+        shortcut: 'mod+d',
+      },
+      {
+        display_name: t('shortcuts.componentShare'),
+        name: 'Component Share',
+        shortcut: 'mod+shift+s',
+      },
+      {
+        display_name: t('shortcuts.docs'),
+        name: 'Docs',
+        shortcut: 'mod+shift+d',
+      },
+      {
+        display_name: t('shortcuts.changesSave'),
+        name: 'Changes Save',
+        shortcut: 'mod+s',
+      },
+      {
+        display_name: t('shortcuts.saveComponent'),
+        name: 'Save Component',
+        shortcut: 'mod+alt+s',
+      },
+      {
+        display_name: t('shortcuts.delete'),
+        name: 'Delete',
+        shortcut: 'backspace',
+      },
+      {
+        display_name: t('shortcuts.openPlayground'),
+        name: 'Open Playground',
+        shortcut: 'mod+k',
+      },
+      {
+        display_name: t('shortcuts.undo'),
+        name: 'Undo',
+        shortcut: 'mod+z',
+      },
+      {
+        display_name: t('shortcuts.redo'),
+        name: 'Redo',
+        shortcut: 'mod+y',
+      },
+      {
+        display_name: t('shortcuts.redoAlt'),
+        name: 'Redo Alt',
+        shortcut: 'mod+shift+z',
+      },
+      {
+        display_name: t('shortcuts.group'),
+        name: 'Group',
+        shortcut: 'mod+g',
+      },
+      {
+        display_name: t('shortcuts.cut'),
+        name: 'Cut',
+        shortcut: 'mod+x',
+      },
+      {
+        display_name: t('shortcuts.paste'),
+        name: 'Paste',
+        shortcut: 'mod+v',
+      },
+      {
+        display_name: t('shortcuts.api'),
+        name: 'API',
+        shortcut: 'r',
+      },
+      {
+        display_name: t('shortcuts.download'),
+        name: 'Download',
+        shortcut: 'mod+j',
+      },
+      {
+        display_name: t('shortcuts.update'),
+        name: 'Update',
+        shortcut: 'mod+u',
+      },
+      {
+        display_name: t('shortcuts.freezePath'),
+        name: 'Freeze Path',
+        shortcut: 'mod+shift+f',
+      },
+      {
+        display_name: t('shortcuts.flowShare'),
+        name: 'Flow Share',
+        shortcut: 'mod+shift+b',
+      },
+      {
+        display_name: t('shortcuts.play'),
+        name: 'Play',
+        shortcut: 'p',
+      },
+      {
+        display_name: t('shortcuts.outputInspection'),
+        name: 'Output Inspection',
+        shortcut: 'o',
+      },
+      {
+        display_name: t('shortcuts.toolMode'),
+        name: 'Tool Mode',
+        shortcut: 'mod+shift+m',
+      },
+      {
+        display_name: t('shortcuts.toggleSidebar'),
+        name: 'Toggle Sidebar',
+        shortcut: 'mod+b',
+      },
+    ],
+    [t]
+  );
+};
+
+
+export const useMessageLocale = () => {
+  const { t } = useTranslation();
+
+  return useMemo(() => {
+    return {
+      "DEFAULT_TABLE_ALERT_MSG": t("messages.alertMessage"),
+      "DEFAULT_TABLE_ALERT_TITLE": t("messages.noData"),
+      "NO_COLUMN_DEFINITION_ALERT_TITLE": t("messages.noColumnDefinitionTitle"),
+      "NO_COLUMN_DEFINITION_ALERT_DESCRIPTION": t("messages.noColumnDefinitionDescription"),
+      "FS_ERROR_TEXT": t("messages.fsErrorText"),
+      "ERROR_UPDATING_COMPONENT": t("messages.errorUpdatingComponent"),
+      "TITLE_ERROR_UPDATING_COMPONENT": t("messages.titleErrorUpdatingComponent"),
+      "EMPTY_INPUT_SEND_MESSAGE": t("messages.emptyInputSend"),
+      "EMPTY_OUTPUT_SEND_MESSAGE": t("messages.emptyOutputSend"),
+      "CSV_VIEW_ERROR_TITLE": t("messages.csvViewErrorTitle"),
+      "CSV_NO_DATA_ERROR": t("messages.csvNoDataError"),
+      "PDF_VIEW_CONSTANT": t("messages.pdfViewConstant"),
+      "CSV_ERROR": t("messages.csvError"),
+      "PDF_LOAD_ERROR_TITLE": t("messages.pdfLoadErrorTitle"),
+      "PDF_CHECK_FLOW": t("messages.pdfCheckFlow"),
+      "PDF_ERROR_TITLE": t("messages.pdfErrorTitle"),
+      "PDF_LOAD_ERROR": t("messages.pdfLoadError"),
+      "IMG_VIEW_CONSTANT": t("messages.imgViewConstant"),
+      "IMG_VIEW_ERROR_MSG": t("messages.imgViewErrorMsg"),
+      "IMG_VIEW_ERROR_TITLE": t("messages.imgViewErrorTitle")
+    }
+  },[])
+}
+
+export const useFormLocale = () => {
+  const { t } = useTranslation();
+
+  return useMemo(() => {
+    return {
+      "DEFAULT_PLACEHOLDER": t('forms.defaultPlaceholder'),
+      "RECEIVING_INPUT_VALUE": t("forformsm.receivingInputValue"),
+      "SELECT_AN_OPTION": t("forms.selectOptions"),
+      "DEFAULT_TOOLSET_PLACEHOLDER": t('forms.defaultToolsetPlaceholder'),
+      "EDIT_TEXT_PLACEHOLDER": t("forms.editTextPlaceholder"),
+      "EDIT_TEXT_MODAL_TITLE": t("forms.editTextModalTitle"),
+      "TEXT_DIALOG_TITLE": t("forms.textDialogTitle")
+    }
+  },[])
+}

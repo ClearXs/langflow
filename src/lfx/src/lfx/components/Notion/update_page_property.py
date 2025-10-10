@@ -1,3 +1,4 @@
+import i18n
 import json
 from typing import Any
 
@@ -13,32 +14,40 @@ from lfx.schema.data import Data
 
 
 class NotionPageUpdate(LCToolComponent):
-    display_name: str = "Update Page Property "
-    description: str = "Update the properties of a Notion page."
+    display_name: str = i18n.t(
+        'components.notion.update_page_property.display_name')
+    description: str = i18n.t(
+        'components.notion.update_page_property.description')
     documentation: str = "https://docs.langflow.org/integrations/notion/page-update"
     icon = "NotionDirectoryLoader"
 
     inputs = [
         StrInput(
             name="page_id",
-            display_name="Page ID",
-            info="The ID of the Notion page to update.",
+            display_name=i18n.t(
+                'components.notion.update_page_property.page_id.display_name'),
+            info=i18n.t('components.notion.update_page_property.page_id.info'),
         ),
         MultilineInput(
             name="properties",
-            display_name="Properties",
-            info="The properties to update on the page (as a JSON string or a dictionary).",
+            display_name=i18n.t(
+                'components.notion.update_page_property.properties.display_name'),
+            info=i18n.t(
+                'components.notion.update_page_property.properties.info'),
         ),
         SecretStrInput(
             name="notion_secret",
-            display_name="Notion Secret",
-            info="The Notion integration token.",
+            display_name=i18n.t(
+                'components.notion.update_page_property.notion_secret.display_name'),
+            info=i18n.t(
+                'components.notion.update_page_property.notion_secret.info'),
             required=True,
         ),
     ]
 
     class NotionPageUpdateSchema(BaseModel):
-        page_id: str = Field(..., description="The ID of the Notion page to update.")
+        page_id: str = Field(...,
+                             description="The ID of the Notion page to update.")
         properties: str | dict[str, Any] = Field(
             ..., description="The properties to update on the page (as a JSON string or a dictionary)."
         )
@@ -86,12 +95,15 @@ class NotionPageUpdate(LCToolComponent):
         data = {"properties": parsed_properties}
 
         try:
-            logger.info(f"Sending request to Notion API: URL: {url}, Data: {json.dumps(data)}")
-            response = requests.patch(url, headers=headers, json=data, timeout=10)
+            logger.info(
+                f"Sending request to Notion API: URL: {url}, Data: {json.dumps(data)}")
+            response = requests.patch(
+                url, headers=headers, json=data, timeout=10)
             response.raise_for_status()
             updated_page = response.json()
 
-            logger.info(f"Successfully updated Notion page. Response: {json.dumps(updated_page)}")
+            logger.info(
+                f"Successfully updated Notion page. Response: {json.dumps(updated_page)}")
         except requests.exceptions.HTTPError as e:
             error_message = f"HTTP Error occurred: {e}"
             if e.response is not None:

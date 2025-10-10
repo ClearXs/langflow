@@ -1,0 +1,51 @@
+{
+  "display_name": "Milvus",
+  "description": "具有搜索功能的 Milvus 向量存储",
+  "collection_name": {
+    "display_name": "集合名称"
+  },
+  "collection_description": {
+    "display_name": "集合描述"
+  },
+  "uri": {
+    "display_name": "连接 URI"
+  },
+  "password": {
+    "display_name": "令牌",
+    "info": "如果不需要令牌来建立连接，请忽略此字段。"
+  },
+  "connection_args": {
+    "display_name": "其他连接参数"
+  },
+  "primary_field": {
+    "display_name": "主字段名称"
+  },
+  "text_field": {
+    "display_name": "文本字段名称"
+  },
+  "vector_field": {
+    "display_name": "向量字段名称"
+  },
+  "consistency_level": {
+    "display_name": "一致性级别"
+  },
+  "index_params": {
+    "display_name": "索引参数"
+  },
+  "search_params": {
+    "display_name": "搜索参数"
+  },
+  "drop_old": {
+    "display_name": "删除旧集合"
+  },
+  "timeout": {
+    "display_name": "超时"
+  },
+  "embedding": {
+    "display_name": "嵌入"
+  },
+  "number_of_results": {
+    "display_name": "结果数量",
+    "info": "要返回的结果数量。"
+  }
+}

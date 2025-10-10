@@ -1,0 +1,17 @@
+{
+  "display_name": "NVIDIA嵌入",
+  "description": "使用NVIDIA模型生成嵌入向量。",
+  "model": {
+    "display_name": "模型"
+  },
+  "base_url": {
+    "display_name": "NVIDIA基础URL"
+  },
+  "nvidia_api_key": {
+    "display_name": "NVIDIA API密钥",
+    "info": "NVIDIA API密钥。"
+  },
+  "temperature": {
+    "display_name": "模型温度"
+  }
+}

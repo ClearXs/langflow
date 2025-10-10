@@ -1,0 +1,22 @@
+{
+  "display_name": "FAISS",
+  "description": "FAISS Vector Store with search capabilities",
+  "index_name": {
+    "display_name": "Index Name"
+  },
+  "persist_directory": {
+    "display_name": "Persist Directory",
+    "info": "Path to save the FAISS index. It will be relative to where Langflow is running."
+  },
+  "allow_dangerous_deserialization": {
+    "display_name": "Allow Dangerous Deserialization",
+    "info": "Set to True to allow loading pickle files from untrusted sources. Only enable this if you trust the source of the data."
+  },
+  "embedding": {
+    "display_name": "Embedding"
+  },
+  "number_of_results": {
+    "display_name": "Number of Results",
+    "info": "Number of results to return."
+  }
+}

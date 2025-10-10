@@ -1,0 +1,21 @@
+{
+  "display_name": "ScrapeGraph 智能爬虫 API",
+  "description": "给定一个 URL，它将返回网站的结构化数据。",
+  "api_key": {
+    "display_name": "ScrapeGraph API 密钥",
+    "info": "用于使用 ScrapeGraph API 的 API 密钥。"
+  },
+  "url": {
+    "display_name": "URL",
+    "info": "要爬取的 URL。"
+  },
+  "prompt": {
+    "display_name": "提示",
+    "info": "用于智能爬虫的提示。"
+  },
+  "outputs": {
+    "data": {
+      "display_name": "数据"
+    }
+  }
+}

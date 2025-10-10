@@ -1,0 +1,19 @@
+{
+  "display_name": "Zep 聊天记忆",
+  "description": "从 Zep 检索和存储聊天消息。",
+  "url": {
+    "display_name": "Zep URL",
+    "info": "Zep 实例的 URL。"
+  },
+  "api_key": {
+    "display_name": "Zep API 密钥",
+    "info": "Zep 实例的 API 密钥。"
+  },
+  "api_base_path": {
+    "display_name": "API 基础路径"
+  },
+  "session_id": {
+    "display_name": "会话 ID",
+    "info": "消息的会话 ID。"
+  }
+}

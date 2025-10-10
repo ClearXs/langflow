@@ -1,0 +1,46 @@
+{
+  "display_name": "Elasticsearch",
+  "description": "Elasticsearch Vector Store with with advanced, customizable search capabilities",
+  "elasticsearch_url": {
+    "display_name": "Elasticsearch URL",
+    "info": "URL for self-managed Elasticsearch deployments (e.g., http://localhost:9200). Do not use with Elastic Cloud deployments, use Elastic Cloud ID instead."
+  },
+  "cloud_id": {
+    "display_name": "Elastic Cloud ID",
+    "info": "Use this for Elastic Cloud deployments. Do not use together with 'Elasticsearch URL'."
+  },
+  "index_name": {
+    "display_name": "Index Name",
+    "info": "The index name where the vectors will be stored in Elasticsearch cluster."
+  },
+  "username": {
+    "display_name": "Username",
+    "info": "Elasticsearch username (e.g., 'elastic'). Required for both local and Elastic Cloud setups unless API keys are used."
+  },
+  "password": {
+    "display_name": "Password",
+    "info": "Elasticsearch password for the specified user. Required for both local and Elastic Cloud setups unless API keys are used."
+  },
+  "embedding": {
+    "display_name": "Embedding"
+  },
+  "search_type": {
+    "display_name": "Search Type"
+  },
+  "number_of_results": {
+    "display_name": "Number of Results",
+    "info": "Number of results to return."
+  },
+  "search_score_threshold": {
+    "display_name": "Search Score Threshold",
+    "info": "Minimum similarity score threshold for search results."
+  },
+  "api_key": {
+    "display_name": "Elastic API Key",
+    "info": "API Key for Elastic Cloud authentication. If used, 'username' and 'password' are not required."
+  },
+  "verify_certs": {
+    "display_name": "Verify SSL Certificates",
+    "info": "Whether to verify SSL certificates when connecting to Elasticsearch."
+  }
+}

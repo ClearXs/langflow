@@ -1,0 +1,26 @@
+{
+  "display_name": "SambaNova",
+  "description": "Generate text using SambaNova LLMs.",
+  "base_url": {
+    "display_name": "SambaNova Cloud Base URL",
+    "info": "The base URL of the SambaNova Cloud API. Defaults to https://api.sambanova.ai/v1/chat/completions. You can change this to use other URLs like Sambastudio."
+  },
+  "model_name": {
+    "display_name": "Model Name"
+  },
+  "api_key": {
+    "display_name": "SambaNova API Key",
+    "info": "The SambaNova API Key to use for the SambaNova model."
+  },
+  "max_tokens": {
+    "display_name": "Max Tokens",
+    "info": "The maximum number of tokens to generate."
+  },
+  "top_p": {
+    "display_name": "Top P",
+    "info": "Model top_p"
+  },
+  "temperature": {
+    "display_name": "Temperature"
+  }
+}

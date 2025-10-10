@@ -1,3 +1,4 @@
+import i18n
 from collections import defaultdict
 from typing import Any
 
@@ -20,33 +21,38 @@ from lfx.inputs.inputs import (
 class OpenRouterComponent(LCModelComponent):
     """OpenRouter API component for language models."""
 
-    display_name = "OpenRouter"
-    description = (
-        "OpenRouter provides unified access to multiple AI models from different providers through a single API."
-    )
+    display_name = i18n.t('components.openrouter.openrouter.display_name')
+    description = i18n.t('components.openrouter.openrouter.description')
     icon = "OpenRouter"
 
     inputs = [
         *LCModelComponent.get_base_inputs(),
         SecretStrInput(
-            name="api_key", display_name="OpenRouter API Key", required=True, info="Your OpenRouter API key"
+            name="api_key",
+            display_name=i18n.t(
+                'components.openrouter.openrouter.api_key.display_name'),
+            required=True,
+            info=i18n.t('components.openrouter.openrouter.api_key.info')
         ),
         StrInput(
             name="site_url",
-            display_name="Site URL",
-            info="Your site URL for OpenRouter rankings",
+            display_name=i18n.t(
+                'components.openrouter.openrouter.site_url.display_name'),
+            info=i18n.t('components.openrouter.openrouter.site_url.info'),
             advanced=True,
         ),
         StrInput(
             name="app_name",
-            display_name="App Name",
-            info="Your app name for OpenRouter rankings",
+            display_name=i18n.t(
+                'components.openrouter.openrouter.app_name.display_name'),
+            info=i18n.t('components.openrouter.openrouter.app_name.info'),
             advanced=True,
         ),
         DropdownInput(
             name="provider",
-            display_name="Provider",
-            info="The AI model provider",
+            display_name=i18n.t(
+                'components.openrouter.openrouter.provider.display_name'),
+            info=i18n.t('components.openrouter.openrouter.provider.info'),
             options=["Loading providers..."],
             value="Loading providers...",
             real_time_refresh=True,
@@ -54,8 +60,9 @@ class OpenRouterComponent(LCModelComponent):
         ),
         DropdownInput(
             name="model_name",
-            display_name="Model",
-            info="The model to use for chat completion",
+            display_name=i18n.t(
+                'components.openrouter.openrouter.model_name.display_name'),
+            info=i18n.t('components.openrouter.openrouter.model_name.info'),
             options=["Select a provider first"],
             value="Select a provider first",
             real_time_refresh=True,
@@ -63,16 +70,18 @@ class OpenRouterComponent(LCModelComponent):
         ),
         SliderInput(
             name="temperature",
-            display_name="Temperature",
+            display_name=i18n.t(
+                'components.openrouter.openrouter.temperature.display_name'),
             value=0.7,
             range_spec=RangeSpec(min=0, max=2, step=0.01),
-            info="Controls randomness. Lower values are more deterministic, higher values are more creative.",
+            info=i18n.t('components.openrouter.openrouter.temperature.info'),
             advanced=True,
         ),
         IntInput(
             name="max_tokens",
-            display_name="Max Tokens",
-            info="Maximum number of tokens to generate",
+            display_name=i18n.t(
+                'components.openrouter.openrouter.max_tokens.display_name'),
+            info=i18n.t('components.openrouter.openrouter.max_tokens.info'),
             advanced=True,
         ),
     ]
@@ -174,7 +183,8 @@ class OpenRouterComponent(LCModelComponent):
         try:
             if field_name is None or field_name == "provider":
                 provider_models = self.fetch_models()
-                build_config["provider"]["options"] = sorted(provider_models.keys())
+                build_config["provider"]["options"] = sorted(
+                    provider_models.keys())
                 if build_config["provider"]["value"] not in provider_models:
                     build_config["provider"]["value"] = build_config["provider"]["options"][0]
 
@@ -182,12 +192,14 @@ class OpenRouterComponent(LCModelComponent):
                 provider_models = self.fetch_models()
                 models = provider_models[field_value]
 
-                build_config["model_name"]["options"] = [model["id"] for model in models]
+                build_config["model_name"]["options"] = [
+                    model["id"] for model in models]
                 if models:
                     build_config["model_name"]["value"] = models[0]["id"]
 
                 tooltips = {
-                    model["id"]: (f"{model['name']}\nContext Length: {model['context_length']}\n{model['description']}")
+                    model["id"]: (
+                        f"{model['name']}\nContext Length: {model['context_length']}\n{model['description']}")
                     for model in models
                 }
                 build_config["model_name"]["tooltips"] = tooltips

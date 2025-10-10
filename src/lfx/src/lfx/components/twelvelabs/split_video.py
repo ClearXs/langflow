@@ -1,3 +1,4 @@
+import i18n
 import hashlib
 import math
 import subprocess
@@ -14,8 +15,8 @@ from lfx.template import Output
 class SplitVideoComponent(Component):
     """A component that splits a video into multiple clips of specified duration using FFmpeg."""
 
-    display_name = "Split Video"
-    description = "Split a video into multiple clips of specified duration."
+    display_name = i18n.t('components.twelvelabs.split_video.display_name')
+    description = i18n.t('components.twelvelabs.split_video.description')
     icon = "TwelveLabs"
     name = "SplitVideo"
     documentation = "https://github.com/twelvelabs-io/twelvelabs-developer-experience/blob/main/integrations/Langflow/TWELVE_LABS_COMPONENTS_README.md"
@@ -23,36 +24,37 @@ class SplitVideoComponent(Component):
     inputs = [
         HandleInput(
             name="videodata",
-            display_name="Video Data",
-            info="Input video data from VideoFile component",
+            display_name=i18n.t(
+                'components.twelvelabs.split_video.videodata.display_name'),
+            info=i18n.t('components.twelvelabs.split_video.videodata.info'),
             required=True,
             input_types=["Data"],
         ),
         IntInput(
             name="clip_duration",
-            display_name="Clip Duration (seconds)",
-            info="Duration of each clip in seconds",
+            display_name=i18n.t(
+                'components.twelvelabs.split_video.clip_duration.display_name'),
+            info=i18n.t(
+                'components.twelvelabs.split_video.clip_duration.info'),
             required=True,
             value=30,
         ),
         DropdownInput(
             name="last_clip_handling",
-            display_name="Last Clip Handling",
-            info=(
-                "How to handle the final clip when it would be shorter than the specified duration:\n"
-                "- Truncate: Skip the final clip entirely if it's shorter than the specified duration\n"
-                "- Overlap Previous: Start the final clip earlier to maintain full duration, "
-                "overlapping with previous clip\n"
-                "- Keep Short: Keep the final clip at its natural length, even if shorter than specified duration"
-            ),
+            display_name=i18n.t(
+                'components.twelvelabs.split_video.last_clip_handling.display_name'),
+            info=i18n.t(
+                'components.twelvelabs.split_video.last_clip_handling.info'),
             options=["Truncate", "Overlap Previous", "Keep Short"],
             value="Overlap Previous",
             required=True,
         ),
         BoolInput(
             name="include_original",
-            display_name="Include Original Video",
-            info="Whether to include the original video in the output",
+            display_name=i18n.t(
+                'components.twelvelabs.split_video.include_original.display_name'),
+            info=i18n.t(
+                'components.twelvelabs.split_video.include_original.info'),
             value=False,
         ),
     ]
@@ -60,7 +62,8 @@ class SplitVideoComponent(Component):
     outputs = [
         Output(
             name="clips",
-            display_name="Video Clips",
+            display_name=i18n.t(
+                'components.twelvelabs.split_video.outputs.clips.display_name'),
             method="process",
             output_types=["Data"],
         ),
@@ -112,7 +115,8 @@ class SplitVideoComponent(Component):
         path_hash = hashlib.sha256(video_path.encode()).hexdigest()[:8]
 
         # Create the output directory path
-        output_dir = Path(path_obj.parent) / f"clips_{base_name}_{timestamp}_{path_hash}"
+        output_dir = Path(path_obj.parent) / \
+            f"clips_{base_name}_{timestamp}_{path_hash}"
 
         # Create the directory if it doesn't exist
         output_dir.mkdir(parents=True, exist_ok=True)
@@ -165,12 +169,14 @@ class SplitVideoComponent(Component):
 
             # Split video into clips
             for i in range(int(num_clips)):  # Convert num_clips to int for range
-                start_time = float(i * clip_duration)  # Convert to float for time calculations
+                # Convert to float for time calculations
+                start_time = float(i * clip_duration)
                 end_time = min(float((i + 1) * clip_duration), total_duration)
                 duration = end_time - start_time
 
                 # Handle last clip if it's shorter
-                if i == int(num_clips) - 1 and duration < clip_duration:  # Convert num_clips to int for comparison
+                # Convert num_clips to int for comparison
+                if i == int(num_clips) - 1 and duration < clip_duration:
                     if self.last_clip_handling == "Truncate":
                         # Skip if the last clip would be too short
                         continue

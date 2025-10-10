@@ -1,0 +1,11 @@
+{
+  "display_name": "YouTube 播放列表",
+  "description": "从 YouTube 播放列表中提取所有视频 URL。",
+  "playlist_url": {
+    "display_name": "播放列表 URL",
+    "info": "YouTube 播放列表的 URL。"
+  },
+  "outputs": {
+    "video_urls": "视频 URL"
+  }
+}

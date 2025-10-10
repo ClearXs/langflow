@@ -1,0 +1,16 @@
+{
+  "display_name": "Convert Astra DB to Pegasus Input",
+  "description": "Converts Astra DB search results to inputs compatible with TwelveLabs Pegasus.",
+  "astra_results": {
+    "display_name": "Astra DB Results",
+    "info": "Search results from Astra DB component"
+  },
+  "outputs": {
+    "index_id": {
+      "display_name": "Index ID"
+    },
+    "video_id": {
+      "display_name": "Video ID"
+    }
+  }
+}

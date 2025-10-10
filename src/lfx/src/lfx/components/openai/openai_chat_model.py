@@ -1,3 +1,4 @@
+import i18n
 from typing import Any
 
 from langchain_openai import ChatOpenAI
@@ -12,8 +13,8 @@ from lfx.log.logger import logger
 
 
 class OpenAIModelComponent(LCModelComponent):
-    display_name = "OpenAI"
-    description = "Generates text using OpenAI LLMs."
+    display_name = i18n.t('components.openai.openai_chat_model.display_name')
+    description = i18n.t('components.openai.openai_chat_model.description')
     icon = "OpenAI"
     name = "OpenAIModel"
 
@@ -21,26 +22,31 @@ class OpenAIModelComponent(LCModelComponent):
         *LCModelComponent.get_base_inputs(),
         IntInput(
             name="max_tokens",
-            display_name="Max Tokens",
+            display_name=i18n.t(
+                'components.openai.openai_chat_model.max_tokens.display_name'),
             advanced=True,
-            info="The maximum number of tokens to generate. Set to 0 for unlimited tokens.",
+            info=i18n.t('components.openai.openai_chat_model.max_tokens.info'),
             range_spec=RangeSpec(min=0, max=128000),
         ),
         DictInput(
             name="model_kwargs",
-            display_name="Model Kwargs",
+            display_name=i18n.t(
+                'components.openai.openai_chat_model.model_kwargs.display_name'),
             advanced=True,
-            info="Additional keyword arguments to pass to the model.",
+            info=i18n.t(
+                'components.openai.openai_chat_model.model_kwargs.info'),
         ),
         BoolInput(
             name="json_mode",
-            display_name="JSON Mode",
+            display_name=i18n.t(
+                'components.openai.openai_chat_model.json_mode.display_name'),
             advanced=True,
-            info="If True, it will output JSON regardless of passing a schema.",
+            info=i18n.t('components.openai.openai_chat_model.json_mode.info'),
         ),
         DropdownInput(
             name="model_name",
-            display_name="Model Name",
+            display_name=i18n.t(
+                'components.openai.openai_chat_model.model_name.display_name'),
             advanced=False,
             options=OPENAI_CHAT_MODEL_NAMES + OPENAI_REASONING_MODEL_NAMES,
             value=OPENAI_CHAT_MODEL_NAMES[0],
@@ -49,45 +55,51 @@ class OpenAIModelComponent(LCModelComponent):
         ),
         StrInput(
             name="openai_api_base",
-            display_name="OpenAI API Base",
+            display_name=i18n.t(
+                'components.openai.openai_chat_model.openai_api_base.display_name'),
             advanced=True,
-            info="The base URL of the OpenAI API. "
-            "Defaults to https://api.openai.com/v1. "
-            "You can change this to use other APIs like JinaChat, LocalAI and Prem.",
+            info=i18n.t(
+                'components.openai.openai_chat_model.openai_api_base.info'),
         ),
         SecretStrInput(
             name="api_key",
-            display_name="OpenAI API Key",
-            info="The OpenAI API Key to use for the OpenAI model.",
+            display_name=i18n.t(
+                'components.openai.openai_chat_model.api_key.display_name'),
+            info=i18n.t('components.openai.openai_chat_model.api_key.info'),
             advanced=False,
             value="OPENAI_API_KEY",
             required=True,
         ),
         SliderInput(
             name="temperature",
-            display_name="Temperature",
+            display_name=i18n.t(
+                'components.openai.openai_chat_model.temperature.display_name'),
             value=0.1,
             range_spec=RangeSpec(min=0, max=1, step=0.01),
             show=True,
         ),
         IntInput(
             name="seed",
-            display_name="Seed",
-            info="The seed controls the reproducibility of the job.",
+            display_name=i18n.t(
+                'components.openai.openai_chat_model.seed.display_name'),
+            info=i18n.t('components.openai.openai_chat_model.seed.info'),
             advanced=True,
             value=1,
         ),
         IntInput(
             name="max_retries",
-            display_name="Max Retries",
-            info="The maximum number of retries to make when generating.",
+            display_name=i18n.t(
+                'components.openai.openai_chat_model.max_retries.display_name'),
+            info=i18n.t(
+                'components.openai.openai_chat_model.max_retries.info'),
             advanced=True,
             value=5,
         ),
         IntInput(
             name="timeout",
-            display_name="Timeout",
-            info="The timeout for requests to OpenAI completion API.",
+            display_name=i18n.t(
+                'components.openai.openai_chat_model.timeout.display_name'),
+            info=i18n.t('components.openai.openai_chat_model.timeout.info'),
             advanced=True,
             value=700,
         ),
@@ -98,18 +110,21 @@ class OpenAIModelComponent(LCModelComponent):
         # Handle api_key - it can be string or SecretStr
         api_key_value = None
         if self.api_key:
-            logger.debug(f"API key type: {type(self.api_key)}, value: {self.api_key!r}")
+            logger.debug(
+                f"API key type: {type(self.api_key)}, value: {self.api_key!r}")
             if isinstance(self.api_key, SecretStr):
                 api_key_value = self.api_key.get_secret_value()
             else:
                 api_key_value = str(self.api_key)
-        logger.debug(f"Final api_key_value type: {type(api_key_value)}, value: {'***' if api_key_value else None}")
+        logger.debug(
+            f"Final api_key_value type: {type(api_key_value)}, value: {'***' if api_key_value else None}")
 
         # Handle model_kwargs and ensure api_key doesn't conflict
         model_kwargs = self.model_kwargs or {}
         # Remove api_key from model_kwargs if it exists to prevent conflicts
         if "api_key" in model_kwargs:
-            logger.warning("api_key found in model_kwargs, removing to prevent conflicts")
+            logger.warning(
+                "api_key found in model_kwargs, removing to prevent conflicts")
             model_kwargs = dict(model_kwargs)  # Make a copy
             del model_kwargs["api_key"]
 
@@ -131,7 +146,8 @@ class OpenAIModelComponent(LCModelComponent):
             parameters["seed"] = self.seed
         else:
             params_str = ", ".join(unsupported_params_for_reasoning_models)
-            logger.debug(f"{self.model_name} is a reasoning model, {params_str} are not configurable. Ignoring.")
+            logger.debug(
+                f"{self.model_name} is a reasoning model, {params_str} are not configurable. Ignoring.")
 
         # Ensure all parameter values are the correct types
         if isinstance(parameters.get("api_key"), SecretStr):

@@ -1,0 +1,44 @@
+{
+  "display_name": "TwelveLabs Pegasus",
+  "description": "Chat with videos using TwelveLabs Pegasus API.",
+  "videodata": {
+    "display_name": "Video Data",
+    "info": "Video Data"
+  },
+  "api_key": {
+    "display_name": "TwelveLabs API Key",
+    "info": "Enter your TwelveLabs API Key."
+  },
+  "video_id": {
+    "display_name": "Pegasus Video ID",
+    "info": "Enter a Video ID for a previously indexed video."
+  },
+  "index_name": {
+    "display_name": "Index Name",
+    "info": "Name of the index to use. If the index doesn't exist, it will be created."
+  },
+  "index_id": {
+    "display_name": "Index ID",
+    "info": "ID of an existing index to use. If provided, index_name will be ignored."
+  },
+  "model_name": {
+    "display_name": "Model",
+    "info": "Pegasus model to use for indexing"
+  },
+  "message": {
+    "display_name": "Prompt",
+    "info": "Message to chat with the video."
+  },
+  "temperature": {
+    "display_name": "Temperature",
+    "info": "Controls randomness in responses. Lower values are more deterministic, higher values are more creative."
+  },
+  "outputs": {
+    "response": {
+      "display_name": "Message"
+    },
+    "processed_video_id": {
+      "display_name": "Video ID"
+    }
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "display_name": "YouTube 字幕",
+  "description": "从 YouTube 视频中提取语音内容，支持多种输出选项。",
+  "url": {
+    "display_name": "视频 URL",
+    "info": "输入要获取字幕的 YouTube 视频 URL。"
+  },
+  "chunk_size_seconds": {
+    "display_name": "分块大小（秒）",
+    "info": "每个字幕块的大小（以秒为单位）。"
+  },
+  "translation": {
+    "display_name": "翻译语言",
+    "info": "将字幕翻译为指定语言。留空表示不翻译。"
+  },
+  "outputs": {
+    "dataframe": "分块",
+    "message": "字幕",
+    "data_output": "字幕 + 来源"
+  }
+}

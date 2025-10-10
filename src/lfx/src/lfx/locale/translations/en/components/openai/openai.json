@@ -1,0 +1,71 @@
+{
+  "display_name": "OpenAI Embeddings",
+  "description": "Generate embeddings using OpenAI models.",
+  "default_headers": {
+    "display_name": "Default Headers",
+    "info": "Default headers to use for the API request."
+  },
+  "default_query": {
+    "display_name": "Default Query",
+    "info": "Default query parameters to use for the API request."
+  },
+  "chunk_size": {
+    "display_name": "Chunk Size"
+  },
+  "client": {
+    "display_name": "Client"
+  },
+  "deployment": {
+    "display_name": "Deployment"
+  },
+  "embedding_ctx_length": {
+    "display_name": "Embedding Context Length"
+  },
+  "max_retries": {
+    "display_name": "Max Retries"
+  },
+  "model": {
+    "display_name": "Model"
+  },
+  "model_kwargs": {
+    "display_name": "Model Kwargs"
+  },
+  "openai_api_key": {
+    "display_name": "OpenAI API Key"
+  },
+  "openai_api_base": {
+    "display_name": "OpenAI API Base"
+  },
+  "openai_api_type": {
+    "display_name": "OpenAI API Type"
+  },
+  "openai_api_version": {
+    "display_name": "OpenAI API Version"
+  },
+  "openai_organization": {
+    "display_name": "OpenAI Organization"
+  },
+  "openai_proxy": {
+    "display_name": "OpenAI Proxy"
+  },
+  "request_timeout": {
+    "display_name": "Request Timeout"
+  },
+  "show_progress_bar": {
+    "display_name": "Show Progress Bar"
+  },
+  "skip_empty": {
+    "display_name": "Skip Empty"
+  },
+  "tiktoken_model_name": {
+    "display_name": "TikToken Model Name"
+  },
+  "tiktoken_enable": {
+    "display_name": "TikToken Enable",
+    "info": "If False, you must have transformers installed."
+  },
+  "dimensions": {
+    "display_name": "Dimensions",
+    "info": "The number of dimensions the resulting output embeddings should have. Only supported by certain models."
+  }
+}

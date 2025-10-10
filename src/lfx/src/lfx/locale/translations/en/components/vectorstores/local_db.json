@@ -1,0 +1,49 @@
+{
+  "display_name": "Local DB",
+  "description": "Local Vector Store with search capabilities",
+  "mode": {
+    "display_name": "Mode",
+    "info": "Select the operation mode"
+  },
+  "collection_name": {
+    "display_name": "Collection Name",
+    "display_name_ingest": "Name Your Collection"
+  },
+  "persist_directory": {
+    "display_name": "Persist Directory",
+    "info": "Custom base directory to save the vector store. Collections will be stored under '{directory}/vector_stores/{collection_name}'. If not specified, it will use your system's cache folder."
+  },
+  "existing_collections": {
+    "display_name": "Existing Collections",
+    "info": "Select a previously created collection to search through its stored data."
+  },
+  "embedding": {
+    "display_name": "Embedding"
+  },
+  "allow_duplicates": {
+    "display_name": "Allow Duplicates",
+    "info": "If false, will not add documents that are already in the Vector Store."
+  },
+  "search_type": {
+    "display_name": "Search Type"
+  },
+  "ingest_data": {
+    "display_name": "Ingest Data",
+    "info": "Data to store. It will be embedded and indexed for semantic search."
+  },
+  "search_query": {
+    "display_name": "Search Query",
+    "info": "Enter text to search for similar content in the selected collection."
+  },
+  "number_of_results": {
+    "display_name": "Number of Results",
+    "info": "Number of results to return."
+  },
+  "limit": {
+    "display_name": "Limit",
+    "info": "Limit the number of records to compare when Allow Duplicates is False."
+  },
+  "outputs": {
+    "dataframe": "DataFrame"
+  }
+}

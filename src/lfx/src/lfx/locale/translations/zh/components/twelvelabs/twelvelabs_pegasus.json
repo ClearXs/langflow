@@ -1,0 +1,44 @@
+{
+  "display_name": "TwelveLabs Pegasus",
+  "description": "使用 TwelveLabs Pegasus API 与视频对话。",
+  "videodata": {
+    "display_name": "视频数据",
+    "info": "视频数据"
+  },
+  "api_key": {
+    "display_name": "TwelveLabs API 密钥",
+    "info": "输入您的 TwelveLabs API 密钥。"
+  },
+  "video_id": {
+    "display_name": "Pegasus 视频 ID",
+    "info": "输入先前已索引视频的视频 ID。"
+  },
+  "index_name": {
+    "display_name": "索引名称",
+    "info": "要使用的索引名称。如果索引不存在，将创建它。"
+  },
+  "index_id": {
+    "display_name": "索引 ID",
+    "info": "要使用的现有索引 ID。如果提供，将忽略 index_name。"
+  },
+  "model_name": {
+    "display_name": "模型",
+    "info": "用于索引的 Pegasus 模型"
+  },
+  "message": {
+    "display_name": "提示",
+    "info": "与视频对话的消息。"
+  },
+  "temperature": {
+    "display_name": "温度",
+    "info": "控制响应的随机性。较低的值更加确定性，较高的值更有创意。"
+  },
+  "outputs": {
+    "response": {
+      "display_name": "消息"
+    },
+    "processed_video_id": {
+      "display_name": "视频 ID"
+    }
+  }
+}

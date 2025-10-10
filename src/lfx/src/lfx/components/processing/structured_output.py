@@ -63,6 +63,8 @@ class StructuredOutputComponent(Component):
             advanced=True,
         ),
         TableInput(
+            trigger_text=i18n.t(
+                'components.inputs.input_mixin.open_table'),
             name="output_schema",
             display_name=i18n.t(
                 'components.processing.structured_output.output_schema.display_name'),

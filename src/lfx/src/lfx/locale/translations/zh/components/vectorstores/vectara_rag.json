@@ -1,0 +1,51 @@
+{
+  "display_name": "Vectara RAG",
+  "description": "Vectara 的完整端到端 RAG",
+  "vectara_customer_id": {
+    "display_name": "Vectara 客户 ID"
+  },
+  "vectara_corpus_id": {
+    "display_name": "Vectara 语料库 ID"
+  },
+  "vectara_api_key": {
+    "display_name": "Vectara API 密钥"
+  },
+  "search_query": {
+    "display_name": "搜索查询",
+    "info": "要接收答案的查询。"
+  },
+  "lexical_interpolation": {
+    "display_name": "混合搜索因子",
+    "info": "与嵌入分数相比，词汇分数的权重。0 表示完全不使用词汇搜索，1 表示仅使用词汇搜索。"
+  },
+  "filter": {
+    "display_name": "元数据过滤器",
+    "info": "根据元数据属性缩小搜索范围的过滤字符串。"
+  },
+  "reranker": {
+    "display_name": "重排序类型",
+    "info": "如何对检索到的搜索结果进行重排序。"
+  },
+  "reranker_k": {
+    "display_name": "要重排序的结果数量"
+  },
+  "diversity_bias": {
+    "display_name": "多样性偏差",
+    "info": "范围从 0 到 1，值越高表示多样性越大（仅适用于 MMR 重排序器）。"
+  },
+  "max_results": {
+    "display_name": "最大摘要结果数",
+    "info": "可供提示使用的最大搜索结果数量。"
+  },
+  "response_lang": {
+    "display_name": "响应语言",
+    "info": "使用 ISO 639-1 或 639-3 语言代码，或使用 auto 自动检测语言。"
+  },
+  "prompt": {
+    "display_name": "提示名称",
+    "info": "只有 vectara-summary-ext-24-05-sml 适用于增长版客户；所有其他提示仅适用于规模版客户。"
+  },
+  "outputs": {
+    "answer": "答案"
+  }
+}

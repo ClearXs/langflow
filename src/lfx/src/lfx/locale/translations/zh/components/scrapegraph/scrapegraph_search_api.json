@@ -1,0 +1,17 @@
+{
+  "display_name": "ScrapeGraph 搜索 API",
+  "description": "给定一个搜索提示，它将使用 ScrapeGraph 的搜索功能返回搜索结果。",
+  "api_key": {
+    "display_name": "ScrapeGraph API 密钥",
+    "info": "用于使用 ScrapeGraph API 的 API 密钥。"
+  },
+  "user_prompt": {
+    "display_name": "搜索提示",
+    "info": "要使用的搜索提示。"
+  },
+  "outputs": {
+    "data": {
+      "display_name": "数据"
+    }
+  }
+}

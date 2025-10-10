@@ -1,13 +1,13 @@
-import {
-  DEFAULT_PLACEHOLDER,
-  RECEIVING_INPUT_VALUE,
-} from "@/constants/constants";
+import { useFormLocale } from "@/i18n/locale";
 
 export const getPlaceholder = (
   disabled: boolean,
-  returnMessage: string = DEFAULT_PLACEHOLDER,
+  returnMessage: string,
 ) => {
-  if (disabled) return RECEIVING_INPUT_VALUE;
 
-  return returnMessage || DEFAULT_PLACEHOLDER;
+  const formLocale = useFormLocale()
+
+  if (disabled) return formLocale.RECEIVING_INPUT_VALUE;
+
+  return returnMessage || formLocale.DEFAULT_PLACEHOLDER;
 };

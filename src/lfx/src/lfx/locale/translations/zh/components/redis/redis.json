@@ -1,0 +1,23 @@
+{
+  "display_name": "Redis",
+  "description": "使用 Redis 实现的向量存储",
+  "redis_server_url": {
+    "display_name": "Redis 服务器连接字符串"
+  },
+  "redis_index_name": {
+    "display_name": "Redis 索引"
+  },
+  "code": {
+    "display_name": "代码"
+  },
+  "schema": {
+    "display_name": "架构"
+  },
+  "number_of_results": {
+    "display_name": "结果数量",
+    "info": "要返回的结果数量。"
+  },
+  "embedding": {
+    "display_name": "嵌入模型"
+  }
+}

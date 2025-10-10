@@ -1,0 +1,19 @@
+{
+  "display_name": "Zep Chat Memory",
+  "description": "Retrieves and store chat messages from Zep.",
+  "url": {
+    "display_name": "Zep URL",
+    "info": "URL of the Zep instance."
+  },
+  "api_key": {
+    "display_name": "Zep API Key",
+    "info": "API Key for the Zep instance."
+  },
+  "api_base_path": {
+    "display_name": "API Base Path"
+  },
+  "session_id": {
+    "display_name": "Session ID",
+    "info": "Session ID for the message."
+  }
+}

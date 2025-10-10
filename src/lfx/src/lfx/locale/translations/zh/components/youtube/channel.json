@@ -1,0 +1,27 @@
+{
+  "display_name": "YouTube 频道",
+  "description": "以数据框形式检索 YouTube 频道的详细信息和统计数据。",
+  "channel_url": {
+    "display_name": "频道 URL 或 ID",
+    "info": "YouTube 频道的 URL 或 ID。"
+  },
+  "api_key": {
+    "display_name": "YouTube API 密钥",
+    "info": "您的 YouTube Data API 密钥。"
+  },
+  "include_statistics": {
+    "display_name": "包含统计数据",
+    "info": "包含频道统计数据（浏览量、订阅者、视频数量）。"
+  },
+  "include_branding": {
+    "display_name": "包含品牌信息",
+    "info": "包含频道品牌设置（横幅、缩略图）。"
+  },
+  "include_playlists": {
+    "display_name": "包含播放列表",
+    "info": "包含频道的公开播放列表。"
+  },
+  "outputs": {
+    "channel_df": "频道信息"
+  }
+}

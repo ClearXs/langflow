@@ -191,7 +191,11 @@
         "newCustomComponent": "新建自定义组件",
         "noMcpServersAdded": "未添加 MCP 服务器",
         "mcpServers": "MCP 服务器",
-        "mcpServer": "MCP 服务器"
+        "mcpServer": "MCP 服务器",
+        "discoverMoreComponents": "更多组件",
+        "show": "显示",
+        "legacy": "移除",
+        "beta": "测试"
       },
       "components": {
         "savedComponents": "已保存",
@@ -302,6 +306,16 @@
         "youtube": "YouTube",
         "zep": "Zep"
       }
+    },
+    "panel": {
+      "logs": {
+        "displayName": "日志",
+        "description": "检查组件执行情况"
+      },
+      "playground": {
+        "displayName": "Playground",
+        "tooltip": "添加聊天输入或聊天输出以使用沙盒功能"
+      }
     }
   },
   "components": {
@@ -312,7 +326,28 @@
     "componentSettings": "组件设置",
     "inputParameters": "输入参数",
     "outputParameters": "输出参数",
-    "advancedSettings": "高级设置"
+    "advancedSettings": "高级设置",
+    "table": {
+      "openTable": "OpenTable",
+      "column": {
+        "fileName": "文件名",
+        "description": "描述",
+        "currentValue": "当前值",
+        "value": "值",
+        "exposeInput": "公开输入",
+        "show": "显示"
+      }
+    },
+    "button": {
+      "checkSave": "检查并保存",
+      "cancel": "取消",
+      "save": "保存",
+      "close": "关闭",
+      "replace": "替换",
+      "tips": {
+        "editMessage": "编辑消息会更新记忆，但不会重新开始对话。"
+      }
+    }
   },
   "messages": {
     "noData": "无数据可用",
@@ -325,7 +360,26 @@
     "serverError": "服务器错误。请稍后重试。",
     "validationError": "请检查您的输入并重试。",
     "permissionDenied": "您没有执行此操作的权限。",
-    "sessionExpired": "您的会话已过期。请重新登录。"
+    "sessionExpired": "您的会话已过期。请重新登录。",
+    "alertMessage": "目前似乎没有可显示的数据，请稍后再查看。",
+    "noColumnDefinitionTitle": "没有列定义",
+    "noColumnDefinitionDescription": "此表暂无可用的列定义。",
+    "fsErrorText": "请确保您的文件具有以下扩展名之一：",
+    "errorUpdatingComponent": "更新组件时发生意外错误，请重试。",
+    "titleErrorUpdatingComponent": "更新组件时出错",
+    "emptyInputSend": "未提供输入消息。",
+    "emptyOutputSend": "消息为空。",
+    "csvViewErrorTitle": "CSV 输出",
+    "csvNoDataError": "无可用数据",
+    "pdfViewConstant": "展开输出以查看 PDF",
+    "csvError": "加载 CSV 时出错",
+    "pdfLoadErrorTitle": "加载 PDF 时出错",
+    "pdfCheckFlow": "请检查您的流程并重试",
+    "pdfErrorTitle": "PDF 输出",
+    "pdfLoadError": "运行流程以查看 PDF",
+    "imgViewConstant": "展开视图以查看图片",
+    "imgViewErrorMsg": "运行流程或提供有效的 URL 以查看图片",
+    "imgViewErrorTitle": "图片输出"
   },
   "forms": {
     "required": "此字段为必填项",
@@ -336,7 +390,14 @@
     "invalidNumber": "请输入有效的数字",
     "invalidDate": "请输入有效的日期",
     "fileTooLarge": "文件大小过大",
-    "invalidFileType": "无效的文件类型"
+    "invalidFileType": "无效的文件类型",
+    "defaultPlaceholder": "输入内容…",
+    "receivingInputValue": "正在接收输入",
+    "selectOptions": "请选择一个选项",
+    "defaultToolsetPlaceholder": "用作工具",
+    "editTextPlaceholder": "在此输入消息。",
+    "editTextModalTitle": "编辑文本",
+    "textDialogTitle": "编辑文本内容"
   },
   "time": {
     "now": "现在",
@@ -352,5 +413,39 @@
     "thisYear": "今年",
     "lastYear": "去年",
     "nextYear": "明年"
+  },
+  "shortcuts": {
+    "page": {
+      "displayName": "快捷方式",
+      "description": "管理快捷方式，以快速访问常用操作。",
+      "restore": "恢复"
+    },
+    "controls": "控制",
+    "searchComponentsSidebar": "在侧边栏搜索组件",
+    "minimize": "最小化",
+    "code": "代码",
+    "copy": "复制",
+    "duplicate": "复制",
+    "componentShare": "组件分享",
+    "docs": "文档",
+    "changesSave": "保存更改",
+    "saveComponent": "保存组件",
+    "delete": "删除",
+    "openPlayground": "打开演练场",
+    "undo": "撤销",
+    "redo": "重做",
+    "redoAlt": "重做（备选）",
+    "group": "分组",
+    "cut": "剪切",
+    "paste": "粘贴",
+    "api": "API",
+    "download": "下载",
+    "update": "更新",
+    "freezePath": "冻结",
+    "flowShare": "流程分享",
+    "play": "播放",
+    "outputInspection": "输出检查",
+    "toolMode": "工具模式",
+    "toggleSidebar": "切换侧边栏"
   }
 }

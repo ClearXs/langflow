@@ -1,0 +1,26 @@
+{
+  "display_name": "Graph RAG",
+  "description": "向量存储的图 RAG 遍历。",
+  "embedding_model": {
+    "display_name": "嵌入模型",
+    "info": "指定嵌入模型。Astra Vectorize 集合不需要。"
+  },
+  "vector_store": {
+    "display_name": "向量存储连接",
+    "info": "连接到向量存储。"
+  },
+  "edge_definition": {
+    "display_name": "边定义",
+    "info": "图遍历的边定义。"
+  },
+  "strategy": {
+    "display_name": "遍历策略"
+  },
+  "search_query": {
+    "display_name": "搜索查询"
+  },
+  "graphrag_strategy_kwargs": {
+    "display_name": "策略参数",
+    "info": "检索策略的可选附加参数字典。详情请参见 https://datastax.github.io/graph-rag/reference/graph_retriever/strategies/"
+  }
+}

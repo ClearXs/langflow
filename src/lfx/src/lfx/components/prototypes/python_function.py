@@ -1,3 +1,4 @@
+import i18n
 from collections.abc import Callable
 
 from lfx.custom.custom_component.component import Component
@@ -10,8 +11,8 @@ from lfx.schema.message import Message
 
 
 class PythonFunctionComponent(Component):
-    display_name = "Python Function"
-    description = "Define and execute a Python function that returns a Data object or a Message."
+    display_name = i18n.t('components.prototypes.python_function.display_name')
+    description = i18n.t('components.prototypes.python_function.description')
     icon = "Python"
     name = "PythonFunction"
     legacy = True
@@ -19,25 +20,30 @@ class PythonFunctionComponent(Component):
     inputs = [
         CodeInput(
             name="function_code",
-            display_name="Function Code",
-            info="The code for the function.",
+            display_name=i18n.t(
+                'components.prototypes.python_function.function_code.display_name'),
+            info=i18n.t(
+                'components.prototypes.python_function.function_code.info'),
         ),
     ]
 
     outputs = [
         Output(
             name="function_output",
-            display_name="Function Callable",
+            display_name=i18n.t(
+                'components.prototypes.python_function.outputs.function_output.display_name'),
             method="get_function_callable",
         ),
         Output(
             name="function_output_data",
-            display_name="Function Output (Data)",
+            display_name=i18n.t(
+                'components.prototypes.python_function.outputs.function_output_data.display_name'),
             method="execute_function_data",
         ),
         Output(
             name="function_output_str",
-            display_name="Function Output (Message)",
+            display_name=i18n.t(
+                'components.prototypes.python_function.outputs.function_output_str.display_name'),
             method="execute_function_message",
         ),
     ]

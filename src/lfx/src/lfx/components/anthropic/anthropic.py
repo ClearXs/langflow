@@ -1,3 +1,4 @@
+import os
 from typing import Any, cast
 
 import i18n
@@ -23,6 +24,8 @@ class AnthropicModelComponent(LCModelComponent):
     description = i18n.t('components.anthropic.anthropic.description')
     icon = "Anthropic"
     name = "AnthropicModel"
+
+    ignore: bool = bool(os.getenv("LANGFLOW_IGNORE_COMPONENT", False))
 
     inputs = [
         *LCModelComponent.get_base_inputs(),

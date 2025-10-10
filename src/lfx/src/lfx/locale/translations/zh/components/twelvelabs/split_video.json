@@ -1,0 +1,25 @@
+{
+  "display_name": "分割视频",
+  "description": "将视频分割成指定时长的多个片段。",
+  "videodata": {
+    "display_name": "视频数据",
+    "info": "来自 VideoFile 组件的输入视频数据"
+  },
+  "clip_duration": {
+    "display_name": "片段时长（秒）",
+    "info": "每个片段的时长（以秒为单位）"
+  },
+  "last_clip_handling": {
+    "display_name": "最后片段处理方式",
+    "info": "当最后一个片段短于指定时长时的处理方式：\n- Truncate（截断）：如果最后一个片段短于指定时长，则完全跳过\n- Overlap Previous（与前一个重叠）：提前开始最后一个片段以保持完整时长，与前一个片段重叠\n- Keep Short（保持短片段）：保持最后一个片段的自然长度，即使短于指定时长"
+  },
+  "include_original": {
+    "display_name": "包含原始视频",
+    "info": "是否在输出中包含原始视频"
+  },
+  "outputs": {
+    "clips": {
+      "display_name": "视频片段"
+    }
+  }
+}

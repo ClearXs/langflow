@@ -1,0 +1,11 @@
+{
+  "display_name": "Wikidata",
+  "description": "Performs a search using the Wikidata API.",
+  "query": {
+    "display_name": "Query",
+    "info": "The text query for similarity search on Wikidata."
+  },
+  "outputs": {
+    "dataframe": "DataFrame"
+  }
+}

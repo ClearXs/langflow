@@ -1,0 +1,17 @@
+{
+  "display_name": "ScrapeGraph Markdown 转换 API",
+  "description": "给定一个 URL，它将返回网站的 Markdown 格式内容。",
+  "api_key": {
+    "display_name": "ScrapeGraph API 密钥",
+    "info": "用于使用 ScrapeGraph API 的 API 密钥。"
+  },
+  "url": {
+    "display_name": "URL",
+    "info": "要转换为 Markdown 的 URL。"
+  },
+  "outputs": {
+    "data": {
+      "display_name": "数据"
+    }
+  }
+}

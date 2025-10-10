@@ -1,0 +1,27 @@
+{
+  "display_name": "YouTube 搜索",
+  "description": "根据查询搜索 YouTube 视频。",
+  "query": {
+    "display_name": "搜索查询",
+    "info": "要在 YouTube 上查找的搜索查询。"
+  },
+  "api_key": {
+    "display_name": "YouTube API 密钥",
+    "info": "您的 YouTube Data API 密钥。"
+  },
+  "max_results": {
+    "display_name": "最大结果数",
+    "info": "要返回的最大结果数量。"
+  },
+  "order": {
+    "display_name": "排序顺序",
+    "info": "搜索结果的排序顺序。"
+  },
+  "include_metadata": {
+    "display_name": "包含元数据",
+    "info": "包含视频元数据，如描述和统计信息。"
+  },
+  "outputs": {
+    "results": "搜索结果"
+  }
+}

@@ -4,7 +4,6 @@ import { type ChangeEvent, useEffect, useMemo, useRef, useState } from "react";
 import NodeDialog from "@/CustomNodes/GenericNode/components/NodeDialogComponent";
 import { mutateTemplate } from "@/CustomNodes/helpers/mutate-template";
 import LoadingTextComponent from "@/components/common/loadingTextComponent";
-import { RECEIVING_INPUT_VALUE, SELECT_AN_OPTION } from "@/constants/constants";
 import { usePostTemplateValue } from "@/controllers/API/queries/nodes/use-post-template-value";
 import useAlertStore from "@/stores/alertStore";
 import useFlowStore from "@/stores/flowStore";
@@ -38,6 +37,8 @@ import {
   PopoverTrigger,
 } from "../../ui/popover";
 import type { BaseInputProps } from "../parameterRenderComponent/types";
+import { useTranslation } from "react-i18next";
+import { useFormLocale } from "@/i18n/locale";
 
 export default function Dropdown({
   disabled,
@@ -65,6 +66,8 @@ export default function Dropdown({
     () => filterNullOptions(options),
     [options, value],
   );
+
+  const formLocale = useFormLocale()
 
   // Initialize state and refs
   const [open, setOpen] = useState(children ? true : false);
@@ -413,7 +416,7 @@ export default function Dropdown({
             {value && <>{renderSelectedIcon()}</>}
             <span className="truncate">
               {disabled ? (
-                RECEIVING_INPUT_VALUE
+                formLocale.RECEIVING_INPUT_VALUE
               ) : (
                 <>
                   {
@@ -424,11 +427,11 @@ export default function Dropdown({
                       "connect_other_models" ? (
                       <span className="text-muted-foreground">
                         <LoadingTextComponent
-                          text={placeholder || SELECT_AN_OPTION}
+                          text={placeholder || formLocale.SELECT_AN_OPTION}
                         />
                       </span>
                     ) : (
-                      placeholder || SELECT_AN_OPTION
+                      placeholder || formLocale.SELECT_AN_OPTION
                     )
                     // ) : (
                     //   <span className="text-muted-foreground">

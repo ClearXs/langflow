@@ -1,0 +1,46 @@
+{
+  "display_name": "Elasticsearch",
+  "description": "具有高级可定制搜索功能的 Elasticsearch 向量存储",
+  "elasticsearch_url": {
+    "display_name": "Elasticsearch URL",
+    "info": "自托管 Elasticsearch 部署的 URL（例如，http://localhost:9200）。不要与 Elastic Cloud 部署一起使用，请改用 Elastic Cloud ID。"
+  },
+  "cloud_id": {
+    "display_name": "Elastic Cloud ID",
+    "info": "用于 Elastic Cloud 部署。不要与 'Elasticsearch URL' 一起使用。"
+  },
+  "index_name": {
+    "display_name": "索引名称",
+    "info": "向量将存储在 Elasticsearch 集群中的索引名称。"
+  },
+  "username": {
+    "display_name": "用户名",
+    "info": "Elasticsearch 用户名（例如，'elastic'）。除非使用 API 密钥，否则本地和 Elastic Cloud 设置都需要。"
+  },
+  "password": {
+    "display_name": "密码",
+    "info": "指定用户的 Elasticsearch 密码。除非使用 API 密钥，否则本地和 Elastic Cloud 设置都需要。"
+  },
+  "embedding": {
+    "display_name": "嵌入"
+  },
+  "search_type": {
+    "display_name": "搜索类型"
+  },
+  "number_of_results": {
+    "display_name": "结果数量",
+    "info": "要返回的结果数量。"
+  },
+  "search_score_threshold": {
+    "display_name": "搜索分数阈值",
+    "info": "搜索结果的最小相似度分数阈值。"
+  },
+  "api_key": {
+    "display_name": "Elastic API 密钥",
+    "info": "用于 Elastic Cloud 身份验证的 API 密钥。如果使用，则不需要 'username' 和 'password'。"
+  },
+  "verify_certs": {
+    "display_name": "验证 SSL 证书",
+    "info": "连接到 Elasticsearch 时是否验证 SSL 证书。"
+  }
+}

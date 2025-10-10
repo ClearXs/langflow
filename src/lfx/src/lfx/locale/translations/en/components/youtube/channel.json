@@ -1,0 +1,27 @@
+{
+  "display_name": "YouTube Channel",
+  "description": "Retrieves detailed information and statistics about YouTube channels as a DataFrame.",
+  "channel_url": {
+    "display_name": "Channel URL or ID",
+    "info": "The URL or ID of the YouTube channel."
+  },
+  "api_key": {
+    "display_name": "YouTube API Key",
+    "info": "Your YouTube Data API key."
+  },
+  "include_statistics": {
+    "display_name": "Include Statistics",
+    "info": "Include channel statistics (views, subscribers, videos)."
+  },
+  "include_branding": {
+    "display_name": "Include Branding",
+    "info": "Include channel branding settings (banner, thumbnails)."
+  },
+  "include_playlists": {
+    "display_name": "Include Playlists",
+    "info": "Include channel's public playlists."
+  },
+  "outputs": {
+    "channel_df": "Channel Info"
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "display_name": "Supabase",
+  "description": "Supabase Vector Store with search capabilities",
+  "supabase_url": {
+    "display_name": "Supabase URL"
+  },
+  "supabase_service_key": {
+    "display_name": "Supabase Service Key"
+  },
+  "table_name": {
+    "display_name": "Table Name"
+  },
+  "query_name": {
+    "display_name": "Query Name"
+  },
+  "embedding": {
+    "display_name": "Embedding"
+  },
+  "number_of_results": {
+    "display_name": "Number of Results",
+    "info": "Number of results to return."
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "display_name": "Weaviate",
+  "description": "具有搜索功能的 Weaviate 向量存储",
+  "url": {
+    "display_name": "Weaviate URL"
+  },
+  "api_key": {
+    "display_name": "Weaviate API 密钥"
+  },
+  "index_name": {
+    "display_name": "索引名称",
+    "info": "需要大写的索引名称。"
+  },
+  "text_key": {
+    "display_name": "文本键"
+  },
+  "embedding": {
+    "display_name": "嵌入"
+  },
+  "number_of_results": {
+    "display_name": "结果数量",
+    "info": "要返回的结果数量。"
+  },
+  "search_by_text": {
+    "display_name": "按文本搜索"
+  }
+}

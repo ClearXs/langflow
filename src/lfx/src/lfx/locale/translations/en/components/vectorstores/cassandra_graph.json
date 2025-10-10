@@ -1,0 +1,55 @@
+{
+  "display_name": "Cassandra Graph",
+  "description": "Cassandra Graph Vector Store",
+  "database_ref": {
+    "display_name": "Contact Points / Astra Database ID",
+    "info": "Contact points for the database (or Astra DB database ID)"
+  },
+  "username": {
+    "display_name": "Username",
+    "info": "Username for the database (leave empty for Astra DB)."
+  },
+  "token": {
+    "display_name": "Password / Astra DB Token",
+    "info": "User password for the database (or Astra DB token)."
+  },
+  "keyspace": {
+    "display_name": "Keyspace",
+    "info": "Table Keyspace (or Astra DB namespace)."
+  },
+  "table_name": {
+    "display_name": "Table Name",
+    "info": "The name of the table (or Astra DB collection) where vectors will be stored."
+  },
+  "setup_mode": {
+    "display_name": "Setup Mode",
+    "info": "Configuration mode for setting up the Cassandra table, with options like 'Sync' or 'Off'."
+  },
+  "cluster_kwargs": {
+    "display_name": "Cluster arguments",
+    "info": "Optional dictionary of additional keyword arguments for the Cassandra cluster."
+  },
+  "embedding": {
+    "display_name": "Embedding"
+  },
+  "number_of_results": {
+    "display_name": "Number of Results",
+    "info": "Number of results to return."
+  },
+  "search_type": {
+    "display_name": "Search Type",
+    "info": "Search type to use"
+  },
+  "depth": {
+    "display_name": "Depth of traversal",
+    "info": "The maximum depth of edges to traverse. (when using 'Traversal' or 'MMR traversal')"
+  },
+  "search_score_threshold": {
+    "display_name": "Search Score Threshold",
+    "info": "Minimum similarity score threshold for search results. (when using 'Similarity with score threshold')"
+  },
+  "search_filter": {
+    "display_name": "Search Metadata Filter",
+    "info": "Optional dictionary of filters to apply to the search query."
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "display_name": "更新页面属性",
+  "description": "更新Notion页面的属性。",
+  "page_id": {
+    "display_name": "页面ID",
+    "info": "要更新的Notion页面的ID。"
+  },
+  "properties": {
+    "display_name": "属性",
+    "info": "要在页面上更新的属性(作为JSON字符串或字典)。"
+  },
+  "notion_secret": {
+    "display_name": "Notion密钥",
+    "info": "Notion集成令牌。"
+  }
+}

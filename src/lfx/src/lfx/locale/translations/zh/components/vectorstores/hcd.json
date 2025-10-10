@@ -1,0 +1,88 @@
+{
+  "display_name": "超融合数据库",
+  "description": "使用超融合数据库 (HCD) 实现的具有搜索功能的向量存储",
+  "collection_name": {
+    "display_name": "集合名称",
+    "info": "HCD 中将存储向量的集合名称。"
+  },
+  "username": {
+    "display_name": "HCD 用户名",
+    "info": "访问 HCD 的身份验证用户名。"
+  },
+  "password": {
+    "display_name": "HCD 密码",
+    "info": "访问 HCD 的身份验证密码。"
+  },
+  "api_endpoint": {
+    "display_name": "HCD API 端点",
+    "info": "HCD 服务的 API 端点 URL。"
+  },
+  "namespace": {
+    "display_name": "命名空间",
+    "info": "用于集合的 HCD 中的可选命名空间。"
+  },
+  "ca_certificate": {
+    "display_name": "CA 证书",
+    "info": "用于到 HCD 的 TLS 连接的可选 CA 证书。"
+  },
+  "metric": {
+    "display_name": "度量",
+    "info": "向量存储中用于向量比较的可选距离度量。"
+  },
+  "batch_size": {
+    "display_name": "批量大小",
+    "info": "单个批次中要处理的可选数据数量。"
+  },
+  "bulk_insert_batch_concurrency": {
+    "display_name": "批量插入批次并发",
+    "info": "批量插入操作的可选并发级别。"
+  },
+  "bulk_insert_overwrite_concurrency": {
+    "display_name": "批量插入覆盖并发",
+    "info": "覆盖现有数据的批量插入操作的可选并发级别。"
+  },
+  "bulk_delete_concurrency": {
+    "display_name": "批量删除并发",
+    "info": "批量删除操作的可选并发级别。"
+  },
+  "setup_mode": {
+    "display_name": "设置模式",
+    "info": "设置向量存储的配置模式，选项包括 'Sync'、'Async' 或 'Off'。"
+  },
+  "pre_delete_collection": {
+    "display_name": "预删除集合",
+    "info": "布尔标志，用于确定在创建新集合之前是否删除集合。"
+  },
+  "metadata_indexing_include": {
+    "display_name": "元数据索引包含",
+    "info": "要包含在索引中的可选元数据字段列表。"
+  },
+  "embedding": {
+    "display_name": "嵌入或 Astra Vectorize",
+    "info": "允许嵌入模型或 Astra Vectorize 配置。"
+  },
+  "metadata_indexing_exclude": {
+    "display_name": "元数据索引排除",
+    "info": "要从索引中排除的可选元数据字段列表。"
+  },
+  "collection_indexing_policy": {
+    "display_name": "集合索引策略",
+    "info": "定义集合索引策略的可选字典。"
+  },
+  "number_of_results": {
+    "display_name": "结果数量",
+    "info": "要返回的结果数量。"
+  },
+  "search_type": {
+    "display_name": "搜索类型",
+    "info": "要使用的搜索类型"
+  },
+  "search_score_threshold": {
+    "display_name": "搜索分数阈值",
+    "info": "搜索结果的最小相似度分数阈值。（使用 '带分数阈值的相似度' 时）"
+  },
+  "search_filter": {
+    "display_name": "搜索元数据过滤器",
+    "info": "要应用于搜索查询的可选过滤器字典。"
+  }
+}

@@ -1,10 +1,10 @@
-import * as Form from "@radix-ui/react-form";
-import type { UseQueryResult } from "@tanstack/react-query";
+import * as Form from '@radix-ui/react-form';
+import type { UseQueryResult } from '@tanstack/react-query';
 import {
   type ProfilePicturesQueryResponse,
   useGetProfilePicturesQuery,
-} from "@/controllers/API/queries/files";
-import { Button } from "../../../../../../components/ui/button";
+} from '@/controllers/API/queries/files';
+import { Button } from '../../../../../../components/ui/button';
 import {
   Card,
   CardContent,
@@ -12,9 +12,10 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "../../../../../../components/ui/card";
-import { gradients } from "../../../../../../utils/styleUtils";
-import ProfilePictureChooserComponent from "./components/profilePictureChooserComponent";
+} from '../../../../../../components/ui/card';
+import { gradients } from '../../../../../../utils/styleUtils';
+import ProfilePictureChooserComponent from './components/profilePictureChooserComponent';
+import { useTranslation } from 'react-i18next';
 
 type ProfilePictureFormComponentProps = {
   profilePicture: string;
@@ -30,6 +31,7 @@ const ProfilePictureFormComponent = ({
   handleGetProfilePictures,
   userData,
 }: ProfilePictureFormComponentProps) => {
+  const { t } = useTranslation();
   const { isLoading, data, isFetching } = useGetProfilePicturesQuery();
 
   return (
@@ -39,7 +41,7 @@ const ProfilePictureFormComponent = ({
         event.preventDefault();
       }}
     >
-      <Card x-chunk="dashboard-04-chunk-1">
+      <Card x-chunk='dashboard-04-chunk-1'>
         <CardHeader>
           <CardTitle>Profile Picture</CardTitle>
           <CardDescription>
@@ -47,27 +49,27 @@ const ProfilePictureFormComponent = ({
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="py-2">
+          <div className='py-2'>
             <ProfilePictureChooserComponent
               profilePictures={data}
               loading={isLoading || isFetching}
               value={
-                profilePicture == ""
-                  ? (userData?.profile_image ??
+                profilePicture == ''
+                  ? userData?.profile_image ??
                     gradients[
-                      parseInt(userData?.id ?? "", 30) % gradients.length
-                    ])
+                      parseInt(userData?.id ?? '', 30) % gradients.length
+                    ]
                   : profilePicture
               }
               onChange={(value) => {
-                handleInput({ target: { name: "profilePicture", value } });
+                handleInput({ target: { name: 'profilePicture', value } });
               }}
             />
           </div>
         </CardContent>
-        <CardFooter className="border-t px-6 py-4">
+        <CardFooter className='border-t px-6 py-4'>
           <Form.Submit asChild>
-            <Button type="submit">Save</Button>
+            <Button type='submit'>{t('components.button.save')}</Button>
           </Form.Submit>
         </CardFooter>
       </Card>

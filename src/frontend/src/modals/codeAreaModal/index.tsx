@@ -1,35 +1,36 @@
-import { usePostValidateCode } from "@/controllers/API/queries/nodes/use-post-validate-code";
-import { usePostValidateComponentCode } from "@/controllers/API/queries/nodes/use-post-validate-component-code";
-import { clearHandlesFromAdvancedFields } from "@/utils/reactflowUtils";
-import "ace-builds/src-noconflict/ace";
-import "ace-builds/src-noconflict/ext-language_tools";
-import "ace-builds/src-noconflict/ext-searchbox";
-import "ace-builds/src-noconflict/mode-python";
-import "ace-builds/src-noconflict/theme-github";
-import "ace-builds/src-noconflict/theme-twilight";
-import { useEffect, useRef, useState } from "react";
-import AceEditor from "react-ace";
-import type ReactAce from "react-ace/lib/ace";
-import IconComponent from "../../components/common/genericIconComponent";
-import { Button } from "../../components/ui/button";
-import { Input } from "../../components/ui/input";
+import { usePostValidateCode } from '@/controllers/API/queries/nodes/use-post-validate-code';
+import { usePostValidateComponentCode } from '@/controllers/API/queries/nodes/use-post-validate-component-code';
+import { clearHandlesFromAdvancedFields } from '@/utils/reactflowUtils';
+import 'ace-builds/src-noconflict/ace';
+import 'ace-builds/src-noconflict/ext-language_tools';
+import 'ace-builds/src-noconflict/ext-searchbox';
+import 'ace-builds/src-noconflict/mode-python';
+import 'ace-builds/src-noconflict/theme-github';
+import 'ace-builds/src-noconflict/theme-twilight';
+import { useEffect, useRef, useState } from 'react';
+import AceEditor from 'react-ace';
+import type ReactAce from 'react-ace/lib/ace';
+import IconComponent from '../../components/common/genericIconComponent';
+import { Button } from '../../components/ui/button';
+import { Input } from '../../components/ui/input';
 import {
   BUG_ALERT,
   CODE_ERROR_ALERT,
   CODE_SUCCESS_ALERT,
   FUNC_ERROR_ALERT,
   IMPORT_ERROR_ALERT,
-} from "../../constants/alerts_constants";
+} from '../../constants/alerts_constants';
 import {
   CODE_PROMPT_DIALOG_SUBTITLE,
   EDIT_CODE_TITLE,
-} from "../../constants/constants";
-import useAlertStore from "../../stores/alertStore";
-import { useDarkStore } from "../../stores/darkStore";
-import type { CodeErrorDataTypeAPI } from "../../types/api";
-import type { codeAreaModalPropsType } from "../../types/components";
-import BaseModal from "../baseModal";
-import ConfirmationModal from "../confirmationModal";
+} from '../../constants/constants';
+import useAlertStore from '../../stores/alertStore';
+import { useDarkStore } from '../../stores/darkStore';
+import type { CodeErrorDataTypeAPI } from '../../types/api';
+import type { codeAreaModalPropsType } from '../../types/components';
+import BaseModal from '../baseModal';
+import ConfirmationModal from '../confirmationModal';
+import { useTranslation } from 'react-i18next';
 
 export default function CodeAreaModal({
   value,
@@ -58,6 +59,8 @@ export default function CodeAreaModal({
   const [error, setError] = useState<{
     detail: CodeErrorDataTypeAPI;
   } | null>(null);
+
+  const { t } = useTranslation();
 
   const { mutate: validateComponentCode } = usePostValidateComponentCode();
 
@@ -109,7 +112,7 @@ export default function CodeAreaModal({
             list: [error.response.data.detail],
           });
         },
-      },
+      }
     );
   }
 
@@ -130,7 +133,7 @@ export default function CodeAreaModal({
         onError: (error) => {
           setError(error.response.data);
         },
-      },
+      }
     );
   }
 
@@ -147,7 +150,7 @@ export default function CodeAreaModal({
     const delayedFunction = setTimeout(() => {
       if (error?.detail?.error !== undefined) {
         //trigger to update the height, does not really apply any height
-        setHeight("90%");
+        setHeight('90%');
       }
       //600 to happen after the transition of 500ms
     }, 600);
@@ -178,7 +181,7 @@ export default function CodeAreaModal({
           if (
             !(
               codeRef.current?.editor.completer &&
-              "popup" in codeRef.current?.editor.completer &&
+              'popup' in codeRef.current?.editor.completer &&
               codeRef.current?.editor.completer.popup &&
               codeRef.current?.editor.completer.popup.isOpen
             )
@@ -189,76 +192,76 @@ export default function CodeAreaModal({
       }}
       open={open}
       setOpen={setOpen}
-      size="x-large"
+      size='x-large'
     >
       <BaseModal.Trigger>{children}</BaseModal.Trigger>
       <BaseModal.Header description={CODE_PROMPT_DIALOG_SUBTITLE}>
-        <span className="pr-2"> {EDIT_CODE_TITLE} </span>
+        <span className='pr-2'> {EDIT_CODE_TITLE} </span>
         <IconComponent
-          name="prompts"
-          className="h-6 w-6 pl-1 text-primary"
-          aria-hidden="true"
+          name='prompts'
+          className='h-6 w-6 pl-1 text-primary'
+          aria-hidden='true'
         />
       </BaseModal.Header>
       <BaseModal.Content overflowHidden={true}>
         <Input
           value={code}
           readOnly
-          className="absolute left-[500%] top-[500%]"
-          id="codeValue"
+          className='absolute left-[500%] top-[500%]'
+          id='codeValue'
         />
-        <div className="flex h-full w-full flex-col transition-all">
-          <div className="h-full w-full">
+        <div className='flex h-full w-full flex-col transition-all'>
+          <div className='h-full w-full'>
             <AceEditor
               ref={codeRef}
               readOnly={readonly}
               value={code}
-              mode="python"
-              setOptions={{ fontFamily: "monospace" }}
-              height={height ?? "100%"}
+              mode='python'
+              setOptions={{ fontFamily: 'monospace' }}
+              height={height ?? '100%'}
               highlightActiveLine={true}
               showPrintMargin={false}
               fontSize={14}
               showGutter
               enableLiveAutocompletion
-              theme={dark ? "twilight" : "github"}
-              name="CodeEditor"
+              theme={dark ? 'twilight' : 'github'}
+              name='CodeEditor'
               onChange={(value) => {
                 setCode(value);
               }}
-              className="h-full min-w-full rounded-lg border-[1px] border-gray-300 custom-scroll dark:border-gray-600"
+              className='h-full min-w-full rounded-lg border-[1px] border-gray-300 custom-scroll dark:border-gray-600'
             />
           </div>
           <div
             className={
-              "whitespace-break-spaces transition-all delay-500" +
-              (error?.detail?.error !== undefined ? "h-2/6" : "h-0")
+              'whitespace-break-spaces transition-all delay-500' +
+              (error?.detail?.error !== undefined ? 'h-2/6' : 'h-0')
             }
           >
-            <div className="mt-5 h-full max-h-[10rem] w-full overflow-y-auto overflow-x-clip text-left custom-scroll">
+            <div className='mt-5 h-full max-h-[10rem] w-full overflow-y-auto overflow-x-clip text-left custom-scroll'>
               <h1
-                data-testid="title_error_code_modal"
-                className="text-lg text-error"
+                data-testid='title_error_code_modal'
+                className='text-lg text-error'
               >
                 {error?.detail?.error}
               </h1>
-              <div className="ml-2 mt-2 w-full text-sm text-destructive word-break-break-word">
-                <span className="w-full word-break-break-word">
+              <div className='ml-2 mt-2 w-full text-sm text-destructive word-break-break-word'>
+                <span className='w-full word-break-break-word'>
                   {error?.detail?.traceback}
                 </span>
               </div>
             </div>
           </div>
-          <div className="flex h-fit w-full justify-end">
+          <div className='flex h-fit w-full justify-end'>
             <Button
-              className="mt-3"
+              className='mt-3'
               onClick={processCode}
-              type="submit"
-              id="checkAndSaveBtn"
+              type='submit'
+              id='checkAndSaveBtn'
               disabled={readonly}
-              data-testid="checkAndSaveBtn"
+              data-testid='checkAndSaveBtn'
             >
-              Check & Save
+              {t('components.button.checkSave')}
             </Button>
           </div>
         </div>
@@ -270,17 +273,17 @@ export default function CodeAreaModal({
             e.stopPropagation();
             setOpenConfirmation(false);
           }}
-          size="x-small"
-          icon="AlertTriangle"
-          confirmationText="Check & Save"
-          cancelText="Discard Changes"
+          size='x-small'
+          icon='AlertTriangle'
+          confirmationText={t('components.button.checkSave')}
+          cancelText='Discard Changes'
           open={openConfirmation}
           onCancel={() => setOpen(false)}
           onConfirm={() => {
             processCode();
             setOpenConfirmation(false);
           }}
-          title="Caution"
+          title='Caution'
         >
           <ConfirmationModal.Content>
             <p>Are you sure you want to exit without saving your changes?</p>

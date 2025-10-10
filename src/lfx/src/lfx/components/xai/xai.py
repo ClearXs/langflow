@@ -1,3 +1,4 @@
+import i18n
 import requests
 from langchain_openai import ChatOpenAI
 from pydantic.v1 import SecretStr
@@ -20,8 +21,8 @@ XAI_DEFAULT_MODELS = ["grok-2-latest"]
 
 
 class XAIModelComponent(LCModelComponent):
-    display_name = "xAI"
-    description = "Generates text using xAI models like Grok."
+    display_name = i18n.t('components.xai.xai.display_name')
+    description = i18n.t('components.xai.xai.description')
     icon = "xAI"
     name = "xAIModel"
 
@@ -29,59 +30,60 @@ class XAIModelComponent(LCModelComponent):
         *LCModelComponent.get_base_inputs(),
         IntInput(
             name="max_tokens",
-            display_name="Max Tokens",
+            display_name=i18n.t('components.xai.xai.max_tokens.display_name'),
             advanced=True,
-            info="The maximum number of tokens to generate. Set to 0 for unlimited tokens.",
+            info=i18n.t('components.xai.xai.max_tokens.info'),
             range_spec=RangeSpec(min=0, max=128000),
         ),
         DictInput(
             name="model_kwargs",
-            display_name="Model Kwargs",
+            display_name=i18n.t(
+                'components.xai.xai.model_kwargs.display_name'),
             advanced=True,
-            info="Additional keyword arguments to pass to the model.",
+            info=i18n.t('components.xai.xai.model_kwargs.info'),
         ),
         BoolInput(
             name="json_mode",
-            display_name="JSON Mode",
+            display_name=i18n.t('components.xai.xai.json_mode.display_name'),
             advanced=True,
-            info="If True, it will output JSON regardless of passing a schema.",
+            info=i18n.t('components.xai.xai.json_mode.info'),
         ),
         DropdownInput(
             name="model_name",
-            display_name="Model Name",
+            display_name=i18n.t('components.xai.xai.model_name.display_name'),
             advanced=False,
             options=XAI_DEFAULT_MODELS,
             value=XAI_DEFAULT_MODELS[0],
             refresh_button=True,
             combobox=True,
-            info="The xAI model to use",
+            info=i18n.t('components.xai.xai.model_name.info'),
         ),
         MessageTextInput(
             name="base_url",
-            display_name="xAI API Base",
+            display_name=i18n.t('components.xai.xai.base_url.display_name'),
             advanced=True,
-            info="The base URL of the xAI API. Defaults to https://api.x.ai/v1",
+            info=i18n.t('components.xai.xai.base_url.info'),
             value="https://api.x.ai/v1",
         ),
         SecretStrInput(
             name="api_key",
-            display_name="xAI API Key",
-            info="The xAI API Key to use for the model.",
+            display_name=i18n.t('components.xai.xai.api_key.display_name'),
+            info=i18n.t('components.xai.xai.api_key.info'),
             advanced=False,
             value="XAI_API_KEY",
             required=True,
         ),
         SliderInput(
             name="temperature",
-            display_name="Temperature",
+            display_name=i18n.t('components.xai.xai.temperature.display_name'),
             value=0.1,
             range_spec=RangeSpec(min=0, max=2, step=0.01),
             advanced=True,
         ),
         IntInput(
             name="seed",
-            display_name="Seed",
-            info="The seed controls the reproducibility of the job.",
+            display_name=i18n.t('components.xai.xai.seed.display_name'),
+            info=i18n.t('components.xai.xai.seed.info'),
             advanced=True,
             value=1,
         ),
@@ -94,7 +96,8 @@ class XAIModelComponent(LCModelComponent):
 
         base_url = self.base_url or "https://api.x.ai/v1"
         url = f"{base_url}/language-models"
-        headers = {"Authorization": f"Bearer {self.api_key}", "Accept": "application/json"}
+        headers = {"Authorization": f"Bearer {self.api_key}",
+                   "Accept": "application/json"}
 
         try:
             response = requests.get(url, headers=headers, timeout=10)

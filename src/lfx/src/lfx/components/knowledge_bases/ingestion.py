@@ -148,6 +148,8 @@ class KnowledgeIngestionComponent(Component):
             required=True,
         ),
         TableInput(
+            trigger_text=i18n.t(
+                'components.inputs.input_mixin.open_table'),
             name="column_config",
             display_name=i18n.t(
                 'components.knowledge_bases.ingestion.column_config.display_name'),

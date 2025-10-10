@@ -1,0 +1,16 @@
+{
+  "display_name": "Update Page Property",
+  "description": "Update the properties of a Notion page.",
+  "page_id": {
+    "display_name": "Page ID",
+    "info": "The ID of the Notion page to update."
+  },
+  "properties": {
+    "display_name": "Properties",
+    "info": "The properties to update on the page (as a JSON string or a dictionary)."
+  },
+  "notion_secret": {
+    "display_name": "Notion Secret",
+    "info": "The Notion integration token."
+  }
+}

@@ -94,6 +94,8 @@ class APIRequestComponent(Component):
             advanced=True,
         ),
         TableInput(
+            trigger_text=i18n.t(
+                'components.inputs.input_mixin.open_table'),
             name="body",
             display_name=i18n.t(
                 'components.data.api_request.body.display_name'),
@@ -117,6 +119,8 @@ class APIRequestComponent(Component):
             real_time_refresh=True,
         ),
         TableInput(
+            trigger_text=i18n.t(
+                'components.inputs.input_mixin.open_table'),
             name="headers",
             display_name=i18n.t(
                 'components.data.api_request.headers.display_name'),

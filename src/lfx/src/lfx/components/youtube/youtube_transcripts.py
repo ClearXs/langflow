@@ -1,3 +1,4 @@
+import i18n
 import pandas as pd
 import youtube_transcript_api
 from langchain_community.document_loaders import YoutubeLoader
@@ -14,38 +15,61 @@ from lfx.template.field.base import Output
 class YouTubeTranscriptsComponent(Component):
     """A component that extracts spoken content from YouTube videos as transcripts."""
 
-    display_name: str = "YouTube Transcripts"
-    description: str = "Extracts spoken content from YouTube videos with multiple output options."
+    display_name: str = i18n.t(
+        'components.youtube.youtube_transcripts.display_name')
+    description: str = i18n.t(
+        'components.youtube.youtube_transcripts.description')
     icon: str = "YouTube"
     name = "YouTubeTranscripts"
 
     inputs = [
         MultilineInput(
             name="url",
-            display_name="Video URL",
-            info="Enter the YouTube video URL to get transcripts from.",
+            display_name=i18n.t(
+                'components.youtube.youtube_transcripts.url.display_name'),
+            info=i18n.t('components.youtube.youtube_transcripts.url.info'),
             tool_mode=True,
             required=True,
         ),
         IntInput(
             name="chunk_size_seconds",
-            display_name="Chunk Size (seconds)",
+            display_name=i18n.t(
+                'components.youtube.youtube_transcripts.chunk_size_seconds.display_name'),
             value=60,
-            info="The size of each transcript chunk in seconds.",
+            info=i18n.t(
+                'components.youtube.youtube_transcripts.chunk_size_seconds.info'),
         ),
         DropdownInput(
             name="translation",
-            display_name="Translation Language",
+            display_name=i18n.t(
+                'components.youtube.youtube_transcripts.translation.display_name'),
             advanced=True,
-            options=["", "en", "es", "fr", "de", "it", "pt", "ru", "ja", "ko", "hi", "ar", "id"],
-            info="Translate the transcripts to the specified language. Leave empty for no translation.",
+            options=["", "en", "es", "fr", "de", "it",
+                     "pt", "ru", "ja", "ko", "hi", "ar", "id"],
+            info=i18n.t(
+                'components.youtube.youtube_transcripts.translation.info'),
         ),
     ]
 
     outputs = [
-        Output(name="dataframe", display_name="Chunks", method="get_dataframe_output"),
-        Output(name="message", display_name="Transcript", method="get_message_output"),
-        Output(name="data_output", display_name="Transcript + Source", method="get_data_output"),
+        Output(
+            name="dataframe",
+            display_name=i18n.t(
+                'components.youtube.youtube_transcripts.outputs.dataframe'),
+            method="get_dataframe_output"
+        ),
+        Output(
+            name="message",
+            display_name=i18n.t(
+                'components.youtube.youtube_transcripts.outputs.message'),
+            method="get_message_output"
+        ),
+        Output(
+            name="data_output",
+            display_name=i18n.t(
+                'components.youtube.youtube_transcripts.outputs.data_output'),
+            method="get_data_output"
+        ),
     ]
 
     def _load_transcripts(self, *, as_chunks: bool = True):

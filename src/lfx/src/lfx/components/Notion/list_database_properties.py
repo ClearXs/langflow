@@ -1,3 +1,4 @@
+import i18n
 import requests
 from langchain.tools import StructuredTool
 from pydantic import BaseModel, Field
@@ -10,27 +11,34 @@ from lfx.schema.data import Data
 
 
 class NotionDatabaseProperties(LCToolComponent):
-    display_name: str = "List Database Properties "
-    description: str = "Retrieve properties of a Notion database."
+    display_name: str = i18n.t(
+        'components.notion.list_database_properties.display_name')
+    description: str = i18n.t(
+        'components.notion.list_database_properties.description')
     documentation: str = "https://docs.langflow.org/integrations/notion/list-database-properties"
     icon = "NotionDirectoryLoader"
 
     inputs = [
         StrInput(
             name="database_id",
-            display_name="Database ID",
-            info="The ID of the Notion database.",
+            display_name=i18n.t(
+                'components.notion.list_database_properties.database_id.display_name'),
+            info=i18n.t(
+                'components.notion.list_database_properties.database_id.info'),
         ),
         SecretStrInput(
             name="notion_secret",
-            display_name="Notion Secret",
-            info="The Notion integration token.",
+            display_name=i18n.t(
+                'components.notion.list_database_properties.notion_secret.display_name'),
+            info=i18n.t(
+                'components.notion.list_database_properties.notion_secret.info'),
             required=True,
         ),
     ]
 
     class NotionDatabasePropertiesSchema(BaseModel):
-        database_id: str = Field(..., description="The ID of the Notion database.")
+        database_id: str = Field(...,
+                                 description="The ID of the Notion database.")
 
     def run_model(self) -> Data:
         result = self._fetch_database_properties(self.database_id)
@@ -64,5 +72,6 @@ class NotionDatabaseProperties(LCToolComponent):
         except ValueError as e:
             return f"Error parsing Notion API response: {e}"
         except Exception as e:  # noqa: BLE001
-            logger.debug("Error fetching Notion database properties", exc_info=True)
+            logger.debug(
+                "Error fetching Notion database properties", exc_info=True)
             return f"An unexpected error occurred: {e}"

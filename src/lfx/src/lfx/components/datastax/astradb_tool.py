@@ -80,6 +80,8 @@ class AstraDBToolComponent(LCToolComponent):
             advanced=True,
         ),
         TableInput(
+            trigger_text=i18n.t(
+                'components.inputs.input_mixin.open_table'),
             name="tools_params_v2",
             display_name=i18n.t(
                 'components.datastax.astradb_tool.tools_params_v2.display_name'),

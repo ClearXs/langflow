@@ -1,0 +1,48 @@
+{
+  "display_name": "Vertex AI 嵌入",
+  "description": "使用 Google Cloud Vertex AI 模型生成嵌入。",
+  "credentials": {
+    "display_name": "凭证",
+    "info": "JSON 凭证文件。留空以回退到环境变量"
+  },
+  "location": {
+    "display_name": "位置"
+  },
+  "project": {
+    "display_name": "项目",
+    "info": "项目 ID。"
+  },
+  "max_output_tokens": {
+    "display_name": "最大输出令牌数"
+  },
+  "max_retries": {
+    "display_name": "最大重试次数"
+  },
+  "model_name": {
+    "display_name": "模型名称"
+  },
+  "n": {
+    "display_name": "N"
+  },
+  "request_parallelism": {
+    "display_name": "请求并行度"
+  },
+  "stop_sequences": {
+    "display_name": "停止序列"
+  },
+  "streaming": {
+    "display_name": "流式传输"
+  },
+  "temperature": {
+    "display_name": "温度"
+  },
+  "top_k": {
+    "display_name": "Top K"
+  },
+  "top_p": {
+    "display_name": "Top P"
+  },
+  "outputs": {
+    "embeddings": "嵌入"
+  }
+}

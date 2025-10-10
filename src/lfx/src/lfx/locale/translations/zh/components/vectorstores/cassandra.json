@@ -1,0 +1,67 @@
+{
+  "display_name": "Cassandra",
+  "description": "具有搜索功能的 Cassandra 向量存储",
+  "database_ref": {
+    "display_name": "联系点 / Astra 数据库 ID",
+    "info": "数据库的联系点（或 Astra DB 数据库 ID）"
+  },
+  "username": {
+    "display_name": "用户名",
+    "info": "数据库的用户名（Astra DB 留空）。"
+  },
+  "token": {
+    "display_name": "密码 / Astra DB 令牌",
+    "info": "数据库的用户密码（或 Astra DB 令牌）。"
+  },
+  "keyspace": {
+    "display_name": "键空间",
+    "info": "表键空间（或 Astra DB 命名空间）。"
+  },
+  "table_name": {
+    "display_name": "表名",
+    "info": "将存储向量的表（或 Astra DB 集合）的名称。"
+  },
+  "ttl_seconds": {
+    "display_name": "TTL 秒数",
+    "info": "添加文本的可选生存时间。"
+  },
+  "batch_size": {
+    "display_name": "批量大小",
+    "info": "单个批次中要处理的可选数据数量。"
+  },
+  "setup_mode": {
+    "display_name": "设置模式",
+    "info": "设置 Cassandra 表的配置模式，选项包括 'Sync'、'Async' 或 'Off'。"
+  },
+  "cluster_kwargs": {
+    "display_name": "集群参数",
+    "info": "Cassandra 集群的可选附加关键字参数字典。"
+  },
+  "embedding": {
+    "display_name": "嵌入"
+  },
+  "number_of_results": {
+    "display_name": "结果数量",
+    "info": "要返回的结果数量。"
+  },
+  "search_type": {
+    "display_name": "搜索类型",
+    "info": "要使用的搜索类型"
+  },
+  "search_score_threshold": {
+    "display_name": "搜索分数阈值",
+    "info": "搜索结果的最小相似度分数阈值。（使用 '带分数阈值的相似度' 时）"
+  },
+  "search_filter": {
+    "display_name": "搜索元数据过滤器",
+    "info": "要应用于搜索查询的可选过滤器字典。"
+  },
+  "body_search": {
+    "display_name": "搜索正文",
+    "info": "要应用于搜索查询的文档文本搜索词。"
+  },
+  "enable_body_search": {
+    "display_name": "启用正文搜索",
+    "info": "启用正文搜索的标志。必须在创建表之前启用。"
+  }
+}

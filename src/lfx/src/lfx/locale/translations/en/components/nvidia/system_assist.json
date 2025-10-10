@@ -1,0 +1,13 @@
+{
+  "display_name": "NVIDIA System-Assist",
+  "description": "(Windows only) Prompts NVIDIA System-Assist to interact with the NVIDIA GPU Driver. The user may query GPU specifications, state, and ask the NV-API to perform several GPU-editing actions. The prompt must be human-readable language.",
+  "prompt": {
+    "display_name": "System-Assist Prompt",
+    "info": "Enter a prompt for NVIDIA System-Assist to process. Example: 'What is my GPU?'"
+  },
+  "outputs": {
+    "response": {
+      "display_name": "Response"
+    }
+  }
+}

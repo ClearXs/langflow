@@ -1,3 +1,4 @@
+import i18n
 import httpx
 
 from lfx.custom.custom_component.component import Component
@@ -9,106 +10,127 @@ from lfx.template.field.base import Output
 
 
 class TavilySearchComponent(Component):
-    display_name = "Tavily Search API"
-    description = """**Tavily Search** is a search engine optimized for LLMs and RAG, \
-        aimed at efficient, quick, and persistent search results."""
+    display_name = i18n.t('components.tavily.tavily_search.display_name')
+    description = i18n.t('components.tavily.tavily_search.description')
     icon = "TavilyIcon"
 
     inputs = [
         SecretStrInput(
             name="api_key",
-            display_name="Tavily API Key",
+            display_name=i18n.t(
+                'components.tavily.tavily_search.api_key.display_name'),
             required=True,
-            info="Your Tavily API Key.",
+            info=i18n.t('components.tavily.tavily_search.api_key.info'),
         ),
         MessageTextInput(
             name="query",
-            display_name="Search Query",
-            info="The search query you want to execute with Tavily.",
+            display_name=i18n.t(
+                'components.tavily.tavily_search.query.display_name'),
+            info=i18n.t('components.tavily.tavily_search.query.info'),
             tool_mode=True,
         ),
         DropdownInput(
             name="search_depth",
-            display_name="Search Depth",
-            info="The depth of the search.",
+            display_name=i18n.t(
+                'components.tavily.tavily_search.search_depth.display_name'),
+            info=i18n.t('components.tavily.tavily_search.search_depth.info'),
             options=["basic", "advanced"],
             value="advanced",
             advanced=True,
         ),
         IntInput(
             name="chunks_per_source",
-            display_name="Chunks Per Source",
-            info=("The number of content chunks to retrieve from each source (1-3). Only works with advanced search."),
+            display_name=i18n.t(
+                'components.tavily.tavily_search.chunks_per_source.display_name'),
+            info=i18n.t(
+                'components.tavily.tavily_search.chunks_per_source.info'),
             value=3,
             advanced=True,
         ),
         DropdownInput(
             name="topic",
-            display_name="Search Topic",
-            info="The category of the search.",
+            display_name=i18n.t(
+                'components.tavily.tavily_search.topic.display_name'),
+            info=i18n.t('components.tavily.tavily_search.topic.info'),
             options=["general", "news"],
             value="general",
             advanced=True,
         ),
         IntInput(
             name="days",
-            display_name="Days",
-            info="Number of days back from current date to include. Only available with news topic.",
+            display_name=i18n.t(
+                'components.tavily.tavily_search.days.display_name'),
+            info=i18n.t('components.tavily.tavily_search.days.info'),
             value=7,
             advanced=True,
         ),
         IntInput(
             name="max_results",
-            display_name="Max Results",
-            info="The maximum number of search results to return.",
+            display_name=i18n.t(
+                'components.tavily.tavily_search.max_results.display_name'),
+            info=i18n.t('components.tavily.tavily_search.max_results.info'),
             value=5,
             advanced=True,
         ),
         BoolInput(
             name="include_answer",
-            display_name="Include Answer",
-            info="Include a short answer to original query.",
+            display_name=i18n.t(
+                'components.tavily.tavily_search.include_answer.display_name'),
+            info=i18n.t('components.tavily.tavily_search.include_answer.info'),
             value=True,
             advanced=True,
         ),
         DropdownInput(
             name="time_range",
-            display_name="Time Range",
-            info="The time range back from the current date to filter results.",
+            display_name=i18n.t(
+                'components.tavily.tavily_search.time_range.display_name'),
+            info=i18n.t('components.tavily.tavily_search.time_range.info'),
             options=["day", "week", "month", "year"],
-            value=None,  # Default to None to make it optional
+            value=None,
             advanced=True,
         ),
         BoolInput(
             name="include_images",
-            display_name="Include Images",
-            info="Include a list of query-related images in the response.",
+            display_name=i18n.t(
+                'components.tavily.tavily_search.include_images.display_name'),
+            info=i18n.t('components.tavily.tavily_search.include_images.info'),
             value=True,
             advanced=True,
         ),
         MessageTextInput(
             name="include_domains",
-            display_name="Include Domains",
-            info="Comma-separated list of domains to include in the search results.",
+            display_name=i18n.t(
+                'components.tavily.tavily_search.include_domains.display_name'),
+            info=i18n.t(
+                'components.tavily.tavily_search.include_domains.info'),
             advanced=True,
         ),
         MessageTextInput(
             name="exclude_domains",
-            display_name="Exclude Domains",
-            info="Comma-separated list of domains to exclude from the search results.",
+            display_name=i18n.t(
+                'components.tavily.tavily_search.exclude_domains.display_name'),
+            info=i18n.t(
+                'components.tavily.tavily_search.exclude_domains.info'),
             advanced=True,
         ),
         BoolInput(
             name="include_raw_content",
-            display_name="Include Raw Content",
-            info="Include the cleaned and parsed HTML content of each search result.",
+            display_name=i18n.t(
+                'components.tavily.tavily_search.include_raw_content.display_name'),
+            info=i18n.t(
+                'components.tavily.tavily_search.include_raw_content.info'),
             value=False,
             advanced=True,
         ),
     ]
 
     outputs = [
-        Output(display_name="DataFrame", name="dataframe", method="fetch_content_dataframe"),
+        Output(
+            display_name=i18n.t(
+                'components.tavily.tavily_search.outputs.dataframe.display_name'),
+            name="dataframe",
+            method="fetch_content_dataframe"
+        ),
     ]
 
     def fetch_content(self) -> list[Data]:
@@ -118,10 +140,12 @@ class TavilySearchComponent(Component):
             exclude_domains = None
 
             if self.include_domains:
-                include_domains = [domain.strip() for domain in self.include_domains.split(",") if domain.strip()]
+                include_domains = [
+                    domain.strip() for domain in self.include_domains.split(",") if domain.strip()]
 
             if self.exclude_domains:
-                exclude_domains = [domain.strip() for domain in self.exclude_domains.split(",") if domain.strip()]
+                exclude_domains = [
+                    domain.strip() for domain in self.exclude_domains.split(",") if domain.strip()]
 
             url = "https://api.tavily.com/search"
             headers = {
@@ -185,7 +209,8 @@ class TavilySearchComponent(Component):
                 data_results.append(Data(text=content, data=result_data))
 
             if self.include_images and search_results.get("images"):
-                data_results.append(Data(text="Images found", data={"images": search_results["images"]}))
+                data_results.append(Data(text="Images found", data={
+                                    "images": search_results["images"]}))
 
         except httpx.TimeoutException:
             error_message = "Request timed out (90s). Please try again or adjust parameters."

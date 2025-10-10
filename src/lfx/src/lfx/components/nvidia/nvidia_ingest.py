@@ -1,3 +1,4 @@
+import i18n
 from urllib.parse import urlparse
 
 from pypdf import PdfReader
@@ -8,8 +9,8 @@ from lfx.schema.data import Data
 
 
 class NvidiaIngestComponent(BaseFileComponent):
-    display_name = "NVIDIA Retriever Extraction"
-    description = "Multi-modal data extraction from documents using NVIDIA's NeMo API."
+    display_name = i18n.t('components.nvidia.nvidia_ingest.display_name')
+    description = i18n.t('components.nvidia.nvidia_ingest.description')
     documentation: str = "https://docs.nvidia.com/nemo/retriever/extraction/overview/"
     icon = "NVIDIA"
     beta = True
@@ -18,7 +19,8 @@ class NvidiaIngestComponent(BaseFileComponent):
         from nv_ingest_client.util.file_processing.extract import EXTENSION_TO_DOCUMENT_TYPE
 
         # Supported file extensions from https://github.com/NVIDIA/nv-ingest/blob/main/README.md
-        VALID_EXTENSIONS = ["pdf", "docx", "pptx", "jpeg", "png", "svg", "tiff", "txt"]
+        VALID_EXTENSIONS = ["pdf", "docx", "pptx",
+                            "jpeg", "png", "svg", "tiff", "txt"]
     except ImportError:
         msg = (
             "NVIDIA Retriever Extraction (nv-ingest) is an optional dependency. "
@@ -31,123 +33,142 @@ class NvidiaIngestComponent(BaseFileComponent):
         *BaseFileComponent.get_base_inputs(),
         MessageTextInput(
             name="base_url",
-            display_name="Base URL",
-            info="The URL of the NVIDIA NeMo Retriever Extraction API.",
+            display_name=i18n.t(
+                'components.nvidia.nvidia_ingest.base_url.display_name'),
+            info=i18n.t('components.nvidia.nvidia_ingest.base_url.info'),
             required=True,
         ),
         SecretStrInput(
             name="api_key",
-            display_name="NVIDIA API Key",
+            display_name=i18n.t(
+                'components.nvidia.nvidia_ingest.api_key.display_name'),
         ),
         BoolInput(
             name="extract_text",
-            display_name="Extract Text",
-            info="Extract text from documents",
+            display_name=i18n.t(
+                'components.nvidia.nvidia_ingest.extract_text.display_name'),
+            info=i18n.t('components.nvidia.nvidia_ingest.extract_text.info'),
             value=True,
         ),
         BoolInput(
             name="extract_charts",
-            display_name="Extract Charts",
-            info="Extract text from charts",
+            display_name=i18n.t(
+                'components.nvidia.nvidia_ingest.extract_charts.display_name'),
+            info=i18n.t('components.nvidia.nvidia_ingest.extract_charts.info'),
             value=False,
         ),
         BoolInput(
             name="extract_tables",
-            display_name="Extract Tables",
-            info="Extract text from tables",
+            display_name=i18n.t(
+                'components.nvidia.nvidia_ingest.extract_tables.display_name'),
+            info=i18n.t('components.nvidia.nvidia_ingest.extract_tables.info'),
             value=False,
         ),
         BoolInput(
             name="extract_images",
-            display_name="Extract Images",
-            info="Extract images from document",
+            display_name=i18n.t(
+                'components.nvidia.nvidia_ingest.extract_images.display_name'),
+            info=i18n.t('components.nvidia.nvidia_ingest.extract_images.info'),
             value=True,
         ),
         BoolInput(
             name="extract_infographics",
-            display_name="Extract Infographics",
-            info="Extract infographics from document",
+            display_name=i18n.t(
+                'components.nvidia.nvidia_ingest.extract_infographics.display_name'),
+            info=i18n.t(
+                'components.nvidia.nvidia_ingest.extract_infographics.info'),
             value=False,
             advanced=True,
         ),
         DropdownInput(
             name="text_depth",
-            display_name="Text Depth",
-            info=(
-                "Level at which text is extracted (applies before splitting). "
-                "Support for 'block', 'line', 'span' varies by document type."
-            ),
+            display_name=i18n.t(
+                'components.nvidia.nvidia_ingest.text_depth.display_name'),
+            info=i18n.t('components.nvidia.nvidia_ingest.text_depth.info'),
             options=["document", "page", "block", "line", "span"],
-            value="page",  # Default value
+            value="page",
             advanced=True,
         ),
         BoolInput(
             name="split_text",
-            display_name="Split Text",
-            info="Split text into smaller chunks",
+            display_name=i18n.t(
+                'components.nvidia.nvidia_ingest.split_text.display_name'),
+            info=i18n.t('components.nvidia.nvidia_ingest.split_text.info'),
             value=True,
             advanced=True,
         ),
         IntInput(
             name="chunk_size",
-            display_name="Chunk size",
-            info="The number of tokens per chunk",
+            display_name=i18n.t(
+                'components.nvidia.nvidia_ingest.chunk_size.display_name'),
+            info=i18n.t('components.nvidia.nvidia_ingest.chunk_size.info'),
             value=500,
             advanced=True,
         ),
         IntInput(
             name="chunk_overlap",
-            display_name="Chunk Overlap",
-            info="Number of tokens to overlap from previous chunk",
+            display_name=i18n.t(
+                'components.nvidia.nvidia_ingest.chunk_overlap.display_name'),
+            info=i18n.t('components.nvidia.nvidia_ingest.chunk_overlap.info'),
             value=150,
             advanced=True,
         ),
         BoolInput(
             name="filter_images",
-            display_name="Filter Images",
-            info="Filter images (see advanced options for filtering criteria).",
+            display_name=i18n.t(
+                'components.nvidia.nvidia_ingest.filter_images.display_name'),
+            info=i18n.t('components.nvidia.nvidia_ingest.filter_images.info'),
             advanced=True,
             value=False,
         ),
         IntInput(
             name="min_image_size",
-            display_name="Minimum Image Size Filter",
-            info="Minimum image width/length in pixels",
+            display_name=i18n.t(
+                'components.nvidia.nvidia_ingest.min_image_size.display_name'),
+            info=i18n.t('components.nvidia.nvidia_ingest.min_image_size.info'),
             value=128,
             advanced=True,
         ),
         FloatInput(
             name="min_aspect_ratio",
-            display_name="Minimum Aspect Ratio Filter",
-            info="Minimum allowed aspect ratio (width / height). Images narrower than this will be filtered out.",
+            display_name=i18n.t(
+                'components.nvidia.nvidia_ingest.min_aspect_ratio.display_name'),
+            info=i18n.t(
+                'components.nvidia.nvidia_ingest.min_aspect_ratio.info'),
             value=0.2,
             advanced=True,
         ),
         FloatInput(
             name="max_aspect_ratio",
-            display_name="Maximum Aspect Ratio Filter",
-            info="Maximum allowed aspect ratio (width / height). Images taller than this will be filtered out.",
+            display_name=i18n.t(
+                'components.nvidia.nvidia_ingest.max_aspect_ratio.display_name'),
+            info=i18n.t(
+                'components.nvidia.nvidia_ingest.max_aspect_ratio.info'),
             value=5.0,
             advanced=True,
         ),
         BoolInput(
             name="dedup_images",
-            display_name="Deduplicate Images",
-            info="Filter duplicated images.",
+            display_name=i18n.t(
+                'components.nvidia.nvidia_ingest.dedup_images.display_name'),
+            info=i18n.t('components.nvidia.nvidia_ingest.dedup_images.info'),
             advanced=True,
             value=True,
         ),
         BoolInput(
             name="caption_images",
-            display_name="Caption Images",
-            info="Generate captions for images using the NVIDIA captioning model.",
+            display_name=i18n.t(
+                'components.nvidia.nvidia_ingest.caption_images.display_name'),
+            info=i18n.t('components.nvidia.nvidia_ingest.caption_images.info'),
             advanced=True,
             value=True,
         ),
         BoolInput(
             name="high_resolution",
-            display_name="High Resolution (PDF only)",
-            info=("Process pdf in high-resolution mode for better quality extraction from scanned pdf."),
+            display_name=i18n.t(
+                'components.nvidia.nvidia_ingest.high_resolution.display_name'),
+            info=i18n.t(
+                'components.nvidia.nvidia_ingest.high_resolution.info'),
             advanced=True,
             value=False,
         ),
@@ -225,7 +246,8 @@ class NvidiaIngestComponent(BaseFileComponent):
 
             if self.extract_images:
                 if self.dedup_images:
-                    ingestor = ingestor.dedup(content_type="image", filter=True)
+                    ingestor = ingestor.dedup(
+                        content_type="image", filter=True)
 
                 if self.filter_images:
                     ingestor = ingestor.filter(
@@ -272,7 +294,8 @@ class NvidiaIngestComponent(BaseFileComponent):
                         data.append(
                             Data(
                                 text=metadata.get("content", ""),
-                                file_path=source_metadata.get("source_name", ""),
+                                file_path=source_metadata.get(
+                                    "source_name", ""),
                                 document_type=document_type,
                                 metadata=metadata,
                             )
@@ -284,12 +307,14 @@ class NvidiaIngestComponent(BaseFileComponent):
 
                         # reformat chart/table images as binary data
                         if "content" in metadata:
-                            metadata["content"] = {"$binary": metadata["content"]}
+                            metadata["content"] = {
+                                "$binary": metadata["content"]}
 
                         data.append(
                             Data(
                                 text=table_metadata.get("table_content", ""),
-                                file_path=source_metadata.get("source_name", ""),
+                                file_path=source_metadata.get(
+                                    "source_name", ""),
                                 document_type=document_type,
                                 metadata=metadata,
                             )
@@ -299,12 +324,15 @@ class NvidiaIngestComponent(BaseFileComponent):
 
                         # reformat images as binary data
                         if "content" in metadata:
-                            metadata["content"] = {"$binary": metadata["content"]}
+                            metadata["content"] = {
+                                "$binary": metadata["content"]}
 
                         data.append(
                             Data(
-                                text=image_metadata.get("caption", "No caption available"),
-                                file_path=source_metadata.get("source_name", ""),
+                                text=image_metadata.get(
+                                    "caption", "No caption available"),
+                                file_path=source_metadata.get(
+                                    "source_name", ""),
                                 document_type=document_type,
                                 metadata=metadata,
                             )

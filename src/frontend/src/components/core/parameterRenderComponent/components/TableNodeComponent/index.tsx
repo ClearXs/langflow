@@ -1,70 +1,75 @@
 import type {
   DataTypeDefinition,
   SelectionChangedEvent,
-} from "ag-grid-community";
-import type { AgGridReact } from "ag-grid-react";
-import { cloneDeep } from "lodash";
-import { useEffect, useMemo, useRef, useState } from "react";
-import ShadTooltip from "@/components/common/shadTooltipComponent";
-import TableModal from "@/modals/tableModal";
-import { isMarkdownTable } from "@/utils/markdownUtils";
-import { FormatColumns, generateBackendColumnsFromValue } from "@/utils/utils";
-import { ForwardedIconComponent } from "../../../../common/genericIconComponent";
-import { Button } from "../../../../ui/button";
-import type { InputProps, TableComponentType } from "../../types";
+} from 'ag-grid-community';
+import type { AgGridReact } from 'ag-grid-react';
+import { cloneDeep } from 'lodash';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import ShadTooltip from '@/components/common/shadTooltipComponent';
+import TableModal from '@/modals/tableModal';
+import { isMarkdownTable } from '@/utils/markdownUtils';
+import { FormatColumns, generateBackendColumnsFromValue } from '@/utils/utils';
+import { ForwardedIconComponent } from '../../../../common/genericIconComponent';
+import { Button } from '../../../../ui/button';
+import type { InputProps, TableComponentType } from '../../types';
+import { useTranslation } from 'react-i18next';
 
 export default function TableNodeComponent({
   tableTitle,
   description,
   value,
   editNode = false,
-  id = "",
+  id = '',
   columns,
   handleOnNewValue,
   disabled = false,
   table_options,
-  trigger_icon = "Table",
-  trigger_text = "Open Table",
+  trigger_icon = 'Table',
   table_icon,
+  ...props
 }: InputProps<any[], TableComponentType>): JSX.Element {
+  const { t } = useTranslation();
+
+  const { trigger_text = t('components.table.openTable') } = props;
+
   const dataTypeDefinitions: {
     [cellDataType: string]: DataTypeDefinition<any>;
   } = useMemo(() => {
     return {
       // override `date` to handle custom date format `dd/mm/yyyy`
       date: {
-        baseDataType: "date",
-        extendsDataType: "date",
+        baseDataType: 'date',
+        extendsDataType: 'date',
         valueParser: (params) => {
           if (params.newValue == null) {
             return null;
           }
           // convert from `dd/mm/yyyy`
-          const dateParts = params.newValue.split("/");
+          const dateParts = params.newValue.split('/');
           return dateParts.length === 3
             ? new Date(
                 parseInt(dateParts[2]),
                 parseInt(dateParts[1]) - 1,
-                parseInt(dateParts[0]),
+                parseInt(dateParts[0])
               )
             : null;
         },
         valueFormatter: (params) => {
           let date = params.value;
-          if (typeof params.value === "string") {
+          if (typeof params.value === 'string') {
             date = new Date(params.value);
           }
           // convert to `dd/mm/yyyy`
           return date == null
-            ? "‎"
+            ? '‎'
             : `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
         },
       },
       number: {
-        baseDataType: "number",
-        extendsDataType: "number",
+        baseDataType: 'number',
+        extendsDataType: 'number',
         valueFormatter: (params) =>
-          params.value == null ? "‎" : `${params.value}`,
+          params.value == null ? '‎' : `${params.value}`,
       },
     };
   }, []);
@@ -87,11 +92,11 @@ export default function TableNodeComponent({
       return {
         ...col,
         headerComponent: () => (
-          <div className="flex items-center gap-1">
+          <div className='flex items-center gap-1'>
             <div>{col.headerName}</div>
             <ShadTooltip content={col.context?.info}>
               <div>
-                <ForwardedIconComponent name="Info" className="h-4 w-4" />
+                <ForwardedIconComponent name='Info' className='h-4 w-4' />
               </div>
             </ShadTooltip>
           </div>
@@ -149,8 +154,8 @@ export default function TableNodeComponent({
     .map((column) => {
       const isCustomEdit =
         column.formatter &&
-        ((column.formatter === "text" && column.edit_mode === "modal") ||
-          column.formatter === "json");
+        ((column.formatter === 'text' && column.edit_mode === 'modal') ||
+          column.formatter === 'json');
       return {
         field: column.name,
         onUpdate: updateComponent,
@@ -158,25 +163,24 @@ export default function TableNodeComponent({
       };
     })
     .filter(
-      (col) =>
-        columns?.find((c) => c.name === col.field)?.disable_edit !== true,
+      (col) => columns?.find((c) => c.name === col.field)?.disable_edit !== true
     );
 
   function parseTSVorMarkdownTable(clipboard: string, columns: any[]) {
     if (!clipboard.trim()) return [];
 
     // Try TSV (Excel/Sheets)
-    if (clipboard.includes("\t")) {
+    if (clipboard.includes('\t')) {
       const lines = clipboard.trim().split(/\r?\n/);
       // More robust header detection - check if first line contains column names
-      const firstLineCells = lines[0].split("\t");
+      const firstLineCells = lines[0].split('\t');
       const hasHeader = firstLineCells.some((cell) =>
-        columns.some((col) => col.name === cell.trim()),
+        columns.some((col) => col.name === cell.trim())
       );
       const dataLines = hasHeader ? lines.slice(1) : lines;
 
       return dataLines.map((line) => {
-        const cells = line.split("\t");
+        const cells = line.split('\t');
         if (cells.length > columns.length) {
           // Truncate extra cells
           cells.length = columns.length;
@@ -194,16 +198,16 @@ export default function TableNodeComponent({
       const lines = clipboard
         .trim()
         .split(/\r?\n/)
-        .filter((l) => l.includes("|"));
+        .filter((l) => l.includes('|'));
       if (lines.length < 2) return [];
 
       // Validate that second line is a separator (contains dashes)
-      if (lines.length > 1 && !lines[1].includes("-")) {
+      if (lines.length > 1 && !lines[1].includes('-')) {
         // No separator found, treat all lines as data
         const dataLines = lines;
         return dataLines.map((line) => {
           const cells = line
-            .split("|")
+            .split('|')
             .slice(1, -1)
             .map((c) => c.trim());
           const row = {};
@@ -218,7 +222,7 @@ export default function TableNodeComponent({
       const dataLines = lines.slice(2);
       return dataLines.map((line) => {
         const cells = line
-          .split("|")
+          .split('|')
           .slice(1, -1)
           .map((c) => c.trim());
         const row = {};
@@ -234,12 +238,12 @@ export default function TableNodeComponent({
   return (
     <div
       className={
-        "flex w-full items-center" + (disabled ? " cursor-not-allowed" : "")
+        'flex w-full items-center' + (disabled ? ' cursor-not-allowed' : '')
       }
       onPaste={(e) => {
         if (!isModalOpen) return;
         try {
-          const clipboard = e.clipboardData.getData("text");
+          const clipboard = e.clipboardData.getData('text');
           const rows = parseTSVorMarkdownTable(clipboard, componentColumns);
           if (rows.length > 0) {
             setTempValue((prev) => [...prev, ...rows]);
@@ -251,13 +255,13 @@ export default function TableNodeComponent({
             // toast.error("Could not parse clipboard data as table format");
           }
         } catch (error) {
-          console.error("Error parsing clipboard data:", error);
+          console.error('Error parsing clipboard data:', error);
           // Consider adding a toast notification for errors:
           // toast.error("Error importing clipboard data");
         }
       }}
     >
-      <div className="flex w-full items-center gap-3" data-testid={"div-" + id}>
+      <div className='flex w-full items-center gap-3' data-testid={'div-' + id}>
         <TableModal
           open={isModalOpen}
           setOpen={setIsModalOpen}
@@ -265,14 +269,14 @@ export default function TableNodeComponent({
           tableIcon={table_icon}
           tableOptions={table_options}
           dataTypeDefinitions={dataTypeDefinitions}
-          autoSizeStrategy={{ type: "fitGridWidth", defaultMinWidth: 100 }}
+          autoSizeStrategy={{ type: 'fitGridWidth', defaultMinWidth: 100 }}
           tableTitle={tableTitle}
           description={description}
           ref={agGrid}
           onSelectionChanged={(event: SelectionChangedEvent) => {
             setSelectedNodes(event.api.getSelectedNodes());
           }}
-          rowSelection={table_options?.block_select ? undefined : "multiple"}
+          rowSelection={table_options?.block_select ? undefined : 'multiple'}
           editable={editable}
           pagination={!table_options?.hide_options}
           addRow={addRow}
@@ -283,7 +287,7 @@ export default function TableNodeComponent({
           }}
           onDuplicate={duplicateRow}
           displayEmptyAlert={false}
-          className="h-full w-full"
+          className='h-full w-full'
           columnDefs={AgColumns}
           rowData={tempValue}
           context={{ field_parsers: table_options?.field_parsers }}
@@ -292,18 +296,18 @@ export default function TableNodeComponent({
         >
           <Button
             disabled={disabled}
-            variant="primary"
-            size={editNode ? "xs" : "default"}
+            variant='primary'
+            size={editNode ? 'xs' : 'default'}
             className={
-              "w-full " +
-              (disabled ? "pointer-events-none cursor-not-allowed" : "")
+              'w-full ' +
+              (disabled ? 'pointer-events-none cursor-not-allowed' : '')
             }
           >
             <ForwardedIconComponent
               name={trigger_icon}
-              className="mt-px h-4 w-4"
+              className='mt-px h-4 w-4'
             />
-            <span className="font-normal">{trigger_text}</span>
+            <span className='font-normal'>{trigger_text}</span>
           </Button>
         </TableModal>
       </div>

@@ -1,3 +1,4 @@
+import i18n
 import ast
 import pprint
 from enum import Enum
@@ -43,41 +44,51 @@ class YahooFinanceMethod(Enum):
 
 
 class YahooFinanceSchema(BaseModel):
-    symbol: str = Field(..., description="The stock symbol to retrieve data for.")
-    method: YahooFinanceMethod = Field(YahooFinanceMethod.GET_INFO, description="The type of data to retrieve.")
-    num_news: int | None = Field(5, description="The number of news articles to retrieve.")
+    symbol: str = Field(...,
+                        description="The stock symbol to retrieve data for.")
+    method: YahooFinanceMethod = Field(
+        YahooFinanceMethod.GET_INFO, description="The type of data to retrieve.")
+    num_news: int | None = Field(
+        5, description="The number of news articles to retrieve.")
 
 
 class YfinanceComponent(Component):
-    display_name = "Yahoo! Finance"
-    description = """Uses [yfinance](https://pypi.org/project/yfinance/) (unofficial package) \
-to access financial data and market information from Yahoo! Finance."""
+    display_name = i18n.t('components.yahoosearch.yahoo.display_name')
+    description = i18n.t('components.yahoosearch.yahoo.description')
     icon = "trending-up"
 
     inputs = [
         MessageTextInput(
             name="symbol",
-            display_name="Stock Symbol",
-            info="The stock symbol to retrieve data for (e.g., AAPL, GOOG).",
+            display_name=i18n.t(
+                'components.yahoosearch.yahoo.symbol.display_name'),
+            info=i18n.t('components.yahoosearch.yahoo.symbol.info'),
             tool_mode=True,
         ),
         DropdownInput(
             name="method",
-            display_name="Data Method",
-            info="The type of data to retrieve.",
+            display_name=i18n.t(
+                'components.yahoosearch.yahoo.method.display_name'),
+            info=i18n.t('components.yahoosearch.yahoo.method.info'),
             options=list(YahooFinanceMethod),
             value="get_news",
         ),
         IntInput(
             name="num_news",
-            display_name="Number of News",
-            info="The number of news articles to retrieve (only applicable for get_news).",
+            display_name=i18n.t(
+                'components.yahoosearch.yahoo.num_news.display_name'),
+            info=i18n.t('components.yahoosearch.yahoo.num_news.info'),
             value=5,
         ),
     ]
 
     outputs = [
-        Output(display_name="DataFrame", name="dataframe", method="fetch_content_dataframe"),
+        Output(
+            display_name=i18n.t(
+                'components.yahoosearch.yahoo.outputs.dataframe'),
+            name="dataframe",
+            method="fetch_content_dataframe"
+        ),
     ]
 
     def run_model(self) -> DataFrame:
@@ -124,7 +135,8 @@ to access financial data and market information from Yahoo! Finance."""
 
         if method == YahooFinanceMethod.GET_NEWS:
             data_list = [
-                Data(text=f"{article['title']}: {article['link']}", data=article)
+                Data(
+                    text=f"{article['title']}: {article['link']}", data=article)
                 for article in ast.literal_eval(result)
             ]
         else:

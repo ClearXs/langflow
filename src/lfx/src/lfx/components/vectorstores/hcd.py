@@ -1,3 +1,4 @@
+import i18n
 from lfx.base.vectorstores.model import LCVectorStoreComponent, check_cached_vector_store
 from lfx.helpers.data import docs_to_data
 from lfx.inputs.inputs import DictInput, FloatInput
@@ -14,150 +15,179 @@ from lfx.schema.data import Data
 
 
 class HCDVectorStoreComponent(LCVectorStoreComponent):
-    display_name: str = "Hyper-Converged Database"
-    description: str = "Implementation of Vector Store using Hyper-Converged Database (HCD) with search capabilities"
+    display_name: str = i18n.t('components.vectorstores.hcd.display_name')
+    description: str = i18n.t('components.vectorstores.hcd.description')
     name = "HCD"
     icon: str = "HCD"
 
     inputs = [
         StrInput(
             name="collection_name",
-            display_name="Collection Name",
-            info="The name of the collection within HCD where the vectors will be stored.",
+            display_name=i18n.t(
+                'components.vectorstores.hcd.collection_name.display_name'),
+            info=i18n.t('components.vectorstores.hcd.collection_name.info'),
             required=True,
         ),
         StrInput(
             name="username",
-            display_name="HCD Username",
-            info="Authentication username for accessing HCD.",
+            display_name=i18n.t(
+                'components.vectorstores.hcd.username.display_name'),
+            info=i18n.t('components.vectorstores.hcd.username.info'),
             value="hcd-superuser",
             required=True,
         ),
         SecretStrInput(
             name="password",
-            display_name="HCD Password",
-            info="Authentication password for accessing HCD.",
+            display_name=i18n.t(
+                'components.vectorstores.hcd.password.display_name'),
+            info=i18n.t('components.vectorstores.hcd.password.info'),
             value="HCD_PASSWORD",
             required=True,
         ),
         SecretStrInput(
             name="api_endpoint",
-            display_name="HCD API Endpoint",
-            info="API endpoint URL for the HCD service.",
+            display_name=i18n.t(
+                'components.vectorstores.hcd.api_endpoint.display_name'),
+            info=i18n.t('components.vectorstores.hcd.api_endpoint.info'),
             value="HCD_API_ENDPOINT",
             required=True,
         ),
         *LCVectorStoreComponent.inputs,
         StrInput(
             name="namespace",
-            display_name="Namespace",
-            info="Optional namespace within HCD to use for the collection.",
+            display_name=i18n.t(
+                'components.vectorstores.hcd.namespace.display_name'),
+            info=i18n.t('components.vectorstores.hcd.namespace.info'),
             value="default_namespace",
             advanced=True,
         ),
         MultilineInput(
             name="ca_certificate",
-            display_name="CA Certificate",
-            info="Optional CA certificate for TLS connections to HCD.",
+            display_name=i18n.t(
+                'components.vectorstores.hcd.ca_certificate.display_name'),
+            info=i18n.t('components.vectorstores.hcd.ca_certificate.info'),
             advanced=True,
         ),
         DropdownInput(
             name="metric",
-            display_name="Metric",
-            info="Optional distance metric for vector comparisons in the vector store.",
+            display_name=i18n.t(
+                'components.vectorstores.hcd.metric.display_name'),
+            info=i18n.t('components.vectorstores.hcd.metric.info'),
             options=["cosine", "dot_product", "euclidean"],
             advanced=True,
         ),
         IntInput(
             name="batch_size",
-            display_name="Batch Size",
-            info="Optional number of data to process in a single batch.",
+            display_name=i18n.t(
+                'components.vectorstores.hcd.batch_size.display_name'),
+            info=i18n.t('components.vectorstores.hcd.batch_size.info'),
             advanced=True,
         ),
         IntInput(
             name="bulk_insert_batch_concurrency",
-            display_name="Bulk Insert Batch Concurrency",
-            info="Optional concurrency level for bulk insert operations.",
+            display_name=i18n.t(
+                'components.vectorstores.hcd.bulk_insert_batch_concurrency.display_name'),
+            info=i18n.t(
+                'components.vectorstores.hcd.bulk_insert_batch_concurrency.info'),
             advanced=True,
         ),
         IntInput(
             name="bulk_insert_overwrite_concurrency",
-            display_name="Bulk Insert Overwrite Concurrency",
-            info="Optional concurrency level for bulk insert operations that overwrite existing data.",
+            display_name=i18n.t(
+                'components.vectorstores.hcd.bulk_insert_overwrite_concurrency.display_name'),
+            info=i18n.t(
+                'components.vectorstores.hcd.bulk_insert_overwrite_concurrency.info'),
             advanced=True,
         ),
         IntInput(
             name="bulk_delete_concurrency",
-            display_name="Bulk Delete Concurrency",
-            info="Optional concurrency level for bulk delete operations.",
+            display_name=i18n.t(
+                'components.vectorstores.hcd.bulk_delete_concurrency.display_name'),
+            info=i18n.t(
+                'components.vectorstores.hcd.bulk_delete_concurrency.info'),
             advanced=True,
         ),
         DropdownInput(
             name="setup_mode",
-            display_name="Setup Mode",
-            info="Configuration mode for setting up the vector store, with options like 'Sync', 'Async', or 'Off'.",
+            display_name=i18n.t(
+                'components.vectorstores.hcd.setup_mode.display_name'),
+            info=i18n.t('components.vectorstores.hcd.setup_mode.info'),
             options=["Sync", "Async", "Off"],
             advanced=True,
             value="Sync",
         ),
         BoolInput(
             name="pre_delete_collection",
-            display_name="Pre Delete Collection",
-            info="Boolean flag to determine whether to delete the collection before creating a new one.",
+            display_name=i18n.t(
+                'components.vectorstores.hcd.pre_delete_collection.display_name'),
+            info=i18n.t(
+                'components.vectorstores.hcd.pre_delete_collection.info'),
             advanced=True,
         ),
         StrInput(
             name="metadata_indexing_include",
-            display_name="Metadata Indexing Include",
-            info="Optional list of metadata fields to include in the indexing.",
+            display_name=i18n.t(
+                'components.vectorstores.hcd.metadata_indexing_include.display_name'),
+            info=i18n.t(
+                'components.vectorstores.hcd.metadata_indexing_include.info'),
             advanced=True,
         ),
         HandleInput(
             name="embedding",
-            display_name="Embedding or Astra Vectorize",
+            display_name=i18n.t(
+                'components.vectorstores.hcd.embedding.display_name'),
             input_types=["Embeddings", "dict"],
             # TODO: This should be optional, but need to refactor langchain-astradb first.
-            info="Allows either an embedding model or an Astra Vectorize configuration.",
+            info=i18n.t('components.vectorstores.hcd.embedding.info'),
         ),
         StrInput(
             name="metadata_indexing_exclude",
-            display_name="Metadata Indexing Exclude",
-            info="Optional list of metadata fields to exclude from the indexing.",
+            display_name=i18n.t(
+                'components.vectorstores.hcd.metadata_indexing_exclude.display_name'),
+            info=i18n.t(
+                'components.vectorstores.hcd.metadata_indexing_exclude.info'),
             advanced=True,
         ),
         StrInput(
             name="collection_indexing_policy",
-            display_name="Collection Indexing Policy",
-            info="Optional dictionary defining the indexing policy for the collection.",
+            display_name=i18n.t(
+                'components.vectorstores.hcd.collection_indexing_policy.display_name'),
+            info=i18n.t(
+                'components.vectorstores.hcd.collection_indexing_policy.info'),
             advanced=True,
         ),
         IntInput(
             name="number_of_results",
-            display_name="Number of Results",
-            info="Number of results to return.",
+            display_name=i18n.t(
+                'components.vectorstores.hcd.number_of_results.display_name'),
+            info=i18n.t('components.vectorstores.hcd.number_of_results.info'),
             advanced=True,
             value=4,
         ),
         DropdownInput(
             name="search_type",
-            display_name="Search Type",
-            info="Search type to use",
-            options=["Similarity", "Similarity with score threshold", "MMR (Max Marginal Relevance)"],
+            display_name=i18n.t(
+                'components.vectorstores.hcd.search_type.display_name'),
+            info=i18n.t('components.vectorstores.hcd.search_type.info'),
+            options=["Similarity", "Similarity with score threshold",
+                     "MMR (Max Marginal Relevance)"],
             value="Similarity",
             advanced=True,
         ),
         FloatInput(
             name="search_score_threshold",
-            display_name="Search Score Threshold",
-            info="Minimum similarity score threshold for search results. "
-            "(when using 'Similarity with score threshold')",
+            display_name=i18n.t(
+                'components.vectorstores.hcd.search_score_threshold.display_name'),
+            info=i18n.t(
+                'components.vectorstores.hcd.search_score_threshold.info'),
             value=0,
             advanced=True,
         ),
         DictInput(
             name="search_filter",
-            display_name="Search Metadata Filter",
-            info="Optional dictionary of filters to apply to the search query.",
+            display_name=i18n.t(
+                'components.vectorstores.hcd.search_filter.display_name'),
+            info=i18n.t('components.vectorstores.hcd.search_filter.info'),
             advanced=True,
             is_list=True,
         ),
@@ -196,17 +226,22 @@ class HCDVectorStoreComponent(LCVectorStoreComponent):
         else:
             from astrapy.info import VectorServiceOptions
 
-            dict_options = self.embedding.get("collection_vector_service_options", {})
+            dict_options = self.embedding.get(
+                "collection_vector_service_options", {})
             dict_options["authentication"] = {
                 k: v for k, v in dict_options.get("authentication", {}).items() if k and v
             }
-            dict_options["parameters"] = {k: v for k, v in dict_options.get("parameters", {}).items() if k and v}
-            embedding_dict = {"collection_vector_service_options": VectorServiceOptions.from_dict(dict_options)}
-            collection_embedding_api_key = self.embedding.get("collection_embedding_api_key")
+            dict_options["parameters"] = {k: v for k, v in dict_options.get(
+                "parameters", {}).items() if k and v}
+            embedding_dict = {
+                "collection_vector_service_options": VectorServiceOptions.from_dict(dict_options)}
+            collection_embedding_api_key = self.embedding.get(
+                "collection_embedding_api_key")
             if collection_embedding_api_key:
                 embedding_dict["collection_embedding_api_key"] = collection_embedding_api_key
 
-        token_provider = UsernamePasswordTokenProvider(self.username, self.password)
+        token_provider = UsernamePasswordTokenProvider(
+            self.username, self.password)
         vector_store_kwargs = {
             **embedding_dict,
             "collection_name": self.collection_name,
@@ -275,7 +310,8 @@ class HCDVectorStoreComponent(LCVectorStoreComponent):
         }
 
         if self.search_filter:
-            clean_filter = {k: v for k, v in self.search_filter.items() if k and v}
+            clean_filter = {k: v for k,
+                            v in self.search_filter.items() if k and v}
             if len(clean_filter) > 0:
                 args["filter"] = clean_filter
         return args
@@ -292,7 +328,8 @@ class HCDVectorStoreComponent(LCVectorStoreComponent):
                 search_type = self._map_search_type()
                 search_args = self._build_search_args()
 
-                docs = vector_store.search(query=self.search_query, search_type=search_type, **search_args)
+                docs = vector_store.search(
+                    query=self.search_query, search_type=search_type, **search_args)
             except Exception as e:
                 msg = f"Error performing search in AstraDBVectorStore: {e}"
                 raise ValueError(msg) from e

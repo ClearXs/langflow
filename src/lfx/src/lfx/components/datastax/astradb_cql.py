@@ -81,6 +81,8 @@ class AstraDBCQLToolComponent(LCToolComponent):
             advanced=True,
         ),
         TableInput(
+            trigger_text=i18n.t(
+                'components.inputs.input_mixin.open_table'),
             name="tools_params",
             display_name=i18n.t(
                 'components.datastax.astradb_cql.tools_params.display_name'),

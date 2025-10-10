@@ -60,6 +60,8 @@ class OpenSearchVectorStoreComponent(LCVectorStoreComponent):
 
     inputs = [
         TableInput(
+            trigger_text=i18n.t(
+                'components.inputs.input_mixin.open_table'),
             name="docs_metadata",
             display_name=i18n.t(
                 'components.elastic.opensearch.docs_metadata.display_name'),

@@ -1,3 +1,4 @@
+import i18n
 from typing import Any
 
 from elasticsearch import Elasticsearch
@@ -20,91 +21,102 @@ from lfx.schema.data import Data
 class ElasticsearchVectorStoreComponent(LCVectorStoreComponent):
     """Elasticsearch Vector Store with with advanced, customizable search capabilities."""
 
-    display_name: str = "Elasticsearch"
-    description: str = "Elasticsearch Vector Store with with advanced, customizable search capabilities."
+    display_name: str = i18n.t(
+        'components.vectorstores.elasticsearch.display_name')
+    description: str = i18n.t(
+        'components.vectorstores.elasticsearch.description')
     name = "Elasticsearch"
     icon = "ElasticsearchStore"
 
     inputs = [
         StrInput(
             name="elasticsearch_url",
-            display_name="Elasticsearch URL",
+            display_name=i18n.t(
+                'components.vectorstores.elasticsearch.elasticsearch_url.display_name'),
             value="http://localhost:9200",
-            info="URL for self-managed Elasticsearch deployments (e.g., http://localhost:9200). "
-            "Do not use with Elastic Cloud deployments, use Elastic Cloud ID instead.",
+            info=i18n.t(
+                'components.vectorstores.elasticsearch.elasticsearch_url.info'),
         ),
         SecretStrInput(
             name="cloud_id",
-            display_name="Elastic Cloud ID",
+            display_name=i18n.t(
+                'components.vectorstores.elasticsearch.cloud_id.display_name'),
             value="",
-            info="Use this for Elastic Cloud deployments. Do not use together with 'Elasticsearch URL'.",
+            info=i18n.t('components.vectorstores.elasticsearch.cloud_id.info'),
         ),
         StrInput(
             name="index_name",
-            display_name="Index Name",
+            display_name=i18n.t(
+                'components.vectorstores.elasticsearch.index_name.display_name'),
             value="langflow",
-            info="The index name where the vectors will be stored in Elasticsearch cluster.",
+            info=i18n.t(
+                'components.vectorstores.elasticsearch.index_name.info'),
         ),
         *LCVectorStoreComponent.inputs,
         StrInput(
             name="username",
-            display_name="Username",
+            display_name=i18n.t(
+                'components.vectorstores.elasticsearch.username.display_name'),
             value="",
             advanced=False,
-            info=(
-                "Elasticsearch username (e.g., 'elastic'). "
-                "Required for both local and Elastic Cloud setups unless API keys are used."
-            ),
+            info=i18n.t('components.vectorstores.elasticsearch.username.info'),
         ),
         SecretStrInput(
             name="password",
-            display_name="Password",
+            display_name=i18n.t(
+                'components.vectorstores.elasticsearch.password.display_name'),
             value="",
             advanced=False,
-            info=(
-                "Elasticsearch password for the specified user. "
-                "Required for both local and Elastic Cloud setups unless API keys are used."
-            ),
+            info=i18n.t('components.vectorstores.elasticsearch.password.info'),
         ),
         HandleInput(
             name="embedding",
-            display_name="Embedding",
+            display_name=i18n.t(
+                'components.vectorstores.elasticsearch.embedding.display_name'),
             input_types=["Embeddings"],
         ),
         DropdownInput(
             name="search_type",
-            display_name="Search Type",
+            display_name=i18n.t(
+                'components.vectorstores.elasticsearch.search_type.display_name'),
             options=["similarity", "mmr"],
             value="similarity",
             advanced=True,
         ),
         IntInput(
             name="number_of_results",
-            display_name="Number of Results",
-            info="Number of results to return.",
+            display_name=i18n.t(
+                'components.vectorstores.elasticsearch.number_of_results.display_name'),
+            info=i18n.t(
+                'components.vectorstores.elasticsearch.number_of_results.info'),
             advanced=True,
             value=4,
         ),
         FloatInput(
             name="search_score_threshold",
-            display_name="Search Score Threshold",
-            info="Minimum similarity score threshold for search results.",
+            display_name=i18n.t(
+                'components.vectorstores.elasticsearch.search_score_threshold.display_name'),
+            info=i18n.t(
+                'components.vectorstores.elasticsearch.search_score_threshold.info'),
             value=0.0,
             advanced=True,
         ),
         SecretStrInput(
             name="api_key",
-            display_name="Elastic API Key",
+            display_name=i18n.t(
+                'components.vectorstores.elasticsearch.api_key.display_name'),
             value="",
             advanced=True,
-            info="API Key for Elastic Cloud authentication. If used, 'username' and 'password' are not required.",
+            info=i18n.t('components.vectorstores.elasticsearch.api_key.info'),
         ),
         BoolInput(
             name="verify_certs",
-            display_name="Verify SSL Certificates",
+            display_name=i18n.t(
+                'components.vectorstores.elasticsearch.verify_certs.display_name'),
             value=True,
             advanced=True,
-            info="Whether to verify SSL certificates when connecting to Elasticsearch.",
+            info=i18n.t(
+                'components.vectorstores.elasticsearch.verify_certs.info'),
         ),
     ]
 
@@ -201,9 +213,11 @@ class ElasticsearchVectorStoreComponent(LCVectorStoreComponent):
                 raise ValueError(msg)
             try:
                 if search_type == "similarity":
-                    results = vector_store.similarity_search_with_score(query, **search_kwargs)
+                    results = vector_store.similarity_search_with_score(
+                        query, **search_kwargs)
                 elif search_type == "mmr":
-                    results = vector_store.max_marginal_relevance_search(query, **search_kwargs)
+                    results = vector_store.max_marginal_relevance_search(
+                        query, **search_kwargs)
             except Exception as e:
                 msg = (
                     "Error occurred while querying the Elasticsearch VectorStore,"

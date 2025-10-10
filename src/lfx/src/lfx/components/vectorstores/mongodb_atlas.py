@@ -1,3 +1,4 @@
+import i18n
 import tempfile
 import time
 
@@ -13,82 +14,128 @@ from lfx.schema.data import Data
 
 
 class MongoVectorStoreComponent(LCVectorStoreComponent):
-    display_name = "MongoDB Atlas"
-    description = "MongoDB Atlas Vector Store with search capabilities"
+    display_name = i18n.t('components.vectorstores.mongodb_atlas.display_name')
+    description = i18n.t('components.vectorstores.mongodb_atlas.description')
     name = "MongoDBAtlasVector"
     icon = "MongoDB"
     INSERT_MODES = ["append", "overwrite"]
     SIMILARITY_OPTIONS = ["cosine", "euclidean", "dotProduct"]
     QUANTIZATION_OPTIONS = ["scalar", "binary"]
     inputs = [
-        SecretStrInput(name="mongodb_atlas_cluster_uri", display_name="MongoDB Atlas Cluster URI", required=True),
-        BoolInput(name="enable_mtls", display_name="Enable mTLS", value=False, advanced=True, required=True),
+        SecretStrInput(
+            name="mongodb_atlas_cluster_uri",
+            display_name=i18n.t(
+                'components.vectorstores.mongodb_atlas.mongodb_atlas_cluster_uri.display_name'),
+            required=True
+        ),
+        BoolInput(
+            name="enable_mtls",
+            display_name=i18n.t(
+                'components.vectorstores.mongodb_atlas.enable_mtls.display_name'),
+            value=False,
+            advanced=True,
+            required=True
+        ),
         SecretStrInput(
             name="mongodb_atlas_client_cert",
-            display_name="MongoDB Atlas Combined Client Certificate",
+            display_name=i18n.t(
+                'components.vectorstores.mongodb_atlas.mongodb_atlas_client_cert.display_name'),
             required=False,
-            info="Client Certificate combined with the private key in the following format:\n "
-            "-----BEGIN PRIVATE KEY-----\n...\n -----END PRIVATE KEY-----\n-----BEGIN CERTIFICATE-----\n"
-            "...\n-----END CERTIFICATE-----\n",
+            info=i18n.t(
+                'components.vectorstores.mongodb_atlas.mongodb_atlas_client_cert.info'),
         ),
-        StrInput(name="db_name", display_name="Database Name", required=True),
-        StrInput(name="collection_name", display_name="Collection Name", required=True),
+        StrInput(
+            name="db_name",
+            display_name=i18n.t(
+                'components.vectorstores.mongodb_atlas.db_name.display_name'),
+            required=True
+        ),
+        StrInput(
+            name="collection_name",
+            display_name=i18n.t(
+                'components.vectorstores.mongodb_atlas.collection_name.display_name'),
+            required=True
+        ),
         StrInput(
             name="index_name",
-            display_name="Index Name",
+            display_name=i18n.t(
+                'components.vectorstores.mongodb_atlas.index_name.display_name'),
             required=True,
-            info="The name of Atlas Search index, it should be a Vector Search.",
+            info=i18n.t(
+                'components.vectorstores.mongodb_atlas.index_name.info'),
         ),
         *LCVectorStoreComponent.inputs,
         DropdownInput(
             name="insert_mode",
-            display_name="Insert Mode",
+            display_name=i18n.t(
+                'components.vectorstores.mongodb_atlas.insert_mode.display_name'),
             options=INSERT_MODES,
             value=INSERT_MODES[0],
-            info="How to insert new documents into the collection.",
+            info=i18n.t(
+                'components.vectorstores.mongodb_atlas.insert_mode.info'),
             advanced=True,
         ),
-        HandleInput(name="embedding", display_name="Embedding", input_types=["Embeddings"]),
+        HandleInput(
+            name="embedding",
+            display_name=i18n.t(
+                'components.vectorstores.mongodb_atlas.embedding.display_name'),
+            input_types=["Embeddings"]
+        ),
         IntInput(
             name="number_of_results",
-            display_name="Number of Results",
-            info="Number of results to return.",
+            display_name=i18n.t(
+                'components.vectorstores.mongodb_atlas.number_of_results.display_name'),
+            info=i18n.t(
+                'components.vectorstores.mongodb_atlas.number_of_results.info'),
             value=4,
             advanced=True,
         ),
         StrInput(
             name="index_field",
-            display_name="Index Field",
+            display_name=i18n.t(
+                'components.vectorstores.mongodb_atlas.index_field.display_name'),
             advanced=True,
             required=True,
-            info="The field to index.",
+            info=i18n.t(
+                'components.vectorstores.mongodb_atlas.index_field.info'),
             value="embedding",
         ),
         StrInput(
-            name="filter_field", display_name="Filter Field", advanced=True, info="The field to filter the index."
+            name="filter_field",
+            display_name=i18n.t(
+                'components.vectorstores.mongodb_atlas.filter_field.display_name'),
+            advanced=True,
+            info=i18n.t(
+                'components.vectorstores.mongodb_atlas.filter_field.info')
         ),
         IntInput(
             name="number_dimensions",
-            display_name="Number of Dimensions",
-            info="Embedding Context Length.",
+            display_name=i18n.t(
+                'components.vectorstores.mongodb_atlas.number_dimensions.display_name'),
+            info=i18n.t(
+                'components.vectorstores.mongodb_atlas.number_dimensions.info'),
             value=1536,
             advanced=True,
             required=True,
         ),
         DropdownInput(
             name="similarity",
-            display_name="Similarity",
+            display_name=i18n.t(
+                'components.vectorstores.mongodb_atlas.similarity.display_name'),
             options=SIMILARITY_OPTIONS,
             value=SIMILARITY_OPTIONS[0],
-            info="The method used to measure the similarity between vectors.",
+            info=i18n.t(
+                'components.vectorstores.mongodb_atlas.similarity.info'),
             advanced=True,
         ),
         DropdownInput(
             name="quantization",
-            display_name="Quantization",
+            display_name=i18n.t(
+                'components.vectorstores.mongodb_atlas.quantization.display_name'),
             options=QUANTIZATION_OPTIONS,
             value=None,
-            info="Quantization reduces memory costs converting 32-bit floats to smaller data types",
+            info=i18n.t(
+                'components.vectorstores.mongodb_atlas.quantization.info'),
             advanced=True,
         ),
     ]
@@ -106,12 +153,14 @@ class MongoVectorStoreComponent(LCVectorStoreComponent):
             client_cert_path = None
             try:
                 client_cert = self.mongodb_atlas_client_cert.replace(" ", "\n")
-                client_cert = client_cert.replace("-----BEGIN\nPRIVATE\nKEY-----", "-----BEGIN PRIVATE KEY-----")
+                client_cert = client_cert.replace(
+                    "-----BEGIN\nPRIVATE\nKEY-----", "-----BEGIN PRIVATE KEY-----")
                 client_cert = client_cert.replace(
                     "-----END\nPRIVATE\nKEY-----\n-----BEGIN\nCERTIFICATE-----",
                     "-----END PRIVATE KEY-----\n-----BEGIN CERTIFICATE-----",
                 )
-                client_cert = client_cert.replace("-----END\nCERTIFICATE-----", "-----END CERTIFICATE-----")
+                client_cert = client_cert.replace(
+                    "-----END\nCERTIFICATE-----", "-----END CERTIFICATE-----")
                 with tempfile.NamedTemporaryFile(delete=False) as client_cert_file:
                     client_cert_file.write(client_cert.encode("utf-8"))
                     client_cert_path = client_cert_file.name
@@ -180,7 +229,8 @@ class MongoVectorStoreComponent(LCVectorStoreComponent):
 
     def __insert_mode(self, collection: Collection) -> None:
         if self.insert_mode == "overwrite":
-            collection.delete_many({})  # Delete all documents while preserving collection structure
+            # Delete all documents while preserving collection structure
+            collection.delete_many({})
 
     def verify_search_index(self, collection: Collection) -> None:
         """Verify if the search index exists, if not, create it.

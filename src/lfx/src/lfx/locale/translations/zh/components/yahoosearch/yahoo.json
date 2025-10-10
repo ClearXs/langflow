@@ -1,0 +1,19 @@
+{
+  "display_name": "Yahoo! Finance",
+  "description": "使用 yfinance（非官方包）访问 Yahoo! Finance 的金融数据和市场信息。",
+  "symbol": {
+    "display_name": "股票代码",
+    "info": "要检索数据的股票代码（例如 AAPL、GOOG）。"
+  },
+  "method": {
+    "display_name": "数据方法",
+    "info": "要检索的数据类型。"
+  },
+  "num_news": {
+    "display_name": "新闻数量",
+    "info": "要检索的新闻文章数量（仅适用于 get_news）。"
+  },
+  "outputs": {
+    "dataframe": "数据框"
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "display_name": "YouTube Transcripts",
+  "description": "Extracts spoken content from YouTube videos with multiple output options.",
+  "url": {
+    "display_name": "Video URL",
+    "info": "Enter the YouTube video URL to get transcripts from."
+  },
+  "chunk_size_seconds": {
+    "display_name": "Chunk Size (seconds)",
+    "info": "The size of each transcript chunk in seconds."
+  },
+  "translation": {
+    "display_name": "Translation Language",
+    "info": "Translate the transcripts to the specified language. Leave empty for no translation."
+  },
+  "outputs": {
+    "dataframe": "Chunks",
+    "message": "Transcript",
+    "data_output": "Transcript + Source"
+  }
+}

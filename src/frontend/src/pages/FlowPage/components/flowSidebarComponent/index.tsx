@@ -53,6 +53,7 @@ import { normalizeString } from "./helpers/normalize-string";
 import sensitiveSort from "./helpers/sensitive-sort";
 import { traditionalSearchMetadata } from "./helpers/traditional-search-metadata";
 import { useSidebarBundles, useSidebarCategories } from "@/i18n/locale";
+import { useTranslation } from "react-i18next";
 
 // Search context for the sidebar
 export type SearchContextType = {
@@ -147,6 +148,7 @@ export function FlowSidebarComponent({ isLoading }: FlowSidebarComponentProps) {
   const data = useTypesStore((state) => state.data);
   const BUNDLES = useSidebarBundles()
   const CATEGORIES = useSidebarCategories()
+  const { t } = useTranslation();
 
   const {
     getFilterEdge,
@@ -682,7 +684,7 @@ export function FlowSidebarComponent({ isLoading }: FlowSidebarComponentProps) {
                             className="h-4 w-4"
                           />
                         </span>
-                        Discover more components
+                        {t("flow.sidebar.common.discoverMoreComponents")}
                       </Button>
                     )}
                   </>

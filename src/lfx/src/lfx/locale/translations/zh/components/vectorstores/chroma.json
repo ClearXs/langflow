@@ -1,0 +1,43 @@
+{
+  "display_name": "Chroma DB",
+  "description": "具有搜索功能的 Chroma 向量存储",
+  "collection_name": {
+    "display_name": "集合名称"
+  },
+  "persist_directory": {
+    "display_name": "持久化目录"
+  },
+  "embedding": {
+    "display_name": "嵌入"
+  },
+  "chroma_server_cors_allow_origins": {
+    "display_name": "服务器 CORS 允许来源"
+  },
+  "chroma_server_host": {
+    "display_name": "服务器主机"
+  },
+  "chroma_server_http_port": {
+    "display_name": "服务器 HTTP 端口"
+  },
+  "chroma_server_grpc_port": {
+    "display_name": "服务器 gRPC 端口"
+  },
+  "chroma_server_ssl_enabled": {
+    "display_name": "启用服务器 SSL"
+  },
+  "allow_duplicates": {
+    "display_name": "允许重复",
+    "info": "如果为 false，将不会添加已在向量存储中的文档。"
+  },
+  "search_type": {
+    "display_name": "搜索类型"
+  },
+  "number_of_results": {
+    "display_name": "结果数量",
+    "info": "要返回的结果数量。"
+  },
+  "limit": {
+    "display_name": "限制",
+    "info": "当允许重复为 False 时，限制要比较的记录数量。"
+  }
+}

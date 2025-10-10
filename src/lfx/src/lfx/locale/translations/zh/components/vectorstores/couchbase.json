@@ -1,0 +1,32 @@
+{
+  "display_name": "Couchbase",
+  "description": "具有搜索功能的 Couchbase 向量存储",
+  "couchbase_connection_string": {
+    "display_name": "Couchbase 集群连接字符串"
+  },
+  "couchbase_username": {
+    "display_name": "Couchbase 用户名"
+  },
+  "couchbase_password": {
+    "display_name": "Couchbase 密码"
+  },
+  "bucket_name": {
+    "display_name": "桶名称"
+  },
+  "scope_name": {
+    "display_name": "作用域名称"
+  },
+  "collection_name": {
+    "display_name": "集合名称"
+  },
+  "index_name": {
+    "display_name": "索引名称"
+  },
+  "embedding": {
+    "display_name": "嵌入"
+  },
+  "number_of_results": {
+    "display_name": "结果数量",
+    "info": "要返回的结果数量。"
+  }
+}

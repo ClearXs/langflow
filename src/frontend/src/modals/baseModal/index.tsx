@@ -1,7 +1,7 @@
-import { DialogClose } from "@radix-ui/react-dialog";
-import * as Form from "@radix-ui/react-form";
-import React, { type ReactNode, useEffect } from "react";
-import { Button } from "../../components/ui/button";
+import { DialogClose } from '@radix-ui/react-dialog';
+import * as Form from '@radix-ui/react-form';
+import React, { type ReactNode, useEffect } from 'react';
+import { Button } from '../../components/ui/button';
 import {
   Dialog,
   DialogContent,
@@ -10,14 +10,15 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "../../components/ui/dialog";
+} from '../../components/ui/dialog';
 import {
   Dialog as Modal,
   DialogContent as ModalContent,
-} from "../../components/ui/dialog-with-no-close";
-import type { modalHeaderType } from "../../types/components";
-import { cn } from "../../utils/utils";
-import { switchCaseModalSize } from "./helpers/switch-case-size";
+} from '../../components/ui/dialog-with-no-close';
+import type { modalHeaderType } from '../../types/components';
+import { cn } from '../../utils/utils';
+import { switchCaseModalSize } from './helpers/switch-case-size';
+import { useTranslation } from 'react-i18next';
 
 type ContentProps = {
   children: ReactNode;
@@ -42,8 +43,8 @@ const Content: React.FC<ContentProps> = ({
     <div
       className={cn(
         `flex flex-1 flex-col rounded-md transition-all duration-300`,
-        overflowHidden ? "overflow-hidden" : "overflow-auto",
-        className,
+        overflowHidden ? 'overflow-hidden' : 'overflow-auto',
+        className
       )}
     >
       {children}
@@ -58,7 +59,7 @@ const Trigger: React.FC<TriggerProps> = ({
 }) => {
   return (
     <DialogTrigger
-      className={asChild ? "" : cn("w-full", className)}
+      className={asChild ? '' : cn('w-full', className)}
       hidden={children ? false : true}
       disabled={disable}
       asChild={asChild}
@@ -79,7 +80,7 @@ const Header: React.FC<{
 }: modalHeaderType): JSX.Element => {
   return (
     <DialogHeader>
-      <DialogTitle className="line-clamp-1 flex items-center pb-0.5 text-base">
+      <DialogTitle className='line-clamp-1 flex items-center pb-0.5 text-base'>
         {children}
       </DialogTitle>
       {description && (
@@ -107,31 +108,33 @@ const Footer: React.FC<{
   centered?: boolean;
   className?: string;
 }> = ({ children, submit, close, centered, className }) => {
+  const { t } = useTranslation();
+
   return (
     <div
       className={cn(
         centered
-          ? "flex flex-shrink-0 justify-center"
-          : "flex flex-shrink-0 flex-row-reverse",
-        className,
+          ? 'flex flex-shrink-0 justify-center'
+          : 'flex flex-shrink-0 flex-row-reverse',
+        className
       )}
     >
       {submit ? (
-        <div className="flex w-full items-center justify-between">
+        <div className='flex w-full items-center justify-between'>
           {children ?? <div />}
-          <div className="flex items-center gap-3">
+          <div className='flex items-center gap-3'>
             <DialogClose asChild>
               <Button
-                variant="outline"
-                type="button"
-                data-testid="btn-cancel-modal"
+                variant='outline'
+                type='button'
+                data-testid='btn-cancel-modal'
               >
-                Cancel
+                {t('components.button.cancel')}
               </Button>
             </DialogClose>
             <Button
               data-testid={submit.dataTestId}
-              type={submit.onClick ? "button" : "submit"}
+              type={submit.onClick ? 'button' : 'submit'}
               onClick={submit.onClick}
               loading={submit.loading}
               disabled={submit.disabled}
@@ -146,8 +149,8 @@ const Footer: React.FC<{
       )}
       {close && (
         <DialogClose asChild>
-          <Button data-testid="btn-close-modal" type="button">
-            Close
+          <Button data-testid='btn-close-modal' type='button'>
+            {t('components.button.close')}
           </Button>
         </DialogClose>
       )}
@@ -160,39 +163,39 @@ interface BaseModalProps {
         React.ReactElement<ContentProps>,
         React.ReactElement<HeaderProps>?,
         React.ReactElement<TriggerProps>?,
-        React.ReactElement<FooterProps>?,
+        React.ReactElement<FooterProps>?
       ]
     | React.ReactElement<ContentProps>;
   open?: boolean;
   setOpen?: (open: boolean) => void;
   size?:
-    | "notice"
-    | "x-small"
-    | "retangular"
-    | "smaller"
-    | "small"
-    | "small-update"
-    | "small-query"
-    | "medium"
-    | "medium-tall"
-    | "large"
-    | "three-cards"
-    | "large-thin"
-    | "large-h-full"
-    | "templates"
-    | "small-h-full"
-    | "medium-small-tall"
-    | "medium-h-full"
-    | "md-thin"
-    | "sm-thin"
-    | "smaller-h-full"
-    | "medium-log"
-    | "x-large"
-    | "auth";
+    | 'notice'
+    | 'x-small'
+    | 'retangular'
+    | 'smaller'
+    | 'small'
+    | 'small-update'
+    | 'small-query'
+    | 'medium'
+    | 'medium-tall'
+    | 'large'
+    | 'three-cards'
+    | 'large-thin'
+    | 'large-h-full'
+    | 'templates'
+    | 'small-h-full'
+    | 'medium-small-tall'
+    | 'medium-h-full'
+    | 'md-thin'
+    | 'sm-thin'
+    | 'smaller-h-full'
+    | 'medium-log'
+    | 'x-large'
+    | 'auth';
   className?: string;
   disable?: boolean;
   onChangeOpenModal?: (open?: boolean) => void;
-  type?: "modal" | "dialog" | "full-screen";
+  type?: 'modal' | 'dialog' | 'full-screen';
   onSubmit?: () => void;
   onEscapeKeyDown?: (e: KeyboardEvent) => void;
   closeButtonClassName?: string;
@@ -203,25 +206,25 @@ function BaseModal({
   open,
   setOpen,
   children,
-  size = "large",
+  size = 'large',
   onChangeOpenModal,
-  type = "dialog",
+  type = 'dialog',
   onSubmit,
   onEscapeKeyDown,
   closeButtonClassName,
   dialogContentWithouFixed = false,
 }: BaseModalProps) {
   const headerChild = React.Children.toArray(children).find(
-    (child) => (child as React.ReactElement).type === Header,
+    (child) => (child as React.ReactElement).type === Header
   );
   const triggerChild = React.Children.toArray(children).find(
-    (child) => (child as React.ReactElement).type === Trigger,
+    (child) => (child as React.ReactElement).type === Trigger
   );
   const ContentChild = React.Children.toArray(children).find(
-    (child) => (child as React.ReactElement).type === Content,
+    (child) => (child as React.ReactElement).type === Content
   );
   const ContentFooter = React.Children.toArray(children).find(
-    (child) => (child as React.ReactElement).type === Footer,
+    (child) => (child as React.ReactElement).type === Footer
   );
 
   const { minWidth, height } = switchCaseModalSize(size);
@@ -243,22 +246,22 @@ function BaseModal({
   const contentClasses = cn(
     minWidth,
     height,
-    "flex flex-col flex-1 overflow-hidden max-h-[98dvh]",
-    className,
+    'flex flex-col flex-1 overflow-hidden max-h-[98dvh]',
+    className
   );
 
-  const formClasses = "flex flex-col flex-1 gap-6 overflow-hidden";
+  const formClasses = 'flex flex-col flex-1 gap-6 overflow-hidden';
 
   //UPDATE COLORS AND STYLE CLASSSES
   return (
     <>
-      {type === "modal" ? (
+      {type === 'modal' ? (
         <Modal open={open} onOpenChange={setOpen}>
           {triggerChild}
           <ModalContent className={contentClasses}>{modalContent}</ModalContent>
         </Modal>
-      ) : type === "full-screen" ? (
-        <div className="min-h-full w-full flex-1 overflow-hidden">
+      ) : type === 'full-screen' ? (
+        <div className='min-h-full w-full flex-1 overflow-hidden'>
           {modalContent}
         </div>
       ) : (

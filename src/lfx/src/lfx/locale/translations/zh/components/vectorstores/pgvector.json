@@ -1,0 +1,17 @@
+{
+  "display_name": "PGVector",
+  "description": "具有搜索功能的 PGVector 向量存储",
+  "pg_server_url": {
+    "display_name": "PostgreSQL 服务器连接字符串"
+  },
+  "collection_name": {
+    "display_name": "表名"
+  },
+  "embedding": {
+    "display_name": "嵌入"
+  },
+  "number_of_results": {
+    "display_name": "结果数量",
+    "info": "要返回的结果数量。"
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "display_name": "搜索",
+  "description": "搜索所有与集成共享的页面和数据库。",
+  "notion_secret": {
+    "display_name": "Notion密钥",
+    "info": "Notion集成令牌。"
+  },
+  "query": {
+    "display_name": "搜索查询",
+    "info": "API用于与页面和数据库标题进行比较的文本。"
+  },
+  "filter_value": {
+    "display_name": "过滤类型",
+    "info": "将结果限制为仅页面或仅数据库。"
+  },
+  "sort_direction": {
+    "display_name": "排序方向",
+    "info": "结果的排序方向。"
+  }
+}

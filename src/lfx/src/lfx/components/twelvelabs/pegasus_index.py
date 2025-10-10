@@ -1,3 +1,4 @@
+import i18n
 import time
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
@@ -31,8 +32,8 @@ class TaskTimeoutError(TwelveLabsError):
 class PegasusIndexVideo(Component):
     """Indexes videos using TwelveLabs Pegasus API and adds the video ID to metadata."""
 
-    display_name = "TwelveLabs Pegasus Index Video"
-    description = "Index videos using TwelveLabs and add the video_id to metadata."
+    display_name = i18n.t('components.twelvelabs.pegasus_index.display_name')
+    description = i18n.t('components.twelvelabs.pegasus_index.description')
     icon = "TwelveLabs"
     name = "TwelveLabsPegasusIndexVideo"
     documentation = "https://github.com/twelvelabs-io/twelvelabs-developer-experience/blob/main/integrations/Langflow/TWELVE_LABS_COMPONENTS_README.md"
@@ -40,39 +41,52 @@ class PegasusIndexVideo(Component):
     inputs = [
         DataInput(
             name="videodata",
-            display_name="Video Data",
-            info="Video Data objects (from VideoFile or SplitVideo)",
+            display_name=i18n.t(
+                'components.twelvelabs.pegasus_index.videodata.display_name'),
+            info=i18n.t('components.twelvelabs.pegasus_index.videodata.info'),
             is_list=True,
             required=True,
         ),
         SecretStrInput(
-            name="api_key", display_name="TwelveLabs API Key", info="Enter your TwelveLabs API Key.", required=True
+            name="api_key",
+            display_name=i18n.t(
+                'components.twelvelabs.pegasus_index.api_key.display_name'),
+            info=i18n.t('components.twelvelabs.pegasus_index.api_key.info'),
+            required=True
         ),
         DropdownInput(
             name="model_name",
-            display_name="Model",
-            info="Pegasus model to use for indexing",
+            display_name=i18n.t(
+                'components.twelvelabs.pegasus_index.model_name.display_name'),
+            info=i18n.t('components.twelvelabs.pegasus_index.model_name.info'),
             options=["pegasus1.2"],
             value="pegasus1.2",
             advanced=False,
         ),
         StrInput(
             name="index_name",
-            display_name="Index Name",
-            info="Name of the index to use. If the index doesn't exist, it will be created.",
+            display_name=i18n.t(
+                'components.twelvelabs.pegasus_index.index_name.display_name'),
+            info=i18n.t('components.twelvelabs.pegasus_index.index_name.info'),
             required=False,
         ),
         StrInput(
             name="index_id",
-            display_name="Index ID",
-            info="ID of an existing index to use. If provided, index_name will be ignored.",
+            display_name=i18n.t(
+                'components.twelvelabs.pegasus_index.index_id.display_name'),
+            info=i18n.t('components.twelvelabs.pegasus_index.index_id.info'),
             required=False,
         ),
     ]
 
     outputs = [
         Output(
-            display_name="Indexed Data", name="indexed_data", method="index_videos", output_types=["Data"], is_list=True
+            display_name=i18n.t(
+                'components.twelvelabs.pegasus_index.outputs.indexed_data.display_name'),
+            name="indexed_data",
+            method="index_videos",
+            output_types=["Data"],
+            is_list=True
         ),
     ]
 
@@ -261,7 +275,8 @@ class PegasusIndexVideo(Component):
             return []
 
         # Upload all videos first and collect their task IDs
-        upload_tasks: list[tuple[Data, str, str]] = []  # (data_item, video_path, task_id)
+        # (data_item, video_path, task_id)
+        upload_tasks: list[tuple[Data, str, str]] = []
         for data_item, video_path in valid_videos:
             try:
                 task_id = self._upload_video(client, video_path, index_id)
@@ -274,7 +289,8 @@ class PegasusIndexVideo(Component):
         with ThreadPoolExecutor(max_workers=min(10, len(upload_tasks))) as executor:
             futures = []
             for data_item, video_path, task_id in upload_tasks:
-                future = executor.submit(self._wait_for_task_completion, client, task_id, video_path)
+                future = executor.submit(
+                    self._wait_for_task_completion, client, task_id, video_path)
                 futures.append((data_item, video_path, future))
 
             # Process results as they complete
@@ -295,7 +311,8 @@ class PegasusIndexVideo(Component):
                             video_info["metadata"] = {}
 
                         video_info["metadata"].update(
-                            {"video_id": video_id, "index_id": index_id, "index_name": index_name}
+                            {"video_id": video_id, "index_id": index_id,
+                                "index_name": index_name}
                         )
 
                         updated_data_item = Data(data=video_info)

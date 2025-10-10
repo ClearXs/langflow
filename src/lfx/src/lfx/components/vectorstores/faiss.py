@@ -1,3 +1,4 @@
+import i18n
 from pathlib import Path
 
 from langchain_community.vectorstores import FAISS
@@ -11,36 +12,47 @@ from lfx.schema.data import Data
 class FaissVectorStoreComponent(LCVectorStoreComponent):
     """FAISS Vector Store with search capabilities."""
 
-    display_name: str = "FAISS"
-    description: str = "FAISS Vector Store with search capabilities"
+    display_name: str = i18n.t('components.vectorstores.faiss.display_name')
+    description: str = i18n.t('components.vectorstores.faiss.description')
     name = "FAISS"
     icon = "FAISS"
 
     inputs = [
         StrInput(
             name="index_name",
-            display_name="Index Name",
+            display_name=i18n.t(
+                'components.vectorstores.faiss.index_name.display_name'),
             value="langflow_index",
         ),
         StrInput(
             name="persist_directory",
-            display_name="Persist Directory",
-            info="Path to save the FAISS index. It will be relative to where Langflow is running.",
+            display_name=i18n.t(
+                'components.vectorstores.faiss.persist_directory.display_name'),
+            info=i18n.t(
+                'components.vectorstores.faiss.persist_directory.info'),
         ),
         *LCVectorStoreComponent.inputs,
         BoolInput(
             name="allow_dangerous_deserialization",
-            display_name="Allow Dangerous Deserialization",
-            info="Set to True to allow loading pickle files from untrusted sources. "
-            "Only enable this if you trust the source of the data.",
+            display_name=i18n.t(
+                'components.vectorstores.faiss.allow_dangerous_deserialization.display_name'),
+            info=i18n.t(
+                'components.vectorstores.faiss.allow_dangerous_deserialization.info'),
             advanced=True,
             value=True,
         ),
-        HandleInput(name="embedding", display_name="Embedding", input_types=["Embeddings"]),
+        HandleInput(
+            name="embedding",
+            display_name=i18n.t(
+                'components.vectorstores.faiss.embedding.display_name'),
+            input_types=["Embeddings"]
+        ),
         IntInput(
             name="number_of_results",
-            display_name="Number of Results",
-            info="Number of results to return.",
+            display_name=i18n.t(
+                'components.vectorstores.faiss.number_of_results.display_name'),
+            info=i18n.t(
+                'components.vectorstores.faiss.number_of_results.info'),
             advanced=True,
             value=4,
         ),
@@ -79,7 +91,8 @@ class FaissVectorStoreComponent(LCVectorStoreComponent):
             else:
                 documents.append(_input)
 
-        faiss = FAISS.from_documents(documents=documents, embedding=self.embedding)
+        faiss = FAISS.from_documents(
+            documents=documents, embedding=self.embedding)
         faiss.save_local(str(path), self.index_name)
         return faiss
 

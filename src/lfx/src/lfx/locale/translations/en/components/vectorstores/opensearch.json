@@ -1,0 +1,42 @@
+{
+  "display_name": "OpenSearch",
+  "description": "OpenSearch Vector Store with advanced, customizable search capabilities",
+  "opensearch_url": {
+    "display_name": "OpenSearch URL",
+    "info": "URL for OpenSearch cluster (e.g. https://192.168.1.1:9200)."
+  },
+  "index_name": {
+    "display_name": "Index Name",
+    "info": "The index name where the vectors will be stored in OpenSearch cluster."
+  },
+  "embedding": {
+    "display_name": "Embedding"
+  },
+  "search_type": {
+    "display_name": "Search Type"
+  },
+  "number_of_results": {
+    "display_name": "Number of Results",
+    "info": "Number of results to return."
+  },
+  "search_score_threshold": {
+    "display_name": "Search Score Threshold",
+    "info": "Minimum similarity score threshold for search results."
+  },
+  "username": {
+    "display_name": "Username"
+  },
+  "password": {
+    "display_name": "Password"
+  },
+  "use_ssl": {
+    "display_name": "Use SSL"
+  },
+  "verify_certs": {
+    "display_name": "Verify Certificates"
+  },
+  "hybrid_search_query": {
+    "display_name": "Hybrid Search Query",
+    "info": "Provide a custom hybrid search query in JSON format. This allows you to combine vector similarity and keyword matching."
+  }
+}

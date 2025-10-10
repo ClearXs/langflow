@@ -1,0 +1,75 @@
+{
+  "display_name": "NVIDIA Retriever Extraction",
+  "description": "Multi-modal data extraction from documents using NVIDIA's NeMo API.",
+  "base_url": {
+    "display_name": "Base URL",
+    "info": "The URL of the NVIDIA NeMo Retriever Extraction API."
+  },
+  "api_key": {
+    "display_name": "NVIDIA API Key"
+  },
+  "extract_text": {
+    "display_name": "Extract Text",
+    "info": "Extract text from documents"
+  },
+  "extract_charts": {
+    "display_name": "Extract Charts",
+    "info": "Extract text from charts"
+  },
+  "extract_tables": {
+    "display_name": "Extract Tables",
+    "info": "Extract text from tables"
+  },
+  "extract_images": {
+    "display_name": "Extract Images",
+    "info": "Extract images from document"
+  },
+  "extract_infographics": {
+    "display_name": "Extract Infographics",
+    "info": "Extract infographics from document"
+  },
+  "text_depth": {
+    "display_name": "Text Depth",
+    "info": "Level at which text is extracted (applies before splitting). Support for 'block', 'line', 'span' varies by document type."
+  },
+  "split_text": {
+    "display_name": "Split Text",
+    "info": "Split text into smaller chunks"
+  },
+  "chunk_size": {
+    "display_name": "Chunk Size",
+    "info": "The number of tokens per chunk"
+  },
+  "chunk_overlap": {
+    "display_name": "Chunk Overlap",
+    "info": "Number of tokens to overlap from previous chunk"
+  },
+  "filter_images": {
+    "display_name": "Filter Images",
+    "info": "Filter images (see advanced options for filtering criteria)."
+  },
+  "min_image_size": {
+    "display_name": "Minimum Image Size Filter",
+    "info": "Minimum image width/length in pixels"
+  },
+  "min_aspect_ratio": {
+    "display_name": "Minimum Aspect Ratio Filter",
+    "info": "Minimum allowed aspect ratio (width / height). Images narrower than this will be filtered out."
+  },
+  "max_aspect_ratio": {
+    "display_name": "Maximum Aspect Ratio Filter",
+    "info": "Maximum allowed aspect ratio (width / height). Images taller than this will be filtered out."
+  },
+  "dedup_images": {
+    "display_name": "Deduplicate Images",
+    "info": "Filter duplicated images."
+  },
+  "caption_images": {
+    "display_name": "Caption Images",
+    "info": "Generate captions for images using the NVIDIA captioning model."
+  },
+  "high_resolution": {
+    "display_name": "High Resolution (PDF only)",
+    "info": "Process pdf in high-resolution mode for better quality extraction from scanned pdf."
+  }
+}

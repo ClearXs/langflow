@@ -1,3 +1,4 @@
+import i18n
 from contextlib import contextmanager
 
 import googleapiclient
@@ -14,55 +15,69 @@ from lfx.template.field.base import Output
 class YouTubeVideoDetailsComponent(Component):
     """A component that retrieves detailed information about YouTube videos."""
 
-    display_name: str = "YouTube Video Details"
-    description: str = "Retrieves detailed information and statistics about YouTube videos."
+    display_name: str = i18n.t('components.youtube.video_details.display_name')
+    description: str = i18n.t('components.youtube.video_details.description')
     icon: str = "YouTube"
 
     inputs = [
         MessageTextInput(
             name="video_url",
-            display_name="Video URL",
-            info="The URL of the YouTube video.",
+            display_name=i18n.t(
+                'components.youtube.video_details.video_url.display_name'),
+            info=i18n.t('components.youtube.video_details.video_url.info'),
             tool_mode=True,
             required=True,
         ),
         SecretStrInput(
             name="api_key",
-            display_name="YouTube API Key",
-            info="Your YouTube Data API key.",
+            display_name=i18n.t(
+                'components.youtube.video_details.api_key.display_name'),
+            info=i18n.t('components.youtube.video_details.api_key.info'),
             required=True,
         ),
         BoolInput(
             name="include_statistics",
-            display_name="Include Statistics",
+            display_name=i18n.t(
+                'components.youtube.video_details.include_statistics.display_name'),
             value=True,
-            info="Include video statistics (views, likes, comments).",
+            info=i18n.t(
+                'components.youtube.video_details.include_statistics.info'),
         ),
         BoolInput(
             name="include_content_details",
-            display_name="Include Content Details",
+            display_name=i18n.t(
+                'components.youtube.video_details.include_content_details.display_name'),
             value=True,
-            info="Include video duration, quality, and age restriction info.",
+            info=i18n.t(
+                'components.youtube.video_details.include_content_details.info'),
             advanced=True,
         ),
         BoolInput(
             name="include_tags",
-            display_name="Include Tags",
+            display_name=i18n.t(
+                'components.youtube.video_details.include_tags.display_name'),
             value=True,
-            info="Include video tags and keywords.",
+            info=i18n.t('components.youtube.video_details.include_tags.info'),
             advanced=True,
         ),
         BoolInput(
             name="include_thumbnails",
-            display_name="Include Thumbnails",
+            display_name=i18n.t(
+                'components.youtube.video_details.include_thumbnails.display_name'),
             value=True,
-            info="Include video thumbnail URLs in different resolutions.",
+            info=i18n.t(
+                'components.youtube.video_details.include_thumbnails.info'),
             advanced=True,
         ),
     ]
 
     outputs = [
-        Output(name="video_data", display_name="Video Data", method="get_video_details"),
+        Output(
+            name="video_data",
+            display_name=i18n.t(
+                'components.youtube.video_details.outputs.video_data'),
+            method="get_video_details"
+        ),
     ]
 
     API_FORBIDDEN = 403
@@ -131,7 +146,8 @@ class YouTubeVideoDetailsComponent(Component):
                     parts.append("contentDetails")
 
                 # Get video information
-                video_response = youtube.videos().list(part=",".join(parts), id=video_id).execute()
+                video_response = youtube.videos().list(
+                    part=",".join(parts), id=video_id).execute()
 
                 if not video_response["items"]:
                     return DataFrame(pd.DataFrame({"error": ["Video not found"]}))
@@ -156,8 +172,10 @@ class YouTubeVideoDetailsComponent(Component):
                 if self.include_thumbnails:
                     for size, thumb in snippet["thumbnails"].items():
                         video_data[f"thumbnail_{size}_url"] = [thumb["url"]]
-                        video_data[f"thumbnail_{size}_width"] = [thumb.get("width", 0)]
-                        video_data[f"thumbnail_{size}_height"] = [thumb.get("height", 0)]
+                        video_data[f"thumbnail_{size}_width"] = [
+                            thumb.get("width", 0)]
+                        video_data[f"thumbnail_{size}_height"] = [
+                            thumb.get("height", 0)]
 
                 # Add tags if requested
                 if self.include_tags and "tags" in snippet:
@@ -212,7 +230,8 @@ class YouTubeVideoDetailsComponent(Component):
                     "description",
                 ]
 
-                stat_cols = ["view_count", "like_count", "favorite_count", "comment_count"]
+                stat_cols = ["view_count", "like_count",
+                             "favorite_count", "comment_count"]
 
                 content_cols = [
                     "duration",
@@ -227,25 +246,30 @@ class YouTubeVideoDetailsComponent(Component):
 
                 tag_cols = ["tags", "tags_count"]
 
-                thumb_cols = [col for col in video_df.columns if col.startswith("thumbnail_")]
+                thumb_cols = [
+                    col for col in video_df.columns if col.startswith("thumbnail_")]
 
                 # Reorder columns based on what's included
                 ordered_cols = basic_cols.copy()
 
                 if self.include_statistics:
-                    ordered_cols.extend([col for col in stat_cols if col in video_df.columns])
+                    ordered_cols.extend(
+                        [col for col in stat_cols if col in video_df.columns])
 
                 if self.include_content_details:
-                    ordered_cols.extend([col for col in content_cols if col in video_df.columns])
+                    ordered_cols.extend(
+                        [col for col in content_cols if col in video_df.columns])
 
                 if self.include_tags:
-                    ordered_cols.extend([col for col in tag_cols if col in video_df.columns])
+                    ordered_cols.extend(
+                        [col for col in tag_cols if col in video_df.columns])
 
                 if self.include_thumbnails:
                     ordered_cols.extend(sorted(thumb_cols))
 
                 # Add any remaining columns
-                remaining_cols = [col for col in video_df.columns if col not in ordered_cols]
+                remaining_cols = [
+                    col for col in video_df.columns if col not in ordered_cols]
                 ordered_cols.extend(remaining_cols)
 
                 return DataFrame(video_df[ordered_cols])

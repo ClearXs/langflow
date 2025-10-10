@@ -1,3 +1,4 @@
+import i18n
 import asyncio
 
 from lfx.custom.custom_component.component_with_cache import ComponentWithCache
@@ -9,12 +10,8 @@ RISE_INITIALIZED_KEY = "rise_initialized"
 
 
 class NvidiaSystemAssistComponent(ComponentWithCache):
-    display_name = "NVIDIA System-Assist"
-    description = (
-        "(Windows only) Prompts NVIDIA System-Assist to interact with the NVIDIA GPU Driver. "
-        "The user may query GPU specifications, state, and ask the NV-API to perform "
-        "several GPU-editing acations. The prompt must be human-readable language."
-    )
+    display_name = i18n.t('components.nvidia.system_assist.display_name')
+    description = i18n.t('components.nvidia.system_assist.description')
     documentation = "https://docs.langflow.org/integrations-nvidia-g-assist"
     icon = "NVIDIA"
     rise_initialized = False
@@ -22,28 +19,36 @@ class NvidiaSystemAssistComponent(ComponentWithCache):
     inputs = [
         MessageTextInput(
             name="prompt",
-            display_name="System-Assist Prompt",
-            info="Enter a prompt for NVIDIA System-Assist to process. Example: 'What is my GPU?'",
+            display_name=i18n.t(
+                'components.nvidia.system_assist.prompt.display_name'),
+            info=i18n.t('components.nvidia.system_assist.prompt.info'),
             value="",
             tool_mode=True,
         ),
     ]
 
     outputs = [
-        Output(display_name="Response", name="response", method="sys_assist_prompt"),
+        Output(
+            display_name=i18n.t(
+                'components.nvidia.system_assist.outputs.response.display_name'),
+            name="response",
+            method="sys_assist_prompt"
+        ),
     ]
 
     def maybe_register_rise_client(self):
         try:
             from gassist.rise import register_rise_client
 
-            rise_initialized = self._shared_component_cache.get(RISE_INITIALIZED_KEY)
+            rise_initialized = self._shared_component_cache.get(
+                RISE_INITIALIZED_KEY)
             if not isinstance(rise_initialized, CacheMiss) and rise_initialized:
                 return
             self.log("Initializing Rise Client")
 
             register_rise_client()
-            self._shared_component_cache.set(key=RISE_INITIALIZED_KEY, value=True)
+            self._shared_component_cache.set(
+                key=RISE_INITIALIZED_KEY, value=True)
         except ImportError as e:
             msg = "NVIDIA System-Assist is Windows only and not supported on this platform"
             raise ValueError(msg) from e

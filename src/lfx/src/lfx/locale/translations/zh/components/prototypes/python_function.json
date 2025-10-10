@@ -1,0 +1,19 @@
+{
+  "display_name": "Python 函数",
+  "description": "定义并执行返回 Data 对象或 Message 的 Python 函数。",
+  "function_code": {
+    "display_name": "函数代码",
+    "info": "函数的代码。"
+  },
+  "outputs": {
+    "function_output": {
+      "display_name": "函数可调用对象"
+    },
+    "function_output_data": {
+      "display_name": "函数输出 (数据)"
+    },
+    "function_output_str": {
+      "display_name": "函数输出 (消息)"
+    }
+  }
+}

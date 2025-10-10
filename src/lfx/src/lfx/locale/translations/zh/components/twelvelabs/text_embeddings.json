@@ -1,0 +1,16 @@
+{
+  "display_name": "TwelveLabs 文本嵌入",
+  "description": "使用 TwelveLabs 文本嵌入模型生成嵌入向量。",
+  "api_key": {
+    "display_name": "TwelveLabs API 密钥"
+  },
+  "model": {
+    "display_name": "模型"
+  },
+  "max_retries": {
+    "display_name": "最大重试次数"
+  },
+  "request_timeout": {
+    "display_name": "请求超时"
+  }
+}

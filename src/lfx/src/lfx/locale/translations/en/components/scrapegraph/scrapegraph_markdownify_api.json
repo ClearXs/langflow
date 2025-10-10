@@ -1,0 +1,17 @@
+{
+  "display_name": "ScrapeGraph Markdownify API",
+  "description": "Given a URL, it will return the markdownified content of the website.",
+  "api_key": {
+    "display_name": "ScrapeGraph API Key",
+    "info": "The API key to use ScrapeGraph API."
+  },
+  "url": {
+    "display_name": "URL",
+    "info": "The URL to markdownify."
+  },
+  "outputs": {
+    "data": {
+      "display_name": "Data"
+    }
+  }
+}

@@ -1,0 +1,118 @@
+{
+  "display_name": "Astra DB",
+  "description": "在 Astra DB 中摄取和搜索文档",
+  "new_database": {
+    "description": "请等待几分钟以完成创建。",
+    "display_name": "创建新数据库",
+    "name": {
+      "display_name": "名称",
+      "info": "要在 Astra DB 中创建的新数据库名称。"
+    },
+    "cloud_provider": {
+      "display_name": "云提供商",
+      "info": "新数据库的云提供商。"
+    },
+    "region": {
+      "display_name": "区域",
+      "info": "新数据库的区域。"
+    }
+  },
+  "new_collection": {
+    "description": "请等待几秒钟以完成创建。",
+    "display_name": "创建新集合",
+    "name": {
+      "display_name": "名称",
+      "info": "要在 Astra DB 中创建的新集合名称。"
+    },
+    "provider": {
+      "display_name": "嵌入生成方法",
+      "info": "用于生成嵌入的提供商。",
+      "helper_text": "要使用更多嵌入提供商选项创建集合，请前往 <a class=\"underline\" href=\"https://astra.datastax.com/\" target=\" _blank\" rel=\"noopener noreferrer\">Astra DB 中的您的数据库</a>"
+    },
+    "model": {
+      "display_name": "嵌入模型",
+      "info": "用于生成嵌入的模型。"
+    },
+    "dimension": {
+      "display_name": "维度",
+      "info": "要生成的嵌入的维度。"
+    }
+  },
+  "token": {
+    "display_name": "Astra DB 应用令牌",
+    "info": "用于访问 Astra DB 的身份验证令牌。"
+  },
+  "environment": {
+    "display_name": "环境",
+    "info": "Astra DB API 端点的环境。"
+  },
+  "database_name": {
+    "display_name": "数据库",
+    "info": "Astra DB 实例的数据库名称。"
+  },
+  "api_endpoint": {
+    "display_name": "Astra DB API 端点",
+    "info": "Astra DB 实例的 API 端点。优先于数据库选择。"
+  },
+  "keyspace": {
+    "display_name": "键空间",
+    "info": "用于集合的 Astra DB 中的可选键空间。"
+  },
+  "collection_name": {
+    "display_name": "集合",
+    "info": "Astra DB 中将存储向量的集合名称。"
+  },
+  "embedding_model": {
+    "display_name": "嵌入模型",
+    "info": "指定嵌入模型。Astra Vectorize 集合不需要。"
+  },
+  "search_method": {
+    "display_name": "搜索方法",
+    "info": "确定如何匹配您的内容：向量搜索查找语义相似性，混合搜索（推荐）结合两种方法并使用重排序器。"
+  },
+  "reranker": {
+    "display_name": "重排序器",
+    "info": "检索后对结果重新评分以实现最佳相关性排名的模型。"
+  },
+  "lexical_terms": {
+    "display_name": "词汇术语",
+    "info": "添加额外的术语/关键词以增强搜索精度。",
+    "placeholder": "输入要搜索的术语..."
+  },
+  "number_of_results": {
+    "display_name": "搜索结果数量",
+    "info": "要返回的搜索结果数量。"
+  },
+  "search_type": {
+    "display_name": "搜索类型",
+    "info": "要使用的搜索类型"
+  },
+  "search_score_threshold": {
+    "display_name": "搜索分数阈值",
+    "info": "搜索结果的最小相似度分数阈值。（使用 '带分数阈值的相似度' 时）"
+  },
+  "advanced_search_filter": {
+    "display_name": "搜索元数据过滤器",
+    "info": "要应用于搜索查询的可选过滤器字典。"
+  },
+  "autodetect_collection": {
+    "display_name": "自动检测集合",
+    "info": "布尔标志，用于确定是否自动检测集合。"
+  },
+  "content_field": {
+    "display_name": "内容字段",
+    "info": "用作向量存储的文本内容字段的字段。"
+  },
+  "deletion_field": {
+    "display_name": "基于字段删除",
+    "info": "提供此参数时，目标集合中元数据字段值与输入元数据字段值匹配的文档将在加载新数据之前被删除。"
+  },
+  "ignore_invalid_documents": {
+    "display_name": "忽略无效文档",
+    "info": "布尔标志，用于确定是否在运行时忽略无效文档。"
+  },
+  "astradb_vectorstore_kwargs": {
+    "display_name": "AstraDBVectorStore 参数",
+    "info": "AstraDBVectorStore 的可选附加参数字典。"
+  }
+}

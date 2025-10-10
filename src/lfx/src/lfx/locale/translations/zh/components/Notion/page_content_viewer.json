@@ -1,0 +1,12 @@
+{
+  "display_name": "页面内容查看器",
+  "description": "以纯文本形式检索Notion页面的内容。",
+  "page_id": {
+    "display_name": "页面ID",
+    "info": "要检索的Notion页面的ID。"
+  },
+  "notion_secret": {
+    "display_name": "Notion密钥",
+    "info": "Notion集成令牌。"
+  }
+}

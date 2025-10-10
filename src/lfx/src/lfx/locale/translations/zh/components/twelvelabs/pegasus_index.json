@@ -1,0 +1,29 @@
+{
+  "display_name": "TwelveLabs Pegasus 索引视频",
+  "description": "使用 TwelveLabs 索引视频并将 video_id 添加到元数据中。",
+  "videodata": {
+    "display_name": "视频数据",
+    "info": "视频数据对象（来自 VideoFile 或 SplitVideo）"
+  },
+  "api_key": {
+    "display_name": "TwelveLabs API 密钥",
+    "info": "输入您的 TwelveLabs API 密钥。"
+  },
+  "model_name": {
+    "display_name": "模型",
+    "info": "用于索引的 Pegasus 模型"
+  },
+  "index_name": {
+    "display_name": "索引名称",
+    "info": "要使用的索引名称。如果索引不存在，将创建它。"
+  },
+  "index_id": {
+    "display_name": "索引 ID",
+    "info": "要使用的现有索引 ID。如果提供，将忽略 index_name。"
+  },
+  "outputs": {
+    "indexed_data": {
+      "display_name": "已索引数据"
+    }
+  }
+}

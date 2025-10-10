@@ -1,0 +1,22 @@
+{
+  "display_name": "FAISS",
+  "description": "具有搜索功能的 FAISS 向量存储",
+  "index_name": {
+    "display_name": "索引名称"
+  },
+  "persist_directory": {
+    "display_name": "持久化目录",
+    "info": "保存 FAISS 索引的路径。它将相对于 Langflow 运行的位置。"
+  },
+  "allow_dangerous_deserialization": {
+    "display_name": "允许危险的反序列化",
+    "info": "设置为 True 以允许从不受信任的源加载 pickle 文件。仅在您信任数据源时启用此选项。"
+  },
+  "embedding": {
+    "display_name": "嵌入"
+  },
+  "number_of_results": {
+    "display_name": "结果数量",
+    "info": "要返回的结果数量。"
+  }
+}

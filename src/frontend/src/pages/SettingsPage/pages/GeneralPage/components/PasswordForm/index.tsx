@@ -9,6 +9,7 @@ import {
   CardHeader,
   CardTitle,
 } from "../../../../../../components/ui/card";
+import { useTranslation } from "react-i18next";
 
 type PasswordFormComponentProps = {
   password: string;
@@ -26,6 +27,7 @@ const PasswordFormComponent = ({
   handleInput,
   handlePatchPassword,
 }: PasswordFormComponentProps) => {
+  const { t } = useTranslation();
   return (
     <>
       <Form.Root
@@ -82,7 +84,7 @@ const PasswordFormComponent = ({
           </CardContent>
           <CardFooter className="border-t px-6 py-4">
             <Form.Submit asChild>
-              <Button type="submit">Save</Button>
+              <Button type="submit">{t("components.button.save")}</Button>
             </Form.Submit>
           </CardFooter>
         </Card>

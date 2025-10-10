@@ -1,3 +1,4 @@
+import i18n
 from typing import Any
 
 from lfx.base.compressors.model import LCCompressorComponent
@@ -9,26 +10,29 @@ from lfx.template.field.base import Output
 
 
 class NvidiaRerankComponent(LCCompressorComponent):
-    display_name = "NVIDIA Rerank"
-    description = "Rerank documents using the NVIDIA API."
+    display_name = i18n.t('components.nvidia.nvidia_rerank.display_name')
+    description = i18n.t('components.nvidia.nvidia_rerank.description')
     icon = "NVIDIA"
 
     inputs = [
         *LCCompressorComponent.inputs,
         SecretStrInput(
             name="api_key",
-            display_name="NVIDIA API Key",
+            display_name=i18n.t(
+                'components.nvidia.nvidia_rerank.api_key.display_name'),
         ),
         StrInput(
             name="base_url",
-            display_name="Base URL",
+            display_name=i18n.t(
+                'components.nvidia.nvidia_rerank.base_url.display_name'),
             value="https://integrate.api.nvidia.com/v1",
             refresh_button=True,
-            info="The base URL of the NVIDIA API. Defaults to https://integrate.api.nvidia.com/v1.",
+            info=i18n.t('components.nvidia.nvidia_rerank.base_url.info'),
         ),
         DropdownInput(
             name="model",
-            display_name="Model",
+            display_name=i18n.t(
+                'components.nvidia.nvidia_rerank.model.display_name'),
             options=["nv-rerank-qa-mistral-4b:1"],
             value="nv-rerank-qa-mistral-4b:1",
         ),
@@ -36,7 +40,8 @@ class NvidiaRerankComponent(LCCompressorComponent):
 
     outputs = [
         Output(
-            display_name="Reranked Documents",
+            display_name=i18n.t(
+                'components.nvidia.nvidia_rerank.outputs.reranked_documents.display_name'),
             name="reranked_documents",
             method="compress_documents",
         ),

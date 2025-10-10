@@ -1,0 +1,32 @@
+{
+  "display_name": "Upstash",
+  "description": "Upstash Vector Store with search capabilities",
+  "index_url": {
+    "display_name": "Index URL",
+    "info": "The URL of the Upstash index."
+  },
+  "index_token": {
+    "display_name": "Upstash Index Token",
+    "info": "The token for the Upstash index."
+  },
+  "text_key": {
+    "display_name": "Text Key",
+    "info": "The key in the record to use as text."
+  },
+  "namespace": {
+    "display_name": "Namespace",
+    "info": "Leave empty for default namespace."
+  },
+  "metadata_filter": {
+    "display_name": "Metadata Filter",
+    "info": "Filters documents by metadata. Look at the documentation for more information."
+  },
+  "embedding": {
+    "display_name": "Embedding",
+    "info": "To use Upstash's embeddings, don't provide an embedding."
+  },
+  "number_of_results": {
+    "display_name": "Number of Results",
+    "info": "Number of results to return."
+  }
+}

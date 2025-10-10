@@ -1,0 +1,26 @@
+{
+  "display_name": "SambaNova",
+  "description": "使用 SambaNova 大语言模型生成文本。",
+  "base_url": {
+    "display_name": "SambaNova 云基础 URL",
+    "info": "SambaNova Cloud API 的基础 URL。默认为 https://api.sambanova.ai/v1/chat/completions。您可以更改此设置以使用其他 URL，如 Sambastudio。"
+  },
+  "model_name": {
+    "display_name": "模型名称"
+  },
+  "api_key": {
+    "display_name": "SambaNova API 密钥",
+    "info": "用于 SambaNova 模型的 API 密钥。"
+  },
+  "max_tokens": {
+    "display_name": "最大令牌数",
+    "info": "要生成的最大令牌数。"
+  },
+  "top_p": {
+    "display_name": "Top P",
+    "info": "模型 top_p 参数"
+  },
+  "temperature": {
+    "display_name": "温度"
+  }
+}

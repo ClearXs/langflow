@@ -1,3 +1,4 @@
+import i18n
 from copy import deepcopy
 from typing import TYPE_CHECKING
 
@@ -17,73 +18,91 @@ if TYPE_CHECKING:
 class ChromaVectorStoreComponent(LCVectorStoreComponent):
     """Chroma Vector Store with search capabilities."""
 
-    display_name: str = "Chroma DB"
-    description: str = "Chroma Vector Store with search capabilities"
+    display_name: str = i18n.t('components.vectorstores.chroma.display_name')
+    description: str = i18n.t('components.vectorstores.chroma.description')
     name = "Chroma"
     icon = "Chroma"
 
     inputs = [
         StrInput(
             name="collection_name",
-            display_name="Collection Name",
+            display_name=i18n.t(
+                'components.vectorstores.chroma.collection_name.display_name'),
             value="langflow",
         ),
         StrInput(
             name="persist_directory",
-            display_name="Persist Directory",
+            display_name=i18n.t(
+                'components.vectorstores.chroma.persist_directory.display_name'),
         ),
         *LCVectorStoreComponent.inputs,
-        HandleInput(name="embedding", display_name="Embedding", input_types=["Embeddings"]),
+        HandleInput(
+            name="embedding",
+            display_name=i18n.t(
+                'components.vectorstores.chroma.embedding.display_name'),
+            input_types=["Embeddings"]
+        ),
         StrInput(
             name="chroma_server_cors_allow_origins",
-            display_name="Server CORS Allow Origins",
+            display_name=i18n.t(
+                'components.vectorstores.chroma.chroma_server_cors_allow_origins.display_name'),
             advanced=True,
         ),
         StrInput(
             name="chroma_server_host",
-            display_name="Server Host",
+            display_name=i18n.t(
+                'components.vectorstores.chroma.chroma_server_host.display_name'),
             advanced=True,
         ),
         IntInput(
             name="chroma_server_http_port",
-            display_name="Server HTTP Port",
+            display_name=i18n.t(
+                'components.vectorstores.chroma.chroma_server_http_port.display_name'),
             advanced=True,
         ),
         IntInput(
             name="chroma_server_grpc_port",
-            display_name="Server gRPC Port",
+            display_name=i18n.t(
+                'components.vectorstores.chroma.chroma_server_grpc_port.display_name'),
             advanced=True,
         ),
         BoolInput(
             name="chroma_server_ssl_enabled",
-            display_name="Server SSL Enabled",
+            display_name=i18n.t(
+                'components.vectorstores.chroma.chroma_server_ssl_enabled.display_name'),
             advanced=True,
         ),
         BoolInput(
             name="allow_duplicates",
-            display_name="Allow Duplicates",
+            display_name=i18n.t(
+                'components.vectorstores.chroma.allow_duplicates.display_name'),
             advanced=True,
-            info="If false, will not add documents that are already in the Vector Store.",
+            info=i18n.t(
+                'components.vectorstores.chroma.allow_duplicates.info'),
         ),
         DropdownInput(
             name="search_type",
-            display_name="Search Type",
+            display_name=i18n.t(
+                'components.vectorstores.chroma.search_type.display_name'),
             options=["Similarity", "MMR"],
             value="Similarity",
             advanced=True,
         ),
         IntInput(
             name="number_of_results",
-            display_name="Number of Results",
-            info="Number of results to return.",
+            display_name=i18n.t(
+                'components.vectorstores.chroma.number_of_results.display_name'),
+            info=i18n.t(
+                'components.vectorstores.chroma.number_of_results.info'),
             advanced=True,
             value=10,
         ),
         IntInput(
             name="limit",
-            display_name="Limit",
+            display_name=i18n.t(
+                'components.vectorstores.chroma.limit.display_name'),
             advanced=True,
-            info="Limit the number of records to compare when Allow Duplicates is False.",
+            info=i18n.t('components.vectorstores.chroma.limit.info'),
         ),
     ]
 
@@ -111,7 +130,8 @@ class ChromaVectorStoreComponent(LCVectorStoreComponent):
             client = Client(settings=chroma_settings)
 
         # Check persist_directory and expand it if it is a relative path
-        persist_directory = self.resolve_path(self.persist_directory) if self.persist_directory is not None else None
+        persist_directory = self.resolve_path(
+            self.persist_directory) if self.persist_directory is not None else None
 
         chroma = Chroma(
             persist_directory=persist_directory,
@@ -138,7 +158,8 @@ class ChromaVectorStoreComponent(LCVectorStoreComponent):
         if self.allow_duplicates:
             stored_data = []
         else:
-            stored_data = chroma_collection_to_data(vector_store.get(limit=self.limit))
+            stored_data = chroma_collection_to_data(
+                vector_store.get(limit=self.limit))
             for value in deepcopy(stored_data):
                 del value.id
                 stored_documents_without_id.append(value)
@@ -161,7 +182,8 @@ class ChromaVectorStoreComponent(LCVectorStoreComponent):
                 filtered_documents = filter_complex_metadata(documents)
                 vector_store.add_documents(filtered_documents)
             except ImportError:
-                self.log("Warning: Could not import filter_complex_metadata. Adding documents without filtering.")
+                self.log(
+                    "Warning: Could not import filter_complex_metadata. Adding documents without filtering.")
                 vector_store.add_documents(documents)
         else:
             self.log("No documents to add to the Vector Store.")

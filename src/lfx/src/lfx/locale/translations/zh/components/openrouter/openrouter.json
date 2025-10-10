@@ -1,0 +1,32 @@
+{
+  "display_name": "OpenRouter",
+  "description": "OpenRouter通过单一API提供对来自不同提供商的多个AI模型的统一访问。",
+  "api_key": {
+    "display_name": "OpenRouter API密钥",
+    "info": "您的OpenRouter API密钥"
+  },
+  "site_url": {
+    "display_name": "站点URL",
+    "info": "用于OpenRouter排名的站点URL"
+  },
+  "app_name": {
+    "display_name": "应用名称",
+    "info": "用于OpenRouter排名的应用名称"
+  },
+  "provider": {
+    "display_name": "提供商",
+    "info": "AI模型提供商"
+  },
+  "model_name": {
+    "display_name": "模型",
+    "info": "用于聊天补全的模型"
+  },
+  "temperature": {
+    "display_name": "温度",
+    "info": "控制随机性。较低的值更具确定性，较高的值更具创造性。"
+  },
+  "max_tokens": {
+    "display_name": "最大令牌数",
+    "info": "要生成的最大令牌数"
+  }
+}

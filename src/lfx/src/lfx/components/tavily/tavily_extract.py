@@ -1,3 +1,4 @@
+import i18n
 import httpx
 
 from lfx.custom import Component
@@ -10,42 +11,52 @@ from lfx.schema.dataframe import DataFrame
 class TavilyExtractComponent(Component):
     """Separate component specifically for Tavily Extract functionality."""
 
-    display_name = "Tavily Extract API"
-    description = """**Tavily Extract** extract raw content from URLs."""
+    display_name = i18n.t('components.tavily.tavily_extract.display_name')
+    description = i18n.t('components.tavily.tavily_extract.description')
     icon = "TavilyIcon"
 
     inputs = [
         SecretStrInput(
             name="api_key",
-            display_name="Tavily API Key",
+            display_name=i18n.t(
+                'components.tavily.tavily_extract.api_key.display_name'),
             required=True,
-            info="Your Tavily API Key.",
+            info=i18n.t('components.tavily.tavily_extract.api_key.info'),
         ),
         MessageTextInput(
             name="urls",
-            display_name="URLs",
-            info="Comma-separated list of URLs to extract content from.",
+            display_name=i18n.t(
+                'components.tavily.tavily_extract.urls.display_name'),
+            info=i18n.t('components.tavily.tavily_extract.urls.info'),
             required=True,
         ),
         DropdownInput(
             name="extract_depth",
-            display_name="Extract Depth",
-            info="The depth of the extraction process.",
+            display_name=i18n.t(
+                'components.tavily.tavily_extract.extract_depth.display_name'),
+            info=i18n.t('components.tavily.tavily_extract.extract_depth.info'),
             options=["basic", "advanced"],
             value="basic",
             advanced=True,
         ),
         BoolInput(
             name="include_images",
-            display_name="Include Images",
-            info="Include a list of images extracted from the URLs.",
+            display_name=i18n.t(
+                'components.tavily.tavily_extract.include_images.display_name'),
+            info=i18n.t(
+                'components.tavily.tavily_extract.include_images.info'),
             value=False,
             advanced=True,
         ),
     ]
 
     outputs = [
-        Output(display_name="DataFrame", name="dataframe", method="fetch_content"),
+        Output(
+            display_name=i18n.t(
+                'components.tavily.tavily_extract.outputs.dataframe.display_name'),
+            name="dataframe",
+            method="fetch_content"
+        ),
     ]
 
     def run_model(self) -> DataFrame:
@@ -55,7 +66,8 @@ class TavilyExtractComponent(Component):
         """Fetches and processes extracted content into a list of Data objects."""
         try:
             # Split URLs by comma and clean them
-            urls = [url.strip() for url in (self.urls or "").split(",") if url.strip()]
+            urls = [url.strip()
+                    for url in (self.urls or "").split(",") if url.strip()]
             if not urls:
                 error_message = "No valid URLs provided"
                 logger.error(error_message)
@@ -97,7 +109,8 @@ class TavilyExtractComponent(Component):
             for result in extract_results.get("results", []):
                 raw_content = result.get("raw_content", "")
                 images = result.get("images", [])
-                result_data = {"url": result.get("url"), "raw_content": raw_content, "images": images}
+                result_data = {"url": result.get(
+                    "url"), "raw_content": raw_content, "images": images}
                 data_results.append(Data(text=raw_content, data=result_data))
 
             # Process failed extractions
@@ -105,7 +118,8 @@ class TavilyExtractComponent(Component):
                 data_results.append(
                     Data(
                         text="Failed extractions",
-                        data={"failed_results": extract_results["failed_results"]},
+                        data={
+                            "failed_results": extract_results["failed_results"]},
                     )
                 )
 

@@ -1,0 +1,19 @@
+{
+  "display_name": "Yahoo! Finance",
+  "description": "Uses yfinance (unofficial package) to access financial data and market information from Yahoo! Finance.",
+  "symbol": {
+    "display_name": "Stock Symbol",
+    "info": "The stock symbol to retrieve data for (e.g., AAPL, GOOG)."
+  },
+  "method": {
+    "display_name": "Data Method",
+    "info": "The type of data to retrieve."
+  },
+  "num_news": {
+    "display_name": "Number of News",
+    "info": "The number of news articles to retrieve (only applicable for get_news)."
+  },
+  "outputs": {
+    "dataframe": "DataFrame"
+  }
+}

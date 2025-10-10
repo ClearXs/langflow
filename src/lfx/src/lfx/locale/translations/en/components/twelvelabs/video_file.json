@@ -1,0 +1,8 @@
+{
+  "display_name": "Video File",
+  "description": "Load a video file in common video formats.",
+  "file_path": {
+    "display_name": "Video File",
+    "info": "Upload a video file in any common video format supported by ffmpeg"
+  }
+}

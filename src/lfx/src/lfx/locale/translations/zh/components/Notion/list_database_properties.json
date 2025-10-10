@@ -1,0 +1,12 @@
+{
+  "display_name": "列出数据库属性",
+  "description": "检索Notion数据库的属性。",
+  "database_id": {
+    "display_name": "数据库ID",
+    "info": "Notion数据库的ID。"
+  },
+  "notion_secret": {
+    "display_name": "Notion密钥",
+    "info": "Notion集成令牌。"
+  }
+}

@@ -1,3 +1,4 @@
+import i18n
 from typing import Any
 
 from requests.exceptions import ConnectionError  # noqa: A004
@@ -12,15 +13,16 @@ from lfx.schema.dotdict import dotdict
 
 
 class NVIDIAModelComponent(LCModelComponent):
-    display_name = "NVIDIA"
-    description = "Generates text using NVIDIA LLMs."
+    display_name = i18n.t('components.nvidia.nvidia.display_name')
+    description = i18n.t('components.nvidia.nvidia.description')
     icon = "NVIDIA"
 
     try:
         import warnings
 
         # Suppresses repeated warnings about NIM key in langchain_nvidia_ai_endpoints==0.3.8
-        warnings.filterwarnings("ignore", category=UserWarning, module="langchain_nvidia_ai_endpoints._common")
+        warnings.filterwarnings(
+            "ignore", category=UserWarning, module="langchain_nvidia_ai_endpoints._common")
         from langchain_nvidia_ai_endpoints import ChatNVIDIA
 
         all_models = ChatNVIDIA().get_available_models()
@@ -38,14 +40,16 @@ class NVIDIAModelComponent(LCModelComponent):
         *LCModelComponent.get_base_inputs(),
         IntInput(
             name="max_tokens",
-            display_name="Max Tokens",
+            display_name=i18n.t(
+                'components.nvidia.nvidia.max_tokens.display_name'),
             advanced=True,
-            info="The maximum number of tokens to generate. Set to 0 for unlimited tokens.",
+            info=i18n.t('components.nvidia.nvidia.max_tokens.info'),
         ),
         DropdownInput(
             name="model_name",
-            display_name="Model Name",
-            info="The name of the NVIDIA model to use.",
+            display_name=i18n.t(
+                'components.nvidia.nvidia.model_name.display_name'),
+            info=i18n.t('components.nvidia.nvidia.model_name.info'),
             advanced=False,
             value=None,
             options=[model.id for model in all_models],
@@ -54,44 +58,49 @@ class NVIDIAModelComponent(LCModelComponent):
         ),
         BoolInput(
             name="detailed_thinking",
-            display_name="Detailed Thinking",
-            info="If true, the model will return a detailed thought process. Only supported by reasoning models.",
+            display_name=i18n.t(
+                'components.nvidia.nvidia.detailed_thinking.display_name'),
+            info=i18n.t('components.nvidia.nvidia.detailed_thinking.info'),
             value=False,
             show=False,
         ),
         BoolInput(
             name="tool_model_enabled",
-            display_name="Enable Tool Models",
-            info="If enabled, only show models that support tool-calling.",
+            display_name=i18n.t(
+                'components.nvidia.nvidia.tool_model_enabled.display_name'),
+            info=i18n.t('components.nvidia.nvidia.tool_model_enabled.info'),
             advanced=False,
             value=False,
             real_time_refresh=True,
         ),
         MessageTextInput(
             name="base_url",
-            display_name="NVIDIA Base URL",
+            display_name=i18n.t(
+                'components.nvidia.nvidia.base_url.display_name'),
             value="https://integrate.api.nvidia.com/v1",
-            info="The base URL of the NVIDIA API. Defaults to https://integrate.api.nvidia.com/v1.",
+            info=i18n.t('components.nvidia.nvidia.base_url.info'),
         ),
         SecretStrInput(
             name="api_key",
-            display_name="NVIDIA API Key",
-            info="The NVIDIA API Key.",
+            display_name=i18n.t(
+                'components.nvidia.nvidia.api_key.display_name'),
+            info=i18n.t('components.nvidia.nvidia.api_key.info'),
             advanced=False,
             value="NVIDIA_API_KEY",
         ),
         SliderInput(
             name="temperature",
-            display_name="Temperature",
+            display_name=i18n.t(
+                'components.nvidia.nvidia.temperature.display_name'),
             value=0.1,
-            info="Run inference with this temperature.",
+            info=i18n.t('components.nvidia.nvidia.temperature.info'),
             range_spec=RangeSpec(min=0, max=1, step=0.01),
             advanced=True,
         ),
         IntInput(
             name="seed",
-            display_name="Seed",
-            info="The seed controls the reproducibility of the job.",
+            display_name=i18n.t('components.nvidia.nvidia.seed.display_name'),
+            info=i18n.t('components.nvidia.nvidia.seed.info'),
             advanced=True,
             value=1,
         ),
@@ -107,14 +116,16 @@ class NVIDIAModelComponent(LCModelComponent):
         # Note: don't include the previous model, as it may not exist in available models from the new base url
         model = ChatNVIDIA(base_url=self.base_url, api_key=self.api_key)
         if tool_model_enabled:
-            tool_models = [m for m in model.get_available_models() if m.supports_tools]
+            tool_models = [m for m in model.get_available_models()
+                           if m.supports_tools]
             return [m.id for m in tool_models]
         return [m.id for m in model.available_models]
 
     def update_build_config(self, build_config: dotdict, _field_value: Any, field_name: str | None = None):
         if field_name in {"model_name", "tool_model_enabled", "base_url", "api_key"}:
             try:
-                ids = self.get_models(tool_model_enabled=self.tool_model_enabled)
+                ids = self.get_models(
+                    tool_model_enabled=self.tool_model_enabled)
                 build_config["model_name"]["options"] = ids
 
                 if "value" not in build_config["model_name"] or build_config["model_name"]["value"] is None:

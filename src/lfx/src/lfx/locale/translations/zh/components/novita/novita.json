@@ -1,0 +1,34 @@
+{
+  "display_name": "Novita AI",
+  "description": "使用Novita AI大语言模型生成文本(兼容OpenAI)。",
+  "max_tokens": {
+    "display_name": "最大令牌数",
+    "info": "要生成的最大令牌数。设置为0表示无限制令牌。"
+  },
+  "model_kwargs": {
+    "display_name": "模型关键字参数",
+    "info": "传递给模型的额外关键字参数。"
+  },
+  "json_mode": {
+    "display_name": "JSON模式",
+    "info": "如果为True，无论是否传递架构，都将输出JSON。"
+  },
+  "model_name": {
+    "display_name": "模型名称"
+  },
+  "api_key": {
+    "display_name": "Novita API密钥",
+    "info": "用于Novita AI模型的API密钥。"
+  },
+  "temperature": {
+    "display_name": "温度"
+  },
+  "seed": {
+    "display_name": "随机种子",
+    "info": "种子控制作业的可重现性。"
+  },
+  "output_parser": {
+    "display_name": "输出解析器",
+    "info": "用于解析模型输出的解析器"
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "display_name": "列出用户",
+  "description": "从Notion检索用户。",
+  "notion_secret": {
+    "display_name": "Notion密钥",
+    "info": "Notion集成令牌。"
+  }
+}

@@ -1,0 +1,118 @@
+{
+  "display_name": "Astra DB",
+  "description": "Ingest and search documents in Astra DB",
+  "new_database": {
+    "description": "Please allow several minutes for creation to complete.",
+    "display_name": "Create new database",
+    "name": {
+      "display_name": "Name",
+      "info": "Name of the new database to create in Astra DB."
+    },
+    "cloud_provider": {
+      "display_name": "Cloud provider",
+      "info": "Cloud provider for the new database."
+    },
+    "region": {
+      "display_name": "Region",
+      "info": "Region for the new database."
+    }
+  },
+  "new_collection": {
+    "description": "Please allow several seconds for creation to complete.",
+    "display_name": "Create new collection",
+    "name": {
+      "display_name": "Name",
+      "info": "Name of the new collection to create in Astra DB."
+    },
+    "provider": {
+      "display_name": "Embedding generation method",
+      "info": "Provider to use for generating embeddings.",
+      "helper_text": "To create collections with more embedding provider options, go to <a class=\"underline\" href=\"https://astra.datastax.com/\" target=\" _blank\" rel=\"noopener noreferrer\">your database in Astra DB</a>"
+    },
+    "model": {
+      "display_name": "Embedding model",
+      "info": "Model to use for generating embeddings."
+    },
+    "dimension": {
+      "display_name": "Dimensions",
+      "info": "Dimensions of the embeddings to generate."
+    }
+  },
+  "token": {
+    "display_name": "Astra DB Application Token",
+    "info": "Authentication token for accessing Astra DB."
+  },
+  "environment": {
+    "display_name": "Environment",
+    "info": "The environment for the Astra DB API Endpoint."
+  },
+  "database_name": {
+    "display_name": "Database",
+    "info": "The Database name for the Astra DB instance."
+  },
+  "api_endpoint": {
+    "display_name": "Astra DB API Endpoint",
+    "info": "The API Endpoint for the Astra DB instance. Supercedes database selection."
+  },
+  "keyspace": {
+    "display_name": "Keyspace",
+    "info": "Optional keyspace within Astra DB to use for the collection."
+  },
+  "collection_name": {
+    "display_name": "Collection",
+    "info": "The name of the collection within Astra DB where the vectors will be stored."
+  },
+  "embedding_model": {
+    "display_name": "Embedding Model",
+    "info": "Specify the Embedding Model. Not required for Astra Vectorize collections."
+  },
+  "search_method": {
+    "display_name": "Search Method",
+    "info": "Determine how your content is matched: Vector finds semantic similarity, and Hybrid Search (suggested) combines both approaches with a reranker."
+  },
+  "reranker": {
+    "display_name": "Reranker",
+    "info": "Post-retrieval model that re-scores results for optimal relevance ranking."
+  },
+  "lexical_terms": {
+    "display_name": "Lexical Terms",
+    "info": "Add additional terms/keywords to augment search precision.",
+    "placeholder": "Enter terms to search..."
+  },
+  "number_of_results": {
+    "display_name": "Number of Search Results",
+    "info": "Number of search results to return."
+  },
+  "search_type": {
+    "display_name": "Search Type",
+    "info": "Search type to use"
+  },
+  "search_score_threshold": {
+    "display_name": "Search Score Threshold",
+    "info": "Minimum similarity score threshold for search results. (when using 'Similarity with score threshold')"
+  },
+  "advanced_search_filter": {
+    "display_name": "Search Metadata Filter",
+    "info": "Optional dictionary of filters to apply to the search query."
+  },
+  "autodetect_collection": {
+    "display_name": "Autodetect Collection",
+    "info": "Boolean flag to determine whether to autodetect the collection."
+  },
+  "content_field": {
+    "display_name": "Content Field",
+    "info": "Field to use as the text content field for the vector store."
+  },
+  "deletion_field": {
+    "display_name": "Deletion Based On Field",
+    "info": "When this parameter is provided, documents in the target collection with metadata field values matching the input metadata field value will be deleted before new data is loaded."
+  },
+  "ignore_invalid_documents": {
+    "display_name": "Ignore Invalid Documents",
+    "info": "Boolean flag to determine whether to ignore invalid documents at runtime."
+  },
+  "astradb_vectorstore_kwargs": {
+    "display_name": "AstraDBVectorStore Parameters",
+    "info": "Optional dictionary of additional parameters for the AstraDBVectorStore."
+  }
+}

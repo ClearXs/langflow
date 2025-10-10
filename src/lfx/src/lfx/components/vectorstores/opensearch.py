@@ -1,3 +1,4 @@
+import i18n
 import json
 from typing import Any
 
@@ -22,80 +23,97 @@ from lfx.schema.data import Data
 class OpenSearchVectorStoreComponent(LCVectorStoreComponent):
     """OpenSearch Vector Store with advanced, customizable search capabilities."""
 
-    display_name: str = "OpenSearch"
-    description: str = "OpenSearch Vector Store with advanced, customizable search capabilities."
+    display_name: str = i18n.t(
+        'components.vectorstores.opensearch.display_name')
+    description: str = i18n.t('components.vectorstores.opensearch.description')
     name = "OpenSearch"
     icon = "OpenSearch"
 
     inputs = [
         StrInput(
             name="opensearch_url",
-            display_name="OpenSearch URL",
+            display_name=i18n.t(
+                'components.vectorstores.opensearch.opensearch_url.display_name'),
             value="http://localhost:9200",
-            info="URL for OpenSearch cluster (e.g. https://192.168.1.1:9200).",
+            info=i18n.t(
+                'components.vectorstores.opensearch.opensearch_url.info'),
         ),
         StrInput(
             name="index_name",
-            display_name="Index Name",
+            display_name=i18n.t(
+                'components.vectorstores.opensearch.index_name.display_name'),
             value="langflow",
-            info="The index name where the vectors will be stored in OpenSearch cluster.",
+            info=i18n.t('components.vectorstores.opensearch.index_name.info'),
         ),
         *LCVectorStoreComponent.inputs,
-        HandleInput(name="embedding", display_name="Embedding", input_types=["Embeddings"]),
+        HandleInput(
+            name="embedding",
+            display_name=i18n.t(
+                'components.vectorstores.opensearch.embedding.display_name'),
+            input_types=["Embeddings"]
+        ),
         DropdownInput(
             name="search_type",
-            display_name="Search Type",
+            display_name=i18n.t(
+                'components.vectorstores.opensearch.search_type.display_name'),
             options=["similarity", "similarity_score_threshold", "mmr"],
             value="similarity",
             advanced=True,
         ),
         IntInput(
             name="number_of_results",
-            display_name="Number of Results",
-            info="Number of results to return.",
+            display_name=i18n.t(
+                'components.vectorstores.opensearch.number_of_results.display_name'),
+            info=i18n.t(
+                'components.vectorstores.opensearch.number_of_results.info'),
             advanced=True,
             value=4,
         ),
         FloatInput(
             name="search_score_threshold",
-            display_name="Search Score Threshold",
-            info="Minimum similarity score threshold for search results.",
+            display_name=i18n.t(
+                'components.vectorstores.opensearch.search_score_threshold.display_name'),
+            info=i18n.t(
+                'components.vectorstores.opensearch.search_score_threshold.info'),
             value=0.0,
             advanced=True,
         ),
         StrInput(
             name="username",
-            display_name="Username",
+            display_name=i18n.t(
+                'components.vectorstores.opensearch.username.display_name'),
             value="admin",
             advanced=True,
         ),
         SecretStrInput(
             name="password",
-            display_name="Password",
+            display_name=i18n.t(
+                'components.vectorstores.opensearch.password.display_name'),
             value="admin",
             advanced=True,
         ),
         BoolInput(
             name="use_ssl",
-            display_name="Use SSL",
+            display_name=i18n.t(
+                'components.vectorstores.opensearch.use_ssl.display_name'),
             value=True,
             advanced=True,
         ),
         BoolInput(
             name="verify_certs",
-            display_name="Verify Certificates",
+            display_name=i18n.t(
+                'components.vectorstores.opensearch.verify_certs.display_name'),
             value=False,
             advanced=True,
         ),
         MultilineInput(
             name="hybrid_search_query",
-            display_name="Hybrid Search Query",
+            display_name=i18n.t(
+                'components.vectorstores.opensearch.hybrid_search_query.display_name'),
             value="",
             advanced=True,
-            info=(
-                "Provide a custom hybrid search query in JSON format. This allows you to combine "
-                "vector similarity and keyword matching."
-            ),
+            info=i18n.t(
+                'components.vectorstores.opensearch.hybrid_search_query.info'),
         ),
     ]
 
@@ -170,7 +188,8 @@ class OpenSearchVectorStoreComponent(LCVectorStoreComponent):
                     self.log(error_message)
                     raise ValueError(error_message) from e
 
-                results = vector_store.client.search(index=self.index_name, body=hybrid_query)
+                results = vector_store.client.search(
+                    index=self.index_name, body=hybrid_query)
 
                 processed_results = []
                 for hit in results.get("hits", {}).get("hits", []):
@@ -193,11 +212,13 @@ class OpenSearchVectorStoreComponent(LCVectorStoreComponent):
             search_type = self.search_type.lower()
 
             if search_type == "similarity":
-                results = vector_store.similarity_search(query, **search_kwargs)
+                results = vector_store.similarity_search(
+                    query, **search_kwargs)
                 return [{"page_content": doc.page_content, "metadata": doc.metadata} for doc in results]
             if search_type == "similarity_score_threshold":
                 search_kwargs["score_threshold"] = self.search_score_threshold
-                results = vector_store.similarity_search_with_relevance_scores(query, **search_kwargs)
+                results = vector_store.similarity_search_with_relevance_scores(
+                    query, **search_kwargs)
                 return [
                     {
                         "page_content": doc.page_content,
@@ -207,7 +228,8 @@ class OpenSearchVectorStoreComponent(LCVectorStoreComponent):
                     for doc, score in results
                 ]
             if search_type == "mmr":
-                results = vector_store.max_marginal_relevance_search(query, **search_kwargs)
+                results = vector_store.max_marginal_relevance_search(
+                    query, **search_kwargs)
                 return [{"page_content": doc.page_content, "metadata": doc.metadata} for doc in results]
 
         except Exception as e:

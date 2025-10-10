@@ -1,3 +1,4 @@
+import i18n
 from langchain_openai import OpenAIEmbeddings
 
 from lfx.base.embeddings.model import LCEmbeddingsModel
@@ -7,67 +8,146 @@ from lfx.io import BoolInput, DictInput, DropdownInput, FloatInput, IntInput, Me
 
 
 class OpenAIEmbeddingsComponent(LCEmbeddingsModel):
-    display_name = "OpenAI Embeddings"
-    description = "Generate embeddings using OpenAI models."
+    display_name = i18n.t('components.openai.openai.display_name')
+    description = i18n.t('components.openai.openai.description')
     icon = "OpenAI"
     name = "OpenAIEmbeddings"
 
     inputs = [
         DictInput(
             name="default_headers",
-            display_name="Default Headers",
+            display_name=i18n.t(
+                'components.openai.openai.default_headers.display_name'),
             advanced=True,
-            info="Default headers to use for the API request.",
+            info=i18n.t('components.openai.openai.default_headers.info'),
         ),
         DictInput(
             name="default_query",
-            display_name="Default Query",
+            display_name=i18n.t(
+                'components.openai.openai.default_query.display_name'),
             advanced=True,
-            info="Default query parameters to use for the API request.",
+            info=i18n.t('components.openai.openai.default_query.info'),
         ),
-        IntInput(name="chunk_size", display_name="Chunk Size", advanced=True, value=1000),
-        MessageTextInput(name="client", display_name="Client", advanced=True),
-        MessageTextInput(name="deployment", display_name="Deployment", advanced=True),
-        IntInput(name="embedding_ctx_length", display_name="Embedding Context Length", advanced=True, value=1536),
-        IntInput(name="max_retries", display_name="Max Retries", value=3, advanced=True),
+        IntInput(
+            name="chunk_size",
+            display_name=i18n.t(
+                'components.openai.openai.chunk_size.display_name'),
+            advanced=True,
+            value=1000
+        ),
+        MessageTextInput(
+            name="client",
+            display_name=i18n.t(
+                'components.openai.openai.client.display_name'),
+            advanced=True
+        ),
+        MessageTextInput(
+            name="deployment",
+            display_name=i18n.t(
+                'components.openai.openai.deployment.display_name'),
+            advanced=True
+        ),
+        IntInput(
+            name="embedding_ctx_length",
+            display_name=i18n.t(
+                'components.openai.openai.embedding_ctx_length.display_name'),
+            advanced=True,
+            value=1536
+        ),
+        IntInput(
+            name="max_retries",
+            display_name=i18n.t(
+                'components.openai.openai.max_retries.display_name'),
+            value=3,
+            advanced=True
+        ),
         DropdownInput(
             name="model",
-            display_name="Model",
+            display_name=i18n.t('components.openai.openai.model.display_name'),
             advanced=False,
             options=OPENAI_EMBEDDING_MODEL_NAMES,
             value="text-embedding-3-small",
         ),
-        DictInput(name="model_kwargs", display_name="Model Kwargs", advanced=True),
-        SecretStrInput(name="openai_api_key", display_name="OpenAI API Key", value="OPENAI_API_KEY", required=True),
-        MessageTextInput(name="openai_api_base", display_name="OpenAI API Base", advanced=True),
-        MessageTextInput(name="openai_api_type", display_name="OpenAI API Type", advanced=True),
-        MessageTextInput(name="openai_api_version", display_name="OpenAI API Version", advanced=True),
+        DictInput(
+            name="model_kwargs",
+            display_name=i18n.t(
+                'components.openai.openai.model_kwargs.display_name'),
+            advanced=True
+        ),
+        SecretStrInput(
+            name="openai_api_key",
+            display_name=i18n.t(
+                'components.openai.openai.openai_api_key.display_name'),
+            value="OPENAI_API_KEY",
+            required=True
+        ),
+        MessageTextInput(
+            name="openai_api_base",
+            display_name=i18n.t(
+                'components.openai.openai.openai_api_base.display_name'),
+            advanced=True
+        ),
+        MessageTextInput(
+            name="openai_api_type",
+            display_name=i18n.t(
+                'components.openai.openai.openai_api_type.display_name'),
+            advanced=True
+        ),
+        MessageTextInput(
+            name="openai_api_version",
+            display_name=i18n.t(
+                'components.openai.openai.openai_api_version.display_name'),
+            advanced=True
+        ),
         MessageTextInput(
             name="openai_organization",
-            display_name="OpenAI Organization",
+            display_name=i18n.t(
+                'components.openai.openai.openai_organization.display_name'),
             advanced=True,
         ),
-        MessageTextInput(name="openai_proxy", display_name="OpenAI Proxy", advanced=True),
-        FloatInput(name="request_timeout", display_name="Request Timeout", advanced=True),
-        BoolInput(name="show_progress_bar", display_name="Show Progress Bar", advanced=True),
-        BoolInput(name="skip_empty", display_name="Skip Empty", advanced=True),
+        MessageTextInput(
+            name="openai_proxy",
+            display_name=i18n.t(
+                'components.openai.openai.openai_proxy.display_name'),
+            advanced=True
+        ),
+        FloatInput(
+            name="request_timeout",
+            display_name=i18n.t(
+                'components.openai.openai.request_timeout.display_name'),
+            advanced=True
+        ),
+        BoolInput(
+            name="show_progress_bar",
+            display_name=i18n.t(
+                'components.openai.openai.show_progress_bar.display_name'),
+            advanced=True
+        ),
+        BoolInput(
+            name="skip_empty",
+            display_name=i18n.t(
+                'components.openai.openai.skip_empty.display_name'),
+            advanced=True
+        ),
         MessageTextInput(
             name="tiktoken_model_name",
-            display_name="TikToken Model Name",
+            display_name=i18n.t(
+                'components.openai.openai.tiktoken_model_name.display_name'),
             advanced=True,
         ),
         BoolInput(
             name="tiktoken_enable",
-            display_name="TikToken Enable",
+            display_name=i18n.t(
+                'components.openai.openai.tiktoken_enable.display_name'),
             advanced=True,
             value=True,
-            info="If False, you must have transformers installed.",
+            info=i18n.t('components.openai.openai.tiktoken_enable.info'),
         ),
         IntInput(
             name="dimensions",
-            display_name="Dimensions",
-            info="The number of dimensions the resulting output embeddings should have. "
-            "Only supported by certain models.",
+            display_name=i18n.t(
+                'components.openai.openai.dimensions.display_name'),
+            info=i18n.t('components.openai.openai.dimensions.info'),
             advanced=True,
         ),
     ]

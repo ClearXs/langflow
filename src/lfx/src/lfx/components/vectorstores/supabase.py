@@ -1,3 +1,4 @@
+import i18n
 from langchain_community.vectorstores import SupabaseVectorStore
 from supabase.client import Client, create_client
 
@@ -8,22 +9,48 @@ from lfx.schema.data import Data
 
 
 class SupabaseVectorStoreComponent(LCVectorStoreComponent):
-    display_name = "Supabase"
-    description = "Supabase Vector Store with search capabilities"
+    display_name = i18n.t('components.vectorstores.supabase.display_name')
+    description = i18n.t('components.vectorstores.supabase.description')
     name = "SupabaseVectorStore"
     icon = "Supabase"
 
     inputs = [
-        StrInput(name="supabase_url", display_name="Supabase URL", required=True),
-        SecretStrInput(name="supabase_service_key", display_name="Supabase Service Key", required=True),
-        StrInput(name="table_name", display_name="Table Name", advanced=True),
-        StrInput(name="query_name", display_name="Query Name"),
+        StrInput(
+            name="supabase_url",
+            display_name=i18n.t(
+                'components.vectorstores.supabase.supabase_url.display_name'),
+            required=True
+        ),
+        SecretStrInput(
+            name="supabase_service_key",
+            display_name=i18n.t(
+                'components.vectorstores.supabase.supabase_service_key.display_name'),
+            required=True
+        ),
+        StrInput(
+            name="table_name",
+            display_name=i18n.t(
+                'components.vectorstores.supabase.table_name.display_name'),
+            advanced=True
+        ),
+        StrInput(
+            name="query_name",
+            display_name=i18n.t(
+                'components.vectorstores.supabase.query_name.display_name')
+        ),
         *LCVectorStoreComponent.inputs,
-        HandleInput(name="embedding", display_name="Embedding", input_types=["Embeddings"]),
+        HandleInput(
+            name="embedding",
+            display_name=i18n.t(
+                'components.vectorstores.supabase.embedding.display_name'),
+            input_types=["Embeddings"]
+        ),
         IntInput(
             name="number_of_results",
-            display_name="Number of Results",
-            info="Number of results to return.",
+            display_name=i18n.t(
+                'components.vectorstores.supabase.number_of_results.display_name'),
+            info=i18n.t(
+                'components.vectorstores.supabase.number_of_results.info'),
             value=4,
             advanced=True,
         ),
@@ -31,7 +58,8 @@ class SupabaseVectorStoreComponent(LCVectorStoreComponent):
 
     @check_cached_vector_store
     def build_vector_store(self) -> SupabaseVectorStore:
-        supabase: Client = create_client(self.supabase_url, supabase_key=self.supabase_service_key)
+        supabase: Client = create_client(
+            self.supabase_url, supabase_key=self.supabase_service_key)
 
         # Convert DataFrame to Data if needed using parent's method
         self.ingest_data = self._prepare_ingest_data()

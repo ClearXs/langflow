@@ -1,0 +1,12 @@
+{
+  "display_name": "Page Content Viewer",
+  "description": "Retrieve the content of a Notion page as plain text.",
+  "page_id": {
+    "display_name": "Page ID",
+    "info": "The ID of the Notion page to retrieve."
+  },
+  "notion_secret": {
+    "display_name": "Notion Secret",
+    "info": "The Notion integration token."
+  }
+}

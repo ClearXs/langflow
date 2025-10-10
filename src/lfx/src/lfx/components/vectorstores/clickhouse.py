@@ -1,3 +1,4 @@
+import i18n
 from langchain_community.vectorstores import Clickhouse, ClickhouseSettings
 
 from lfx.base.vectorstores.model import LCVectorStoreComponent, check_cached_vector_store
@@ -15,52 +16,110 @@ from lfx.schema.data import Data
 
 
 class ClickhouseVectorStoreComponent(LCVectorStoreComponent):
-    display_name = "ClickHouse"
-    description = "ClickHouse Vector Store with search capabilities"
+    display_name = i18n.t('components.vectorstores.clickhouse.display_name')
+    description = i18n.t('components.vectorstores.clickhouse.description')
     name = "Clickhouse"
     icon = "Clickhouse"
 
     inputs = [
-        StrInput(name="host", display_name="hostname", required=True, value="localhost"),
-        IntInput(name="port", display_name="port", required=True, value=8123),
-        StrInput(name="database", display_name="database", required=True),
-        StrInput(name="table", display_name="Table name", required=True),
-        StrInput(name="username", display_name="The ClickHouse user name.", required=True),
-        SecretStrInput(name="password", display_name="The password for username.", required=True),
+        StrInput(
+            name="host",
+            display_name=i18n.t(
+                'components.vectorstores.clickhouse.host.display_name'),
+            required=True,
+            value="localhost"
+        ),
+        IntInput(
+            name="port",
+            display_name=i18n.t(
+                'components.vectorstores.clickhouse.port.display_name'),
+            required=True,
+            value=8123
+        ),
+        StrInput(
+            name="database",
+            display_name=i18n.t(
+                'components.vectorstores.clickhouse.database.display_name'),
+            required=True
+        ),
+        StrInput(
+            name="table",
+            display_name=i18n.t(
+                'components.vectorstores.clickhouse.table.display_name'),
+            required=True
+        ),
+        StrInput(
+            name="username",
+            display_name=i18n.t(
+                'components.vectorstores.clickhouse.username.display_name'),
+            required=True
+        ),
+        SecretStrInput(
+            name="password",
+            display_name=i18n.t(
+                'components.vectorstores.clickhouse.password.display_name'),
+            required=True
+        ),
         DropdownInput(
             name="index_type",
-            display_name="index_type",
+            display_name=i18n.t(
+                'components.vectorstores.clickhouse.index_type.display_name'),
             options=["annoy", "vector_similarity"],
-            info="Type of the index.",
+            info=i18n.t('components.vectorstores.clickhouse.index_type.info'),
             value="annoy",
             advanced=True,
         ),
         DropdownInput(
             name="metric",
-            display_name="metric",
+            display_name=i18n.t(
+                'components.vectorstores.clickhouse.metric.display_name'),
             options=["angular", "euclidean", "manhattan", "hamming", "dot"],
-            info="Metric to compute distance.",
+            info=i18n.t('components.vectorstores.clickhouse.metric.info'),
             value="angular",
             advanced=True,
         ),
         BoolInput(
             name="secure",
-            display_name="Use https/TLS. This overrides inferred values from the interface or port arguments.",
+            display_name=i18n.t(
+                'components.vectorstores.clickhouse.secure.display_name'),
             value=False,
             advanced=True,
         ),
-        StrInput(name="index_param", display_name="Param of the index", value="100,'L2Distance'", advanced=True),
-        DictInput(name="index_query_params", display_name="index query params", advanced=True),
+        StrInput(
+            name="index_param",
+            display_name=i18n.t(
+                'components.vectorstores.clickhouse.index_param.display_name'),
+            value="100,'L2Distance'",
+            advanced=True
+        ),
+        DictInput(
+            name="index_query_params",
+            display_name=i18n.t(
+                'components.vectorstores.clickhouse.index_query_params.display_name'),
+            advanced=True
+        ),
         *LCVectorStoreComponent.inputs,
-        HandleInput(name="embedding", display_name="Embedding", input_types=["Embeddings"]),
+        HandleInput(
+            name="embedding",
+            display_name=i18n.t(
+                'components.vectorstores.clickhouse.embedding.display_name'),
+            input_types=["Embeddings"]
+        ),
         IntInput(
             name="number_of_results",
-            display_name="Number of Results",
-            info="Number of results to return.",
+            display_name=i18n.t(
+                'components.vectorstores.clickhouse.number_of_results.display_name'),
+            info=i18n.t(
+                'components.vectorstores.clickhouse.number_of_results.info'),
             value=4,
             advanced=True,
         ),
-        FloatInput(name="score_threshold", display_name="Score threshold", advanced=True),
+        FloatInput(
+            name="score_threshold",
+            display_name=i18n.t(
+                'components.vectorstores.clickhouse.score_threshold.display_name'),
+            advanced=True
+        ),
     ]
 
     @check_cached_vector_store
@@ -112,10 +171,12 @@ class ClickhouseVectorStoreComponent(LCVectorStoreComponent):
             **kwargs,
         )
         if documents:
-            clickhouse_vs = Clickhouse.from_documents(documents=documents, embedding=self.embedding, config=settings)
+            clickhouse_vs = Clickhouse.from_documents(
+                documents=documents, embedding=self.embedding, config=settings)
 
         else:
-            clickhouse_vs = Clickhouse(embedding=self.embedding, config=settings)
+            clickhouse_vs = Clickhouse(
+                embedding=self.embedding, config=settings)
 
         return clickhouse_vs
 
@@ -127,7 +188,8 @@ class ClickhouseVectorStoreComponent(LCVectorStoreComponent):
             if self.score_threshold:
                 kwargs["score_threshold"] = self.score_threshold
 
-            docs = vector_store.similarity_search(query=self.search_query, k=self.number_of_results, **kwargs)
+            docs = vector_store.similarity_search(
+                query=self.search_query, k=self.number_of_results, **kwargs)
 
             data = docs_to_data(docs)
             self.status = data

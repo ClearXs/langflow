@@ -1,3 +1,4 @@
+import ast
 import asyncio
 import importlib
 import json
@@ -86,6 +87,62 @@ async def import_langflow_components():
     return {"components": modules_dict}
 
 
+def _should_skip_module_by_source(modname: str) -> bool:
+    """analyze source code judgment whether skip import module
+
+    Args:
+        modname: module name
+
+    Returns:
+        bool: should be skip module if true
+    """
+    try:
+        spec = importlib.util.find_spec(modname)
+        if not spec or not spec.origin:
+            return False
+
+        with open(spec.origin, 'r', encoding='utf-8') as f:
+            source = f.read()
+
+        tree = ast.parse(source)
+
+        component_classes = []
+        ignored_classes = []
+
+        for node in ast.walk(tree):
+            if isinstance(node, ast.ClassDef):
+                # 检查是否是组件类(简化检查)
+                has_component_base = any(
+                    isinstance(base, ast.Name) and 'Component' in base.id
+                    for base in node.bases
+                )
+
+                if has_component_base:
+                    component_classes.append(node.name)
+
+                    # check component whether ignore = True
+                    for item in node.body:
+                        if isinstance(item, ast.Assign):
+                            for target in item.targets:
+                                if isinstance(target, ast.Name) and target.id == 'ignore':
+                                    if isinstance(item.value, ast.Constant) and item.value.value is True:
+                                        ignored_classes.append(node.name)
+
+        # skip module if all component whether ignore = true
+        if component_classes and len(ignored_classes) == len(component_classes):
+            logger.debug(
+                f"Pre-skipping module {modname} before import: "
+                f"all {len(component_classes)} component(s) have ignore=True"
+            )
+            return True
+
+    except Exception as e:
+        logger.debug(f"Could not pre-analyze module {modname}: {e}")
+        return False
+
+    return False
+
+
 def _process_single_module(modname: str) -> tuple[str, dict] | None:
     """Process a single module and return its components.
 
@@ -95,6 +152,11 @@ def _process_single_module(modname: str) -> tuple[str, dict] | None:
     Returns:
         A tuple of (top_level_package, components_dict) or None if processing failed
     """
+
+    if _should_skip_module_by_source(modname):
+        logger.debug(f"Ignore module: {modname}")
+        return None
+
     try:
         module = importlib.import_module(modname)
     except (ImportError, AttributeError) as e:
@@ -127,6 +189,12 @@ def _process_single_module(modname: str) -> tuple[str, dict] | None:
             _getattr(obj, "code_class_base_inheritance", None) is not None
             or _getattr(obj, "_code_class_base_inheritance", None) is not None
         ):
+            continue
+
+        ignore_flag = _getattr(obj, "ignore", False)
+        if ignore_flag is True:
+            logger.debug(
+                f"Ignoring component {name} from {modname} (ignore=True)")
             continue
 
         try:

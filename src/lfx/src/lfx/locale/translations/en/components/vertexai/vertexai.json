@@ -1,0 +1,36 @@
+{
+  "display_name": "Vertex AI",
+  "description": "Generate text using Vertex AI LLMs.",
+  "credentials": {
+    "display_name": "Credentials",
+    "info": "JSON credentials file. Leave empty to fallback to environment variables"
+  },
+  "model_name": {
+    "display_name": "Model Name"
+  },
+  "project": {
+    "display_name": "Project",
+    "info": "The project ID."
+  },
+  "location": {
+    "display_name": "Location"
+  },
+  "max_output_tokens": {
+    "display_name": "Max Output Tokens"
+  },
+  "max_retries": {
+    "display_name": "Max Retries"
+  },
+  "temperature": {
+    "display_name": "Temperature"
+  },
+  "top_k": {
+    "display_name": "Top K"
+  },
+  "top_p": {
+    "display_name": "Top P"
+  },
+  "verbose": {
+    "display_name": "Verbose"
+  }
+}

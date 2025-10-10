@@ -1,0 +1,47 @@
+{
+  "display_name": "Qdrant",
+  "description": "Qdrant Vector Store with search capabilities",
+  "collection_name": {
+    "display_name": "Collection Name"
+  },
+  "host": {
+    "display_name": "Host"
+  },
+  "port": {
+    "display_name": "Port"
+  },
+  "grpc_port": {
+    "display_name": "gRPC Port"
+  },
+  "api_key": {
+    "display_name": "Qdrant API Key"
+  },
+  "prefix": {
+    "display_name": "Prefix"
+  },
+  "timeout": {
+    "display_name": "Timeout"
+  },
+  "path": {
+    "display_name": "Path"
+  },
+  "url": {
+    "display_name": "URL"
+  },
+  "distance_func": {
+    "display_name": "Distance Function"
+  },
+  "content_payload_key": {
+    "display_name": "Content Payload Key"
+  },
+  "metadata_payload_key": {
+    "display_name": "Metadata Payload Key"
+  },
+  "embedding": {
+    "display_name": "Embedding"
+  },
+  "number_of_results": {
+    "display_name": "Number of Results",
+    "info": "Number of results to return."
+  }
+}

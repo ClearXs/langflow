@@ -1,0 +1,49 @@
+{
+  "display_name": "ClickHouse",
+  "description": "具有搜索功能的 ClickHouse 向量存储",
+  "host": {
+    "display_name": "主机名"
+  },
+  "port": {
+    "display_name": "端口"
+  },
+  "database": {
+    "display_name": "数据库"
+  },
+  "table": {
+    "display_name": "表名"
+  },
+  "username": {
+    "display_name": "用户名"
+  },
+  "password": {
+    "display_name": "密码"
+  },
+  "index_type": {
+    "display_name": "索引类型",
+    "info": "索引的类型。"
+  },
+  "metric": {
+    "display_name": "度量",
+    "info": "用于计算距离的度量。"
+  },
+  "secure": {
+    "display_name": "使用 HTTPS/TLS"
+  },
+  "index_param": {
+    "display_name": "索引参数"
+  },
+  "index_query_params": {
+    "display_name": "索引查询参数"
+  },
+  "embedding": {
+    "display_name": "嵌入"
+  },
+  "number_of_results": {
+    "display_name": "结果数量",
+    "info": "要返回的结果数量。"
+  },
+  "score_threshold": {
+    "display_name": "分数阈值"
+  }
+}

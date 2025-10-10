@@ -1,3 +1,4 @@
+import i18n
 from typing import Any
 
 from lfx.base.embeddings.model import LCEmbeddingsModel
@@ -8,14 +9,16 @@ from lfx.schema.dotdict import dotdict
 
 
 class NVIDIAEmbeddingsComponent(LCEmbeddingsModel):
-    display_name: str = "NVIDIA Embeddings"
-    description: str = "Generate embeddings using NVIDIA models."
+    display_name: str = i18n.t(
+        'components.nvidia.nvidia_embedding.display_name')
+    description: str = i18n.t('components.nvidia.nvidia_embedding.description')
     icon = "NVIDIA"
 
     inputs = [
         DropdownInput(
             name="model",
-            display_name="Model",
+            display_name=i18n.t(
+                'components.nvidia.nvidia_embedding.model.display_name'),
             options=[
                 "nvidia/nv-embed-v1",
                 "snowflake/arctic-embed-I",
@@ -25,22 +28,26 @@ class NVIDIAEmbeddingsComponent(LCEmbeddingsModel):
         ),
         MessageTextInput(
             name="base_url",
-            display_name="NVIDIA Base URL",
+            display_name=i18n.t(
+                'components.nvidia.nvidia_embedding.base_url.display_name'),
             refresh_button=True,
             value="https://integrate.api.nvidia.com/v1",
             required=True,
         ),
         SecretStrInput(
             name="nvidia_api_key",
-            display_name="NVIDIA API Key",
-            info="The NVIDIA API Key.",
+            display_name=i18n.t(
+                'components.nvidia.nvidia_embedding.nvidia_api_key.display_name'),
+            info=i18n.t(
+                'components.nvidia.nvidia_embedding.nvidia_api_key.info'),
             advanced=False,
             value="NVIDIA_API_KEY",
             required=True,
         ),
         FloatInput(
             name="temperature",
-            display_name="Model Temperature",
+            display_name=i18n.t(
+                'components.nvidia.nvidia_embedding.temperature.display_name'),
             value=0.1,
             advanced=True,
         ),

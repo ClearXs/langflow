@@ -1,3 +1,4 @@
+import i18n
 from langchain_community.vectorstores import Cassandra
 
 from lfx.base.vectorstores.model import LCVectorStoreComponent, check_cached_vector_store
@@ -14,8 +15,8 @@ from lfx.schema.data import Data
 
 
 class CassandraVectorStoreComponent(LCVectorStoreComponent):
-    display_name = "Cassandra"
-    description = "Cassandra Vector Store with search capabilities"
+    display_name = i18n.t('components.vectorstores.cassandra.display_name')
+    description = i18n.t('components.vectorstores.cassandra.description')
     documentation = "https://python.langchain.com/docs/modules/data_connection/vectorstores/integrations/cassandra"
     name = "Cassandra"
     icon = "Cassandra"
@@ -23,101 +24,128 @@ class CassandraVectorStoreComponent(LCVectorStoreComponent):
     inputs = [
         MessageTextInput(
             name="database_ref",
-            display_name="Contact Points / Astra Database ID",
-            info="Contact points for the database (or Astra DB database ID)",
+            display_name=i18n.t(
+                'components.vectorstores.cassandra.database_ref.display_name'),
+            info=i18n.t('components.vectorstores.cassandra.database_ref.info'),
             required=True,
         ),
         MessageTextInput(
-            name="username", display_name="Username", info="Username for the database (leave empty for Astra DB)."
+            name="username",
+            display_name=i18n.t(
+                'components.vectorstores.cassandra.username.display_name'),
+            info=i18n.t('components.vectorstores.cassandra.username.info')
         ),
         SecretStrInput(
             name="token",
-            display_name="Password / Astra DB Token",
-            info="User password for the database (or Astra DB token).",
+            display_name=i18n.t(
+                'components.vectorstores.cassandra.token.display_name'),
+            info=i18n.t('components.vectorstores.cassandra.token.info'),
             required=True,
         ),
         MessageTextInput(
             name="keyspace",
-            display_name="Keyspace",
-            info="Table Keyspace (or Astra DB namespace).",
+            display_name=i18n.t(
+                'components.vectorstores.cassandra.keyspace.display_name'),
+            info=i18n.t('components.vectorstores.cassandra.keyspace.info'),
             required=True,
         ),
         MessageTextInput(
             name="table_name",
-            display_name="Table Name",
-            info="The name of the table (or Astra DB collection) where vectors will be stored.",
+            display_name=i18n.t(
+                'components.vectorstores.cassandra.table_name.display_name'),
+            info=i18n.t('components.vectorstores.cassandra.table_name.info'),
             required=True,
         ),
         IntInput(
             name="ttl_seconds",
-            display_name="TTL Seconds",
-            info="Optional time-to-live for the added texts.",
+            display_name=i18n.t(
+                'components.vectorstores.cassandra.ttl_seconds.display_name'),
+            info=i18n.t('components.vectorstores.cassandra.ttl_seconds.info'),
             advanced=True,
         ),
         IntInput(
             name="batch_size",
-            display_name="Batch Size",
-            info="Optional number of data to process in a single batch.",
+            display_name=i18n.t(
+                'components.vectorstores.cassandra.batch_size.display_name'),
+            info=i18n.t('components.vectorstores.cassandra.batch_size.info'),
             value=16,
             advanced=True,
         ),
         DropdownInput(
             name="setup_mode",
-            display_name="Setup Mode",
-            info="Configuration mode for setting up the Cassandra table, with options like 'Sync', 'Async', or 'Off'.",
+            display_name=i18n.t(
+                'components.vectorstores.cassandra.setup_mode.display_name'),
+            info=i18n.t('components.vectorstores.cassandra.setup_mode.info'),
             options=["Sync", "Async", "Off"],
             value="Sync",
             advanced=True,
         ),
         DictInput(
             name="cluster_kwargs",
-            display_name="Cluster arguments",
-            info="Optional dictionary of additional keyword arguments for the Cassandra cluster.",
+            display_name=i18n.t(
+                'components.vectorstores.cassandra.cluster_kwargs.display_name'),
+            info=i18n.t(
+                'components.vectorstores.cassandra.cluster_kwargs.info'),
             advanced=True,
             list=True,
         ),
         *LCVectorStoreComponent.inputs,
-        HandleInput(name="embedding", display_name="Embedding", input_types=["Embeddings"]),
+        HandleInput(
+            name="embedding",
+            display_name=i18n.t(
+                'components.vectorstores.cassandra.embedding.display_name'),
+            input_types=["Embeddings"]
+        ),
         IntInput(
             name="number_of_results",
-            display_name="Number of Results",
-            info="Number of results to return.",
+            display_name=i18n.t(
+                'components.vectorstores.cassandra.number_of_results.display_name'),
+            info=i18n.t(
+                'components.vectorstores.cassandra.number_of_results.info'),
             value=4,
             advanced=True,
         ),
         DropdownInput(
             name="search_type",
-            display_name="Search Type",
-            info="Search type to use",
-            options=["Similarity", "Similarity with score threshold", "MMR (Max Marginal Relevance)"],
+            display_name=i18n.t(
+                'components.vectorstores.cassandra.search_type.display_name'),
+            info=i18n.t('components.vectorstores.cassandra.search_type.info'),
+            options=["Similarity", "Similarity with score threshold",
+                     "MMR (Max Marginal Relevance)"],
             value="Similarity",
             advanced=True,
         ),
         FloatInput(
             name="search_score_threshold",
-            display_name="Search Score Threshold",
-            info="Minimum similarity score threshold for search results. "
-            "(when using 'Similarity with score threshold')",
+            display_name=i18n.t(
+                'components.vectorstores.cassandra.search_score_threshold.display_name'),
+            info=i18n.t(
+                'components.vectorstores.cassandra.search_score_threshold.info'),
             value=0,
             advanced=True,
         ),
         DictInput(
             name="search_filter",
-            display_name="Search Metadata Filter",
-            info="Optional dictionary of filters to apply to the search query.",
+            display_name=i18n.t(
+                'components.vectorstores.cassandra.search_filter.display_name'),
+            info=i18n.t(
+                'components.vectorstores.cassandra.search_filter.info'),
             advanced=True,
             list=True,
         ),
         MessageTextInput(
             name="body_search",
-            display_name="Search Body",
-            info="Document textual search terms to apply to the search query.",
+            display_name=i18n.t(
+                'components.vectorstores.cassandra.body_search.display_name'),
+            info=i18n.t('components.vectorstores.cassandra.body_search.info'),
             advanced=True,
         ),
         BoolInput(
             name="enable_body_search",
-            display_name="Enable Body Search",
-            info="Flag to enable body search. This must be enabled BEFORE the table is created.",
+            display_name=i18n.t(
+                'components.vectorstores.cassandra.enable_body_search.display_name'),
+            info=i18n.t(
+                'components.vectorstores.cassandra.enable_body_search.info'),
             value=False,
             advanced=True,
         ),
@@ -169,7 +197,8 @@ class CassandraVectorStoreComponent(LCVectorStoreComponent):
             else:
                 documents.append(_input)
 
-        body_index_options = [("index_analyzer", "STANDARD")] if self.enable_body_search else None
+        body_index_options = [("index_analyzer", "STANDARD")
+                              ] if self.enable_body_search else None
 
         if self.setup_mode == "Off":
             setup_mode = SetupMode.OFF
@@ -222,7 +251,8 @@ class CassandraVectorStoreComponent(LCVectorStoreComponent):
 
                 self.log(f"Search args: {search_args}")
 
-                docs = vector_store.search(query=self.search_query, search_type=search_type, **search_args)
+                docs = vector_store.search(
+                    query=self.search_query, search_type=search_type, **search_args)
             except KeyError as e:
                 if "content" in str(e):
                     msg = (
@@ -246,7 +276,8 @@ class CassandraVectorStoreComponent(LCVectorStoreComponent):
         }
 
         if self.search_filter:
-            clean_filter = {k: v for k, v in self.search_filter.items() if k and v}
+            clean_filter = {k: v for k,
+                            v in self.search_filter.items() if k and v}
             if len(clean_filter) > 0:
                 args["filter"] = clean_filter
         if self.body_search:

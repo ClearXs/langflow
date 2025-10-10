@@ -1,3 +1,4 @@
+import i18n
 from langchain_community.chat_models import ChatPerplexity
 from pydantic.v1 import SecretStr
 
@@ -8,8 +9,8 @@ from lfx.io import DropdownInput, FloatInput, IntInput, SecretStrInput, SliderIn
 
 
 class PerplexityComponent(LCModelComponent):
-    display_name = "Perplexity"
-    description = "Generate text using Perplexity LLMs."
+    display_name = i18n.t('components.perplexity.perplexity.display_name')
+    description = i18n.t('components.perplexity.perplexity.description')
     documentation = "https://python.langchain.com/v0.2/docs/integrations/chat/perplexity/"
     icon = "Perplexity"
     name = "PerplexityModel"
@@ -18,7 +19,8 @@ class PerplexityComponent(LCModelComponent):
         *LCModelComponent.get_base_inputs(),
         DropdownInput(
             name="model_name",
-            display_name="Model Name",
+            display_name=i18n.t(
+                'components.perplexity.perplexity.model_name.display_name'),
             advanced=False,
             options=[
                 "llama-3.1-sonar-small-128k-online",
@@ -31,28 +33,39 @@ class PerplexityComponent(LCModelComponent):
             ],
             value="llama-3.1-sonar-small-128k-online",
         ),
-        IntInput(name="max_tokens", display_name="Max Output Tokens", info="The maximum number of tokens to generate."),
+        IntInput(
+            name="max_tokens",
+            display_name=i18n.t(
+                'components.perplexity.perplexity.max_tokens.display_name'),
+            info=i18n.t('components.perplexity.perplexity.max_tokens.info'),
+        ),
         SecretStrInput(
             name="api_key",
-            display_name="Perplexity API Key",
-            info="The Perplexity API Key to use for the Perplexity model.",
+            display_name=i18n.t(
+                'components.perplexity.perplexity.api_key.display_name'),
+            info=i18n.t('components.perplexity.perplexity.api_key.info'),
             advanced=False,
             required=True,
         ),
         SliderInput(
-            name="temperature", display_name="Temperature", value=0.75, range_spec=RangeSpec(min=0, max=2, step=0.05)
+            name="temperature",
+            display_name=i18n.t(
+                'components.perplexity.perplexity.temperature.display_name'),
+            value=0.75,
+            range_spec=RangeSpec(min=0, max=2, step=0.05),
         ),
         FloatInput(
             name="top_p",
-            display_name="Top P",
-            info="The maximum cumulative probability of tokens to consider when sampling.",
+            display_name=i18n.t(
+                'components.perplexity.perplexity.top_p.display_name'),
+            info=i18n.t('components.perplexity.perplexity.top_p.info'),
             advanced=True,
         ),
         IntInput(
             name="n",
-            display_name="N",
-            info="Number of chat completions to generate for each prompt. "
-            "Note that the API may not return the full n completions if duplicates are generated.",
+            display_name=i18n.t(
+                'components.perplexity.perplexity.n.display_name'),
+            info=i18n.t('components.perplexity.perplexity.n.info'),
             advanced=True,
         ),
     ]

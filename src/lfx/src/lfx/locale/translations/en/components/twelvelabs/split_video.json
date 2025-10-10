@@ -1,0 +1,25 @@
+{
+  "display_name": "Split Video",
+  "description": "Split a video into multiple clips of specified duration.",
+  "videodata": {
+    "display_name": "Video Data",
+    "info": "Input video data from VideoFile component"
+  },
+  "clip_duration": {
+    "display_name": "Clip Duration (seconds)",
+    "info": "Duration of each clip in seconds"
+  },
+  "last_clip_handling": {
+    "display_name": "Last Clip Handling",
+    "info": "How to handle the final clip when it would be shorter than the specified duration:\n- Truncate: Skip the final clip entirely if it's shorter than the specified duration\n- Overlap Previous: Start the final clip earlier to maintain full duration, overlapping with previous clip\n- Keep Short: Keep the final clip at its natural length, even if shorter than specified duration"
+  },
+  "include_original": {
+    "display_name": "Include Original Video",
+    "info": "Whether to include the original video in the output"
+  },
+  "outputs": {
+    "clips": {
+      "display_name": "Video Clips"
+    }
+  }
+}

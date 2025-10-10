@@ -1,0 +1,31 @@
+{
+  "display_name": "YouTube Video Details",
+  "description": "Retrieves detailed information and statistics about YouTube videos.",
+  "video_url": {
+    "display_name": "Video URL",
+    "info": "The URL of the YouTube video."
+  },
+  "api_key": {
+    "display_name": "YouTube API Key",
+    "info": "Your YouTube Data API key."
+  },
+  "include_statistics": {
+    "display_name": "Include Statistics",
+    "info": "Include video statistics (views, likes, comments)."
+  },
+  "include_content_details": {
+    "display_name": "Include Content Details",
+    "info": "Include video duration, quality, and age restriction info."
+  },
+  "include_tags": {
+    "display_name": "Include Tags",
+    "info": "Include video tags and keywords."
+  },
+  "include_thumbnails": {
+    "display_name": "Include Thumbnails",
+    "info": "Include video thumbnail URLs in different resolutions."
+  },
+  "outputs": {
+    "video_data": "Video Data"
+  }
+}

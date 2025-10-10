@@ -1,0 +1,16 @@
+{
+  "display_name": "转换 Astra DB 到 Pegasus 输入",
+  "description": "将 Astra DB 搜索结果转换为与 TwelveLabs Pegasus 兼容的输入。",
+  "astra_results": {
+    "display_name": "Astra DB 结果",
+    "info": "来自 Astra DB 组件的搜索结果"
+  },
+  "outputs": {
+    "index_id": {
+      "display_name": "索引 ID"
+    },
+    "video_id": {
+      "display_name": "视频 ID"
+    }
+  }
+}

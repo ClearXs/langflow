@@ -1,0 +1,16 @@
+{
+  "display_name": "TwelveLabs Text Embeddings",
+  "description": "Generate embeddings using TwelveLabs text embedding models.",
+  "api_key": {
+    "display_name": "TwelveLabs API Key"
+  },
+  "model": {
+    "display_name": "Model"
+  },
+  "max_retries": {
+    "display_name": "Max Retries"
+  },
+  "request_timeout": {
+    "display_name": "Request Timeout"
+  }
+}

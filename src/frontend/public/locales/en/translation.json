@@ -191,7 +191,11 @@
         "newCustomComponent": "New Custom Component",
         "noMcpServersAdded": "No MCP Servers Added",
         "mcpServers": "MCP Servers",
-        "mcpServer": "MCP Server"
+        "mcpServer": "MCP Server",
+        "discoverMoreComponents": "Discover more components",
+        "show": "Show",
+        "legacy": "Legacy",
+        "beta": "Beta"
       },
       "components": {
         "savedComponents":"Saved",
@@ -302,6 +306,16 @@
         "youtube": "YouTube",
         "zep": "Zep"
       }
+    },
+    "panel": {
+      "logs": {
+        "displayName": "logs",
+        "description": "Inspect component executions"
+      },
+      "playground": {
+        "displayName": "playground",
+        "tooltip": "Add a Chat Input or Chat Output to use the playground"
+      }
     }
   },
   "components": {
@@ -312,7 +326,28 @@
     "componentSettings": "Component Settings",
     "inputParameters": "Input Parameters",
     "outputParameters": "Output Parameters",
-    "advancedSettings": "Advanced Settings"
+    "advancedSettings": "Advanced Settings",
+    "table": {
+      "column": {
+        "fileName": "File Name",
+        "description": "Description",
+        "currentValue": "Current Value",
+        "value": "Value",
+        "exposeInput": "Expose Input",
+        "show": "Show"
+      }
+    },
+    "button":{
+      "checkSave": "Check & Save",
+      "cancel": "Cancel",
+      "save": "Save",
+      "close": "Close",
+      "replace": "Replace",
+      "finishEditing": "Finish Editing",
+      "tips": {
+        "editMessage": "Editing messages will update the memory but won't restart the conversation."
+      }
+    }
   },
   "messages": {
     "noData": "No data available",
@@ -325,7 +360,26 @@
     "serverError": "Server error. Please try again later.",
     "validationError": "Please check your input and try again.",
     "permissionDenied": "You don't have permission to perform this action.",
-    "sessionExpired": "Your session has expired. Please login again."
+    "sessionExpired": "Your session has expired. Please login again.",
+    "alertMessage": "Oops! It seems there's no data to display right now. Please check back later.",
+    "noColumnDefinitionTitle": "No Column Definitions",
+    "noColumnDefinitionDescription": "There are no column definitions available for this table.",
+    "fsErrorText": "Please ensure your file has one of the following extensions:",
+    "errorUpdatingComponent": "An unexpected error occurred while updating the Component. Please try again.",
+    "titleErrorUpdatingComponent": "Error while updating the Component",
+    "emptyInputSend": "No input message provided.",
+    "emptyOutputSend": "Message empty.",
+    "csvViewErrorTitle": "CSV output",
+    "csvNoDataError": "No data available",
+    "pdfViewConstant": "Expand the output to see the PDF",
+    "csvError": "Error loading CSV",
+    "pdfLoadErrorTitle": "Error loading PDF",
+    "pdfCheckFlow": "Please check your flow and try again",
+    "pdfErrorTitle": "PDF Output",
+    "pdfLoadError": "Run the flow to see the pdf",
+    "imgViewConstant": "Expand the view to see the image",
+    "imgViewErrorMsg": "Run the flow or inform a valid url to see your image",
+    "imgViewErrorTitle": "Image output"
   },
   "forms": {
     "required": "This field is required",
@@ -336,7 +390,14 @@
     "invalidNumber": "Please enter a valid number",
     "invalidDate": "Please enter a valid date",
     "fileTooLarge": "File size is too large",
-    "invalidFileType": "Invalid file type"
+    "invalidFileType": "Invalid file type",
+    "defaultPlaceholder": "Type something...",
+    "receivingInputValue": "Receiving input",
+    "selectOptions": "Select an option",
+    "defaultToolsetPlaceholder": "Used as a tool",
+    "editTextPlaceholder": "Type message here.",
+    "editTextModalTitle": "Edit Text",
+    "textDialogTitle": "Edit text content"
   },
   "time": {
     "now": "Now",
@@ -352,5 +413,39 @@
     "thisYear": "This Year",
     "lastYear": "Last Year",
     "nextYear": "Next Year"
+  },
+  "shortcuts": {
+    "page": {
+      "displayName": "Shortcuts",
+      "description": "Manage Shortcuts for quick access to frequently used actions.",
+      "restore": "Restore"
+    },
+    "controls": "Controls",
+    "searchComponentsSidebar": "Search Components on Sidebar",
+    "minimize": "Minimize",
+    "code": "Code",
+    "copy": "Copy",
+    "duplicate": "Duplicate",
+    "componentShare": "Component Share",
+    "docs": "Docs",
+    "changesSave": "Changes Save",
+    "saveComponent": "Save Component",
+    "delete": "Delete",
+    "openPlayground": "Open Playground",
+    "undo": "Undo",
+    "redo": "Redo",
+    "redoAlt": "Redo (alternative)",
+    "group": "Group",
+    "cut": "Cut",
+    "paste": "Paste",
+    "api": "API",
+    "download": "Download",
+    "update": "Update",
+    "freezePath": "Freeze",
+    "flowShare": "Flow Share",
+    "play": "Play",
+    "outputInspection": "Output Inspection",
+    "toolMode": "Tool Mode",
+    "toggleSidebar": "Toggle Sidebar"
   }
 }

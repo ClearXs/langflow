@@ -1,0 +1,35 @@
+{
+  "display_name": "YouTube Trending",
+  "description": "Retrieves trending videos from YouTube with filtering options.",
+  "api_key": {
+    "display_name": "YouTube API Key",
+    "info": "Your YouTube Data API key."
+  },
+  "region": {
+    "display_name": "Region",
+    "info": "The region to get trending videos from."
+  },
+  "category": {
+    "display_name": "Category",
+    "info": "The category of videos to retrieve."
+  },
+  "max_results": {
+    "display_name": "Max Results",
+    "info": "Maximum number of trending videos to return (1-50)."
+  },
+  "include_statistics": {
+    "display_name": "Include Statistics",
+    "info": "Include video statistics (views, likes, comments)."
+  },
+  "include_content_details": {
+    "display_name": "Include Content Details",
+    "info": "Include video duration and quality info."
+  },
+  "include_thumbnails": {
+    "display_name": "Include Thumbnails",
+    "info": "Include video thumbnail URLs."
+  },
+  "outputs": {
+    "trending_videos": "Trending Videos"
+  }
+}

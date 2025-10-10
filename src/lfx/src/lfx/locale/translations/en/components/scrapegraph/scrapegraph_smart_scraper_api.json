@@ -1,0 +1,21 @@
+{
+  "display_name": "ScrapeGraph Smart Scraper API",
+  "description": "Given a URL, it will return the structured data of the website.",
+  "api_key": {
+    "display_name": "ScrapeGraph API Key",
+    "info": "The API key to use ScrapeGraph API."
+  },
+  "url": {
+    "display_name": "URL",
+    "info": "The URL to scrape."
+  },
+  "prompt": {
+    "display_name": "Prompt",
+    "info": "The prompt to use for the smart scraper."
+  },
+  "outputs": {
+    "data": {
+      "display_name": "Data"
+    }
+  }
+}

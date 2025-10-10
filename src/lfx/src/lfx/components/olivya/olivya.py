@@ -1,3 +1,4 @@
+import i18n
 import json
 
 import httpx
@@ -9,8 +10,8 @@ from lfx.schema.data import Data
 
 
 class OlivyaComponent(Component):
-    display_name = "Place Call"
-    description = "A component to create an outbound call request from Olivya's platform."
+    display_name = i18n.t('components.olivya.olivya.display_name')
+    description = i18n.t('components.olivya.olivya.description')
     documentation: str = "http://docs.langflow.org/components/olivya"
     icon = "Olivya"
     name = "OlivyaComponent"
@@ -18,44 +19,50 @@ class OlivyaComponent(Component):
     inputs = [
         MessageTextInput(
             name="api_key",
-            display_name="Olivya API Key",
-            info="Your API key for authentication",
+            display_name=i18n.t(
+                'components.olivya.olivya.api_key.display_name'),
+            info=i18n.t('components.olivya.olivya.api_key.info'),
             value="",
             required=True,
         ),
         MessageTextInput(
             name="from_number",
-            display_name="From Number",
-            info="The Agent's phone number",
+            display_name=i18n.t(
+                'components.olivya.olivya.from_number.display_name'),
+            info=i18n.t('components.olivya.olivya.from_number.info'),
             value="",
             required=True,
         ),
         MessageTextInput(
             name="to_number",
-            display_name="To Number",
-            info="The recipient's phone number",
+            display_name=i18n.t(
+                'components.olivya.olivya.to_number.display_name'),
+            info=i18n.t('components.olivya.olivya.to_number.info'),
             value="",
             required=True,
         ),
         MessageTextInput(
             name="first_message",
-            display_name="First Message",
-            info="The Agent's introductory message",
+            display_name=i18n.t(
+                'components.olivya.olivya.first_message.display_name'),
+            info=i18n.t('components.olivya.olivya.first_message.info'),
             value="",
             required=False,
             tool_mode=True,
         ),
         MessageTextInput(
             name="system_prompt",
-            display_name="System Prompt",
-            info="The system prompt to guide the interaction",
+            display_name=i18n.t(
+                'components.olivya.olivya.system_prompt.display_name'),
+            info=i18n.t('components.olivya.olivya.system_prompt.info'),
             value="",
             required=False,
         ),
         MessageTextInput(
             name="conversation_history",
-            display_name="Conversation History",
-            info="The summary of the conversation",
+            display_name=i18n.t(
+                'components.olivya.olivya.conversation_history.display_name'),
+            info=i18n.t('components.olivya.olivya.conversation_history.info'),
             value="",
             required=False,
             tool_mode=True,
@@ -63,7 +70,12 @@ class OlivyaComponent(Component):
     ]
 
     outputs = [
-        Output(display_name="Output", name="output", method="build_output"),
+        Output(
+            display_name=i18n.t(
+                'components.olivya.olivya.outputs.output.display_name'),
+            name="output",
+            method="build_output"
+        ),
     ]
 
     async def build_output(self) -> Data:
@@ -101,13 +113,15 @@ class OlivyaComponent(Component):
 
         except httpx.HTTPStatusError as http_err:
             await logger.aexception("HTTP error occurred")
-            response_data = {"error": f"HTTP error occurred: {http_err}", "response_text": response.text}
+            response_data = {
+                "error": f"HTTP error occurred: {http_err}", "response_text": response.text}
         except httpx.RequestError as req_err:
             await logger.aexception("Request failed")
             response_data = {"error": f"Request failed: {req_err}"}
         except json.JSONDecodeError as json_err:
             await logger.aexception("Response parsing failed")
-            response_data = {"error": f"Response parsing failed: {json_err}", "raw_response": response.text}
+            response_data = {
+                "error": f"Response parsing failed: {json_err}", "raw_response": response.text}
         except Exception as e:  # noqa: BLE001
             await logger.aexception("An unexpected error occurred")
             response_data = {"error": f"An unexpected error occurred: {e!s}"}

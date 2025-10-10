@@ -1,0 +1,13 @@
+{
+  "display_name": "TwelveLabs Video Embeddings",
+  "description": "Generate embeddings from videos using TwelveLabs video embedding models.",
+  "api_key": {
+    "display_name": "TwelveLabs API Key"
+  },
+  "model_name": {
+    "display_name": "Model"
+  },
+  "request_timeout": {
+    "display_name": "Request Timeout"
+  }
+}

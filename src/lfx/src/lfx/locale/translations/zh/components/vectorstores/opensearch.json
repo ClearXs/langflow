@@ -1,0 +1,42 @@
+{
+  "display_name": "OpenSearch",
+  "description": "具有高级可定制搜索功能的 OpenSearch 向量存储",
+  "opensearch_url": {
+    "display_name": "OpenSearch URL",
+    "info": "OpenSearch 集群的 URL（例如 https://192.168.1.1:9200）。"
+  },
+  "index_name": {
+    "display_name": "索引名称",
+    "info": "向量将存储在 OpenSearch 集群中的索引名称。"
+  },
+  "embedding": {
+    "display_name": "嵌入"
+  },
+  "search_type": {
+    "display_name": "搜索类型"
+  },
+  "number_of_results": {
+    "display_name": "结果数量",
+    "info": "要返回的结果数量。"
+  },
+  "search_score_threshold": {
+    "display_name": "搜索分数阈值",
+    "info": "搜索结果的最小相似度分数阈值。"
+  },
+  "username": {
+    "display_name": "用户名"
+  },
+  "password": {
+    "display_name": "密码"
+  },
+  "use_ssl": {
+    "display_name": "使用 SSL"
+  },
+  "verify_certs": {
+    "display_name": "验证证书"
+  },
+  "hybrid_search_query": {
+    "display_name": "混合搜索查询",
+    "info": "以 JSON 格式提供自定义混合搜索查询。这允许您结合向量相似度和关键字匹配。"
+  }
+}

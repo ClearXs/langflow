@@ -1,0 +1,27 @@
+{
+  "display_name": "YouTube Search",
+  "description": "Searches YouTube videos based on query.",
+  "query": {
+    "display_name": "Search Query",
+    "info": "The search query to look for on YouTube."
+  },
+  "api_key": {
+    "display_name": "YouTube API Key",
+    "info": "Your YouTube Data API key."
+  },
+  "max_results": {
+    "display_name": "Max Results",
+    "info": "The maximum number of results to return."
+  },
+  "order": {
+    "display_name": "Sort Order",
+    "info": "Sort order for the search results."
+  },
+  "include_metadata": {
+    "display_name": "Include Metadata",
+    "info": "Include video metadata like description and statistics."
+  },
+  "outputs": {
+    "results": "Search Results"
+  }
+}

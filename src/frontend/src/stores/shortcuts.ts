@@ -4,7 +4,7 @@ import { defaultShortcuts } from "../constants/constants";
 import type { shortcutsStoreType } from "../types/store";
 
 export const useShortcutsStore = create<shortcutsStoreType>((set, get) => ({
-  shortcuts: defaultShortcuts,
+  shortcuts: [],
   setShortcuts: (newShortcuts) => {
     set({ shortcuts: newShortcuts });
   },

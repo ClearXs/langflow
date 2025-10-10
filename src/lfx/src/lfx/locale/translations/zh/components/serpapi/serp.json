@@ -1,0 +1,27 @@
+{
+  "display_name": "Serp 搜索 API",
+  "description": "调用 Serp 搜索 API 并限制结果数量",
+  "serpapi_api_key": {
+    "display_name": "SerpAPI API 密钥"
+  },
+  "input_value": {
+    "display_name": "输入"
+  },
+  "search_params": {
+    "display_name": "参数"
+  },
+  "max_results": {
+    "display_name": "最大结果数"
+  },
+  "max_snippet_length": {
+    "display_name": "最大摘要长度"
+  },
+  "outputs": {
+    "data": {
+      "display_name": "数据"
+    },
+    "text": {
+      "display_name": "文本"
+    }
+  }
+}

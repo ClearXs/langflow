@@ -1,3 +1,4 @@
+import i18n
 import requests
 from langchain.tools import StructuredTool
 from pydantic import BaseModel
@@ -9,16 +10,17 @@ from lfx.schema.data import Data
 
 
 class NotionUserList(LCToolComponent):
-    display_name = "List Users "
-    description = "Retrieve users from Notion."
+    display_name = i18n.t('components.notion.list_users.display_name')
+    description = i18n.t('components.notion.list_users.description')
     documentation = "https://docs.langflow.org/integrations/notion/list-users"
     icon = "NotionDirectoryLoader"
 
     inputs = [
         SecretStrInput(
             name="notion_secret",
-            display_name="Notion Secret",
-            info="The Notion integration token.",
+            display_name=i18n.t(
+                'components.notion.list_users.notion_secret.display_name'),
+            info=i18n.t('components.notion.list_users.notion_secret.info'),
             required=True,
         ),
     ]

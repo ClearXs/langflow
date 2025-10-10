@@ -1,0 +1,49 @@
+{
+  "display_name": "ClickHouse",
+  "description": "ClickHouse Vector Store with search capabilities",
+  "host": {
+    "display_name": "Hostname"
+  },
+  "port": {
+    "display_name": "Port"
+  },
+  "database": {
+    "display_name": "Database"
+  },
+  "table": {
+    "display_name": "Table Name"
+  },
+  "username": {
+    "display_name": "Username"
+  },
+  "password": {
+    "display_name": "Password"
+  },
+  "index_type": {
+    "display_name": "Index Type",
+    "info": "Type of the index."
+  },
+  "metric": {
+    "display_name": "Metric",
+    "info": "Metric to compute distance."
+  },
+  "secure": {
+    "display_name": "Use HTTPS/TLS"
+  },
+  "index_param": {
+    "display_name": "Index Param"
+  },
+  "index_query_params": {
+    "display_name": "Index Query Params"
+  },
+  "embedding": {
+    "display_name": "Embedding"
+  },
+  "number_of_results": {
+    "display_name": "Number of Results",
+    "info": "Number of results to return."
+  },
+  "score_threshold": {
+    "display_name": "Score Threshold"
+  }
+}

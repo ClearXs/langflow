@@ -1,3 +1,4 @@
+import i18n
 import time
 from pathlib import Path
 from typing import Any, cast
@@ -24,14 +25,17 @@ class TwelveLabsVideoEmbeddings(Embeddings):
     def embed_documents(self, texts: list[str]) -> list[list[float]]:
         embeddings: list[list[float]] = []
         for text in texts:
-            video_path = text.page_content if hasattr(text, "page_content") else str(text)
+            video_path = text.page_content if hasattr(
+                text, "page_content") else str(text)
             result = self.embed_video(video_path)
 
             # First try to use video embedding, then fall back to clip embedding if available
             if result["video_embedding"] is not None:
-                embeddings.append(cast("list[float]", result["video_embedding"]))
+                embeddings.append(
+                    cast("list[float]", result["video_embedding"]))
             elif result["clip_embeddings"] and len(result["clip_embeddings"]) > 0:
-                embeddings.append(cast("list[float]", result["clip_embeddings"][0]))
+                embeddings.append(
+                    cast("list[float]", result["clip_embeddings"][0]))
             else:
                 # If neither is available, raise an error
                 error_msg = "No embeddings were generated for the video"
@@ -40,7 +44,8 @@ class TwelveLabsVideoEmbeddings(Embeddings):
         return embeddings
 
     def embed_query(self, text: str) -> list[float]:
-        video_path = text.page_content if hasattr(text, "page_content") else str(text)
+        video_path = text.page_content if hasattr(
+            text, "page_content") else str(text)
         result = self.embed_video(video_path)
 
         # First try to use video embedding, then fall back to clip embedding if available
@@ -73,27 +78,40 @@ class TwelveLabsVideoEmbeddings(Embeddings):
                 # Check for embeddings_float attribute (this is the correct attribute name)
                 if hasattr(seg, "embeddings_float") and seg.embedding_scope == "video":
                     # Convert to list of floats
-                    video_embedding["video_embedding"] = [float(x) for x in seg.embeddings_float]
+                    video_embedding["video_embedding"] = [
+                        float(x) for x in seg.embeddings_float]
 
         return video_embedding
 
 
 class TwelveLabsVideoEmbeddingsComponent(LCEmbeddingsModel):
-    display_name = "TwelveLabs Video Embeddings"
-    description = "Generate embeddings from videos using TwelveLabs video embedding models."
+    display_name = i18n.t(
+        'components.twelvelabs.video_embeddings.display_name')
+    description = i18n.t('components.twelvelabs.video_embeddings.description')
     name = "TwelveLabsVideoEmbeddings"
     icon = "TwelveLabs"
     documentation = "https://github.com/twelvelabs-io/twelvelabs-developer-experience/blob/main/integrations/Langflow/TWELVE_LABS_COMPONENTS_README.md"
     inputs = [
-        SecretStrInput(name="api_key", display_name="TwelveLabs API Key", required=True),
+        SecretStrInput(
+            name="api_key",
+            display_name=i18n.t(
+                'components.twelvelabs.video_embeddings.api_key.display_name'),
+            required=True
+        ),
         DropdownInput(
             name="model_name",
-            display_name="Model",
+            display_name=i18n.t(
+                'components.twelvelabs.video_embeddings.model_name.display_name'),
             advanced=False,
             options=["Marengo-retrieval-2.7"],
             value="Marengo-retrieval-2.7",
         ),
-        IntInput(name="request_timeout", display_name="Request Timeout", advanced=True),
+        IntInput(
+            name="request_timeout",
+            display_name=i18n.t(
+                'components.twelvelabs.video_embeddings.request_timeout.display_name'),
+            advanced=True
+        ),
     ]
 
     def build_embeddings(self) -> Embeddings:
