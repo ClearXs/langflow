@@ -1,3 +1,4 @@
+import os
 import i18n
 from lfx.base.models.model import LCModelComponent
 from lfx.field_typing import Embeddings
@@ -10,6 +11,8 @@ class VertexAIEmbeddingsComponent(LCModelComponent):
     description = i18n.t('components.vertexai.vertexai_embeddings.description')
     icon = "VertexAI"
     name = "VertexAIEmbeddings"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     inputs = [
         FileInput(

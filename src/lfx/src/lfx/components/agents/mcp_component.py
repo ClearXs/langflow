@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import os
 import uuid
 from typing import Any
 import i18n
@@ -79,6 +80,8 @@ class MCPToolsComponent(ComponentWithCache):
     documentation: str = "https://docs.langflow.org/mcp-client"
     icon = "Mcp"
     name = "MCPTools"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     inputs = [
         McpInput(

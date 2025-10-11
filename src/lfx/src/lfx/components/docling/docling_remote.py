@@ -1,4 +1,5 @@
 import base64
+import os
 import i18n
 import time
 from concurrent.futures import Future, ThreadPoolExecutor
@@ -24,6 +25,8 @@ class DoclingRemoteComponent(BaseFileComponent):
     trace_type = "tool"
     icon = "Docling"
     name = "DoclingRemote"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     MAX_500_RETRIES = 5
 

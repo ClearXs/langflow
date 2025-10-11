@@ -1,3 +1,4 @@
+import os
 import i18n
 from langchain_openai import AzureChatOpenAI
 
@@ -16,6 +17,8 @@ class AzureChatOpenAIComponent(LCModelComponent):
     beta = False
     icon = "Azure"
     name = "AzureOpenAIModel"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     AZURE_OPENAI_API_VERSIONS = [
         "2024-06-01",

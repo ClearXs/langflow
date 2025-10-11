@@ -1,3 +1,4 @@
+import os
 import i18n
 import warnings
 
@@ -49,6 +50,8 @@ class NotDiamondComponent(Component):
     documentation: str = "https://docs.notdiamond.ai/"
     icon = "NotDiamond"
     name = "NotDiamond"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

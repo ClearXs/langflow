@@ -20,6 +20,8 @@ class GitExtractorComponent(Component):
     description = i18n.t('components.git.gitextractor.description')
     icon = "GitLoader"
 
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
+
     inputs = [
         MessageTextInput(
             name="repository_url",

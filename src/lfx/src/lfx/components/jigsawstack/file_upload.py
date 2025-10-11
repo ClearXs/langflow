@@ -1,3 +1,4 @@
+import os
 import i18n
 from pathlib import Path
 
@@ -13,6 +14,8 @@ class JigsawStackFileUploadComponent(Component):
     documentation = "https://jigsawstack.com/docs/api-reference/store/file/add"
     icon = "JigsawStack"
     name = "JigsawStackFileUpload"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     inputs = [
         SecretStrInput(

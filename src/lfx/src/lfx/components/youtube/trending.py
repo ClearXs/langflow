@@ -1,3 +1,4 @@
+import os
 import i18n
 from contextlib import contextmanager
 
@@ -22,6 +23,8 @@ class YouTubeTrendingComponent(Component):
     display_name: str = i18n.t('components.youtube.trending.display_name')
     description: str = i18n.t('components.youtube.trending.description')
     icon: str = "YouTube"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     # Dictionary of country codes and names
     COUNTRY_CODES = {

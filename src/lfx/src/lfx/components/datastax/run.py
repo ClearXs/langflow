@@ -1,3 +1,4 @@
+import os
 from typing import Any
 
 import i18n
@@ -16,6 +17,8 @@ class AssistantsRun(ComponentWithCache):
     display_name = i18n.t('components.datastax.run.display_name')
     description = i18n.t('components.datastax.run.description')
     icon = "AstraDB"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)

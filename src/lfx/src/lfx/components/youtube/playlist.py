@@ -1,3 +1,4 @@
+import os
 import i18n
 from pytube import Playlist  # Ensure you have pytube installed
 
@@ -12,6 +13,8 @@ class YouTubePlaylistComponent(Component):
     display_name = i18n.t('components.youtube.playlist.display_name')
     description = i18n.t('components.youtube.playlist.description')
     icon = "YouTube"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     inputs = [
         MessageTextInput(

@@ -1,3 +1,4 @@
+import os
 import i18n
 import json
 from typing import Any
@@ -24,6 +25,8 @@ class AddContentToPage(LCToolComponent):
         'components.notion.add_content_to_page.description')
     documentation: str = "https://developers.notion.com/reference/patch-block-children"
     icon = "NotionDirectoryLoader"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     inputs = [
         MultilineInput(

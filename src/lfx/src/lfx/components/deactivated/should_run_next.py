@@ -1,3 +1,4 @@
+import os
 from langchain_core.messages import BaseMessage
 from langchain_core.prompts import PromptTemplate
 
@@ -9,6 +10,8 @@ class ShouldRunNextComponent(CustomComponent):
     display_name = "Should Run Next"
     description = "Determines if a vertex is runnable."
     name = "ShouldRunNext"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     def build(self, llm: LanguageModel, question: str, context: str, retries: int = 3) -> Text:
         template = (

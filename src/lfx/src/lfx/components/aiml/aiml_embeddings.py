@@ -1,3 +1,4 @@
+import os
 import i18n
 from lfx.base.embeddings.aiml_embeddings import AIMLEmbeddingsImpl
 from lfx.base.embeddings.model import LCEmbeddingsModel
@@ -12,6 +13,8 @@ class AIMLEmbeddingsComponent(LCEmbeddingsModel):
     description = i18n.t('components.aiml.aiml_embeddings.description')
     icon = "AIML"
     name = "AIMLEmbeddings"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     inputs = [
         DropdownInput(

@@ -1,3 +1,4 @@
+import os
 import i18n
 from lfx.custom.custom_component.component import Component
 from lfx.io import DropdownInput, IntInput, MessageTextInput, Output, SecretStrInput
@@ -11,6 +12,8 @@ class JigsawStackImageGenerationComponent(Component):
     documentation = "https://jigsawstack.com/docs/api-reference/ai/image-generation"
     icon = "JigsawStack"
     name = "JigsawStackImageGeneration"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     inputs = [
         SecretStrInput(

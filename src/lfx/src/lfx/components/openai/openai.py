@@ -1,3 +1,4 @@
+import os
 import i18n
 from langchain_openai import OpenAIEmbeddings
 
@@ -12,6 +13,8 @@ class OpenAIEmbeddingsComponent(LCEmbeddingsModel):
     description = i18n.t('components.openai.openai.description')
     icon = "OpenAI"
     name = "OpenAIEmbeddings"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     inputs = [
         DictInput(

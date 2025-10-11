@@ -1,3 +1,4 @@
+import os
 import i18n
 from typing import Any
 from urllib.error import HTTPError
@@ -18,6 +19,8 @@ class YouTubeChannelComponent(Component):
     display_name: str = i18n.t('components.youtube.channel.display_name')
     description: str = i18n.t('components.youtube.channel.description')
     icon: str = "YouTube"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     # Constants
     CHANNEL_ID_LENGTH = 24

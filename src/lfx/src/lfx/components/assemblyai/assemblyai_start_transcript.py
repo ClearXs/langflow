@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 
 import assemblyai as aai
@@ -16,6 +17,8 @@ class AssemblyAITranscriptionJobCreator(Component):
         'components.assemblyai.assemblyai_start_transcript.description')
     documentation = "https://www.assemblyai.com/docs"
     icon = "AssemblyAI"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     inputs = [
         SecretStrInput(

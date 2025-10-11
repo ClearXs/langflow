@@ -1,3 +1,4 @@
+import os
 from typing import Any
 
 from lfx.base.composio.composio_base import ComposioBaseComponent
@@ -10,6 +11,8 @@ class ComposioSlackAPIComponent(ComposioBaseComponent):
     icon = "Slack"
     documentation: str = "https://docs.composio.dev"
     app_name = "slack"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     _actions_data: dict = {
         "SLACK_LIST_ALL_SLACK_TEAM_USERS_WITH_PAGINATION": {

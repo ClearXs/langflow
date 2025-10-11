@@ -1,3 +1,4 @@
+import os
 import re
 from collections import defaultdict
 from dataclasses import asdict, dataclass, field
@@ -38,6 +39,8 @@ class AstraDBVectorStoreComponent(LCVectorStoreComponent):
     documentation: str = "https://docs.datastax.com/en/langflow/astra-components.html"
     name = "AstraDB"
     icon: str = "AstraDB"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     _cached_vector_store: AstraDBVectorStore | None = None
 

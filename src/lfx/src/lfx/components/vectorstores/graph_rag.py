@@ -1,3 +1,4 @@
+import os
 import i18n
 import inspect
 from abc import ABC
@@ -48,6 +49,8 @@ class GraphRAGComponent(LCVectorStoreComponent):
     description: str = i18n.t('components.vectorstores.graph_rag.description')
     name = "Graph RAG"
     icon: str = "AstraDB"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     inputs = [
         HandleInput(

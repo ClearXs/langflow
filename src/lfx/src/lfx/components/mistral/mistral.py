@@ -1,3 +1,4 @@
+import os
 import i18n
 from langchain_mistralai import ChatMistralAI
 from pydantic.v1 import SecretStr
@@ -12,6 +13,8 @@ class MistralAIModelComponent(LCModelComponent):
     description = i18n.t('components.mistral.mistral.description')
     icon = "MistralAI"
     name = "MistralModel"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     inputs = [
         *LCModelComponent.get_base_inputs(),

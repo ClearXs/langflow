@@ -1,3 +1,4 @@
+import os
 import i18n
 from datetime import timedelta
 
@@ -14,6 +15,8 @@ class CouchbaseVectorStoreComponent(LCVectorStoreComponent):
     description = i18n.t('components.vectorstores.couchbase.description')
     name = "Couchbase"
     icon = "Couchbase"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     inputs = [
         SecretStrInput(

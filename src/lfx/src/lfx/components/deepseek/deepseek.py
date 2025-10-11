@@ -1,3 +1,4 @@
+import os
 import i18n
 import requests
 from pydantic.v1 import SecretStr
@@ -16,6 +17,8 @@ class DeepSeekModelComponent(LCModelComponent):
     display_name = "DeepSeek"
     description = i18n.t('components.deepseek.deepseek.description')
     icon = "DeepSeek"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     inputs = [
         *LCModelComponent.get_base_inputs(),

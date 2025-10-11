@@ -1,3 +1,4 @@
+import os
 from typing import Any
 
 import cohere
@@ -17,6 +18,8 @@ class CohereEmbeddingsComponent(LCModelComponent):
     description = i18n.t('components.cohere.cohere_embeddings.description')
     icon = "Cohere"
     name = "CohereEmbeddings"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     inputs = [
         SecretStrInput(

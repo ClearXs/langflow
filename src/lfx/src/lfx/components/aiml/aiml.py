@@ -1,3 +1,4 @@
+import os
 import i18n
 from langchain_openai import ChatOpenAI
 from pydantic.v1 import SecretStr
@@ -24,6 +25,8 @@ class AIMLModelComponent(LCModelComponent):
     icon = "AIML"
     name = "AIMLModel"
     documentation = "https://docs.aimlapi.com/api-reference"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     inputs = [
         *LCModelComponent.get_base_inputs(),

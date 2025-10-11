@@ -1,3 +1,4 @@
+import os
 import i18n
 import json
 import re
@@ -20,6 +21,8 @@ class GoogleOAuthToken(Component):
     icon = "Google"
     name = "GoogleOAuthToken"
     legacy: bool = True
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     inputs = [
         MultilineInput(

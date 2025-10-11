@@ -1,4 +1,5 @@
 from __future__ import annotations
+import os
 
 import i18n
 import json
@@ -33,6 +34,8 @@ class OpenSearchVectorStoreComponent(LCVectorStoreComponent):
     display_name: str = "OpenSearch"
     icon: str = "OpenSearch"
     description: str = i18n.t('components.elastic.opensearch.description')
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     # Keys we consider baseline
     default_keys: list[str] = [

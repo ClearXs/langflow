@@ -1,3 +1,4 @@
+import os
 from typing import TYPE_CHECKING, Any
 
 from lfx.base.flow_processing.utils import build_data_from_result_data
@@ -22,6 +23,8 @@ class SubFlowComponent(CustomComponent):
     beta: bool = True
     field_order = ["flow_name"]
     name = "SubFlow"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     async def get_flow_names(self) -> list[str]:
         flow_datas = await self.alist_flows()

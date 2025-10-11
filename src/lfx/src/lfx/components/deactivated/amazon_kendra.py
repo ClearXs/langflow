@@ -1,4 +1,5 @@
 # mypy: disable-error-code="attr-defined"
+import os
 from langchain_community.retrievers import AmazonKendraRetriever
 
 from lfx.base.vectorstores.model import check_cached_vector_store
@@ -12,6 +13,8 @@ class AmazonKendraRetrieverComponent(CustomComponent):
     name = "AmazonKendra"
     icon = "Amazon"
     legacy = True
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     inputs = [
         StrInput(

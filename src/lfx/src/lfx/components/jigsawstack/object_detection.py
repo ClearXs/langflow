@@ -1,3 +1,4 @@
+import os
 import i18n
 from lfx.custom.custom_component.component import Component
 from lfx.io import BoolInput, DropdownInput, MessageTextInput, Output, SecretStrInput
@@ -11,6 +12,8 @@ class JigsawStackObjectDetectionComponent(Component):
     documentation = "https://jigsawstack.com/docs/api-reference/ai/object-detection"
     icon = "JigsawStack"
     name = "JigsawStackObjectDetection"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     inputs = [
         SecretStrInput(

@@ -1,3 +1,4 @@
+import os
 from langchain_text_splitters import CharacterTextSplitter
 
 from lfx.custom.custom_component.component import Component
@@ -11,6 +12,8 @@ class SplitTextComponent(Component):
     description: str = "Split text into chunks based on specified criteria."
     icon = "scissors-line-dashed"
     name = "SplitText"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     inputs = [
         HandleInput(

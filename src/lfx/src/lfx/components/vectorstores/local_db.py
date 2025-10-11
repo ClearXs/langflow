@@ -1,3 +1,4 @@
+import os
 import i18n
 from copy import deepcopy
 from pathlib import Path
@@ -23,6 +24,8 @@ class LocalDBComponent(LCVectorStoreComponent):
     name = "LocalDB"
     icon = "database"
     legacy = True
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     inputs = [
         TabInput(

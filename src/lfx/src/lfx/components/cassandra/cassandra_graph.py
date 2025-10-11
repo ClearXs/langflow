@@ -1,3 +1,4 @@
+import os
 from uuid import UUID
 
 import i18n
@@ -22,6 +23,8 @@ class CassandraGraphVectorStoreComponent(LCVectorStoreComponent):
     description = i18n.t('components.cassandra.cassandra_graph.description')
     name = "CassandraGraph"
     icon = "Cassandra"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     inputs = [
         MessageTextInput(

@@ -1,3 +1,4 @@
+import os
 import i18n
 import tempfile
 
@@ -13,6 +14,8 @@ class JigsawStackFileReadComponent(Component):
     documentation = "https://jigsawstack.com/docs/api-reference/store/file/get"
     icon = "JigsawStack"
     name = "JigsawStackFileRead"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     inputs = [
         SecretStrInput(

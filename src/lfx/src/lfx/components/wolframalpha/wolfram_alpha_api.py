@@ -1,3 +1,4 @@
+import os
 import i18n
 from langchain_community.utilities.wolfram_alpha import WolframAlphaAPIWrapper
 
@@ -15,6 +16,8 @@ class WolframAlphaAPIComponent(LCToolComponent):
     description = i18n.t(
         'components.wolframalpha.wolfram_alpha_api.description')
     name = "WolframAlphaAPI"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     outputs = [
         Output(

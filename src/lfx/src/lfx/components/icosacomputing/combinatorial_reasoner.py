@@ -1,3 +1,4 @@
+import os
 import i18n
 import requests
 from requests.auth import HTTPBasicAuth
@@ -17,6 +18,8 @@ class CombinatorialReasonerComponent(Component):
         'components.icosacomputing.combinatorial_reasoner.description')
     icon = "Icosa"
     name = "Combinatorial Reasoner"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     inputs = [
         MessageTextInput(

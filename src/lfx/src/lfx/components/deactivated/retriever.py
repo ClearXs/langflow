@@ -1,3 +1,4 @@
+import os
 from langchain_core.tools import create_retriever_tool
 
 from lfx.custom.custom_component.custom_component import CustomComponent
@@ -11,6 +12,8 @@ class RetrieverToolComponent(CustomComponent):
     name = "RetrieverTool"
     icon = "LangChain"
     legacy = True
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     inputs = [
         HandleInput(

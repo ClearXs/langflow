@@ -1,3 +1,4 @@
+import os
 import i18n
 from langchain_community.vectorstores import Clickhouse, ClickhouseSettings
 
@@ -21,6 +22,8 @@ class ClickhouseVectorStoreComponent(LCVectorStoreComponent):
     description = i18n.t('components.clickhouse.clickhouse.description')
     name = "Clickhouse"
     icon = "Clickhouse"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     inputs = [
         StrInput(

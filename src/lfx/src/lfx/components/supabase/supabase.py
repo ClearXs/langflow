@@ -1,3 +1,4 @@
+import os
 import i18n
 from langchain_community.vectorstores import SupabaseVectorStore
 from supabase.client import Client, create_client
@@ -14,6 +15,8 @@ class SupabaseVectorStoreComponent(LCVectorStoreComponent):
     documentation = "https://python.langchain.com/docs/integrations/vectorstores/supabase"
     name = "SupabaseVectorStore"
     icon = "Supabase"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     inputs = [
         StrInput(

@@ -1,3 +1,4 @@
+import os
 import urllib.request
 from urllib.parse import urlparse
 from xml.etree.ElementTree import Element
@@ -17,6 +18,8 @@ class ArXivComponent(Component):
     description = i18n.t('components.arxiv.arxiv.description')
     icon = "arXiv"
     name = "ArXiv"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     inputs = [
         MessageTextInput(

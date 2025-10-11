@@ -1,3 +1,4 @@
+import os
 from lfx.custom.custom_component.component import Component
 from lfx.io import DataInput, Output
 from lfx.log.logger import logger
@@ -16,6 +17,8 @@ class MergeDataComponent(Component):
         "Combines multiple Data objects into a unified list, ensuring all keys are present in each Data object."
     )
     icon = "merge"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     inputs = [
         DataInput(

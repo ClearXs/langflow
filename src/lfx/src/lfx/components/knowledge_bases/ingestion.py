@@ -4,6 +4,7 @@ import asyncio
 import contextlib
 import hashlib
 import json
+import os
 import re
 import uuid
 from dataclasses import asdict, dataclass, field
@@ -65,6 +66,8 @@ class KnowledgeIngestionComponent(Component):
     description = i18n.t('components.knowledge_bases.ingestion.description')
     icon = "upload"
     name = "KnowledgeIngestion"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)

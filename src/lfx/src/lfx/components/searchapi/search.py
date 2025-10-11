@@ -1,3 +1,4 @@
+import os
 import i18n
 from typing import Any
 
@@ -15,6 +16,8 @@ class SearchComponent(Component):
     description: str = i18n.t('components.searchapi.search.description')
     documentation: str = "https://www.searchapi.io/docs/google"
     icon = "SearchAPI"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     inputs = [
         DropdownInput(

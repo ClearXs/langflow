@@ -1,4 +1,5 @@
 import json
+import os
 import string
 from typing import Any, cast
 
@@ -24,6 +25,8 @@ class ApifyActorsComponent(Component):
     documentation: str = "http://docs.langflow.org/integrations-apify"
     icon = "Apify"
     name = "ApifyActors"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     inputs = [
         SecretStrInput(

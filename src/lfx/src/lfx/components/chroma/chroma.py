@@ -1,4 +1,5 @@
 from copy import deepcopy
+import os
 from typing import TYPE_CHECKING
 
 import i18n
@@ -23,6 +24,8 @@ class ChromaVectorStoreComponent(LCVectorStoreComponent):
     description: str = i18n.t('components.chroma.chroma.description')
     name = "Chroma"
     icon = "Chroma"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     inputs = [
         StrInput(

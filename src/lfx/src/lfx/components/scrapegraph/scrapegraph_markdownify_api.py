@@ -1,3 +1,4 @@
+import os
 import i18n
 from lfx.custom.custom_component.component import Component
 from lfx.io import (
@@ -18,6 +19,8 @@ class ScrapeGraphMarkdownifyApi(Component):
     output_types: list[str] = ["Document"]
     documentation: str = "https://docs.scrapegraphai.com/services/markdownify"
     icon = "ScrapeGraph"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     inputs = [
         SecretStrInput(

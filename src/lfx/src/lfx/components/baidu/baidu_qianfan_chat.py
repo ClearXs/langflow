@@ -1,3 +1,4 @@
+import os
 import i18n
 from langchain_community.chat_models.baidu_qianfan_endpoint import QianfanChatEndpoint
 
@@ -15,6 +16,8 @@ class QianfanChatEndpointComponent(LCModelComponent):
     documentation: str = "https://python.langchain.com/docs/integrations/chat/baidu_qianfan_endpoint"
     icon = "BaiduQianfan"
     name = "BaiduQianfanChatModel"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     inputs = [
         *LCModelComponent.get_base_inputs(),

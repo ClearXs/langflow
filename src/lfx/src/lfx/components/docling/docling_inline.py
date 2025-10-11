@@ -1,3 +1,4 @@
+import os
 import i18n
 import time
 from multiprocessing import Queue, get_context
@@ -17,6 +18,8 @@ class DoclingInlineComponent(BaseFileComponent):
     trace_type = "tool"
     icon = "Docling"
     name = "DoclingInline"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     # https://docling-project.github.io/docling/usage/supported_formats/
     VALID_EXTENSIONS = [

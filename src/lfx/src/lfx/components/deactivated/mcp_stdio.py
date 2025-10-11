@@ -1,5 +1,6 @@
 # from lfx.field_typing import Data
 
+import os
 from langchain_core.tools import StructuredTool
 from mcp import types
 
@@ -26,6 +27,8 @@ class MCPStdio(Component):
     icon = "code"
     name = "MCPStdio"
     legacy = True
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     inputs = [
         MessageTextInput(

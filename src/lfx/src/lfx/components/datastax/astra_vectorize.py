@@ -1,3 +1,4 @@
+import os
 from typing import Any
 
 import i18n
@@ -17,6 +18,8 @@ class AstraVectorizeComponent(Component):
     icon = "AstraDB"
     name = "AstraVectorize"
     replacement = ["datastax.AstraDB"]
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     VECTORIZE_PROVIDERS_MAPPING = {
         "Azure OpenAI": ["azureOpenAI", ["text-embedding-3-small", "text-embedding-3-large", "text-embedding-ada-002"]],

@@ -1,3 +1,4 @@
+import os
 import i18n
 import requests
 from langchain.tools import StructuredTool
@@ -14,6 +15,8 @@ class NotionUserList(LCToolComponent):
     description = i18n.t('components.notion.list_users.description')
     documentation = "https://docs.langflow.org/integrations/notion/list-users"
     icon = "NotionDirectoryLoader"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     inputs = [
         SecretStrInput(

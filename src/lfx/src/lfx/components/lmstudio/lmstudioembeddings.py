@@ -1,3 +1,4 @@
+import os
 import i18n
 from typing import Any
 from urllib.parse import urljoin
@@ -16,6 +17,8 @@ class LMStudioEmbeddingsComponent(LCEmbeddingsModel):
     description: str = i18n.t(
         'components.lmstudio.lmstudioembeddings.description')
     icon = "LMStudio"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     async def update_build_config(self, build_config: dict, field_value: Any, field_name: str | None = None):  # noqa: ARG002
         if field_name == "model":

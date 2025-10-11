@@ -1,3 +1,4 @@
+import os
 import i18n
 import hashlib
 import math
@@ -19,6 +20,9 @@ class SplitVideoComponent(Component):
     description = i18n.t('components.twelvelabs.split_video.description')
     icon = "TwelveLabs"
     name = "SplitVideo"
+    
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
+
     documentation = "https://github.com/twelvelabs-io/twelvelabs-developer-experience/blob/main/integrations/Langflow/TWELVE_LABS_COMPONENTS_README.md"
 
     inputs = [

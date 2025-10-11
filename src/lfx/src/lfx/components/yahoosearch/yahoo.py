@@ -1,3 +1,4 @@
+import os
 import i18n
 import ast
 import pprint
@@ -56,6 +57,8 @@ class YfinanceComponent(Component):
     display_name = i18n.t('components.yahoosearch.yahoo.display_name')
     description = i18n.t('components.yahoosearch.yahoo.description')
     icon = "trending-up"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     inputs = [
         MessageTextInput(

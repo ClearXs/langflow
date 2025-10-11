@@ -25,7 +25,7 @@ class AnthropicModelComponent(LCModelComponent):
     icon = "Anthropic"
     name = "AnthropicModel"
 
-    ignore: bool = bool(os.getenv("LANGFLOW_IGNORE_COMPONENT", False))
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     inputs = [
         *LCModelComponent.get_base_inputs(),

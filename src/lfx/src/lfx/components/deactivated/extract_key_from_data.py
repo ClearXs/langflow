@@ -1,3 +1,4 @@
+import os
 from lfx.custom.custom_component.custom_component import CustomComponent
 from lfx.schema.data import Data
 
@@ -7,6 +8,8 @@ class ExtractKeyFromDataComponent(CustomComponent):
     description = "Extracts a key from a data."
     beta: bool = True
     name = "ExtractKeyFromData"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     field_config = {
         "data": {"display_name": "Data"},

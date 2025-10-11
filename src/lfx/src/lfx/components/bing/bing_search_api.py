@@ -1,3 +1,4 @@
+import os
 from typing import cast
 
 import i18n
@@ -18,6 +19,8 @@ class BingSearchAPIComponent(LCToolComponent):
     description = i18n.t('components.bing.bing_search_api.description')
     name = "BingSearchAPI"
     icon = "Bing"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     inputs = [
         SecretStrInput(

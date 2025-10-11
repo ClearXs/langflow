@@ -1,3 +1,4 @@
+import os
 import i18n
 from cleanlab_tlm import TrustworthyRAG, get_default_evals
 
@@ -22,6 +23,8 @@ class CleanlabRAGEvaluator(Component):
         'components.cleanlab.cleanlab_rag_evaluator.description')
     icon = "Cleanlab"
     name = "CleanlabRAGEvaluator"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     inputs = [
         SecretStrInput(

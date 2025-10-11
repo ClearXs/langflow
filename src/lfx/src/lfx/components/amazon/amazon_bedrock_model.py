@@ -1,3 +1,4 @@
+import os
 import i18n
 from lfx.base.models.aws_constants import AWS_REGIONS, AWS_MODEL_IDs
 from lfx.base.models.model import LCModelComponent
@@ -18,6 +19,8 @@ class AmazonBedrockComponent(LCModelComponent):
     name = "AmazonBedrockModel"
     legacy = True
     replacement = "amazon.AmazonBedrockConverseModel"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     inputs = [
         *LCModelComponent.get_base_inputs(),

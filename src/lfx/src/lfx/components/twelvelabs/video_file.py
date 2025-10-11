@@ -1,3 +1,4 @@
+import os
 import i18n
 from pathlib import Path
 
@@ -16,6 +17,9 @@ class VideoFileComponent(BaseFileComponent):
     description = i18n.t('components.twelvelabs.video_file.description')
     icon = "TwelveLabs"
     name = "VideoFile"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
+
     documentation = "https://github.com/twelvelabs-io/twelvelabs-developer-experience/blob/main/integrations/Langflow/TWELVE_LABS_COMPONENTS_README.md"
 
     VALID_EXTENSIONS = [

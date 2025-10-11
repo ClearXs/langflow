@@ -1,3 +1,4 @@
+import os
 import i18n
 import json
 from typing import Any
@@ -17,6 +18,8 @@ class NotionPageCreator(LCToolComponent):
     description: str = i18n.t('components.notion.create_page.description')
     documentation: str = "https://docs.langflow.org/integrations/notion/page-create"
     icon = "NotionDirectoryLoader"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     inputs = [
         StrInput(

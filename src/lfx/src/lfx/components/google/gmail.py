@@ -1,3 +1,4 @@
+import os
 import i18n
 import base64
 import json
@@ -27,6 +28,8 @@ class GmailLoaderComponent(Component):
     icon = "Google"
     legacy: bool = True
     replacement = ["composio.ComposioGmailAPIComponent"]
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     inputs = [
         SecretStrInput(

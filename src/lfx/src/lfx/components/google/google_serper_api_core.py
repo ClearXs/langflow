@@ -1,3 +1,4 @@
+import os
 import i18n
 from langchain_community.utilities.google_serper import GoogleSerperAPIWrapper
 
@@ -13,6 +14,8 @@ class GoogleSerperAPICore(Component):
     description = i18n.t(
         'components.google.google_serper_api_core.description')
     icon = "Serper"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     inputs = [
         SecretStrInput(

@@ -1,3 +1,4 @@
+import os
 import i18n
 from langchain_community.chat_models import ChatPerplexity
 from pydantic.v1 import SecretStr
@@ -14,6 +15,8 @@ class PerplexityComponent(LCModelComponent):
     documentation = "https://python.langchain.com/v0.2/docs/integrations/chat/perplexity/"
     icon = "Perplexity"
     name = "PerplexityModel"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     inputs = [
         *LCModelComponent.get_base_inputs(),

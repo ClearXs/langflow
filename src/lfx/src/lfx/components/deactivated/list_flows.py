@@ -1,3 +1,4 @@
+import os
 from lfx.custom.custom_component.custom_component import CustomComponent
 from lfx.schema.data import Data
 
@@ -8,6 +9,8 @@ class ListFlowsComponent(CustomComponent):
     icon = "ListFlows"
     beta: bool = True
     name = "ListFlows"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     def build_config(self):
         return {}

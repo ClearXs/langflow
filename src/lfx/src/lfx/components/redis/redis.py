@@ -1,3 +1,4 @@
+import os
 import i18n
 from pathlib import Path
 
@@ -18,6 +19,8 @@ class RedisVectorStoreComponent(LCVectorStoreComponent):
     documentation = "https://python.langchain.com/docs/integrations/vectorstores/redis"
     name = "Redis"
     icon = "Redis"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     inputs = [
         SecretStrInput(

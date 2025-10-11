@@ -1,3 +1,4 @@
+import os
 from lfx.custom.custom_component.custom_component import CustomComponent
 from lfx.field_typing import Embeddings
 from lfx.schema.data import Data
@@ -6,6 +7,8 @@ from lfx.schema.data import Data
 class EmbedComponent(CustomComponent):
     display_name = "Embed Texts"
     name = "Embed"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     def build_config(self):
         return {"texts": {"display_name": "Texts"}, "embbedings": {"display_name": "Embeddings"}}

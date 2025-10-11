@@ -1,3 +1,4 @@
+import os
 import i18n
 from cleanlab_tlm import TLM
 
@@ -19,6 +20,8 @@ class CleanlabEvaluator(Component):
     description = i18n.t('components.cleanlab.cleanlab_evaluator.description')
     icon = "Cleanlab"
     name = "CleanlabEvaluator"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     inputs = [
         MessageTextInput(

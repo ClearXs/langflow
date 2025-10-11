@@ -1,3 +1,4 @@
+import os
 import i18n
 from lfx.custom.custom_component.component import Component
 from lfx.io import (
@@ -17,6 +18,8 @@ class ScrapeGraphSearchApi(Component):
 
     documentation: str = "https://docs.scrapegraphai.com/services/searchscraper"
     icon = "ScrapeGraph"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     inputs = [
         SecretStrInput(

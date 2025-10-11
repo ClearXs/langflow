@@ -1,3 +1,4 @@
+import os
 import i18n
 from langchain_openai import AzureOpenAIEmbeddings
 
@@ -16,6 +17,8 @@ class AzureOpenAIEmbeddingsComponent(LCModelComponent):
     documentation: str = "https://python.langchain.com/docs/integrations/text_embedding/azureopenai"
     icon = "Azure"
     name = "AzureOpenAIEmbeddings"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     API_VERSION_OPTIONS = [
         "2022-12-01",

@@ -1,3 +1,4 @@
+import os
 import i18n
 from typing import TYPE_CHECKING
 
@@ -19,6 +20,8 @@ class VectaraVectorStoreComponent(LCVectorStoreComponent):
     description: str = i18n.t('components.vectorstores.vectara.description')
     name = "Vectara"
     icon = "Vectara"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     inputs = [
         StrInput(

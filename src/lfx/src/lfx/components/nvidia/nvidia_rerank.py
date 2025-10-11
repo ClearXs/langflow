@@ -1,3 +1,4 @@
+import os
 import i18n
 from typing import Any
 
@@ -13,6 +14,8 @@ class NvidiaRerankComponent(LCCompressorComponent):
     display_name = i18n.t('components.nvidia.nvidia_rerank.display_name')
     description = i18n.t('components.nvidia.nvidia_rerank.description')
     icon = "NVIDIA"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     inputs = [
         *LCCompressorComponent.inputs,

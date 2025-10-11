@@ -1,3 +1,4 @@
+import os
 import i18n
 from langchain_google_community import GoogleSearchAPIWrapper
 
@@ -12,6 +13,8 @@ class GoogleSearchAPICore(Component):
     description = i18n.t(
         'components.google.google_search_api_core.description')
     icon = "Google"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     inputs = [
         SecretStrInput(

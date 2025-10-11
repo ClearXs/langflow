@@ -1,3 +1,4 @@
+import os
 import i18n
 from lfx.base.astra_assistants.util import get_patched_openai_client
 from lfx.custom.custom_component.component_with_cache import ComponentWithCache
@@ -11,6 +12,8 @@ class AssistantsCreateThread(ComponentWithCache):
     display_name = i18n.t('components.datastax.create_thread.display_name')
     description = i18n.t('components.datastax.create_thread.description')
     icon = "AstraDB"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     inputs = [
         MultilineInput(

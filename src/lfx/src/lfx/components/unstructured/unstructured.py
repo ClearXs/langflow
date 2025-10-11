@@ -1,3 +1,4 @@
+import os
 import i18n
 from langchain_unstructured import UnstructuredLoader
 
@@ -16,6 +17,8 @@ class UnstructuredComponent(BaseFileComponent):
     trace_type = "tool"
     icon = "Unstructured"
     name = "Unstructured"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     # https://docs.unstructured.io/api-reference/api-services/overview#supported-file-types
     VALID_EXTENSIONS = [

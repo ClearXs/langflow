@@ -1,3 +1,4 @@
+import os
 import i18n
 from langchain_community.chat_models import ChatMaritalk
 
@@ -12,6 +13,9 @@ class MaritalkModelComponent(LCModelComponent):
     description = i18n.t('components.maritalk.maritalk.description')
     icon = "Maritalk"
     name = "Maritalk"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
+
     inputs = [
         *LCModelComponent.get_base_inputs(),
         IntInput(

@@ -1,3 +1,4 @@
+import os
 import i18n
 from langchain_community.embeddings.cloudflare_workersai import CloudflareWorkersAIEmbeddings
 
@@ -13,6 +14,8 @@ class CloudflareWorkersAIEmbeddingsComponent(LCModelComponent):
     documentation: str = "https://python.langchain.com/docs/integrations/text_embedding/cloudflare_workersai/"
     icon = "Cloudflare"
     name = "CloudflareWorkersAIEmbeddings"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     inputs = [
         MessageTextInput(

@@ -1,4 +1,5 @@
 import io
+import os
 
 import i18n
 from dotenv import load_dotenv
@@ -14,6 +15,8 @@ class Dotenv(Component):
     display_name = i18n.t('components.datastax.dotenv.display_name')
     description = i18n.t('components.datastax.dotenv.description')
     icon = "AstraDB"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     inputs = [
         MultilineSecretInput(

@@ -1,3 +1,4 @@
+import os
 from lfx.custom.custom_component.component import Component
 from lfx.field_typing import Text
 from lfx.io import BoolInput, DropdownInput, MessageTextInput, Output
@@ -8,6 +9,8 @@ class SelectivePassThroughComponent(Component):
     description = "Passes the specified value if a specified condition is met."
     icon = "filter"
     name = "SelectivePassThrough"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     inputs = [
         MessageTextInput(

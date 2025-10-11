@@ -1,3 +1,4 @@
+import os
 from langchain_community.chat_models.litellm import ChatLiteLLM, ChatLiteLLMException
 
 from lfx.base.constants import STREAM_INFO_TEXT
@@ -20,6 +21,8 @@ class ChatLiteLLMModelComponent(LCModelComponent):
     description = "`LiteLLM` collection of large language models."
     documentation = "https://python.langchain.com/docs/integrations/chat/litellm"
     icon = "🚄"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     inputs = [
         MessageInput(name="input_value", display_name="Input"),

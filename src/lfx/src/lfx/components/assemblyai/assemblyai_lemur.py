@@ -1,3 +1,4 @@
+import os
 import assemblyai as aai
 import i18n
 
@@ -13,6 +14,8 @@ class AssemblyAILeMUR(Component):
     description = i18n.t('components.assemblyai.assemblyai_lemur.description')
     documentation = "https://www.assemblyai.com/docs/lemur"
     icon = "AssemblyAI"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     inputs = [
         SecretStrInput(

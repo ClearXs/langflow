@@ -1,3 +1,4 @@
+import os
 import i18n
 import weaviate
 from langchain_community.vectorstores import Weaviate
@@ -13,6 +14,8 @@ class WeaviateVectorStoreComponent(LCVectorStoreComponent):
     description = i18n.t('components.vectorstores.weaviate.description')
     name = "Weaviate"
     icon = "Weaviate"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     inputs = [
         StrInput(

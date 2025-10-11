@@ -15,6 +15,9 @@ class Mem0MemoryComponent(LCChatMemoryComponent):
     description = i18n.t('components.mem0.mem0_chat_memory.description')
     name = "mem0_chat_memory"
     icon: str = "Mem0"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
+
     inputs = [
         NestedDictInput(
             name="mem0_config",

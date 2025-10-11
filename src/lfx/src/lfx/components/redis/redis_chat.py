@@ -1,3 +1,4 @@
+import os
 import i18n
 from urllib import parse
 
@@ -13,6 +14,8 @@ class RedisIndexChatMemory(LCChatMemoryComponent):
     description = i18n.t('components.redis.redis_chat.description')
     name = "RedisChatMemory"
     icon = "Redis"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     inputs = [
         StrInput(

@@ -1,3 +1,4 @@
+import os
 import i18n
 import json
 from typing import Any
@@ -31,6 +32,8 @@ class GleanAPIWrapper(BaseModel):
     glean_api_url: str
     glean_access_token: str
     act_as: str = "langflow-component@datastax.com"  # TODO: Detect this
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     def _prepare_request(
         self,

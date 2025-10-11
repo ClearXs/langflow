@@ -1,3 +1,4 @@
+import os
 import i18n
 from langchain_community.document_loaders import ConfluenceLoader
 from langchain_community.document_loaders.confluence import ContentFormat
@@ -15,6 +16,8 @@ class ConfluenceComponent(Component):
     trace_type = "tool"
     icon = "Confluence"
     name = "Confluence"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"    
 
     inputs = [
         StrInput(

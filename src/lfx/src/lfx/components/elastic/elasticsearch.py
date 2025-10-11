@@ -1,3 +1,4 @@
+import os
 import i18n
 from typing import Any
 
@@ -26,6 +27,8 @@ class ElasticsearchVectorStoreComponent(LCVectorStoreComponent):
     description: str = i18n.t('components.elastic.elasticsearch.description')
     name = "Elasticsearch"
     icon = "ElasticsearchStore"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     inputs = [
         StrInput(

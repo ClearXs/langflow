@@ -1,3 +1,4 @@
+import os
 import i18n
 from langchain_mistralai.embeddings import MistralAIEmbeddings
 from pydantic.v1 import SecretStr
@@ -12,6 +13,8 @@ class MistralAIEmbeddingsComponent(LCModelComponent):
     description = i18n.t('components.mistral.mistral_embeddings.description')
     icon = "MistralAI"
     name = "MistalAIEmbeddings"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     inputs = [
         DropdownInput(

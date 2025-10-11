@@ -1,3 +1,4 @@
+import os
 import i18n
 from lfx.base.agents.crewai.crew import BaseCrewComponent
 from lfx.io import HandleInput
@@ -13,6 +14,8 @@ class HierarchicalCrewComponent(BaseCrewComponent):
     icon = "CrewAI"
     legacy = True
     replacement = "agents.Agent"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     inputs = [
         *BaseCrewComponent.get_base_inputs(),
