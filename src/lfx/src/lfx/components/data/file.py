@@ -22,8 +22,8 @@ from lfx.base.data.base_file import BaseFileComponent
 from lfx.base.data.utils import TEXT_FILE_TYPES, parallel_load_data, parse_text_file_to_data
 from lfx.inputs.inputs import DropdownInput, MessageTextInput, StrInput
 from lfx.io import BoolInput, FileInput, IntInput, Output
-from lfx.schema import DataFrame  # noqa: TC001
 from lfx.schema.data import Data
+from lfx.schema.dataframe import DataFrame  # noqa: TC001
 from lfx.schema.message import Message
 
 
@@ -46,6 +46,7 @@ class FileComponent(BaseFileComponent):
         "dotx",
         "dotm",
         "docm",
+        "jpg",
         "jpeg",
         "png",
         "potx",
@@ -82,7 +83,7 @@ class FileComponent(BaseFileComponent):
             value=False,
             real_time_refresh=True,
             info=i18n.t('components.data.file.advanced_mode.info'),
-            show=False,
+            show=True,
         ),
         DropdownInput(
             name="pipeline",
@@ -180,8 +181,6 @@ class FileComponent(BaseFileComponent):
         """Show/hide Advanced Parser and related fields based on selection context."""
         if field_name == "path":
             paths = self._path_value(build_config)
-            file_path = paths[0] if paths else ""
-            file_count = len(field_value) if field_value else 0
 
             # Advanced mode only for single (non-tabular) file
             allow_advanced = file_count == 1 and not file_path.endswith(
@@ -198,6 +197,8 @@ class FileComponent(BaseFileComponent):
             for f in ("pipeline", "ocr_engine", "doc_key", "md_image_placeholder", "md_page_break_placeholder"):
                 if f in build_config:
                     build_config[f]["show"] = bool(field_value)
+                    if f == "pipeline":
+                        build_config[f]["advanced"] = not bool(field_value)
 
         elif field_name == "pipeline":
             if field_value == "standard":
@@ -280,6 +281,7 @@ class FileComponent(BaseFileComponent):
             ".docx",
             ".htm",
             ".html",
+            ".jpg",
             ".jpeg",
             ".json",
             ".md",
@@ -330,46 +332,14 @@ class FileComponent(BaseFileComponent):
             r"""
         import json, sys
 
-        def try_imports():
-            # Strategy 1: latest layout
-            try:
-                from docling.datamodel.base_models import ConversionStatus, InputFormat  # type: ignore
-                from docling.document_converter import DocumentConverter  # type: ignore
-                from docling_core.types.doc import ImageRefMode  # type: ignore
-                return ConversionStatus, InputFormat, DocumentConverter, ImageRefMode, "latest"
-            except Exception:
-                pass
-            # Strategy 2: alternative layout
-            try:
-                from docling.document_converter import DocumentConverter  # type: ignore
+            def try_imports():
                 try:
-                    from docling_core.types import ConversionStatus, InputFormat  # type: ignore
-                except Exception:
-                    try:
-                        from docling.datamodel import ConversionStatus, InputFormat  # type: ignore
-                    except Exception:
-                        class ConversionStatus: SUCCESS = "success"
-                        class InputFormat:
-                            PDF="pdf"; IMAGE="image"
-                try:
+                    from docling.datamodel.base_models import ConversionStatus, InputFormat  # type: ignore
+                    from docling.document_converter import DocumentConverter  # type: ignore
                     from docling_core.types.doc import ImageRefMode  # type: ignore
-                except Exception:
-                    class ImageRefMode:
-                        PLACEHOLDER="placeholder"; EMBEDDED="embedded"
-                return ConversionStatus, InputFormat, DocumentConverter, ImageRefMode, "alternative"
-            except Exception:
-                pass
-            # Strategy 3: basic converter only
-            try:
-                from docling.document_converter import DocumentConverter  # type: ignore
-                class ConversionStatus: SUCCESS = "success"
-                class InputFormat:
-                    PDF="pdf"; IMAGE="image"
-                class ImageRefMode:
-                    PLACEHOLDER="placeholder"; EMBEDDED="embedded"
-                return ConversionStatus, InputFormat, DocumentConverter, ImageRefMode, "basic"
-            except Exception as e:
-                raise ImportError(f"Docling imports failed: {e}") from e
+                    return ConversionStatus, InputFormat, DocumentConverter, ImageRefMode, "latest"
+                except Exception as e:
+                    raise e
 
         def create_converter(strategy, input_format, DocumentConverter, pipeline, ocr_engine):
             # --- Standard PDF/IMAGE pipeline (your existing behavior), with optional OCR ---
@@ -401,24 +371,41 @@ class FileComponent(BaseFileComponent):
                 except Exception:
                     return DocumentConverter()
 
-            # --- Vision-Language Model (VLM) pipeline ---
-            if pipeline == "vlm":
-                try:
-                    from docling.pipeline.vlm_pipeline import VlmPipeline
-                    from docling.document_converter import PdfFormatOption  # type: ignore
+                # --- Vision-Language Model (VLM) pipeline ---
+                if pipeline == "vlm":
+                    try:
+                        from docling.datamodel.pipeline_options import VlmPipelineOptions
+                        from docling.datamodel.vlm_model_specs import GRANITEDOCLING_MLX, GRANITEDOCLING_TRANSFORMERS
+                        from docling.document_converter import PdfFormatOption
+                        from docling.pipeline.vlm_pipeline import VlmPipeline
 
-                    vl_pipe = VlmPipelineOptions()
+                        vl_pipe = VlmPipelineOptions(
+                            vlm_options=GRANITEDOCLING_TRANSFORMERS,
+                        )
 
-                    # VLM paths generally don't need OCR; keep OCR off by default here.
-                    fmt = {}
-                    if hasattr(input_format, "PDF"):
-                        fmt[getattr(input_format, "PDF")] = PdfFormatOption(pipeline_cls=VlmPipeline)
-                    if hasattr(input_format, "IMAGE"):
-                        fmt[getattr(input_format, "IMAGE")] = PdfFormatOption(pipeline_cls=VlmPipeline)
+                        if sys.platform == "darwin":
+                            try:
+                                import mlx_vlm
+                                vl_pipe.vlm_options = GRANITEDOCLING_MLX
+                            except ImportError as e:
+                                raise e
 
-                    return DocumentConverter(format_options=fmt)
-                except Exception:
-                    return DocumentConverter()
+                        # VLM paths generally don't need OCR; keep OCR off by default here.
+                        fmt = {}
+                        if hasattr(input_format, "PDF"):
+                            fmt[getattr(input_format, "PDF")] = PdfFormatOption(
+                            pipeline_cls=VlmPipeline,
+                            pipeline_options=vl_pipe
+                        )
+                        if hasattr(input_format, "IMAGE"):
+                            fmt[getattr(input_format, "IMAGE")] = PdfFormatOption(
+                            pipeline_cls=VlmPipeline,
+                            pipeline_options=vl_pipe
+                        )
+
+                        return DocumentConverter(format_options=fmt)
+                    except Exception as e:
+                        raise e
 
             # --- Fallback: default converter with no special options ---
             return DocumentConverter()
@@ -563,7 +550,7 @@ class FileComponent(BaseFileComponent):
     ) -> list[BaseFileComponent.BaseFile]:
         """Process input files.
 
-        - Single file + advanced_mode => Docling in a separate process.
+        - advanced_mode => Docling in a separate process.
         - Otherwise => standard parsing in current process (optionally threaded).
         """
         if not file_list:
@@ -604,10 +591,12 @@ class FileComponent(BaseFileComponent):
                         )
                         for item in doc_rows
                     ]
-                    return self.rollup_data(file_list, rows)
-
-                # If not structured, keep as-is (e.g., markdown export or error dict)
-                return self.rollup_data(file_list, [advanced_data])
+                    final_return.extend(self.rollup_data(file_list, rows))
+                else:
+                    # If not structured, keep as-is (e.g., markdown export or error dict)
+                    final_return.extend(self.rollup_data(
+                        file_list, [advanced_data]))
+            return final_return
 
         # Standard multi-file (or single non-advanced) path
         concurrency = 1 if not self.use_multithreading else max(
@@ -632,7 +621,7 @@ class FileComponent(BaseFileComponent):
         if not hasattr(result, "text"):
             if hasattr(result, "error"):
                 raise ValueError(result.error[0])
-            msg = "No content generated."
+            msg = "Could not extract content from the provided file(s)."
             raise ValueError(msg)
 
         return result

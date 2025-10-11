@@ -81,7 +81,7 @@ class OpenSearchVectorStoreComponent(LCVectorStoreComponent):
                 },
             ],
             value=[],
-            advanced=True,
+            input_types=["Data"],
         ),
         StrInput(
             name="opensearch_url",
@@ -192,7 +192,7 @@ class OpenSearchVectorStoreComponent(LCVectorStoreComponent):
             display_name=i18n.t(
                 'components.elastic.opensearch.jwt_token.display_name'),
             value="JWT",
-            load_from_db=True,
+            load_from_db=False,
             show=True,
             info=i18n.t('components.elastic.opensearch.jwt_token.info'),
         ),
@@ -405,12 +405,23 @@ class OpenSearchVectorStoreComponent(LCVectorStoreComponent):
         metadatas = []
         additional_metadata = {}
         if hasattr(self, "docs_metadata") and self.docs_metadata:
-            for item in self.docs_metadata:
-                if isinstance(item, dict) and "key" in item and "value" in item:
-                    additional_metadata[item["key"]] = item["value"]
-            logger.debug(i18n.t('components.elastic.opensearch.logs.additional_metadata',
-                                count=len(additional_metadata)))
-
+            logger.debug(f"[LF] Docs metadata {self.docs_metadata}")
+            if isinstance(self.docs_metadata[-1], Data):
+                logger.debug(
+                    f"[LF] Docs metadata is a Data object {self.docs_metadata}")
+                self.docs_metadata = self.docs_metadata[-1].data
+                logger.debug(
+                    f"[LF] Docs metadata is a Data object {self.docs_metadata}")
+                additional_metadata.update(self.docs_metadata)
+            else:
+                for item in self.docs_metadata:
+                    if isinstance(item, dict) and "key" in item and "value" in item:
+                        additional_metadata[item["key"]] = item["value"]
+        # Replace string "None" values with actual None
+        for key, value in additional_metadata.items():
+            if value == "None":
+                additional_metadata[key] = None
+        logger.debug(f"[LF] Additional metadata {additional_metadata}")
         for doc_obj in docs:
             data_copy = json.loads(doc_obj.model_dump_json())
             text = data_copy.pop(doc_obj.text_key, doc_obj.default_value)

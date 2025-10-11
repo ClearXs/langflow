@@ -28,7 +28,7 @@ export const CategoryGroup = memo(function CategoryGroup({
   const { t } = useTranslation();
 
   return (
-    <SidebarGroup className='p-3'>
+    <SidebarGroup className="p-3 pr-2">
       {ENABLE_NEW_SIDEBAR && (
         <SidebarGroupLabel className='cursor-default flex items-center justify-between w-full'>
           <span>{t('flow.sidebar.common.components')}</span>

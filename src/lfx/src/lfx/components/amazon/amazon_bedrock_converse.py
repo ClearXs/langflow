@@ -4,14 +4,16 @@ from langflow.base.models.model import LCModelComponent
 from langflow.field_typing import LanguageModel
 from langflow.inputs.inputs import BoolInput, FloatInput, IntInput, MessageTextInput, SecretStrInput
 from langflow.io import DictInput, DropdownInput
-from langflow.log.logger import logger
+
+from lfx.base.models.aws_constants import AWS_REGIONS, AWS_MODEL_IDs
+from lfx.base.models.model import LCModelComponent
 
 
 class AmazonBedrockConverseComponent(LCModelComponent):
-    display_name: str = i18n.t(
-        'components.amazon.amazon_bedrock_converse.display_name')
-    description: str = i18n.t(
-        'components.amazon.amazon_bedrock_converse.description')
+    display_name: str = "Amazon Bedrock Converse"
+    description: str = (
+        "Generate text using Amazon Bedrock LLMs with the modern Converse API for improved conversation handling."
+    )
     icon = "Amazon"
     name = "AmazonBedrockConverseModel"
     beta = True

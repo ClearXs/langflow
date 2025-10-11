@@ -1,3 +1,14 @@
+"""Unified Web Search Component.
+
+This component consolidates Web Search, News Search, and RSS Reader into a single
+component with tabs for different search modes.
+"""
+
+import re
+from typing import Any
+from urllib.parse import parse_qs, quote_plus, unquote, urlparse
+
+import pandas as pd
 import requests
 from typing import Any, Dict, List, Optional
 from datetime import datetime, timedelta
@@ -5,460 +16,325 @@ import json
 from urllib.parse import urlencode, quote_plus
 import i18n
 
-from lfx.custom.custom_component.component import Component
-from lfx.io import MessageTextInput, DropdownInput, BoolInput, IntInput, Output
-from lfx.schema.data import Data
+from lfx.custom import Component
+from lfx.io import IntInput, MessageTextInput, Output, TabInput
+from lfx.schema import DataFrame
+from lfx.utils.request_utils import get_user_agent
 
 
 class WebSearchComponent(Component):
-    display_name = i18n.t('components.data.web_search.display_name')
-    description = i18n.t('components.data.web_search.description')
+    display_name = "Web Search"
+    description = "Search the web, news, or RSS feeds."
+    documentation: str = "https://docs.langflow.org/components-data#web-search"
     icon = "search"
-    name = "WebSearch"
+    name = "UnifiedWebSearch"
 
     inputs = [
+        TabInput(
+            name="search_mode",
+            display_name="Search Mode",
+            options=["Web", "News", "RSS"],
+            info="Choose search mode: Web (DuckDuckGo), News (Google News), or RSS (Feed Reader)",
+            value="Web",
+            real_time_refresh=True,
+            tool_mode=True,
+        ),
         MessageTextInput(
             name="query",
-            display_name=i18n.t(
-                'components.data.web_search.query.display_name'),
-            info=i18n.t('components.data.web_search.query.info'),
+            display_name="Search Query",
+            info="Search keywords for news articles.",
+            tool_mode=True,
             required=True,
-            placeholder="artificial intelligence machine learning",
         ),
         MessageTextInput(
-            name="api_key",
-            display_name=i18n.t(
-                'components.data.web_search.api_key.display_name'),
-            info=i18n.t('components.data.web_search.api_key.info'),
-            password=True,
-            required=True,
-        ),
-        DropdownInput(
-            name="search_engine",
-            display_name=i18n.t(
-                'components.data.web_search.search_engine.display_name'),
-            info=i18n.t('components.data.web_search.search_engine.info'),
-            options=["google", "bing", "duckduckgo", "serper", "serpapi"],
-            value="google",
-            real_time_refresh=True,
-        ),
-        IntInput(
-            name="max_results",
-            display_name=i18n.t(
-                'components.data.web_search.max_results.display_name'),
-            info=i18n.t('components.data.web_search.max_results.info'),
-            value=10,
-            range_spec=(1, 100),
-        ),
-        DropdownInput(
-            name="search_type",
-            display_name=i18n.t(
-                'components.data.web_search.search_type.display_name'),
-            info=i18n.t('components.data.web_search.search_type.info'),
-            options=["web", "images", "news", "videos", "shopping"],
-            value="web",
+            name="hl",
+            display_name="Language (hl)",
+            info="Language code, e.g. en-US, fr, de. Default: en-US.",
+            tool_mode=False,
+            input_types=[],
+            required=False,
             advanced=True,
         ),
-        DropdownInput(
-            name="language",
-            display_name=i18n.t(
-                'components.data.web_search.language.display_name'),
-            info=i18n.t('components.data.web_search.language.info'),
-            options=["en", "zh", "es", "fr", "de",
-                     "it", "pt", "ru", "ja", "ko"],
-            value="en",
+        MessageTextInput(
+            name="gl",
+            display_name="Country (gl)",
+            info="Country code, e.g. US, FR, DE. Default: US.",
+            tool_mode=False,
+            input_types=[],
+            required=False,
             advanced=True,
         ),
-        DropdownInput(
-            name="country",
-            display_name=i18n.t(
-                'components.data.web_search.country.display_name'),
-            info=i18n.t('components.data.web_search.country.info'),
-            options=["us", "cn", "gb", "ca", "au",
-                     "de", "fr", "jp", "kr", "in"],
-            value="us",
+        MessageTextInput(
+            name="ceid",
+            display_name="Country:Language (ceid)",
+            info="e.g. US:en, FR:fr. Default: US:en.",
+            tool_mode=False,
+            value="US:en",
+            input_types=[],
+            required=False,
             advanced=True,
         ),
-        DropdownInput(
-            name="time_range",
-            display_name=i18n.t(
-                'components.data.web_search.time_range.display_name'),
-            info=i18n.t('components.data.web_search.time_range.info'),
-            options=["any", "day", "week", "month", "year"],
-            value="any",
+        MessageTextInput(
+            name="topic",
+            display_name="Topic",
+            info="One of: WORLD, NATION, BUSINESS, TECHNOLOGY, ENTERTAINMENT, SCIENCE, SPORTS, HEALTH.",
+            tool_mode=False,
+            input_types=[],
+            required=False,
             advanced=True,
         ),
-        BoolInput(
-            name="safe_search",
-            display_name=i18n.t(
-                'components.data.web_search.safe_search.display_name'),
-            info=i18n.t('components.data.web_search.safe_search.info'),
-            value=True,
-            advanced=True,
-        ),
-        BoolInput(
-            name="include_snippets",
-            display_name=i18n.t(
-                'components.data.web_search.include_snippets.display_name'),
-            info=i18n.t('components.data.web_search.include_snippets.info'),
-            value=True,
-            advanced=True,
-        ),
-        BoolInput(
-            name="include_metadata",
-            display_name=i18n.t(
-                'components.data.web_search.include_metadata.display_name'),
-            info=i18n.t('components.data.web_search.include_metadata.info'),
-            value=False,
+        MessageTextInput(
+            name="location",
+            display_name="Location (Geo)",
+            info="City, state, or country for location-based news. Leave blank for keyword search.",
+            tool_mode=False,
+            input_types=[],
+            required=False,
             advanced=True,
         ),
         IntInput(
             name="timeout",
-            display_name=i18n.t(
-                'components.data.web_search.timeout.display_name'),
-            info=i18n.t('components.data.web_search.timeout.info'),
-            value=30,
-            range_spec=(5, 120),
-            advanced=True,
-        ),
-        MessageTextInput(
-            name="text_key",
-            display_name=i18n.t(
-                'components.data.web_search.text_key.display_name'),
-            info=i18n.t('components.data.web_search.text_key.info'),
-            value="snippet",
+            display_name="Timeout",
+            info="Timeout for the request in seconds.",
+            value=5,
+            required=False,
             advanced=True,
         ),
     ]
 
-    outputs = [
-        Output(
-            name="search_results",
-            display_name=i18n.t(
-                'components.data.web_search.outputs.search_results.display_name'),
-            method="perform_web_search"
-        ),
-        Output(
-            name="search_metadata",
-            display_name=i18n.t(
-                'components.data.web_search.outputs.search_metadata.display_name'),
-            method="get_search_metadata"
-        ),
-    ]
+    outputs = [Output(name="results", display_name="Results",
+                      method="perform_search")]
 
-    def update_build_config(self, build_config: dict[str, Any], field_value: Any, field_name: str | None = None) -> dict[str, Any]:
-        """Update build config based on search engine selection."""
-        if field_name == "search_engine":
-            # Different search engines might have different capabilities
-            if field_value in ["google", "bing"]:
-                build_config["search_type"]["show"] = True
-                build_config["time_range"]["show"] = True
-            elif field_value == "duckduckgo":
-                build_config["search_type"]["show"] = False
-                build_config["time_range"]["show"] = False
-            elif field_value in ["serper", "serpapi"]:
-                build_config["search_type"]["show"] = True
-                build_config["time_range"]["show"] = True
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+    def update_build_config(self, build_config: dict, field_value: Any, field_name: str | None = None) -> dict:
+        """Update input visibility based on search mode."""
+        if field_name == "search_mode":
+            # Show/hide inputs based on search mode
+            is_news = field_value == "News"
+            is_rss = field_value == "RSS"
+
+            # Update query field info based on mode
+            if is_rss:
+                build_config["query"]["info"] = "RSS feed URL to parse"
+                build_config["query"]["display_name"] = "RSS Feed URL"
+            elif is_news:
+                build_config["query"]["info"] = "Search keywords for news articles."
+                build_config["query"]["display_name"] = "Search Query"
+            else:  # Web
+                build_config["query"]["info"] = "Keywords to search for"
+                build_config["query"]["display_name"] = "Search Query"
+
+            # Keep news-specific fields as advanced (matching original News Search component)
+            # They remain advanced=True in all modes, just like in the original component
+
         return build_config
 
-    def perform_web_search(self) -> List[Data]:
-        """Perform web search and return results as Data objects."""
+    def validate_url(self, string: str) -> bool:
+        """Validate URL format."""
+        url_regex = re.compile(
+            r"^(https?:\/\/)?" r"(www\.)?" r"([a-zA-Z0-9.-]+)" r"(\.[a-zA-Z]{2,})?" r"(:\d+)?" r"(\/[^\s]*)?$",
+            re.IGNORECASE,
+        )
+        return bool(url_regex.match(string))
+
+    def ensure_url(self, url: str) -> str:
+        """Ensure URL has proper protocol."""
+        if not url.startswith(("http://", "https://")):
+            url = "https://" + url
+        if not self.validate_url(url):
+            msg = f"Invalid URL: {url}"
+            raise ValueError(msg)
+        return url
+
+    def _sanitize_query(self, query: str) -> str:
+        """Sanitize search query."""
+        return re.sub(r'[<>"\']', "", query.strip())
+
+    def clean_html(self, html_string: str) -> str:
+        """Remove HTML tags from text."""
+        return BeautifulSoup(html_string, "html.parser").get_text(separator=" ", strip=True)
+
+    def perform_web_search(self) -> DataFrame:
+        """Perform DuckDuckGo web search."""
+        query = self._sanitize_query(self.query)
+        if not query:
+            msg = "Empty search query"
+            raise ValueError(msg)
+
+        headers = {"User-Agent": get_user_agent()}
+        params = {"q": query, "kl": "us-en"}
+        url = "https://html.duckduckgo.com/html/"
+
         try:
-            if not self.query.strip():
-                error_message = i18n.t(
-                    'components.data.web_search.errors.empty_query')
-                self.status = error_message
-                raise ValueError(error_message)
+            response = requests.get(
+                url, params=params, headers=headers, timeout=self.timeout)
+            response.raise_for_status()
+        except requests.RequestException as e:
+            self.status = f"Failed request: {e!s}"
+            return DataFrame(pd.DataFrame([{"title": "Error", "link": "", "snippet": str(e), "content": ""}]))
 
-            if not self.api_key.strip():
-                error_message = i18n.t(
-                    'components.data.web_search.errors.missing_api_key')
-                self.status = error_message
-                raise ValueError(error_message)
+        if not response.text or "text/html" not in response.headers.get("content-type", "").lower():
+            self.status = "No results found"
+            return DataFrame(
+                pd.DataFrame(
+                    [{"title": "Error", "link": "", "snippet": "No results found", "content": ""}])
+            )
 
-            # Perform search based on selected engine
-            if self.search_engine == "google":
-                results = self._search_google()
-            elif self.search_engine == "bing":
-                results = self._search_bing()
-            elif self.search_engine == "duckduckgo":
-                results = self._search_duckduckgo()
-            elif self.search_engine == "serper":
-                results = self._search_serper()
-            elif self.search_engine == "serpapi":
-                results = self._search_serpapi()
-            else:
-                error_message = i18n.t('components.data.web_search.errors.invalid_search_engine',
-                                       engine=self.search_engine)
-                self.status = error_message
-                raise ValueError(error_message)
+        soup = BeautifulSoup(response.text, "html.parser")
+        results = []
 
-            if not results:
-                self.status = i18n.t(
-                    'components.data.web_search.errors.no_results')
-                return []
+        for result in soup.select("div.result"):
+            title_tag = result.select_one("a.result__a")
+            snippet_tag = result.select_one("a.result__snippet")
+            if title_tag:
+                raw_link = title_tag.get("href", "")
+                parsed = urlparse(raw_link)
+                uddg = parse_qs(parsed.query).get("uddg", [""])[0]
+                decoded_link = unquote(uddg) if uddg else raw_link
 
-            # Convert to Data objects
-            data_results = []
-            for result in results[:self.max_results]:
-                data_dict = {
-                    "title": result.get("title", ""),
-                    "url": result.get("url", ""),
-                    "snippet": result.get("snippet", ""),
-                    "position": result.get("position", 0),
-                    "search_engine": self.search_engine,
-                    "query": self.query,
-                }
+                try:
+                    final_url = self.ensure_url(decoded_link)
+                    page = requests.get(
+                        final_url, headers=headers, timeout=self.timeout)
+                    page.raise_for_status()
+                    content = BeautifulSoup(page.text, "lxml").get_text(
+                        separator=" ", strip=True)
+                except requests.RequestException as e:
+                    final_url = decoded_link
+                    content = f"(Failed to fetch: {e!s}"
 
-                # Add optional fields
-                if self.include_metadata:
-                    data_dict.update({
-                        "domain": result.get("domain", ""),
-                        "published_date": result.get("published_date", ""),
-                        "cached_url": result.get("cached_url", ""),
-                        "similar_url": result.get("similar_url", ""),
-                    })
+                results.append(
+                    {
+                        "title": title_tag.get_text(strip=True),
+                        "link": final_url,
+                        "snippet": snippet_tag.get_text(strip=True) if snippet_tag else "",
+                        "content": content,
+                    }
+                )
 
-                # Add search type specific data
-                if self.search_type == "images":
-                    data_dict.update({
-                        "image_url": result.get("image_url", ""),
-                        "thumbnail_url": result.get("thumbnail_url", ""),
-                        "image_width": result.get("image_width", 0),
-                        "image_height": result.get("image_height", 0),
-                    })
-                elif self.search_type == "news":
-                    data_dict.update({
-                        "source": result.get("source", ""),
-                        "published_time": result.get("published_time", ""),
-                        "author": result.get("author", ""),
-                    })
+        return DataFrame(pd.DataFrame(results))
 
-                data_results.append(
-                    Data(data=data_dict, text_key=self.text_key))
+    def perform_news_search(self) -> DataFrame:
+        """Perform Google News search."""
+        query = getattr(self, "query", "")
+        hl = getattr(self, "hl", "en-US") or "en-US"
+        gl = getattr(self, "gl", "US") or "US"
+        topic = getattr(self, "topic", None)
+        location = getattr(self, "location", None)
 
-            success_message = i18n.t('components.data.web_search.success.search_completed',
-                                     count=len(data_results), engine=self.search_engine)
-            self.status = success_message
-            return data_results
+        ceid = f"{gl}:{hl.split('-')[0]}"
 
-        except Exception as e:
-            error_message = i18n.t(
-                'components.data.web_search.errors.search_error', error=str(e))
-            self.status = error_message
-            raise ValueError(error_message) from e
+        # Build RSS URL based on parameters
+        if topic:
+            # Topic-based feed
+            base_url = f"https://news.google.com/rss/headlines/section/topic/{quote_plus(topic.upper())}"
+            params = f"?hl={hl}&gl={gl}&ceid={ceid}"
+            rss_url = base_url + params
+        elif location:
+            # Location-based feed
+            base_url = f"https://news.google.com/rss/headlines/section/geo/{quote_plus(location)}"
+            params = f"?hl={hl}&gl={gl}&ceid={ceid}"
+            rss_url = base_url + params
+        elif query:
+            # Keyword search feed
+            base_url = "https://news.google.com/rss/search?q="
+            query_encoded = quote_plus(query)
+            params = f"&hl={hl}&gl={gl}&ceid={ceid}"
+            rss_url = f"{base_url}{query_encoded}{params}"
+        else:
+            self.status = "No search query, topic, or location provided."
+            return DataFrame(
+                pd.DataFrame(
+                    [{"title": "Error", "link": "", "published": "",
+                        "summary": "No search parameters provided"}]
+                )
+            )
 
-    def get_search_metadata(self) -> Data:
-        """Get metadata about the search query and parameters."""
         try:
-            metadata = {
-                "query": self.query,
-                "search_engine": self.search_engine,
-                "search_type": self.search_type,
-                "language": self.language,
-                "country": self.country,
-                "time_range": self.time_range,
-                "max_results": self.max_results,
-                "safe_search": self.safe_search,
-                "timestamp": datetime.now().isoformat(),
-            }
+            response = requests.get(rss_url, timeout=self.timeout)
+            response.raise_for_status()
+            soup = BeautifulSoup(response.content, "xml")
+            items = soup.find_all("item")
+        except requests.RequestException as e:
+            self.status = f"Failed to fetch news: {e}"
+            return DataFrame(pd.DataFrame([{"title": "Error", "link": "", "published": "", "summary": str(e)}]))
 
-            return Data(data=metadata, text_key="query")
+        if not items:
+            self.status = "No news articles found."
+            return DataFrame(pd.DataFrame([{"title": "No articles found", "link": "", "published": "", "summary": ""}]))
 
-        except Exception as e:
-            error_message = i18n.t(
-                'components.data.web_search.errors.metadata_error', error=str(e))
-            raise ValueError(error_message) from e
+        articles = []
+        for item in items:
+            try:
+                title = self.clean_html(item.title.text if item.title else "")
+                link = item.link.text if item.link else ""
+                published = item.pubDate.text if item.pubDate else ""
+                summary = self.clean_html(
+                    item.description.text if item.description else "")
+                articles.append({"title": title, "link": link,
+                                "published": published, "summary": summary})
+            except (AttributeError, ValueError, TypeError) as e:
+                self.log(f"Error parsing article: {e!s}")
+                continue
 
-    def _search_google(self) -> List[Dict[str, Any]]:
-        """Search using Google Custom Search API."""
-        url = "https://www.googleapis.com/customsearch/v1"
+        return DataFrame(pd.DataFrame(articles))
 
-        params = {
-            "key": self.api_key,
-            "q": self.query,
-            "num": min(self.max_results, 10),
-            "lr": f"lang_{self.language}",
-            "gl": self.country,
-        }
+    def perform_rss_read(self) -> DataFrame:
+        """Read RSS feed."""
+        rss_url = getattr(self, "query", "")
+        if not rss_url:
+            return DataFrame(
+                pd.DataFrame(
+                    [{"title": "Error", "link": "", "published": "", "summary": "No RSS URL provided"}])
+            )
 
-        # Add time range filter
-        if self.time_range != "any":
-            date_restrict = {
-                "day": "d1",
-                "week": "w1",
-                "month": "m1",
-                "year": "y1"
-            }
-            params["dateRestrict"] = date_restrict.get(self.time_range)
+        try:
+            response = requests.get(rss_url, timeout=self.timeout)
+            response.raise_for_status()
+            if not response.content.strip():
+                msg = "Empty response received"
+                raise ValueError(msg)
 
-        # Add search type
-        if self.search_type == "images":
-            params["searchType"] = "image"
+            # Validate XML
+            try:
+                BeautifulSoup(response.content, "xml")
+            except Exception as e:
+                msg = f"Invalid XML response: {e}"
+                raise ValueError(msg) from e
 
-        response = requests.get(url, params=params, timeout=self.timeout)
-        response.raise_for_status()
+            soup = BeautifulSoup(response.content, "xml")
+            items = soup.find_all("item")
+        except (requests.RequestException, ValueError) as e:
+            self.status = f"Failed to fetch RSS: {e}"
+            return DataFrame(pd.DataFrame([{"title": "Error", "link": "", "published": "", "summary": str(e)}]))
 
-        data = response.json()
-        items = data.get("items", [])
-
-        return [
+        articles = [
             {
-                "title": item.get("title", ""),
-                "url": item.get("link", ""),
-                "snippet": item.get("snippet", ""),
-                "position": idx + 1,
-                "domain": item.get("displayLink", ""),
-                "cached_url": item.get("cacheId", ""),
+                "title": item.title.text if item.title else "",
+                "link": item.link.text if item.link else "",
+                "published": item.pubDate.text if item.pubDate else "",
+                "summary": item.description.text if item.description else "",
             }
-            for idx, item in enumerate(items)
+            for item in items
         ]
 
-    def _search_bing(self) -> List[Dict[str, Any]]:
-        """Search using Bing Web Search API."""
-        url = "https://api.bing.microsoft.com/v7.0/search"
+        # Ensure DataFrame has correct columns even if empty
+        df_articles = pd.DataFrame(
+            articles, columns=["title", "link", "published", "summary"])
+        self.log(f"Fetched {len(df_articles)} articles.")
+        return DataFrame(df_articles)
 
-        headers = {"Ocp-Apim-Subscription-Key": self.api_key}
-        params = {
-            "q": self.query,
-            "count": min(self.max_results, 50),
-            "mkt": f"{self.language}-{self.country}",
-        }
+    def perform_search(self) -> DataFrame:
+        """Main search method that routes to appropriate search function based on mode."""
+        search_mode = getattr(self, "search_mode", "Web")
 
-        # Add time range filter
-        if self.time_range != "any":
-            freshness_map = {
-                "day": "Day",
-                "week": "Week",
-                "month": "Month"
-            }
-            if self.time_range in freshness_map:
-                params["freshness"] = freshness_map[self.time_range]
-
-        response = requests.get(url, headers=headers,
-                                params=params, timeout=self.timeout)
-        response.raise_for_status()
-
-        data = response.json()
-        web_pages = data.get("webPages", {}).get("value", [])
-
-        return [
-            {
-                "title": item.get("name", ""),
-                "url": item.get("url", ""),
-                "snippet": item.get("snippet", ""),
-                "position": idx + 1,
-                "domain": item.get("displayUrl", ""),
-                "published_date": item.get("dateLastCrawled", ""),
-            }
-            for idx, item in enumerate(web_pages)
-        ]
-
-    def _search_duckduckgo(self) -> List[Dict[str, Any]]:
-        """Search using DuckDuckGo API (unofficial)."""
-        # Note: This is a simplified implementation
-        # Real implementation would need proper DuckDuckGo API integration
-        url = "https://api.duckduckgo.com/"
-
-        params = {
-            "q": self.query,
-            "format": "json",
-            "no_html": "1",
-            "skip_disambig": "1"
-        }
-
-        response = requests.get(url, params=params, timeout=self.timeout)
-        response.raise_for_status()
-
-        data = response.json()
-        results = data.get("Results", []) + data.get("RelatedTopics", [])
-
-        search_results = []
-        for idx, item in enumerate(results[:self.max_results]):
-            if isinstance(item, dict) and "Text" in item:
-                search_results.append({
-                    "title": item.get("Text", "")[:100],
-                    "url": item.get("FirstURL", ""),
-                    "snippet": item.get("Text", ""),
-                    "position": idx + 1,
-                })
-
-        return search_results
-
-    def _search_serper(self) -> List[Dict[str, Any]]:
-        """Search using Serper API."""
-        url = "https://google.serper.dev/search"
-
-        headers = {
-            "X-API-KEY": self.api_key,
-            "Content-Type": "application/json"
-        }
-
-        payload = {
-            "q": self.query,
-            "num": min(self.max_results, 100),
-            "hl": self.language,
-            "gl": self.country,
-        }
-
-        # Add time range
-        if self.time_range != "any":
-            time_map = {"day": "qdr:d", "week": "qdr:w",
-                        "month": "qdr:m", "year": "qdr:y"}
-            payload["tbs"] = time_map.get(self.time_range)
-
-        response = requests.post(url, headers=headers,
-                                 json=payload, timeout=self.timeout)
-        response.raise_for_status()
-
-        data = response.json()
-        organic = data.get("organic", [])
-
-        return [
-            {
-                "title": item.get("title", ""),
-                "url": item.get("link", ""),
-                "snippet": item.get("snippet", ""),
-                "position": item.get("position", idx + 1),
-                "domain": item.get("domain", ""),
-            }
-            for idx, item in enumerate(organic)
-        ]
-
-    def _search_serpapi(self) -> List[Dict[str, Any]]:
-        """Search using SerpApi."""
-        url = "https://serpapi.com/search"
-
-        params = {
-            "api_key": self.api_key,
-            "engine": "google",
-            "q": self.query,
-            "num": min(self.max_results, 100),
-            "hl": self.language,
-            "gl": self.country,
-        }
-
-        # Add time range
-        if self.time_range != "any":
-            time_map = {"day": "qdr:d", "week": "qdr:w",
-                        "month": "qdr:m", "year": "qdr:y"}
-            params["tbs"] = time_map.get(self.time_range)
-
-        response = requests.get(url, params=params, timeout=self.timeout)
-        response.raise_for_status()
-
-        data = response.json()
-        organic_results = data.get("organic_results", [])
-
-        return [
-            {
-                "title": item.get("title", ""),
-                "url": item.get("link", ""),
-                "snippet": item.get("snippet", ""),
-                "position": item.get("position", idx + 1),
-                "domain": item.get("displayed_link", ""),
-                "cached_url": item.get("cached_page_link", ""),
-                "similar_url": item.get("similar_page_link", ""),
-            }
-            for idx, item in enumerate(organic_results)
-        ]
+        if search_mode == "Web":
+            return self.perform_web_search()
+        if search_mode == "News":
+            return self.perform_news_search()
+        if search_mode == "RSS":
+            return self.perform_rss_read()
+        # Fallback to web search
+        return self.perform_web_search()

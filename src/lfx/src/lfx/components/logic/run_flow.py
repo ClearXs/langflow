@@ -2,7 +2,7 @@ from typing import Any
 import i18n
 
 from lfx.base.tools.run_flow import RunFlowBaseComponent
-from lfx.helpers.flow import run_flow
+from lfx.helpers import run_flow
 from lfx.log.logger import logger
 from lfx.schema.dotdict import dotdict
 

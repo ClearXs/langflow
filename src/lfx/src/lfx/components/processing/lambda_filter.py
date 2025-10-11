@@ -15,11 +15,11 @@ if TYPE_CHECKING:
 
 
 class LambdaFilterComponent(Component):
-    display_name = i18n.t('components.processing.lambda_filter.display_name')
-    description = i18n.t('components.processing.lambda_filter.description')
-    documentation: str = "https://docs.langflow.org/components-processing#smart-function"
+    display_name = "Smart Transform"
+    description = "Uses an LLM to generate a function for filtering or transforming structured data."
+    documentation: str = "https://docs.langflow.org/components-processing#smart-transform"
     icon = "square-function"
-    name = "Smart Function"
+    name = "Smart Transform"
 
     inputs = [
         DataInput(

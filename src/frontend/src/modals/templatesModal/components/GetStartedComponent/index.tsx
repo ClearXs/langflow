@@ -1,11 +1,4 @@
-/*
- * @Author: dengchao dengchao
- * @Date: 2025-09-23 10:55:29
- * @LastEditors: dengchao dengchao
- * @LastEditTime: 2025-09-24 15:36:10
- * @FilePath: \frontend\src\modals\templatesModal\components\GetStartedComponent\index.tsx
- * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
- */
+import { ENABLE_KNOWLEDGE_BASES } from "@/customization/feature-flags";
 import BaseModal from "@/modals/baseModal";
 import useFlowsManagerStore from "@/stores/flowsManagerStore";
 import type { CardData } from "@/types/templates/types";
@@ -21,6 +14,11 @@ import { useTranslation } from "react-i18next";
 
 export default function GetStartedComponent() {
   const examples = useFlowsManagerStore((state) => state.examples);
+
+  const filteredExamples = examples.filter((example) => {
+    return !(!ENABLE_KNOWLEDGE_BASES && example.name?.includes("Knowledge"));
+  });
+
   const { t } = useTranslation();
   // Define the card data
   const cardData: CardData[] = [
@@ -29,21 +27,25 @@ export default function GetStartedComponent() {
       bgHorizontalImage: memoryChatbotHorizontal,
       icon: "MessagesSquare",
       category: "prompting",
-      flow: examples.find((example) => example.name === "Basic Prompting"),
+      flow: filteredExamples.find(
+        (example) => example.name === "Basic Prompting",
+      ),
     },
     {
       bgImage: vectorRag,
       bgHorizontalImage: vectorRagHorizontal,
       icon: "Database",
       category: "RAG",
-      flow: examples.find((example) => example.name === "Vector Store RAG"),
+      flow: filteredExamples.find(
+        (example) => example.name === "Vector Store RAG",
+      ),
     },
     {
       bgImage: multiAgent,
       bgHorizontalImage: multiAgentHorizontal,
       icon: "Bot",
       category: "Agents",
-      flow: examples.find((example) => example.name === "Simple Agent"),
+      flow: filteredExamples.find((example) => example.name === "Simple Agent"),
     },
   ];
 

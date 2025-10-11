@@ -12,6 +12,7 @@ import { SidebarTrigger } from "@/components/ui/sidebar";
 import { useUpdateUser } from "@/controllers/API/queries/auth";
 import CustomGetStartedProgress from "@/customization/components/custom-get-started-progress";
 import useAuthStore from "@/stores/authStore";
+import { useUtilityStore } from "@/stores/utilityStore";
 import { AddFolderButton } from "./add-folder-button";
 import { UploadFolderButton } from "./upload-folder-button";
 import { useTranslation } from "react-i18next";
@@ -29,6 +30,9 @@ export const HeaderButtons = ({
 }) => {
   const { t } = useTranslation();
   const userData = useAuthStore((state) => state.userData);
+  const hideGettingStartedProgress = useUtilityStore(
+    (state) => state.hideGettingStartedProgress,
+  );
 
   const [isDismissedDialog, setIsDismissedDialog] = useState(
     userData?.optins?.dialog_dismissed,
@@ -65,7 +69,7 @@ export const HeaderButtons = ({
 
   return (
     <>
-      {!isDismissedDialog && userData && (
+      {!hideGettingStartedProgress && !isDismissedDialog && userData && (
         <>
           <CustomGetStartedProgress
             userData={userData!}

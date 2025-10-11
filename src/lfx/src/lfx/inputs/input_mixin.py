@@ -12,6 +12,7 @@ from pydantic import (
 
 from lfx.field_typing.range_spec import RangeSpec
 from lfx.inputs.validators import CoalesceBool
+from lfx.schema.cross_module import CrossModuleModel
 
 
 class FieldTypes(str, Enum):
@@ -44,7 +45,7 @@ SerializableFieldTypes = Annotated[FieldTypes, PlainSerializer(
 
 # Base mixin for common input field attributes and methods
 # type: ignore[call-arg]
-class BaseInputMixin(BaseModel, validate_assignment=True):
+class BaseInputMixin(CrossModuleModel, validate_assignment=True):
     model_config = ConfigDict(
         arbitrary_types_allowed=True,
         extra="forbid",

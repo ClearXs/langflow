@@ -8,9 +8,21 @@ from lfx.io import IntInput, MessageTextInput, DropdownInput, Output
 from lfx.schema.data import Data
 
 
-class MockDataComponent(Component):
-    display_name = i18n.t('components.data.mock_data.display_name')
-    description = i18n.t('components.data.mock_data.description')
+class MockDataGeneratorComponent(Component):
+    """Mock Data Generator Component.
+
+    Generates sample data for testing and development purposes. Supports three main
+    Langflow output types: Message (text), Data (JSON), and DataFrame (tabular data).
+
+    This component is useful for:
+    - Testing workflows without real data sources
+    - Prototyping data processing pipelines
+    - Creating sample data for demonstrations
+    - Development and debugging of Langflow components
+    """
+
+    display_name = "Mock Data"
+    description = "Generate mock data for testing and development."
     icon = "database"
     name = "MockData"
 
@@ -59,12 +71,12 @@ class MockDataComponent(Component):
     ]
 
     outputs = [
-        Output(
-            name="data_list",
-            display_name=i18n.t(
-                'components.data.mock_data.outputs.data_list.display_name'),
-            method="generate_mock_data"
-        ),
+        Output(display_name="Result", name="dataframe_output",
+               method="generate_dataframe_output"),
+        Output(display_name="Result", name="message_output",
+               method="generate_message_output"),
+        Output(display_name="Result", name="data_output",
+               method="generate_data_output"),
     ]
 
     def update_build_config(self, build_config: dict[str, Any], field_value: Any, field_name: str | None = None) -> dict[str, Any]:

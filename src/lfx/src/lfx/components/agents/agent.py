@@ -11,6 +11,7 @@ from lfx.base.models.model_input_constants import (
     ALL_PROVIDER_FIELDS,
     MODEL_DYNAMIC_UPDATE_FIELDS,
     MODEL_PROVIDERS_DICT,
+    MODEL_PROVIDERS_LIST,
     MODELS_METADATA,
 )
 from lfx.base.models.model_utils import get_model_name
@@ -32,9 +33,6 @@ from lfx.schema.table import EditMode
 def set_advanced_true(component_input):
     component_input.advanced = True
     return component_input
-
-
-MODEL_PROVIDERS_LIST = ["Anthropic", "Google Generative AI", "OpenAI"]
 
 
 class AgentComponent(ToolCallingAgentComponent):
@@ -70,8 +68,7 @@ class AgentComponent(ToolCallingAgentComponent):
             refresh_button=False,
             input_types=[],
             options_metadata=[MODELS_METADATA[key]
-                              for key in MODEL_PROVIDERS_LIST if key in MODELS_METADATA]
-            + [{"icon": "brain"}],
+                              for key in MODEL_PROVIDERS_LIST if key in MODELS_METADATA],
             external_options={
                 "fields": {
                     "data": {
@@ -156,7 +153,7 @@ class AgentComponent(ToolCallingAgentComponent):
                 },
             ],
         ),
-        *LCToolsAgentComponent.get_base_inputs(),
+        *LCToolsAgentComponent._base_inputs,
         # removed memory inputs from agent component
         # *memory_inputs,
         BoolInput(

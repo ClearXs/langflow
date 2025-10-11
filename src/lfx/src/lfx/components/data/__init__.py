@@ -43,6 +43,8 @@ _dynamic_imports = {
     "ValueMapperComponent": "value_mapper",
     "WebSearchComponent": "web_search",
     "WebhookComponent": "webhook",
+    "NewsSearchComponent": "news_search",
+    "RSSReaderComponent": "rss",
 }
 __all__ = [
     "APIRequestComponent",

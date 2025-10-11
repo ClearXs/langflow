@@ -13,7 +13,9 @@ class RSSComponent(Component):
     display_name = i18n.t('components.data.rss.display_name')
     description = i18n.t('components.data.rss.description')
     icon = "rss"
-    name = "RSS"
+    name = "RSSReaderSimple"
+    legacy = True
+    replacement = "data.WebSearch"
 
     inputs = [
         MessageTextInput(

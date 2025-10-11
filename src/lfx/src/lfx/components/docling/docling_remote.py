@@ -14,6 +14,7 @@ from lfx.inputs import IntInput, NestedDictInput, StrInput
 from lfx.inputs.inputs import FloatInput
 from lfx.log.logger import logger
 from lfx.schema import Data
+from lfx.utils.util import transform_localhost_url
 
 
 class DoclingRemoteComponent(BaseFileComponent):
@@ -110,21 +111,9 @@ class DoclingRemoteComponent(BaseFileComponent):
     ]
 
     def process_files(self, file_list: list[BaseFileComponent.BaseFile]) -> list[BaseFileComponent.BaseFile]:
-        """Process files using Docling Serve remote API.
-
-        Args:
-            file_list: List of files to process.
-
-        Returns:
-            list[BaseFileComponent.BaseFile]: List of processed files with document data.
-
-        Raises:
-            RuntimeError: If processing fails or times out.
-            httpx.HTTPStatusError: If HTTP request fails.
-        """
-        base_url = f"{self.api_url}/v1"
-        logger.info(i18n.t('components.docling.docling_remote.logs.using_api_url',
-                           url=base_url))
+        # Transform localhost URLs to container-accessible hosts when running in a container
+        transformed_url = transform_localhost_url(self.api_url)
+        base_url = f"{transformed_url}/v1"
 
         def _convert_document(client: httpx.Client, file_path: Path, options: dict[str, Any]) -> Data | None:
             """Convert a single document using Docling Serve API.

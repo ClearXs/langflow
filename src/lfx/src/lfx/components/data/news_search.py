@@ -13,6 +13,8 @@ class NewsSearchComponent(Component):
     description = i18n.t('components.data.news_search.description')
     icon = "newspaper"
     name = "NewsSearch"
+    legacy = True
+    replacement = "data.WebSearch"
 
     inputs = [
         MessageTextInput(
