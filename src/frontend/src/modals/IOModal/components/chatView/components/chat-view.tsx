@@ -20,6 +20,7 @@ import FlowRunningSqueleton from "../../flow-running-squeleton";
 import useDragAndDrop from "../chatInput/hooks/use-drag-and-drop";
 import ChatMessage from "../chatMessage/chat-message";
 import sortSenderMessages from "../helpers/sort-sender-messages";
+import { useTranslation } from "react-i18next";
 
 const MemoizedChatMessage = memo(ChatMessage, (prevProps, nextProps) => {
   return (
@@ -40,6 +41,7 @@ export default function ChatView({
   playgroundPage,
   sidebarOpen,
 }: chatViewProps): JSX.Element {
+  const { t } = useTranslation();
   const inputs = useFlowStore((state) => state.inputs);
   const realFlowId = useFlowsManagerStore((state) => state.currentFlowId);
   const currentFlowId = useGetFlowId();
@@ -195,19 +197,19 @@ export default function ChatView({
               <div className="flex flex-grow w-full flex-col items-center justify-center">
                 <div className="flex flex-col items-center justify-center gap-4 p-8">
                   <LangflowLogo
-                    title="Langflow logo"
+                    title={t("chat.view.logoTitle")}
                     className="h-10 w-10 scale-[1.5]"
                   />
                   <div className="flex flex-col items-center justify-center">
                     <h3 className="mt-2 pb-2 text-2xl font-semibold text-primary">
-                      New chat
+                      {t("chat.view.newChat")}
                     </h3>
                     <p
                       className="text-lg text-muted-foreground"
                       data-testid="new-chat-text"
                     >
                       <TextEffectPerChar>
-                        Test your flow with a chat prompt
+                        {t("chat.view.testPrompt")}
                       </TextEffectPerChar>
                     </p>
                   </div>

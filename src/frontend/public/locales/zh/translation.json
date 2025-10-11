@@ -152,6 +152,8 @@
     "twitter": "Twitter"
   },
   "settings": {
+    "displayName": "设置",
+    "description": "管理 Langflow 的通用设置。",
     "version": "版本",
     "general": "通用",
     "apiKeys": "API 密钥",
@@ -170,7 +172,6 @@
     "stopFlow": "停止流程",
     "buildFlow": "构建流程",
     "playground": "演练场",
-    "share": "分享",
     "duplicate": "复制",
     "rename": "重命名",
     "delete": "删除",
@@ -178,6 +179,24 @@
     "unlock": "解锁",
     "freeze": "冻结",
     "unfreeze": "解冻",
+    "share": {
+      "button": "分享",
+      "menu": {
+        "apiAccess": "API 访问",
+        "export": "导出",
+        "mcpServer": "MCP 服务器",
+        "embedIntoSite": "嵌入到网站",
+        "shareablePlayground": "可分享的测试平台"
+      },
+      "tooltip": {
+        "addChatIO": "添加聊天输入或聊天输出以访问您的流程",
+        "activateToShare": "激活以分享此测试平台的公开版本"
+      },
+      "error": {
+        "saveFailedTitle": "保存流程失败",
+        "flowsUndefined": "流程变量未定义"
+      }
+    },
     "sidebar": {
       "common": {
         "search": "搜索",
@@ -318,6 +337,11 @@
       }
     }
   },
+  "codeAreaModal": {
+    "title": "注意",
+    "confirmationText": "您确定要在不保存更改的情况下退出吗？",
+    "cancelText": "放弃更改"
+  },
   "components": {
     "addComponent": "添加组件",
     "removeComponent": "移除组件",
@@ -327,6 +351,81 @@
     "inputParameters": "输入参数",
     "outputParameters": "输出参数",
     "advancedSettings": "高级设置",
+    "output": {
+      "title": "组件输出",
+      "description": "检查下面组件的输出。",
+      "tabs": {
+        "outputs": "输出",
+        "logs": "日志"
+      }
+    },
+    "nodeLegacy": {
+      "legacy": "旧版",
+      "dismiss": "忽略",
+      "dismissWarningBar": "忽略警告栏",
+      "use": "使用",
+      "noDirectReplacement": "无直接替代方案。"
+    },
+    "nodeUpdate": {
+      "updateAvailable": "有可用更新",
+      "updateReady": "更新就绪",
+      "dismiss": "忽略",
+      "review": "查看",
+      "update": "更新",
+      "dismissWarningBar": "忽略警告栏"
+    },
+    "update": {
+      "errorUpdating": "更新组件错误",
+      "errorUpdatingList1": "更新组件时发生错误。",
+      "errorUpdatingList2": "如果错误持续存在，请在我们的 Discord 或 GitHub 上报告。",
+      "edgesLost": "更新组件后丢失了一些连接。请检查流程并重新连接它们。",
+      "successUpdated": "成功更新了 {{count}} 个组件",
+      "successUpdated_other": "成功更新了 {{count}} 个组件",
+      "updateAvailable": "{{count}} 个组件有可用更新",
+      "updateAvailable_other": "{{count}} 个组件有可用更新",
+      "dismiss": "忽略",
+      "dismissAll": "全部忽略",
+      "updateAll": "全部更新",
+      "reviewAll": "全部查看"
+    },
+    "updateModal": {
+      "title": "更新 {{name}}",
+      "titleMultiple": "更新组件",
+      "component": "组件",
+      "updateType": "更新类型",
+      "breaking": "破坏性",
+      "standard": "标准",
+      "breakingWarningMultiple": "标记为<strong>破坏性</strong>的更新可能会改变输入、输出或组件行为。在某些情况下，它们会断开流程中的组件连接，需要您之后重新查看或重新连接。从侧边栏添加的组件始终使用最新版本。",
+      "breakingWarningSingle1": "此更新可能会改变输入、输出或组件行为。在某些情况下，它将<strong>断开此组件与您的流程的连接</strong>，需要您之后重新查看或重新连接。",
+      "breakingWarningSingle2": "从侧边栏添加的组件始终使用最新版本。",
+      "createBackup": "更新前创建备份流程",
+      "updateComponent": "更新组件",
+      "updateComponents": "更新组件"
+    },
+    "handle": {
+      "cantConnectSameNode": "无法连接到同一节点",
+      "connectTo": "连接",
+      "to": "到",
+      "incompatibleWith": "不兼容于",
+      "inputType": "输入类型",
+      "inputTypes": "输入类型",
+      "outputType": "输出类型",
+      "outputTypes": "输出类型",
+      "input": "输入",
+      "output": "输出",
+      "dragToConnect": "拖拽以连接兼容的",
+      "inputs": "输入",
+      "outputs": "输出",
+      "clickToFilter": "点击以筛选兼容的",
+      "andComponents": "和组件"
+    },
+    "multiselect": {
+      "chooseOption": "选择一个选项...",
+      "searchPlaceholder": "搜索选项...",
+      "noValuesFound": "未找到值。",
+      "noParametersAvailable": "没有可显示的参数。",
+      "textPrefix": "文本:"
+    },
     "table": {
       "openTable": "OpenTable",
       "column": {
@@ -344,9 +443,92 @@
       "save": "保存",
       "close": "关闭",
       "replace": "替换",
+      "finishEditing": "完成编辑",
+      "retry": "重试",
+      "dismiss": "忽略",
+      "stop": "停止",
+      "selectFiles": "选择文件",
+      "addNew": "添加新项",
+      "addNewVariable": "新增变量",
+      "export": "导出",
+      "all": "所有",
+      "flows": "流程",
+      "components": "组件",
+      "bundles": "捆绑包",
       "tips": {
         "editMessage": "编辑消息会更新记忆，但不会重新开始对话。"
       }
+    }
+  },
+  "storePage": {
+    "apiKey": "API 密钥",
+    "filterValues": "筛选值",
+    "all": "全部",
+    "createdByMe": "我创建的",
+    "likedByMe": "我点赞的",
+    "popular": "热门",
+    "alphabetical": "字母顺序",
+    "result": "个结果",
+    "results": "个结果",
+    "emptyCreatedByMe": "您还没有使用所选筛选条件创建任何内容。",
+    "emptyLikedByMe": "您还没有使用所选筛选条件点赞任何内容。",
+    "emptyFlows": "没有符合所选筛选条件的流程。",
+    "emptyComponents": "没有符合所选筛选条件的组件。",
+    "comingSoon": "即将推出"
+  },
+  "storeApiKeyForm": {
+    "title": "商店 API 密钥",
+    "placeholder": "插入您的 API 密钥",
+    "validationMessage": "请输入您的 API 密钥",
+    "save": "保存"
+  },
+  "flowMenu": {
+    "untitledFlow": "未命名流程",
+    "savedSuccessfully": "保存成功",
+    "saving": "保存中...",
+    "saveChanges": "保存更改",
+    "never": "从未"
+  },
+  "mcp": {
+  },
+  "variable": {
+    "globalVariables": "全局变量",
+    "description": "管理全局变量并将其分配给字段。",
+    "table": {
+      "variableName": "变量名称",
+      "type": "类型",
+      "value": "值",
+      "applyToFields": "应用到字段"
+    },
+    "message": {
+      "errorDeletingVariable": "删除变量错误",
+      "idNotFound": "未找到变量的 ID",
+      "variableCreatedSuccessfully": "变量 {{name}} 创建成功",
+      "variableUpdatedSuccessfully": "变量 {{name}} 更新成功",
+      "errorCreatingVariable": "创建变量错误",
+      "errorUpdatingVariable": "更新变量错误",
+      "unexpectedErrorCreating": "创建变量时发生意外错误，请重试。",
+      "unexpectedErrorUpdating": "更新变量时发生意外错误，请重试。",
+      "runTimestampPrefix": "Last Run: ",
+      "savedHover": "Last saved: ",
+      "statusBuilding": "Building..."
+    },
+    "modal": {
+      "title": "创建变量",
+      "updateTitle": "更新变量",
+      "description": "此变量将可在您的所有流程中使用。",
+      "typeLabel": "类型*",
+      "credentialTab": "凭证",
+      "genericTab": "通用",
+      "nameLabel": "名称*",
+      "namePlaceholder": "输入变量名称...",
+      "valueLabel": "值*",
+      "valuePlaceholder": "输入变量值...",
+      "applyToFieldsLabel": "应用到字段",
+      "applyToFieldsPlaceholder": "选择变量的字段...",
+      "applyToFieldsDescription": "所选字段将自动应用该变量作为默认值。",
+      "saveButton": "保存变量",
+      "updateButton": "更新变量"
     }
   },
   "messages": {
@@ -397,7 +579,9 @@
     "defaultToolsetPlaceholder": "用作工具",
     "editTextPlaceholder": "在此输入消息。",
     "editTextModalTitle": "编辑文本",
-    "textDialogTitle": "编辑文本内容"
+    "textDialogTitle": "编辑文本内容",
+    "flowBuildFailed": "流程构建失败",
+    "flowBuiltSuccessfully": "流程构建成功"
   },
   "time": {
     "now": "现在",
@@ -447,5 +631,384 @@
     "outputInspection": "输出检查",
     "toolMode": "工具模式",
     "toggleSidebar": "切换侧边栏"
+  },
+  "playground": {
+    "title": "playground",
+    "hideSidebar": "隐藏侧边栏",
+    "theme": "主题",
+    "builtWithLangflow": "使用 Langflow 构建",
+    "sessionDeleteSuccess": "会话删除成功。",
+    "sessionDeleteError": "删除会话时出错。"
+  },
+  "chat": {
+    "view": {
+      "logoTitle": "Langflow 标志",
+      "newChat": "新对话",
+      "testPrompt": "使用聊天提示词测试您的流程"
+    },
+    "message": {
+      "editMessage": "编辑消息",
+      "copyMessage": "复制消息",
+      "copied": "已复制!",
+      "helpful": "有帮助",
+      "notHelpful": "无帮助"
+    },
+    "session": {
+      "defaultSession": "默认会话",
+      "newChat": "新对话",
+      "options": "选项",
+      "rename": "重命名",
+      "messageLogs": "消息日志",
+      "delete": "删除"
+    },
+    "sidebar": {
+      "title": "聊天"
+    },
+    "input": {
+      "runFlow": "运行流程",
+      "stop": "停止",
+      "addChatInput": "添加一个",
+      "chatInputLink": "聊天输入",
+      "componentToSendMessages": "组件到您的流程中以发送消息。"
+    },
+    "error": {
+      "flowRunning": "流程运行中...",
+      "errorOccurred": "在",
+      "componentStopping": "组件中发生错误，已停止流程。详细信息见下方。",
+      "errorDetails": "错误详情：",
+      "field": "字段：",
+      "stepsToFix": "修复步骤：",
+      "step1": "检查组件设置",
+      "step2": "确保所有必填字段都已填写",
+      "step3": "重新运行流程"
+    }
+  },
+  "modal": {
+    "text": {
+      "viewText": "查看文本"
+    },
+    "dictionary": {
+      "editTitle": "编辑字典",
+      "viewTitle": "查看字典",
+      "description": {
+        "customize": "自定义您的字典，根据需要添加或编辑键值对。支持添加新的",
+        "objects": "对象 { }",
+        "or": "或",
+        "arrays": "数组 []。"
+      },
+      "save": "保存",
+      "errorTitle": "获取字典时出错",
+      "errorMessage": "检查您的字典格式"
+    }
+  },
+  "signUpPage": {
+    "title": "注册 Langflow",
+    "username": "用户名",
+    "password": "密码",
+    "confirmPassword": "确认密码",
+    "required": "*",
+    "usernamePlaceholder": "用户名",
+    "passwordPlaceholder": "密码",
+    "confirmPasswordPlaceholder": "确认密码",
+    "usernameRequired": "请输入您的用户名",
+    "passwordRequired": "请输入密码",
+    "confirmPasswordRequired": "请确认您的密码",
+    "passwordsNotMatch": "密码不匹配",
+    "signUpButton": "注册",
+    "alreadyHaveAccount": "已有账户？",
+    "signIn": "登录"
+  },
+  "alerts": {
+    "error": {
+      "missed": "哎呀！看起来您遗漏了一些内容",
+      "incompleteLoop": "流程有一个不完整的循环。请检查您的连接并重试。",
+      "invalidFile": "请选择有效的文件。仅允许以下文件类型：",
+      "consoleError": "上传文件时发生错误",
+      "infoMissing": "哎呀！看起来您遗漏了一些必填信息：",
+      "funcError": "您的函数中有错误",
+      "importError": "您的导入中有错误",
+      "bug": "出了点问题，请重试",
+      "codeError": "此代码有问题，请检查",
+      "chatError": "使用聊天前请重新构建流程。",
+      "msgError": "发送消息时出错",
+      "promptError": "此提示有问题，请检查",
+      "apiError": "保存 API 密钥时出错，请重试。",
+      "userDel": "删除用户时出错",
+      "userEdit": "编辑用户时出错",
+      "userAdd": "添加新用户时出错",
+      "signin": "登录时出错",
+      "delKey": "删除密钥时出错",
+      "delKeyPlural": "删除密钥时出错",
+      "upload": "上传文件时出错",
+      "wrongFile": "无效的文件类型",
+      "uploadList": "请上传 JSON 文件",
+      "invalidSelection": "无效的选择",
+      "editPassword": "更改密码时出错",
+      "editPasswordList": "密码不匹配",
+      "saveError": "保存更改时出错",
+      "profilePicturesGet": "检索个人资料图片时出错",
+      "signup": "注册时出错",
+      "apikey": "API 密钥错误",
+      "noapi": "您没有 API 密钥。请添加一个以使用 Langflow 商店。",
+      "invalidApi": "您的 API 密钥无效。请添加有效的 API 密钥以使用 Langflow 商店。",
+      "components": "获取组件时出错。",
+      "invalidFileSize": "文件大小过大。请选择小于 {{maxSizeMB}} 的文件。"
+    },
+    "notice": {
+      "noChatOutput": "流程中没有聊天输出组件。",
+      "apiWarning": "警告：关键数据，JSON 文件可能包含 API 密钥。",
+      "copied": "API 密钥已复制！",
+      "temp": "您的模板没有任何变量。"
+    },
+    "success": {
+      "code": "代码已准备就绪",
+      "prompt": "提示已准备就绪",
+      "api": "成功！您的 API 密钥已保存。",
+      "userDel": "成功！用户已删除！",
+      "userEdit": "成功！用户已编辑！",
+      "userAdd": "成功！已添加新用户！",
+      "delKey": "成功！密钥已删除！",
+      "delKeyPlural": "成功！密钥已删除！",
+      "flowBuild": "流程构建成功",
+      "save": "更改已成功保存！",
+      "consoleUpload": "文件上传成功"
+    }
+  },
+  "admin": {
+    "page": {
+      "title": "管理页面",
+      "description": "浏览此部分以有效监督所有应用程序用户。从这里,您可以无缝管理用户账户。",
+      "searchPlaceholder": "搜索用户名",
+      "newUser": "新建用户",
+      "noUsersRegistered": "未注册用户。"
+    },
+    "table": {
+      "id": "Id",
+      "username": "用户名",
+      "active": "活跃",
+      "superuser": "超级用户",
+      "createdAt": "创建时间",
+      "updatedAt": "更新时间"
+    },
+    "modal": {
+      "newUser": {
+        "title": "新建用户",
+        "header": "添加新用户",
+        "cancel": "取消",
+        "save": "保存"
+      },
+      "edit": {
+        "title": "编辑",
+        "attention": "注意!",
+        "cancel": "取消",
+        "confirm": "确认",
+        "save": "保存",
+        "confirmMessage": "您确定要对该用户进行这些更改吗?"
+      },
+      "delete": {
+        "title": "删除",
+        "header": "删除用户",
+        "attention": "注意!",
+        "cancel": "取消",
+        "confirm": "删除",
+        "confirmMessage": "您确定要删除此用户吗？此操作无法撤销。"
+      }
+    },
+    "tooltip": {
+      "edit": "编辑",
+      "delete": "删除"
+    }
+  },
+  "constants": {
+    "chat": {
+      "firstInitialText": "开始对话并点击代理的记忆",
+      "secondInitialText": "以检查之前的消息。",
+      "inputPlaceholder": "未找到聊天输入变量。点击运行您的流程。",
+      "inputPlaceholderSend": "发送消息...",
+      "langflowChatTitle": "Langflow 聊天",
+      "cannotOpenTitle": "无法打开聊天",
+      "cannotOpenDescription": "这不是一个聊天流程。",
+      "emptyInputMessage": "未提供输入消息。",
+      "emptyOutputMessage": "消息为空。"
+    },
+    "tooltip": {
+      "outdatedNode": "您的组件已过时。点击更新（数据可能会丢失）",
+      "openHiddenOutputs": "展开隐藏输出",
+      "hiddenOutputs": "折叠隐藏输出",
+      "empty": "未找到兼容的组件。"
+    },
+    "notifications": {
+      "zero": "没有新通知"
+    },
+    "build": {
+      "success": "构建成功 ✨",
+      "statusBuild": "构建以验证状态。",
+      "statusMissingFields": "请填写所有必填字段。",
+      "statusInactive": "执行已阻止",
+      "statusBuilding": "构建中...",
+      "flowNotBuiltTitle": "流程未构建",
+      "flowNotBuiltDescription": "请在聊天前构建流程。"
+    },
+    "api": {
+      "alertSaveWithApi": "注意：取消选中此框仅会从专门用于 API 密钥的字段中删除 API 密钥。",
+      "saveWithApiCheckbox": "保存我的 API 密钥",
+      "noApiKey": "您没有 API 密钥。",
+      "insertApiKey": "插入您的 Langflow API 密钥。",
+      "invalidApiKey": "您的 API 密钥无效。",
+      "createApiKey": "没有 API 密钥？请在此注册",
+      "pageParagraph": "您的 Langflow API 密钥列在下方。请勿与他人共享您的 API 密钥，或在浏览器或其他客户端代码中暴露它。",
+      "pageUserKeys": "此用户目前没有分配任何密钥。",
+      "saveSuccess": "API 密钥保存成功"
+    },
+    "modal": {
+      "editTextTitle": "编辑文本",
+      "editCodeTitle": "编辑代码",
+      "textInputTitle": "输入",
+      "outputsTitle": "输出"
+    },
+    "handler": {
+      "inputHover": "可用的输入组件：",
+      "outputHover": "可用的输出组件："
+    },
+    "collection": {
+      "myCollectionDesc": "管理您的项目。下载和上传整个集合。",
+      "storeDesc": "探索社区共享的流程和组件。",
+      "storeTitle": "Langflow 商店",
+      "userProjectsHeader": "我的收藏",
+      "defaultFolder": "入门项目",
+      "openragFolder": "OpenRAG"
+    },
+    "timestamp": {
+      "savedHover": "上次保存：",
+      "runPrefix": "上次运行：",
+      "lastUsedSpan1": "此密钥最后一次使用的时间。",
+      "lastUsedSpan2": "精确到最近使用时间的小时内。"
+    },
+    "dialog": {
+      "exportSubtitle": "将流程导出为 JSON 文件。",
+      "settingsSubtitle": "自定义您的流程详细信息和设置。",
+      "logsSubtitle": "探索组件之间事件和交易的详细日志。",
+      "codeSubtitle": "导出您的流程以使用此代码集成它。",
+      "chatFormSubtitle": "与您的 AI 互动。监控输入、输出和记忆。",
+      "editSubtitle": "调整组件的设置并定义参数可见性。记得保存您的更改。",
+      "codePromptSubtitle": "编辑您的 Python 代码片段。有关如何编写自己的组件的更多信息，请参阅 Langflow 文档。",
+      "codeDictSubtitle": "根据需要自定义您的字典，添加或编辑键值对。支持添加新对象 {} 或数组 []。",
+      "promptSubtitle": "创建您的提示。提示可以帮助指导语言模型的行为。使用大括号 {} 引入变量。",
+      "importSubtitle": "从 JSON 文件导入流程或从预先存在的示例中选择。",
+      "exportCodeDialog": "生成代码以将您的流程集成到外部应用程序中。"
+    },
+    "image": {
+      "viewConstant": "展开视图以查看图片",
+      "viewErrorMsg": "运行流程或提供有效的 URL 以查看您的图片"
+    },
+    "admin": {
+      "headerTitle": "管理页面",
+      "headerDescription": "浏览此部分以有效监督所有应用程序用户。从这里，您可以无缝管理用户账户。"
+    },
+    "error": {
+      "fetch": "无法建立连接。",
+      "fetchDescription": "检查是否一切正常并重试。",
+      "timeout": "请稍候片刻，服务器正在处理您的请求。",
+      "timeoutDescription": "服务器繁忙。",
+      "brokenEdges": "一些连接已被删除，因为它们无效：",
+      "updatingComponent": "更新组件时发生意外错误。请重试。",
+      "updatingComponentTitle": "更新组件时出错",
+      "fsError": "请确保您的文件具有以下扩展名之一：",
+      "uuidParsing": "uuid 解析"
+    },
+    "polling": {
+      "endpointNotAvailable": "端点不可用",
+      "streamingNotSupported": "不支持流式传输"
+    },
+    "signup": {
+      "success": "账户已创建！等待管理员激活。"
+    }
+  },
+  "table": {
+    "options": {
+      "addRow": "添加新行",
+      "selectToDuplicate": "选择要复制的项",
+      "duplicateSelected": "复制选中的项",
+      "selectToDelete": "选择要删除的项",
+      "deleteSelected": "删除选中的项",
+      "resetColumns": "重置列",
+      "paginationInfo": "分页信息"
+    }
+  },
+  "node": {
+    "output": {
+      "cannotDisplay": "无法显示输出",
+      "inspect": "检查输出",
+      "buildFirst": "请先构建组件",
+      "looping": "循环中"
+    }
+  },
+ "fileManager": {
+    "title": "我的文件",
+    "selectFiles": "选择文件",
+    "searchPlaceholder": "搜索文件...",
+    "noFilesFound": "未找到文件，请重试",
+    "uploadOrImport": "上传或导入文件，",
+    "orVisit": "或访问",
+    "error": {
+      "selectAtLeastOne": "请至少选择一个文件"
+    },
+    "upload": {
+      "clickOrDrag": "点击或拖拽文件到这里",
+      "dropFiles": "将文件放到这里",
+      "moreTypes": "+{{count}} 更多",
+      "maxSize": "{{size}} 最大",
+      "success": "文件上传成功",
+      "success_other": "文件上传成功",
+      "errorTitle": "上传文件时出错",
+      "errorMessage": "上传文件时发生错误"
+    },
+    "contextMenu": {
+      "rename": "重命名",
+      "download": "下载",
+      "duplicate": "复制",
+      "delete": "删除",
+      "remove": "移除"
+    },
+    "confirmation": {
+      "deleteTitle": "删除文件",
+      "removeTitle": "移除文件",
+      "confirmAction": "您确定要{{action}}\"{{fileName}}\"吗？",
+      "cancel": "取消",
+      "deleteSuccess": "文件已成功删除",
+      "deleteWarning": "此操作无法撤销。文件将被永久删除。",
+      "removeWarning": "这将从您的列表中移除该文件。如果需要，您可以稍后再添加它。"
+    }
+  },
+  "api": {
+    "modal": {
+      "title": "API 访问",
+      "inputSchema": "输入架构",
+      "description": {
+        "requiresKey": "API 访问需要 API 密钥。您可以",
+        "createKey": "创建 API 密钥",
+        "inSettings": "在设置中。"
+      },
+      "endpointName": {
+        "label": "端点名称",
+        "placeholder": "运行端点的替代名称",
+        "validation": "仅使用字母、数字、连字符和下划线（最多 {{max}} 个字符）。"
+      },
+      "exposeApi": {
+        "title": "公开 API",
+        "description": "选择要在此流程的 API 架构中作为输入公开的组件字段。"
+      }
+    }
+  },
+  "canvas": {
+    "controls": {
+      "title": "画布控制",
+      "zoomIn": "放大",
+      "zoomOut": "缩小",
+      "resetZoom": "重置为 100%",
+      "resetZoomTooltip": "重置缩放至 100%",
+      "fitView": "适应视图",
+      "fitViewTooltip": "调整视图以显示所有节点"
+    }
   }
 }

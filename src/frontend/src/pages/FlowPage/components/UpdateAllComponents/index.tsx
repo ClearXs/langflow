@@ -1,6 +1,7 @@
 import { useUpdateNodeInternals } from "@xyflow/react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useMemo, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { processNodeAdvancedFields } from "@/CustomNodes/helpers/process-node-advanced-fields";
 import useUpdateAllNodes, {
   type UpdateNodesType,
@@ -14,14 +15,6 @@ import useFlowsManagerStore from "@/stores/flowsManagerStore";
 import { useTypesStore } from "@/stores/typesStore";
 import { cn } from "@/utils/utils";
 
-const ERROR_MESSAGE_UPDATING_COMPONENTS = "Error updating components";
-const ERROR_MESSAGE_UPDATING_COMPONENTS_LIST = [
-  "There was an error updating the components.",
-  "If the error persists, please report it on our Discord or GitHub.",
-];
-const ERROR_MESSAGE_EDGES_LOST =
-  "Some edges were lost after updating the components. Please review the flow and reconnect them.";
-
 const CONTAINER_VARIANTS = {
   hidden: { opacity: 0, y: 20 },
   visible: { opacity: 1, y: 0 },
@@ -29,6 +22,8 @@ const CONTAINER_VARIANTS = {
 };
 
 export default function UpdateAllComponents() {
+  const { t } = useTranslation();
+  
   const { componentsToUpdate, nodes, edges, setNodes } = useFlowStore();
   const templates = useTypesStore((state) => state.templates);
   const setErrorData = useAlertStore((state) => state.setErrorData);
@@ -76,18 +71,16 @@ export default function UpdateAllComponents() {
       edgesUpdateRef.current.updateComponent
     ) {
       useAlertStore.getState().setNoticeData({
-        title: ERROR_MESSAGE_EDGES_LOST,
+        title: t("components.update.edgesLost"),
       });
 
       resetEdgesUpdateRef();
     }
-  }, [edges]);
+  }, [edges, t]);
 
   const getSuccessTitle = (updatedCount: number) => {
     resetEdgesUpdateRef();
-    return `Successfully updated ${updatedCount} component${
-      updatedCount > 1 ? "s" : ""
-    }`;
+    return t("components.update.successUpdated", { count: updatedCount });
   };
 
   const breakingChanges = componentsToUpdateFiltered.filter(
@@ -162,8 +155,11 @@ export default function UpdateAllComponents() {
       })
       .catch((error) => {
         setErrorData({
-          title: ERROR_MESSAGE_UPDATING_COMPONENTS,
-          list: ERROR_MESSAGE_UPDATING_COMPONENTS_LIST,
+          title: t("components.update.errorUpdating"),
+          list: [
+            t("components.update.errorUpdatingList1"),
+            t("components.update.errorUpdatingList2"),
+          ],
         });
         console.error(error);
       })
@@ -219,12 +215,9 @@ export default function UpdateAllComponents() {
             >
               <div className="flex items-center gap-3">
                 <span>
-                  Update
-                  {componentsToUpdateFiltered.length > 1 ? "s are" : " is"}{" "}
-                  available for{" "}
-                  {componentsToUpdateFiltered.length +
-                    " component" +
-                    (componentsToUpdateFiltered.length > 1 ? "s" : "")}
+                  {t("components.update.updateAvailable", {
+                    count: componentsToUpdateFiltered.length,
+                  })}
                 </span>
               </div>
               <div className="flex items-center gap-4">
@@ -234,7 +227,9 @@ export default function UpdateAllComponents() {
                   className="shrink-0 text-sm"
                   onClick={handleDismissAllComponents}
                 >
-                  Dismiss {componentsToUpdateFiltered.length > 1 ? "All" : ""}
+                  {componentsToUpdateFiltered.length > 1
+                    ? t("components.update.dismissAll")
+                    : t("components.update.dismiss")}
                 </Button>
                 <Button
                   size="sm"
@@ -243,7 +238,9 @@ export default function UpdateAllComponents() {
                   loading={loadingUpdate}
                   data-testid="update-all-button"
                 >
-                  {breakingChanges.length > 0 ? "Review All" : "Update All"}
+                  {breakingChanges.length > 0
+                    ? t("components.update.reviewAll")
+                    : t("components.update.updateAll")}
                 </Button>
               </div>
               <UpdateComponentModal

@@ -22,6 +22,7 @@ import useAuthStore from "@/stores/authStore";
 import useFlowStore from "@/stores/flowStore";
 import useFlowsManagerStore from "@/stores/flowsManagerStore";
 import { cn } from "@/utils/utils";
+import { useTranslation } from "react-i18next";
 
 type PublishDropdownProps = {
   openApiModal: boolean;
@@ -32,6 +33,7 @@ export default function PublishDropdown({
   openApiModal,
   setOpenApiModal,
 }: PublishDropdownProps) {
+  const { t } = useTranslation();
   const location = useHref("/");
   const domain = window.location.origin + location;
   const [openEmbedModal, setOpenEmbedModal] = useState(false);
@@ -69,19 +71,29 @@ export default function PublishDropdown({
             setCurrentFlow(updatedFlow);
           } else {
             setErrorData({
-              title: "Failed to save flow",
-              list: ["Flows variable undefined"],
+              title: t("flow.share.error.saveFailedTitle"),
+              list: [t("flow.share.error.flowsUndefined")],
             });
           }
         },
         onError: (e) => {
           setErrorData({
-            title: "Failed to save flow",
+            title: t("flow.share.error.saveFailedTitle"),
             list: [e.message],
           });
         },
       },
     );
+  };
+
+  const getPlaygroundTooltip = () => {
+    if (!hasIO) {
+      return t("flow.share.tooltip.addChatIO");
+    }
+    if (isPublished) {
+      return encodeURI(`${domain}/playground/${flowId}`);
+    }
+    return t("flow.share.tooltip.activateToShare");
   };
 
   return (
@@ -94,7 +106,7 @@ export default function PublishDropdown({
             className="!px-2.5 font-normal"
             data-testid="publish-button"
           >
-            Share
+            {t("flow.share.button")}
             <IconComponent name="ChevronDown" className="!h-5 !w-5" />
           </Button>
         </DropdownMenuTrigger>
@@ -111,14 +123,14 @@ export default function PublishDropdown({
             data-testid="api-access-item"
           >
             <IconComponent name="Code2" className={`icon-size mr-2`} />
-            <span>API access</span>
+            <span>{t("flow.share.menu.apiAccess")}</span>
           </DropdownMenuItem>
           <DropdownMenuItem
             className="deploy-dropdown-item group"
             onClick={() => setOpenExportModal(true)}
           >
             <IconComponent name="Download" className={`icon-size mr-2`} />
-            <span>Export</span>
+            <span>{t("flow.share.menu.export")}</span>
           </DropdownMenuItem>
           <CustomLink
             className={cn("flex-1")}
@@ -131,7 +143,7 @@ export default function PublishDropdown({
               data-testid="mcp-server-item"
             >
               <IconComponent name="Mcp" className={`icon-size mr-2`} />
-              <span>MCP Server</span>
+              <span>{t("flow.share.menu.mcpServer")}</span>
               <IconComponent
                 name="ExternalLink"
                 className={`icon-size ml-auto hidden group-hover:block`}
@@ -144,7 +156,7 @@ export default function PublishDropdown({
               className="deploy-dropdown-item group"
             >
               <IconComponent name="Columns2" className={`icon-size mr-2`} />
-              <span>Embed into site</span>
+              <span>{t("flow.share.menu.embedIntoSite")}</span>
             </DropdownMenuItem>
           )}
 
@@ -160,13 +172,7 @@ export default function PublishDropdown({
                   <ShadTooltipComponent
                     styleClasses="truncate"
                     side="left"
-                    content={
-                      hasIO
-                        ? isPublished
-                          ? encodeURI(`${domain}/playground/${flowId}`)
-                          : "Activate to share a public version of this Playground"
-                        : "Add a Chat Input or Chat Output to access your flow"
-                    }
+                    content={getPlaygroundTooltip()}
                   >
                     <div className="flex items-center">
                       <IconComponent
@@ -183,11 +189,11 @@ export default function PublishDropdown({
                           to={`/playground/${flowId}`}
                           target="_blank"
                         >
-                          <span>Shareable Playground</span>
+                          <span>{t("flow.share.menu.shareablePlayground")}</span>
                         </CustomLink>
                       ) : (
                         <span className={cn(!isPublished && "opacity-50")}>
-                          Shareable Playground
+                          {t("flow.share.menu.shareablePlayground")}
                         </span>
                       )}
                     </div>

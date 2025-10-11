@@ -718,7 +718,9 @@ export const useMessageLocale = () => {
       "PDF_LOAD_ERROR": t("messages.pdfLoadError"),
       "IMG_VIEW_CONSTANT": t("messages.imgViewConstant"),
       "IMG_VIEW_ERROR_MSG": t("messages.imgViewErrorMsg"),
-      "IMG_VIEW_ERROR_TITLE": t("messages.imgViewErrorTitle")
+      "IMG_VIEW_ERROR_TITLE": t("messages.imgViewErrorTitle"),
+      "FLOW_BUILT_FAILED": t("messages.flowBuildFailed"),
+      "FLOW_BUILT_SUCCESSFULLY": t("messages.flowBuiltSuccessfully"),
     }
   },[])
 }

@@ -152,6 +152,8 @@
     "twitter": "Twitter"
   },
   "settings": {
+    "displayName": "Settings",
+    "description": "Manage the general settings for Langflow.",
     "version": "Version",
     "general": "General",
     "apiKeys": "API Keys",
@@ -170,7 +172,6 @@
     "stopFlow": "Stop Flow",
     "buildFlow": "Build Flow",
     "playground": "Playground",
-    "share": "Share",
     "duplicate": "Duplicate",
     "rename": "Rename",
     "delete": "Delete",
@@ -178,6 +179,24 @@
     "unlock": "Unlock",
     "freeze": "Freeze",
     "unfreeze": "Unfreeze",
+    "share": {
+      "button": "Share",
+      "menu": {
+        "apiAccess": "API access",
+        "export": "Export",
+        "mcpServer": "MCP Server",
+        "embedIntoSite": "Embed into site",
+        "shareablePlayground": "Shareable Playground"
+      },
+      "tooltip": {
+        "addChatIO": "Add a Chat Input or Chat Output to access your flow",
+        "activateToShare": "Activate to share a public version of this Playground"
+      },
+      "error": {
+        "saveFailedTitle": "Failed to save flow",
+        "flowsUndefined": "Flows variable undefined"
+      }
+    },
     "sidebar": {
       "common": {
         "search": "Search",
@@ -221,7 +240,7 @@
         "toolkits": "Toolkits",
         "tools": "Tools"
       },
-            "bundles": {
+      "bundles": {
         "aimlApi": "AI/ML API",
         "agentql": "AgentQL",
         "languageModels": "Language Models",
@@ -318,6 +337,11 @@
       }
     }
   },
+  "codeAreaModal": {
+    "title": "Caution",
+    "confirmationText": "Are you sure you want to exit without saving your changes?",
+    "cancelText": "Discard Changes"
+  },
   "components": {
     "addComponent": "Add Component",
     "removeComponent": "Remove Component",
@@ -327,6 +351,81 @@
     "inputParameters": "Input Parameters",
     "outputParameters": "Output Parameters",
     "advancedSettings": "Advanced Settings",
+    "output": {
+      "title": "Component Output",
+      "description": "Inspect the output of the component below.",
+      "tabs": {
+        "outputs": "Outputs",
+        "logs": "Logs"
+      }
+    },
+    "nodeLegacy": {
+      "legacy": "Legacy",
+      "dismiss": "Dismiss",
+      "dismissWarningBar": "Dismiss warning bar",
+      "use": "Use",
+      "noDirectReplacement": "No direct replacement."
+    },
+    "nodeUpdate": {
+      "updateAvailable": "Update available",
+      "updateReady": "Update ready",
+      "dismiss": "Dismiss",
+      "review": "Review",
+      "update": "Update",
+      "dismissWarningBar": "Dismiss warning bar"
+    },
+    "update": {
+      "errorUpdating": "Error updating components",
+      "errorUpdatingList1": "There was an error updating the components.",
+      "errorUpdatingList2": "If the error persists, please report it on our Discord or GitHub.",
+      "edgesLost": "Some edges were lost after updating the components. Please review the flow and reconnect them.",
+      "successUpdated": "Successfully updated {{count}} component",
+      "successUpdated_other": "Successfully updated {{count}} components",
+      "updateAvailable": "Update is available for {{count}} component",
+      "updateAvailable_other": "Updates are available for {{count}} components",
+      "dismiss": "Dismiss",
+      "dismissAll": "Dismiss All",
+      "updateAll": "Update All",
+      "reviewAll": "Review All"
+    },
+    "updateModal": {
+      "title": "Update {{name}}",
+      "titleMultiple": "Update components",
+      "component": "Component",
+      "updateType": "Update Type",
+      "breaking": "Breaking",
+      "standard": "Standard",
+      "breakingWarningMultiple": "Updates marked as <strong>breaking</strong> may change inputs, outputs, or component behavior. In some cases, they will disconnect components from your flow, requiring you to review or reconnect them afterward. Components added from the sidebar always use the latest version.",
+      "breakingWarningSingle1": "This update may change inputs, outputs, or component behavior. In some cases, it will <strong>disconnect this component from your flow</strong>, requiring you to review or reconnect it afterward.",
+      "breakingWarningSingle2": "Components added from the sidebar always use the latest version.",
+      "createBackup": "Create backup flow before updating",
+      "updateComponent": "Update Component",
+      "updateComponents": "Update Components"
+    },
+    "handle": {
+      "cantConnectSameNode": "Can't connect to the same node",
+      "connectTo": "Connect",
+      "to": "to",
+      "incompatibleWith": "Incompatible with",
+      "inputType": "Input type",
+      "inputTypes": "Input types",
+      "outputType": "Output type", 
+      "outputTypes": "Output types",
+      "input": "input",
+      "output": "output",
+      "dragToConnect": "Drag to connect compatible",
+      "inputs": "inputs",
+      "outputs": "outputs",
+      "clickToFilter": "Click to filter compatible",
+      "andComponents": "and components"
+    },
+    "multiselect": {
+      "chooseOption": "Choose an option...",
+      "searchPlaceholder": "Search options...",
+      "noValuesFound": "No values found.",
+      "noParametersAvailable": "No parameters are available for display.",
+      "textPrefix": "Text:"
+    },
     "table": {
       "column": {
         "fileName": "File Name",
@@ -344,9 +443,88 @@
       "close": "Close",
       "replace": "Replace",
       "finishEditing": "Finish Editing",
+      "retry": "Retry",
+      "dismiss": "Dismiss",
+      "stop": "Stop",
+      "selectFiles": "Select files",
+      "addNew": "Add New",
+      "addNewVariable": "Add New Variable",
+      "export": "Export",
+      "all": "ALL",
+      "flows": "Flows",
+      "components": "Components",
+      "bundles": "Bundles",
       "tips": {
         "editMessage": "Editing messages will update the memory but won't restart the conversation."
       }
+    }
+  },
+  "storePage": {
+    "apiKey": "API Key",
+    "filterValues": "Filter Values",
+    "all": "All",
+    "createdByMe": "Created By Me",
+    "likedByMe": "Liked By Me",
+    "popular": "Popular",
+    "alphabetical": "Alphabetical",
+    "result": "result",
+    "results": "results",
+    "emptyCreatedByMe": "You haven't created anything with the selected filters yet.",
+    "emptyLikedByMe": "You haven't liked anything with the selected filters yet.",
+    "emptyFlows": "There are no Flows with the selected filters.",
+    "emptyComponents": "There are no Components with the selected filters.",
+    "comingSoon": "Coming Soon"
+  },
+  "storeApiKeyForm": {
+    "title": "Store API Key",
+    "placeholder": "Insert your API Key",
+    "validationMessage": "Please enter your API Key",
+    "save": "Save"
+  },
+  "flowMenu": {
+    "untitledFlow": "Untitled Flow",
+    "savedSuccessfully": "Saved successfully",
+    "saving": "Saving...",
+    "saveChanges": "Save Changes",
+    "never": "Never"
+  },
+  "mcp": {
+  },
+  "variable": {
+    "globalVariables": "Global Variables",
+    "description": "Manage global variables and assign them to fields.",
+    "table": {
+      "variableName": "Variable Name",
+      "type": "Type",
+      "value": "Value", 
+      "applyToFields": "Apply To Fields"
+    },
+    "message": {
+      "errorDeletingVariable": "Error deleting variable",
+      "idNotFound": "ID not found for variable",
+      "variableCreatedSuccessfully": "Variable {{name}} created successfully",
+      "variableUpdatedSuccessfully": "Variable {{name}} updated successfully",
+      "errorCreatingVariable": "Error creating variable",
+      "errorUpdatingVariable": "Error updating variable",
+      "unexpectedErrorCreating": "An unexpected error occurred while creating variable. Please try again.",
+      "unexpectedErrorUpdating": "An unexpected error occurred while updating variable. Please try again."
+    },
+    "modal": {
+      "title": "Create Variable",
+      "updateTitle": "Update Variable",
+      "description": "This variable will be available for use across your flows.",
+      "typeLabel": "Type*",
+      "credentialTab": "Credential",
+      "genericTab": "Generic",
+      "nameLabel": "Name*",
+      "namePlaceholder": "Enter a name for the variable...",
+      "valueLabel": "Value*",
+      "valuePlaceholder": "Enter a value for the variable...",
+      "applyToFieldsLabel": "Apply to fields",
+      "applyToFieldsPlaceholder": "Choose a field for the variable...",
+      "applyToFieldsDescription": "Selected fields will auto-apply the variable as a default value.",
+      "saveButton": "Save Variable",
+      "updateButton": "Update Variable"
     }
   },
   "messages": {
@@ -379,7 +557,9 @@
     "pdfLoadError": "Run the flow to see the pdf",
     "imgViewConstant": "Expand the view to see the image",
     "imgViewErrorMsg": "Run the flow or inform a valid url to see your image",
-    "imgViewErrorTitle": "Image output"
+    "imgViewErrorTitle": "Image output",
+    "flowBuildFailed": "Flow build failed",
+    "flowBuiltSuccessfully": "Flow built successfully"
   },
   "forms": {
     "required": "This field is required",
@@ -447,5 +627,384 @@
     "outputInspection": "Output Inspection",
     "toolMode": "Tool Mode",
     "toggleSidebar": "Toggle Sidebar"
+  },
+  "chat": {
+    "view": {
+      "logoTitle": "Langflow logo",
+      "newChat": "New chat",
+      "testPrompt": "Test your flow with a chat prompt"
+    },
+    "message": {
+      "editMessage": "Edit message",
+      "copyMessage": "Copy message",
+      "copied": "Copied!",
+      "helpful": "Helpful",
+      "notHelpful": "Not helpful"
+    },
+    "session": {
+      "defaultSession": "Default Session",
+      "newChat": "New Chat",
+      "options": "Options",
+      "rename": "Rename",
+      "messageLogs": "Message logs",
+      "delete": "Delete"
+    },
+    "sidebar": {
+      "title": "Chat"
+    },
+    "playground": {
+      "title": "Playground",
+      "hideSidebar": "Hide sidebar",
+      "theme": "Theme",
+      "builtWithLangflow": "Built with Langflow",
+      "sessionDeleteSuccess": "Session deleted successfully.",
+      "sessionDeleteError": "Error deleting session."
+    },
+    "input": {
+      "runFlow": "Run Flow",
+      "stop": "Stop",
+      "addChatInput": "Add a",
+      "chatInputLink": "Chat Input",
+      "componentToSendMessages": "component to your flow to send messages."
+    },
+    "error": {
+      "flowRunning": "Flow running...",
+      "errorOccurred": "An error occured in the",
+      "componentStopping": "Component, stopping your flow. See below for more details.",
+      "errorDetails": "Error details:",
+      "field": "Field:",
+      "stepsToFix": "Steps to fix:",
+      "step1": "Check the component settings",
+      "step2": "Ensure all required fields are filled",
+      "step3": "Re-run your flow"
+    }
+  },
+  "modal": {
+    "text": {
+      "viewText": "View Text"
+    },
+    "dictionary": {
+      "editTitle": "Edit Dictionary",
+      "viewTitle": "View Dictionary",
+      "description": {
+        "customize": "Customize your dictionary, adding or editing key-value pairs as needed. Supports adding new",
+        "objects": "objects { }",
+        "or": "or",
+        "arrays": "arrays []."
+      },
+      "save": "Save",
+      "errorTitle": "Error getting dictionary",
+      "errorMessage": "Check your dictionary format"
+    }
+  },
+  "signUpPage": {
+    "title": "Sign up for Langflow",
+    "username": "Username",
+    "password": "Password",
+    "confirmPassword": "Confirm your password",
+    "required": "*",
+    "usernamePlaceholder": "Username",
+    "passwordPlaceholder": "Password",
+    "confirmPasswordPlaceholder": "Confirm your password",
+    "usernameRequired": "Please enter your username",
+    "passwordRequired": "Please enter a password",
+    "confirmPasswordRequired": "Please confirm your password",
+    "passwordsNotMatch": "Passwords do not match",
+    "signUpButton": "Sign up",
+    "alreadyHaveAccount": "Already have an account?",
+    "signIn": "Sign in"
+  },
+  "alerts": {
+    "error": {
+      "missed": "Oops! Looks like you missed something",
+      "incompleteLoop": "The flow has an incomplete loop. Check your connections and try again.",
+      "invalidFile": "Please select a valid file. Only these file types are allowed:",
+      "consoleError": "Error occurred while uploading file",
+      "infoMissing": "Oops! Looks like you missed some required information:",
+      "funcError": "There is an error in your function",
+      "importError": "There is an error in your imports",
+      "bug": "Something went wrong, please try again",
+      "codeError": "There is something wrong with this code, please review it",
+      "chatError": "Please build the flow again before using the chat.",
+      "msgError": "There was an error sending the message",
+      "promptError": "There is something wrong with this prompt, please review it",
+      "apiError": "There was an error saving the API Key, please try again.",
+      "userDel": "Error on delete user",
+      "userEdit": "Error on edit user",
+      "userAdd": "Error when adding new user",
+      "signin": "Error signing in",
+      "delKey": "Error on delete key",
+      "delKeyPlural": "Error on delete keys",
+      "upload": "Error uploading file",
+      "wrongFile": "Invalid file type",
+      "uploadList": "Please upload a JSON file",
+      "invalidSelection": "Invalid selection",
+      "editPassword": "Error changing password",
+      "editPasswordList": "Passwords do not match",
+      "saveError": "Error saving changes",
+      "profilePicturesGet": "Error retrieving profile pictures",
+      "signup": "Error signing up",
+      "apikey": "API Key Error",
+      "noapi": "You don't have an API Key. Please add one to use the Langflow Store.",
+      "invalidApi": "Your API Key is not valid. Please add a valid API Key to use the Langflow Store.",
+      "components": "Error getting components.",
+      "invalidFileSize": "The file size is too large. Please select a file smaller than {{maxSizeMB}}."
+    },
+    "notice": {
+      "noChatOutput": "There is no ChatOutput Component in the flow.",
+      "apiWarning": "Warning: Critical data, JSON file may include API keys.",
+      "copied": "API Key copied!",
+      "temp": "Your template does not have any variables."
+    },
+    "success": {
+      "code": "Code is ready to run",
+      "prompt": "Prompt is ready",
+      "api": "Success! Your API Key has been saved.",
+      "userDel": "Success! User deleted!",
+      "userEdit": "Success! User edited!",
+      "userAdd": "Success! New user added!",
+      "delKey": "Success! Key deleted!",
+      "delKeyPlural": "Success! Keys deleted!",
+      "flowBuild": "Flow built successfully",
+      "save": "Changes saved successfully!",
+      "consoleUpload": "File uploaded successfully"
+    }
+  },
+  "admin": {
+    "page": {
+      "title": "Admin Page",
+      "description": "Navigate through this section to efficiently oversee all application users. From here, you can seamlessly manage user accounts.",
+      "searchPlaceholder": "Search Username",
+      "newUser": "New User",
+      "noUsersRegistered": "No users registered."
+    },
+    "table": {
+      "id": "Id",
+      "username": "Username",
+      "active": "Active",
+      "superuser": "Superuser",
+      "createdAt": "Created At",
+      "updatedAt": "Updated At"
+    },
+    "modal": {
+      "newUser": {
+        "title": "New User",
+        "header": "Add a new user",
+        "cancel": "Cancel",
+        "save": "Save"
+      },
+      "edit": {
+        "title": "Edit",
+        "attention": "Attention!",
+        "cancel": "Cancel",
+        "confirm": "Confirm",
+        "save": "Save",
+        "confirmMessage": "Are you completely confident about the changes you are making to this user?"
+      },
+      "delete": {
+        "title": "Delete",
+        "header": "Delete User",
+        "attention": "Attention!",
+        "cancel": "Cancel",
+        "confirm": "Delete",
+        "confirmMessage": "Are you sure you want to delete this user? This action cannot be undone."
+      }
+    },
+    "tooltip": {
+      "edit": "Edit",
+      "delete": "Delete"
+    }
+  },
+  "constants": {
+    "chat": {
+      "firstInitialText": "Start a conversation and click the agent's memories",
+      "secondInitialText": "to inspect previous messages.",
+      "inputPlaceholder": "No chat input variables found. Click to run your flow.",
+      "inputPlaceholderSend": "Send a message...",
+      "langflowChatTitle": "Langflow Chat",
+      "cannotOpenTitle": "Chat Cannot Open",
+      "cannotOpenDescription": "This is not a chat flow.",
+      "emptyInputMessage": "No input message provided.",
+      "emptyOutputMessage": "Message empty."
+    },
+    "tooltip": {
+      "outdatedNode": "Your component is outdated. Click to update (data may be lost)",
+      "openHiddenOutputs": "Expand hidden outputs",
+      "hiddenOutputs": "Collapse hidden outputs",
+      "empty": "No compatible components found."
+    },
+    "notifications": {
+      "zero": "No new notifications"
+    },
+    "build": {
+      "success": "Built successfully ✨",
+      "statusBuild": "Build to validate status.",
+      "statusMissingFields": "Please fill all the required fields.",
+      "statusInactive": "Execution blocked",
+      "statusBuilding": "Building...",
+      "flowNotBuiltTitle": "Flow not built",
+      "flowNotBuiltDescription": "Please build the flow before chatting."
+    },
+    "api": {
+      "alertSaveWithApi": "Caution: Unchecking this box only removes API keys from fields specifically designated for API keys.",
+      "saveWithApiCheckbox": "Save with my API keys",
+      "noApiKey": "You don't have an API key.",
+      "insertApiKey": "Insert your Langflow API key.",
+      "invalidApiKey": "Your API key is not valid. ",
+      "createApiKey": "Don't have an API key? Sign up at",
+      "pageParagraph": "Your secret Langflow API keys are listed below. Do not share your API key with others, or expose it in the browser or other client-side code.",
+      "pageUserKeys": "This user does not have any keys assigned at the moment.",
+      "saveSuccess": "API key saved successfully"
+    },
+    "modal": {
+      "editTextTitle": "Edit Text",
+      "editCodeTitle": "Edit Code",
+      "textInputTitle": "Inputs",
+      "outputsTitle": "Outputs"
+    },
+    "handler": {
+      "inputHover": "Available input components:",
+      "outputHover": "Available output components:"
+    },
+    "collection": {
+      "myCollectionDesc": "Manage your projects. Download and upload entire collections.",
+      "storeDesc": "Explore community-shared flows and components.",
+      "storeTitle": "Langflow Store",
+      "userProjectsHeader": "My Collection",
+      "defaultFolder": "Starter Project",
+      "openragFolder": "OpenRAG"
+    },
+    "timestamp": {
+      "savedHover": "Last saved: ",
+      "runPrefix": "Last Run: ",
+      "lastUsedSpan1": "The last time this key was used.",
+      "lastUsedSpan2": "Accurate to within the hour from the most recent usage."
+    },
+    "dialog": {
+      "exportSubtitle": "Export flow as JSON file.",
+      "settingsSubtitle": "Customize your flow details and settings.",
+      "logsSubtitle": "Explore detailed logs of events and transactions between components.",
+      "codeSubtitle": "Export your flow to integrate it using this code.",
+      "chatFormSubtitle": "Interact with your AI. Monitor inputs, outputs and memories.",
+      "editSubtitle": "Adjust component's settings and define parameter visibility. Remember to save your changes.",
+      "codePromptSubtitle": "Edit your Python code snippet. Refer to the Langflow documentation for more information on how to write your own component.",
+      "codeDictSubtitle": "Customize your dictionary, adding or editing key-value pairs as needed. Supports adding new objects {} or arrays [].",
+      "promptSubtitle": "Create your prompt. Prompts can help guide the behavior of a Language Model. Use curly brackets {} to introduce variables.",
+      "importSubtitle": "Import flows from a JSON file or choose from pre-existing examples.",
+      "exportCodeDialog": "Generate the code to integrate your flow into an external application."
+    },
+    "image": {
+      "viewConstant": "Expand the view to see the image",
+      "viewErrorMsg": "Run the flow or inform a valid url to see your image"
+    },
+    "admin": {
+      "headerTitle": "Admin Page",
+      "headerDescription": "Navigate through this section to efficiently oversee all application users. From here, you can seamlessly manage user accounts."
+    },
+    "error": {
+      "fetch": "Couldn't establish a connection.",
+      "fetchDescription": "Check if everything is working properly and try again.",
+      "timeout": "Please wait a few moments while the server processes your request.",
+      "timeoutDescription": "Server is busy.",
+      "brokenEdges": "Some connections were removed because they were invalid:",
+      "updatingComponent": "An unexpected error occurred while updating the Component. Please try again.",
+      "updatingComponentTitle": "Error while updating the Component",
+      "fsError": "Please ensure your file has one of the following extensions:",
+      "uuidParsing": "uuid_parsing"
+    },
+    "polling": {
+      "endpointNotAvailable": "Endpoint not available",
+      "streamingNotSupported": "Streaming not supported"
+    },
+    "signup": {
+      "success": "Account created! Await admin activation. "
+    }
+  },
+  "table": {
+    "options": {
+      "addRow": "Add a new row",
+      "selectToDuplicate": "Select items to duplicate",
+      "duplicateSelected": "Duplicate selected items",
+      "selectToDelete": "Select items to delete",
+      "deleteSelected": "Delete selected items",
+      "resetColumns": "Reset Columns",
+      "paginationInfo": "Pagination Info"
+    }
+  },
+  "node": {
+    "output": {
+      "cannotDisplay": "Output can't be displayed",
+      "inspect": "Inspect output",
+      "buildFirst": "Please build the component first",
+      "looping": "Looping"
+    }
+  },
+  "fileManager": {
+    "title": "My Files",
+    "selectFiles": "Select Files",
+    "searchPlaceholder": "Search files...",
+    "noFilesFound": "No files found, try again",
+    "uploadOrImport": "Upload or import files,",
+    "orVisit": "or visit",
+    "error": {
+      "selectAtLeastOne": "Please select at least one file"
+    },
+    "upload": {
+      "clickOrDrag": "Click or drag files here",
+      "dropFiles": "Drop files here",
+      "moreTypes": "+{{count}} more",
+      "maxSize": "{{size}} max",
+      "success_one": "File uploaded successfully",
+      "success_other": "Files uploaded successfully",
+      "errorTitle": "Error uploading file",
+      "errorMessage": "An error occurred while uploading the file"
+    },
+    "contextMenu": {
+      "rename": "Rename",
+      "download": "Download",
+      "duplicate": "Duplicate",
+      "delete": "Delete",
+      "remove": "Remove"
+    },
+    "confirmation": {
+      "deleteTitle": "Delete File",
+      "removeTitle": "Remove File",
+      "confirmAction": "Are you sure you want to {{action}} \"{{fileName}}\"?",
+      "cancel": "Cancel",
+      "deleteSuccess": "The file has been deleted successfully",
+      "deleteWarning": "This action cannot be undone. The file will be permanently deleted.",
+      "removeWarning": "This will remove the file from your list. You can add it back later if needed."
+    }
+  },
+  "api": {
+    "modal": {
+      "title": "API access",
+      "inputSchema": "Input Schema",
+      "description": {
+        "requiresKey": "API access requires an API key. You can",
+        "createKey": "create an API key",
+        "inSettings": "in settings."
+      },
+      "endpointName": {
+        "label": "Endpoint Name",
+        "placeholder": "An alternative name to run the endpoint",
+        "validation": "Use only letters, numbers, hyphens, and underscores ({{max}} characters max)."
+      },
+      "exposeApi": {
+        "title": "Expose API",
+        "description": "Select which component fields to expose as inputs in this flow's API schema."
+      }
+    }
+  },
+  "canvas": {
+    "controls": {
+      "title": "Canvas Controls",
+      "zoomIn": "Zoom In",
+      "zoomOut": "Zoom Out",
+      "resetZoom": "Zoom To 100%",
+      "resetZoomTooltip": "Reset zoom to 100%",
+      "fitView": "Zoom To Fit",
+      "fitViewTooltip": "Fit view to show all nodes"
+    }
   }
 }

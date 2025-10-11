@@ -7,6 +7,7 @@ import { CustomLink } from "@/customization/components/custom-link";
 import { sortByBoolean, sortByDate } from "@/pages/MainPage/utils/sort-flows";
 import type { FileType } from "@/types/file_management";
 import FilesRendererComponent from "../filesRendererComponent";
+import { useTranslation } from "react-i18next";
 
 export default function RecentFilesComponent({
   files,
@@ -21,6 +22,8 @@ export default function RecentFilesComponent({
   types: string[];
   isList: boolean;
 }) {
+  const { t } = useTranslation();
+  
   const filesWithDisabled = useMemo(
     () =>
       files.map((file) => {
@@ -148,7 +151,7 @@ export default function RecentFilesComponent({
         <div className="flex-1">
           <Input
             icon="Search"
-            placeholder="Search files..."
+            placeholder={t("fileManager.searchPlaceholder")}
             inputClassName="h-8"
             data-testid="search-files-input"
             value={searchQuery}
@@ -174,14 +177,14 @@ export default function RecentFilesComponent({
           <div className="flex h-full w-full items-center justify-center text-sm">
             <span>
               {searchQuery !== ""
-                ? "No files found, try again "
-                : "Upload or import files, "}
-              or visit{" "}
+                ? t("fileManager.noFilesFound")
+                : t("fileManager.uploadOrImport")}{" "}
+              {t("fileManager.orVisit")}{" "}
               <CustomLink
                 className="text-accent-pink-foreground underline"
                 to="/files"
               >
-                My Files.
+                {t("fileManager.title")}
               </CustomLink>
             </span>
           </div>

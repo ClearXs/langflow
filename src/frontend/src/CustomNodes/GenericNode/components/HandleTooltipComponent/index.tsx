@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { convertTestName } from "@/components/common/storeCardComponent/utils/convert-test-name";
 import { Badge } from "@/components/ui/badge";
 import { nodeColorsName } from "@/utils/styleUtils";
@@ -17,28 +18,37 @@ export default function HandleTooltipComponent({
   isSameNode: boolean;
   left: boolean;
 }) {
+  const { t } = useTranslation();
+  
   const tooltips = tooltipTitle.split("\n");
-  const plural = tooltips.length > 1 ? "s" : "";
+  const plural = tooltips.length > 1;
 
   return (
     <div className="font-medium">
       {isSameNode ? (
-        "Can't connect to the same node"
+        t("components.handle.cantConnectSameNode")
       ) : (
         <div className="flex items-center gap-1.5">
           {isConnecting ? (
             isCompatible ? (
               <span>
-                <span className="font-semibold">Connect</span> to
+                <span className="font-semibold">
+                  {t("components.handle.connectTo")}
+                </span>{" "}
+                {t("components.handle.to")}
               </span>
             ) : (
-              <span>Incompatible with</span>
+              <span>{t("components.handle.incompatibleWith")}</span>
             )
           ) : (
             <span className="text-xs">
               {isInput
-                ? `Input${plural} type${plural}`
-                : `Output${plural} type${plural}`}
+                ? plural
+                  ? t("components.handle.inputTypes")
+                  : t("components.handle.inputType")
+                : plural
+                  ? t("components.handle.outputTypes")
+                  : t("components.handle.outputType")}
               :{" "}
             </span>
           )}
@@ -59,17 +69,31 @@ export default function HandleTooltipComponent({
               {word}
             </Badge>
           ))}
-          {isConnecting && <span>{isInput ? `input` : `output`}</span>}
+          {isConnecting && (
+            <span>
+              {isInput
+                ? t("components.handle.input")
+                : t("components.handle.output")}
+            </span>
+          )}
         </div>
       )}
       {!isConnecting && (
         <div className="mt-2 flex flex-col gap-0.5 text-xs leading-6">
           <div>
-            <b>Drag</b> to connect compatible {!isInput ? "inputs" : "outputs"}
+            <b>{t("common.copy")}</b>{" "}
+            {t("components.handle.dragToConnect")}{" "}
+            {!isInput
+              ? t("components.handle.inputs")
+              : t("components.handle.outputs")}
           </div>
           <div>
-            <b>Click</b> to filter compatible {!isInput ? "inputs" : "outputs"}{" "}
-            and components
+            <b>{t("common.select")}</b>{" "}
+            {t("components.handle.clickToFilter")}{" "}
+            {!isInput
+              ? t("components.handle.inputs")
+              : t("components.handle.outputs")}{" "}
+            {t("components.handle.andComponents")}
           </div>
         </div>
       )}

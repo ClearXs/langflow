@@ -5,6 +5,7 @@ import useUploadFile from "@/hooks/files/use-upload-file";
 import useAlertStore from "@/stores/alertStore";
 import { useUtilityStore } from "@/stores/utilityStore";
 import { formatFileSize } from "@/utils/stringManipulation";
+import { useTranslation } from "react-i18next";
 
 export default function DragFilesComponent({
   onUpload,
@@ -15,6 +16,7 @@ export default function DragFilesComponent({
   types: string[];
   isList: boolean;
 }) {
+  const { t } = useTranslation();
   const [isDragging, setIsDragging] = useState(false);
   const uploadFile = useUploadFile({
     types,
@@ -57,15 +59,13 @@ export default function DragFilesComponent({
         if (filesIds.length > 0) {
           onUpload(filesIds);
           setSuccessData({
-            title: `File${
-              filesIds.length > 1 ? "s" : ""
-            } uploaded successfully`,
+            title: t("fileManager.upload.success", { count: filesIds.length }),
           });
         }
       } catch (error: any) {
         setErrorData({
-          title: "Error uploading file",
-          list: [error.message || "An error occurred while uploading the file"],
+          title: t("fileManager.upload.errorTitle"),
+          list: [error.message || t("fileManager.upload.errorMessage")],
         });
       }
     }
@@ -77,13 +77,13 @@ export default function DragFilesComponent({
       if (filesIds.length > 0) {
         onUpload(filesIds);
         setSuccessData({
-          title: `File${filesIds.length > 1 ? "s" : ""} uploaded successfully`,
+          title: t("fileManager.upload.success", { count: filesIds.length }),
         });
       }
     } catch (error: any) {
       setErrorData({
-        title: "Error uploading file",
-        list: [error.message || "An error occurred while uploading the file"],
+        title: t("fileManager.upload.errorTitle"),
+        list: [error.message || t("fileManager.upload.errorMessage")],
       });
     }
   };
@@ -104,7 +104,7 @@ export default function DragFilesComponent({
         tabIndex={0}
       >
         <h3 className="text-sm font-semibold">
-          {isDragging ? "Drop files here" : "Click or drag files here"}
+          {isDragging ? t("fileManager.upload.dropFiles") : t("fileManager.upload.clickOrDrag")}
         </h3>
         <p className="flex items-center gap-2 text-xs text-muted-foreground">
           <div className="flex items-center gap-1">
@@ -115,14 +115,14 @@ export default function DragFilesComponent({
                   className="text-muted-foreground flex items-center gap-1"
                   data-testid="info-types"
                 >
-                  +{types.length - 3} more
+                  {t("fileManager.upload.moreTypes", { count: types.length - 3 })}
                   <ForwardedIconComponent name="info" className="w-3 h-3" />
                 </span>
               </ShadTooltip>
             )}
           </div>
           <span className="font-semibold">
-            {formatFileSize(maxFileSizeUpload)} max
+            {t("fileManager.upload.maxSize", { size: formatFileSize(maxFileSizeUpload) })}
           </span>
         </p>
         <div className="pointer-events-none absolute inset-0 h-full w-full">

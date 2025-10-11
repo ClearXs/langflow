@@ -6,15 +6,11 @@ import IconComponent from "../../components/common/genericIconComponent";
 import EditFlowSettings from "../../components/core/editFlowSettingsComponent";
 import { Checkbox } from "../../components/ui/checkbox";
 import { API_WARNING_NOTICE_ALERT } from "../../constants/alerts_constants";
-import {
-  ALERT_SAVE_WITH_API,
-  EXPORT_DIALOG_SUBTITLE,
-  SAVE_WITH_API_CHECKBOX,
-} from "../../constants/constants";
 import useAlertStore from "../../stores/alertStore";
 import { useDarkStore } from "../../stores/darkStore";
 import { downloadFlow, removeApiKeys } from "../../utils/reactflowUtils";
 import BaseModal from "../baseModal";
+import { useTranslation } from "react-i18next";
 
 const ExportModal = forwardRef(
   (
@@ -41,6 +37,8 @@ const ExportModal = forwardRef(
     const [description, setDescription] = useState(
       currentFlow?.description ?? "",
     );
+
+    const {t} = useTranslation()
 
     const [customOpen, customSetOpen] = useState(false);
     const [open, setOpen] =
@@ -104,8 +102,8 @@ const ExportModal = forwardRef(
         }}
       >
         <BaseModal.Trigger asChild>{props.children ?? <></>}</BaseModal.Trigger>
-        <BaseModal.Header description={EXPORT_DIALOG_SUBTITLE}>
-          <span className="pr-2">Export</span>
+        <BaseModal.Header description={t("constants.dialog.exportSubtitle")}>
+          <span className="pr-2">{t("components.button.export")}</span>
           <IconComponent
             name="Download"
             className="h-6 w-6 pl-1 text-foreground"
@@ -128,11 +126,11 @@ const ExportModal = forwardRef(
               }}
             />
             <label htmlFor="terms" className="export-modal-save-api text-sm">
-              {SAVE_WITH_API_CHECKBOX}
+              {t("constants.api.saveWithApiCheckbox")}
             </label>
           </div>
           <span className="mt-1 text-xs text-destructive">
-            {ALERT_SAVE_WITH_API}
+            {t("constants.api.alertSaveWithApi")}
           </span>
         </BaseModal.Content>
 

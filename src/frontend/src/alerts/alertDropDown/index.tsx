@@ -6,10 +6,10 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "../../components/ui/popover";
-import { ZERO_NOTIFICATIONS } from "../../constants/constants";
 import useAlertStore from "../../stores/alertStore";
 import type { AlertDropdownType } from "../../types/alerts";
 import SingleAlert from "./components/singleAlertComponent";
+import { useTranslation } from "react-i18next";
 
 const AlertDropdown = forwardRef<HTMLDivElement, AlertDropdownType>(
   function AlertDropdown({ children, notificationRef, onClose }, ref) {
@@ -25,6 +25,8 @@ const AlertDropdown = forwardRef<HTMLDivElement, AlertDropdownType>(
     );
 
     const [open, setOpen] = useState(false);
+
+    const {t} = useTranslation()
 
     useEffect(() => {
       if (!open) {
@@ -82,7 +84,7 @@ const AlertDropdown = forwardRef<HTMLDivElement, AlertDropdownType>(
               ))
             ) : (
               <div className="flex h-full w-full items-center justify-center pb-16 text-ring">
-                {ZERO_NOTIFICATIONS}
+                {t("constants.notifications.zero")}
               </div>
             )}
           </div>

@@ -1,5 +1,6 @@
 import { memo, useMemo, useRef, useState } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
+import { useTranslation } from "react-i18next";
 import { useShallow } from "zustand/react/shallow";
 import IconComponent from "@/components/common/genericIconComponent";
 import ShadTooltip from "@/components/common/shadTooltipComponent";
@@ -11,7 +12,6 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { SAVED_HOVER } from "@/constants/constants";
 import { useGetRefreshFlowsQuery } from "@/controllers/API/queries/flows/use-get-refresh-flows-query";
 import { useGetFoldersQuery } from "@/controllers/API/queries/folders/use-get-folders";
 import { useCustomNavigate } from "@/customization/hooks/use-custom-navigate";
@@ -25,6 +25,8 @@ import { swatchColors } from "@/utils/styleUtils";
 import { cn, getNumberFromString } from "@/utils/utils";
 
 export const MenuBar = memo((): JSX.Element => {
+  const { t } = useTranslation();
+  
   const setSuccessData = useAlertStore((state) => state.setSuccessData);
   const saveLoading = useFlowsManagerStore((state) => state.saveLoading);
   const [openSettings, setOpenSettings] = useState(false);
@@ -75,7 +77,7 @@ export const MenuBar = memo((): JSX.Element => {
 
   const handleSave = () => {
     saveFlow().then(() => {
-      setSuccessData({ title: "Saved successfully" });
+      setSuccessData({ title: t("flowMenu.savedSuccessfully") });
     });
   };
 
@@ -87,6 +89,23 @@ export const MenuBar = memo((): JSX.Element => {
       ? parseInt(currentFlowGradient)
       : getNumberFromString(currentFlowGradient ?? currentFlowId ?? "")) %
     swatchColors.length;
+
+  // Generate tooltip content
+  const getSaveTooltipContent = () => {
+    if (changesNotSaved) {
+      return saveLoading ? t("flowMenu.saving") : t("flowMenu.saveChanges");
+    }
+    
+    const lastSavedText = t("constants.timestamp.savedHover");
+    const timeText = updatedAt
+      ? new Date(updatedAt).toLocaleString("en-US", {
+          hour: "numeric",
+          minute: "numeric",
+        })
+      : t("flowMenu.never");
+    
+    return lastSavedText + timeText;
+  };
 
   return onFlowPage ? (
     <Popover open={openSettings} onOpenChange={setOpenSettings}>
@@ -140,7 +159,7 @@ export const MenuBar = memo((): JSX.Element => {
                 aria-hidden="true"
                 data-testid="flow_name"
               >
-                {currentFlowName || "Untitled Flow"}
+                {currentFlowName || t("flowMenu.untitledFlow")}
               </span>
               <IconComponent
                 name="pencil"
@@ -155,19 +174,7 @@ export const MenuBar = memo((): JSX.Element => {
           <div className={"ml-5 hidden shrink-0 items-center sm:flex"}>
             {!autoSaving && (
               <ShadTooltip
-                content={
-                  changesNotSaved
-                    ? saveLoading
-                      ? "Saving..."
-                      : "Save Changes"
-                    : SAVED_HOVER +
-                      (updatedAt
-                        ? new Date(updatedAt).toLocaleString("en-US", {
-                            hour: "numeric",
-                            minute: "numeric",
-                          })
-                        : "Never")
-                }
+                content={getSaveTooltipContent()}
                 side="bottom"
                 styleClasses="cursor-default z-10"
               >

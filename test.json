@@ -1,0 +1,9 @@
+{
+  "source": "http://192.168.110.193:7860/health",
+  "status_code": 502,
+  "response_headers": {
+    "connection": "close",
+    "content-length": "0"
+  },
+  "result": ""
+}

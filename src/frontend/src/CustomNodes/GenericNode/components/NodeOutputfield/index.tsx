@@ -37,6 +37,7 @@ import {
 import HandleRenderComponent from "../handleRenderComponent";
 import OutputComponent from "../OutputComponent";
 import OutputModal from "../outputModal";
+import { useTranslation } from "react-i18next";
 
 const _EyeIcon = memo(
   ({ hidden, className }: { hidden: boolean; className: string }) => (
@@ -126,6 +127,7 @@ function NodeOutputField({
   hidden,
   handleSelectOutput,
 }: NodeOutputFieldComponentType): JSX.Element {
+  const { t } = useTranslation();
   const ref = useRef<HTMLDivElement>(null);
   const updateNodeInternals = useUpdateNodeInternals();
 
@@ -334,6 +336,16 @@ function NodeOutputField({
   const disabledInspectButton =
     !displayOutputPreview || unknownOutput || emptyOutput;
 
+  const getTooltipContent = () => {
+    if (displayOutputPreview) {
+      if (unknownOutput || emptyOutput) {
+        return t("node.output.cannotDisplay");
+      }
+      return t("node.output.inspect");
+    }
+    return t("node.output.buildFirst");
+  };
+
   if (!showHiddenOutputs && hidden) return <></>;
   if (!showNode) return <>{Handle}</>;
 
@@ -384,13 +396,7 @@ function NodeOutputField({
           </span>
 
           <ShadTooltip
-            content={
-              displayOutputPreview
-                ? unknownOutput || emptyOutput
-                  ? "Output can't be displayed"
-                  : "Inspect output"
-                : "Please build the component first"
-            }
+            content={getTooltipContent()}
             styleClasses="z-40"
           >
             <div className="flex items-center gap-2">
@@ -414,7 +420,7 @@ function NodeOutputField({
               </OutputModal>
               {looping && (
                 <Badge variant="pinkStatic" size="xq" className="px-1">
-                  Looping
+                  {t("node.output.looping")}
                 </Badge>
               )}
             </div>

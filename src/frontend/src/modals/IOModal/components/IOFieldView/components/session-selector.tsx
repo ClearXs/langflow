@@ -14,6 +14,7 @@ import { useGetFlowId } from "@/modals/IOModal/hooks/useGetFlowId";
 import useFlowStore from "@/stores/flowStore";
 import { useVoiceStore } from "@/stores/voiceStore";
 import { cn } from "@/utils/utils";
+import { useTranslation } from "react-i18next";
 
 export default function SessionSelector({
   deleteSession,
@@ -38,6 +39,7 @@ export default function SessionSelector({
   playgroundPage: boolean;
   setActiveSession: (session: string) => void;
 }) {
+  const { t } = useTranslation();
   const currentFlowId = useGetFlowId();
   const [isEditing, setIsEditing] = useState(false);
   const [editedSession, setEditedSession] = useState(session);
@@ -166,7 +168,7 @@ export default function SessionSelector({
             <ShadTooltip styleClasses="z-50" content={session}>
               <div className="relative w-full overflow-hidden">
                 <span className="w-full truncate">
-                  {session === currentFlowId ? "Default Session" : session}
+                  {session === currentFlowId ? t("chat.session.defaultSession") : session}
                 </span>
                 <div
                   className={cn(
@@ -187,7 +189,7 @@ export default function SessionSelector({
           )}
         </div>
         <Select value={""} onValueChange={handleSelectChange}>
-          <ShadTooltip styleClasses="z-50" side="right" content="Options">
+          <ShadTooltip styleClasses="z-50" side="right" content={t("chat.session.options")}>
             <SelectTrigger
               onClick={(e) => {
                 e.stopPropagation();
@@ -211,7 +213,7 @@ export default function SessionSelector({
             >
               <div className="flex items-center">
                 <IconComponent name="SquarePen" className="mr-2 h-4 w-4" />
-                Rename
+                {t("chat.session.rename")}
               </div>
             </SelectItem>
             <SelectItem
@@ -221,7 +223,7 @@ export default function SessionSelector({
               <div className="flex w-full items-center justify-between">
                 <div className="flex items-center">
                   <IconComponent name="Scroll" className="mr-2 h-4 w-4" />
-                  Message logs
+                  {t("chat.session.messageLogs")}
                 </div>
               </div>
             </SelectItem>
@@ -231,7 +233,7 @@ export default function SessionSelector({
             >
               <div className="flex items-center text-status-red hover:text-status-red">
                 <IconComponent name="Trash2" className="mr-2 h-4 w-4" />
-                Delete
+                {t("chat.session.delete")}
               </div>
             </SelectItem>
           </SelectContent>

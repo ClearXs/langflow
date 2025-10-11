@@ -1,6 +1,7 @@
 import type { ColDef } from "ag-grid-community";
 import type { AgGridReact } from "ag-grid-react";
 import { useEffect, useRef, useState } from "react";
+import { Trans, useTranslation } from "react-i18next";
 import ForwardedIconComponent from "@/components/common/genericIconComponent";
 import TableComponent from "@/components/core/parameterRenderComponent/components/tableComponent";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -25,6 +26,8 @@ export default function UpdateComponentModal({
   components: ComponentsToUpdateType[];
   isMultiple?: boolean;
 }) {
+  const { t } = useTranslation();
+  
   const [backupFlow, setBackupFlow] = useState<boolean>(true);
   const [loading, setLoading] = useState<boolean>(false);
   const [selectedComponents, setSelectedComponents] = useState<Set<string>>(
@@ -61,7 +64,7 @@ export default function UpdateComponentModal({
   const columnDefs: ColDef[] = [
     { field: "id", hide: true },
     {
-      headerName: "Component",
+      headerName: t("components.updateModal.component"),
       field: "display_name",
       headerClass: "!text-mmd !font-normal",
       flex: 1,
@@ -83,7 +86,7 @@ export default function UpdateComponentModal({
       },
     },
     {
-      headerName: "Update Type",
+      headerName: t("components.updateModal.updateType"),
       field: "breakingChange",
       headerClass: "!text-mmd !font-normal",
       resizable: false,
@@ -92,10 +95,10 @@ export default function UpdateComponentModal({
       cellRenderer: (params) => {
         return params.value ? (
           <span className="font-semibold text-accent-amber-foreground">
-            Breaking
+            {t("components.updateModal.breaking")}
           </span>
         ) : (
-          <span>Standard</span>
+          <span>{t("components.updateModal.standard")}</span>
         );
       },
     },
@@ -133,8 +136,11 @@ export default function UpdateComponentModal({
       <BaseModal.Trigger asChild>{children ?? <></>}</BaseModal.Trigger>
       <BaseModal.Header>
         <span className="">
-          Update{" "}
-          {isMultiple ? "components" : (components?.[0]?.display_name ?? "")}
+          {isMultiple
+            ? t("components.updateModal.titleMultiple")
+            : t("components.updateModal.title", {
+                name: components?.[0]?.display_name ?? "",
+              })}
         </span>
       </BaseModal.Header>
       <BaseModal.Content overflowHidden>
@@ -142,29 +148,28 @@ export default function UpdateComponentModal({
           <div className="flex flex-col gap-3 text-sm text-muted-foreground">
             {isMultiple ? (
               <p>
-                Updates marked as{" "}
-                <span className="font-semibold text-accent-amber-foreground">
-                  breaking
-                </span>{" "}
-                may change inputs, outputs, or component behavior. In some
-                cases, they will disconnect components from your flow, requiring
-                you to review or reconnect them afterward. Components added from
-                the sidebar always use the latest version.
+                <Trans
+                  i18nKey="components.updateModal.breakingWarningMultiple"
+                  components={{
+                    strong: (
+                      <span className="font-semibold text-accent-amber-foreground" />
+                    ),
+                  }}
+                />
               </p>
             ) : (
               <>
                 <p>
-                  This update may change inputs, outputs, or component behavior.
-                  In some cases, it will{" "}
-                  <span className="font-semibold text-accent-amber-foreground">
-                    disconnect this component from your flow
-                  </span>
-                  , requiring you to review or reconnect it afterward.
+                  <Trans
+                    i18nKey="components.updateModal.breakingWarningSingle1"
+                    components={{
+                      strong: (
+                        <span className="font-semibold text-accent-amber-foreground" />
+                      ),
+                    }}
+                  />
                 </p>
-                <p>
-                  Components added from the sidebar always use the latest
-                  version.
-                </p>
+                <p>{t("components.updateModal.breakingWarningSingle2")}</p>
               </>
             )}
           </div>
@@ -209,14 +214,17 @@ export default function UpdateComponentModal({
               data-testid="backup-flow-checkbox"
             />
             <label htmlFor="backupFlow" className="cursor-pointer select-none">
-              Create backup flow before updating
+              {t("components.updateModal.createBackup")}
             </label>
           </div>
         </div>
       </BaseModal.Content>
       <BaseModal.Footer
         submit={{
-          label: "Update Component" + (components.length > 1 ? "s" : ""),
+          label:
+            components.length > 1
+              ? t("components.updateModal.updateComponents")
+              : t("components.updateModal.updateComponent"),
           onClick: handleUpdate,
           disabled: isMultiple && selectedComponents.size === 0,
           loading,

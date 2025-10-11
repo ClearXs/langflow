@@ -1,4 +1,5 @@
 import * as Form from "@radix-ui/react-form";
+import { useTranslation } from "react-i18next";
 import InputComponent from "../../../../../components/core/parameterRenderComponent/components/inputComponent";
 import { Button } from "../../../../../components/ui/button";
 import {
@@ -9,12 +10,6 @@ import {
   CardHeader,
   CardTitle,
 } from "../../../../../components/ui/card";
-import {
-  CREATE_API_KEY,
-  INSERT_API_KEY,
-  INVALID_API_KEY,
-  NO_API_KEY,
-} from "../../../../../constants/constants";
 
 type StoreApiKeyFormComponentProps = {
   apikey: string;
@@ -24,6 +19,7 @@ type StoreApiKeyFormComponentProps = {
   validApiKey: boolean;
   hasApiKey: boolean;
 };
+
 const StoreApiKeyFormComponent = ({
   apikey,
   handleInput,
@@ -32,6 +28,8 @@ const StoreApiKeyFormComponent = ({
   validApiKey,
   hasApiKey,
 }: StoreApiKeyFormComponentProps) => {
+  const { t } = useTranslation();
+
   return (
     <>
       <Form.Root
@@ -42,13 +40,13 @@ const StoreApiKeyFormComponent = ({
       >
         <Card x-chunk="dashboard-04-chunk-2" id="api">
           <CardHeader>
-            <CardTitle>Store API Key</CardTitle>
+            <CardTitle>{t("storeApiKeyForm.title")}</CardTitle>
             <CardDescription>
               {(hasApiKey && !validApiKey
-                ? INVALID_API_KEY
+                ? t("constants.api.invalidApiKey")
                 : !hasApiKey
-                  ? NO_API_KEY
-                  : "") + INSERT_API_KEY}
+                  ? t("constants.api.noApiKey")
+                  : "") + t("constants.api.insertApiKey")}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -63,16 +61,16 @@ const StoreApiKeyFormComponent = ({
                     value={apikey}
                     isForm
                     password={true}
-                    placeholder="Insert your API Key"
+                    placeholder={t("storeApiKeyForm.placeholder")}
                     className="w-full"
                   />
                   <Form.Message match="valueMissing" className="field-invalid">
-                    Please enter your API Key
+                    {t("storeApiKeyForm.validationMessage")}
                   </Form.Message>
                 </Form.Field>
               </div>
               <span className="pr-1 text-xs text-muted-foreground">
-                {CREATE_API_KEY}{" "}
+                {t("constants.api.createApiKey")}{" "}
                 <a
                   className="text-high-indigo underline"
                   href="https://langflow.store/"
@@ -91,7 +89,7 @@ const StoreApiKeyFormComponent = ({
                 type="submit"
                 data-testid="api-key-save-button-store"
               >
-                Save
+                {t("storeApiKeyForm.save")}
               </Button>
             </Form.Submit>
           </CardFooter>
@@ -100,4 +98,5 @@ const StoreApiKeyFormComponent = ({
     </>
   );
 };
+
 export default StoreApiKeyFormComponent;

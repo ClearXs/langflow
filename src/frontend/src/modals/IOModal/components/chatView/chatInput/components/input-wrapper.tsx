@@ -5,15 +5,12 @@ import {
   ENABLE_VOICE_ASSISTANT,
 } from "@/customization/feature-flags";
 import type { FilePreviewType } from "@/types/components";
-import {
-  CHAT_INPUT_PLACEHOLDER,
-  CHAT_INPUT_PLACEHOLDER_SEND,
-} from "../../../../../../constants/constants";
 import FilePreview from "../../fileComponent/components/file-preview";
 import ButtonSendWrapper from "./button-send-wrapper";
 import TextAreaWrapper from "./text-area-wrapper";
 import UploadFileButton from "./upload-file-button";
 import VoiceButton from "./voice-assistant/components/voice-button";
+import { useTranslation } from "react-i18next";
 
 interface InputWrapperProps {
   isBuilding: boolean;
@@ -55,6 +52,8 @@ const InputWrapper: React.FC<InputWrapperProps> = ({
   // Check if voice mode is available
   const { data: config } = useGetConfig();
 
+  const {t} = useTranslation()
+
   const onClick = (e: React.MouseEvent<HTMLDivElement>) => {
     const target = e.target as HTMLElement;
     if (target.closest("textarea")) {
@@ -90,8 +89,8 @@ const InputWrapper: React.FC<InputWrapperProps> = ({
           send={send}
           noInput={noInput}
           chatValue={chatValue}
-          CHAT_INPUT_PLACEHOLDER={CHAT_INPUT_PLACEHOLDER}
-          CHAT_INPUT_PLACEHOLDER_SEND={CHAT_INPUT_PLACEHOLDER_SEND}
+          CHAT_INPUT_PLACEHOLDER={t("constants.chat.inputPlaceholder")}
+          CHAT_INPUT_PLACEHOLDER_SEND={t("constants.chat.inputPlaceholderSend")}
           inputRef={inputRef}
           files={files}
           isDragging={isDragging}

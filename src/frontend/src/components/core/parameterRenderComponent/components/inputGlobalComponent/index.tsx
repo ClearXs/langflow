@@ -1,19 +1,20 @@
-import { useEffect } from "react";
-import { useGetGlobalVariables } from "@/controllers/API/queries/variables";
-import GeneralDeleteConfirmationModal from "@/shared/components/delete-confirmation-modal";
-import { cn } from "../../../../../utils/utils";
-import ForwardedIconComponent from "../../../../common/genericIconComponent";
-import { CommandItem } from "../../../../ui/command";
-import GlobalVariableModal from "../../../GlobalVariableModal/GlobalVariableModal";
-import { getPlaceholder } from "../../helpers/get-placeholder-disabled";
-import type { InputGlobalComponentType, InputProps } from "../../types";
-import InputComponent from "../inputComponent";
+import { useEffect } from 'react';
+import { useGetGlobalVariables } from '@/controllers/API/queries/variables';
+import GeneralDeleteConfirmationModal from '@/shared/components/delete-confirmation-modal';
+import { cn } from '../../../../../utils/utils';
+import ForwardedIconComponent from '../../../../common/genericIconComponent';
+import { CommandItem } from '../../../../ui/command';
+import GlobalVariableModal from '../../../GlobalVariableModal/GlobalVariableModal';
+import { getPlaceholder } from '../../helpers/get-placeholder-disabled';
+import type { InputGlobalComponentType, InputProps } from '../../types';
+import InputComponent from '../inputComponent';
 import {
   useGlobalVariableValue,
   useInitialLoad,
   useUnavailableField,
-} from "./hooks";
-import type { GlobalVariable, GlobalVariableHandlers } from "./types";
+} from './hooks';
+import type { GlobalVariable, GlobalVariableHandlers } from './types';
+import { useTranslation } from 'react-i18next';
 
 export default function InputGlobalComponent({
   display_name,
@@ -31,16 +32,18 @@ export default function InputGlobalComponent({
 }: InputProps<string, InputGlobalComponentType>): JSX.Element {
   const { data: globalVariables } = useGetGlobalVariables();
 
+  const { t } = useTranslation();
+
   // // Safely cast the data to our typed interface
   const typedGlobalVariables: GlobalVariable[] = globalVariables ?? [];
-  const currentValue = value ?? "";
+  const currentValue = value ?? '';
   const isDisabled = disabled ?? false;
   const loadFromDb = load_from_db ?? false;
 
   // // Extract complex logic into custom hooks
   const valueExists = useGlobalVariableValue(
     currentValue,
-    typedGlobalVariables,
+    typedGlobalVariables
   );
   const unavailableField = useUnavailableField(display_name, currentValue);
 
@@ -50,15 +53,15 @@ export default function InputGlobalComponent({
     typedGlobalVariables,
     valueExists,
     unavailableField,
-    handleOnNewValue,
+    handleOnNewValue
   );
 
   // Clean up when selected variable no longer exists
   useEffect(() => {
     if (loadFromDb && currentValue && !valueExists && !isDisabled) {
       handleOnNewValue(
-        { value: "", load_from_db: false },
-        { skipSnapshot: true },
+        { value: '', load_from_db: false },
+        { skipSnapshot: true }
       );
     }
   }, [loadFromDb, currentValue, valueExists, isDisabled, handleOnNewValue]);
@@ -69,7 +72,7 @@ export default function InputGlobalComponent({
     handleVariableDelete: (variableName: string) => {
       if (value === variableName) {
         handleOnNewValue({
-          value: "",
+          value: '',
           load_from_db: false,
         });
       }
@@ -79,7 +82,7 @@ export default function InputGlobalComponent({
     handleVariableSelect: (selectedValue: string) => {
       handleOnNewValue({
         value: selectedValue,
-        load_from_db: selectedValue !== "",
+        load_from_db: selectedValue !== '',
       });
     },
 
@@ -87,24 +90,27 @@ export default function InputGlobalComponent({
     handleInputChange: (inputValue: string, skipSnapshot?: boolean) => {
       handleOnNewValue(
         { value: inputValue, load_from_db: false },
-        { skipSnapshot },
+        { skipSnapshot }
       );
     },
   };
 
   // Render add new variable button
-  const renderAddVariableButton = () => (
-    <GlobalVariableModal referenceField={display_name} disabled={disabled}>
-      <CommandItem value="doNotFilter-addNewVariable">
-        <ForwardedIconComponent
-          name="Plus"
-          className={cn("mr-2 h-4 w-4 text-primary")}
-          aria-hidden="true"
-        />
-        <span>Add New Variable</span>
-      </CommandItem>
-    </GlobalVariableModal>
-  );
+  const renderAddVariableButton = () => {
+    const { t } = useTranslation();
+    return (
+      <GlobalVariableModal referenceField={display_name} disabled={disabled}>
+        <CommandItem value='doNotFilter-addNewVariable'>
+          <ForwardedIconComponent
+            name='Plus'
+            className={cn('mr-2 h-4 w-4 text-primary')}
+            aria-hidden='true'
+          />
+          <span>{t('components.button.addNewVariable')}</span>
+        </CommandItem>
+      </GlobalVariableModal>
+    );
+  };
 
   // Render delete button for each option
   const renderDeleteButton = (option: string) => (
@@ -116,12 +122,12 @@ export default function InputGlobalComponent({
 
   // // Extract options list for better readability
   const variableOptions = typedGlobalVariables.map((variable) => variable.name);
-  const selectedOption = loadFromDb && valueExists ? currentValue : "";
+  const selectedOption = loadFromDb && valueExists ? currentValue : '';
 
   return (
     <InputComponent
       nodeStyle
-      popoverWidth="17.5rem"
+      popoverWidth='17.5rem'
       placeholder={getPlaceholder(disabled, placeholder)}
       id={id}
       editNode={editNode}
@@ -129,8 +135,8 @@ export default function InputGlobalComponent({
       password={password ?? false}
       value={currentValue}
       options={variableOptions}
-      optionsPlaceholder="Global Variables"
-      optionsIcon="Globe"
+      optionsPlaceholder={t('variable.globalVariables')}
+      optionsIcon='Globe'
       optionsButton={renderAddVariableButton()}
       optionButton={renderDeleteButton}
       selectedOption={selectedOption}

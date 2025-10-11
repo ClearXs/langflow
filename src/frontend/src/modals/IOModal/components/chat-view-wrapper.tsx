@@ -5,6 +5,7 @@ import { cn } from "@/utils/utils";
 import IconComponent from "../../../components/common/genericIconComponent";
 import type { ChatViewWrapperProps } from "../types/chat-view-wrapper";
 import ChatView from "./chatView/components/chat-view";
+import { useTranslation } from "react-i18next";
 
 export const ChatViewWrapper = ({
   selectedViewField,
@@ -24,6 +25,8 @@ export const ChatViewWrapper = ({
   playgroundTitle,
   playgroundPage,
 }: ChatViewWrapperProps) => {
+  const { t } = useTranslation();
+
   return (
     <div
       className={cn(
@@ -61,7 +64,7 @@ export const ChatViewWrapper = ({
             )}
           >
             {visibleSession === currentFlowId
-              ? "Default Session"
+              ? t("chat.session.defaultSession")
               : `${visibleSession}`}
           </div>
         )}
@@ -72,7 +75,7 @@ export const ChatViewWrapper = ({
             playgroundPage ? "right-2 top-4" : "absolute right-12 top-2 h-8",
           )}
         >
-          <ShadTooltip side="bottom" styleClasses="z-50" content="New Chat">
+          <ShadTooltip side="bottom" styleClasses="z-50" content={t("chat.session.newChat")}>
             <Button
               className="mr-2 h-[32px] w-[32px] hover:bg-secondary-hover"
               variant="ghost"

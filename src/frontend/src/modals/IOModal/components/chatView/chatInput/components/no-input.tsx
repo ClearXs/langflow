@@ -1,5 +1,5 @@
 import type React from "react";
-import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import Loading from "@/components/ui/loading";
 import IconComponent from "../../../../../../components/common/genericIconComponent";
@@ -17,6 +17,8 @@ const NoInputView: React.FC<NoInputViewProps> = ({
   sendMessage,
   stopBuilding,
 }) => {
+  const { t } = useTranslation();
+
   return (
     <div className="flex h-full w-full flex-col items-center justify-center">
       <div className="flex w-full flex-col items-center justify-center gap-3 rounded-md border border-input bg-muted p-2 py-4">
@@ -30,7 +32,7 @@ const NoInputView: React.FC<NoInputViewProps> = ({
               });
             }}
           >
-            Run Flow
+            {t("chat.input.runFlow")}
           </Button>
         ) : (
           <Button
@@ -40,23 +42,23 @@ const NoInputView: React.FC<NoInputViewProps> = ({
             className="form-modal-send-button cursor-pointer bg-muted text-foreground hover:bg-secondary-hover dark:hover:bg-input"
           >
             <div className="flex items-center gap-2 rounded-md text-sm font-medium">
-              Stop
+              {t("chat.input.stop")}
               <Loading className="h-4 w-4" />
             </div>
           </Button>
         )}
 
         <p className="text-muted-foreground">
-          Add a{" "}
+          {t("chat.input.addChatInput")}{" "}
           <a
             className="underline underline-offset-4"
             target="_blank"
             href="https://docs.langflow.org/components-io#chat-input"
             rel="noopener"
           >
-            Chat Input
+            {t("chat.input.chatInputLink")}
           </a>{" "}
-          component to your flow to send messages.
+          {t("chat.input.componentToSendMessages")}
         </p>
       </div>
     </div>

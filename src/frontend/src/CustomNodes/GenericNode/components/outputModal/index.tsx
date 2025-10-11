@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import BaseModal from "../../../../modals/baseModal";
 import SwitchOutputView from "./components/switchOutputView";
+import { useTranslation } from "react-i18next";
 
 export default function OutputModal({
   nodeId,
@@ -11,7 +12,9 @@ export default function OutputModal({
   open,
   setOpen,
 }): JSX.Element {
+  const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState<"Outputs" | "Logs">("Outputs");
+  
   return (
     <BaseModal
       open={open}
@@ -20,12 +23,12 @@ export default function OutputModal({
       size="large"
       className="z-50"
     >
-      <BaseModal.Header description="Inspect the output of the component below.">
+      <BaseModal.Header description={t("components.output.description")}>
         <div
           className="flex items-center"
           data-testid={`${nodeId}-${outputName}-output-modal`}
         >
-          <span className="pr-2">Component Output</span>
+          <span className="pr-2">{t("components.output.title")}</span>
         </div>
       </BaseModal.Header>
       <BaseModal.Content>
@@ -37,8 +40,8 @@ export default function OutputModal({
           }
         >
           <TabsList>
-            <TabsTrigger value="Outputs">Outputs</TabsTrigger>
-            <TabsTrigger value="Logs">Logs</TabsTrigger>
+            <TabsTrigger value="Outputs">{t("components.output.tabs.outputs")}</TabsTrigger>
+            <TabsTrigger value="Logs">{t("components.output.tabs.logs")}</TabsTrigger>
           </TabsList>
         </Tabs>
         <SwitchOutputView

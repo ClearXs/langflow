@@ -6,6 +6,7 @@ import { ForwardedIconComponent } from "../../components/common/genericIconCompo
 import BaseModal from "../baseModal";
 import DragFilesComponent from "./components/dragFilesComponent";
 import RecentFilesComponent from "./components/recentFilesComponent";
+import { useTranslation } from "react-i18next";
 
 export default function FileManagerModal({
   children,
@@ -31,6 +32,8 @@ export default function FileManagerModal({
   const setErrorData = useAlertStore((state) => state.setErrorData);
 
   const queryClient = useQueryClient();
+
+  const { t } = useTranslation();
 
   useEffect(() => {
     queryClient.refetchQueries({
@@ -61,7 +64,7 @@ export default function FileManagerModal({
         onSubmit={() => {
           if (internalSelectedFiles.length === 0) {
             setErrorData({
-              title: "Please select at least one file",
+              title: t("fileManager.error.selectAtLeastOne"),
             });
             return;
           }
@@ -77,7 +80,7 @@ export default function FileManagerModal({
             <div className="rounded-md bg-muted p-1.5">
               <ForwardedIconComponent name="File" className="h-5 w-5" />
             </div>
-            My Files
+            {t("fileManager.title")}
           </span>
         </BaseModal.Header>
         <BaseModal.Content overflowHidden>
@@ -103,7 +106,7 @@ export default function FileManagerModal({
 
         <BaseModal.Footer
           submit={{
-            label: `Select files`,
+            label: t("fileManager.selectFiles"),
             dataTestId: "select-files-modal-button",
           }}
         ></BaseModal.Footer>

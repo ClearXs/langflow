@@ -5,6 +5,7 @@ import { useVoiceStore } from "@/stores/voiceStore";
 import IconComponent from "../../../components/common/genericIconComponent";
 import type { SidebarOpenViewProps } from "../types/sidebar-open-view";
 import SessionSelector from "./IOFieldView/components/session-selector";
+import { useTranslation } from "react-i18next";
 
 export const SidebarOpenView = ({
   sessions,
@@ -16,6 +17,7 @@ export const SidebarOpenView = ({
   playgroundPage,
   setActiveSession,
 }: SidebarOpenViewProps) => {
+  const { t } = useTranslation();
   const setNewSessionCloseVoiceAssistant = useVoiceStore(
     (state) => state.setNewSessionCloseVoiceAssistant,
   );
@@ -34,9 +36,9 @@ export const SidebarOpenView = ({
                 name="MessagesSquare"
                 className="h-[18px] w-[18px] text-ring"
               />
-              <div className="text-mmd font-normal">Chat</div>
+              <div className="text-mmd font-normal">{t("chat.sidebar.title")}</div>
             </div>
-            <ShadTooltip styleClasses="z-50" content="New Chat">
+            <ShadTooltip styleClasses="z-50" content={t("chat.session.newChat")}>
               <div>
                 <Button
                   data-testid="new-chat"

@@ -4,6 +4,7 @@ import useAlertStore from "@/stores/alertStore";
 import IconComponent from "../../components/common/genericIconComponent";
 import JsonEditor from "../../components/core/jsonEditor";
 import BaseModal from "../baseModal";
+import { useTranslation } from "react-i18next";
 
 export default function DictAreaModal({
   children,
@@ -16,10 +17,10 @@ export default function DictAreaModal({
   value: Object;
   disabled?: boolean;
 }): JSX.Element {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
 
   const setErrorData = useAlertStore((state) => state.setErrorData);
-  ("");
   const jsonEditorRef = useRef<VanillaJsonEditor | null>(null);
 
   useEffect(() => {
@@ -42,8 +43,8 @@ export default function DictAreaModal({
       } catch (error) {
         console.error("Error getting JSON:", error);
         setErrorData({
-          title: "Error getting dictionary",
-          list: ["Check your dictionary format"],
+          title: t("modal.dictionary.errorTitle"),
+          list: [t("modal.dictionary.errorMessage")],
         });
       }
     }
@@ -69,20 +70,19 @@ export default function DictAreaModal({
   const IteractiveReader = () => {
     return (
       <span>
-        Customize your dictionary, adding or editing key-value pairs as needed.
-        Supports adding new{" "}
+        {t("modal.dictionary.description.customize")}{" "}
         <span
           onClick={() => handleChangeType("object")}
           className="cursor-pointer underline"
         >
-          objects &#123; &#125;
+          {t("modal.dictionary.description.objects")}
         </span>{" "}
-        or{" "}
+        {t("modal.dictionary.description.or")}{" "}
         <span
           onClick={() => handleChangeType("array")}
           className="cursor-pointer underline"
         >
-          arrays [].
+          {t("modal.dictionary.description.arrays")}
         </span>
       </span>
     );
@@ -91,7 +91,7 @@ export default function DictAreaModal({
   const renderHeader = () => (
     <BaseModal.Header description={onChange ? IteractiveReader() : null}>
       <span className="pr-2">
-        {onChange ? "Edit Dictionary" : "View Dictionary"}
+        {onChange ? t("modal.dictionary.editTitle") : t("modal.dictionary.viewTitle")}
       </span>
       <IconComponent
         name="BookMarked"
@@ -130,7 +130,7 @@ export default function DictAreaModal({
       </BaseModal.Trigger>
       {renderHeader()}
       {renderContent()}
-      <BaseModal.Footer submit={onChange ? { label: "Save" } : undefined} />
+      <BaseModal.Footer submit={onChange ? { label: t("modal.dictionary.save") } : undefined} />
     </BaseModal>
   );
 }
