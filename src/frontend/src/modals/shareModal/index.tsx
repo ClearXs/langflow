@@ -1,5 +1,6 @@
 import { cloneDeep } from "lodash";
 import { type ReactNode, useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import useSaveFlow from "@/hooks/flows/use-save-flow";
 import { useUtilityStore } from "@/stores/utilityStore";
 import IconComponent from "../../components/common/genericIconComponent";
@@ -25,7 +26,6 @@ import BaseModal from "../baseModal";
 import ConfirmationModal from "../confirmationModal";
 import ExportModal from "../exportModal";
 import getTagsIds from "./utils/get-tags-ids";
-import { useTranslation } from "react-i18next";
 
 export default function ShareModal({
   component,
@@ -62,7 +62,7 @@ export default function ShareModal({
   const saveFlow = useSaveFlow();
   const tags = useUtilityStore((state) => state.tags);
 
-  const {t} = useTranslation()
+  const { t } = useTranslation();
 
   const [loadingNames, setLoadingNames] = useState(false);
 

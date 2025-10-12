@@ -1,5 +1,6 @@
 import type React from "react";
 import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import IconComponent from "@/components/common/genericIconComponent";
 import ShadTooltip from "@/components/common/shadTooltipComponent";
 import { Input } from "@/components/ui/input";
@@ -14,7 +15,6 @@ import { useGetFlowId } from "@/modals/IOModal/hooks/useGetFlowId";
 import useFlowStore from "@/stores/flowStore";
 import { useVoiceStore } from "@/stores/voiceStore";
 import { cn } from "@/utils/utils";
-import { useTranslation } from "react-i18next";
 
 export default function SessionSelector({
   deleteSession,
@@ -168,7 +168,9 @@ export default function SessionSelector({
             <ShadTooltip styleClasses="z-50" content={session}>
               <div className="relative w-full overflow-hidden">
                 <span className="w-full truncate">
-                  {session === currentFlowId ? t("chat.session.defaultSession") : session}
+                  {session === currentFlowId
+                    ? t("chat.session.defaultSession")
+                    : session}
                 </span>
                 <div
                   className={cn(
@@ -189,7 +191,11 @@ export default function SessionSelector({
           )}
         </div>
         <Select value={""} onValueChange={handleSelectChange}>
-          <ShadTooltip styleClasses="z-50" side="right" content={t("chat.session.options")}>
+          <ShadTooltip
+            styleClasses="z-50"
+            side="right"
+            content={t("chat.session.options")}
+          >
             <SelectTrigger
               onClick={(e) => {
                 e.stopPropagation();

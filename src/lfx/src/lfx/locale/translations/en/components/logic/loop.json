@@ -13,37 +13,7 @@
       "display_name": "Done"
     }
   },
-  "status": {
-    "initialized": "Loop initialized with {count} items",
-    "processing_item": "Processing item {index} of {total}",
-    "completed": "Loop iteration completed",
-    "done": "Loop completed with {count} aggregated results"
-  },
-  "warnings": {
-    "index_out_of_range": "Index {index} out of range, returning empty Data"
-  },
   "errors": {
-    "validation_failed": "Data validation failed: {error}",
     "invalid_data_type": "The 'data' input must be a DataFrame, a list of Data objects, or a single Data object."
-  },
-  "logs": {
-    "already_initialized": "Loop already initialized, skipping initialization",
-    "initializing": "Initializing loop data",
-    "data_validated": "Data validated successfully - {count} items",
-    "initialized": "Loop initialized with {count} items",
-    "validating_data": "Validating data input - Type: {data_type}",
-    "converting_dataframe": "Converting DataFrame to list of Data objects",
-    "wrapping_single_data": "Wrapping single Data object in list",
-    "data_list_valid": "Data list is valid with {count} items",
-    "evaluating_stop": "Evaluating stop condition - Current index: {current_index}, Data length: {data_length}, Should stop: {should_stop}",
-    "loop_completed": "Loop iteration completed - stopping item output",
-    "outputting_item": "Outputting item {index} of {total}",
-    "index_incremented": "Index incremented to {new_index}",
-    "dependency_updated": "Loop dependency updated: {dependency_id}",
-    "triggering_done": "Triggering done output - loop completed",
-    "done_output": "Done output triggered with {count} aggregated items",
-    "loop_not_done": "Loop not done yet - stopping done output",
-    "loop_variables": "Retrieved loop variables - Data count: {data_count}, Current index: {current_index}",
-    "item_aggregated": "Item aggregated - Aggregated: {aggregated_count}, Total: {total_count}"
   }
 }

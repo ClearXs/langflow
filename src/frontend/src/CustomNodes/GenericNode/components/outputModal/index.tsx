@@ -1,8 +1,8 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import BaseModal from "../../../../modals/baseModal";
 import SwitchOutputView from "./components/switchOutputView";
-import { useTranslation } from "react-i18next";
 
 export default function OutputModal({
   nodeId,
@@ -14,7 +14,7 @@ export default function OutputModal({
 }): JSX.Element {
   const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState<"Outputs" | "Logs">("Outputs");
-  
+
   return (
     <BaseModal
       open={open}
@@ -40,8 +40,12 @@ export default function OutputModal({
           }
         >
           <TabsList>
-            <TabsTrigger value="Outputs">{t("components.output.tabs.outputs")}</TabsTrigger>
-            <TabsTrigger value="Logs">{t("components.output.tabs.logs")}</TabsTrigger>
+            <TabsTrigger value="Outputs">
+              {t("components.output.tabs.outputs")}
+            </TabsTrigger>
+            <TabsTrigger value="Logs">
+              {t("components.output.tabs.logs")}
+            </TabsTrigger>
           </TabsList>
         </Tabs>
         <SwitchOutputView

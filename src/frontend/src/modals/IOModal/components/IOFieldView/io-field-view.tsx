@@ -2,6 +2,7 @@ import { cloneDeep } from "lodash";
 import { useState } from "react";
 import useHandleNewValue from "@/CustomNodes/hooks/use-handle-new-value";
 import CustomIOFileInput from "@/customization/components/custom-file-input";
+import { useMessageLocale } from "@/i18n/locale";
 import type { AllNodeType } from "@/types/flow";
 import ImageViewer from "../../../../components/common/ImageViewer";
 import CsvOutputComponent from "../../../../components/core/csvOutputComponent";
@@ -25,7 +26,6 @@ import CsvSelect from "./components/csv-selected";
 import IOFileInput from "./components/file-input";
 import IoJsonInput from "./components/json-input";
 import IOKeyPairInput from "./components/key-pair-input";
-import { useMessageLocale } from "@/i18n/locale";
 
 export default function IOFieldView({
   type,
@@ -36,7 +36,7 @@ export default function IOFieldView({
   const nodes = useFlowStore((state) => state.nodes);
   const setNode = useFlowStore((state) => state.setNode);
   const flowPool = useFlowStore((state) => state.flowPool);
-  const messageLocale = useMessageLocale()
+  const messageLocale = useMessageLocale();
   const node: AllNodeType | undefined = nodes.find(
     (node) => node.id === fieldId,
   );

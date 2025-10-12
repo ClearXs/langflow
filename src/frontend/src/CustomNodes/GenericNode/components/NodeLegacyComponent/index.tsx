@@ -14,7 +14,7 @@ export default function NodeLegacyComponent({
   setDismissAll: (value: boolean) => void;
 }) {
   const { t } = useTranslation();
-  
+
   const setFilterComponent = useFlowStore((state) => state.setFilterComponent);
   const setFilterType = useFlowStore((state) => state.setFilterType);
   const setFilterEdge = useFlowStore((state) => state.setFilterEdge);

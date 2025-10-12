@@ -1,11 +1,11 @@
-import '@xyflow/react/dist/style.css';
-import { Suspense, useEffect } from 'react';
-import { RouterProvider } from 'react-router-dom';
-import { LoadingPage } from './pages/LoadingPage';
-import router from './routes';
-import { useDarkStore } from './stores/darkStore';
-import { useI18nStore } from './stores/i18nStore';
-import { useTranslation } from 'react-i18next';
+import "@xyflow/react/dist/style.css";
+import { Suspense, useEffect } from "react";
+import { useTranslation } from "react-i18next";
+import { RouterProvider } from "react-router-dom";
+import { LoadingPage } from "./pages/LoadingPage";
+import router from "./routes";
+import { useDarkStore } from "./stores/darkStore";
+import { useI18nStore } from "./stores/i18nStore";
 
 export default function App() {
   const dark = useDarkStore((state) => state.dark);
@@ -14,9 +14,9 @@ export default function App() {
 
   useEffect(() => {
     if (!dark) {
-      document.getElementById('body')!.classList.remove('dark');
+      document.getElementById("body")!.classList.remove("dark");
     } else {
-      document.getElementById('body')!.classList.add('dark');
+      document.getElementById("body")!.classList.add("dark");
     }
   }, [dark]);
 

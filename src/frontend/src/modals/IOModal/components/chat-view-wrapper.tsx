@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import ShadTooltip from "@/components/common/shadTooltipComponent";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -5,7 +6,6 @@ import { cn } from "@/utils/utils";
 import IconComponent from "../../../components/common/genericIconComponent";
 import type { ChatViewWrapperProps } from "../types/chat-view-wrapper";
 import ChatView from "./chatView/components/chat-view";
-import { useTranslation } from "react-i18next";
 
 export const ChatViewWrapper = ({
   selectedViewField,
@@ -75,7 +75,11 @@ export const ChatViewWrapper = ({
             playgroundPage ? "right-2 top-4" : "absolute right-12 top-2 h-8",
           )}
         >
-          <ShadTooltip side="bottom" styleClasses="z-50" content={t("chat.session.newChat")}>
+          <ShadTooltip
+            side="bottom"
+            styleClasses="z-50"
+            content={t("chat.session.newChat")}
+          >
             <Button
               className="mr-2 h-[32px] w-[32px] hover:bg-secondary-hover"
               variant="ghost"

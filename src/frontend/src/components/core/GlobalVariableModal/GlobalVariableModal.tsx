@@ -37,7 +37,7 @@ export default function GlobalVariableModal({
   disabled?: boolean;
 }): JSX.Element {
   const { t } = useTranslation();
-  
+
   const [key, setKey] = useState(initialData?.name ?? "");
   const [value, setValue] = useState(initialData?.value ?? "");
   const [type, setType] = useState(initialData?.type ?? "Credential");
@@ -102,7 +102,7 @@ export default function GlobalVariableModal({
             initialData
               ? "variable.message.variableUpdatedSuccessfully"
               : "variable.message.variableCreatedSuccessfully",
-            { name }
+            { name },
           ),
         });
       },
@@ -112,14 +112,14 @@ export default function GlobalVariableModal({
           title: t(
             initialData
               ? "variable.message.errorUpdatingVariable"
-              : "variable.message.errorCreatingVariable"
+              : "variable.message.errorCreatingVariable",
           ),
           list: [
             responseError?.response?.data?.detail ??
               t(
                 initialData
                   ? "variable.message.unexpectedErrorUpdating"
-                  : "variable.message.unexpectedErrorCreating"
+                  : "variable.message.unexpectedErrorCreating",
               ),
           ],
         });
@@ -239,7 +239,7 @@ export default function GlobalVariableModal({
           label: t(
             initialData
               ? "variable.modal.updateButton"
-              : "variable.modal.saveButton"
+              : "variable.modal.saveButton",
           ),
           dataTestId: "save-variable-btn",
           disabled: !key || !value,

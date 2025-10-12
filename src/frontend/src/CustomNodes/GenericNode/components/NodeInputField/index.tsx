@@ -9,6 +9,7 @@ import {
   getCustomParameterTitle,
 } from "@/customization/components/custom-parameter";
 import { useIsAutoLogin } from "@/hooks/use-is-auto-login";
+import { useFormLocale } from "@/i18n/locale";
 import useAuthStore from "@/stores/authStore";
 import { cn } from "@/utils/utils";
 import { default as IconComponent } from "../../../../components/common/genericIconComponent";
@@ -25,7 +26,6 @@ import useFetchDataOnMount from "../../../hooks/use-fetch-data-on-mount";
 import useHandleOnNewValue from "../../../hooks/use-handle-new-value";
 import HandleRenderComponent from "../handleRenderComponent";
 import NodeInputInfo from "../NodeInputInfo";
-import { useFormLocale } from "@/i18n/locale";
 
 export default function NodeInputField({
   id,
@@ -48,8 +48,8 @@ export default function NodeInputField({
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const isAutoLogin = useIsAutoLogin();
   const shouldDisplayApiKey = isAuthenticated && !isAutoLogin;
-  
-  const formLocale = useFormLocale()
+
+  const formLocale = useFormLocale();
 
   const { currentFlowId, currentFlowName } = useFlowStore(
     useShallow((state) => ({

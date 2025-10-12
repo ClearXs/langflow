@@ -1,4 +1,5 @@
 import { type Dispatch, type SetStateAction, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useHref } from "react-router-dom";
 import IconComponent from "@/components/common/genericIconComponent";
 import ShadTooltipComponent from "@/components/common/shadTooltipComponent";
@@ -22,7 +23,6 @@ import useAuthStore from "@/stores/authStore";
 import useFlowStore from "@/stores/flowStore";
 import useFlowsManagerStore from "@/stores/flowsManagerStore";
 import { cn } from "@/utils/utils";
-import { useTranslation } from "react-i18next";
 
 type PublishDropdownProps = {
   openApiModal: boolean;
@@ -189,7 +189,9 @@ export default function PublishDropdown({
                           to={`/playground/${flowId}`}
                           target="_blank"
                         >
-                          <span>{t("flow.share.menu.shareablePlayground")}</span>
+                          <span>
+                            {t("flow.share.menu.shareablePlayground")}
+                          </span>
                         </CustomLink>
                       ) : (
                         <span className={cn(!isPublished && "opacity-50")}>

@@ -1,12 +1,12 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { type ReactNode, useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import useAlertStore from "@/stores/alertStore";
 import type { FileType } from "@/types/file_management";
 import { ForwardedIconComponent } from "../../components/common/genericIconComponent";
 import BaseModal from "../baseModal";
 import DragFilesComponent from "./components/dragFilesComponent";
 import RecentFilesComponent from "./components/recentFilesComponent";
-import { useTranslation } from "react-i18next";
 
 export default function FileManagerModal({
   children,

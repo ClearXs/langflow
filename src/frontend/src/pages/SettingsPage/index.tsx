@@ -1,17 +1,17 @@
-import { Outlet, type To } from 'react-router-dom';
-import SideBarButtonsComponent from '@/components/core/sidebarComponent';
-import { SidebarProvider } from '@/components/ui/sidebar';
-import { CustomStoreSidebar } from '@/customization/components/custom-store-sidebar';
+import { useTranslation } from "react-i18next";
+import { Outlet, type To } from "react-router-dom";
+import SideBarButtonsComponent from "@/components/core/sidebarComponent";
+import { SidebarProvider } from "@/components/ui/sidebar";
+import { CustomStoreSidebar } from "@/customization/components/custom-store-sidebar";
 import {
   ENABLE_DATASTAX_LANGFLOW,
   ENABLE_LANGFLOW_STORE,
   ENABLE_PROFILE_ICONS,
-} from '@/customization/feature-flags';
-import useAuthStore from '@/stores/authStore';
-import { useStoreStore } from '@/stores/storeStore';
-import ForwardedIconComponent from '../../components/common/genericIconComponent';
-import PageLayout from '../../components/common/pageLayout';
-import { useTranslation } from 'react-i18next';
+} from "@/customization/feature-flags";
+import useAuthStore from "@/stores/authStore";
+import { useStoreStore } from "@/stores/storeStore";
+import ForwardedIconComponent from "../../components/common/genericIconComponent";
+import PageLayout from "../../components/common/pageLayout";
 export default function SettingsPage(): JSX.Element {
   const autoLogin = useAuthStore((state) => state.autoLogin);
   const hasStore = useStoreStore((state) => state.hasStore);
@@ -29,12 +29,12 @@ export default function SettingsPage(): JSX.Element {
 
   if (showGeneralSettings) {
     sidebarNavItems.push({
-      title: t('settings.general'),
-      href: '/settings/general',
+      title: t("settings.general"),
+      href: "/settings/general",
       icon: (
         <ForwardedIconComponent
-          name='SlidersHorizontal'
-          className='w-4 flex-shrink-0 justify-start stroke-[1.5]'
+          name="SlidersHorizontal"
+          className="w-4 flex-shrink-0 justify-start stroke-[1.5]"
         />
       ),
     });
@@ -42,46 +42,46 @@ export default function SettingsPage(): JSX.Element {
 
   sidebarNavItems.push(
     {
-      title: t('settings.mcpServers'),
-      href: '/settings/mcp-servers',
+      title: t("settings.mcpServers"),
+      href: "/settings/mcp-servers",
       icon: (
         <ForwardedIconComponent
-          name='Mcp'
-          className='w-4 flex-shrink-0 justify-start stroke-[1.5]'
+          name="Mcp"
+          className="w-4 flex-shrink-0 justify-start stroke-[1.5]"
         />
       ),
     },
     {
-      title: t('settings.globalVariables'),
-      href: '/settings/global-variables',
+      title: t("settings.globalVariables"),
+      href: "/settings/global-variables",
       icon: (
         <ForwardedIconComponent
-          name='Globe'
-          className='w-4 flex-shrink-0 justify-start stroke-[1.5]'
+          name="Globe"
+          className="w-4 flex-shrink-0 justify-start stroke-[1.5]"
         />
       ),
     },
 
     {
-      title: t('settings.shortcuts'),
-      href: '/settings/shortcuts',
+      title: t("settings.shortcuts"),
+      href: "/settings/shortcuts",
       icon: (
         <ForwardedIconComponent
-          name='Keyboard'
-          className='w-4 flex-shrink-0 justify-start stroke-[1.5]'
+          name="Keyboard"
+          className="w-4 flex-shrink-0 justify-start stroke-[1.5]"
         />
       ),
     },
     {
-      title: t('settings.messages'),
-      href: '/settings/messages',
+      title: t("settings.messages"),
+      href: "/settings/messages",
       icon: (
         <ForwardedIconComponent
-          name='MessagesSquare'
-          className='w-4 flex-shrink-0 justify-start stroke-[1.5]'
+          name="MessagesSquare"
+          className="w-4 flex-shrink-0 justify-start stroke-[1.5]"
         />
       ),
-    }
+    },
   );
 
   // TODO: Remove this on cleanup
@@ -93,13 +93,13 @@ export default function SettingsPage(): JSX.Element {
   return (
     <PageLayout
       backTo={-1 as To}
-      title={t('settings.displayName')}
-      description={t('settings.description')}
+      title={t("settings.displayName")}
+      description={t("settings.description")}
     >
-      <SidebarProvider width='15rem' defaultOpen={false}>
+      <SidebarProvider width="15rem" defaultOpen={false}>
         <SideBarButtonsComponent items={sidebarNavItems} />
-        <main className='flex flex-1 overflow-hidden'>
-          <div className='flex flex-1 flex-col overflow-x-hidden pt-1'>
+        <main className="flex flex-1 overflow-hidden">
+          <div className="flex flex-1 flex-col overflow-x-hidden pt-1">
             <Outlet />
           </div>
         </main>

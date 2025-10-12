@@ -180,7 +180,9 @@ export default function ApiModal({
                 </span>
                 {!validEndpointName && (
                   <span className="edit-flow-span">
-                    {t("api.modal.endpointName.validation", { max: MAX_LENGTH })}
+                    {t("api.modal.endpointName.validation", {
+                      max: MAX_LENGTH,
+                    })}
                   </span>
                 )}
               </div>

@@ -41,7 +41,7 @@ export default function CodeAreaModal({
   componentId,
 }: codeAreaModalPropsType): JSX.Element {
   const { t } = useTranslation();
-  
+
   const [code, setCode] = useState(value);
   const [open, setOpen] =
     mySetOpen !== undefined && myOpen !== undefined

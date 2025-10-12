@@ -2,6 +2,7 @@ import type { ColDef } from "ag-grid-community";
 import type { AgGridReact } from "ag-grid-react";
 import { cloneDeep } from "lodash";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import type { handleOnNewValueType } from "@/CustomNodes/hooks/use-handle-new-value";
 import ForwardedIconComponent from "@/components/common/genericIconComponent";
 import ShadTooltip from "@/components/common/shadTooltipComponent";
@@ -44,6 +45,8 @@ export default function ToolsTable({
   const [focusedRow, setFocusedRow] = useState<any | null>(null);
   const [sidebarName, setSidebarName] = useState<string>("");
   const [sidebarDescription, setSidebarDescription] = useState<string>("");
+
+  const { t } = useTranslation();
 
   const editedSelection = useRef<boolean>(false);
 
@@ -431,7 +434,7 @@ export default function ToolsTable({
               onClick={handleClose}
               data-testid="btn_close_tools_modal"
             >
-              Close
+              {t("components.buttons.close")}
             </Button>
           </div>
         </SidebarFooter>

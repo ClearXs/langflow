@@ -4,7 +4,7 @@ import type {
   SelectionChangedEvent,
 } from "ag-grid-community";
 import { useRef, useState } from "react";
-
+import { useTranslation } from "react-i18next";
 import Dropdown from "@/components/core/dropdownComponent";
 import GlobalVariableModal from "@/components/core/GlobalVariableModal/GlobalVariableModal";
 import TableComponent from "@/components/core/parameterRenderComponent/components/tableComponent";
@@ -19,14 +19,13 @@ import IconComponent, {
 import { Badge } from "../../../../components/ui/badge";
 import { Button } from "../../../../components/ui/button";
 import useAlertStore from "../../../../stores/alertStore";
-import { useTranslation } from "react-i18next";
 
 export default function GlobalVariablesPage() {
   const setErrorData = useAlertStore((state) => state.setErrorData);
   const [openModal, setOpenModal] = useState(false);
   const initialData = useRef<GlobalVariable | undefined>(undefined);
 
-  const {t} = useTranslation()
+  const { t } = useTranslation();
 
   const BadgeRenderer = (props) => {
     return props.value !== "" ? (

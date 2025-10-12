@@ -10,6 +10,7 @@ import {
   useState,
 } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
+import { useTranslation } from "react-i18next";
 import { Badge } from "@/components/ui/badge";
 import { ICON_STROKE_WIDTH } from "@/constants/constants";
 import { useShortcutsStore } from "@/stores/shortcuts";
@@ -37,7 +38,6 @@ import {
 import HandleRenderComponent from "../handleRenderComponent";
 import OutputComponent from "../OutputComponent";
 import OutputModal from "../outputModal";
-import { useTranslation } from "react-i18next";
 
 const _EyeIcon = memo(
   ({ hidden, className }: { hidden: boolean; className: string }) => (
@@ -395,10 +395,7 @@ function NodeOutputField({
             />
           </span>
 
-          <ShadTooltip
-            content={getTooltipContent()}
-            styleClasses="z-40"
-          >
+          <ShadTooltip content={getTooltipContent()} styleClasses="z-40">
             <div className="flex items-center gap-2">
               <OutputModal
                 open={openOutputModal}

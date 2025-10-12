@@ -230,7 +230,9 @@ const NodeToolbarComponent = memo(
 
     const handleCodeModal = useCallback(() => {
       if (!hasCode) {
-        setNoticeData({ title: `${t("common.cannotAccessCode")} ${data.id} code` });
+        setNoticeData({
+          title: `${t("common.cannotAccessCode")} ${data.id} code`,
+        });
       }
       setOpenModal((state) => !state);
     }, [hasCode, data.id, t]);
@@ -509,7 +511,9 @@ const NodeToolbarComponent = memo(
                     toolMode ? "text-primary" : "",
                   )}
                 />
-                <span className="text-mmd font-medium">{t("common.toolMode")}</span>
+                <span className="text-mmd font-medium">
+                  {t("common.toolMode")}
+                </span>
                 <ToggleShadComponent
                   value={toolMode}
                   editNode={false}
@@ -615,7 +619,9 @@ const NodeToolbarComponent = memo(
                       style={
                         hasBreakingChange ? "text-accent-amber-foreground" : ""
                       }
-                      value={isUserEdited ? t("common.restore") : t("common.update")}
+                      value={
+                        isUserEdited ? t("common.restore") : t("common.update")
+                      }
                       icon={isUserEdited ? "RefreshCcwDot" : "CircleArrowUp"}
                       dataTestId="update-button-modal"
                     />
@@ -663,7 +669,9 @@ const NodeToolbarComponent = memo(
                         shortcuts.find((obj) => obj.name === "Minimize")
                           ?.shortcut!
                       }
-                      value={showNode ? t("common.minimize") : t("common.expand")}
+                      value={
+                        showNode ? t("common.minimize") : t("common.expand")
+                      }
                       icon={showNode ? "Minimize2" : "Maximize2"}
                     />
                   </SelectItem>

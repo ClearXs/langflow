@@ -1,10 +1,10 @@
-import os
-import i18n
 import json
+import os
 from typing import Any
 from urllib.parse import urljoin
 
 import httpx
+import i18n
 from langchain_core.tools import StructuredTool, ToolException
 from pydantic import BaseModel
 from pydantic.v1 import Field
@@ -20,10 +20,8 @@ from lfx.schema.dataframe import DataFrame
 
 class GleanSearchAPISchema(BaseModel):
     query: str = Field(..., description="The search query")
-    page_size: int = Field(
-        10, description="Maximum number of results to return")
-    request_options: dict[str, Any] | None = Field(
-        default_factory=dict, description="Request Options")
+    page_size: int = Field(10, description="Maximum number of results to return")
+    request_options: dict[str, Any] | None = Field(default_factory=dict, description="Request Options")
 
 
 class GleanAPIWrapper(BaseModel):
@@ -32,8 +30,6 @@ class GleanAPIWrapper(BaseModel):
     glean_api_url: str
     glean_access_token: str
     act_as: str = "langflow-component@datastax.com"  # TODO: Detect this
-
-    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     def _prepare_request(
         self,
@@ -47,9 +43,13 @@ class GleanAPIWrapper(BaseModel):
         if not url.endswith("/"):
             url += "/"
 
-        logger.debug(i18n.t('components.glean.glean_search_api.logs.preparing_request',
-                            url=url,
-                            query=query[:100] + ("..." if len(query) > 100 else "")))
+        logger.debug(
+            i18n.t(
+                "components.glean.glean_search_api.logs.preparing_request",
+                url=url,
+                query=query[:100] + ("..." if len(query) > 100 else ""),
+            )
+        )
 
         return {
             "url": urljoin(url, "search"),
@@ -66,44 +66,45 @@ class GleanAPIWrapper(BaseModel):
 
     def results(self, query: str, **kwargs: Any) -> list[dict[str, Any]]:
         """Get search results from Glean API."""
-        logger.info(
-            i18n.t('components.glean.glean_search_api.logs.fetching_results'))
+        logger.info(i18n.t("components.glean.glean_search_api.logs.fetching_results"))
 
         results = self._search_api_results(query, **kwargs)
 
         if len(results) == 0:
-            msg = i18n.t('components.glean.glean_search_api.errors.no_results')
+            msg = i18n.t("components.glean.glean_search_api.errors.no_results")
             logger.warning(msg)
             raise AssertionError(msg)
 
-        logger.info(i18n.t('components.glean.glean_search_api.logs.results_fetched',
-                           count=len(results)))
+        logger.info(i18n.t("components.glean.glean_search_api.logs.results_fetched", count=len(results)))
         return results
 
     def run(self, query: str, **kwargs: Any) -> list[dict[str, Any]]:
         """Execute search and process results."""
         try:
-            logger.info(i18n.t('components.glean.glean_search_api.logs.executing_search',
-                               query=query[:100] + ("..." if len(query) > 100 else "")))
+            logger.info(
+                i18n.t(
+                    "components.glean.glean_search_api.logs.executing_search",
+                    query=query[:100] + ("..." if len(query) > 100 else ""),
+                )
+            )
 
             results = self.results(query, **kwargs)
 
             processed_results = []
             for result in results:
                 if "title" in result:
-                    result["snippets"] = result.get(
-                        "snippets", [{"snippet": {"text": result["title"]}}])
+                    result["snippets"] = result.get("snippets", [{"snippet": {"text": result["title"]}}])
                     if "text" not in result["snippets"][0]:
                         result["snippets"][0]["text"] = result["title"]
 
                 processed_results.append(result)
 
-            logger.info(i18n.t('components.glean.glean_search_api.logs.results_processed',
-                               count=len(processed_results)))
+            logger.info(
+                i18n.t("components.glean.glean_search_api.logs.results_processed", count=len(processed_results))
+            )
 
         except Exception as e:
-            error_message = i18n.t('components.glean.glean_search_api.errors.search_failed',
-                                   error=str(e))
+            error_message = i18n.t("components.glean.glean_search_api.errors.search_failed", error=str(e))
             logger.exception(error_message)
             raise ToolException(error_message) from e
 
@@ -114,8 +115,7 @@ class GleanAPIWrapper(BaseModel):
         request_details = self._prepare_request(query, **kwargs)
 
         try:
-            logger.debug(i18n.t('components.glean.glean_search_api.logs.sending_request',
-                                url=request_details["url"]))
+            logger.debug(i18n.t("components.glean.glean_search_api.logs.sending_request", url=request_details["url"]))
 
             response = httpx.post(
                 request_details["url"],
@@ -124,26 +124,25 @@ class GleanAPIWrapper(BaseModel):
             )
 
             response.raise_for_status()
-            logger.debug(i18n.t('components.glean.glean_search_api.logs.request_successful',
-                                status=response.status_code))
+            logger.debug(
+                i18n.t("components.glean.glean_search_api.logs.request_successful", status=response.status_code)
+            )
 
             response_json = response.json()
             results = response_json.get("results", [])
 
-            logger.debug(i18n.t('components.glean.glean_search_api.logs.response_parsed',
-                                count=len(results)))
+            logger.debug(i18n.t("components.glean.glean_search_api.logs.response_parsed", count=len(results)))
 
             return results
 
         except httpx.HTTPStatusError as e:
-            error_msg = i18n.t('components.glean.glean_search_api.errors.http_error',
-                               status=e.response.status_code,
-                               error=str(e))
+            error_msg = i18n.t(
+                "components.glean.glean_search_api.errors.http_error", status=e.response.status_code, error=str(e)
+            )
             logger.error(error_msg)
             raise
         except Exception as e:
-            error_msg = i18n.t('components.glean.glean_search_api.errors.request_failed',
-                               error=str(e))
+            error_msg = i18n.t("components.glean.glean_search_api.errors.request_failed", error=str(e))
             logger.exception(error_msg)
             raise
 
@@ -155,65 +154,57 @@ class GleanAPIWrapper(BaseModel):
 
 class GleanSearchAPIComponent(LCToolComponent):
     display_name: str = "Glean Search API"
-    description: str = i18n.t('components.glean.glean_search_api.description')
+    description: str = i18n.t("components.glean.glean_search_api.description")
     documentation: str = "https://docs.langflow.org/Components/components-tools#glean-search-api"
     icon: str = "Glean"
 
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
+
     outputs = [
         Output(
-            display_name=i18n.t(
-                'components.glean.glean_search_api.outputs.dataframe.display_name'),
+            display_name=i18n.t("components.glean.glean_search_api.outputs.dataframe.display_name"),
             name="dataframe",
-            method="fetch_content_dataframe"
+            method="fetch_content_dataframe",
         ),
     ]
 
     inputs = [
         StrInput(
             name="glean_api_url",
-            display_name=i18n.t(
-                'components.glean.glean_search_api.glean_api_url.display_name'),
+            display_name=i18n.t("components.glean.glean_search_api.glean_api_url.display_name"),
             required=True,
-            info=i18n.t(
-                'components.glean.glean_search_api.glean_api_url.info'),
+            info=i18n.t("components.glean.glean_search_api.glean_api_url.info"),
         ),
         SecretStrInput(
             name="glean_access_token",
-            display_name=i18n.t(
-                'components.glean.glean_search_api.glean_access_token.display_name'),
+            display_name=i18n.t("components.glean.glean_search_api.glean_access_token.display_name"),
             required=True,
-            info=i18n.t(
-                'components.glean.glean_search_api.glean_access_token.info'),
+            info=i18n.t("components.glean.glean_search_api.glean_access_token.info"),
         ),
         MultilineInput(
             name="query",
-            display_name=i18n.t(
-                'components.glean.glean_search_api.query.display_name'),
+            display_name=i18n.t("components.glean.glean_search_api.query.display_name"),
             required=True,
             tool_mode=True,
-            info=i18n.t('components.glean.glean_search_api.query.info'),
+            info=i18n.t("components.glean.glean_search_api.query.info"),
         ),
         IntInput(
             name="page_size",
-            display_name=i18n.t(
-                'components.glean.glean_search_api.page_size.display_name'),
+            display_name=i18n.t("components.glean.glean_search_api.page_size.display_name"),
             value=10,
-            info=i18n.t('components.glean.glean_search_api.page_size.info'),
+            info=i18n.t("components.glean.glean_search_api.page_size.info"),
         ),
         NestedDictInput(
             name="request_options",
-            display_name=i18n.t(
-                'components.glean.glean_search_api.request_options.display_name'),
+            display_name=i18n.t("components.glean.glean_search_api.request_options.display_name"),
             required=False,
-            info=i18n.t(
-                'components.glean.glean_search_api.request_options.info'),
+            info=i18n.t("components.glean.glean_search_api.request_options.info"),
         ),
     ]
 
     def build_tool(self) -> Tool:
         """Build the Glean Search tool for LangChain."""
-        logger.info(
-            i18n.t('components.glean.glean_search_api.logs.building_tool'))
+        logger.info(i18n.t("components.glean.glean_search_api.logs.building_tool"))
 
         wrapper = self._build_wrapper(
             glean_api_url=self.glean_api_url,
@@ -222,14 +213,12 @@ class GleanSearchAPIComponent(LCToolComponent):
 
         tool = StructuredTool.from_function(
             name="glean_search_api",
-            description=i18n.t(
-                'components.glean.glean_search_api.tool_description'),
+            description=i18n.t("components.glean.glean_search_api.tool_description"),
             func=wrapper.run,
             args_schema=GleanSearchAPISchema,
         )
 
-        status_msg = i18n.t(
-            'components.glean.glean_search_api.logs.tool_built')
+        status_msg = i18n.t("components.glean.glean_search_api.logs.tool_built")
         self.status = status_msg
         logger.info(status_msg)
 
@@ -237,14 +226,12 @@ class GleanSearchAPIComponent(LCToolComponent):
 
     def run_model(self) -> DataFrame:
         """Run the model and return DataFrame."""
-        logger.info(
-            i18n.t('components.glean.glean_search_api.logs.running_model'))
+        logger.info(i18n.t("components.glean.glean_search_api.logs.running_model"))
         return self.fetch_content_dataframe()
 
     def fetch_content(self) -> list[Data]:
         """Fetch content from Glean Search API."""
-        logger.info(
-            i18n.t('components.glean.glean_search_api.logs.fetching_content'))
+        logger.info(i18n.t("components.glean.glean_search_api.logs.fetching_content"))
 
         tool = self.build_tool()
 
@@ -258,18 +245,15 @@ class GleanSearchAPIComponent(LCToolComponent):
             )
 
             # Build the data
-            data = [Data(data=result, text=result["snippets"][0]["text"])
-                    for result in results]
+            data = [Data(data=result, text=result["snippets"][0]["text"]) for result in results]
 
-            logger.info(i18n.t('components.glean.glean_search_api.logs.content_fetched',
-                               count=len(data)))
+            logger.info(i18n.t("components.glean.glean_search_api.logs.content_fetched", count=len(data)))
 
             self.status = data  # type: ignore[assignment]
             return data
 
         except Exception as e:
-            error_msg = i18n.t('components.glean.glean_search_api.errors.fetch_failed',
-                               error=str(e))
+            error_msg = i18n.t("components.glean.glean_search_api.errors.fetch_failed", error=str(e))
             logger.exception(error_msg)
             raise
 
@@ -279,8 +263,7 @@ class GleanSearchAPIComponent(LCToolComponent):
         glean_access_token: str,
     ):
         """Build the Glean API wrapper."""
-        logger.debug(
-            i18n.t('components.glean.glean_search_api.logs.building_wrapper'))
+        logger.debug(i18n.t("components.glean.glean_search_api.logs.building_wrapper"))
 
         return GleanAPIWrapper(
             glean_api_url=glean_api_url,
@@ -293,13 +276,11 @@ class GleanSearchAPIComponent(LCToolComponent):
         Returns:
             DataFrame: A DataFrame containing the search results.
         """
-        logger.info(
-            i18n.t('components.glean.glean_search_api.logs.converting_to_dataframe'))
+        logger.info(i18n.t("components.glean.glean_search_api.logs.converting_to_dataframe"))
 
         data = self.fetch_content()
         df = DataFrame(data)
 
-        logger.info(i18n.t('components.glean.glean_search_api.logs.dataframe_created',
-                           rows=len(df)))
+        logger.info(i18n.t("components.glean.glean_search_api.logs.dataframe_created", rows=len(df)))
 
         return df

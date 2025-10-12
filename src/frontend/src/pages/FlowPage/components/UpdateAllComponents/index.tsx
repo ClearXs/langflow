@@ -23,7 +23,7 @@ const CONTAINER_VARIANTS = {
 
 export default function UpdateAllComponents() {
   const { t } = useTranslation();
-  
+
   const { componentsToUpdate, nodes, edges, setNodes } = useFlowStore();
   const templates = useTypesStore((state) => state.templates);
   const setErrorData = useAlertStore((state) => state.setErrorData);

@@ -351,6 +351,29 @@
     "inputParameters": "输入参数",
     "outputParameters": "输出参数",
     "advancedSettings": "高级设置",
+    "logCanvasControls": {
+      "logs": "日志"
+    },
+    "mcpComponent": {
+      "status": {
+        "timeout": "超时",
+        "error": "错误",
+        "loading": "加载中...",
+        "noTools": "未找到工具",
+        "toolCount": "{{count}} 个工具"
+      },
+      "placeholder": {
+        "loadingServers": "加载服务器中...",
+        "selectServer": "选择服务器...",
+        "searchServers": "搜索 MCP 服务器..."
+      },
+      "buttons": {
+        "addServer": "添加 MCP 服务器"
+      },
+      "errors": {
+        "addServerFailed": "添加 MCP 服务器时出错"
+      }
+    },
     "output": {
       "title": "组件输出",
       "description": "检查下面组件的输出。",
@@ -489,8 +512,7 @@
     "saveChanges": "保存更改",
     "never": "从未"
   },
-  "mcp": {
-  },
+  "mcp": {},
   "variable": {
     "globalVariables": "全局变量",
     "description": "管理全局变量并将其分配给字段。",
@@ -699,6 +721,70 @@
       "save": "保存",
       "errorTitle": "获取字典时出错",
       "errorMessage": "检查您的字典格式"
+    },
+    "addMcpServer": {
+      "title": {
+        "add": "添加 MCP 服务器",
+        "update": "更新 MCP 服务器"
+      },
+      "description": "保存 MCP 服务器。在",
+      "settingsLink": "设置",
+      "tabs": {
+        "json": "JSON",
+        "stdio": "STDIO",
+        "http": "Streamable HTTP/SSE"
+      },
+      "fields": {
+        "name": "名称",
+        "command": "命令",
+        "arguments": "参数",
+        "environmentVariables": "环境变量",
+        "jsonConfig": "粘贴 JSON 配置",
+        "httpUrl": "Streamable HTTP/SSE URL",
+        "headers": "请求头"
+      },
+      "placeholders": {
+        "jsonConfig": "粘贴 JSON 配置以添加服务器",
+        "serverName": "输入服务器名称...",
+        "name": "名称",
+        "command": "输入命令...",
+        "argument": "输入参数...",
+        "httpUrl": "Streamable HTTP/SSE URL"
+      },
+      "buttons": {
+        "cancel": "取消",
+        "addServer": "添加服务器",
+        "updateServer": "更新服务器",
+        "addArgument": "添加参数"
+      },
+      "errors": {
+        "nameAndCommandRequired": "名称和命令为必填项。",
+        "nameAndUrlRequired": "名称和 URL 为必填项。",
+        "failedToAdd": "添加 MCP 服务器失败。",
+        "failedToAddMultiple": "添加一个或多个 MCP 服务器失败。",
+        "invalidInput": "无效的输入",
+        "noValidServer": "输入中未找到有效的 MCP 服务器。"
+      }
+    },
+    "saveChanges": {
+      "title": {
+        "flow": "流程",
+        "unsavedChanges": "有未保存的更改"
+      },
+      "buttons": {
+        "exitAnyway": "仍然退出",
+        "saveAndExit": "保存并退出"
+      },
+      "messages": {
+        "saving": "正在保存您的更改...",
+        "lastSaved": "上次保存：{{time}}",
+        "never": "从未保存",
+        "warningLost": "未保存的更改将永久丢失。",
+        "avoidLosing": "以避免丢失进度。"
+      },
+      "links": {
+        "enableAutoSave": "启用自动保存"
+      }
     }
   },
   "signUpPage": {
@@ -943,7 +1029,7 @@
       "looping": "循环中"
     }
   },
- "fileManager": {
+  "fileManager": {
     "title": "我的文件",
     "selectFiles": "选择文件",
     "searchPlaceholder": "搜索文件...",
@@ -1009,6 +1095,57 @@
       "resetZoomTooltip": "重置缩放至 100%",
       "fitView": "适应视图",
       "fitViewTooltip": "调整视图以显示所有节点"
+    }
+  },
+  "embedModal": {
+    "title": "嵌入到网站",
+    "icon": "Columns2",
+    "copyButton": "复制代码",
+    "copiedSuccess": "已复制",
+    "codeLanguage": "html"
+  },
+  "pages": {
+    "mcpServers": {
+      "title": "MCP 服务器",
+      "description": "管理用于流程中的 MCP 服务器。",
+      "buttons": {
+        "addServer": "添加 MCP 服务器"
+      },
+      "messages": {
+        "noServers": "未添加 MCP 服务器",
+        "addedServers": "已添加的 MCP 服务器"
+      },
+      "status": {
+        "timeout": "超时",
+        "error": "错误",
+        "loading": "加载中...",
+        "noTools": "未找到工具",
+        "toolCount": "{{count}} 个工具"
+      },
+      "actions": {
+        "edit": "编辑",
+        "delete": "删除"
+      },
+      "deleteConfirmation": "MCP 服务器",
+      "errors": {
+        "fetchServerFailed": "获取服务器失败",
+        "deleteServerFailed": "删除服务器失败"
+      }
+    },
+    "generalSettings": {
+      "title": "常规",
+      "description": "管理与 Langflow 和您的账户相关的设置。",
+      "profilePicture": {
+        "title": "个人头像",
+        "description": "选择显示为您个人头像的图片。",
+        "buttons": {
+          "save": "保存"
+        }
+      }
+    },
+    "messagesSettings": {
+      "title": "消息",
+      "description": "查看、编辑和移除消息，以探索和优化模型行为。"
     }
   }
 }

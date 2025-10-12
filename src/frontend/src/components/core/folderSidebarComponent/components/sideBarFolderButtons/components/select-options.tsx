@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import IconComponent from "@/components/common/genericIconComponent";
 import ShadTooltip from "@/components/common/shadTooltipComponent";
 import { convertTestName } from "@/components/common/storeCardComponent/utils/convert-test-name";
@@ -12,7 +13,6 @@ import { useUtilityStore } from "@/stores/utilityStore";
 import { cn } from "@/utils/utils";
 import { handleSelectChange } from "../helpers/handle-select-change";
 import { FolderSelectItem } from "./folder-select-item";
-import { useTranslation } from "react-i18next";
 
 export const SelectOptions = ({
   item,
@@ -45,7 +45,11 @@ export const SelectOptions = ({
         }
         value=""
       >
-        <ShadTooltip content={t("common.options")} side="right" styleClasses="z-50">
+        <ShadTooltip
+          content={t("common.options")}
+          side="right"
+          styleClasses="z-50"
+        >
           <SelectTrigger
             className="w-fit"
             id={`options-trigger-${item.name}`}

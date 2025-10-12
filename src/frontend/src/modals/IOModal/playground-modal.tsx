@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useShallow } from "zustand/react/shallow";
 import ThemeButtons from "@/components/core/appHeaderComponent/components/ThemeButtons";
 import { useGetMessagesQuery } from "@/controllers/API/queries/messages";
@@ -26,7 +27,6 @@ import { createNewSessionName } from "./components/chatView/chatInput/components
 import { SelectedViewField } from "./components/selected-view-field";
 import { SidebarOpenView } from "./components/sidebar-open-view";
 import { useGetFlowId } from "./hooks/useGetFlowId";
-import { useTranslation } from "react-i18next";
 
 export default function IOModal({
   children,
@@ -83,7 +83,8 @@ export default function IOModal({
   const [visibleSession, setvisibleSession] = useState<string | undefined>(
     currentFlowId,
   );
-  const PlaygroundTitle = playgroundPage && flowName ? flowName : t("playground.title");
+  const PlaygroundTitle =
+    playgroundPage && flowName ? flowName : t("playground.title");
 
   const {
     data: sessionsFromDb,
@@ -429,7 +430,9 @@ export default function IOModal({
                       className="w-full !rounded-xl shadow-lg"
                     >
                       <LangflowLogoColor />
-                      <div className="text-sm">{t("playground.builtWithLangflow")}</div>
+                      <div className="text-sm">
+                        {t("playground.builtWithLangflow")}
+                      </div>
                     </Button>
                   </div>
                 )}

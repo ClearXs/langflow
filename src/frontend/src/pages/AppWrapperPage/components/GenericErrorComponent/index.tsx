@@ -1,10 +1,9 @@
+import { useTranslation } from "react-i18next";
 import TimeoutErrorComponent from "@/components/common/timeoutErrorComponent";
 import CustomFetchErrorComponent from "@/customization/components/custom-fetch-error-component";
-import { useTranslation } from "react-i18next";
 
 export function GenericErrorComponent({ healthCheckTimeout, fetching, retry }) {
-
-  const {t} = useTranslation()
+  const { t } = useTranslation();
 
   switch (healthCheckTimeout) {
     case "serverDown":
@@ -20,8 +19,8 @@ export function GenericErrorComponent({ healthCheckTimeout, fetching, retry }) {
     case "timeout":
       return (
         <TimeoutErrorComponent
-          description={t("constants.timeout.timeout")}
-          message={t("constants.timeout.timeoutDescription")}
+          description={t("constants.error.timeout")}
+          message={t("constants.error.timeoutDescription")}
           openModal={true}
           setRetry={retry}
           isLoadingHealth={fetching}

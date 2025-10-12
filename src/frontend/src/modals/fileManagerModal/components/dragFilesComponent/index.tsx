@@ -1,11 +1,11 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import ForwardedIconComponent from "@/components/common/genericIconComponent";
 import ShadTooltip from "@/components/common/shadTooltipComponent";
 import useUploadFile from "@/hooks/files/use-upload-file";
 import useAlertStore from "@/stores/alertStore";
 import { useUtilityStore } from "@/stores/utilityStore";
 import { formatFileSize } from "@/utils/stringManipulation";
-import { useTranslation } from "react-i18next";
 
 export default function DragFilesComponent({
   onUpload,
@@ -104,7 +104,9 @@ export default function DragFilesComponent({
         tabIndex={0}
       >
         <h3 className="text-sm font-semibold">
-          {isDragging ? t("fileManager.upload.dropFiles") : t("fileManager.upload.clickOrDrag")}
+          {isDragging
+            ? t("fileManager.upload.dropFiles")
+            : t("fileManager.upload.clickOrDrag")}
         </h3>
         <p className="flex items-center gap-2 text-xs text-muted-foreground">
           <div className="flex items-center gap-1">
@@ -115,14 +117,18 @@ export default function DragFilesComponent({
                   className="text-muted-foreground flex items-center gap-1"
                   data-testid="info-types"
                 >
-                  {t("fileManager.upload.moreTypes", { count: types.length - 3 })}
+                  {t("fileManager.upload.moreTypes", {
+                    count: types.length - 3,
+                  })}
                   <ForwardedIconComponent name="info" className="w-3 h-3" />
                 </span>
               </ShadTooltip>
             )}
           </div>
           <span className="font-semibold">
-            {t("fileManager.upload.maxSize", { size: formatFileSize(maxFileSizeUpload) })}
+            {t("fileManager.upload.maxSize", {
+              size: formatFileSize(maxFileSizeUpload),
+            })}
           </span>
         </p>
         <div className="pointer-events-none absolute inset-0 h-full w-full">

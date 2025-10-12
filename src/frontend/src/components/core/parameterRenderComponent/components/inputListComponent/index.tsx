@@ -1,5 +1,6 @@
 import _ from "lodash";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 import { Button } from "@/components/ui/button";
 import { cn } from "../../../../../utils/utils";
@@ -19,6 +20,7 @@ export default function InputListComponent({
   placeholder,
   listAddLabel,
 }: InputProps<string[], InputListComponentType>): JSX.Element {
+  const { t } = useTranslation();
   const [_dropdownOpen, setDropdownOpen] = useState<number | null>(null);
   const [focusedIndex, setFocusedIndex] = useState<number | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -64,6 +66,8 @@ export default function InputListComponent({
     [value, handleOnNewValue],
   );
 
+  const inputPlaceholder = getPlaceholder(disabled, placeholder);
+
   // const handleDuplicateInput = useCallback(
   //   (index: number, e: React.MouseEvent | KeyboardEvent) => {
   //     e.preventDefault();
@@ -75,6 +79,8 @@ export default function InputListComponent({
   //   [value, handleOnNewValue],
   // );
 
+  const defaultAddLabel = t("components.button.addNew");
+
   return (
     <div className={cn("relative w-full", editNode && "max-h-52")}>
       {!editNode && !disabled && (
@@ -84,7 +90,7 @@ export default function InputListComponent({
           disabled={disabled}
           editNode={editNode}
           componentName={componentName || ""}
-          listAddLabel={listAddLabel || "Add More"}
+          listAddLabel={listAddLabel || defaultAddLabel}
         />
       )}
 
@@ -97,7 +103,7 @@ export default function InputListComponent({
                 disabled={disabled}
                 value={singleValue}
                 className={cn(value.length > 1 && "pr-10")}
-                placeholder={getPlaceholder(disabled, placeholder)}
+                placeholder={inputPlaceholder}
                 onChange={(newValue) => handleInputChange(index, newValue)}
                 dataTestId={`${id}_${index}`}
                 editNode={editNode}
@@ -138,7 +144,8 @@ export default function InputListComponent({
             className="btn-add-input-list"
             data-testid={`input-list-add-more-${editNode ? "edit" : "view"}`}
           >
-            <span className="mr-2 text-lg">+</span> {listAddLabel || "Add More"}
+            <span className="mr-2 text-lg">+</span>{" "}
+            {listAddLabel || defaultAddLabel}
           </Button>
         )}
       </div>

@@ -1,6 +1,7 @@
 import * as Form from "@radix-ui/react-form";
 import { cloneDeep } from "lodash";
 import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import useSaveFlow from "@/hooks/flows/use-save-flow";
 import useAlertStore from "@/stores/alertStore";
@@ -8,7 +9,6 @@ import useFlowStore from "@/stores/flowStore";
 import useFlowsManagerStore from "@/stores/flowsManagerStore";
 import type { FlowType } from "@/types/flow";
 import EditFlowSettings from "../editFlowSettingsComponent";
-import { useTranslation } from "react-i18next";
 
 type FlowSettingsComponentProps = {
   flowData?: FlowType;
@@ -73,7 +73,7 @@ const FlowSettingsComponent = ({
   const [disableSave, setDisableSave] = useState(true);
   const autoSaving = useFlowsManagerStore((state) => state.autoSaving);
   const formRef = useRef<HTMLFormElement>(null);
-  
+
   const { t } = useTranslation();
 
   useEffect(() => {

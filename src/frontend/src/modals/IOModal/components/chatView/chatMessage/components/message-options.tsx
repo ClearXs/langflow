@@ -1,9 +1,9 @@
 import { type ButtonHTMLAttributes, useState } from "react";
+import { useTranslation } from "react-i18next";
 import IconComponent from "@/components/common/genericIconComponent";
 import ShadTooltip from "@/components/common/shadTooltipComponent";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/utils/utils";
-import { useTranslation } from "react-i18next";
 
 export function EditMessageButton({
   onEdit,
@@ -36,7 +36,11 @@ export function EditMessageButton({
   return (
     <div className="flex items-center rounded-md border border-border bg-background">
       {!isAudioMessage && onEdit && (
-        <ShadTooltip styleClasses="z-50" content={t("chat.message.editMessage")} side="top">
+        <ShadTooltip
+          styleClasses="z-50"
+          content={t("chat.message.editMessage")}
+          side="top"
+        >
           <div className="p-1">
             <Button
               variant="ghost"
@@ -52,7 +56,9 @@ export function EditMessageButton({
 
       <ShadTooltip
         styleClasses="z-50"
-        content={isCopied ? t("chat.message.copied") : t("chat.message.copyMessage")}
+        content={
+          isCopied ? t("chat.message.copied") : t("chat.message.copyMessage")
+        }
         side="top"
       >
         <div className="p-1">
@@ -72,7 +78,11 @@ export function EditMessageButton({
 
       {isBotMessage && (
         <div className="flex">
-          <ShadTooltip styleClasses="z-50" content={t("chat.message.helpful")} side="top">
+          <ShadTooltip
+            styleClasses="z-50"
+            content={t("chat.message.helpful")}
+            side="top"
+          >
             <div className="p-1">
               <Button
                 variant="ghost"
@@ -89,7 +99,11 @@ export function EditMessageButton({
             </div>
           </ShadTooltip>
 
-          <ShadTooltip styleClasses="z-50" content={t("chat.message.notHelpful")} side="top">
+          <ShadTooltip
+            styleClasses="z-50"
+            content={t("chat.message.notHelpful")}
+            side="top"
+          >
             <div className="p-1">
               <Button
                 variant="ghost"

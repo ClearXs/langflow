@@ -30,7 +30,7 @@ export default function MultiselectComponent({
   id = "",
 }: InputProps<string[], MultiselectComponentType>): JSX.Element {
   const { t } = useTranslation();
-  
+
   const [open, setOpen] = useState(false);
   const treatedValue = typeof value === "string" ? [value] : value;
 

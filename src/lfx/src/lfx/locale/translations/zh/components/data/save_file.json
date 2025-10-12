@@ -1,0 +1,96 @@
+{
+  "display_name": "写入文件",
+  "description": "以所选格式将数据保存到本地文件、AWS S3或Google Drive。",
+  "storage_location": {
+    "display_name": "存储位置",
+    "info": "选择文件保存位置。",
+    "placeholder": "选择位置",
+    "options": {
+      "local": "本地",
+      "aws": "AWS",
+      "google_drive": "Google Drive"
+    }
+  },
+  "input": {
+    "display_name": "文件内容",
+    "info": "要保存的输入内容。"
+  },
+  "file_name": {
+    "display_name": "文件名",
+    "info": "文件保存时的名称（不含扩展名）。"
+  },
+  "local_format": {
+    "display_name": "文件格式",
+    "info": "选择本地存储的文件格式。"
+  },
+  "aws_format": {
+    "display_name": "文件格式",
+    "info": "选择AWS S3存储的文件格式。"
+  },
+  "gdrive_format": {
+    "display_name": "文件格式",
+    "info": "选择Google Drive存储的文件格式。"
+  },
+  "aws_access_key_id": {
+    "display_name": "AWS访问密钥ID",
+    "info": "AWS访问密钥ID。"
+  },
+  "aws_secret_access_key": {
+    "display_name": "AWS密钥",
+    "info": "AWS密钥。"
+  },
+  "bucket_name": {
+    "display_name": "S3存储桶名称",
+    "info": "输入S3存储桶的名称。"
+  },
+  "aws_region": {
+    "display_name": "AWS区域",
+    "info": "AWS区域（例如：us-east-1、eu-west-1）。"
+  },
+  "s3_prefix": {
+    "display_name": "S3前缀",
+    "info": "S3中所有文件的前缀。"
+  },
+  "service_account_key": {
+    "display_name": "GCP凭据密钥",
+    "info": "您的Google Cloud Platform服务账户JSON密钥作为密钥字符串（完整的JSON内容）。"
+  },
+  "folder_id": {
+    "display_name": "Google Drive文件夹ID",
+    "info": "文件将上传到的Google Drive文件夹ID。该文件夹必须与服务账户电子邮件共享。"
+  },
+  "outputs": {
+    "message": {
+      "display_name": "文件路径"
+    }
+  },
+  "errors": {
+    "file_name_required": "必须提供文件名。",
+    "input_type_not_set": "输入类型未设置。",
+    "storage_location_required": "必须选择存储位置。",
+    "unsupported_storage_location": "不支持的存储位置：{location}",
+    "unsupported_input_type": "不支持的输入类型：{type}",
+    "file_not_found": "未找到文件：{path}",
+    "user_id_required": "保存文件需要用户ID。",
+    "unsupported_dataframe_format": "不支持的DataFrame格式：{format}",
+    "unsupported_data_format": "不支持的Data格式：{format}",
+    "unsupported_message_format": "不支持的Message格式：{format}",
+    "invalid_file_format": "无效的文件格式'{format}'用于{type}。允许的格式：{allowed}",
+    "aws_access_key_required": "S3存储需要AWS访问密钥ID",
+    "aws_secret_key_required": "S3存储需要AWS密钥",
+    "bucket_name_required": "S3存储需要存储桶名称",
+    "boto3_not_installed": "未安装boto3。请使用`uv pip install boto3`安装。",
+    "service_account_key_required": "Google Drive存储需要GCP凭据密钥",
+    "folder_id_required": "Google Drive存储需要文件夹ID",
+    "google_api_not_installed": "未安装Google API客户端库。请安装它们。",
+    "invalid_service_account_json": "服务账户密钥中的JSON无效：{error}"
+  },
+  "success": {
+    "dataframe_saved": "DataFrame已成功保存为'{path}'",
+    "data_saved": "Data已成功保存为'{path}'",
+    "message_saved": "Message已成功保存为'{path}'",
+    "uploaded_to_s3": "文件已成功上传到{url}",
+    "uploaded_to_drive": "文件已成功上传到Google Drive：{url}",
+    "created_in_google_apps": "文件已成功在Google {app_type}中创建：{url}"
+  }
+}

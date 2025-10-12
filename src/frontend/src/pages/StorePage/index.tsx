@@ -44,7 +44,7 @@ import InputSearchComponent from "../MainPage/components/inputSearchComponent";
 
 export default function StorePage(): JSX.Element {
   const { t } = useTranslation();
-  
+
   const hasApiKey = useStoreStore((state) => state.hasApiKey);
   const validApiKey = useStoreStore((state) => state.validApiKey);
   const loadingApiKey = useStoreStore((state) => state.loadingApiKey);
@@ -341,7 +341,9 @@ export default function StorePage(): JSX.Element {
                 <SelectValue placeholder={t("storePage.popular")} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="Popular">{t("storePage.popular")}</SelectItem>
+                <SelectItem value="Popular">
+                  {t("storePage.popular")}
+                </SelectItem>
                 {/* <SelectItem value="Recent">Most Recent</SelectItem> */}
                 <SelectItem value="Alphabetical">
                   {t("storePage.alphabetical")}

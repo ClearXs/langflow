@@ -1,9 +1,9 @@
 {
   "display_name": "循环",
-  "description": "遍历Data对象列表，一次输出一个项目，并从循环输入中聚合结果。",
+  "description": "遍历 Data 对象列表，每次输出一个项目并聚合循环输入的结果。",
   "data": {
     "display_name": "输入",
-    "info": "要遍历的初始Data对象列表或DataFrame。"
+    "info": "要遍历的初始 Data 对象列表或 DataFrame。"
   },
   "outputs": {
     "item": {
@@ -13,37 +13,7 @@
       "display_name": "完成"
     }
   },
-  "status": {
-    "initialized": "循环已初始化，包含{count}个项目",
-    "processing_item": "正在处理第{index}个项目，共{total}个",
-    "completed": "循环迭代已完成",
-    "done": "循环已完成，包含{count}个聚合结果"
-  },
-  "warnings": {
-    "index_out_of_range": "索引{index}超出范围，返回空Data"
-  },
   "errors": {
-    "validation_failed": "数据验证失败：{error}",
-    "invalid_data_type": "'data'输入必须是DataFrame、Data对象列表或单个Data对象。"
-  },
-  "logs": {
-    "already_initialized": "循环已初始化，跳过初始化",
-    "initializing": "正在初始化循环数据",
-    "data_validated": "数据验证成功 - {count}个项目",
-    "initialized": "循环已初始化，包含{count}个项目",
-    "validating_data": "正在验证数据输入 - 类型：{data_type}",
-    "converting_dataframe": "正在将DataFrame转换为Data对象列表",
-    "wrapping_single_data": "正在将单个Data对象包装到列表中",
-    "data_list_valid": "数据列表有效，包含{count}个项目",
-    "evaluating_stop": "正在评估停止条件 - 当前索引：{current_index}，数据长度：{data_length}，应该停止：{should_stop}",
-    "loop_completed": "循环迭代已完成 - 停止项目输出",
-    "outputting_item": "正在输出第{index}个项目，共{total}个",
-    "index_incremented": "索引已递增至{new_index}",
-    "dependency_updated": "循环依赖已更新：{dependency_id}",
-    "triggering_done": "正在触发完成输出 - 循环已完成",
-    "done_output": "完成输出已触发，包含{count}个聚合项目",
-    "loop_not_done": "循环尚未完成 - 停止完成输出",
-    "loop_variables": "已检索循环变量 - 数据计数：{data_count}，当前索引：{current_index}",
-    "item_aggregated": "项目已聚合 - 已聚合：{aggregated_count}，总计：{total_count}"
+    "invalid_data_type": "'data' 输入必须是 DataFrame、Data 对象列表或单个 Data 对象。"
   }
 }

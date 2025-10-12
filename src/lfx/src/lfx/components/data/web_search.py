@@ -8,23 +8,19 @@ import re
 from typing import Any
 from urllib.parse import parse_qs, quote_plus, unquote, urlparse
 
+import i18n
 import pandas as pd
 import requests
-from typing import Any, Dict, List, Optional
-from datetime import datetime, timedelta
-import json
-from urllib.parse import urlencode, quote_plus
-import i18n
+from bs4 import BeautifulSoup
 
 from lfx.custom import Component
 from lfx.io import IntInput, MessageTextInput, Output, TabInput
 from lfx.schema import DataFrame
-from lfx.utils.request_utils import get_user_agent
 
 
 class WebSearchComponent(Component):
-    display_name = "Web Search"
-    description = "Search the web, news, or RSS feeds."
+    display_name = i18n.t("components.data.web_search.display_name")
+    description = i18n.t("components.data.web_search.description")
     documentation: str = "https://docs.langflow.org/components-data#web-search"
     icon = "search"
     name = "UnifiedWebSearch"
@@ -32,24 +28,24 @@ class WebSearchComponent(Component):
     inputs = [
         TabInput(
             name="search_mode",
-            display_name="Search Mode",
+            display_name=i18n.t("components.data.web_search.search_mode.display_name"),
             options=["Web", "News", "RSS"],
-            info="Choose search mode: Web (DuckDuckGo), News (Google News), or RSS (Feed Reader)",
+            info=i18n.t("components.data.web_search.search_mode.info"),
             value="Web",
             real_time_refresh=True,
             tool_mode=True,
         ),
         MessageTextInput(
             name="query",
-            display_name="Search Query",
-            info="Search keywords for news articles.",
+            display_name=i18n.t("components.data.web_search.query.display_name"),
+            info=i18n.t("components.data.web_search.query.info_news"),
             tool_mode=True,
             required=True,
         ),
         MessageTextInput(
             name="hl",
-            display_name="Language (hl)",
-            info="Language code, e.g. en-US, fr, de. Default: en-US.",
+            display_name=i18n.t("components.data.web_search.hl.display_name"),
+            info=i18n.t("components.data.web_search.hl.info"),
             tool_mode=False,
             input_types=[],
             required=False,
@@ -57,8 +53,8 @@ class WebSearchComponent(Component):
         ),
         MessageTextInput(
             name="gl",
-            display_name="Country (gl)",
-            info="Country code, e.g. US, FR, DE. Default: US.",
+            display_name=i18n.t("components.data.web_search.gl.display_name"),
+            info=i18n.t("components.data.web_search.gl.info"),
             tool_mode=False,
             input_types=[],
             required=False,
@@ -66,8 +62,8 @@ class WebSearchComponent(Component):
         ),
         MessageTextInput(
             name="ceid",
-            display_name="Country:Language (ceid)",
-            info="e.g. US:en, FR:fr. Default: US:en.",
+            display_name=i18n.t("components.data.web_search.ceid.display_name"),
+            info=i18n.t("components.data.web_search.ceid.info"),
             tool_mode=False,
             value="US:en",
             input_types=[],
@@ -76,8 +72,8 @@ class WebSearchComponent(Component):
         ),
         MessageTextInput(
             name="topic",
-            display_name="Topic",
-            info="One of: WORLD, NATION, BUSINESS, TECHNOLOGY, ENTERTAINMENT, SCIENCE, SPORTS, HEALTH.",
+            display_name=i18n.t("components.data.web_search.topic.display_name"),
+            info=i18n.t("components.data.web_search.topic.info"),
             tool_mode=False,
             input_types=[],
             required=False,
@@ -85,8 +81,8 @@ class WebSearchComponent(Component):
         ),
         MessageTextInput(
             name="location",
-            display_name="Location (Geo)",
-            info="City, state, or country for location-based news. Leave blank for keyword search.",
+            display_name=i18n.t("components.data.web_search.location.display_name"),
+            info=i18n.t("components.data.web_search.location.info"),
             tool_mode=False,
             input_types=[],
             required=False,
@@ -94,16 +90,21 @@ class WebSearchComponent(Component):
         ),
         IntInput(
             name="timeout",
-            display_name="Timeout",
-            info="Timeout for the request in seconds.",
+            display_name=i18n.t("components.data.web_search.timeout.display_name"),
+            info=i18n.t("components.data.web_search.timeout.info"),
             value=5,
             required=False,
             advanced=True,
         ),
     ]
 
-    outputs = [Output(name="results", display_name="Results",
-                      method="perform_search")]
+    outputs = [
+        Output(
+            name="results",
+            display_name=i18n.t("components.data.web_search.outputs.results.display_name"),
+            method="perform_search",
+        )
+    ]
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -111,23 +112,16 @@ class WebSearchComponent(Component):
     def update_build_config(self, build_config: dict, field_value: Any, field_name: str | None = None) -> dict:
         """Update input visibility based on search mode."""
         if field_name == "search_mode":
-            # Show/hide inputs based on search mode
-            is_news = field_value == "News"
-            is_rss = field_value == "RSS"
-
             # Update query field info based on mode
-            if is_rss:
-                build_config["query"]["info"] = "RSS feed URL to parse"
-                build_config["query"]["display_name"] = "RSS Feed URL"
-            elif is_news:
-                build_config["query"]["info"] = "Search keywords for news articles."
-                build_config["query"]["display_name"] = "Search Query"
+            if field_value == "RSS":
+                build_config["query"]["info"] = i18n.t("components.data.web_search.query.info_rss")
+                build_config["query"]["display_name"] = i18n.t("components.data.web_search.query.display_name_rss")
+            elif field_value == "News":
+                build_config["query"]["info"] = i18n.t("components.data.web_search.query.info_news")
+                build_config["query"]["display_name"] = i18n.t("components.data.web_search.query.display_name")
             else:  # Web
-                build_config["query"]["info"] = "Keywords to search for"
-                build_config["query"]["display_name"] = "Search Query"
-
-            # Keep news-specific fields as advanced (matching original News Search component)
-            # They remain advanced=True in all modes, just like in the original component
+                build_config["query"]["info"] = i18n.t("components.data.web_search.query.info_web")
+                build_config["query"]["display_name"] = i18n.t("components.data.web_search.query.display_name")
 
         return build_config
 
@@ -144,8 +138,8 @@ class WebSearchComponent(Component):
         if not url.startswith(("http://", "https://")):
             url = "https://" + url
         if not self.validate_url(url):
-            msg = f"Invalid URL: {url}"
-            raise ValueError(msg)
+            error_message = i18n.t("components.data.web_search.errors.invalid_url", url=url)
+            raise ValueError(error_message)
         return url
 
     def _sanitize_query(self, query: str) -> str:
@@ -158,28 +152,39 @@ class WebSearchComponent(Component):
 
     def perform_web_search(self) -> DataFrame:
         """Perform DuckDuckGo web search."""
+        from bs4 import BeautifulSoup
+
+        from lfx.utils.request_utils import get_user_agent
+
         query = self._sanitize_query(self.query)
         if not query:
-            msg = "Empty search query"
-            raise ValueError(msg)
+            error_message = i18n.t("components.data.web_search.errors.empty_query")
+            raise ValueError(error_message)
 
         headers = {"User-Agent": get_user_agent()}
         params = {"q": query, "kl": "us-en"}
         url = "https://html.duckduckgo.com/html/"
 
         try:
-            response = requests.get(
-                url, params=params, headers=headers, timeout=self.timeout)
+            response = requests.get(url, params=params, headers=headers, timeout=self.timeout)
             response.raise_for_status()
         except requests.RequestException as e:
-            self.status = f"Failed request: {e!s}"
+            self.status = i18n.t("components.data.web_search.errors.failed_request", error=str(e))
             return DataFrame(pd.DataFrame([{"title": "Error", "link": "", "snippet": str(e), "content": ""}]))
 
         if not response.text or "text/html" not in response.headers.get("content-type", "").lower():
-            self.status = "No results found"
+            self.status = i18n.t("components.data.web_search.errors.no_results")
             return DataFrame(
                 pd.DataFrame(
-                    [{"title": "Error", "link": "", "snippet": "No results found", "content": ""}])
+                    [
+                        {
+                            "title": "Error",
+                            "link": "",
+                            "snippet": i18n.t("components.data.web_search.errors.no_results"),
+                            "content": "",
+                        }
+                    ]
+                )
             )
 
         soup = BeautifulSoup(response.text, "html.parser")
@@ -196,14 +201,12 @@ class WebSearchComponent(Component):
 
                 try:
                     final_url = self.ensure_url(decoded_link)
-                    page = requests.get(
-                        final_url, headers=headers, timeout=self.timeout)
+                    page = requests.get(final_url, headers=headers, timeout=self.timeout)
                     page.raise_for_status()
-                    content = BeautifulSoup(page.text, "lxml").get_text(
-                        separator=" ", strip=True)
+                    content = BeautifulSoup(page.text, "lxml").get_text(separator=" ", strip=True)
                 except requests.RequestException as e:
                     final_url = decoded_link
-                    content = f"(Failed to fetch: {e!s}"
+                    content = i18n.t("components.data.web_search.errors.failed_fetch", error=str(e))
 
                 results.append(
                     {
@@ -228,27 +231,30 @@ class WebSearchComponent(Component):
 
         # Build RSS URL based on parameters
         if topic:
-            # Topic-based feed
             base_url = f"https://news.google.com/rss/headlines/section/topic/{quote_plus(topic.upper())}"
             params = f"?hl={hl}&gl={gl}&ceid={ceid}"
             rss_url = base_url + params
         elif location:
-            # Location-based feed
             base_url = f"https://news.google.com/rss/headlines/section/geo/{quote_plus(location)}"
             params = f"?hl={hl}&gl={gl}&ceid={ceid}"
             rss_url = base_url + params
         elif query:
-            # Keyword search feed
             base_url = "https://news.google.com/rss/search?q="
             query_encoded = quote_plus(query)
             params = f"&hl={hl}&gl={gl}&ceid={ceid}"
             rss_url = f"{base_url}{query_encoded}{params}"
         else:
-            self.status = "No search query, topic, or location provided."
+            self.status = i18n.t("components.data.web_search.errors.empty_query")
             return DataFrame(
                 pd.DataFrame(
-                    [{"title": "Error", "link": "", "published": "",
-                        "summary": "No search parameters provided"}]
+                    [
+                        {
+                            "title": "Error",
+                            "link": "",
+                            "published": "",
+                            "summary": i18n.t("components.data.web_search.errors.empty_query"),
+                        }
+                    ]
                 )
             )
 
@@ -258,12 +264,23 @@ class WebSearchComponent(Component):
             soup = BeautifulSoup(response.content, "xml")
             items = soup.find_all("item")
         except requests.RequestException as e:
-            self.status = f"Failed to fetch news: {e}"
+            self.status = i18n.t("components.data.web_search.errors.failed_fetch_news", error=str(e))
             return DataFrame(pd.DataFrame([{"title": "Error", "link": "", "published": "", "summary": str(e)}]))
 
         if not items:
-            self.status = "No news articles found."
-            return DataFrame(pd.DataFrame([{"title": "No articles found", "link": "", "published": "", "summary": ""}]))
+            self.status = i18n.t("components.data.web_search.errors.no_articles")
+            return DataFrame(
+                pd.DataFrame(
+                    [
+                        {
+                            "title": i18n.t("components.data.web_search.errors.no_articles"),
+                            "link": "",
+                            "published": "",
+                            "summary": "",
+                        }
+                    ]
+                )
+            )
 
         articles = []
         for item in items:
@@ -271,12 +288,10 @@ class WebSearchComponent(Component):
                 title = self.clean_html(item.title.text if item.title else "")
                 link = item.link.text if item.link else ""
                 published = item.pubDate.text if item.pubDate else ""
-                summary = self.clean_html(
-                    item.description.text if item.description else "")
-                articles.append({"title": title, "link": link,
-                                "published": published, "summary": summary})
+                summary = self.clean_html(item.description.text if item.description else "")
+                articles.append({"title": title, "link": link, "published": published, "summary": summary})
             except (AttributeError, ValueError, TypeError) as e:
-                self.log(f"Error parsing article: {e!s}")
+                self.log(i18n.t("components.data.web_search.errors.parse_article_error", error=str(e)))
                 continue
 
         return DataFrame(pd.DataFrame(articles))
@@ -287,27 +302,35 @@ class WebSearchComponent(Component):
         if not rss_url:
             return DataFrame(
                 pd.DataFrame(
-                    [{"title": "Error", "link": "", "published": "", "summary": "No RSS URL provided"}])
+                    [
+                        {
+                            "title": "Error",
+                            "link": "",
+                            "published": "",
+                            "summary": i18n.t("components.data.web_search.errors.no_rss_url"),
+                        }
+                    ]
+                )
             )
 
         try:
             response = requests.get(rss_url, timeout=self.timeout)
             response.raise_for_status()
             if not response.content.strip():
-                msg = "Empty response received"
-                raise ValueError(msg)
+                error_message = i18n.t("components.data.web_search.errors.empty_response")
+                raise ValueError(error_message)
 
             # Validate XML
             try:
                 BeautifulSoup(response.content, "xml")
             except Exception as e:
-                msg = f"Invalid XML response: {e}"
-                raise ValueError(msg) from e
+                error_message = i18n.t("components.data.web_search.errors.invalid_xml", error=str(e))
+                raise ValueError(error_message) from e
 
             soup = BeautifulSoup(response.content, "xml")
             items = soup.find_all("item")
         except (requests.RequestException, ValueError) as e:
-            self.status = f"Failed to fetch RSS: {e}"
+            self.status = i18n.t("components.data.web_search.errors.failed_fetch_rss", error=str(e))
             return DataFrame(pd.DataFrame([{"title": "Error", "link": "", "published": "", "summary": str(e)}]))
 
         articles = [
@@ -320,10 +343,8 @@ class WebSearchComponent(Component):
             for item in items
         ]
 
-        # Ensure DataFrame has correct columns even if empty
-        df_articles = pd.DataFrame(
-            articles, columns=["title", "link", "published", "summary"])
-        self.log(f"Fetched {len(df_articles)} articles.")
+        df_articles = pd.DataFrame(articles, columns=["title", "link", "published", "summary"])
+        self.log(i18n.t("components.data.web_search.success.fetched_articles", count=len(df_articles)))
         return DataFrame(df_articles)
 
     def perform_search(self) -> DataFrame:
@@ -336,5 +357,4 @@ class WebSearchComponent(Component):
             return self.perform_news_search()
         if search_mode == "RSS":
             return self.perform_rss_read()
-        # Fallback to web search
         return self.perform_web_search()

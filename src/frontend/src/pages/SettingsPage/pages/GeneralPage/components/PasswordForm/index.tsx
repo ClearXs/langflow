@@ -1,4 +1,5 @@
 import * as Form from "@radix-ui/react-form";
+import { useTranslation } from "react-i18next";
 import InputComponent from "../../../../../../components/core/parameterRenderComponent/components/inputComponent";
 import { Button } from "../../../../../../components/ui/button";
 import {
@@ -9,7 +10,6 @@ import {
   CardHeader,
   CardTitle,
 } from "../../../../../../components/ui/card";
-import { useTranslation } from "react-i18next";
 
 type PasswordFormComponentProps = {
   password: string;

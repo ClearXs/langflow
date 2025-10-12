@@ -1,10 +1,9 @@
-import * as Form from '@radix-ui/react-form';
-import type { UseQueryResult } from '@tanstack/react-query';
-import {
-  type ProfilePicturesQueryResponse,
-  useGetProfilePicturesQuery,
-} from '@/controllers/API/queries/files';
-import { Button } from '../../../../../../components/ui/button';
+import * as Form from "@radix-ui/react-form";
+import type { UseQueryResult } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
+import type { ProfilePicturesQueryResponse } from "@/controllers/API/queries/files";
+import { useGetProfilePicturesQuery } from "@/controllers/API/queries/files";
+import { Button } from "../../../../../../components/ui/button";
 import {
   Card,
   CardContent,
@@ -12,10 +11,9 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from '../../../../../../components/ui/card';
-import { gradients } from '../../../../../../utils/styleUtils';
-import ProfilePictureChooserComponent from './components/profilePictureChooserComponent';
-import { useTranslation } from 'react-i18next';
+} from "../../../../../../components/ui/card";
+import { gradients } from "../../../../../../utils/styleUtils";
+import ProfilePictureChooserComponent from "./components/profilePictureChooserComponent";
 
 type ProfilePictureFormComponentProps = {
   profilePicture: string;
@@ -24,6 +22,7 @@ type ProfilePictureFormComponentProps = {
   handleGetProfilePictures: UseQueryResult<ProfilePicturesQueryResponse>;
   userData: any;
 };
+
 const ProfilePictureFormComponent = ({
   profilePicture,
   handleInput,
@@ -41,39 +40,44 @@ const ProfilePictureFormComponent = ({
         event.preventDefault();
       }}
     >
-      <Card x-chunk='dashboard-04-chunk-1'>
+      <Card x-chunk="dashboard-04-chunk-1">
         <CardHeader>
-          <CardTitle>Profile Picture</CardTitle>
+          <CardTitle>
+            {t("pages.generalSettings.profilePicture.title")}
+          </CardTitle>
           <CardDescription>
-            Choose the image that appears as your profile picture.
+            {t("pages.generalSettings.profilePicture.description")}
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className='py-2'>
+          <div className="py-2">
             <ProfilePictureChooserComponent
               profilePictures={data}
               loading={isLoading || isFetching}
               value={
-                profilePicture == ''
-                  ? userData?.profile_image ??
+                profilePicture == ""
+                  ? (userData?.profile_image ??
                     gradients[
-                      parseInt(userData?.id ?? '', 30) % gradients.length
-                    ]
+                      parseInt(userData?.id ?? "", 30) % gradients.length
+                    ])
                   : profilePicture
               }
               onChange={(value) => {
-                handleInput({ target: { name: 'profilePicture', value } });
+                handleInput({ target: { name: "profilePicture", value } });
               }}
             />
           </div>
         </CardContent>
-        <CardFooter className='border-t px-6 py-4'>
+        <CardFooter className="border-t px-6 py-4">
           <Form.Submit asChild>
-            <Button type='submit'>{t('components.button.save')}</Button>
+            <Button type="submit">
+              {t("pages.generalSettings.profilePicture.buttons.save")}
+            </Button>
           </Form.Submit>
         </CardFooter>
       </Card>
     </Form.Root>
   );
 };
+
 export default ProfilePictureFormComponent;

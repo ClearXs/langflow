@@ -1,4 +1,5 @@
 import { type ReactNode, useState } from "react";
+import { useTranslation } from "react-i18next";
 import ForwardedIconComponent from "@/components/common/genericIconComponent";
 import {
   DropdownMenu,
@@ -12,7 +13,6 @@ import { useCustomHandleSingleFileDownload } from "@/customization/hooks/use-cus
 import ConfirmationModal from "@/modals/confirmationModal";
 import useAlertStore from "@/stores/alertStore";
 import type { FileType } from "@/types/file_management";
-import { useTranslation } from "react-i18next";
 
 export default function FilesContextMenuComponent({
   children,
@@ -129,7 +129,9 @@ export default function FilesContextMenuComponent({
               aria-hidden="true"
               className="mr-2 h-4 w-4"
             />
-            {isLocal ? t("fileManager.contextMenu.delete") : t("fileManager.contextMenu.remove")}
+            {isLocal
+              ? t("fileManager.contextMenu.delete")
+              : t("fileManager.contextMenu.remove")}
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
@@ -137,14 +139,24 @@ export default function FilesContextMenuComponent({
         open={showDeleteConfirmation}
         onClose={() => setShowDeleteConfirmation(false)}
         onCancel={() => setShowDeleteConfirmation(false)}
-        title={isLocal ? t("fileManager.confirmation.deleteTitle") : t("fileManager.confirmation.removeTitle")}
+        title={
+          isLocal
+            ? t("fileManager.confirmation.deleteTitle")
+            : t("fileManager.confirmation.removeTitle")
+        }
         titleHeader={t("fileManager.confirmation.confirmAction", {
-          action: isLocal ? t("fileManager.contextMenu.delete").toLowerCase() : t("fileManager.contextMenu.remove").toLowerCase(),
-          fileName: file.name
+          action: isLocal
+            ? t("fileManager.contextMenu.delete").toLowerCase()
+            : t("fileManager.contextMenu.remove").toLowerCase(),
+          fileName: file.name,
         })}
         cancelText={t("fileManager.confirmation.cancel")}
         size="x-small"
-        confirmationText={isLocal ? t("fileManager.contextMenu.delete") : t("fileManager.contextMenu.remove")}
+        confirmationText={
+          isLocal
+            ? t("fileManager.contextMenu.delete")
+            : t("fileManager.contextMenu.remove")
+        }
         icon={isLocal ? "Trash2" : "ListX"}
         destructive
         onConfirm={() => {

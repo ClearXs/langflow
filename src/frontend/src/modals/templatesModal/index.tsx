@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 import ForwardedIconComponent from "@/components/common/genericIconComponent";
 import { Button } from "@/components/ui/button";
@@ -12,7 +13,6 @@ import BaseModal from "../baseModal";
 import GetStartedComponent from "./components/GetStartedComponent";
 import { Nav } from "./components/navComponent";
 import TemplateContentComponent from "./components/TemplateContentComponent";
-import { useTranslation } from "react-i18next";
 
 export default function TemplatesModal({
   open,
@@ -28,15 +28,31 @@ export default function TemplatesModal({
     {
       title: t("common.templates"),
       items: [
-        { title: t("common.getStarted"), icon: "SquarePlay", id: "get-started" },
-        { title: t("common.allTemplates"), icon: "LayoutPanelTop", id: "all-templates" },
+        {
+          title: t("common.getStarted"),
+          icon: "SquarePlay",
+          id: "get-started",
+        },
+        {
+          title: t("common.allTemplates"),
+          icon: "LayoutPanelTop",
+          id: "all-templates",
+        },
       ],
     },
     {
       title: t("common.useCases"),
       items: [
-        { title: t("common.assistants"), icon: "BotMessageSquare", id: "assistants" },
-        { title: t("common.classification"), icon: "Tags", id: "classification" },
+        {
+          title: t("common.assistants"),
+          icon: "BotMessageSquare",
+          id: "assistants",
+        },
+        {
+          title: t("common.classification"),
+          icon: "Tags",
+          id: "classification",
+        },
         { title: t("common.coding"), icon: "TerminalIcon", id: "coding" },
         {
           title: t("common.contentGeneration"),
@@ -51,7 +67,11 @@ export default function TemplatesModal({
     {
       title: t("common.methodology"),
       items: [
-        { title: t("common.prompting"), icon: "MessagesSquare", id: "chatbots" },
+        {
+          title: t("common.prompting"),
+          icon: "MessagesSquare",
+          id: "chatbots",
+        },
         { title: t("common.rag"), icon: "Database", id: "rag" },
         { title: t("common.agents"), icon: "Bot", id: "agents" },
       ],
@@ -80,7 +100,9 @@ export default function TemplatesModal({
               <BaseModal.Footer>
                 <div className="flex w-full flex-col justify-between gap-4 pb-4 sm:flex-row sm:items-center">
                   <div className="flex flex-col items-start justify-center">
-                    <div className="font-semibold">{t("common.startFromScratch")}</div>
+                    <div className="font-semibold">
+                      {t("common.startFromScratch")}
+                    </div>
                     <div className="text-sm text-muted-foreground">
                       {t("common.beginWithAFreshFlowToBuildFromScratch")}
                     </div>

@@ -1,5 +1,6 @@
 import { cloneDeep } from "lodash";
 import { useContext, useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import PaginatorComponent from "@/components/common/paginatorComponent";
 import {
   useAddUser,
@@ -32,7 +33,6 @@ import UserManagementModal from "../../modals/userManagementModal";
 import useAlertStore from "../../stores/alertStore";
 import type { Users } from "../../types/api";
 import type { UserInputType } from "../../types/components";
-import { useTranslation } from "react-i18next";
 
 export default function AdminPage() {
   const [inputValue, setInputValue] = useState("");
@@ -319,12 +319,24 @@ export default function AdminPage() {
                     }
                   >
                     <TableRow>
-                      <TableHead className="h-10">{t("admin.table.id")}</TableHead>
-                      <TableHead className="h-10">{t("admin.table.username")}</TableHead>
-                      <TableHead className="h-10">{t("admin.table.active")}</TableHead>
-                      <TableHead className="h-10">{t("admin.table.superuser")}</TableHead>
-                      <TableHead className="h-10">{t("admin.table.createdAt")}</TableHead>
-                      <TableHead className="h-10">{t("admin.table.updatedAt")}</TableHead>
+                      <TableHead className="h-10">
+                        {t("admin.table.id")}
+                      </TableHead>
+                      <TableHead className="h-10">
+                        {t("admin.table.username")}
+                      </TableHead>
+                      <TableHead className="h-10">
+                        {t("admin.table.active")}
+                      </TableHead>
+                      <TableHead className="h-10">
+                        {t("admin.table.superuser")}
+                      </TableHead>
+                      <TableHead className="h-10">
+                        {t("admin.table.createdAt")}
+                      </TableHead>
+                      <TableHead className="h-10">
+                        {t("admin.table.updatedAt")}
+                      </TableHead>
                       <TableHead className="h-10 w-[100px] text-right"></TableHead>
                     </TableRow>
                   </TableHeader>
@@ -349,7 +361,9 @@ export default function AdminPage() {
                               size="x-small"
                               title={t("admin.modal.edit.title")}
                               titleHeader={`${user.username}`}
-                              modalContentTitle={t("admin.modal.edit.attention")}
+                              modalContentTitle={t(
+                                "admin.modal.edit.attention",
+                              )}
                               cancelText={t("admin.modal.edit.cancel")}
                               confirmationText={t("admin.modal.edit.confirm")}
                               icon={"UserCog2"}
@@ -380,7 +394,9 @@ export default function AdminPage() {
                               size="x-small"
                               title={t("admin.modal.edit.title")}
                               titleHeader={`${user.username}`}
-                              modalContentTitle={t("admin.modal.edit.attention")}
+                              modalContentTitle={t(
+                                "admin.modal.edit.attention",
+                              )}
                               cancelText={t("admin.modal.edit.cancel")}
                               confirmationText={t("admin.modal.edit.confirm")}
                               icon={"UserCog2"}
@@ -434,7 +450,10 @@ export default function AdminPage() {
                                   handleEditUser(user.id, editUser);
                                 }}
                               >
-                                <ShadTooltip content={t("admin.tooltip.edit")} side="top">
+                                <ShadTooltip
+                                  content={t("admin.tooltip.edit")}
+                                  side="top"
+                                >
                                   <IconComponent
                                     name="Pencil"
                                     className="h-4 w-4 cursor-pointer"
@@ -446,9 +465,13 @@ export default function AdminPage() {
                                 size="x-small"
                                 title={t("admin.modal.delete.title")}
                                 titleHeader={t("admin.modal.delete.header")}
-                                modalContentTitle={t("admin.modal.delete.attention")}
+                                modalContentTitle={t(
+                                  "admin.modal.delete.attention",
+                                )}
                                 cancelText={t("admin.modal.delete.cancel")}
-                                confirmationText={t("admin.modal.delete.confirm")}
+                                confirmationText={t(
+                                  "admin.modal.delete.confirm",
+                                )}
                                 icon={"UserMinus2"}
                                 data={user}
                                 index={index}

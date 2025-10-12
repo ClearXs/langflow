@@ -1,5 +1,6 @@
 import type { ColDef, ColGroupDef } from "ag-grid-community";
 import { useCallback, useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useSearchParams } from "react-router-dom";
 import IconComponent from "@/components/common/genericIconComponent";
 import PaginatorComponent from "@/components/common/paginatorComponent";
@@ -8,15 +9,13 @@ import { useGetTransactionsQuery } from "@/controllers/API/queries/transactions"
 import useFlowsManagerStore from "@/stores/flowsManagerStore";
 import { convertUTCToLocalTimezone } from "@/utils/utils";
 import BaseModal from "../baseModal";
-import { useTranslation } from "react-i18next";
 
 export default function FlowLogsModal({
   children,
 }: {
   children: React.ReactNode;
 }): JSX.Element {
-
-  const {t} = useTranslation()
+  const { t } = useTranslation();
   const currentFlowId = useFlowsManagerStore((state) => state.currentFlowId);
   const [open, setOpen] = useState(false);
 
@@ -65,7 +64,7 @@ export default function FlowLogsModal({
   return (
     <BaseModal open={open} setOpen={setOpen} size="x-large">
       <BaseModal.Trigger asChild>{children}</BaseModal.Trigger>
-      <BaseModal.Header description={t('flow.panel.logs.description')}>
+      <BaseModal.Header description={t("flow.panel.logs.description")}>
         <div className="flex w-full justify-between">
           <div className="flex h-fit w-32 items-center">
             <span className="pr-2">{t("flow.panel.logs.displayName")}</span>

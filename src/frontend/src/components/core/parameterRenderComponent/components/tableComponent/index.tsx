@@ -1,22 +1,22 @@
-import ForwardedIconComponent from '@/components/common/genericIconComponent';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { useDarkStore } from '@/stores/darkStore';
-import '@/style/ag-theme-shadcn.css'; // Custom CSS applied to the grid
-import type { ColDef } from 'ag-grid-community';
-import type { TableOptionsTypeAPI } from '@/types/api';
-import { cn } from '@/utils/utils';
-import 'ag-grid-community/styles/ag-grid.css'; // Mandatory CSS required by the grid
-import 'ag-grid-community/styles/ag-theme-quartz.css'; // Optional Theme applied to the grid
-import { AgGridReact, type AgGridReactProps } from 'ag-grid-react';
-import cloneDeep from 'lodash';
-import { type ElementRef, forwardRef, useRef, useState } from 'react';
-import TableOptions from './components/TableOptions';
-import resetGrid from './utils/reset-grid-columns';
-import { useMessageLocale } from '@/i18n/locale';
+import ForwardedIconComponent from "@/components/common/genericIconComponent";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { useDarkStore } from "@/stores/darkStore";
+import "@/style/ag-theme-shadcn.css"; // Custom CSS applied to the grid
+import type { ColDef } from "ag-grid-community";
+import type { TableOptionsTypeAPI } from "@/types/api";
+import { cn } from "@/utils/utils";
+import "ag-grid-community/styles/ag-grid.css"; // Mandatory CSS required by the grid
+import "ag-grid-community/styles/ag-theme-quartz.css"; // Optional Theme applied to the grid
+import { AgGridReact, type AgGridReactProps } from "ag-grid-react";
+import cloneDeep from "lodash";
+import { type ElementRef, forwardRef, useRef, useState } from "react";
+import { useMessageLocale } from "@/i18n/locale";
+import TableOptions from "./components/TableOptions";
+import resetGrid from "./utils/reset-grid-columns";
 
 export interface TableComponentProps extends AgGridReactProps {
   columnDefs: NonNullable<ColDef<any, any>[]>;
-  rowData: NonNullable<AgGridReactProps['rowData']>;
+  rowData: NonNullable<AgGridReactProps["rowData"]>;
   displayEmptyAlert?: boolean;
   alertTitle?: string;
   alertDescription?: string;
@@ -50,15 +50,15 @@ const TableComponent = forwardRef<
   const isSingleToggleRowEditable = (
     colField: string,
     rowData: any,
-    currentRowValue: any
+    currentRowValue: any,
   ) => {
     try {
       // Check if this is a single-toggle column (Vectorize or Identifier)
       const isSingleToggleColumn =
-        colField === 'Vectorize' ||
-        colField === 'vectorize' ||
-        colField === 'Identifier' ||
-        colField === 'identifier';
+        colField === "Vectorize" ||
+        colField === "vectorize" ||
+        colField === "Identifier" ||
+        colField === "identifier";
 
       if (!isSingleToggleColumn) return true;
 
@@ -70,7 +70,7 @@ const TableComponent = forwardRef<
       // Normalize the current value to boolean
       const normalizedCurrentValue =
         currentRowValue === true ||
-        currentRowValue === 'true' ||
+        currentRowValue === "true" ||
         currentRowValue === 1;
 
       // If current row is true, always allow editing (to turn it off)
@@ -80,10 +80,10 @@ const TableComponent = forwardRef<
 
       // If current row is false, only allow editing if no other row is true
       const hasAnyTrue = props.rowData.some((row) => {
-        if (!row || typeof row !== 'object') return false;
+        if (!row || typeof row !== "object") return false;
         const value = row[colField];
         const normalizedValue =
-          value === true || value === 'true' || value === 1;
+          value === true || value === "true" || value === 1;
         return normalizedValue;
       });
 
@@ -116,10 +116,10 @@ const TableComponent = forwardRef<
         };
       }
       if (
-        (typeof props.tableOptions?.block_hide === 'boolean' &&
+        (typeof props.tableOptions?.block_hide === "boolean" &&
           props.tableOptions?.block_hide) ||
         (Array.isArray(props.tableOptions?.block_hide) &&
-          props.tableOptions?.block_hide.includes(newCol.field ?? ''))
+          props.tableOptions?.block_hide.includes(newCol.field ?? ""))
       ) {
         newCol = {
           ...newCol,
@@ -127,17 +127,17 @@ const TableComponent = forwardRef<
         };
       }
       if (
-        (typeof props.editable === 'boolean' && props.editable) ||
+        (typeof props.editable === "boolean" && props.editable) ||
         (Array.isArray(props.editable) &&
-          props.editable.every((field) => typeof field === 'string') &&
-          (props.editable as Array<string>).includes(newCol.field ?? ''))
+          props.editable.every((field) => typeof field === "string") &&
+          (props.editable as Array<string>).includes(newCol.field ?? ""))
       ) {
         // Special handling for single-toggle columns (Vectorize and Identifier)
         const isSingleToggleColumn =
-          newCol.field === 'Vectorize' ||
-          newCol.field === 'vectorize' ||
-          newCol.field === 'Identifier' ||
-          newCol.field === 'identifier';
+          newCol.field === "Vectorize" ||
+          newCol.field === "vectorize" ||
+          newCol.field === "Identifier" ||
+          newCol.field === "identifier";
 
         if (isSingleToggleColumn) {
           newCol = {
@@ -147,7 +147,7 @@ const TableComponent = forwardRef<
               return isSingleToggleRowEditable(
                 newCol.field!,
                 params.data,
-                currentValue
+                currentValue,
               );
             },
             cellRendererParams: {
@@ -161,7 +161,7 @@ const TableComponent = forwardRef<
                   return isSingleToggleRowEditable(
                     fieldName,
                     params?.data,
-                    currentValue
+                    currentValue,
                   );
                 } catch (_error) {
                   return false;
@@ -178,7 +178,7 @@ const TableComponent = forwardRef<
       }
       if (
         Array.isArray(props.editable) &&
-        props.editable.every((field) => typeof field === 'object')
+        props.editable.every((field) => typeof field === "object")
       ) {
         const field = (
           props.editable as Array<{
@@ -190,10 +190,10 @@ const TableComponent = forwardRef<
         if (field) {
           // Special handling for single-toggle columns (Vectorize and Identifier)
           const isSingleToggleColumn =
-            newCol.field === 'Vectorize' ||
-            newCol.field === 'vectorize' ||
-            newCol.field === 'Identifier' ||
-            newCol.field === 'identifier';
+            newCol.field === "Vectorize" ||
+            newCol.field === "vectorize" ||
+            newCol.field === "Identifier" ||
+            newCol.field === "identifier";
 
           if (isSingleToggleColumn) {
             newCol = {
@@ -205,7 +205,7 @@ const TableComponent = forwardRef<
                   isSingleToggleRowEditable(
                     newCol.field!,
                     params.data,
-                    currentValue
+                    currentValue,
                   )
                 );
               },
@@ -222,7 +222,7 @@ const TableComponent = forwardRef<
                       isSingleToggleRowEditable(
                         fieldName,
                         params?.data,
-                        currentValue
+                        currentValue,
                       )
                     );
                   } catch (_error) {
@@ -264,13 +264,13 @@ const TableComponent = forwardRef<
   const storeReference = props.columnDefs
     .filter((col) => !col.hide)
     .map((e) => e.headerName)
-    .join('_');
+    .join("_");
 
   const onGridReady = (params) => {
     // @ts-ignore
     realRef.current = params;
     const updatedColumnDefs = [...colDef];
-    params.api.setGridOption('columnDefs', updatedColumnDefs);
+    params.api.setGridOption("columnDefs", updatedColumnDefs);
     const customInit = localStorage.getItem(storeReference);
     initialColumnDefs.current = params.api.getColumnDefs();
     if (customInit && realRef.current) {
@@ -297,16 +297,16 @@ const TableComponent = forwardRef<
   };
   const onColumnMoved = (params) => {
     const updatedColumnDefs = cloneDeep(
-      params.columnApi.getAllGridColumns().map((col) => col.getColDef())
+      params.columnApi.getAllGridColumns().map((col) => col.getColDef()),
     );
-    params.api.setGridOption('columnDefs', updatedColumnDefs);
+    params.api.setGridOption("columnDefs", updatedColumnDefs);
     if (props.onColumnMoved) props.onColumnMoved(params);
   };
   const onColumnResized = (params) => {
     if (!realRef.current?.api) return;
 
     const gridApi = realRef.current.api;
-    const containerElement = document.querySelector('.ag-theme-shadcn');
+    const containerElement = document.querySelector(".ag-theme-shadcn");
     if (!containerElement) return;
 
     const containerWidth = containerElement.clientWidth;
@@ -317,7 +317,7 @@ const TableComponent = forwardRef<
 
     const totalWidth = columns.reduce(
       (sum, col) => sum + col.getActualWidth(),
-      0
+      0,
     );
 
     // If total width is less than container width, reset column sizes
@@ -327,11 +327,11 @@ const TableComponent = forwardRef<
   };
   if (props.rowData.length === 0 && displayEmptyAlert) {
     return (
-      <div className='flex h-full w-full items-center justify-center rounded-md border'>
-        <Alert variant={'default'} className='w-fit'>
+      <div className="flex h-full w-full items-center justify-center rounded-md border">
+        <Alert variant={"default"} className="w-fit">
           <ForwardedIconComponent
-            name='AlertCircle'
-            className='h-5 w-5 text-primary'
+            name="AlertCircle"
+            className="h-5 w-5 text-primary"
           />
           <AlertTitle>{alertTitle}</AlertTitle>
           <AlertDescription>{alertDescription}</AlertDescription>
@@ -342,13 +342,15 @@ const TableComponent = forwardRef<
 
   if (colDef.length === 0) {
     return (
-      <div className='flex h-full w-full items-center justify-center rounded-md border'>
-        <Alert variant={'default'} className='w-fit'>
+      <div className="flex h-full w-full items-center justify-center rounded-md border">
+        <Alert variant={"default"} className="w-fit">
           <ForwardedIconComponent
-            name='AlertCircle'
-            className='h-5 w-5 text-primary'
+            name="AlertCircle"
+            className="h-5 w-5 text-primary"
           />
-          <AlertTitle>{messageLocale.NO_COLUMN_DEFINITION_ALERT_TITLE}</AlertTitle>
+          <AlertTitle>
+            {messageLocale.NO_COLUMN_DEFINITION_ALERT_TITLE}
+          </AlertTitle>
           <AlertDescription>
             {messageLocale.NO_COLUMN_DEFINITION_ALERT_DESCRIPTION}
           </AlertDescription>
@@ -360,9 +362,9 @@ const TableComponent = forwardRef<
   return (
     <div
       className={cn(
-        dark ? 'ag-theme-quartz-dark' : 'ag-theme-quartz',
-        'ag-theme-shadcn flex h-full flex-col',
-        'relative'
+        dark ? "ag-theme-quartz-dark" : "ag-theme-quartz",
+        "ag-theme-shadcn flex h-full flex-col",
+        "relative",
       )} // applying the grid theme
     >
       <AgGridReact
@@ -373,7 +375,7 @@ const TableComponent = forwardRef<
         }}
         animateRows={false}
         gridOptions={{
-          colResizeDefault: 'shift',
+          colResizeDefault: "shift",
           suppressColumnVirtualisation: false, // Enable column virtualization for better performance
           ...props.gridOptions,
         }}
@@ -382,7 +384,7 @@ const TableComponent = forwardRef<
         ref={(node) => {
           if (!node) return;
           realRef.current = node;
-          if (typeof ref === 'function') {
+          if (typeof ref === "function") {
             ref(node);
           } else if (ref) {
             ref.current = node;
@@ -395,10 +397,10 @@ const TableComponent = forwardRef<
             ? (e) => {
                 // Handle single-toggle column changes (Vectorize and Identifier) to refresh grid editability
                 const isSingleToggleField =
-                  e.colDef.field === 'Vectorize' ||
-                  e.colDef.field === 'vectorize' ||
-                  e.colDef.field === 'Identifier' ||
-                  e.colDef.field === 'identifier';
+                  e.colDef.field === "Vectorize" ||
+                  e.colDef.field === "vectorize" ||
+                  e.colDef.field === "Identifier" ||
+                  e.colDef.field === "identifier";
 
                 if (isSingleToggleField) {
                   setTimeout(() => {
@@ -419,10 +421,10 @@ const TableComponent = forwardRef<
                         ?.filter((col) => {
                           const field = col.getColDef().field;
                           return (
-                            field === 'Vectorize' ||
-                            field === 'vectorize' ||
-                            field === 'Identifier' ||
-                            field === 'identifier'
+                            field === "Vectorize" ||
+                            field === "vectorize" ||
+                            field === "Identifier" ||
+                            field === "identifier"
                           );
                         });
                       if (
@@ -432,7 +434,7 @@ const TableComponent = forwardRef<
                         const columnFields = allSingleToggleColumns
                           .map((col) => col.getColDef().field)
                           .filter(
-                            (field): field is string => field !== undefined
+                            (field): field is string => field !== undefined,
                           );
                         if (columnFields.length > 0) {
                           realRef.current.api.refreshCells({
@@ -452,10 +454,10 @@ const TableComponent = forwardRef<
             : undefined
         }
         onStateUpdated={(e) => {
-          if (e.sources.some((source) => source.includes('column'))) {
+          if (e.sources.some((source) => source.includes("column"))) {
             localStorage.setItem(
               storeReference,
-              JSON.stringify(realRef.current?.api?.getColumnState())
+              JSON.stringify(realRef.current?.api?.getColumnState()),
             );
             setColumnStateChange(true);
           }

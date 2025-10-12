@@ -8,6 +8,7 @@
  */
 import { DialogClose } from "@radix-ui/react-dialog";
 import { Trash2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Button } from "../../components/ui/button";
 import {
   Dialog,
@@ -17,7 +18,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "../../components/ui/dialog";
-import { useTranslation } from "react-i18next";
 export default function DeleteConfirmationModal({
   children,
   onConfirm,
@@ -55,7 +55,9 @@ export default function DeleteConfirmationModal({
         </DialogHeader>
         <span className="pb-3 text-sm">
           {t("common.thisWillPermanentlyDeleteThe")} {description ?? "flow"}
-          {note ? " " + note : ""}{t("common.dot")}<br />
+          {note ? " " + note : ""}
+          {t("common.dot")}
+          <br />
           <br />
           {t("common.thisCantBeUndone")}
         </span>

@@ -2,6 +2,7 @@ import json
 from collections.abc import AsyncIterator, Iterator
 from pathlib import Path
 
+import i18n
 import orjson
 import pandas as pd
 from fastapi import UploadFile
@@ -16,8 +17,8 @@ from lfx.template.field.base import Output
 
 
 class SaveToFileComponent(Component):
-    display_name = "Write File"
-    description = "Save data to local file, AWS S3, or Google Drive in the selected format."
+    display_name = i18n.t("components.data.save_file.display_name")
+    description = i18n.t("components.data.save_file.description")
     documentation: str = "https://docs.langflow.org/components-processing#save-file"
     icon = "file-text"
     name = "SaveToFile"
@@ -46,13 +47,13 @@ class SaveToFileComponent(Component):
         # Storage location selection
         SortableListInput(
             name="storage_location",
-            display_name="Storage Location",
-            placeholder="Select Location",
-            info="Choose where to save the file.",
+            display_name=i18n.t("components.data.save_file.storage_location.display_name"),
+            placeholder=i18n.t("components.data.save_file.storage_location.placeholder"),
+            info=i18n.t("components.data.save_file.storage_location.info"),
             options=[
-                {"name": "Local", "icon": "hard-drive"},
-                {"name": "AWS", "icon": "Amazon"},
-                {"name": "Google Drive", "icon": "google"},
+                {"name": i18n.t("components.data.save_file.storage_location.options.local"), "icon": "hard-drive"},
+                {"name": i18n.t("components.data.save_file.storage_location.options.aws"), "icon": "Amazon"},
+                {"name": i18n.t("components.data.save_file.storage_location.options.google_drive"), "icon": "google"},
             ],
             real_time_refresh=True,
             limit=1,
@@ -60,16 +61,16 @@ class SaveToFileComponent(Component):
         # Common inputs
         HandleInput(
             name="input",
-            display_name="File Content",
-            info="The input to save.",
+            display_name=i18n.t("components.data.save_file.input.display_name"),
+            info=i18n.t("components.data.save_file.input.info"),
             dynamic=True,
             input_types=["Data", "DataFrame", "Message"],
             required=True,
         ),
         StrInput(
             name="file_name",
-            display_name="File Name",
-            info="Name file will be saved as (without extension).",
+            display_name=i18n.t("components.data.save_file.file_name.display_name"),
+            info=i18n.t("components.data.save_file.file_name.info"),
             required=True,
             show=False,
             tool_mode=True,
@@ -77,85 +78,88 @@ class SaveToFileComponent(Component):
         # Format inputs (dynamic based on storage location)
         DropdownInput(
             name="local_format",
-            display_name="File Format",
+            display_name=i18n.t("components.data.save_file.local_format.display_name"),
             options=list(dict.fromkeys(LOCAL_DATA_FORMAT_CHOICES + LOCAL_MESSAGE_FORMAT_CHOICES)),
-            info="Select the file format for local storage.",
+            info=i18n.t("components.data.save_file.local_format.info"),
             value="json",
             show=False,
         ),
         DropdownInput(
             name="aws_format",
-            display_name="File Format",
+            display_name=i18n.t("components.data.save_file.aws_format.display_name"),
             options=AWS_FORMAT_CHOICES,
-            info="Select the file format for AWS S3 storage.",
+            info=i18n.t("components.data.save_file.aws_format.info"),
             value="txt",
             show=False,
         ),
         DropdownInput(
             name="gdrive_format",
-            display_name="File Format",
+            display_name=i18n.t("components.data.save_file.gdrive_format.display_name"),
             options=GDRIVE_FORMAT_CHOICES,
-            info="Select the file format for Google Drive storage.",
+            info=i18n.t("components.data.save_file.gdrive_format.info"),
             value="txt",
             show=False,
         ),
         # AWS S3 specific inputs
         SecretStrInput(
             name="aws_access_key_id",
-            display_name="AWS Access Key ID",
-            info="AWS Access key ID.",
+            display_name=i18n.t("components.data.save_file.aws_access_key_id.display_name"),
+            info=i18n.t("components.data.save_file.aws_access_key_id.info"),
             show=False,
             advanced=True,
         ),
         SecretStrInput(
             name="aws_secret_access_key",
-            display_name="AWS Secret Key",
-            info="AWS Secret Key.",
+            display_name=i18n.t("components.data.save_file.aws_secret_access_key.display_name"),
+            info=i18n.t("components.data.save_file.aws_secret_access_key.info"),
             show=False,
             advanced=True,
         ),
         StrInput(
             name="bucket_name",
-            display_name="S3 Bucket Name",
-            info="Enter the name of the S3 bucket.",
+            display_name=i18n.t("components.data.save_file.bucket_name.display_name"),
+            info=i18n.t("components.data.save_file.bucket_name.info"),
             show=False,
             advanced=True,
         ),
         StrInput(
             name="aws_region",
-            display_name="AWS Region",
-            info="AWS region (e.g., us-east-1, eu-west-1).",
+            display_name=i18n.t("components.data.save_file.aws_region.display_name"),
+            info=i18n.t("components.data.save_file.aws_region.info"),
             show=False,
             advanced=True,
         ),
         StrInput(
             name="s3_prefix",
-            display_name="S3 Prefix",
-            info="Prefix for all files in S3.",
+            display_name=i18n.t("components.data.save_file.s3_prefix.display_name"),
+            info=i18n.t("components.data.save_file.s3_prefix.info"),
             show=False,
             advanced=True,
         ),
         # Google Drive specific inputs
         SecretStrInput(
             name="service_account_key",
-            display_name="GCP Credentials Secret Key",
-            info="Your Google Cloud Platform service account JSON key as a secret string (complete JSON content).",
+            display_name=i18n.t("components.data.save_file.service_account_key.display_name"),
+            info=i18n.t("components.data.save_file.service_account_key.info"),
             show=False,
             advanced=True,
         ),
         StrInput(
             name="folder_id",
-            display_name="Google Drive Folder ID",
-            info=(
-                "The Google Drive folder ID where the file will be uploaded. "
-                "The folder must be shared with the service account email."
-            ),
+            display_name=i18n.t("components.data.save_file.folder_id.display_name"),
+            info=i18n.t("components.data.save_file.folder_id.info"),
             show=False,
             advanced=True,
         ),
     ]
 
-    outputs = [Output(display_name="File Path", name="message", method="save_to_file")]
+    outputs = [
+        Output(
+            display_name=i18n.t("components.data.save_file.outputs.message.display_name"),
+            name="message",
+            method="save_to_file",
+        )
+    ]
 
     def update_build_config(self, build_config, field_value, field_name=None):
         """Update build configuration to show/hide fields based on storage location selection."""
@@ -167,7 +171,7 @@ class SaveToFileComponent(Component):
 
         # Hide all dynamic fields first
         dynamic_fields = [
-            "file_name",  # Common fields (input is always visible)
+            "file_name",
             "local_format",
             "aws_format",
             "gdrive_format",
@@ -188,15 +192,20 @@ class SaveToFileComponent(Component):
         if len(selected) == 1:
             location = selected[0]
 
-            # Show file_name when any storage location is selected (input is always visible)
+            # Show file_name when any storage location is selected
             if "file_name" in build_config:
                 build_config["file_name"]["show"] = True
 
-            if location == "Local":
+            # Get localized location names
+            local_name = i18n.t("components.data.save_file.storage_location.options.local")
+            aws_name = i18n.t("components.data.save_file.storage_location.options.aws")
+            gdrive_name = i18n.t("components.data.save_file.storage_location.options.google_drive")
+
+            if location == local_name:
                 if "local_format" in build_config:
                     build_config["local_format"]["show"] = True
 
-            elif location == "AWS":
+            elif location == aws_name:
                 aws_fields = [
                     "aws_format",
                     "aws_access_key_id",
@@ -209,7 +218,7 @@ class SaveToFileComponent(Component):
                     if f_name in build_config:
                         build_config[f_name]["show"] = True
 
-            elif location == "Google Drive":
+            elif location == gdrive_name:
                 gdrive_fields = ["gdrive_format", "service_account_key", "folder_id"]
                 for f_name in gdrive_fields:
                     if f_name in build_config:
@@ -221,40 +230,42 @@ class SaveToFileComponent(Component):
         """Save the input to a file and upload it, returning a confirmation message."""
         # Validate inputs
         if not self.file_name:
-            msg = "File name must be provided."
+            msg = i18n.t("components.data.save_file.errors.file_name_required")
             raise ValueError(msg)
         if not self._get_input_type():
-            msg = "Input type is not set."
+            msg = i18n.t("components.data.save_file.errors.input_type_not_set")
             raise ValueError(msg)
 
         # Get selected storage location
         storage_location = self._get_selected_storage_location()
         if not storage_location:
-            msg = "Storage location must be selected."
+            msg = i18n.t("components.data.save_file.errors.storage_location_required")
             raise ValueError(msg)
 
+        # Get localized location names for comparison
+        local_name = i18n.t("components.data.save_file.storage_location.options.local")
+        aws_name = i18n.t("components.data.save_file.storage_location.options.aws")
+        gdrive_name = i18n.t("components.data.save_file.storage_location.options.google_drive")
+
         # Route to appropriate save method based on storage location
-        if storage_location == "Local":
+        if storage_location == local_name:
             return await self._save_to_local()
-        if storage_location == "AWS":
+        if storage_location == aws_name:
             return await self._save_to_aws()
-        if storage_location == "Google Drive":
+        if storage_location == gdrive_name:
             return await self._save_to_google_drive()
-        msg = f"Unsupported storage location: {storage_location}"
+        msg = i18n.t("components.data.save_file.errors.unsupported_storage_location", location=storage_location)
         raise ValueError(msg)
 
     def _get_input_type(self) -> str:
         """Determine the input type based on the provided input."""
-        # Use exact type checking (type() is) instead of isinstance() to avoid inheritance issues.
-        # Since Message inherits from Data, isinstance(message, Data) would return True for Message objects,
-        # causing Message inputs to be incorrectly identified as Data type.
         if type(self.input) is DataFrame:
             return "DataFrame"
         if type(self.input) is Message:
             return "Message"
         if type(self.input) is Data:
             return "Data"
-        msg = f"Unsupported input type: {type(self.input)}"
+        msg = i18n.t("components.data.save_file.errors.unsupported_input_type", type=str(type(self.input)))
         raise ValueError(msg)
 
     def _get_default_format(self) -> str:
@@ -265,7 +276,7 @@ class SaveToFileComponent(Component):
             return "json"
         if self._get_input_type() == "Message":
             return "json"
-        return "json"  # Fallback
+        return "json"
 
     def _adjust_file_path_with_format(self, path: Path, fmt: str) -> Path:
         """Adjust the file path to include the correct extension."""
@@ -279,16 +290,14 @@ class SaveToFileComponent(Component):
         from langflow.api.v2.files import upload_user_file
         from langflow.services.database.models.user.crud import get_user_by_id
 
-        # Ensure the file exists
         if not file_path.exists():
-            msg = f"File not found: {file_path}"
+            msg = i18n.t("components.data.save_file.errors.file_not_found", path=str(file_path))
             raise FileNotFoundError(msg)
 
-        # Upload the file
         with file_path.open("rb") as f:
             async with session_scope() as db:
                 if not self.user_id:
-                    msg = "User ID is required for file saving."
+                    msg = i18n.t("components.data.save_file.errors.user_id_required")
                     raise ValueError(msg)
                 current_user = await get_user_by_id(db, self.user_id)
 
@@ -311,9 +320,9 @@ class SaveToFileComponent(Component):
         elif fmt == "markdown":
             path.write_text(dataframe.to_markdown(index=False), encoding="utf-8")
         else:
-            msg = f"Unsupported DataFrame format: {fmt}"
+            msg = i18n.t("components.data.save_file.errors.unsupported_dataframe_format", format=fmt)
             raise ValueError(msg)
-        return f"DataFrame saved successfully as '{path}'"
+        return i18n.t("components.data.save_file.success.dataframe_saved", path=str(path))
 
     def _save_data(self, data: Data, path: Path, fmt: str) -> str:
         """Save a Data object to the specified file format."""
@@ -328,9 +337,9 @@ class SaveToFileComponent(Component):
         elif fmt == "markdown":
             path.write_text(pd.DataFrame(data.data).to_markdown(index=False), encoding="utf-8")
         else:
-            msg = f"Unsupported Data format: {fmt}"
+            msg = i18n.t("components.data.save_file.errors.unsupported_data_format", format=fmt)
             raise ValueError(msg)
-        return f"Data saved successfully as '{path}'"
+        return i18n.t("components.data.save_file.success.data_saved", path=str(path))
 
     async def _save_message(self, message: Message, path: Path, fmt: str) -> str:
         """Save a Message to the specified file format, handling async iterators."""
@@ -353,9 +362,9 @@ class SaveToFileComponent(Component):
         elif fmt == "markdown":
             path.write_text(f"**Message:**\n\n{content}", encoding="utf-8")
         else:
-            msg = f"Unsupported Message format: {fmt}"
+            msg = i18n.t("components.data.save_file.errors.unsupported_message_format", format=fmt)
             raise ValueError(msg)
-        return f"Message saved successfully as '{path}'"
+        return i18n.t("components.data.save_file.success.message_saved", path=str(path))
 
     def _get_selected_storage_location(self) -> str:
         """Get the selected storage location from the SortableListInput."""
@@ -368,24 +377,34 @@ class SaveToFileComponent(Component):
 
     def _get_file_format_for_location(self, location: str) -> str:
         """Get the appropriate file format based on storage location."""
-        if location == "Local":
+        local_name = i18n.t("components.data.save_file.storage_location.options.local")
+        aws_name = i18n.t("components.data.save_file.storage_location.options.aws")
+        gdrive_name = i18n.t("components.data.save_file.storage_location.options.google_drive")
+
+        if location == local_name:
             return getattr(self, "local_format", None) or self._get_default_format()
-        if location == "AWS":
+        if location == aws_name:
             return getattr(self, "aws_format", "txt")
-        if location == "Google Drive":
+        if location == gdrive_name:
             return getattr(self, "gdrive_format", "txt")
         return self._get_default_format()
 
     async def _save_to_local(self) -> Message:
         """Save file to local storage (original functionality)."""
-        file_format = self._get_file_format_for_location("Local")
+        local_name = i18n.t("components.data.save_file.storage_location.options.local")
+        file_format = self._get_file_format_for_location(local_name)
 
         # Validate file format based on input type
         allowed_formats = (
             self.LOCAL_MESSAGE_FORMAT_CHOICES if self._get_input_type() == "Message" else self.LOCAL_DATA_FORMAT_CHOICES
         )
         if file_format not in allowed_formats:
-            msg = f"Invalid file format '{file_format}' for {self._get_input_type()}. Allowed: {allowed_formats}"
+            msg = i18n.t(
+                "components.data.save_file.errors.invalid_file_format",
+                format=file_format,
+                type=self._get_input_type(),
+                allowed=str(allowed_formats),
+            )
             raise ValueError(msg)
 
         # Prepare file path
@@ -402,7 +421,7 @@ class SaveToFileComponent(Component):
         elif self._get_input_type() == "Message":
             confirmation = await self._save_message(self.input, file_path, file_format)
         else:
-            msg = f"Unsupported input type: {self._get_input_type()}"
+            msg = i18n.t("components.data.save_file.errors.unsupported_input_type", type=self._get_input_type())
             raise ValueError(msg)
 
         # Upload the saved file
@@ -416,20 +435,20 @@ class SaveToFileComponent(Component):
         """Save file to AWS S3 using S3 functionality."""
         # Validate AWS credentials
         if not getattr(self, "aws_access_key_id", None):
-            msg = "AWS Access Key ID is required for S3 storage"
+            msg = i18n.t("components.data.save_file.errors.aws_access_key_required")
             raise ValueError(msg)
         if not getattr(self, "aws_secret_access_key", None):
-            msg = "AWS Secret Key is required for S3 storage"
+            msg = i18n.t("components.data.save_file.errors.aws_secret_key_required")
             raise ValueError(msg)
         if not getattr(self, "bucket_name", None):
-            msg = "S3 Bucket Name is required for S3 storage"
+            msg = i18n.t("components.data.save_file.errors.bucket_name_required")
             raise ValueError(msg)
 
         # Use S3 upload functionality
         try:
             import boto3
         except ImportError as e:
-            msg = "boto3 is not installed. Please install it using `uv pip install boto3`."
+            msg = i18n.t("components.data.save_file.errors.boto3_not_installed")
             raise ImportError(msg) from e
 
         # Create S3 client
@@ -445,7 +464,8 @@ class SaveToFileComponent(Component):
 
         # Extract content
         content = self._extract_content_for_upload()
-        file_format = self._get_file_format_for_location("AWS")
+        aws_name = i18n.t("components.data.save_file.storage_location.options.aws")
+        file_format = self._get_file_format_for_location(aws_name)
 
         # Generate file path
         file_path = f"{self.file_name}.{file_format}"
@@ -463,7 +483,7 @@ class SaveToFileComponent(Component):
             # Upload to S3
             s3_client.upload_file(temp_file_path, self.bucket_name, file_path)
             s3_url = f"s3://{self.bucket_name}/{file_path}"
-            return Message(text=f"File successfully uploaded to {s3_url}")
+            return Message(text=i18n.t("components.data.save_file.success.uploaded_to_s3", url=s3_url))
         finally:
             # Clean up temp file
             if Path(temp_file_path).exists():
@@ -473,10 +493,10 @@ class SaveToFileComponent(Component):
         """Save file to Google Drive using Google Drive functionality."""
         # Validate Google Drive credentials
         if not getattr(self, "service_account_key", None):
-            msg = "GCP Credentials Secret Key is required for Google Drive storage"
+            msg = i18n.t("components.data.save_file.errors.service_account_key_required")
             raise ValueError(msg)
         if not getattr(self, "folder_id", None):
-            msg = "Google Drive Folder ID is required for Google Drive storage"
+            msg = i18n.t("components.data.save_file.errors.folder_id_required")
             raise ValueError(msg)
 
         # Use Google Drive upload functionality
@@ -488,14 +508,14 @@ class SaveToFileComponent(Component):
             from googleapiclient.discovery import build
             from googleapiclient.http import MediaFileUpload
         except ImportError as e:
-            msg = "Google API client libraries are not installed. Please install them."
+            msg = i18n.t("components.data.save_file.errors.google_api_not_installed")
             raise ImportError(msg) from e
 
         # Parse credentials
         try:
             credentials_dict = json.loads(self.service_account_key)
         except json.JSONDecodeError as e:
-            msg = f"Invalid JSON in service account key: {e!s}"
+            msg = i18n.t("components.data.save_file.errors.invalid_service_account_json", error=str(e))
             raise ValueError(msg) from e
 
         # Create Google Drive service
@@ -506,7 +526,8 @@ class SaveToFileComponent(Component):
 
         # Extract content and format
         content = self._extract_content_for_upload()
-        file_format = self._get_file_format_for_location("Google Drive")
+        gdrive_name = i18n.t("components.data.save_file.storage_location.options.google_drive")
+        file_format = self._get_file_format_for_location(gdrive_name)
 
         # Handle special Google Drive formats
         if file_format in ["slides", "docs"]:
@@ -527,7 +548,7 @@ class SaveToFileComponent(Component):
 
             file_id = uploaded_file.get("id")
             file_url = f"https://drive.google.com/file/d/{file_id}/view"
-            return Message(text=f"File successfully uploaded to Google Drive: {file_url}")
+            return Message(text=i18n.t("components.data.save_file.success.uploaded_to_drive", url=file_url))
         finally:
             # Clean up temp file
             if Path(temp_file_path).exists():
@@ -607,7 +628,11 @@ class SaveToFileComponent(Component):
             docs_service.documents().batchUpdate(documentId=document_id, body={"requests": requests}).execute()
             file_url = f"https://docs.google.com/document/d/{document_id}/edit"
 
-        return Message(text=f"File successfully created in Google {app_type.title()}: {file_url}")
+        return Message(
+            text=i18n.t(
+                "components.data.save_file.success.created_in_google_apps", app_type=app_type.title(), url=file_url
+            )
+        )
 
     def _extract_content_for_upload(self) -> str:
         """Extract content from input for upload to cloud services."""

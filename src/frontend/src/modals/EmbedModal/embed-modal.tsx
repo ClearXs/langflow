@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import {
   oneDark,
@@ -29,6 +30,7 @@ export default function EmbedModal({
   tweaksBuildedObject,
   activeTweaks,
 }: EmbedModalProps) {
+  const { t } = useTranslation();
   const isDark = useDarkStore((state) => state.dark);
   const [isCopied, setIsCopied] = useState<boolean>(false);
   const widgetProps = {
@@ -58,8 +60,8 @@ export default function EmbedModal({
     <BaseModal open={open} setOpen={setOpen} size="retangular">
       <BaseModal.Header>
         <div className="flex items-center gap-2 text-base font-semibold">
-          <IconComponent name="Columns2" className="icon-size" />
-          Embed into site
+          <IconComponent name={t("embedModal.icon")} className="icon-size" />
+          {t("embedModal.title")}
         </div>
       </BaseModal.Header>
       <BaseModal.Content className="">
@@ -86,7 +88,7 @@ export default function EmbedModal({
           <SyntaxHighlighter
             showLineNumbers={true}
             wrapLongLines={true}
-            language="html"
+            language={t("embedModal.codeLanguage")}
             style={isDark ? oneDark : oneLight}
             className="!mt-0 h-full w-full overflow-scroll !rounded-b-md border border-border text-left !custom-scroll"
           >

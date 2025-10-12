@@ -217,7 +217,7 @@
         "beta": "Beta"
       },
       "components": {
-        "savedComponents":"Saved",
+        "savedComponents": "Saved",
         "inputOutput": "Input / Output",
         "agents": "Agents",
         "models": "Models",
@@ -351,6 +351,30 @@
     "inputParameters": "Input Parameters",
     "outputParameters": "Output Parameters",
     "advancedSettings": "Advanced Settings",
+    "logCanvasControls": {
+      "logs": "Logs"
+    },
+    "mcpComponent": {
+      "status": {
+        "timeout": "Timeout",
+        "error": "Error",
+        "loading": "Loading...",
+        "noTools": "No tools found",
+        "toolCount": "{{count}} tool",
+        "toolCount_plural": "{{count}} tools"
+      },
+      "placeholder": {
+        "loadingServers": "Loading servers...",
+        "selectServer": "Select a server...",
+        "searchServers": "Search MCP Servers..."
+      },
+      "buttons": {
+        "addServer": "Add MCP Server"
+      },
+      "errors": {
+        "addServerFailed": "Error adding MCP server"
+      }
+    },
     "output": {
       "title": "Component Output",
       "description": "Inspect the output of the component below.",
@@ -409,7 +433,7 @@
       "incompatibleWith": "Incompatible with",
       "inputType": "Input type",
       "inputTypes": "Input types",
-      "outputType": "Output type", 
+      "outputType": "Output type",
       "outputTypes": "Output types",
       "input": "input",
       "output": "output",
@@ -436,7 +460,7 @@
         "show": "Show"
       }
     },
-    "button":{
+    "button": {
       "checkSave": "Check & Save",
       "cancel": "Cancel",
       "save": "Save",
@@ -488,15 +512,14 @@
     "saveChanges": "Save Changes",
     "never": "Never"
   },
-  "mcp": {
-  },
+  "mcp": {},
   "variable": {
     "globalVariables": "Global Variables",
     "description": "Manage global variables and assign them to fields.",
     "table": {
       "variableName": "Variable Name",
       "type": "Type",
-      "value": "Value", 
+      "value": "Value",
       "applyToFields": "Apply To Fields"
     },
     "message": {
@@ -695,6 +718,70 @@
       "save": "Save",
       "errorTitle": "Error getting dictionary",
       "errorMessage": "Check your dictionary format"
+    },
+    "addMcpServer": {
+      "title": {
+        "add": "Add MCP Server",
+        "update": "Update MCP Server"
+      },
+      "description": "Save MCP Servers. Manage added servers in",
+      "settingsLink": "settings",
+      "tabs": {
+        "json": "JSON",
+        "stdio": "STDIO",
+        "http": "Streamable HTTP/SSE"
+      },
+      "fields": {
+        "name": "Name",
+        "command": "Command",
+        "arguments": "Arguments",
+        "environmentVariables": "Environment Variables",
+        "jsonConfig": "Paste in JSON config",
+        "httpUrl": "Streamable HTTP/SSE URL",
+        "headers": "Headers"
+      },
+      "placeholders": {
+        "jsonConfig": "Paste in JSON config to add server",
+        "serverName": "Type server name...",
+        "name": "Name",
+        "command": "Type command...",
+        "argument": "Type argument...",
+        "httpUrl": "Streamable HTTP/SSE URL"
+      },
+      "buttons": {
+        "cancel": "Cancel",
+        "addServer": "Add Server",
+        "updateServer": "Update Server",
+        "addArgument": "Add Argument"
+      },
+      "errors": {
+        "nameAndCommandRequired": "Name and command are required.",
+        "nameAndUrlRequired": "Name and URL are required.",
+        "failedToAdd": "Failed to add MCP server.",
+        "failedToAddMultiple": "Failed to add one or more MCP servers.",
+        "invalidInput": "Invalid input",
+        "noValidServer": "No valid MCP server found in the input."
+      }
+    },
+    "saveChanges": {
+      "title": {
+        "flow": "Flow",
+        "unsavedChanges": "has unsaved changes"
+      },
+      "buttons": {
+        "exitAnyway": "Exit anyway",
+        "saveAndExit": "Save and Exit"
+      },
+      "messages": {
+        "saving": "Saving your changes...",
+        "lastSaved": "Last saved: {{time}}",
+        "never": "Never",
+        "warningLost": "Unsaved changes will be permanently lost.",
+        "avoidLosing": "to avoid losing progress."
+      },
+      "links": {
+        "enableAutoSave": "Enable auto-saving"
+      }
     }
   },
   "signUpPage": {
@@ -1005,6 +1092,58 @@
       "resetZoomTooltip": "Reset zoom to 100%",
       "fitView": "Zoom To Fit",
       "fitViewTooltip": "Fit view to show all nodes"
+    }
+  },
+  "embedModal": {
+    "title": "Embed into site",
+    "icon": "Columns2",
+    "copyButton": "Copy code",
+    "copiedSuccess": "Copied",
+    "codeLanguage": "html"
+  },
+  "pages": {
+    "mcpServers": {
+      "title": "MCP Servers",
+      "description": "Manage MCP Servers for use in your flows.",
+      "buttons": {
+        "addServer": "Add MCP Server"
+      },
+      "messages": {
+        "noServers": "No MCP servers added",
+        "addedServers": "Added MCP Servers"
+      },
+      "status": {
+        "timeout": "Timeout",
+        "error": "Error",
+        "loading": "Loading...",
+        "noTools": "No tools found",
+        "toolCount": "{{count}} tool",
+        "toolCount_plural": "{{count}} tools"
+      },
+      "actions": {
+        "edit": "Edit",
+        "delete": "Delete"
+      },
+      "deleteConfirmation": "MCP Server",
+      "errors": {
+        "fetchServerFailed": "Error fetching server",
+        "deleteServerFailed": "Error deleting server"
+      }
+    },
+    "generalSettings": {
+      "title": "General",
+      "description": "Manage settings related to Langflow and your account.",
+      "profilePicture": {
+        "title": "Profile Picture",
+        "description": "Choose the image that appears as your profile picture.",
+        "buttons": {
+          "save": "Save"
+        }
+      }
+    },
+    "messagesSettings": {
+      "title": "Messages",
+      "description": "Inspect, edit and remove messages to explore and refine model behaviors."
     }
   }
 }

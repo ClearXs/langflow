@@ -10,6 +10,7 @@ from __future__ import annotations
 import re
 from typing import TYPE_CHECKING
 
+import i18n
 from langchain.tools import StructuredTool
 from pydantic import BaseModel, create_model
 
@@ -27,36 +28,44 @@ if TYPE_CHECKING:
 class DataFrameToToolsetComponent(LCToolComponent):
     """Component that converts DataFrame rows into a toolset with multiple callable actions."""
 
-    display_name = "DataFrame to Toolset"
-    description = "Convert each row of a DataFrame into a callable tool/action in a toolset."
+    display_name = i18n.t("components.processing.dataframe_to_toolset.display_name")
+    description = i18n.t("components.processing.dataframe_to_toolset.description")
     icon = "wrench"
     name = "DataFrameToToolset"
 
     inputs = [
         HandleInput(
             name="dataframe",
-            display_name="DataFrame",
+            display_name=i18n.t("components.processing.dataframe_to_toolset.dataframe.display_name"),
             input_types=["DataFrame"],
-            info="DataFrame where each row will become a tool/action",
+            info=i18n.t("components.processing.dataframe_to_toolset.dataframe.info"),
             required=True,
         ),
         StrInput(
             name="tool_name_column",
-            display_name="Tool Name Column",
-            info="Column with tool names",
+            display_name=i18n.t("components.processing.dataframe_to_toolset.tool_name_column.display_name"),
+            info=i18n.t("components.processing.dataframe_to_toolset.tool_name_column.info"),
             required=True,
         ),
         StrInput(
             name="tool_output_column",
-            display_name="Tool Output Column",
-            info="Column with tool outputs/responses",
+            display_name=i18n.t("components.processing.dataframe_to_toolset.tool_output_column.display_name"),
+            info=i18n.t("components.processing.dataframe_to_toolset.tool_output_column.info"),
             required=True,
         ),
     ]
 
     outputs = [
-        Output(display_name="Tools", name="tools", method="build_tools"),
-        Output(display_name="Message", name="message", method="get_message"),
+        Output(
+            display_name=i18n.t("components.processing.dataframe_to_toolset.outputs.tools.display_name"),
+            name="tools",
+            method="build_tools",
+        ),
+        Output(
+            display_name=i18n.t("components.processing.dataframe_to_toolset.outputs.message.display_name"),
+            name="message",
+            method="get_message",
+        ),
     ]
 
     def __init__(self, **kwargs):
@@ -94,16 +103,18 @@ class DataFrameToToolsetComponent(LCToolComponent):
             return
 
         if self.tool_name_column not in self.dataframe.columns:
-            msg = (
-                f"Tool name column '{self.tool_name_column}' not found in DataFrame columns: "
-                f"{list(self.dataframe.columns)}"
+            msg = i18n.t(
+                "components.processing.dataframe_to_toolset.errors.column_not_found",
+                column=self.tool_name_column,
+                columns=list(self.dataframe.columns),
             )
             raise ValueError(msg)
 
         if self.tool_output_column not in self.dataframe.columns:
-            msg = (
-                f"Tool output column '{self.tool_output_column}' not found in DataFrame columns: "
-                f"{list(self.dataframe.columns)}"
+            msg = i18n.t(
+                "components.processing.dataframe_to_toolset.errors.column_not_found",
+                column=self.tool_output_column,
+                columns=list(self.dataframe.columns),
             )
             raise ValueError(msg)
 
@@ -133,7 +144,9 @@ class DataFrameToToolsetComponent(LCToolComponent):
             return content
 
         action_function.__name__ = f"execute_{action_name}"
-        action_function.__doc__ = f"Execute {action_name} action and return the associated content."
+        action_function.__doc__ = i18n.t(
+            "components.processing.dataframe_to_toolset.action_function_doc", action_name=action_name
+        )
         return action_function
 
     def build_tools(self) -> list[Tool]:
@@ -168,21 +181,29 @@ class DataFrameToToolsetComponent(LCToolComponent):
             # Create the tool function
             tool_function = self._create_action_function(sanitized_name, content)
 
+            # Create description with preview
+            content_preview = content[:tools_description_preview_length]
+            has_more = len(content) > tools_description_preview_length
+            description = i18n.t(
+                "components.processing.dataframe_to_toolset.tool_description",
+                action_name=original_name,
+                content=content_preview,
+                ellipsis="..." if has_more else "",
+            )
+
             # Create the StructuredTool
             tool = StructuredTool(
                 name=sanitized_name,
-                description=(
-                    f"Execute {original_name} action. Returns: "
-                    f"{content[:tools_description_preview_length]}"
-                    f"{'...' if len(content) > tools_description_preview_length else ''}"
-                ),
+                description=description,
                 func=tool_function,
                 args_schema=tool_schema,
                 handle_tool_error=True,
                 tags=[sanitized_name],
                 metadata={
                     "display_name": original_name,
-                    "display_description": f"Action: {original_name}",
+                    "display_description": i18n.t(
+                        "components.processing.dataframe_to_toolset.action_metadata", action_name=original_name
+                    ),
                     "original_name": original_name,
                     "content_preview": content[:tools_description_content_length],
                 },
@@ -200,11 +221,11 @@ class DataFrameToToolsetComponent(LCToolComponent):
             # Return a placeholder tool when no data is available
             def placeholder_function(**kwargs) -> str:
                 self.log(kwargs)  # TODO: Coming soon: implement arguments to modify content
-                return "No tools available. Please connect a DataFrame with appropriate columns."
+                return i18n.t("components.processing.dataframe_to_toolset.placeholder_message")
 
             return StructuredTool(
                 name="placeholder_tool",
-                description="Placeholder tool - waiting for DataFrame input",
+                description=i18n.t("components.processing.dataframe_to_toolset.placeholder_description"),
                 func=placeholder_function,
                 args_schema=create_model("PlaceholderSchema", __base__=BaseModel),
             )
@@ -216,17 +237,19 @@ class DataFrameToToolsetComponent(LCToolComponent):
         """Get a message describing the created toolset."""
         # Handle case where inputs are not ready
         if not hasattr(self, "dataframe") or self.dataframe is None:
-            return Message(text="Waiting for DataFrame input...")
+            return Message(text=i18n.t("components.processing.dataframe_to_toolset.messages.waiting_input"))
 
         self._prepare_action_data()
 
         if not self._action_data:
-            return Message(text="No tools were created. Please check your DataFrame and column selections.")
+            return Message(text=i18n.t("components.processing.dataframe_to_toolset.messages.no_tools"))
 
         tool_count = len(self._action_data)
         tool_names = [info["original_name"] for info in self._action_data.values()]
 
-        message_text = f"Created toolset with {tool_count} tools:\n"
+        message_text = (
+            i18n.t("components.processing.dataframe_to_toolset.messages.toolset_created", count=tool_count) + "\n"
+        )
         for i, name in enumerate(tool_names, 1):
             message_text += f"{i}. {name}\n"
 
@@ -236,12 +259,12 @@ class DataFrameToToolsetComponent(LCToolComponent):
         """Run the model and return tool information as Data objects."""
         # Handle case where inputs are not ready
         if not hasattr(self, "dataframe") or self.dataframe is None:
-            return [Data(data={"status": "Waiting for DataFrame input"})]
+            return [Data(data={"status": i18n.t("components.processing.dataframe_to_toolset.status.waiting_input")})]
 
         tools = self.build_tools()
 
         if not tools:
-            return [Data(data={"status": "No tools created. Check DataFrame and column selections."})]
+            return [Data(data={"status": i18n.t("components.processing.dataframe_to_toolset.status.no_tools")})]
 
         results = []
         for tool in tools:

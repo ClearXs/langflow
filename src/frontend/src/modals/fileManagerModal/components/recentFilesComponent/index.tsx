@@ -1,5 +1,6 @@
 import Fuse from "fuse.js";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Input } from "@/components/ui/input";
 import { IS_MAC } from "@/constants/constants";
 import { usePostRenameFileV2 } from "@/controllers/API/queries/file-management/use-put-rename-file";
@@ -7,7 +8,6 @@ import { CustomLink } from "@/customization/components/custom-link";
 import { sortByBoolean, sortByDate } from "@/pages/MainPage/utils/sort-flows";
 import type { FileType } from "@/types/file_management";
 import FilesRendererComponent from "../filesRendererComponent";
-import { useTranslation } from "react-i18next";
 
 export default function RecentFilesComponent({
   files,
@@ -23,7 +23,7 @@ export default function RecentFilesComponent({
   isList: boolean;
 }) {
   const { t } = useTranslation();
-  
+
   const filesWithDisabled = useMemo(
     () =>
       files.map((file) => {

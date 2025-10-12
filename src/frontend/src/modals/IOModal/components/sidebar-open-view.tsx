@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import ShadTooltip from "@/components/common/shadTooltipComponent";
 import { Button } from "@/components/ui/button";
 import useFlowStore from "@/stores/flowStore";
@@ -5,7 +6,6 @@ import { useVoiceStore } from "@/stores/voiceStore";
 import IconComponent from "../../../components/common/genericIconComponent";
 import type { SidebarOpenViewProps } from "../types/sidebar-open-view";
 import SessionSelector from "./IOFieldView/components/session-selector";
-import { useTranslation } from "react-i18next";
 
 export const SidebarOpenView = ({
   sessions,
@@ -36,9 +36,14 @@ export const SidebarOpenView = ({
                 name="MessagesSquare"
                 className="h-[18px] w-[18px] text-ring"
               />
-              <div className="text-mmd font-normal">{t("chat.sidebar.title")}</div>
+              <div className="text-mmd font-normal">
+                {t("chat.sidebar.title")}
+              </div>
             </div>
-            <ShadTooltip styleClasses="z-50" content={t("chat.session.newChat")}>
+            <ShadTooltip
+              styleClasses="z-50"
+              content={t("chat.session.newChat")}
+            >
               <div>
                 <Button
                   data-testid="new-chat"

@@ -27,7 +27,7 @@ export default function UpdateComponentModal({
   isMultiple?: boolean;
 }) {
   const { t } = useTranslation();
-  
+
   const [backupFlow, setBackupFlow] = useState<boolean>(true);
   const [loading, setLoading] = useState<boolean>(false);
   const [selectedComponents, setSelectedComponents] = useState<Set<string>>(

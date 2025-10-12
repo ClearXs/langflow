@@ -1,5 +1,6 @@
 import { Cross2Icon } from "@radix-ui/react-icons";
 import { forwardRef, useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import IconComponent from "../../components/common/genericIconComponent";
 import {
   Popover,
@@ -9,7 +10,6 @@ import {
 import useAlertStore from "../../stores/alertStore";
 import type { AlertDropdownType } from "../../types/alerts";
 import SingleAlert from "./components/singleAlertComponent";
-import { useTranslation } from "react-i18next";
 
 const AlertDropdown = forwardRef<HTMLDivElement, AlertDropdownType>(
   function AlertDropdown({ children, notificationRef, onClose }, ref) {
@@ -26,7 +26,7 @@ const AlertDropdown = forwardRef<HTMLDivElement, AlertDropdownType>(
 
     const [open, setOpen] = useState(false);
 
-    const {t} = useTranslation()
+    const { t } = useTranslation();
 
     useEffect(() => {
       if (!open) {

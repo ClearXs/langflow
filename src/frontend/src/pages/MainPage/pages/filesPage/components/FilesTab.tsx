@@ -82,7 +82,10 @@ const FilesTab = ({
         files: files,
       });
       setSuccessData({
-        title: filesIds.length > 1 ? t("common.filesUploadedSuccessfully") : t("common.fileUploadedSuccessfully"),
+        title:
+          filesIds.length > 1
+            ? t("common.filesUploadedSuccessfully")
+            : t("common.fileUploadedSuccessfully"),
       });
     } catch (error: any) {
       setErrorData({
@@ -272,9 +275,7 @@ const FilesTab = ({
         onError: (error) => {
           setErrorData({
             title: t("common.errorDeletingFiles"),
-            list: [
-              error.message || t("common.errorOccurredWhileDeleting"),
-            ],
+            list: [error.message || t("common.errorOccurredWhileDeleting")],
           });
         },
       },
@@ -429,7 +430,9 @@ const FilesTab = ({
           >
             <div className="flex h-full w-full flex-col items-center justify-center gap-8 pb-8">
               <div className="flex flex-col items-center gap-2">
-                <h3 className="text-2xl font-semibold">{t("common.noFiles")}</h3>
+                <h3 className="text-2xl font-semibold">
+                  {t("common.noFiles")}
+                </h3>
                 <p className="text-lg text-secondary-foreground">
                   {t("common.uploadFilesOrImport")}
                 </p>

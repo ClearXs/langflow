@@ -26,7 +26,7 @@ import { cn, getNumberFromString } from "@/utils/utils";
 
 export const MenuBar = memo((): JSX.Element => {
   const { t } = useTranslation();
-  
+
   const setSuccessData = useAlertStore((state) => state.setSuccessData);
   const saveLoading = useFlowsManagerStore((state) => state.saveLoading);
   const [openSettings, setOpenSettings] = useState(false);
@@ -95,7 +95,7 @@ export const MenuBar = memo((): JSX.Element => {
     if (changesNotSaved) {
       return saveLoading ? t("flowMenu.saving") : t("flowMenu.saveChanges");
     }
-    
+
     const lastSavedText = t("constants.timestamp.savedHover");
     const timeText = updatedAt
       ? new Date(updatedAt).toLocaleString("en-US", {
@@ -103,7 +103,7 @@ export const MenuBar = memo((): JSX.Element => {
           minute: "numeric",
         })
       : t("flowMenu.never");
-    
+
     return lastSavedText + timeText;
   };
 

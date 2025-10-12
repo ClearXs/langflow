@@ -1,5 +1,6 @@
 import { useIsFetching, useIsMutating } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useLocation, useParams } from "react-router-dom";
 import ForwardedIconComponent from "@/components/common/genericIconComponent";
 import {
@@ -49,7 +50,6 @@ import { HeaderButtons } from "./components/header-buttons";
 import { InputEditFolderName } from "./components/input-edit-folder-name";
 import { MCPServerNotice } from "./components/mcp-server-notice";
 import { SelectOptions } from "./components/select-options";
-import { useTranslation } from "react-i18next";
 
 type SideBarFoldersButtonsComponentProps = {
   handleChangeFolder?: (id: string) => void;

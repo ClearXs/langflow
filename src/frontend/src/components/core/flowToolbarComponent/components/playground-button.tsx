@@ -1,8 +1,8 @@
-import ForwardedIconComponent from '@/components/common/genericIconComponent';
-import ShadTooltip from '@/components/common/shadTooltipComponent';
-import { CustomIOModal } from '@/customization/components/custom-new-modal';
-import { ENABLE_PUBLISH } from '@/customization/feature-flags';
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from "react-i18next";
+import ForwardedIconComponent from "@/components/common/genericIconComponent";
+import ShadTooltip from "@/components/common/shadTooltipComponent";
+import { CustomIOModal } from "@/customization/components/custom-new-modal";
+import { ENABLE_PUBLISH } from "@/customization/feature-flags";
 
 interface PlaygroundButtonProps {
   hasIO: boolean;
@@ -13,8 +13,8 @@ interface PlaygroundButtonProps {
 
 const PlayIcon = () => (
   <ForwardedIconComponent
-    name='Play'
-    className='h-4 w-4 transition-all'
+    name="Play"
+    className="h-4 w-4 transition-all"
     strokeWidth={ENABLE_PUBLISH ? 2 : 1.5}
   />
 );
@@ -22,16 +22,16 @@ const PlayIcon = () => (
 const ButtonLabel = () => {
   const { t } = useTranslation();
   return (
-    <span className='hidden md:block'>
-      {t('flow.panel.playground.displayName')}
+    <span className="hidden md:block">
+      {t("flow.panel.playground.displayName")}
     </span>
   );
 };
 
 const ActiveButton = () => (
   <div
-    data-testid='playground-btn-flow-io'
-    className='playground-btn-flow-toolbar hover:bg-accent'
+    data-testid="playground-btn-flow-io"
+    className="playground-btn-flow-toolbar hover:bg-accent"
   >
     <PlayIcon />
     <ButtonLabel />
@@ -40,8 +40,8 @@ const ActiveButton = () => (
 
 const DisabledButton = () => (
   <div
-    className='playground-btn-flow-toolbar cursor-not-allowed text-muted-foreground duration-150'
-    data-testid='playground-btn-flow'
+    className="playground-btn-flow-toolbar cursor-not-allowed text-muted-foreground duration-150"
+    data-testid="playground-btn-flow"
   >
     <PlayIcon />
     <ButtonLabel />
@@ -66,7 +66,7 @@ const PlaygroundButton = ({
       <ActiveButton />
     </CustomIOModal>
   ) : (
-    <ShadTooltip content={t('flow.panel.playground.tooltip')}>
+    <ShadTooltip content={t("flow.panel.playground.tooltip")}>
       <div>
         <DisabledButton />
       </div>

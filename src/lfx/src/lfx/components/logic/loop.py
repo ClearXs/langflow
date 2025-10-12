@@ -1,3 +1,5 @@
+import i18n
+
 from lfx.custom.custom_component.component import Component
 from lfx.inputs.inputs import HandleInput
 from lfx.schema.data import Data
@@ -6,27 +8,34 @@ from lfx.template.field.base import Output
 
 
 class LoopComponent(Component):
-    display_name = "Loop"
-    description = (
-        "Iterates over a list of Data objects, outputting one item at a time and aggregating results from loop inputs."
-    )
+    display_name = i18n.t("components.logic.loop.display_name")
+    description = i18n.t("components.logic.loop.description")
     documentation: str = "https://docs.langflow.org/components-logic#loop"
     icon = "infinity"
 
     inputs = [
         HandleInput(
             name="data",
-            display_name="Inputs",
-            info="The initial list of Data objects or DataFrame to iterate over.",
+            display_name=i18n.t("components.logic.loop.data.display_name"),
+            info=i18n.t("components.logic.loop.data.info"),
             input_types=["DataFrame"],
         ),
     ]
 
     outputs = [
-        Output(display_name="Item", name="item", method="item_output",
-               allows_loop=True, group_outputs=True),
-        Output(display_name="Done", name="done",
-               method="done_output", group_outputs=True),
+        Output(
+            display_name=i18n.t("components.logic.loop.outputs.item.display_name"),
+            name="item",
+            method="item_output",
+            allows_loop=True,
+            group_outputs=True,
+        ),
+        Output(
+            display_name=i18n.t("components.logic.loop.outputs.done.display_name"),
+            name="done",
+            method="done_output",
+            group_outputs=True,
+        ),
     ]
 
     def initialize_data(self) -> None:
@@ -55,7 +64,7 @@ class LoopComponent(Component):
             return [data]
         if isinstance(data, list) and all(isinstance(item, Data) for item in data):
             return data
-        msg = "The 'data' input must be a DataFrame, a list of Data objects, or a single Data object."
+        msg = i18n.t("components.logic.loop.errors.invalid_data_type")
         raise TypeError(msg)
 
     def evaluate_stop_loop(self) -> bool:
@@ -90,8 +99,7 @@ class LoopComponent(Component):
     def update_dependency(self):
         item_dependency_id = self.get_incoming_edge_by_target_param("item")
         if item_dependency_id not in self.graph.run_manager.run_predecessors[self._id]:
-            self.graph.run_manager.run_predecessors[self._id].append(
-                item_dependency_id)
+            self.graph.run_manager.run_predecessors[self._id].append(item_dependency_id)
 
     def done_output(self) -> DataFrame:
         """Trigger the done output when iteration is complete."""

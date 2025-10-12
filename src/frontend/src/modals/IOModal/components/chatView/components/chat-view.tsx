@@ -1,4 +1,5 @@
 import { memo, useEffect, useMemo, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { StickToBottom } from "use-stick-to-bottom";
 import LangflowLogo from "@/assets/LangflowLogo.svg?react";
 import { TextEffectPerChar } from "@/components/ui/textAnimation";
@@ -20,7 +21,6 @@ import FlowRunningSqueleton from "../../flow-running-squeleton";
 import useDragAndDrop from "../chatInput/hooks/use-drag-and-drop";
 import ChatMessage from "../chatMessage/chat-message";
 import sortSenderMessages from "../helpers/sort-sender-messages";
-import { useTranslation } from "react-i18next";
 
 const MemoizedChatMessage = memo(ChatMessage, (prevProps, nextProps) => {
   return (

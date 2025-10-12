@@ -1,10 +1,12 @@
 import { PopoverAnchor } from "@radix-ui/react-popover";
 import Fuse from "fuse.js";
 import { type ChangeEvent, useEffect, useMemo, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import NodeDialog from "@/CustomNodes/GenericNode/components/NodeDialogComponent";
 import { mutateTemplate } from "@/CustomNodes/helpers/mutate-template";
 import LoadingTextComponent from "@/components/common/loadingTextComponent";
 import { usePostTemplateValue } from "@/controllers/API/queries/nodes/use-post-template-value";
+import { useFormLocale } from "@/i18n/locale";
 import useAlertStore from "@/stores/alertStore";
 import useFlowStore from "@/stores/flowStore";
 import { useTypesStore } from "@/stores/typesStore";
@@ -37,8 +39,6 @@ import {
   PopoverTrigger,
 } from "../../ui/popover";
 import type { BaseInputProps } from "../parameterRenderComponent/types";
-import { useTranslation } from "react-i18next";
-import { useFormLocale } from "@/i18n/locale";
 
 export default function Dropdown({
   disabled,
@@ -67,7 +67,7 @@ export default function Dropdown({
     [options, value],
   );
 
-  const formLocale = useFormLocale()
+  const formLocale = useFormLocale();
 
   // Initialize state and refs
   const [open, setOpen] = useState(children ? true : false);

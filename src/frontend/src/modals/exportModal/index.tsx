@@ -1,4 +1,5 @@
 import { forwardRef, type ReactNode, useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { track } from "@/customization/utils/analytics";
 import useFlowStore from "@/stores/flowStore";
 import type { FlowType } from "@/types/flow";
@@ -10,7 +11,6 @@ import useAlertStore from "../../stores/alertStore";
 import { useDarkStore } from "../../stores/darkStore";
 import { downloadFlow, removeApiKeys } from "../../utils/reactflowUtils";
 import BaseModal from "../baseModal";
-import { useTranslation } from "react-i18next";
 
 const ExportModal = forwardRef(
   (
@@ -38,7 +38,7 @@ const ExportModal = forwardRef(
       currentFlow?.description ?? "",
     );
 
-    const {t} = useTranslation()
+    const { t } = useTranslation();
 
     const [customOpen, customSetOpen] = useState(false);
     const [open, setOpen] =

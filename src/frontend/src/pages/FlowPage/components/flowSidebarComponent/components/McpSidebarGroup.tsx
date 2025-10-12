@@ -45,7 +45,9 @@ const McpEmptyState = ({ isLoading }: { isLoading?: boolean }) => {
   return (
     <>
       <div className="flex flex-col h-full w-full items-center justify-center py-8 px-4 text-center min-h-[200px]">
-        <p className="text-muted-foreground mb-4">{t("flow.sidebar.common.noMcpServersAdded")}</p>
+        <p className="text-muted-foreground mb-4">
+          {t("flow.sidebar.common.noMcpServersAdded")}
+        </p>
         <Button
           variant="outline"
           size="sm"
@@ -114,7 +116,7 @@ const McpSidebarGroup = ({
     <SidebarGroup className={`p-3 pr-2${!hasMcpServers ? " h-full" : ""}`}>
       {hasMcpServers && (
         <SidebarGroupLabel className="cursor-default w-full flex items-center justify-between">
-          <span>{t("common.mcpServers")}</span>
+          <span>{t("flow.sidebar.common.mcpServers")}</span>
           {showSearchConfigTrigger && (
             <SearchConfigTrigger
               showConfig={showConfig}

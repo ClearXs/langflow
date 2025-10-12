@@ -1,5 +1,6 @@
 import Fuse from "fuse.js";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 import { ENABLE_KNOWLEDGE_BASES } from "@/customization/feature-flags";
 import { useCustomNavigate } from "@/customization/hooks/use-custom-navigate";
@@ -12,7 +13,6 @@ import { useFolderStore } from "../../../../stores/foldersStore";
 import type { TemplateContentProps } from "../../../../types/templates/types";
 import { updateIds } from "../../../../utils/reactflowUtils";
 import { TemplateCategoryComponent } from "../TemplateCategoryComponent";
-import { useTranslation } from "react-i18next";
 
 export default function TemplateContentComponent({
   currentTab,

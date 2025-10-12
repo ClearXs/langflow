@@ -67,7 +67,7 @@ export const MemoizedSidebarTrigger = memo(() => {
   const { open, toggleSidebar, setActiveSection } = useSidebar();
   const { focusSearch, isSearchFocused } = useSearchContext();
   const navItems = getNavItems(t);
-  
+
   if (ENABLE_NEW_SIDEBAR) {
     return (
       <Panel

@@ -1,5 +1,7 @@
 import type { ColDef } from "ag-grid-community";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { useShortcutsLocale } from "@/i18n/locale";
 import { toCamelCase } from "@/utils/utils";
 import ForwardedIconComponent from "../../../../components/common/genericIconComponent";
 import TableComponent from "../../../../components/core/parameterRenderComponent/components/tableComponent";
@@ -8,16 +10,14 @@ import { defaultShortcuts } from "../../../../constants/constants";
 import { useShortcutsStore } from "../../../../stores/shortcuts";
 import CellRenderShortcuts from "./CellRenderWrapper";
 import EditShortcutButton from "./EditShortcutButton";
-import { useTranslation } from "react-i18next";
-import { useShortcutsLocale } from "@/i18n/locale";
 
 export default function ShortcutsPage() {
   const [selectedRows, setSelectedRows] = useState<string[]>([]);
   const shortcuts = useShortcutsStore((state) => state.shortcuts);
   const setShortcuts = useShortcutsStore((state) => state.setShortcuts);
 
-  const shortcutsLocale = useShortcutsLocale()
-  const {t} = useTranslation()
+  const shortcutsLocale = useShortcutsLocale();
+  const { t } = useTranslation();
 
   // Column Definitions: Defines the columns to be displayed.
   const colDefs: ColDef[] = [
@@ -42,7 +42,7 @@ export default function ShortcutsPage() {
     Array<{ name: string; shortcut: string }>
   >([]);
 
-  useEffect(() => setShortcuts(shortcutsLocale), [])
+  useEffect(() => setShortcuts(shortcutsLocale), []);
 
   useEffect(() => {
     setNodesRowData(shortcuts);
@@ -70,7 +70,7 @@ export default function ShortcutsPage() {
             className="flex items-center text-lg font-semibold tracking-tight"
             data-testid="settings_menu_header"
           >
-             {t("shortcuts.page.displayName")}
+            {t("shortcuts.page.displayName")}
             <ForwardedIconComponent
               name="Keyboard"
               className="ml-2 h-5 w-5 text-primary"

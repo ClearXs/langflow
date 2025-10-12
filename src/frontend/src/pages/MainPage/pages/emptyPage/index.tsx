@@ -1,10 +1,10 @@
+import { useTranslation } from "react-i18next";
 import LangflowLogo from "@/assets/LangflowLogo.svg?react";
 import ForwardedIconComponent from "@/components/common/genericIconComponent";
 import CardsWrapComponent from "@/components/core/cardsWrapComponent";
 import { Button } from "@/components/ui/button";
 import { useFolderStore } from "@/stores/foldersStore";
 import useFileDrop from "../../hooks/use-on-file-drop";
-import { useTranslation } from "react-i18next";
 
 type EmptyPageProps = {
   setOpenModal: (open: boolean) => void;
@@ -27,7 +27,9 @@ export const EmptyPage = ({ setOpenModal }: EmptyPageProps) => {
               className="pt-5 font-chivo text-2xl font-semibold text-foreground"
               data-testid="mainpage_title"
             >
-              {folders?.length > 1 ? t("common.emptyProject") : t("common.startBuilding")}
+              {folders?.length > 1
+                ? t("common.emptyProject")
+                : t("common.startBuilding")}
             </h3>
             <p
               data-testid="empty-project-description"

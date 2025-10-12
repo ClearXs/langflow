@@ -1,3 +1,5 @@
+import { useTransition } from "react";
+import { useTranslation } from "react-i18next";
 import { FaDiscord, FaGithub } from "react-icons/fa";
 import { ForwardedIconComponent } from "@/components/common/genericIconComponent";
 import {
@@ -22,8 +24,6 @@ import {
   HeaderMenuToggle,
 } from "../HeaderMenu";
 import ThemeButtons from "../ThemeButtons";
-import { useTransition } from "react";
-import { useTranslation } from "react-i18next";
 
 export const AccountMenu = () => {
   const version = useDarkStore((state) => state.version);
@@ -31,7 +31,7 @@ export const AccountMenu = () => {
   const navigate = useCustomNavigate();
   const { mutate: mutationLogout } = useLogout();
 
-  const {t} = useTranslation()
+  const { t } = useTranslation();
 
   const { isAdmin, autoLogin } = useAuthStore((state) => ({
     isAdmin: state.isAdmin,
@@ -71,7 +71,7 @@ export const AccountMenu = () => {
                   id="menu_version_button"
                   className="text-sm"
                 >
-                  {t('settings.version')}
+                  {t("settings.version")}
                 </span>
                 <div
                   className={cn(

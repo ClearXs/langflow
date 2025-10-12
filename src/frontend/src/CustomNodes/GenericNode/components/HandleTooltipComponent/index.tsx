@@ -19,7 +19,7 @@ export default function HandleTooltipComponent({
   left: boolean;
 }) {
   const { t } = useTranslation();
-  
+
   const tooltips = tooltipTitle.split("\n");
   const plural = tooltips.length > 1;
 
@@ -81,15 +81,13 @@ export default function HandleTooltipComponent({
       {!isConnecting && (
         <div className="mt-2 flex flex-col gap-0.5 text-xs leading-6">
           <div>
-            <b>{t("common.copy")}</b>{" "}
-            {t("components.handle.dragToConnect")}{" "}
+            <b>{t("common.copy")}</b> {t("components.handle.dragToConnect")}{" "}
             {!isInput
               ? t("components.handle.inputs")
               : t("components.handle.outputs")}
           </div>
           <div>
-            <b>{t("common.select")}</b>{" "}
-            {t("components.handle.clickToFilter")}{" "}
+            <b>{t("common.select")}</b> {t("components.handle.clickToFilter")}{" "}
             {!isInput
               ? t("components.handle.inputs")
               : t("components.handle.outputs")}{" "}

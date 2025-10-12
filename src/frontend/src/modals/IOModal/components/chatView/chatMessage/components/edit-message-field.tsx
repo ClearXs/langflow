@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { useTranslation } from "react-i18next";
 
 export default function EditMessageField({
   message: initialMessage,
@@ -17,7 +17,7 @@ export default function EditMessageField({
   // used before to onBlur function, leave it here because in the future we may want this functionality again
   const [_isButtonClicked, setIsButtonClicked] = useState(false);
 
-  const {t}= useTranslation()
+  const { t } = useTranslation();
 
   const adjustTextareaHeight = () => {
     if (textareaRef.current) {

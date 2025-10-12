@@ -20,7 +20,7 @@ import type {
 
 export default function SignUp(): JSX.Element {
   const { t } = useTranslation();
-  
+
   const [inputState, setInputState] =
     useState<signUpInputStateType>(CONTROL_INPUT_STATE);
 

@@ -11,6 +11,7 @@ import {
   useState,
 } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
+import { useTranslation } from "react-i18next";
 import { useShallow } from "zustand/react/shallow";
 import ForwardedIconComponent from "@/components/common/genericIconComponent";
 import { Button } from "@/components/ui/button";
@@ -24,6 +25,7 @@ import SkeletonGroup from "@/components/ui/skeletonGroup";
 import { useGetMCPServers } from "@/controllers/API/queries/mcp/use-get-mcp-servers";
 import { ENABLE_NEW_SIDEBAR } from "@/customization/feature-flags";
 import { useAddComponent } from "@/hooks/use-add-component";
+import { useSidebarBundles, useSidebarCategories } from "@/i18n/locale";
 import { useShortcutsStore } from "@/stores/shortcuts";
 import { setLocalStorage } from "@/utils/local-storage-util";
 import {
@@ -52,8 +54,6 @@ import { filteredDataFn } from "./helpers/filtered-data";
 import { normalizeString } from "./helpers/normalize-string";
 import sensitiveSort from "./helpers/sensitive-sort";
 import { traditionalSearchMetadata } from "./helpers/traditional-search-metadata";
-import { useSidebarBundles, useSidebarCategories } from "@/i18n/locale";
-import { useTranslation } from "react-i18next";
 
 // Search context for the sidebar
 export type SearchContextType = {
@@ -146,8 +146,8 @@ interface FlowSidebarComponentProps {
 
 export function FlowSidebarComponent({ isLoading }: FlowSidebarComponentProps) {
   const data = useTypesStore((state) => state.data);
-  const BUNDLES = useSidebarBundles()
-  const CATEGORIES = useSidebarCategories()
+  const BUNDLES = useSidebarBundles();
+  const CATEGORIES = useSidebarCategories();
   const { t } = useTranslation();
 
   const {

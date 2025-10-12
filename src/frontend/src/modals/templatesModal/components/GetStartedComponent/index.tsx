@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { ENABLE_KNOWLEDGE_BASES } from "@/customization/feature-flags";
 import BaseModal from "@/modals/baseModal";
 import useFlowsManagerStore from "@/stores/flowsManagerStore";
@@ -8,9 +9,7 @@ import multiAgent from "../../../../assets/temp-pat-3.png";
 import memoryChatbotHorizontal from "../../../../assets/temp-pat-m-1.png";
 import vectorRagHorizontal from "../../../../assets/temp-pat-m-2.png";
 import multiAgentHorizontal from "../../../../assets/temp-pat-m-3.png";
-
 import TemplateGetStartedCardComponent from "../TemplateGetStartedCardComponent";
-import { useTranslation } from "react-i18next";
 
 export default function GetStartedComponent() {
   const examples = useFlowsManagerStore((state) => state.examples);
@@ -51,7 +50,11 @@ export default function GetStartedComponent() {
 
   return (
     <div className="flex flex-1 flex-col gap-4 md:gap-8">
-      <BaseModal.Header description={t("common.startWithTemplatesShowcasingLangflowPromptingRAGAndAgentUseCases")}>
+      <BaseModal.Header
+        description={t(
+          "common.startWithTemplatesShowcasingLangflowPromptingRAGAndAgentUseCases",
+        )}
+      >
         {t("common.getStarted")}
       </BaseModal.Header>
       <div className="grid min-h-0 flex-1 grid-cols-1 gap-4 lg:grid-cols-3">

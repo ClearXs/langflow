@@ -1,9 +1,12 @@
 import { Panel } from "@xyflow/react";
+import { useTranslation } from "react-i18next";
 import ForwardedIconComponent from "@/components/common/genericIconComponent";
 import { Button } from "@/components/ui/button";
 import FlowLogsModal from "@/modals/flowLogsModal";
 
 const LogCanvasControls = () => {
+  const { t } = useTranslation();
+
   return (
     <Panel
       data-testid="canvas_controls"
@@ -17,7 +20,9 @@ const LogCanvasControls = () => {
           className="flex items-center !gap-1.5"
         >
           <ForwardedIconComponent name="Terminal" className="text-primary" />
-          <span className="text-mmd font-normal">Logs</span>
+          <span className="text-mmd font-normal">
+            {t("components.logCanvasControls.logs")}
+          </span>
         </Button>
       </FlowLogsModal>
     </Panel>

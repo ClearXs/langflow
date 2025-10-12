@@ -11,7 +11,7 @@ import type { NoteDataType } from "@/types/flow";
 export const SelectItems = memo(
   ({ shortcuts, data }: { shortcuts: any[]; data: NoteDataType }) => {
     const { t } = useTranslation();
-    
+
     return (
       <SelectContentWithoutPortal>
         <SelectItem value="duplicate">

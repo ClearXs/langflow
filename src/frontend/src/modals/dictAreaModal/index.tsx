@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import type { JsonEditor as VanillaJsonEditor } from "vanilla-jsoneditor";
 import useAlertStore from "@/stores/alertStore";
 import IconComponent from "../../components/common/genericIconComponent";
 import JsonEditor from "../../components/core/jsonEditor";
 import BaseModal from "../baseModal";
-import { useTranslation } from "react-i18next";
 
 export default function DictAreaModal({
   children,
@@ -91,7 +91,9 @@ export default function DictAreaModal({
   const renderHeader = () => (
     <BaseModal.Header description={onChange ? IteractiveReader() : null}>
       <span className="pr-2">
-        {onChange ? t("modal.dictionary.editTitle") : t("modal.dictionary.viewTitle")}
+        {onChange
+          ? t("modal.dictionary.editTitle")
+          : t("modal.dictionary.viewTitle")}
       </span>
       <IconComponent
         name="BookMarked"
@@ -130,7 +132,9 @@ export default function DictAreaModal({
       </BaseModal.Trigger>
       {renderHeader()}
       {renderContent()}
-      <BaseModal.Footer submit={onChange ? { label: t("modal.dictionary.save") } : undefined} />
+      <BaseModal.Footer
+        submit={onChange ? { label: t("modal.dictionary.save") } : undefined}
+      />
     </BaseModal>
   );
 }
