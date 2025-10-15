@@ -14,7 +14,6 @@ from lfx.schema.dotdict import dotdict
 
 
 class SubFlowComponent(Component):
-    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
     display_name = i18n.t('components.logic.sub_flow.display_name')
     description = i18n.t('components.logic.sub_flow.description')
     name = "SubFlow"

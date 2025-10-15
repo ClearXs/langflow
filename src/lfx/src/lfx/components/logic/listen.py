@@ -7,7 +7,6 @@ from lfx.schema.data import Data
 
 
 class ListenComponent(Component):
-    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
     display_name = i18n.t('components.logic.listen.display_name')
     description = i18n.t('components.logic.listen.description')
     name = "Listen"

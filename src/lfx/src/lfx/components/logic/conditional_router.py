@@ -9,7 +9,6 @@ from lfx.schema.message import Message
 
 
 class ConditionalRouterComponent(Component):
-    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
     display_name = i18n.t('components.logic.conditional_router.display_name')
     description = i18n.t('components.logic.conditional_router.description')
     documentation: str = "https://docs.langflow.org/components-logic#conditional-router-if-else-component"

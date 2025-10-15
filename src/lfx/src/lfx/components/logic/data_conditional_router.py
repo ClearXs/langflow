@@ -10,7 +10,6 @@ from lfx.schema.dotdict import dotdict
 
 
 class DataConditionalRouterComponent(Component):
-    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
     display_name = i18n.t(
         'components.logic.data_conditional_router.display_name')
     description = i18n.t(
