@@ -1,3 +1,4 @@
+import os
 import i18n
 import re
 
@@ -10,6 +11,7 @@ from lfx.schema.message import Message
 
 
 class LangChainHubPromptComponent(Component):
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
     display_name: str = i18n.t(
         'components.langchain_utilities.langchain_hub.display_name')
     description: str = i18n.t(

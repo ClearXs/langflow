@@ -1,0 +1,79 @@
+{
+  "display_name": "File Input",
+  "description": "Select files from the file management system with validation and metadata options.",
+  "file_path": {
+    "display_name": "File Path",
+    "info": "Select one or more files from the file management system."
+  },
+  "multiple": {
+    "display_name": "Multiple Files",
+    "info": "Whether to allow selecting multiple files."
+  },
+  "allowed_extensions": {
+    "display_name": "Allowed Extensions",
+    "info": "Comma-separated list of allowed file extensions (e.g., .pdf,.doc,.txt). Leave empty to allow all types."
+  },
+  "include_metadata": {
+    "display_name": "Include Metadata",
+    "info": "Whether to include file metadata (size, modified time, etc.) in the output."
+  },
+  "validate_existence": {
+    "display_name": "Validate Existence",
+    "info": "Whether to validate that the selected file(s) exist on the filesystem."
+  },
+  "outputs": {
+    "file_path": {
+      "display_name": "File Path"
+    },
+    "file_data": {
+      "display_name": "File Data"
+    },
+    "message": {
+      "display_name": "Message"
+    }
+  },
+  "success": {
+    "file_selected": "Selected file: {name}",
+    "file_selected_with_metadata": "Selected file: {name} ({size} MB)"
+  },
+  "errors": {
+    "no_valid_files": "No valid files selected. Please check the allowed extensions.",
+    "file_not_found": "File not found: {path}",
+    "invalid_extension": "File extension not allowed: {extension}",
+    "invalid_json": "Error: Invalid Json",
+    "read_failed": "Error: Read Failed",
+    "unsupported_type": "Error: Unsupported Type"
+  },
+  "delimiter": {
+    "display_name": "Delimiter",
+    "info": "CSV field delimiter character."
+  },
+  "encoding": {
+    "display_name": "Encoding",
+    "info": "File encoding format (e.g., utf-8, gbk)."
+  },
+  "file_type": {
+    "display_name": "File Type",
+    "info": "Type of file to read (CSV, Excel, JSON, or Auto-Detect)."
+  },
+  "has_header": {
+    "display_name": "Has Header",
+    "info": "Whether the first row contains column headers."
+  },
+  "max_rows": {
+    "display_name": "Max Rows",
+    "info": "Maximum number of rows to read (0 for all rows)."
+  },
+  "sheet_name": {
+    "display_name": "Sheet Name",
+    "info": "Name of the Excel worksheet to read."
+  },
+  "skip_rows": {
+    "display_name": "Skip Rows",
+    "info": "Number of rows to skip from the beginning of the file."
+  },
+  "status": {
+    "reading": "Reading file...",
+    "success": "Successfully read {rows} rows from file"
+  }
+}

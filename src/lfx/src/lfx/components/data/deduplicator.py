@@ -1,3 +1,4 @@
+import os
 import json
 import hashlib
 from datetime import datetime
@@ -17,6 +18,7 @@ from lfx.schema.data import Data
 
 
 class DeduplicatorComponent(Component):
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
     display_name = i18n.t('components.data.deduplicator.display_name')
     description = i18n.t('components.data.deduplicator.description')
     icon = "layers"

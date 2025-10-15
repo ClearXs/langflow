@@ -1,3 +1,4 @@
+import os
 from typing import Any, Callable
 import i18n
 
@@ -22,6 +23,8 @@ class ChatComponent(ChatComponent):
     icon = "MessageSquare"
     name = "Chat"
     minimized = True
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     inputs = [
         MessageTextInput(

@@ -1,0 +1,53 @@
+{
+  "display_name": "CDC Stream Input",
+  "description": "Capture database changes using Change Data Capture in real-time",
+  "connection_string": {
+    "display_name": "Connection String",
+    "info": "Database connection string"
+  },
+  "table_name": {
+    "display_name": "Table Name",
+    "info": "Table to monitor for changes"
+  },
+  "cdc_mode": {
+    "display_name": "CDC Mode",
+    "info": "Change capture mode"
+  },
+  "timestamp_column": {
+    "display_name": "Timestamp Column",
+    "info": "Column to track changes"
+  },
+  "last_sync_time": {
+    "display_name": "Last Sync Time",
+    "info": "Last synchronization timestamp"
+  },
+  "poll_interval_seconds": {
+    "display_name": "Poll Interval (seconds)",
+    "info": "Polling interval in seconds"
+  },
+  "batch_size": {
+    "display_name": "Batch Size",
+    "info": "Number of changes per batch"
+  },
+  "capture_deletes": {
+    "display_name": "Capture Deletes",
+    "info": "Include deleted records"
+  },
+  "include_change_type": {
+    "display_name": "Include Change Type",
+    "info": "Add change type metadata"
+  },
+  "primary_keys": {
+    "display_name": "Primary Keys",
+    "info": "Primary key columns (comma-separated)"
+  },
+  "status": {
+    "capturing": "Capturing changes...",
+    "success": "Captured {changes} changes"
+  },
+  "errors": {
+    "invalid_mode": "Invalid CDC mode",
+    "capture_failed": "Failed to capture changes: {error}",
+    "audit_table_missing": "Audit table not found"
+  }
+}

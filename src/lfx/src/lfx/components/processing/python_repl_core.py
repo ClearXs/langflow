@@ -1,3 +1,4 @@
+import os
 import importlib
 import i18n
 
@@ -9,6 +10,7 @@ from lfx.schema.data import Data
 
 
 class PythonREPLComponent(Component):
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
     display_name = i18n.t(
         'components.processing.python_repl_core.display_name')
     description = i18n.t('components.processing.python_repl_core.description')

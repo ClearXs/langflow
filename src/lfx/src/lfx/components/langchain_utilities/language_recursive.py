@@ -1,3 +1,4 @@
+import os
 import i18n
 from typing import Any
 
@@ -8,6 +9,7 @@ from lfx.inputs.inputs import DataInput, DropdownInput, IntInput
 
 
 class LanguageRecursiveTextSplitterComponent(LCTextSplitterComponent):
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
     display_name: str = i18n.t(
         'components.langchain_utilities.language_recursive.display_name')
     description: str = i18n.t(

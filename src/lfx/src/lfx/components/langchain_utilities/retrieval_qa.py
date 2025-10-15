@@ -1,3 +1,4 @@
+import os
 import i18n
 from typing import cast
 
@@ -9,6 +10,7 @@ from lfx.schema import Message
 
 
 class RetrievalQAComponent(LCChainComponent):
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
     display_name = i18n.t(
         'components.langchain_utilities.retrieval_qa.display_name')
     description = i18n.t(

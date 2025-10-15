@@ -1,3 +1,4 @@
+import os
 import i18n
 from pathlib import Path
 
@@ -12,6 +13,7 @@ from lfx.inputs.inputs import FileInput, HandleInput
 
 
 class JsonAgentComponent(LCAgentComponent):
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
     display_name = i18n.t(
         'components.langchain_utilities.json_agent.display_name')
     description = i18n.t(

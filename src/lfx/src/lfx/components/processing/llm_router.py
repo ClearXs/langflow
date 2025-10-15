@@ -1,3 +1,4 @@
+import os
 import asyncio
 import http  # Added for HTTPStatus
 import json
@@ -16,6 +17,7 @@ from lfx.template.field.base import Output
 
 
 class LLMRouterComponent(Component):
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
     display_name = i18n.t('components.processing.llm_router.display_name')
     description = i18n.t('components.processing.llm_router.description')
     documentation: str = "https://docs.langflow.org/components-processing#llm-router"

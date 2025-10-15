@@ -1,3 +1,4 @@
+import os
 import i18n
 
 from langchain_text_splitters import CharacterTextSplitter
@@ -11,6 +12,7 @@ from lfx.utils.util import unescape_string
 
 
 class SplitTextComponent(Component):
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
     display_name: str = i18n.t('components.processing.split_text.display_name')
     description: str = i18n.t('components.processing.split_text.description')
     documentation: str = "https://docs.langflow.org/components-processing#split-text"

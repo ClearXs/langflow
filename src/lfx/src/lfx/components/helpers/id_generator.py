@@ -1,3 +1,4 @@
+import os
 import uuid
 from typing import Any
 import i18n
@@ -11,6 +12,7 @@ from lfx.schema.message import Message
 
 
 class IDGeneratorComponent(Component):
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
     display_name = i18n.t('components.helpers.id_generator.display_name')
     description = i18n.t('components.helpers.id_generator.description')
     icon = "fingerprint"

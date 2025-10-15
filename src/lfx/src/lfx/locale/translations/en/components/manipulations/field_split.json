@@ -1,0 +1,36 @@
+{
+  "display_name": "Field Split",
+  "description": "Split field into multiple columns",
+  "data_input": {
+    "display_name": "Data Input",
+    "info": "Input data to transform"
+  },
+  "source_field": {
+    "display_name": "Source Field",
+    "info": "Field to split"
+  },
+  "delimiter": {
+    "display_name": "Delimiter",
+    "info": "Split delimiter"
+  },
+  "new_field_names": {
+    "display_name": "New Field Names",
+    "info": "Names for new fields (comma-separated)"
+  },
+  "max_splits": {
+    "display_name": "Max Splits",
+    "info": "Maximum number of splits (-1 = unlimited)"
+  },
+  "drop_source_field": {
+    "display_name": "Drop Source Field",
+    "info": "Remove source field after split"
+  },
+  "status": {
+    "success": "Split {count} records"
+  },
+  "errors": {
+    "missing_config": "Source field is required",
+    "field_not_found": "Field not found: {field}",
+    "split_failed": "Field split failed: {error}"
+  }
+}

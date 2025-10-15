@@ -1,3 +1,4 @@
+import os
 from typing import Any, Union
 import re
 import i18n
@@ -14,6 +15,8 @@ class TextComponent(Component):
     documentation: str = "https://docs.langflow.org/components-io#text-input"
     icon = "Type"
     name = "Text"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     inputs = [
         MultilineInput(

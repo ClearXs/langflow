@@ -1,0 +1,34 @@
+{
+  "display_name": "Group By",
+  "description": "Group data with aggregations (sum/count/avg/min/max)",
+  "data_input": {
+    "display_name": "Data Input",
+    "info": "Input data to group"
+  },
+  "group_by_columns": {
+    "display_name": "Group By Columns",
+    "info": "Columns to group by"
+  },
+  "aggregations": {
+    "display_name": "Aggregations",
+    "info": "Aggregation functions to apply"
+  },
+  "drop_na": {
+    "display_name": "Drop NA",
+    "info": "Exclude rows with null values"
+  },
+  "sort_results": {
+    "display_name": "Sort Results",
+    "info": "Sort by grouping columns"
+  },
+  "status": {
+    "grouping": "Grouping data...",
+    "success": "Created {groups} groups"
+  },
+  "errors": {
+    "no_data": "No input data provided",
+    "no_group_columns": "Group by columns are required",
+    "no_aggregations": "Aggregations are required",
+    "group_failed": "Grouping failed: {error}"
+  }
+}

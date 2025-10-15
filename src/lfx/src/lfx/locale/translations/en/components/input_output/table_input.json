@@ -1,0 +1,86 @@
+{
+  "display_name": "Table Input",
+  "description": "Execute SQL queries on database connections retrieved from Nacos configuration service",
+  "database_connection": {
+    "display_name": "Database Connection",
+    "info": "Select a database connection from the available connections"
+  },
+  "sql_query": {
+    "display_name": "SQL Query",
+    "info": "Enter your SQL query to execute"
+  },
+  "safe_mode": {
+    "display_name": "Safe Mode",
+    "info": "When enabled, blocks dangerous SQL operations (DROP, DELETE, UPDATE, INSERT, etc.)"
+  },
+  "outputs": {
+    "data": {
+      "display_name": "Data"
+    },
+    "dataframe": {
+      "display_name": "DataFrame"
+    }
+  },
+  "success": {
+    "loaded": "Successfully loaded {rows} rows"
+  },
+  "warnings": {
+    "no_results": "Query executed successfully but returned no results"
+  },
+  "errors": {
+    "empty_query": "SQL query cannot be empty",
+    "missing_connection": "Database connection is required",
+    "connection_not_found": "Database connection '{name}' not found in configuration",
+    "connection_failed": "Failed to connect to database: {error}",
+    "sqlalchemy_required": "SQLAlchemy is required. Please install it with: pip install sqlalchemy",
+    "dangerous_operation": "Query blocked by safe mode: contains '{keyword}' operation",
+    "execution_error": "Error executing SQL query: {error}",
+    "dataframe_error": "Error loading dataframe: {error}",
+    "extraction_failed": "Extraction Failed",
+    "missing_config": "Missing Config"
+  },
+  "connection_string": {
+    "display_name": "Connection String",
+    "info": "Database connection string (e.g., postgresql://user:password@host:port/database)"
+  },
+  "enable_transaction": {
+    "display_name": "Enable Transaction",
+    "info": "Whether to use database transactions for data consistency."
+  },
+  "field_mappings": {
+    "display_name": "Field Mappings",
+    "info": "Optional field transformations and default values."
+  },
+  "incremental_offset_seconds": {
+    "display_name": "Incremental Offset (seconds)",
+    "info": "Time offset for incremental data extraction."
+  },
+  "incremental_timestamp_init": {
+    "display_name": "Incremental Timestamp Init",
+    "info": "Initial timestamp for incremental data extraction (e.g., 2024-01-01 00:00:00)."
+  },
+  "isolation_level": {
+    "display_name": "Isolation Level",
+    "info": "Database transaction isolation level."
+  },
+  "max_records": {
+    "display_name": "Max Records",
+    "info": "Maximum number of records to fetch (0 for no limit)."
+  },
+  "page_size": {
+    "display_name": "Page Size",
+    "info": "Number of records per page when using pagination."
+  },
+  "status": {
+    "connecting": "Connecting to database...",
+    "success": "Successfully extracted {records} records"
+  },
+  "table_name": {
+    "display_name": "Table Name",
+    "info": "Name of the database table to query."
+  },
+  "use_pagination": {
+    "display_name": "Use Pagination",
+    "info": "Whether to fetch data in pages to reduce memory usage."
+  }
+}

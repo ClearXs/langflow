@@ -1,3 +1,4 @@
+import os
 from typing import Any
 import i18n
 
@@ -29,6 +30,7 @@ class QuerySchema(BaseModel):
 
 
 class GoogleSerperAPIComponent(LCToolComponent):
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
     display_name = i18n.t('components.tools.google_serper_api.display_name')
     description = i18n.t('components.tools.google_serper_api.description')
     name = "GoogleSerperAPI"

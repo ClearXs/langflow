@@ -1,3 +1,4 @@
+import os
 import json
 import re
 from datetime import datetime
@@ -15,6 +16,7 @@ from lfx.schema.data import Data
 
 
 class FieldSelectorComponent(Component):
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
     display_name = i18n.t('components.data.field_selector.display_name')
     description = i18n.t('components.data.field_selector.description')
     icon = "filter"

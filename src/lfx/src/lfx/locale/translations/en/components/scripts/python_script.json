@@ -1,0 +1,24 @@
+{
+  "display_name": "Python Script",
+  "description": "Execute Python code with data input",
+  "data_input": {
+    "display_name": "Data Input",
+    "info": "Available as 'data_input' variable"
+  },
+  "script": {
+    "display_name": "Python Script",
+    "info": "Python code to execute"
+  },
+  "capture_output": {
+    "display_name": "Capture Output",
+    "info": "Capture print output"
+  },
+  "status": {
+    "executing": "Executing Python script...",
+    "success": "Script executed successfully"
+  },
+  "errors": {
+    "no_script": "Script is required",
+    "execution_failed": "Script execution failed: {error}"
+  }
+}

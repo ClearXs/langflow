@@ -1,0 +1,37 @@
+{
+  "display_name": "数据去重",
+  "description": "根据关键字段删除重复记录",
+  "status": {
+    "deduplicating": "正在去重...",
+    "success": "保留 {unique} 条唯一记录，删除 {duplicates} 条重复"
+  },
+  "errors": {
+    "dedup_failed": "去重失败: {error}",
+    "no_data": "未提供输入数据"
+  },
+  "case_sensitive": {
+    "display_name": "区分大小写",
+    "info": "比较时区分大小写"
+  },
+  "data_input": {
+    "display_name": "数据输入",
+    "info": "要去重的输入数据"
+  },
+  "ignore_null": {
+    "display_name": "忽略空值",
+    "info": "比较时忽略空值"
+  },
+  "keep_strategy": {
+    "display_name": "保留策略",
+    "info": "保留哪条重复记录"
+  },
+  "key_columns": {
+    "display_name": "关键列",
+    "info": "用于识别重复的列"
+  },
+  "trim_whitespace": {
+    "display_name": "去除空白",
+    "info": "比较前去除首尾空白字符"
+  }
+}
+

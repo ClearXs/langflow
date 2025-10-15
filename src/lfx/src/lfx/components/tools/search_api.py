@@ -1,3 +1,4 @@
+import os
 from typing import Any
 import i18n
 
@@ -12,6 +13,7 @@ from lfx.schema.data import Data
 
 
 class SearchAPIComponent(LCToolComponent):
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
     display_name = i18n.t('components.tools.search_api.display_name')
     description = i18n.t('components.tools.search_api.description')
     name = "SearchAPI"

@@ -1,3 +1,4 @@
+import os
 import i18n
 from langchain.chains import LLMCheckerChain
 
@@ -7,6 +8,7 @@ from lfx.schema import Message
 
 
 class LLMCheckerChainComponent(LCChainComponent):
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
     display_name = i18n.t(
         'components.langchain_utilities.llm_checker.display_name')
     description = i18n.t(

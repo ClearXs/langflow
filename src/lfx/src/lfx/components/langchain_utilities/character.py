@@ -1,3 +1,4 @@
+import os
 import i18n
 from typing import Any
 
@@ -9,6 +10,7 @@ from lfx.utils.util import unescape_string
 
 
 class CharacterTextSplitterComponent(LCTextSplitterComponent):
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
     display_name = i18n.t(
         'components.langchain_utilities.character.display_name')
     description = i18n.t(

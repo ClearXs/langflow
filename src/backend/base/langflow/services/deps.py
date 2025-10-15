@@ -3,6 +3,7 @@ from __future__ import annotations
 from contextlib import asynccontextmanager
 from typing import TYPE_CHECKING
 
+from langflow.services.nacos.service import NacosService
 from lfx.log.logger import logger
 
 from langflow.services.schema import ServiceType
@@ -241,3 +242,10 @@ def get_queue_service() -> JobQueueService:
     from langflow.services.job_queue.factory import JobQueueServiceFactory
 
     return get_service(ServiceType.JOB_QUEUE_SERVICE, JobQueueServiceFactory())
+
+
+def get_nacos_service() -> NacosService:
+    """Retrieves the NacosService instance from the service manager."""
+    from langflow.services.nacos.factory import NacosServiceFactory
+
+    return get_service(ServiceType.NACOS_SERVICE, NacosServiceFactory())

@@ -1,3 +1,4 @@
+import os
 import i18n
 from langchain_community.embeddings import FakeEmbeddings
 
@@ -7,6 +8,7 @@ from lfx.io import IntInput
 
 
 class FakeEmbeddingsComponent(LCEmbeddingsModel):
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
     display_name = i18n.t(
         'components.langchain_utilities.fake_embeddings.display_name')
     description = i18n.t(

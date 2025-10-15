@@ -1,3 +1,4 @@
+import os
 import requests
 from urllib.parse import urlparse, urljoin
 from bs4 import BeautifulSoup
@@ -11,6 +12,7 @@ from lfx.schema.data import Data
 
 
 class URLComponent(Component):
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
     display_name = i18n.t('components.data.url.display_name')
     description = i18n.t('components.data.url.description')
     icon = "link"

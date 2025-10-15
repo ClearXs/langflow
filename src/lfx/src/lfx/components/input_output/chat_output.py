@@ -1,4 +1,5 @@
 from collections.abc import Generator
+import os
 from typing import Any
 
 import orjson

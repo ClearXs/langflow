@@ -1,3 +1,4 @@
+import os
 import i18n
 from langchain_core.output_parsers import CommaSeparatedListOutputParser
 
@@ -8,6 +9,7 @@ from lfx.schema.message import Message
 
 
 class OutputParserComponent(Component):
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
     display_name = i18n.t('components.helpers.output_parser.display_name')
     description = i18n.t('components.helpers.output_parser.description')
     icon = "type"

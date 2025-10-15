@@ -1,0 +1,79 @@
+{
+  "display_name": "文件输入",
+  "description": "从文件管理系统中选择文件,支持验证和元数据选项。",
+  "file_path": {
+    "display_name": "文件路径",
+    "info": "从文件管理系统中选择一个或多个文件。"
+  },
+  "multiple": {
+    "display_name": "多文件选择",
+    "info": "是否允许选择多个文件。"
+  },
+  "allowed_extensions": {
+    "display_name": "允许的扩展名",
+    "info": "允许的文件扩展名列表,用逗号分隔(例如: .pdf,.doc,.txt)。留空则允许所有类型。"
+  },
+  "include_metadata": {
+    "display_name": "包含元数据",
+    "info": "是否在输出中包含文件元数据(大小、修改时间等)。"
+  },
+  "validate_existence": {
+    "display_name": "验证文件存在",
+    "info": "是否验证选中的文件在文件系统中是否存在。"
+  },
+  "outputs": {
+    "file_path": {
+      "display_name": "文件路径"
+    },
+    "file_data": {
+      "display_name": "文件数据"
+    },
+    "message": {
+      "display_name": "消息"
+    }
+  },
+  "success": {
+    "file_selected": "已选择文件: {name}",
+    "file_selected_with_metadata": "已选择文件: {name} ({size} MB)"
+  },
+  "errors": {
+    "no_valid_files": "未选择有效文件。请检查允许的扩展名。",
+    "file_not_found": "文件未找到: {path}",
+    "invalid_extension": "不允许的文件扩展名: {extension}",
+    "invalid_json": "错误: 无效的JSON",
+    "read_failed": "错误: 读取失败",
+    "unsupported_type": "错误: 不支持的类型"
+  },
+  "delimiter": {
+    "display_name": "分隔符",
+    "info": "CSV字段分隔符。"
+  },
+  "encoding": {
+    "display_name": "编码",
+    "info": "文件编码格式(例如: utf-8, gbk)。"
+  },
+  "file_type": {
+    "display_name": "文件类型",
+    "info": "要读取的文件类型(CSV、Excel、JSON或自动检测)。"
+  },
+  "has_header": {
+    "display_name": "包含标题行",
+    "info": "首行是否包含列标题。"
+  },
+  "max_rows": {
+    "display_name": "最大行数",
+    "info": "要读取的最大行数(0表示读取全部)。"
+  },
+  "sheet_name": {
+    "display_name": "工作表名称",
+    "info": "要读取的Excel工作表名称。"
+  },
+  "skip_rows": {
+    "display_name": "跳过行数",
+    "info": "从文件开头跳过的行数。"
+  },
+  "status": {
+    "reading": "正在读取文件...",
+    "success": "成功读取{rows}行数据"
+  }
+}

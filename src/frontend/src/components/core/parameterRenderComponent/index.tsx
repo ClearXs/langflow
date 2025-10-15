@@ -1,8 +1,14 @@
 import type { handleOnNewValueType } from "@/CustomNodes/hooks/use-handle-new-value";
 import CodeAreaComponent from "@/components/core/parameterRenderComponent/components/codeAreaComponent";
+import FieldMappingTableInputComponent from "@/components/core/parameterRenderComponent/components/fieldMappingTableInputComponent";
 import SliderComponent from "@/components/core/parameterRenderComponent/components/sliderComponent";
 import TableNodeComponent from "@/components/core/parameterRenderComponent/components/TableNodeComponent";
 import TabComponent from "@/components/core/parameterRenderComponent/components/tabComponent";
+import StreamJoinConfigComponent from "@/components/core/parameterRenderComponent/components/streamJoinConfigComponent";
+import AggregationConfigComponent from "@/components/core/parameterRenderComponent/components/aggregationConfigComponent";
+import MaskingRulesComponent from "@/components/core/parameterRenderComponent/components/maskingRulesComponent";
+import EncryptionConfigComponent from "@/components/core/parameterRenderComponent/components/encryptionConfigComponent";
+import FieldValueMappingComponent from "@/components/core/parameterRenderComponent/components/fieldValueMappingComponent";
 import { TEXT_FIELD_TYPES } from "@/constants/constants";
 import CustomConnectionComponent from "@/customization/components/custom-connectionComponent";
 import CustomInputFileComponent from "@/customization/components/custom-input-file";
@@ -289,6 +295,48 @@ export function ParameterRenderComponent({
             editNode={editNode}
             disabled={disabled}
             value={templateValue}
+          />
+        );
+      case "FieldMappingTableInput":
+        return (
+          <FieldMappingTableInputComponent
+            {...baseInputProps}
+            id={`fieldmapping_${id}`}
+          />
+        );
+      case "StreamJoinConfig":
+        return (
+          <StreamJoinConfigComponent
+            {...baseInputProps}
+            id={`streamjoin_${id}`}
+          />
+        );
+      case "AggregationConfig":
+        return (
+          <AggregationConfigComponent
+            {...baseInputProps}
+            id={`aggregation_${id}`}
+          />
+        );
+      case "MaskingRules":
+        return (
+          <MaskingRulesComponent
+            {...baseInputProps}
+            id={`maskingrules_${id}`}
+          />
+        );
+      case "EncryptionConfig":
+        return (
+          <EncryptionConfigComponent
+            {...baseInputProps}
+            id={`encryption_${id}`}
+          />
+        );
+      case "FieldValueMapping":
+        return (
+          <FieldValueMappingComponent
+            {...baseInputProps}
+            id={`valuemapping_${id}`}
           />
         );
       default:

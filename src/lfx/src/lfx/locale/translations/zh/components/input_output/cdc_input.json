@@ -1,0 +1,53 @@
+{
+  "display_name": "CDC流输入",
+  "description": "实时捕获数据库变更",
+  "connection_string": {
+    "display_name": "连接字符串",
+    "info": "数据库连接字符串"
+  },
+  "status": {
+    "capturing": "正在捕获变更...",
+    "success": "捕获 {changes} 条变更"
+  },
+  "errors": {
+    "capture_failed": "捕获变更失败: {error}",
+    "audit_table_missing": "审计表未找到",
+    "invalid_mode": "无效的CDC模式"
+  },
+  "batch_size": {
+    "display_name": "批次大小",
+    "info": "每批变更数"
+  },
+  "capture_deletes": {
+    "display_name": "捕获删除",
+    "info": "包含已删除记录"
+  },
+  "cdc_mode": {
+    "display_name": "CDC模式",
+    "info": "变更捕获模式"
+  },
+  "include_change_type": {
+    "display_name": "包含变更类型",
+    "info": "添加变更类型元数据"
+  },
+  "last_sync_time": {
+    "display_name": "最后同步时间",
+    "info": "最后同步时间戳"
+  },
+  "poll_interval_seconds": {
+    "display_name": "轮询间隔(秒)",
+    "info": "轮询间隔(秒)"
+  },
+  "primary_keys": {
+    "display_name": "主键",
+    "info": "主键列(逗号分隔)"
+  },
+  "table_name": {
+    "display_name": "表名",
+    "info": "监控变更的表"
+  },
+  "timestamp_column": {
+    "display_name": "时间戳列",
+    "info": "跟踪变更的列"
+  }
+}

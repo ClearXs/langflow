@@ -1,0 +1,27 @@
+{
+  "display_name": "字段值映射",
+  "description": "映射字段值",
+  "status": {
+    "success": "映射了 {count} 条记录"
+  },
+  "errors": {
+    "mapping_failed": "值映射失败: {error}",
+    "missing_config": "值映射是必需的"
+  },
+  "data_input": {
+    "display_name": "数据输入",
+    "info": "要转换的输入数据"
+  },
+  "default_value": {
+    "display_name": "默认值",
+    "info": "未映射值的默认值"
+  },
+  "field_name": {
+    "display_name": "字段名",
+    "info": "应用映射的字段"
+  },
+  "value_mappings": {
+    "display_name": "值映射",
+    "info": "源值到目标值的映射"
+  }
+}

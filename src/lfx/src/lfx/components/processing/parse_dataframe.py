@@ -1,3 +1,4 @@
+import os
 import i18n
 
 from lfx.custom.custom_component.component import Component
@@ -6,6 +7,7 @@ from lfx.schema.message import Message
 
 
 class ParseDataFrameComponent(Component):
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
     display_name = i18n.t('components.processing.parse_dataframe.display_name')
     description = i18n.t('components.processing.parse_dataframe.description')
     icon = "braces"

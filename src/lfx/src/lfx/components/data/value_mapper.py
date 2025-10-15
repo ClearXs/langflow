@@ -1,3 +1,4 @@
+import os
 import json
 import re
 from datetime import datetime
@@ -16,6 +17,7 @@ from lfx.schema.data import Data
 
 
 class ValueMapperComponent(Component):
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
     display_name = i18n.t('components.data.value_mapper.display_name')
     description = i18n.t('components.data.value_mapper.description')
     icon = "shuffle"

@@ -1,3 +1,4 @@
+import os
 import i18n
 from typing import Any
 
@@ -9,6 +10,7 @@ from lfx.utils.util import unescape_string
 
 
 class RecursiveCharacterTextSplitterComponent(LCTextSplitterComponent):
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
     display_name: str = i18n.t(
         'components.langchain_utilities.recursive_character.display_name')
     description: str = i18n.t(

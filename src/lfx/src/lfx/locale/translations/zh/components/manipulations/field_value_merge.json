@@ -1,0 +1,23 @@
+{
+  "display_name": "字段值合并",
+  "description": "合并多个字段值",
+  "status": {
+    "success": "合并了 {count} 条记录"
+  },
+  "errors": {
+    "merge_failed": "字段合并失败: {error}",
+    "missing_config": "合并配置是必需的"
+  },
+  "data_input": {
+    "display_name": "数据输入",
+    "info": "要转换的输入数据"
+  },
+  "drop_source_fields": {
+    "display_name": "删除源字段",
+    "info": "合并后删除源字段"
+  },
+  "merge_configs": {
+    "display_name": "合并配置",
+    "info": "要合并的字段和分隔符"
+  }
+}

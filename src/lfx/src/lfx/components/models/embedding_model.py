@@ -1,3 +1,4 @@
+import os
 from typing import Any
 import i18n
 
@@ -19,6 +20,7 @@ from lfx.schema.dotdict import dotdict
 
 
 class EmbeddingModelComponent(LCEmbeddingsModel):
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
     display_name = i18n.t('components.models.embedding_model.display_name')
     description = i18n.t('components.models.embedding_model.description')
     documentation: str = "https://docs.langflow.org/components-embedding-models"

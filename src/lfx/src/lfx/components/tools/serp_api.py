@@ -1,3 +1,4 @@
+import os
 from typing import Any
 import i18n
 
@@ -33,6 +34,7 @@ class SerpAPISchema(BaseModel):
 
 
 class SerpAPIComponent(LCToolComponent):
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
     display_name = i18n.t('components.tools.serp_api.display_name')
     description = i18n.t('components.tools.serp_api.description')
     name = "SerpAPI"

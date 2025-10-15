@@ -1,3 +1,4 @@
+import os
 import i18n
 from langchain_experimental.agents.agent_toolkits.csv.base import create_csv_agent
 
@@ -15,6 +16,7 @@ from lfx.template.field.base import Output
 
 
 class CSVAgentComponent(LCAgentComponent):
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
     display_name = i18n.t(
         'components.langchain_utilities.csv_agent.display_name')
     description = i18n.t(

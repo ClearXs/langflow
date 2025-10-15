@@ -1,3 +1,4 @@
+import os
 import ast
 import pprint
 from enum import Enum
@@ -52,6 +53,7 @@ class YahooFinanceSchema(BaseModel):
 
 
 class YfinanceToolComponent(LCToolComponent):
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
     display_name = i18n.t('components.tools.yahoo_finance.display_name')
     description = i18n.t('components.tools.yahoo_finance.description')
     icon = "trending-up"

@@ -1,0 +1,40 @@
+{
+  "display_name": "API Output",
+  "description": "Send data to REST APIs",
+  "data_input": {
+    "display_name": "Data Input",
+    "info": "Data to send"
+  },
+  "api_url": {
+    "display_name": "API URL",
+    "info": "REST API endpoint"
+  },
+  "method": {
+    "display_name": "HTTP Method",
+    "info": "HTTP request method"
+  },
+  "headers": {
+    "display_name": "Custom Headers",
+    "info": "HTTP headers"
+  },
+  "batch_size": {
+    "display_name": "Batch Size",
+    "info": "Records per batch"
+  },
+  "send_as_batch": {
+    "display_name": "Send as Batch",
+    "info": "Send records in batches"
+  },
+  "timeout": {
+    "display_name": "Timeout (seconds)",
+    "info": "Request timeout"
+  },
+  "status": {
+    "sending": "Sending to API...",
+    "success": "Sent {success} records, {errors} errors"
+  },
+  "errors": {
+    "no_data": "No data to send",
+    "send_failed": "API send failed: {error}"
+  }
+}

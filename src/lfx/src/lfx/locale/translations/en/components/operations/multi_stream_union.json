@@ -1,0 +1,48 @@
+{
+  "display_name": "Multi Stream Union",
+  "description": "Merge multiple data streams with schema alignment",
+  "stream_1": {
+    "display_name": "Stream 1",
+    "info": "First data stream"
+  },
+  "stream_2": {
+    "display_name": "Stream 2",
+    "info": "Second data stream"
+  },
+  "stream_3": {
+    "display_name": "Stream 3",
+    "info": "Third data stream"
+  },
+  "stream_4": {
+    "display_name": "Stream 4",
+    "info": "Fourth data stream"
+  },
+  "stream_5": {
+    "display_name": "Stream 5",
+    "info": "Fifth data stream"
+  },
+  "drop_duplicates": {
+    "display_name": "Drop Duplicates",
+    "info": "Remove duplicate rows"
+  },
+  "align_schemas": {
+    "display_name": "Align Schemas",
+    "info": "Align column schemas across streams"
+  },
+  "source_column": {
+    "display_name": "Source Column Name",
+    "info": "Column name for stream source"
+  },
+  "include_source_info": {
+    "display_name": "Include Source Info",
+    "info": "Add source stream identifier"
+  },
+  "status": {
+    "merging": "Merging streams...",
+    "success": "Successfully merged {records} records"
+  },
+  "errors": {
+    "no_streams": "At least one stream is required",
+    "union_failed": "Union operation failed: {error}"
+  }
+}

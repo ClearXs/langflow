@@ -1,3 +1,4 @@
+import os
 import csv
 import io
 from pathlib import Path
@@ -9,6 +10,7 @@ from lfx.schema.data import Data
 
 
 class CSVToDataComponent(Component):
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
     display_name = i18n.t('components.data.csv_to_data.display_name')
     description = i18n.t('components.data.csv_to_data.description')
     icon = "file-spreadsheet"

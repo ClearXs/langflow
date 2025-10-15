@@ -1,0 +1,33 @@
+{
+  "display_name": "Shell Script",
+  "description": "Execute shell commands with data input",
+  "data_input": {
+    "display_name": "Data Input",
+    "info": "Optional data input"
+  },
+  "script": {
+    "display_name": "Shell Script",
+    "info": "Shell commands to execute"
+  },
+  "working_directory": {
+    "display_name": "Working Directory",
+    "info": "Script working directory"
+  },
+  "timeout": {
+    "display_name": "Timeout (seconds)",
+    "info": "Execution timeout"
+  },
+  "capture_output": {
+    "display_name": "Capture Output",
+    "info": "Capture stdout/stderr"
+  },
+  "status": {
+    "executing": "Executing shell script...",
+    "success": "Script completed with code {code}"
+  },
+  "errors": {
+    "no_script": "Script is required",
+    "timeout": "Script execution timed out",
+    "execution_failed": "Script execution failed: {error}"
+  }
+}

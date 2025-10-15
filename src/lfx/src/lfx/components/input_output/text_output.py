@@ -1,3 +1,4 @@
+import os
 from typing import Any, Generator
 import i18n
 
@@ -16,6 +17,8 @@ class TextOutputComponent(Component):
     documentation: str = "https://docs.langflow.org/components-io#text-output"
     icon = "Type"
     name = "TextOutput"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     inputs = [
         HandleInput(

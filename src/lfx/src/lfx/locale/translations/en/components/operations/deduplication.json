@@ -1,0 +1,36 @@
+{
+  "display_name": "Data Deduplication",
+  "description": "Remove duplicate records based on key columns",
+  "data_input": {
+    "display_name": "Data Input",
+    "info": "Input data to deduplicate"
+  },
+  "key_columns": {
+    "display_name": "Key Columns",
+    "info": "Columns to identify duplicates"
+  },
+  "keep_strategy": {
+    "display_name": "Keep Strategy",
+    "info": "Which duplicate to keep"
+  },
+  "ignore_null": {
+    "display_name": "Ignore Null",
+    "info": "Ignore null values in comparison"
+  },
+  "case_sensitive": {
+    "display_name": "Case Sensitive",
+    "info": "Case-sensitive comparison"
+  },
+  "trim_whitespace": {
+    "display_name": "Trim Whitespace",
+    "info": "Trim whitespace before comparison"
+  },
+  "status": {
+    "deduplicating": "Removing duplicates...",
+    "success": "Kept {unique} unique records, removed {duplicates} duplicates"
+  },
+  "errors": {
+    "no_data": "No input data provided",
+    "dedup_failed": "Deduplication failed: {error}"
+  }
+}

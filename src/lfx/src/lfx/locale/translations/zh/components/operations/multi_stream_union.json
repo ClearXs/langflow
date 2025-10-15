@@ -1,0 +1,48 @@
+{
+  "display_name": "多流合并",
+  "description": "合并多个数据流",
+  "status": {
+    "merging": "正在合并数据流...",
+    "success": "成功合并 {records} 条记录"
+  },
+  "errors": {
+    "union_failed": "合并操作失败: {error}",
+    "no_streams": "至少需要一个数据流"
+  },
+  "align_schemas": {
+    "display_name": "对齐模式",
+    "info": "对齐各数据流的列模式"
+  },
+  "drop_duplicates": {
+    "display_name": "删除重复",
+    "info": "删除重复的行"
+  },
+  "include_source_info": {
+    "display_name": "包含来源信息",
+    "info": "添加来源数据流标识"
+  },
+  "source_column": {
+    "display_name": "来源列名",
+    "info": "数据流来源的列名"
+  },
+  "stream_1": {
+    "display_name": "数据流1",
+    "info": "第一个数据流"
+  },
+  "stream_2": {
+    "display_name": "数据流2",
+    "info": "第二个数据流"
+  },
+  "stream_3": {
+    "display_name": "数据流3",
+    "info": "第三个数据流"
+  },
+  "stream_4": {
+    "display_name": "数据流4",
+    "info": "第四个数据流"
+  },
+  "stream_5": {
+    "display_name": "数据流5",
+    "info": "第五个数据流"
+  }
+}

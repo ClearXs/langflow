@@ -1,0 +1,28 @@
+{
+  "display_name": "Excel输出",
+  "description": "导出数据到Excel",
+  "status": {
+    "exporting": "正在导出Excel...",
+    "success": "成功导出 {rows} 行"
+  },
+  "errors": {
+    "export_failed": "Excel导出失败: {error}",
+    "no_data": "没有要导出的数据"
+  },
+  "data_input": {
+    "display_name": "数据输入",
+    "info": "要导出的数据"
+  },
+  "file_path": {
+    "display_name": "文件路径",
+    "info": "输出Excel文件路径"
+  },
+  "include_index": {
+    "display_name": "包含索引",
+    "info": "包含行索引"
+  },
+  "sheet_name": {
+    "display_name": "工作表名称",
+    "info": "Excel工作表名称"
+  }
+}

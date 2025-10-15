@@ -1,3 +1,4 @@
+import os
 import json
 from json import JSONDecodeError
 import i18n
@@ -14,6 +15,7 @@ from lfx.schema.message import Message
 
 
 class ParseJSONDataComponent(Component):
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
     display_name = i18n.t('components.processing.parse_json_data.display_name')
     description = i18n.t('components.processing.parse_json_data.description')
     icon = "braces"

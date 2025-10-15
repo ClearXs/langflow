@@ -1,3 +1,4 @@
+import os
 from typing import cast
 import i18n
 
@@ -12,6 +13,7 @@ from lfx.schema.data import Data
 
 
 class WikipediaAPIComponent(LCToolComponent):
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
     display_name = i18n.t('components.tools.wikipedia_api.display_name')
     description = i18n.t('components.tools.wikipedia_api.description')
     name = "WikipediaAPI"

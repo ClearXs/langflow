@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 from urllib.parse import urlparse
 
@@ -15,6 +16,7 @@ from loguru import logger
 
 
 class VLMRunTranscription(Component):
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
     display_name = "VLM Run Transcription"
     description = "Extract structured data from audio and video using [VLM Run AI](https://app.vlm.run)"
     documentation = "https://docs.vlm.run"

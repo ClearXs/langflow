@@ -1,0 +1,23 @@
+{
+  "display_name": "字段名映射",
+  "description": "映射源字段名到目标字段名",
+  "status": {
+    "success": "映射了 {count} 条记录"
+  },
+  "errors": {
+    "mapping_failed": "字段映射失败: {error}",
+    "missing_config": "字段映射是必需的"
+  },
+  "data_input": {
+    "display_name": "数据输入",
+    "info": "要转换的输入数据"
+  },
+  "drop_unmapped": {
+    "display_name": "删除未映射字段",
+    "info": "删除不在映射中的字段"
+  },
+  "field_mappings": {
+    "display_name": "字段映射",
+    "info": "源字段到目标字段的映射"
+  }
+}

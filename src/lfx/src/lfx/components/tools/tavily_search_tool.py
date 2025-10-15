@@ -1,3 +1,4 @@
+import os
 from enum import Enum
 import i18n
 
@@ -78,6 +79,7 @@ class TavilySearchSchema(BaseModel):
 
 
 class TavilySearchToolComponent(LCToolComponent):
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
     display_name = i18n.t('components.tools.tavily_search_tool.display_name')
     description = i18n.t('components.tools.tavily_search_tool.description')
     icon = "TavilyIcon"

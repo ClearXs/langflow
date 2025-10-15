@@ -1,3 +1,4 @@
+import os
 import i18n
 from langchain_core.tools import Tool
 
@@ -7,6 +8,7 @@ from lfx.schema.data import Data
 
 
 class GoogleSearchAPIComponent(LCToolComponent):
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
     display_name = i18n.t('components.tools.google_search_api.display_name')
     description = i18n.t('components.tools.google_search_api.description')
     name = "GoogleSearchAPI"

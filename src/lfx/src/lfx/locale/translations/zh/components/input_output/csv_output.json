@@ -1,0 +1,32 @@
+{
+  "display_name": "CSV输出",
+  "description": "导出数据到CSV",
+  "status": {
+    "exporting": "正在导出CSV...",
+    "success": "成功导出 {rows} 行"
+  },
+  "errors": {
+    "export_failed": "CSV导出失败: {error}",
+    "no_data": "没有要导出的数据"
+  },
+  "data_input": {
+    "display_name": "数据输入",
+    "info": "要导出的数据"
+  },
+  "delimiter": {
+    "display_name": "分隔符",
+    "info": "字段分隔符"
+  },
+  "encoding": {
+    "display_name": "编码",
+    "info": "文件编码"
+  },
+  "file_path": {
+    "display_name": "文件路径",
+    "info": "输出CSV文件路径"
+  },
+  "include_header": {
+    "display_name": "包含标题",
+    "info": "包含列标题"
+  }
+}

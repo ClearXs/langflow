@@ -1,3 +1,4 @@
+import os
 import i18n
 
 from lfx.custom.custom_component.component import Component
@@ -6,6 +7,7 @@ from lfx.schema.data import Data
 
 
 class ExtractDataKeyComponent(Component):
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
     display_name = i18n.t('components.processing.extract_key.display_name')
     description = i18n.t('components.processing.extract_key.description')
     icon = "key"

@@ -1,3 +1,4 @@
+import os
 import i18n
 from langchain.chains.query_constructor.base import AttributeInfo
 from langchain.retrievers.self_query.base import SelfQueryRetriever
@@ -10,6 +11,7 @@ from lfx.schema.message import Message
 
 
 class SelfQueryRetrieverComponent(Component):
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
     display_name = i18n.t(
         'components.langchain_utilities.self_query.display_name')
     description = i18n.t(

@@ -1,3 +1,4 @@
+import os
 from typing import Any
 import i18n
 
@@ -10,6 +11,7 @@ from lfx.schema.dotdict import dotdict
 
 
 class CreateDataComponent(Component):
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
     display_name: str = i18n.t(
         'components.processing.create_data.display_name')
     description: str = i18n.t('components.processing.create_data.description')

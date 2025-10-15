@@ -1,3 +1,4 @@
+import os
 import i18n
 from langchain.agents.agent_toolkits.vectorstore.toolkit import VectorStoreInfo
 
@@ -7,6 +8,7 @@ from lfx.template.field.base import Output
 
 
 class VectorStoreInfoComponent(Component):
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
     display_name = i18n.t(
         'components.langchain_utilities.vector_store_info.display_name')
     description = i18n.t(

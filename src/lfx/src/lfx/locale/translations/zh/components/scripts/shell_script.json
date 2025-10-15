@@ -1,0 +1,33 @@
+{
+  "display_name": "Shell脚本",
+  "description": "执行Shell命令",
+  "status": {
+    "executing": "正在执行Shell脚本...",
+    "success": "脚本完成，退出码 {code}"
+  },
+  "errors": {
+    "execution_failed": "脚本执行失败: {error}",
+    "no_script": "脚本是必需的",
+    "timeout": "脚本执行超时"
+  },
+  "capture_output": {
+    "display_name": "捕获输出",
+    "info": "捕获标准输出/错误输出"
+  },
+  "data_input": {
+    "display_name": "数据输入",
+    "info": "可选数据输入"
+  },
+  "script": {
+    "display_name": "Shell脚本",
+    "info": "Shell命令执行"
+  },
+  "timeout": {
+    "display_name": "超时时间(秒)",
+    "info": "Execution timeout"
+  },
+  "working_directory": {
+    "display_name": "工作目录",
+    "info": "脚本工作目录"
+  }
+}

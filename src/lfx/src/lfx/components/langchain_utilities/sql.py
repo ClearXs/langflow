@@ -1,3 +1,4 @@
+import os
 import i18n
 from langchain.agents import AgentExecutor
 from langchain_community.agent_toolkits import SQLDatabaseToolkit
@@ -10,6 +11,7 @@ from lfx.io import Output
 
 
 class SQLAgentComponent(LCAgentComponent):
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
     display_name = i18n.t('components.langchain_utilities.sql.display_name')
     description = i18n.t('components.langchain_utilities.sql.description')
     name = "SQLAgent"

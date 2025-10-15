@@ -1,3 +1,4 @@
+import os
 from __future__ import annotations
 
 import json
@@ -16,6 +17,7 @@ if TYPE_CHECKING:
 
 
 class LambdaFilterComponent(Component):
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
     display_name = i18n.t("components.processing.lambda_filter.display_name")
     description = i18n.t("components.processing.lambda_filter.description")
     documentation: str = "https://docs.langflow.org/components-processing#smart-transform"

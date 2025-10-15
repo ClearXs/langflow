@@ -1,3 +1,4 @@
+import os
 from typing import Any
 import i18n
 
@@ -7,6 +8,7 @@ from lfx.schema.data import Data
 
 
 class DataFilterComponent(Component):
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
     display_name = i18n.t(
         'components.processing.filter_data_values.display_name')
     description = i18n.t(

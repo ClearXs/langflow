@@ -1,3 +1,4 @@
+import os
 import requests
 import json
 from typing import Any, Dict, List, Optional
@@ -13,6 +14,7 @@ from lfx.schema.data import Data
 
 
 class WebhookComponent(Component):
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
     display_name = i18n.t('components.data.webhook.display_name')
     description = i18n.t('components.data.webhook.description')
     icon = "webhook"

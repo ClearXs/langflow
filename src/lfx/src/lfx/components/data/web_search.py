@@ -4,6 +4,7 @@ This component consolidates Web Search, News Search, and RSS Reader into a singl
 component with tabs for different search modes.
 """
 
+import os
 import re
 from typing import Any
 from urllib.parse import parse_qs, quote_plus, unquote, urlparse
@@ -19,6 +20,7 @@ from lfx.schema import DataFrame
 
 
 class WebSearchComponent(Component):
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
     display_name = i18n.t("components.data.web_search.display_name")
     description = i18n.t("components.data.web_search.description")
     documentation: str = "https://docs.langflow.org/components-data#web-search"

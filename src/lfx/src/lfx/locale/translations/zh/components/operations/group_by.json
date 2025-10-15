@@ -1,0 +1,34 @@
+{
+  "display_name": "分组聚合",
+  "description": "对数据进行分组和聚合",
+  "status": {
+    "grouping": "正在分组...",
+    "success": "创建了 {groups} 个分组"
+  },
+  "errors": {
+    "group_failed": "分组失败: {error}",
+    "no_aggregations": "聚合是必需的",
+    "no_data": "未提供输入数据",
+    "no_group_columns": "分组列是必需的"
+  },
+  "aggregations": {
+    "display_name": "聚合",
+    "info": "要应用的聚合函数"
+  },
+  "data_input": {
+    "display_name": "数据输入",
+    "info": "要分组的输入数据"
+  },
+  "drop_na": {
+    "display_name": "删除空值",
+    "info": "排除包含空值的行"
+  },
+  "group_by_columns": {
+    "display_name": "分组列",
+    "info": "用于分组的列"
+  },
+  "sort_results": {
+    "display_name": "排序结果",
+    "info": "按分组列排序"
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "display_name": "CSV Output",
+  "description": "Export data to CSV files",
+  "data_input": {
+    "display_name": "Data Input",
+    "info": "Data to export"
+  },
+  "file_path": {
+    "display_name": "File Path",
+    "info": "Output CSV file path"
+  },
+  "delimiter": {
+    "display_name": "Delimiter",
+    "info": "Field delimiter"
+  },
+  "encoding": {
+    "display_name": "Encoding",
+    "info": "File encoding"
+  },
+  "include_header": {
+    "display_name": "Include Header",
+    "info": "Include column headers"
+  },
+  "status": {
+    "exporting": "Exporting to CSV...",
+    "success": "Successfully exported {rows} rows"
+  },
+  "errors": {
+    "no_data": "No data to export",
+    "export_failed": "CSV export failed: {error}"
+  }
+}

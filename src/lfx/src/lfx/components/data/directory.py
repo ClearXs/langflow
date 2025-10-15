@@ -1,3 +1,4 @@
+import os
 import i18n
 from lfx.base.data.utils import TEXT_FILE_TYPES, parallel_load_data, parse_text_file_to_data, retrieve_file_paths
 from lfx.custom.custom_component.component import Component
@@ -8,6 +9,7 @@ from lfx.template.field.base import Output
 
 
 class DirectoryComponent(Component):
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
     display_name = i18n.t('components.data.directory.display_name')
     description = i18n.t('components.data.directory.description')
     documentation: str = "https://docs.langflow.org/components-data#directory"

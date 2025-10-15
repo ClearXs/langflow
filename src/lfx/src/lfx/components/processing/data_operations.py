@@ -1,3 +1,4 @@
+import os
 import ast
 import json
 from typing import TYPE_CHECKING, Any
@@ -38,6 +39,7 @@ OPERATORS = {
 
 
 class DataOperationsComponent(Component):
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
     display_name = i18n.t('components.processing.data_operations.display_name')
     description = i18n.t('components.processing.data_operations.description')
     icon = "file-json"

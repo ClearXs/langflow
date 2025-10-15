@@ -1,3 +1,4 @@
+import os
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, cast
@@ -15,6 +16,7 @@ if TYPE_CHECKING:
 
 
 class BatchRunComponent(Component):
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
     display_name = i18n.t('components.processing.batch_run.display_name')
     description = i18n.t('components.processing.batch_run.description')
     documentation: str = "https://docs.langflow.org/components-processing#batch-run"

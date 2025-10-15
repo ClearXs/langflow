@@ -1,3 +1,4 @@
+import os
 from enum import Enum
 from typing import cast
 import i18n
@@ -16,6 +17,7 @@ class DataOperation(str, Enum):
 
 
 class MergeDataComponent(Component):
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
     display_name = i18n.t('components.processing.merge_data.display_name')
     description = i18n.t('components.processing.merge_data.description')
     icon = "merge"

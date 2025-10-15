@@ -1,3 +1,4 @@
+import os
 from typing import Any
 import i18n
 
@@ -8,6 +9,7 @@ from lfx.schema.dotdict import dotdict
 
 
 class RunFlowComponent(RunFlowBaseComponent):
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
     display_name = i18n.t('components.logic.run_flow.display_name')
     description = i18n.t('components.logic.run_flow.description')
     documentation: str = "https://docs.langflow.org/components-logic#run-flow"

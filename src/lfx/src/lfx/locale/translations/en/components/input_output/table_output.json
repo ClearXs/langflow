@@ -1,0 +1,45 @@
+{
+  "display_name": "Table Output",
+  "description": "Write data to database tables with upsert support",
+  "data_input": {
+    "display_name": "Data Input",
+    "info": "Data to write"
+  },
+  "connection_string": {
+    "display_name": "Connection String",
+    "info": "Database connection string"
+  },
+  "table_name": {
+    "display_name": "Table Name",
+    "info": "Target table name"
+  },
+  "write_mode": {
+    "display_name": "Write Mode",
+    "info": "How to write data"
+  },
+  "key_columns": {
+    "display_name": "Key Columns",
+    "info": "Columns for upsert matching"
+  },
+  "auto_create_table": {
+    "display_name": "Auto Create Table",
+    "info": "Create table if not exists"
+  },
+  "batch_size": {
+    "display_name": "Batch Size",
+    "info": "Records per batch"
+  },
+  "truncate_first": {
+    "display_name": "Truncate First",
+    "info": "Clear table before writing"
+  },
+  "status": {
+    "writing": "Writing to table...",
+    "success": "Successfully wrote {rows} rows"
+  },
+  "errors": {
+    "no_data": "No data to write",
+    "no_keys_for_upsert": "Key columns required for upsert",
+    "write_failed": "Table write failed: {error}"
+  }
+}

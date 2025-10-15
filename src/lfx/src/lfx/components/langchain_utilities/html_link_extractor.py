@@ -1,3 +1,4 @@
+import os
 import i18n
 from typing import Any
 
@@ -9,6 +10,7 @@ from lfx.inputs.inputs import BoolInput, DataInput, StrInput
 
 
 class HtmlLinkExtractorComponent(LCDocumentTransformerComponent):
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
     display_name = i18n.t(
         'components.langchain_utilities.html_link_extractor.display_name')
     description = i18n.t(

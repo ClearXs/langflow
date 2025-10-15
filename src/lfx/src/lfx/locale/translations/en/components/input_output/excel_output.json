@@ -1,0 +1,28 @@
+{
+  "display_name": "Excel Output",
+  "description": "Export data to Excel files",
+  "data_input": {
+    "display_name": "Data Input",
+    "info": "Data to export"
+  },
+  "file_path": {
+    "display_name": "File Path",
+    "info": "Output Excel file path"
+  },
+  "sheet_name": {
+    "display_name": "Sheet Name",
+    "info": "Excel sheet name"
+  },
+  "include_index": {
+    "display_name": "Include Index",
+    "info": "Include row index"
+  },
+  "status": {
+    "exporting": "Exporting to Excel...",
+    "success": "Successfully exported {rows} rows"
+  },
+  "errors": {
+    "no_data": "No data to export",
+    "export_failed": "Excel export failed: {error}"
+  }
+}

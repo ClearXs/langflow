@@ -1,3 +1,4 @@
+import os
 import ast
 import operator
 from collections.abc import Callable
@@ -10,6 +11,7 @@ from lfx.schema.data import Data
 
 
 class CalculatorComponent(Component):
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
     display_name = i18n.t('components.helpers.calculator_core.display_name')
     description = i18n.t('components.helpers.calculator_core.description')
     documentation: str = "https://docs.langflow.org/components-helpers#calculator"

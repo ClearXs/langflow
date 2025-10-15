@@ -68,6 +68,7 @@ export default function Dropdown({
   );
 
   const formLocale = useFormLocale();
+  const { t } = useTranslation();
 
   // Initialize state and refs
   const [open, setOpen] = useState(children ? true : false);
@@ -365,7 +366,7 @@ export default function Dropdown({
       variant="primary"
       size="xs"
     >
-      <LoadingTextComponent text="Loading options" />
+      <LoadingTextComponent text={t("dropdown.loadingOptions")} />
     </Button>
   );
 
@@ -474,7 +475,7 @@ export default function Dropdown({
       <input
         onChange={searchRoleByTerm}
         onKeyDown={handleInputKeyDown}
-        placeholder="Search options..."
+        placeholder={t("dropdown.searchOptions")}
         className="flex h-9 w-full rounded-md bg-transparent py-3 text-[13px] outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50"
         autoComplete="off"
         data-testid="dropdown_search_input"
@@ -591,7 +592,7 @@ export default function Dropdown({
             disabled
             className="w-full text-center text-sm text-muted-foreground px-2.5 py-1.5"
           >
-            No options found
+            {t("dropdown.noOptionsFound")}
           </CommandItem>
         )}
       </CommandGroup>
@@ -637,7 +638,7 @@ export default function Dropdown({
                   name="RefreshCcw"
                   className={cn("h-3 w-3")}
                 />
-                Refresh list
+                {t("dropdown.refreshList")}
               </div>
             </CommandItem>
           )}
@@ -685,7 +686,7 @@ export default function Dropdown({
                     name="RefreshCcw"
                     className={cn("refresh-icon h-3 w-3 text-primary")}
                   />
-                  Refresh list
+                  {t("dropdown.refreshList")}
                 </div>
               </Button>
             </CommandItem>
@@ -699,7 +700,7 @@ export default function Dropdown({
   if (Object.keys(validOptions).length === 0 && !combobox && isLoading) {
     return (
       <div>
-        <span className="text-sm italic">Loading...</span>
+        <span className="text-sm italic">{t("dropdown.loading")}</span>
       </div>
     );
   }

@@ -1,0 +1,23 @@
+{
+  "display_name": "Field Value Merge",
+  "description": "Merge multiple field values with separator",
+  "data_input": {
+    "display_name": "Data Input",
+    "info": "Input data to transform"
+  },
+  "merge_configs": {
+    "display_name": "Merge Configurations",
+    "info": "Fields to merge and separators"
+  },
+  "drop_source_fields": {
+    "display_name": "Drop Source Fields",
+    "info": "Remove source fields after merge"
+  },
+  "status": {
+    "success": "Merged {count} records"
+  },
+  "errors": {
+    "missing_config": "Merge configurations are required",
+    "merge_failed": "Field merge failed: {error}"
+  }
+}

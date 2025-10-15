@@ -1,3 +1,4 @@
+import os
 from typing import Any, cast
 import i18n
 
@@ -15,6 +16,7 @@ from lfx.utils.constants import MESSAGE_SENDER_AI, MESSAGE_SENDER_NAME_AI, MESSA
 
 
 class MemoryComponent(Component):
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
     display_name = i18n.t('components.helpers.memory.display_name')
     description = i18n.t('components.helpers.memory.description')
     documentation: str = "https://docs.langflow.org/components-helpers#message-history"

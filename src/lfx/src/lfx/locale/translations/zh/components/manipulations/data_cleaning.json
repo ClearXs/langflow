@@ -1,0 +1,39 @@
+{
+  "display_name": "数据清洗",
+  "description": "清洗和标准化数据",
+  "status": {
+    "success": "清洗了 {count} 条记录"
+  },
+  "errors": {
+    "cleaning_failed": "数据清洗失败: {error}",
+    "no_data": "未提供输入数据"
+  },
+  "case_type": {
+    "display_name": "大小写类型",
+    "info": "大小写转换类型"
+  },
+  "data_input": {
+    "display_name": "数据输入",
+    "info": "要清洗的输入数据"
+  },
+  "normalize_case": {
+    "display_name": "标准化大小写",
+    "info": "转换文本大小写"
+  },
+  "remove_duplicates": {
+    "display_name": "删除重复",
+    "info": "删除重复的行"
+  },
+  "remove_null_rows": {
+    "display_name": "删除空值行",
+    "info": "删除包含空值的行"
+  },
+  "remove_special_chars": {
+    "display_name": "删除特殊字符",
+    "info": "删除特殊字符"
+  },
+  "trim_whitespace": {
+    "display_name": "去除空白",
+    "info": "Remove leading/trailing spaces"
+  }
+}

@@ -1,0 +1,86 @@
+{
+  "display_name": "表输入",
+  "description": "从Nacos配置服务获取数据库连接并执行SQL查询",
+  "database_connection": {
+    "display_name": "数据库连接",
+    "info": "从可用连接中选择一个数据库连接"
+  },
+  "sql_query": {
+    "display_name": "SQL查询",
+    "info": "输入要执行的SQL查询语句"
+  },
+  "safe_mode": {
+    "display_name": "安全模式",
+    "info": "启用后，将阻止危险的SQL操作（DROP、DELETE、UPDATE、INSERT等）"
+  },
+  "outputs": {
+    "data": {
+      "display_name": "数据"
+    },
+    "dataframe": {
+      "display_name": "数据框"
+    }
+  },
+  "success": {
+    "loaded": "成功加载 {rows} 行数据"
+  },
+  "warnings": {
+    "no_results": "查询执行成功但未返回结果"
+  },
+  "errors": {
+    "empty_query": "SQL查询不能为空",
+    "missing_connection": "必须选择数据库连接",
+    "connection_not_found": "在配置中未找到数据库连接 '{name}'",
+    "connection_failed": "连接数据库失败: {error}",
+    "sqlalchemy_required": "需要安装SQLAlchemy。请使用以下命令安装: pip install sqlalchemy",
+    "dangerous_operation": "查询被安全模式阻止: 包含 '{keyword}' 操作",
+    "execution_error": "执行SQL查询时出错: {error}",
+    "dataframe_error": "加载数据框时出错: {error}",
+    "extraction_failed": "提取失败",
+    "missing_config": "缺少配置"
+  },
+  "connection_string": {
+    "display_name": "连接字符串",
+    "info": "数据库连接字符串(例如: postgresql://user:password@host:port/database)"
+  },
+  "enable_transaction": {
+    "display_name": "启用事务",
+    "info": "是否使用数据库事务以保证数据一致性。"
+  },
+  "field_mappings": {
+    "display_name": "字段映射",
+    "info": "可选的字段转换和默认值。"
+  },
+  "incremental_offset_seconds": {
+    "display_name": "增量偏移(秒)",
+    "info": "增量数据提取的时间偏移量。"
+  },
+  "incremental_timestamp_init": {
+    "display_name": "增量时间戳初始值",
+    "info": "增量数据提取的初始时间戳(例如: 2024-01-01 00:00:00)。"
+  },
+  "isolation_level": {
+    "display_name": "隔离级别",
+    "info": "数据库事务隔离级别。"
+  },
+  "max_records": {
+    "display_name": "最大记录数",
+    "info": "最多获取的记录数(0表示不限制)。"
+  },
+  "page_size": {
+    "display_name": "页面大小",
+    "info": "使用分页时每页的记录数。"
+  },
+  "status": {
+    "connecting": "正在连接数据库...",
+    "success": "成功提取{records}条记录"
+  },
+  "table_name": {
+    "display_name": "表名",
+    "info": "要查询的数据库表名。"
+  },
+  "use_pagination": {
+    "display_name": "使用分页",
+    "info": "是否分页获取数据以减少内存使用。"
+  }
+}

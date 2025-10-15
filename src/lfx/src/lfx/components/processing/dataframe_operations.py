@@ -1,3 +1,4 @@
+import os
 import pandas as pd
 import i18n
 
@@ -9,6 +10,7 @@ from lfx.schema.dataframe import DataFrame
 
 
 class DataFrameOperationsComponent(Component):
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
     display_name = i18n.t(
         'components.processing.dataframe_operations.display_name')
     description = i18n.t(

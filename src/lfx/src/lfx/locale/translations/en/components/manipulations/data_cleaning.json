@@ -1,0 +1,39 @@
+{
+  "display_name": "Data Cleaning",
+  "description": "Clean and normalize data with various operations",
+  "data_input": {
+    "display_name": "Data Input",
+    "info": "Input data to clean"
+  },
+  "trim_whitespace": {
+    "display_name": "Trim Whitespace",
+    "info": "Remove leading/trailing spaces"
+  },
+  "remove_duplicates": {
+    "display_name": "Remove Duplicates",
+    "info": "Remove duplicate rows"
+  },
+  "remove_null_rows": {
+    "display_name": "Remove Null Rows",
+    "info": "Remove rows with null values"
+  },
+  "remove_special_chars": {
+    "display_name": "Remove Special Characters",
+    "info": "Remove special characters"
+  },
+  "normalize_case": {
+    "display_name": "Normalize Case",
+    "info": "Convert text case"
+  },
+  "case_type": {
+    "display_name": "Case Type",
+    "info": "Type of case conversion"
+  },
+  "status": {
+    "success": "Cleaned {count} records"
+  },
+  "errors": {
+    "no_data": "No input data provided",
+    "cleaning_failed": "Data cleaning failed: {error}"
+  }
+}

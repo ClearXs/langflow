@@ -1,3 +1,4 @@
+import os
 import i18n
 from pydantic import BaseModel, Field, create_model
 from trustcall import create_extractor
@@ -18,6 +19,7 @@ from lfx.schema.table import EditMode
 
 
 class StructuredOutputComponent(Component):
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
     display_name = i18n.t(
         'components.processing.structured_output.display_name')
     description = i18n.t('components.processing.structured_output.description')

@@ -1,0 +1,41 @@
+{
+  "display_name": "双流连接",
+  "description": "使用内连接/左连接/右连接/全连接合并两个数据流",
+  "status": {
+    "joining": "正在连接数据流...",
+    "success": "成功连接 {records} 条记录"
+  },
+  "errors": {
+    "join_failed": "连接操作失败: {error}",
+    "missing_conditions": "连接条件是必需的",
+    "missing_streams": "两个数据流都是必需的"
+  },
+  "drop_duplicates": {
+    "display_name": "删除重复",
+    "info": "连接后删除重复行"
+  },
+  "join_conditions": {
+    "display_name": "连接条件",
+    "info": "用于连接的字段"
+  },
+  "join_type": {
+    "display_name": "连接类型",
+    "info": "连接操作类型"
+  },
+  "left_prefix": {
+    "display_name": "左侧前缀",
+    "info": "左侧数据流列的前缀"
+  },
+  "left_stream": {
+    "display_name": "左侧数据流",
+    "info": "第一个数据流"
+  },
+  "right_prefix": {
+    "display_name": "右侧前缀",
+    "info": "右侧数据流列的前缀"
+  },
+  "right_stream": {
+    "display_name": "右侧数据流",
+    "info": "第二个数据流"
+  }
+}

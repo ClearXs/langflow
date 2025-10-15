@@ -1,3 +1,4 @@
+import os
 import random
 from typing import Any
 import i18n
@@ -9,6 +10,7 @@ from lfx.schema.data import Data
 
 
 class MockDataGeneratorComponent(Component):
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
     """Mock Data Generator Component.
 
     Generates sample data for testing and development purposes. Supports three main

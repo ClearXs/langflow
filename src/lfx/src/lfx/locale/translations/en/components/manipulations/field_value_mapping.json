@@ -1,0 +1,27 @@
+{
+  "display_name": "Field Value Mapping",
+  "description": "Map field values with transformation rules",
+  "data_input": {
+    "display_name": "Data Input",
+    "info": "Input data to transform"
+  },
+  "field_name": {
+    "display_name": "Field Name",
+    "info": "Field to apply mapping"
+  },
+  "value_mappings": {
+    "display_name": "Value Mappings",
+    "info": "Source to target value mappings"
+  },
+  "default_value": {
+    "display_name": "Default Value",
+    "info": "Default for unmapped values"
+  },
+  "status": {
+    "success": "Mapped {count} records"
+  },
+  "errors": {
+    "missing_config": "Value mappings are required",
+    "mapping_failed": "Value mapping failed: {error}"
+  }
+}

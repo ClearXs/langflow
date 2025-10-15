@@ -1,0 +1,63 @@
+{
+  "display_name": "API Input",
+  "description": "Fetch data from REST APIs with authentication and retry logic",
+  "api_url": {
+    "display_name": "API URL",
+    "info": "REST API endpoint URL"
+  },
+  "method": {
+    "display_name": "HTTP Method",
+    "info": "HTTP request method"
+  },
+  "auth_type": {
+    "display_name": "Authentication Type",
+    "info": "Type of authentication to use"
+  },
+  "auth_username": {
+    "display_name": "Username",
+    "info": "Basic auth username"
+  },
+  "auth_password": {
+    "display_name": "Password",
+    "info": "Basic auth password"
+  },
+  "bearer_token": {
+    "display_name": "Bearer Token",
+    "info": "Bearer token for authentication"
+  },
+  "api_key_header": {
+    "display_name": "API Key Header",
+    "info": "Header name for API key"
+  },
+  "api_key_value": {
+    "display_name": "API Key Value",
+    "info": "API key value"
+  },
+  "headers": {
+    "display_name": "Custom Headers",
+    "info": "Additional HTTP headers"
+  },
+  "request_body": {
+    "display_name": "Request Body",
+    "info": "JSON request body for POST"
+  },
+  "timeout": {
+    "display_name": "Timeout (seconds)",
+    "info": "Request timeout in seconds"
+  },
+  "retry_count": {
+    "display_name": "Retry Count",
+    "info": "Number of retry attempts"
+  },
+  "data_path": {
+    "display_name": "Data Path",
+    "info": "JSONPath to extract data from response"
+  },
+  "status": {
+    "fetching": "Fetching data from API...",
+    "success": "Successfully fetched {records} records"
+  },
+  "errors": {
+    "fetch_failed": "API request failed: {error}"
+  }
+}

@@ -1,0 +1,63 @@
+{
+  "display_name": "API输入",
+  "description": "从REST API获取数据",
+  "api_url": {
+    "display_name": "API地址",
+    "info": "REST API端点URL"
+  },
+  "status": {
+    "fetching": "正在从API获取数据...",
+    "success": "成功获取 {records} 条记录"
+  },
+  "errors": {
+    "fetch_failed": "API请求失败: {error}"
+  },
+  "api_key_header": {
+    "display_name": "API密钥请求头",
+    "info": "API密钥的请求头名称"
+  },
+  "api_key_value": {
+    "display_name": "API密钥值",
+    "info": "API密钥值"
+  },
+  "auth_password": {
+    "display_name": "密码",
+    "info": "基本认证密码"
+  },
+  "auth_type": {
+    "display_name": "认证类型",
+    "info": "使用的认证类型"
+  },
+  "auth_username": {
+    "display_name": "用户名",
+    "info": "基本认证用户名"
+  },
+  "bearer_token": {
+    "display_name": "Bearer令牌",
+    "info": "用于认证的Bearer令牌"
+  },
+  "data_path": {
+    "display_name": "数据路径",
+    "info": "从响应中提取数据的JSONPath"
+  },
+  "headers": {
+    "display_name": "自定义请求头",
+    "info": "额外的HTTP请求头"
+  },
+  "method": {
+    "display_name": "HTTP方法",
+    "info": "HTTP请求方法"
+  },
+  "request_body": {
+    "display_name": "请求体",
+    "info": "POST请求的JSON请求体"
+  },
+  "retry_count": {
+    "display_name": "重试次数",
+    "info": "重试次数"
+  },
+  "timeout": {
+    "display_name": "超时时间(秒)",
+    "info": "请求超时时间(秒)"
+  }
+}

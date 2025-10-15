@@ -8,6 +8,7 @@ Notes:
   utilities (and optional threading via `parallel_load_data`).
 """
 
+import os
 from __future__ import annotations
 
 import json
@@ -28,6 +29,7 @@ from lfx.schema.message import Message
 
 
 class FileComponent(BaseFileComponent):
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
     """File component with optional Docling processing (isolated in a subprocess)."""
 
     display_name = i18n.t('components.data.file.display_name')

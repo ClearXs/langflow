@@ -5,6 +5,7 @@ Each row becomes a tool where the action name comes from one column and the cont
 comes from another column.
 """
 
+import os
 from __future__ import annotations
 
 import re
@@ -26,6 +27,7 @@ if TYPE_CHECKING:
 
 
 class DataFrameToToolsetComponent(LCToolComponent):
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
     """Component that converts DataFrame rows into a toolset with multiple callable actions."""
 
     display_name = i18n.t("components.processing.dataframe_to_toolset.display_name")

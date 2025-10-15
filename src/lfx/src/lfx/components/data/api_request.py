@@ -1,3 +1,4 @@
+import os
 import json
 import re
 import tempfile
@@ -43,6 +44,7 @@ DEFAULT_FIELDS = ["mode"]
 
 
 class APIRequestComponent(Component):
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
     display_name = i18n.t('components.data.api_request.display_name')
     description = i18n.t('components.data.api_request.description')
     documentation: str = "https://docs.langflow.org/components-data#api-request"

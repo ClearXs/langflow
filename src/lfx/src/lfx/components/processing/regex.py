@@ -1,3 +1,4 @@
+import os
 import re
 import i18n
 
@@ -8,6 +9,7 @@ from lfx.schema.message import Message
 
 
 class RegexExtractorComponent(Component):
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
     display_name = i18n.t('components.processing.regex.display_name')
     description = i18n.t('components.processing.regex.description')
     documentation: str = "https://docs.langflow.org/components-processing#regex-extractor"

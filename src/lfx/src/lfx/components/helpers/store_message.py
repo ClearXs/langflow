@@ -1,3 +1,4 @@
+import os
 import i18n
 
 from lfx.custom.custom_component.component import Component
@@ -12,6 +13,7 @@ from lfx.utils.constants import MESSAGE_SENDER_AI, MESSAGE_SENDER_NAME_AI
 
 
 class MessageStoreComponent(Component):
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
     display_name = i18n.t('components.helpers.store_message.display_name')
     description = i18n.t('components.helpers.store_message.description')
     icon = "message-square-text"

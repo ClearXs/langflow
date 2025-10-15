@@ -1,3 +1,4 @@
+import os
 from datetime import datetime
 from zoneinfo import ZoneInfo, available_timezones
 import i18n
@@ -9,6 +10,7 @@ from lfx.schema.message import Message
 
 
 class CurrentDateComponent(Component):
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
     display_name = i18n.t('components.helpers.current_date.display_name')
     description = i18n.t('components.helpers.current_date.description')
     documentation: str = "https://docs.langflow.org/components-helpers#current-date"

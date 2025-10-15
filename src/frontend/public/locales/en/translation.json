@@ -1063,6 +1063,28 @@
       "removeWarning": "This will remove the file from your list. You can add it back later if needed."
     }
   },
+  "fileInput": {
+    "selectFile": "Select File",
+    "addMore": "Add More",
+    "changeFile": "Change File",
+    "filesSelected": "{{count}} file(s) selected",
+    "modalTitle": "Select Files",
+    "modalDescription": "Choose files from the file management system.",
+    "modalDescriptionWithTypes": "Only {{types}} files are allowed.",
+    "selectFiles": "Select Files"
+  },
+  "fieldMapper": {
+    "enabled": "Enabled",
+    "sourceField": "Source Field",
+    "targetField": "Target Field",
+    "type": "Type",
+    "unit": "Unit",
+    "sourceFieldPlaceholder": "Enter source field name",
+    "targetFieldPlaceholder": "Enter target field name",
+    "unitPlaceholder": "Optional unit",
+    "addMapping": "Add Field Mapping",
+    "mappingsCount": "{{count}} mapping(s) configured"
+  },
   "api": {
     "modal": {
       "title": "API access",
@@ -1145,5 +1167,12 @@
       "title": "Messages",
       "description": "Inspect, edit and remove messages to explore and refine model behaviors."
     }
+  },
+  "dropdown": {
+    "loadingOptions": "Loading options",
+    "searchOptions": "Search options...",
+    "noOptionsFound": "No options found",
+    "refreshList": "Refresh list",
+    "loading": "Loading..."
   }
 }

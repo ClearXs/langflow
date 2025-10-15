@@ -1066,6 +1066,28 @@
       "removeWarning": "这将从您的列表中移除该文件。如果需要，您可以稍后再添加它。"
     }
   },
+  "fileInput": {
+    "selectFile": "选择文件",
+    "addMore": "添加更多",
+    "changeFile": "更改文件",
+    "filesSelected": "已选择 {{count}} 个文件",
+    "modalTitle": "选择文件",
+    "modalDescription": "从文件管理系统中选择文件。",
+    "modalDescriptionWithTypes": "只允许 {{types}} 文件。",
+    "selectFiles": "选择文件"
+  },
+  "fieldMapper": {
+    "enabled": "启用",
+    "sourceField": "源字段",
+    "targetField": "目标字段",
+    "type": "类型",
+    "unit": "单位",
+    "sourceFieldPlaceholder": "输入源字段名",
+    "targetFieldPlaceholder": "输入目标字段名",
+    "unitPlaceholder": "可选单位",
+    "addMapping": "添加字段映射",
+    "mappingsCount": "已配置 {{count}} 个映射"
+  },
   "api": {
     "modal": {
       "title": "API 访问",
@@ -1145,7 +1167,14 @@
     },
     "messagesSettings": {
       "title": "消息",
-      "description": "查看、编辑和移除消息，以探索和优化模型行为。"
+      "description": "查看、编辑和移除消息,以探索和优化模型行为。"
     }
+  },
+  "dropdown": {
+    "loadingOptions": "正在加载选项",
+    "searchOptions": "搜索选项...",
+    "noOptionsFound": "未找到选项",
+    "refreshList": "刷新列表",
+    "loading": "加载中..."
   }
 }

@@ -1,0 +1,45 @@
+{
+  "display_name": "库表输出",
+  "description": "写入数据到数据库表",
+  "status": {
+    "writing": "正在写入表...",
+    "success": "成功写入 {rows} 行"
+  },
+  "errors": {
+    "write_failed": "表写入失败: {error}",
+    "no_data": "没有要写入的数据",
+    "no_keys_for_upsert": "Upsert操作需要键列"
+  },
+  "auto_create_table": {
+    "display_name": "自动创建表",
+    "info": "如果表不存在则创建"
+  },
+  "batch_size": {
+    "display_name": "批次大小",
+    "info": "每批记录数"
+  },
+  "connection_string": {
+    "display_name": "连接字符串",
+    "info": "数据库连接字符串"
+  },
+  "data_input": {
+    "display_name": "数据输入",
+    "info": "要写入的数据"
+  },
+  "key_columns": {
+    "display_name": "关键列",
+    "info": "用于upsert匹配的列"
+  },
+  "table_name": {
+    "display_name": "表名",
+    "info": "目标表名"
+  },
+  "truncate_first": {
+    "display_name": "先清空表",
+    "info": "写入前清空表"
+  },
+  "write_mode": {
+    "display_name": "写入模式",
+    "info": "如何写入数据"
+  }
+}

@@ -1,3 +1,4 @@
+import os
 import i18n
 from langchain.agents import create_tool_calling_agent
 from langchain_core.prompts import ChatPromptTemplate
@@ -12,6 +13,7 @@ from lfx.schema.data import Data
 
 
 class ToolCallingAgentComponent(LCToolsAgentComponent):
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
     display_name: str = i18n.t(
         'components.langchain_utilities.tool_calling.display_name')
     description: str = i18n.t(

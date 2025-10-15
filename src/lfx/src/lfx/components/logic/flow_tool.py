@@ -1,3 +1,4 @@
+import os
 from typing import Any
 
 import i18n
@@ -15,6 +16,7 @@ from lfx.schema.dotdict import dotdict
 
 
 class FlowToolComponent(LCToolComponent):
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
     display_name = i18n.t('components.logic.flow_tool.display_name')
     description = i18n.t('components.logic.flow_tool.description')
     field_order = ["flow_name", "name", "description", "return_direct"]

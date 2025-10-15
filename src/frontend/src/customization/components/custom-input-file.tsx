@@ -1,4 +1,5 @@
 import InputFileComponent from "@/components/core/parameterRenderComponent/components/inputFileComponent";
+import FileTableInputComponent from "@/components/core/parameterRenderComponent/components/fileTableInputComponent";
 import type {
   FileComponentType,
   InputProps,
@@ -15,6 +16,23 @@ export default function CustomInputFileComponent({
   editNode = false,
   id,
 }: InputProps<string, FileComponentType>): JSX.Element {
+  // If tempFile is false, use the file table input component
+  if (tempFile === false) {
+    return (
+      <FileTableInputComponent
+        value={value}
+        file_path={file_path}
+        handleOnNewValue={handleOnNewValue}
+        disabled={disabled}
+        fileTypes={fileTypes}
+        isList={isList}
+        editNode={editNode}
+        id={`filetable_${id}`}
+      />
+    );
+  }
+
+  // Otherwise, use the traditional file upload component
   return (
     <InputFileComponent
       value={value}

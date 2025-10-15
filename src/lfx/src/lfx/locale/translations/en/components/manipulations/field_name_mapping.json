@@ -1,0 +1,23 @@
+{
+  "display_name": "Field Name Mapping",
+  "description": "Map source field names to target field names",
+  "data_input": {
+    "display_name": "Data Input",
+    "info": "Input data to transform"
+  },
+  "field_mappings": {
+    "display_name": "Field Mappings",
+    "info": "Source to target field mappings"
+  },
+  "drop_unmapped": {
+    "display_name": "Drop Unmapped Fields",
+    "info": "Remove fields not in mapping"
+  },
+  "status": {
+    "success": "Mapped {count} records"
+  },
+  "errors": {
+    "missing_config": "Field mappings are required",
+    "mapping_failed": "Field mapping failed: {error}"
+  }
+}

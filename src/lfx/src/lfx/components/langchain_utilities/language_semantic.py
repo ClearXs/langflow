@@ -1,3 +1,4 @@
+import os
 import i18n
 from langchain.docstore.document import Document
 from langchain_experimental.text_splitter import SemanticChunker
@@ -15,6 +16,7 @@ from lfx.schema.data import Data
 
 
 class SemanticTextSplitterComponent(LCTextSplitterComponent):
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
     """Split text into semantically meaningful chunks using semantic similarity."""
 
     display_name: str = i18n.t(

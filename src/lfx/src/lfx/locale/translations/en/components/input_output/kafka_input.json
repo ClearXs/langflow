@@ -1,0 +1,53 @@
+{
+  "display_name": "Kafka Input",
+  "description": "Consume messages from Kafka topics with authentication",
+  "bootstrap_servers": {
+    "display_name": "Bootstrap Servers",
+    "info": "Kafka bootstrap servers (comma-separated)"
+  },
+  "topics": {
+    "display_name": "Topics",
+    "info": "Kafka topics to subscribe (comma-separated)"
+  },
+  "group_id": {
+    "display_name": "Group ID",
+    "info": "Consumer group ID"
+  },
+  "value_deserializer": {
+    "display_name": "Value Deserializer",
+    "info": "Message value deserializer"
+  },
+  "max_messages": {
+    "display_name": "Max Messages",
+    "info": "Maximum messages to consume"
+  },
+  "timeout_ms": {
+    "display_name": "Timeout (ms)",
+    "info": "Consumer timeout in milliseconds"
+  },
+  "auto_commit": {
+    "display_name": "Auto Commit",
+    "info": "Automatically commit offsets"
+  },
+  "json_path": {
+    "display_name": "JSON Path",
+    "info": "Extract data from JSON messages"
+  },
+  "sasl_username": {
+    "display_name": "SASL Username",
+    "info": "SASL authentication username"
+  },
+  "sasl_password": {
+    "display_name": "SASL Password",
+    "info": "SASL authentication password"
+  },
+  "status": {
+    "connecting": "Connecting to Kafka...",
+    "consuming": "Consuming messages...",
+    "success": "Successfully consumed {messages} messages"
+  },
+  "errors": {
+    "kafka_not_installed": "kafka-python library not installed",
+    "consume_failed": "Failed to consume messages: {error}"
+  }
+}

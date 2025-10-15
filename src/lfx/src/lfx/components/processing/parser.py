@@ -1,3 +1,4 @@
+import os
 import i18n
 
 from lfx.custom.custom_component.component import Component
@@ -10,6 +11,7 @@ from lfx.template.field.base import Output
 
 
 class ParserComponent(Component):
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
     display_name = i18n.t('components.processing.parser.display_name')
     description = i18n.t('components.processing.parser.description')
     documentation: str = "https://docs.langflow.org/components-processing#parser"

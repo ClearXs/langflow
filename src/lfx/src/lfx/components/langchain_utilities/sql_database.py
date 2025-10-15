@@ -1,3 +1,4 @@
+import os
 import i18n
 from langchain_community.utilities.sql_database import SQLDatabase
 from sqlalchemy import create_engine
@@ -11,6 +12,7 @@ from lfx.io import (
 
 
 class SQLDatabaseComponent(Component):
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
     display_name = i18n.t(
         'components.langchain_utilities.sql_database.display_name')
     description = i18n.t(

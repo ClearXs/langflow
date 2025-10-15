@@ -1,0 +1,36 @@
+{
+  "display_name": "字段拆分",
+  "description": "将字段拆分为多列",
+  "status": {
+    "success": "拆分了 {count} 条记录"
+  },
+  "errors": {
+    "split_failed": "字段拆分失败: {error}",
+    "field_not_found": "字段未找到: {field}",
+    "missing_config": "源字段是必需的"
+  },
+  "data_input": {
+    "display_name": "数据输入",
+    "info": "要转换的输入数据"
+  },
+  "delimiter": {
+    "display_name": "分隔符",
+    "info": "拆分分隔符"
+  },
+  "drop_source_field": {
+    "display_name": "删除源字段",
+    "info": "拆分后删除源字段"
+  },
+  "max_splits": {
+    "display_name": "最大拆分数",
+    "info": "最大拆分数(-1表示不限制)"
+  },
+  "new_field_names": {
+    "display_name": "新字段名",
+    "info": "新字段的名称(逗号分隔)"
+  },
+  "source_field": {
+    "display_name": "源字段",
+    "info": "要拆分的字段"
+  }
+}

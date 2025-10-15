@@ -1,3 +1,4 @@
+import os
 import i18n
 from langchain.agents import AgentExecutor, create_vectorstore_router_agent
 from langchain.agents.agent_toolkits.vectorstore.toolkit import VectorStoreRouterToolkit
@@ -7,6 +8,7 @@ from lfx.inputs.inputs import HandleInput
 
 
 class VectorStoreRouterAgentComponent(LCAgentComponent):
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
     display_name = i18n.t(
         'components.langchain_utilities.vector_store_router.display_name')
     description = i18n.t(

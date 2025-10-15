@@ -1,3 +1,4 @@
+import os
 import ast
 import json
 from typing import Any
@@ -18,6 +19,7 @@ from lfx.schema.dotdict import dotdict
 
 
 class PythonCodeStructuredTool(LCToolComponent):
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
     DEFAULT_KEYS = [
         "code",
         "_type",

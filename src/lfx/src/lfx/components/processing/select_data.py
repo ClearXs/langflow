@@ -1,3 +1,4 @@
+import os
 import i18n
 
 from lfx.custom.custom_component.component import Component
@@ -8,6 +9,7 @@ from lfx.schema.data import Data
 
 
 class SelectDataComponent(Component):
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
     display_name: str = i18n.t(
         'components.processing.select_data.display_name')
     description: str = i18n.t('components.processing.select_data.description')

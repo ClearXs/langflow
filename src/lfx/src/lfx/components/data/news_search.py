@@ -1,3 +1,4 @@
+import os
 import requests
 from datetime import datetime, timedelta
 from typing import Any, Optional
@@ -9,6 +10,7 @@ from lfx.schema.data import Data
 
 
 class NewsSearchComponent(Component):
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
     display_name = i18n.t('components.data.news_search.display_name')
     description = i18n.t('components.data.news_search.description')
     icon = "newspaper"

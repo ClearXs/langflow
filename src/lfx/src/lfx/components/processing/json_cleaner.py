@@ -1,3 +1,4 @@
+import os
 import json
 import unicodedata
 import i18n
@@ -9,6 +10,7 @@ from lfx.template.field.base import Output
 
 
 class JSONCleaner(Component):
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
     icon = "braces"
     display_name = i18n.t('components.processing.json_cleaner.display_name')
     description = i18n.t('components.processing.json_cleaner.description')

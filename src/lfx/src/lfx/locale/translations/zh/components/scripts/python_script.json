@@ -1,0 +1,24 @@
+{
+  "display_name": "Python脚本",
+  "description": "执行Python代码",
+  "status": {
+    "executing": "正在执行Python脚本...",
+    "success": "脚本执行成功"
+  },
+  "errors": {
+    "execution_failed": "脚本执行失败: {error}",
+    "no_script": "脚本是必需的"
+  },
+  "capture_output": {
+    "display_name": "捕获输出",
+    "info": "捕获打印输出"
+  },
+  "data_input": {
+    "display_name": "数据输入",
+    "info": "作为'data_input'变量可用"
+  },
+  "script": {
+    "display_name": "Python脚本",
+    "info": "Python代码执行"
+  }
+}

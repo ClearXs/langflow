@@ -1,3 +1,4 @@
+import os
 import i18n
 
 from lfx.base.prompts.api_utils import process_prompt_template
@@ -9,6 +10,7 @@ from lfx.template.utils import update_template_values
 
 
 class PromptComponent(Component):
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
     display_name: str = i18n.t('components.processing.prompt.display_name')
     description: str = i18n.t('components.processing.prompt.description')
     documentation: str = "https://docs.langflow.org/components-prompts"

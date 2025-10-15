@@ -1,0 +1,31 @@
+{
+  "display_name": "数据加密",
+  "description": "加密或解密字段数据",
+  "status": {
+    "success": "成功{operation} {count} 条记录"
+  },
+  "errors": {
+    "process_failed": "加密/解密失败: {error}",
+    "missing_config": "加密配置是必需的"
+  },
+  "data_input": {
+    "display_name": "数据输入",
+    "info": "要处理的输入数据"
+  },
+  "encryption_key": {
+    "display_name": "加密密钥",
+    "info": "加密/解密密钥"
+  },
+  "field_configs": {
+    "display_name": "要处理的字段",
+    "info": "要加密/解密的字段"
+  },
+  "operation": {
+    "display_name": "操作",
+    "info": "加密或解密"
+  },
+  "use_base64": {
+    "display_name": "使用Base64",
+    "info": "使用Base64编码结果"
+  }
+}

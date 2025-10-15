@@ -1,0 +1,19 @@
+{
+  "display_name": "数据脱敏",
+  "description": "脱敏敏感数据",
+  "status": {
+    "success": "脱敏了 {count} 条记录"
+  },
+  "errors": {
+    "masking_failed": "数据脱敏失败: {error}",
+    "missing_config": "脱敏规则是必需的"
+  },
+  "data_input": {
+    "display_name": "数据输入",
+    "info": "要脱敏的输入数据"
+  },
+  "masking_rules": {
+    "display_name": "脱敏规则",
+    "info": "字段和脱敏类型"
+  }
+}

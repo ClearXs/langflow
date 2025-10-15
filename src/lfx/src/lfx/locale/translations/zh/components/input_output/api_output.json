@@ -1,0 +1,40 @@
+{
+  "display_name": "API输出",
+  "description": "发送数据到REST API",
+  "status": {
+    "sending": "正在发送到API...",
+    "success": "发送了 {success} 条记录，{errors} 个错误"
+  },
+  "errors": {
+    "send_failed": "API发送失败: {error}",
+    "no_data": "没有要发送的数据"
+  },
+  "api_url": {
+    "display_name": "API地址",
+    "info": "REST API端点"
+  },
+  "batch_size": {
+    "display_name": "批次大小",
+    "info": "每批记录数"
+  },
+  "data_input": {
+    "display_name": "数据输入",
+    "info": "要发送的数据"
+  },
+  "headers": {
+    "display_name": "自定义请求头",
+    "info": "HTTP请求头"
+  },
+  "method": {
+    "display_name": "HTTP方法",
+    "info": "HTTP请求方法"
+  },
+  "send_as_batch": {
+    "display_name": "批量发送",
+    "info": "批量发送记录"
+  },
+  "timeout": {
+    "display_name": "超时时间(秒)",
+    "info": "请求超时"
+  }
+}

@@ -1,3 +1,4 @@
+import os
 import i18n
 from spider.spider import Spider
 
@@ -16,6 +17,7 @@ from lfx.schema.data import Data
 
 
 class SpiderTool(Component):
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
     display_name: str = i18n.t(
         'components.langchain_utilities.spider.display_name')
     description: str = i18n.t(

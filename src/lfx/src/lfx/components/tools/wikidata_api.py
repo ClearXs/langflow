@@ -1,3 +1,4 @@
+import os
 from typing import Any
 import i18n
 
@@ -78,6 +79,7 @@ class WikidataAPIWrapper(BaseModel):
 
 
 class WikidataAPIComponent(LCToolComponent):
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
     display_name = i18n.t('components.tools.wikidata_api.display_name')
     description = i18n.t('components.tools.wikidata_api.description')
     name = "WikidataAPI"

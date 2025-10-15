@@ -1,3 +1,4 @@
+import os
 import i18n
 
 from lfx.custom.custom_component.component import Component
@@ -8,6 +9,7 @@ from lfx.template.field.base import Output
 
 
 class LoopComponent(Component):
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
     display_name = i18n.t("components.logic.loop.display_name")
     description = i18n.t("components.logic.loop.description")
     documentation: str = "https://docs.langflow.org/components-logic#loop"

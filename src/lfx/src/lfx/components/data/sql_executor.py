@@ -1,3 +1,4 @@
+import os
 import sqlite3
 import pandas as pd
 from typing import Any, Optional
@@ -11,6 +12,7 @@ from lfx.schema.dataframe import DataFrame
 
 
 class SQLExecutorComponent(Component):
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
     display_name = i18n.t('components.data.sql_executor.display_name')
     description = i18n.t('components.data.sql_executor.description')
     icon = "database"

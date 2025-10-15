@@ -1,3 +1,4 @@
+import os
 import i18n
 from lfx.base.chains.model import LCChainComponent
 from lfx.inputs.inputs import HandleInput, MultilineInput
@@ -5,6 +6,7 @@ from lfx.schema.message import Message
 
 
 class ConversationChainComponent(LCChainComponent):
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
     display_name = i18n.t(
         'components.langchain_utilities.conversation.display_name')
     description = i18n.t(

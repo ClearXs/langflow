@@ -1,3 +1,4 @@
+import os
 import json
 from collections.abc import Sequence
 from typing import Any
@@ -16,6 +17,7 @@ from lfx.schema.dotdict import dotdict
 
 
 class SearXNGToolComponent(LCToolComponent):
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
     search_headers: dict = {}
     display_name = i18n.t('components.tools.searxng.display_name')
     description = i18n.t('components.tools.searxng.description')

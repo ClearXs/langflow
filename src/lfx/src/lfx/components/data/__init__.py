@@ -11,6 +11,7 @@ if TYPE_CHECKING:
     from lfx.components.data.data_validator import DataValidatorComponent
     from lfx.components.data.deduplicator import DeduplicatorComponent
     from lfx.components.data.directory import DirectoryComponent
+    from lfx.components.data.field_mapper import FieldMapperComponent
     from lfx.components.data.field_selector import FieldSelectorComponent
     from lfx.components.data.file import FileComponent
     from lfx.components.data.json_to_data import JSONToDataComponent
@@ -31,6 +32,7 @@ _dynamic_imports = {
     "DataValidatorComponent": "data_validator",
     "DeduplicatorComponent": "deduplicator",
     "DirectoryComponent": "directory",
+    "FieldMapperComponent": "field_mapper",
     "FieldSelectorComponent": "field_selector",
     "FileComponent": "file",
     "JSONToDataComponent": "json_to_data",
@@ -43,8 +45,6 @@ _dynamic_imports = {
     "ValueMapperComponent": "value_mapper",
     "WebSearchComponent": "web_search",
     "WebhookComponent": "webhook",
-    "NewsSearchComponent": "news_search",
-    "RSSReaderComponent": "rss",
 }
 __all__ = [
     "APIRequestComponent",
@@ -53,6 +53,7 @@ __all__ = [
     "DataValidatorComponent",
     "DeduplicatorComponent",
     "DirectoryComponent",
+    "FieldMapperComponent",
     "FieldSelectorComponent",
     "FileComponent",
     "JSONToDataComponent",

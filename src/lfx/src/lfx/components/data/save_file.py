@@ -1,3 +1,4 @@
+import os
 import json
 from collections.abc import AsyncIterator, Iterator
 from pathlib import Path
@@ -17,6 +18,7 @@ from lfx.template.field.base import Output
 
 
 class SaveToFileComponent(Component):
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
     display_name = i18n.t("components.data.save_file.display_name")
     description = i18n.t("components.data.save_file.description")
     documentation: str = "https://docs.langflow.org/components-processing#save-file"

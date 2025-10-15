@@ -1,3 +1,4 @@
+import os
 import i18n
 from langchain.agents import AgentExecutor
 
@@ -8,6 +9,7 @@ from lfx.template.field.base import Output
 
 
 class RunnableExecComponent(Component):
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
     description = i18n.t(
         'components.langchain_utilities.runnable_executor.description')
     display_name = i18n.t(

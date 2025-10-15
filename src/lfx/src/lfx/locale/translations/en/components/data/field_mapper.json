@@ -1,0 +1,24 @@
+{
+  "display_name": "Field Mapper",
+  "description": "Maps source fields to target fields with type conversion and unit specification.",
+  "data": {
+    "display_name": "Input Data",
+    "info": "Data containing fields to be mapped. Can be a list of Data objects, single Data object, or JSON string."
+  },
+  "field_mappings": {
+    "display_name": "Field Mappings",
+    "info": "List of field mappings defining source field, target field, type conversion, and units."
+  },
+  "outputs": {
+    "mapped_data": {
+      "display_name": "Mapped Data"
+    }
+  },
+  "errors": {
+    "no_data": "No input data provided for field mapping.",
+    "empty_data": "Input data is empty or contains no records.",
+    "no_mappings": "No field mappings configured.",
+    "mapping_error": "Field mapping failed: {error}",
+    "invalid_json": "Invalid JSON format in input data."
+  }
+}

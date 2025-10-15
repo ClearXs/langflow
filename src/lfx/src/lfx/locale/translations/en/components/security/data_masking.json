@@ -1,0 +1,19 @@
+{
+  "display_name": "Data Masking",
+  "description": "Mask sensitive data (phone/email/ID/credit card)",
+  "data_input": {
+    "display_name": "Data Input",
+    "info": "Input data to mask"
+  },
+  "masking_rules": {
+    "display_name": "Masking Rules",
+    "info": "Fields and masking types"
+  },
+  "status": {
+    "success": "Masked {count} records"
+  },
+  "errors": {
+    "missing_config": "Masking rules are required",
+    "masking_failed": "Data masking failed: {error}"
+  }
+}

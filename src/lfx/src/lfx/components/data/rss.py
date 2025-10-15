@@ -1,3 +1,4 @@
+import os
 import feedparser
 import requests
 from datetime import datetime, timedelta
@@ -10,6 +11,7 @@ from lfx.schema.data import Data
 
 
 class RSSComponent(Component):
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
     display_name = i18n.t('components.data.rss.display_name')
     description = i18n.t('components.data.rss.description')
     icon = "rss"

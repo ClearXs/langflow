@@ -34,7 +34,7 @@ from langflow.initial_setup.setup import (
     sync_flows_from_fs,
 )
 from langflow.middleware import ContentSizeLimitMiddleware
-from langflow.services.deps import get_queue_service, get_service, get_settings_service, get_telemetry_service
+from langflow.services.deps import get_nacos_service, get_queue_service, get_service, get_settings_service, get_telemetry_service
 from langflow.services.schema import ServiceType
 from langflow.services.utils import initialize_services, initialize_settings_service, teardown_services
 
@@ -97,7 +97,8 @@ class JavaScriptMIMETypeMiddleware(BaseHTTPMiddleware):
                     "Please share this error on our GitHub repository."
                 )
                 error_messages = json.dumps([message, str(exc)])
-                raise HTTPException(status_code=HTTPStatus.INTERNAL_SERVER_ERROR, detail=error_messages) from exc
+                raise HTTPException(
+                    status_code=HTTPStatus.INTERNAL_SERVER_ERROR, detail=error_messages) from exc
             raise
         if (
             "files/" not in request.url.path
@@ -203,7 +204,8 @@ def get_lifespan(*, fix_migration=False, version=None):
 
             from filelock import FileLock
 
-            lock_file = Path(tempfile.gettempdir()) / "langflow_starter_projects.lock"
+            lock_file = Path(tempfile.gettempdir()) / \
+                "langflow_starter_projects.lock"
             lock = FileLock(lock_file, timeout=1)
             try:
                 with lock:
@@ -226,7 +228,8 @@ def get_lifespan(*, fix_migration=False, version=None):
 
             current_time = asyncio.get_event_loop().time()
             await logger.adebug("Starting MCP Composer service")
-            mcp_composer_service = cast("MCPComposerService", get_service(ServiceType.MCP_COMPOSER_SERVICE))
+            mcp_composer_service = cast(
+                "MCPComposerService", get_service(ServiceType.MCP_COMPOSER_SERVICE))
             await mcp_composer_service.start()
             await logger.adebug(
                 f"started MCP Composer service in {asyncio.get_event_loop().time() - current_time:.2f}s"
@@ -244,8 +247,19 @@ def get_lifespan(*, fix_migration=False, version=None):
             total_time = asyncio.get_event_loop().time() - start_time
             await logger.adebug(f"Total initialization time: {total_time:.2f}s")
 
+            async def init_nacos():
+                await asyncio.sleep(1.0)
+                nacos_service = get_nacos_service()
+                try:
+                    nacos_service.initialize()
+                except Exception as e:
+                    await logger.aexception(f"Failed to initialize Nacos {e}")
+
+            nacos_init_task = asyncio.create_task(init_nacos())
+
             async def delayed_init_mcp_servers():
-                await asyncio.sleep(10.0)  # Increased delay to allow starter projects to be created
+                # Increased delay to allow starter projects to be created
+                await asyncio.sleep(10.0)
                 current_time = asyncio.get_event_loop().time()
                 await logger.adebug("Loading mcp servers for projects")
                 try:
@@ -285,7 +299,8 @@ def get_lifespan(*, fix_migration=False, version=None):
             from langflow.cli.progress import create_langflow_shutdown_progress
 
             log_level = os.getenv("LANGFLOW_LOG_LEVEL", "info").lower()
-            num_workers = get_number_of_workers(get_settings_service().settings.workers)
+            num_workers = get_number_of_workers(
+                get_settings_service().settings.workers)
             shutdown_progress = create_langflow_shutdown_progress(
                 verbose=log_level == "debug", multiple_workers=num_workers > 1
             )
@@ -306,6 +321,9 @@ def get_lifespan(*, fix_migration=False, version=None):
                     if mcp_init_task and not mcp_init_task.done():
                         mcp_init_task.cancel()
                         tasks_to_cancel.append(mcp_init_task)
+                    if nacos_init_task and not nacos_init_task.down():
+                        nacos_init_task.cancel()
+                        tasks_to_cancel.append(nacos_init_task)
                     if tasks_to_cancel:
                         # Wait for all tasks to complete, capturing exceptions
                         results = await asyncio.gather(*tasks_to_cancel, return_exceptions=True)
@@ -323,7 +341,8 @@ def get_lifespan(*, fix_migration=False, version=None):
 
                 # Step 3: Clearing Temporary Files
                 with shutdown_progress.step(3):
-                    temp_dir_cleanups = [asyncio.to_thread(temp_dir.cleanup) for temp_dir in temp_dirs]
+                    temp_dir_cleanups = [asyncio.to_thread(
+                        temp_dir.cleanup) for temp_dir in temp_dirs]
                     try:
                         await asyncio.wait_for(asyncio.gather(*temp_dir_cleanups), timeout=10)
                     except asyncio.TimeoutError:
@@ -395,7 +414,8 @@ def create_app():
             if not content_type or "multipart/form-data" not in content_type or "boundary=" not in content_type:
                 return JSONResponse(
                     status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-                    content={"detail": "Content-Type header must be 'multipart/form-data' with a boundary parameter."},
+                    content={
+                        "detail": "Content-Type header must be 'multipart/form-data' with a boundary parameter."},
                 )
 
             boundary = content_type.split("boundary=")[-1].strip()
@@ -428,7 +448,8 @@ def create_app():
         for key, value in request.query_params.multi_items():
             flattened.extend((key, entry) for entry in value.split(","))
 
-        request.scope["query_string"] = urlencode(flattened, doseq=True).encode("utf-8")
+        request.scope["query_string"] = urlencode(
+            flattened, doseq=True).encode("utf-8")
 
         return await call_next(request)
 

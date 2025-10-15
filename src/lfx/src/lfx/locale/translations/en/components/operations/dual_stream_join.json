@@ -1,0 +1,41 @@
+{
+  "display_name": "Dual Stream Join",
+  "description": "Join two data streams using inner/left/right/outer join",
+  "left_stream": {
+    "display_name": "Left Stream",
+    "info": "First data stream"
+  },
+  "right_stream": {
+    "display_name": "Right Stream",
+    "info": "Second data stream"
+  },
+  "join_type": {
+    "display_name": "Join Type",
+    "info": "Type of join operation"
+  },
+  "join_conditions": {
+    "display_name": "Join Conditions",
+    "info": "Fields to join on"
+  },
+  "left_prefix": {
+    "display_name": "Left Prefix",
+    "info": "Prefix for left stream columns"
+  },
+  "right_prefix": {
+    "display_name": "Right Prefix",
+    "info": "Prefix for right stream columns"
+  },
+  "drop_duplicates": {
+    "display_name": "Drop Duplicates",
+    "info": "Remove duplicate rows after join"
+  },
+  "status": {
+    "joining": "Joining streams...",
+    "success": "Successfully joined {records} records"
+  },
+  "errors": {
+    "missing_streams": "Both streams are required",
+    "missing_conditions": "Join conditions are required",
+    "join_failed": "Join operation failed: {error}"
+  }
+}
