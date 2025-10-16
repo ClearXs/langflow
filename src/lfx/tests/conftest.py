@@ -12,18 +12,25 @@ def pytest_configure(config):  # noqa: ARG001
     # try:
     #     import langflow  # noqa: F401
 
-    #     pytest.exit(
-    #         "\n"
-    #         "ERROR: langflow is installed. These tests require langflow to NOT be installed.\n"
-    #         "Please run `uv sync` inside the lfx directory to create an isolated environment.\n"
-    #         "\n"
-    #         "The lfx tests are designed to run in isolation from langflow to ensure proper\n"
-    #         "packaging and dependency management.\n",
-    #         returncode=1,
-    #     )
-    # except ImportError:
-    #     # Good, langflow is not installed
-    #     pass
+    pytest.exit(
+        "\n"
+        "=" * 80 + "\n"
+        "ERROR: langflow is installed. These tests require langflow to NOT be installed.\n"
+        "\n"
+        "To fix this, run these commands:\n"
+        "\n"
+        "    cd src/lfx\n"
+        "    uv sync\n"
+        "    uv run pytest ...\n"
+        "\n"
+        "The lfx tests are designed to run in isolation from langflow to ensure proper\n"
+        "packaging and dependency management.\n"
+        "=" * 80 + "\n",
+        returncode=1,
+    )
+    except ImportError:
+        # Good, langflow is not installed
+        pass
 
     # Set up test data paths
     data_path = Path(__file__).parent / "data"
@@ -34,7 +41,8 @@ def pytest_configure(config):  # noqa: ARG001
     pytest.ONE_GROUPED_CHAT_EXAMPLE_PATH = data_path / "one_group_chat.json"
     pytest.VECTOR_STORE_GROUPED_EXAMPLE_PATH = data_path / "vector_store_grouped.json"
     pytest.WEBHOOK_TEST = data_path / "WebhookTest.json"
-    pytest.BASIC_CHAT_WITH_PROMPT_AND_HISTORY = data_path / "BasicChatwithPromptandHistory.json"
+    pytest.BASIC_CHAT_WITH_PROMPT_AND_HISTORY = data_path / \
+        "BasicChatwithPromptandHistory.json"
     pytest.CHAT_INPUT = data_path / "ChatInputTest.json"
     pytest.TWO_OUTPUTS = data_path / "TwoOutputsTest.json"
     pytest.VECTOR_STORE_PATH = data_path / "Vector_store.json"

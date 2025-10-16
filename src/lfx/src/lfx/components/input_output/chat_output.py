@@ -29,6 +29,8 @@ class ChatOutput(ChatComponent):
     name = "ChatOutput"
     minimized = True
 
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
+
     inputs = [
         HandleInput(
             name="input_value",

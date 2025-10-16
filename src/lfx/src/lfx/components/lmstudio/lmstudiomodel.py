@@ -5,7 +5,6 @@ from urllib.parse import urljoin
 
 import httpx
 from langchain_openai import ChatOpenAI
-from typing_extensions import override
 
 from lfx.base.models.model import LCModelComponent
 from lfx.field_typing import LanguageModel
@@ -19,9 +18,6 @@ class LMStudioModelComponent(LCModelComponent):
     icon = "LMStudio"
     name = "LMStudioModel"
 
-    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
-
-    @override
     async def update_build_config(self, build_config: dict, field_value: Any, field_name: str | None = None):
         if field_name == "model_name":
             base_url_dict = build_config.get("base_url", {})
@@ -29,8 +25,14 @@ class LMStudioModelComponent(LCModelComponent):
             base_url_value = base_url_dict.get("value")
             if base_url_load_from_db:
                 base_url_value = await self.get_variables(base_url_value, field_name)
-            elif not base_url_value:
-                base_url_value = "http://localhost:1234/v1"
+            try:
+                async with httpx.AsyncClient() as client:
+                    response = await client.get(urljoin(base_url_value, "/v1/models"), timeout=2.0)
+                    response.raise_for_status()
+            except httpx.HTTPError:
+                msg = "Could not access the default LM Studio URL. Please, specify the 'Base URL' field."
+                self.log(msg)
+                return build_config
             build_config["model_name"]["options"] = await self.get_model(base_url_value)
 
         return build_config

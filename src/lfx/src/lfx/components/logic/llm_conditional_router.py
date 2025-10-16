@@ -6,6 +6,10 @@ from langflow.custom import Component
 from langflow.io import BoolInput, HandleInput, MessageInput, MessageTextInput, MultilineInput, Output, TableInput
 from langflow.log.logger import logger
 from langflow.schema.message import Message
+from lfx.custom import Component
+from lfx.io import BoolInput, HandleInput, MessageInput, MessageTextInput, MultilineInput, Output, TableInput
+from lfx.schema.message import Message
+from lfx.schema.table import EditMode
 
 
 class SmartRouterComponent(Component):
@@ -49,19 +53,43 @@ class SmartRouterComponent(Component):
                     "name": "route_category",
                     "display_name": i18n.t('components.logic.llm_conditional_router.routes.schema.route_category.display_name'),
                     "type": "str",
+                    "description": "Name for the route (used for both output name and category matching)",
+                    "edit_mode": EditMode.INLINE,
+                },
+                {
+                    "name": "route_description",
+                    "display_name": "Route Description",
+                    "type": "str",
+                    "description": "Description of when this route should be used (helps LLM understand the category)",
+                    "default": "",
+                    "edit_mode": EditMode.POPOVER,
                     "description": i18n.t('components.logic.llm_conditional_router.routes.schema.route_category.description'),
                 },
                 {
                     "name": "output_value",
+                    "display_name": "Route Message (Optional)",
                     "display_name": i18n.t('components.logic.llm_conditional_router.routes.schema.output_value.display_name'),
                     "type": "str",
+                    "description": (
+                        "Optional message to send when this route is matched."
+                        "Leave empty to pass through the original input text."
+                    ),
                     "description": i18n.t('components.logic.llm_conditional_router.routes.schema.output_value.description'),
                     "default": "",
+                    "edit_mode": EditMode.POPOVER,
                 },
             ],
             value=[
-                {"route_category": "Positive", "output_value": ""},
-                {"route_category": "Negative", "output_value": ""},
+                {
+                    "route_category": "Positive",
+                    "route_description": "Positive feedback, satisfaction, or compliments",
+                    "output_value": "",
+                },
+                {
+                    "route_category": "Negative",
+                    "route_description": "Complaints, issues, or dissatisfaction",
+                    "output_value": "",
+                },
             ],
             real_time_refresh=True,
             required=True,
@@ -149,6 +177,7 @@ class SmartRouterComponent(Component):
         logger.debug(
             i18n.t('components.logic.llm_conditional_router.logs.processing_started'))
 
+        # Get categories and input text
         categories = getattr(self, "routes", [])
         input_text = getattr(self, "input_text", "")
 
@@ -158,18 +187,24 @@ class SmartRouterComponent(Component):
 
         if llm and categories:
             # Create prompt for categorization
-            category_values = [
-                category.get("route_category", f"Category {i + 1}") for i, category in enumerate(categories)
-            ]
-            categories_text = ", ".join(
-                [f'"{cat}"' for cat in category_values if cat])
+            category_info = []
+            for i, category in enumerate(categories):
+                cat_name = category.get("route_category", f"Category {i + 1}")
+                cat_desc = category.get("route_description", "")
+                if cat_desc and cat_desc.strip():
+                    category_info.append(f'"{cat_name}": {cat_desc}')
+                else:
+                    category_info.append(f'"{cat_name}"')
+
+            categories_text = "\n".join(
+                [f"- {info}" for info in category_info if info])
 
             # Create base prompt
             base_prompt = (
                 f"You are a text classifier. Given the following text and categories, "
                 f"determine which category best matches the text.\n\n"
                 f'Text to classify: "{input_text}"\n\n'
-                f"Available categories: {categories_text}\n\n"
+                f"Available categories:\n{categories_text}\n\n"
                 f"Respond with ONLY the exact category name that best matches the text. "
                 f'If none match well, respond with "NONE".\n\n'
                 f"Category:"
@@ -184,8 +219,13 @@ class SmartRouterComponent(Component):
                 logger.info(status_msg)
 
                 # Format custom prompt with variables
+                # For the routes variable, create a simpler format for custom prompt usage
+                simple_routes = ", ".join(
+                    [f'"{cat.get("route_category", f"Category {i + 1}")}"' for i,
+                     cat in enumerate(categories)]
+                )
                 formatted_custom = custom_prompt.format(
-                    input_text=input_text, routes=categories_text)
+                    input_text=input_text, routes=simple_routes)
                 # Combine base prompt with custom instructions
                 prompt = f"{base_prompt}\n\nAdditional Instructions:\n{formatted_custom}"
             else:
@@ -369,18 +409,25 @@ class SmartRouterComponent(Component):
         if llm and categories:
             try:
                 # Create prompt for categorization
-                category_values = [
-                    category.get("route_category", f"Category {i + 1}") for i, category in enumerate(categories)
-                ]
-                categories_text = ", ".join(
-                    [f'"{cat}"' for cat in category_values if cat])
+                category_info = []
+                for i, category in enumerate(categories):
+                    cat_name = category.get(
+                        "route_category", f"Category {i + 1}")
+                    cat_desc = category.get("route_description", "")
+                    if cat_desc and cat_desc.strip():
+                        category_info.append(f'"{cat_name}": {cat_desc}')
+                    else:
+                        category_info.append(f'"{cat_name}"')
+
+                categories_text = "\n".join(
+                    [f"- {info}" for info in category_info if info])
 
                 # Create base prompt
                 base_prompt = (
                     "You are a text classifier. Given the following text and categories, "
                     "determine which category best matches the text.\n\n"
                     f'Text to classify: "{input_text}"\n\n'
-                    f"Available categories: {categories_text}\n\n"
+                    f"Available categories:\n{categories_text}\n\n"
                     "Respond with ONLY the exact category name that best matches the text. "
                     'If none match well, respond with "NONE".\n\n'
                     "Category:"
@@ -395,8 +442,13 @@ class SmartRouterComponent(Component):
                     self.status = status_msg
 
                     # Format custom prompt with variables
+                    # For the routes variable, create a simpler format for custom prompt usage
+                    simple_routes = ", ".join(
+                        [f'"{cat.get("route_category", f"Category {i + 1}")}"' for i,
+                         cat in enumerate(categories)]
+                    )
                     formatted_custom = custom_prompt.format(
-                        input_text=input_text, routes=categories_text)
+                        input_text=input_text, routes=simple_routes)
                     # Combine base prompt with custom instructions
                     prompt = f"{base_prompt}\n\nAdditional Instructions:\n{formatted_custom}"
                 else:

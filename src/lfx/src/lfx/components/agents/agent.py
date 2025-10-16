@@ -185,10 +185,11 @@ class AgentComponent(ToolCallingAgentComponent):
             self.model_name = get_model_name(
                 llm_model, display_name=display_name)
 
-            # Get memory data
-            self.chat_history = await self.get_memory_data()
-            if isinstance(self.chat_history, Message):
-                self.chat_history = [self.chat_history]
+        # Get memory data
+        self.chat_history = await self.get_memory_data()
+        await logger.adebug(f"Retrieved {len(self.chat_history)} chat history messages")
+        if isinstance(self.chat_history, Message):
+            self.chat_history = [self.chat_history]
 
             # Add current date tool if enabled
             if self.add_current_date_tool:

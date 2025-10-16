@@ -22,7 +22,8 @@ class CurrentDateComponent(Component):
             name="timezone",
             display_name=i18n.t(
                 'components.helpers.current_date.timezone.display_name'),
-            options=list(available_timezones()),
+            options=sorted(tz for tz in available_timezones()
+                           if tz != "localtime"),
             value="UTC",
             info=i18n.t('components.helpers.current_date.timezone.info'),
             tool_mode=True,

@@ -30,7 +30,8 @@ class NVIDIAModelComponent(LCModelComponent):
         msg = "Please install langchain-nvidia-ai-endpoints to use the NVIDIA model."
         raise ImportError(msg) from e
     except Exception as e:  # noqa: BLE001
-        logger.warning(f"Failed to fetch NVIDIA models during initialization: {e}. Model list will be unavailable.")
+        logger.warning(
+            f"Failed to fetch NVIDIA models during initialization: {e}. Model list will be unavailable.")
         all_models = []
 
     inputs = [
@@ -49,7 +50,7 @@ class NVIDIAModelComponent(LCModelComponent):
             info=i18n.t('components.nvidia.nvidia.model_name.info'),
             advanced=False,
             value=None,
-            options=[model.id for model in all_models],
+            options=sorted(model.id for model in all_models),
             combobox=True,
             refresh_button=True,
         ),
@@ -115,8 +116,8 @@ class NVIDIAModelComponent(LCModelComponent):
         if tool_model_enabled:
             tool_models = [m for m in model.get_available_models()
                            if m.supports_tools]
-            return [m.id for m in tool_models]
-        return [m.id for m in model.available_models]
+            return sorted(m.id for m in tool_models)
+        return sorted(m.id for m in model.available_models)
 
     def update_build_config(self, build_config: dotdict, _field_value: Any, field_name: str | None = None):
         if field_name in {"model_name", "tool_model_enabled", "base_url", "api_key"}:

@@ -10,7 +10,7 @@ import i18n
 from lfx.custom.custom_component.component import Component
 from lfx.io import DataInput, HandleInput, IntInput, MultilineInput, Output
 from lfx.schema.data import Data
-from lfx.utils.data_structure import get_data_structure
+from lfx.schema.dataframe import DataFrame
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -27,35 +27,44 @@ class LambdaFilterComponent(Component):
     inputs = [
         DataInput(
             name="data",
-            display_name=i18n.t("components.processing.lambda_filter.data.display_name"),
+            display_name=i18n.t(
+                "components.processing.lambda_filter.data.display_name"),
             info=i18n.t("components.processing.lambda_filter.data.info"),
+            input_types=["Data", "DataFrame"],
             is_list=True,
             required=True,
         ),
         HandleInput(
             name="llm",
-            display_name=i18n.t("components.processing.lambda_filter.llm.display_name"),
+            display_name=i18n.t(
+                "components.processing.lambda_filter.llm.display_name"),
             info=i18n.t("components.processing.lambda_filter.llm.info"),
             input_types=["LanguageModel"],
             required=True,
         ),
         MultilineInput(
             name="filter_instruction",
-            display_name=i18n.t("components.processing.lambda_filter.filter_instruction.display_name"),
-            info=i18n.t("components.processing.lambda_filter.filter_instruction.info"),
-            value=i18n.t("components.processing.lambda_filter.filter_instruction.default_value"),
+            display_name=i18n.t(
+                "components.processing.lambda_filter.filter_instruction.display_name"),
+            info=i18n.t(
+                "components.processing.lambda_filter.filter_instruction.info"),
+            value=i18n.t(
+                "components.processing.lambda_filter.filter_instruction.default_value"),
             required=True,
         ),
         IntInput(
             name="sample_size",
-            display_name=i18n.t("components.processing.lambda_filter.sample_size.display_name"),
-            info=i18n.t("components.processing.lambda_filter.sample_size.info"),
+            display_name=i18n.t(
+                "components.processing.lambda_filter.sample_size.display_name"),
+            info=i18n.t(
+                "components.processing.lambda_filter.sample_size.info"),
             value=1000,
             advanced=True,
         ),
         IntInput(
             name="max_size",
-            display_name=i18n.t("components.processing.lambda_filter.max_size.display_name"),
+            display_name=i18n.t(
+                "components.processing.lambda_filter.max_size.display_name"),
             info=i18n.t("components.processing.lambda_filter.max_size.info"),
             value=30000,
             advanced=True,
@@ -64,41 +73,82 @@ class LambdaFilterComponent(Component):
 
     outputs = [
         Output(
-            display_name=i18n.t("components.processing.lambda_filter.outputs.filtered_data.display_name"),
+            display_name="Output",
+            name="data_output",
+            method="process_as_data",
+        ),
+        Output(
+            name="dataframe_output",
+            method="process_as_dataframe",
+            display_name=i18n.t(
+                "components.processing.lambda_filter.outputs.filtered_data.display_name"),
             name="filtered_data",
             method="filter_data",
         ),
     ]
 
     def get_data_structure(self, data):
-        """Extract the structure of a dictionary, replacing values with their types."""
-        return {k: get_data_structure(v) for k, v in data.items()}
+        """Extract the structure of data, replacing values with their types."""
+        if isinstance(data, list):
+            # For lists, get structure of first item if available
+            if data:
+                return [self.get_data_structure(data[0])]
+            return []
+        if isinstance(data, dict):
+            return {k: self.get_data_structure(v) for k, v in data.items()}
+        # For primitive types, return the type name
+        return type(data).__name__
 
     def _validate_lambda(self, lambda_text: str) -> bool:
         """Validate the provided lambda function text."""
         # Return False if the lambda function does not start with 'lambda' or does not contain a colon
         return lambda_text.strip().startswith("lambda") and ":" in lambda_text
 
-    async def filter_data(self) -> list[Data]:
-        try:
-            self.log(str(self.data))
-            data = self.data[0].data if isinstance(self.data, list) else self.data.data
+    async def _execute_lambda(self) -> Any:
+        self.log(str(self.data))
 
-            if not data:
-                warning_msg = i18n.t("components.processing.lambda_filter.warnings.empty_data")
-                self.status = warning_msg
-                return []
+        # Convert input to a unified format
+        if isinstance(self.data, list):
+            # Handle list of Data or DataFrame objects
+            combined_data = []
+            for item in self.data:
+                if isinstance(item, DataFrame):
+                    # DataFrame to list of dicts
+                    combined_data.extend(item.to_dict(orient="records"))
+                elif hasattr(item, "data"):
+                    # Data object
+                    if isinstance(item.data, dict):
+                        combined_data.append(item.data)
+                    elif isinstance(item.data, list):
+                        combined_data.extend(item.data)
 
-            dump = json.dumps(data)
-            self.log(str(data))
+            # If we have a single dict, unwrap it so lambdas can access it directly
+            if len(combined_data) == 1 and isinstance(combined_data[0], dict):
+                data = combined_data[0]
+            elif len(combined_data) == 0:
+                data = {}
+            else:
+                data = combined_data  # type: ignore[assignment]
+        elif isinstance(self.data, DataFrame):
+            # Single DataFrame to list of dicts
+            data = self.data.to_dict(orient="records")
+        elif hasattr(self.data, "data"):
+            # Single Data object
+            data = self.data.data
+        else:
+            data = self.data
 
-            llm = self.llm
+        dump = json.dumps(data)
+        self.log(str(data))
+
+           llm = self.llm
             instruction = self.filter_instruction
             sample_size = self.sample_size
 
             # Validate inputs
             if not instruction or not instruction.strip():
-                error_msg = i18n.t("components.processing.lambda_filter.errors.empty_instruction")
+                error_msg = i18n.t(
+                    "components.processing.lambda_filter.errors.empty_instruction")
                 self.status = error_msg
                 raise ValueError(error_msg)
 
@@ -130,15 +180,18 @@ class LambdaFilterComponent(Component):
             # Get LLM response
             try:
                 response = await llm.ainvoke(prompt)
-                response_text = response.content if hasattr(response, "content") else str(response)
+                response_text = response.content if hasattr(
+                    response, "content") else str(response)
                 self.log(response_text)
             except Exception as e:
-                error_msg = i18n.t("components.processing.lambda_filter.errors.llm_invocation_failed", error=str(e))
+                error_msg = i18n.t(
+                    "components.processing.lambda_filter.errors.llm_invocation_failed", error=str(e))
                 self.status = error_msg
                 raise ValueError(error_msg) from e
 
             # Extract lambda using regex
-            lambda_match = re.search(r"lambda\s+\w+\s*:.*?(?=\n|$)", response_text)
+            lambda_match = re.search(
+                r"lambda\s+\w+\s*:.*?(?=\n|$)", response_text)
             if not lambda_match:
                 error_msg = i18n.t(
                     "components.processing.lambda_filter.errors.lambda_not_found", response=response_text
@@ -169,18 +222,51 @@ class LambdaFilterComponent(Component):
                 self.status = error_msg
                 raise ValueError(error_msg) from e
 
-            # Apply the lambda function to the data
-            try:
+        # Apply the lambda function to the data
+        return fn(data)
+
+    async def process_as_data(self) -> Data:
+        """Process the data and return as a Data object."""
+        result = await self._execute_lambda()
+
+        # Convert result to Data based on type
+        if isinstance(result, dict):
+            return Data(data=result)
+        if isinstance(result, list):
+            return Data(data={"_results": result})
+        # For other types, convert to string
+        return Data(data={"text": str(result)})
+
+    async def process_as_dataframe(self) -> DataFrame:
+        """Process the data and return as a DataFrame."""
+        result = await self._execute_lambda()
+
+        # Convert result to DataFrame based on type
+        if isinstance(result, list):
+            # Check if it's a list of dicts
+            if all(isinstance(item, dict) for item in result):
+                return DataFrame(result)
+            # List of non-dicts: wrap each value
+            return DataFrame([{"value": item} for item in result])
+        if isinstance(result, dict):
+            # Single dict becomes single-row DataFrame
+            return DataFrame([result])
+        # Other types: convert to string and wrap
+        return DataFrame([{"value": str(result)}])
+           # Apply the lambda function to the data
+           try:
                 processed_data = fn(data)
             except Exception as e:
-                error_msg = i18n.t("components.processing.lambda_filter.errors.lambda_execution_failed", error=str(e))
+                error_msg = i18n.t(
+                    "components.processing.lambda_filter.errors.lambda_execution_failed", error=str(e))
                 self.status = error_msg
                 raise ValueError(error_msg) from e
 
             # Convert result to Data objects
             result = self._convert_to_data_objects(processed_data)
 
-            success_msg = i18n.t("components.processing.lambda_filter.success.data_processed", count=len(result))
+            success_msg = i18n.t(
+                "components.processing.lambda_filter.success.data_processed", count=len(result))
             self.status = success_msg
 
             return result
@@ -189,7 +275,8 @@ class LambdaFilterComponent(Component):
             # Re-raise ValueError as is (already has i18n message)
             raise
         except Exception as e:
-            error_msg = i18n.t("components.processing.lambda_filter.errors.processing_failed", error=str(e))
+            error_msg = i18n.t(
+                "components.processing.lambda_filter.errors.processing_failed", error=str(e))
             self.status = error_msg
             raise ValueError(error_msg) from e
 
@@ -212,5 +299,6 @@ class LambdaFilterComponent(Component):
             return [Data(text=str(processed_data))]
 
         except Exception as e:
-            error_msg = i18n.t("components.processing.lambda_filter.errors.data_conversion_failed", error=str(e))
+            error_msg = i18n.t(
+                "components.processing.lambda_filter.errors.data_conversion_failed", error=str(e))
             raise ValueError(error_msg) from e
