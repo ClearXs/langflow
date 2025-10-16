@@ -238,7 +238,11 @@
         "retrievers": "检索器",
         "textsplitters": "文本分割器",
         "toolkits": "工具包",
-        "tools": "工具"
+        "tools": "工具",
+        "manipulations": "数据操作",
+        "operations": "运算",
+        "scripts": "脚本",
+        "security": "安全"
       },
       "bundles": {
         "aimlApi": "AI/ML API",

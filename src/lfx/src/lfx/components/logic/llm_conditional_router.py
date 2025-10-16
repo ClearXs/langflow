@@ -13,7 +13,6 @@ from lfx.schema.table import EditMode
 
 
 class SmartRouterComponent(Component):
-    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
     display_name = i18n.t(
         'components.logic.llm_conditional_router.display_name')
     description = i18n.t('components.logic.llm_conditional_router.description')

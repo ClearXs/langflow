@@ -238,7 +238,11 @@
         "retrievers": "Retrievers",
         "textsplitters": "Text Splitters",
         "toolkits": "Toolkits",
-        "tools": "Tools"
+        "tools": "Tools",
+        "manipulations": "Manipulations",
+        "operations": "Operations",
+        "scripts": "Scripts",
+        "security": "Security"
       },
       "bundles": {
         "aimlApi": "AI/ML API",

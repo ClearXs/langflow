@@ -8,7 +8,6 @@ from lfx.schema.data import Data
 
 
 class NotifyComponent(Component):
-    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
     display_name = i18n.t('components.logic.notify.display_name')
     description = i18n.t('components.logic.notify.description')
     icon = "Notify"
