@@ -7,5 +7,7 @@ class ComposioPandadocAPIComponent(ComposioBaseComponent):
     documentation: str = "https://docs.composio.dev"
     app_name = "pandadoc"
 
+    ignore: bool = True
+
     def set_default_tools(self):
         """Set the default tools for Pandadoc component."""

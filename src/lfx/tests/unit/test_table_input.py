@@ -8,8 +8,7 @@ This test suite covers all functionality of the TableInputComponent including:
 - Error handling and edge cases
 """
 
-import re
-from unittest.mock import MagicMock, Mock, patch
+from unittest.mock import MagicMock, patch
 
 import pandas as pd
 import pytest
@@ -25,8 +24,7 @@ class TestTableInputComponent:
     def setup_method(self):
         """Set up test fixtures before each test method."""
         # Mock i18n translation to return test strings
-        self.i18n_patcher = patch(
-            'lfx.components.input_output.table_input.i18n.t', side_effect=self._mock_translation)
+        self.i18n_patcher = patch("lfx.components.input_output.table_input.i18n.t", side_effect=self._mock_translation)
         self.i18n_patcher.start()
 
         self.component = TableInputComponent()
@@ -44,26 +42,26 @@ class TestTableInputComponent:
     def _mock_translation(key, **kwargs):
         """Mock translation function for i18n.t."""
         translations = {
-            'components.input_output.table_input.display_name': 'Table Input',
-            'components.input_output.table_input.description': 'Execute SQL queries on database connections',
-            'components.input_output.table_input.database_connection.display_name': 'Database Connection',
-            'components.input_output.table_input.database_connection.info': 'Select a database connection',
-            'components.input_output.table_input.sql_query.display_name': 'SQL Query',
-            'components.input_output.table_input.sql_query.info': 'Enter your SQL query',
-            'components.input_output.table_input.safe_mode.display_name': 'Safe Mode',
-            'components.input_output.table_input.safe_mode.info': 'Enable safe mode to prevent dangerous operations',
-            'components.input_output.table_input.outputs.data.display_name': 'Data',
-            'components.input_output.table_input.outputs.dataframe.display_name': 'DataFrame',
-            'components.input_output.table_input.errors.missing_connection': 'Database connection is required',
-            'components.input_output.table_input.errors.connection_not_found': 'Connection {name} not found',
-            'components.input_output.table_input.errors.sqlalchemy_required': 'SQLAlchemy is required',
-            'components.input_output.table_input.errors.connection_failed': 'Connection failed: {error}',
-            'components.input_output.table_input.errors.dangerous_operation': 'Dangerous operation {keyword} is not allowed',
-            'components.input_output.table_input.errors.empty_query': 'SQL query cannot be empty',
-            'components.input_output.table_input.errors.execution_error': 'Query execution failed: {error}',
-            'components.input_output.table_input.errors.dataframe_error': 'DataFrame creation failed: {error}',
-            'components.input_output.table_input.warnings.no_results': 'Query returned no results',
-            'components.input_output.table_input.success.loaded': 'Successfully loaded {rows} rows',
+            "components.input_output.table_input.display_name": "Table Input",
+            "components.input_output.table_input.description": "Execute SQL queries on database connections",
+            "components.input_output.table_input.database_connection.display_name": "Database Connection",
+            "components.input_output.table_input.database_connection.info": "Select a database connection",
+            "components.input_output.table_input.sql_query.display_name": "SQL Query",
+            "components.input_output.table_input.sql_query.info": "Enter your SQL query",
+            "components.input_output.table_input.safe_mode.display_name": "Safe Mode",
+            "components.input_output.table_input.safe_mode.info": "Enable safe mode to prevent dangerous operations",
+            "components.input_output.table_input.outputs.data.display_name": "Data",
+            "components.input_output.table_input.outputs.dataframe.display_name": "DataFrame",
+            "components.input_output.table_input.errors.missing_connection": "Database connection is required",
+            "components.input_output.table_input.errors.connection_not_found": "Connection {name} not found",
+            "components.input_output.table_input.errors.sqlalchemy_required": "SQLAlchemy is required",
+            "components.input_output.table_input.errors.connection_failed": "Connection failed: {error}",
+            "components.input_output.table_input.errors.dangerous_operation": "Dangerous operation {keyword} is not allowed",
+            "components.input_output.table_input.errors.empty_query": "SQL query cannot be empty",
+            "components.input_output.table_input.errors.execution_error": "Query execution failed: {error}",
+            "components.input_output.table_input.errors.dataframe_error": "DataFrame creation failed: {error}",
+            "components.input_output.table_input.warnings.no_results": "Query returned no results",
+            "components.input_output.table_input.success.loaded": "Successfully loaded {rows} rows",
         }
         result = translations.get(key, key)
         if kwargs:
@@ -74,8 +72,8 @@ class TestTableInputComponent:
 
     def test_component_initialization(self):
         """Test that component initializes with correct attributes."""
-        assert self.component.display_name == 'Table Input'
-        assert self.component.description == 'Execute SQL queries on database connections'
+        assert self.component.display_name == "Table Input"
+        assert self.component.description == "Execute SQL queries on database connections"
         assert self.component.icon == "table"
         assert self.component.name == "TableInput"
 
@@ -100,18 +98,9 @@ class TestTableInputComponent:
 
     def test_update_build_config_database_connection(self):
         """Test updating build config for database_connection field."""
-        build_config = {
-            "database_connection": {
-                "options": [],
-                "options_metadata": []
-            }
-        }
+        build_config = {"database_connection": {"options": [], "options_metadata": []}}
 
-        result = self.component.update_build_config(
-            build_config,
-            None,
-            "database_connection"
-        )
+        result = self.component.update_build_config(build_config, None, "database_connection")
 
         assert "database_connection" in result
         assert len(result["database_connection"]["options"]) > 0
@@ -120,50 +109,39 @@ class TestTableInputComponent:
         """Test that update_build_config doesn't modify non-database fields."""
         build_config = {"sql_query": {"value": "SELECT * FROM test"}}
 
-        result = self.component.update_build_config(
-            build_config,
-            "SELECT * FROM test",
-            "sql_query"
-        )
+        result = self.component.update_build_config(build_config, "SELECT * FROM test", "sql_query")
 
         # Should return unchanged for non-database_connection fields
         assert result == build_config
 
     # ===== Database Connection Tests =====
 
-    @patch('lfx.base.nacos.create_nacos_config')
+    @patch("lfx.base.nacos.create_nacos_config")
     def test_get_database_connections_with_dict_config(self, mock_nacos):
         """Test retrieving database connections from Nacos with dict config."""
         mock_client = MagicMock()
         mock_client.get_json.return_value = {
-            "connections": [
-                {"name": "db1", "host": "localhost"},
-                {"name": "db2", "host": "remote"}
-            ]
+            "connections": [{"name": "db1", "host": "localhost"}, {"name": "db2", "host": "remote"}]
         }
         mock_nacos.return_value = mock_client
 
         connections = self.component._get_database_connections()
 
         assert connections == ["db1", "db2"]
-        mock_client.get_json.assert_called_once_with(
-            "database-connections", "DEFAULT_GROUP")
+        mock_client.get_json.assert_called_once_with("database-connections", "DEFAULT_GROUP")
 
-    @patch('lfx.base.nacos.create_nacos_config')
+    @patch("lfx.base.nacos.create_nacos_config")
     def test_get_database_connections_with_list_config(self, mock_nacos):
         """Test retrieving database connections from Nacos with list config."""
         mock_client = MagicMock()
-        mock_client.get_json.return_value = [
-            {"name": "db1", "host": "localhost"},
-            {"name": "db2", "host": "remote"}
-        ]
+        mock_client.get_json.return_value = [{"name": "db1", "host": "localhost"}, {"name": "db2", "host": "remote"}]
         mock_nacos.return_value = mock_client
 
         connections = self.component._get_database_connections()
 
         assert connections == ["db1", "db2"]
 
-    @patch('lfx.base.nacos.create_nacos_config')
+    @patch("lfx.base.nacos.create_nacos_config")
     def test_get_database_connections_no_nacos(self, mock_nacos):
         """Test retrieving database connections when Nacos is unavailable."""
         mock_nacos.return_value = None
@@ -172,7 +150,7 @@ class TestTableInputComponent:
 
         assert connections == []
 
-    @patch('lfx.base.nacos.create_nacos_config')
+    @patch("lfx.base.nacos.create_nacos_config")
     def test_get_database_connections_exception(self, mock_nacos):
         """Test retrieving database connections when exception occurs."""
         mock_nacos.side_effect = Exception("Connection error")
@@ -181,14 +159,14 @@ class TestTableInputComponent:
 
         assert connections == []
 
-    @patch('lfx.base.nacos.create_nacos_config')
+    @patch("lfx.base.nacos.create_nacos_config")
     def test_get_connection_config(self, mock_nacos):
         """Test retrieving specific connection configuration."""
         mock_client = MagicMock()
         mock_client.get_json.return_value = {
             "connections": [
                 {"name": "db1", "host": "localhost", "port": 3306},
-                {"name": "db2", "host": "remote", "port": 5432}
+                {"name": "db2", "host": "remote", "port": 5432},
             ]
         }
         mock_nacos.return_value = mock_client
@@ -199,15 +177,11 @@ class TestTableInputComponent:
         assert config["host"] == "localhost"
         assert config["port"] == 3306
 
-    @patch('lfx.base.nacos.create_nacos_config')
+    @patch("lfx.base.nacos.create_nacos_config")
     def test_get_connection_config_not_found(self, mock_nacos):
         """Test retrieving non-existent connection configuration."""
         mock_client = MagicMock()
-        mock_client.get_json.return_value = {
-            "connections": [
-                {"name": "db1", "host": "localhost"}
-            ]
-        }
+        mock_client.get_json.return_value = {"connections": [{"name": "db1", "host": "localhost"}]}
         mock_nacos.return_value = mock_client
 
         config = self.component._get_connection_config("nonexistent")
@@ -297,22 +271,24 @@ class TestTableInputComponent:
 
     # ===== Connection Creation Tests =====
 
-    @patch('lfx.base.nacos.create_nacos_config')
-    @patch('sqlalchemy.create_engine')
+    @patch("lfx.base.nacos.create_nacos_config")
+    @patch("sqlalchemy.create_engine")
     def test_get_connection_mysql(self, mock_create_engine, mock_nacos):
         """Test creating MySQL database connection."""
         # Setup mock
         mock_client = MagicMock()
         mock_client.get_json.return_value = {
-            "connections": [{
-                "name": "test_db",
-                "type": "mysql",
-                "host": "localhost",
-                "port": 3306,
-                "database": "testdb",
-                "username": "user",
-                "password": "pass"
-            }]
+            "connections": [
+                {
+                    "name": "test_db",
+                    "type": "mysql",
+                    "host": "localhost",
+                    "port": 3306,
+                    "database": "testdb",
+                    "username": "user",
+                    "password": "pass",
+                }
+            ]
         }
         mock_nacos.return_value = mock_client
 
@@ -332,21 +308,23 @@ class TestTableInputComponent:
         assert "localhost" in call_args
         assert "3306" in call_args
 
-    @patch('lfx.base.nacos.create_nacos_config')
-    @patch('sqlalchemy.create_engine')
+    @patch("lfx.base.nacos.create_nacos_config")
+    @patch("sqlalchemy.create_engine")
     def test_get_connection_postgresql(self, mock_create_engine, mock_nacos):
         """Test creating PostgreSQL database connection."""
         mock_client = MagicMock()
         mock_client.get_json.return_value = {
-            "connections": [{
-                "name": "test_db",
-                "type": "postgresql",
-                "host": "localhost",
-                "port": 5432,
-                "database": "testdb",
-                "username": "user",
-                "password": "pass"
-            }]
+            "connections": [
+                {
+                    "name": "test_db",
+                    "type": "postgresql",
+                    "host": "localhost",
+                    "port": 5432,
+                    "database": "testdb",
+                    "username": "user",
+                    "password": "pass",
+                }
+            ]
         }
         mock_nacos.return_value = mock_client
 
@@ -361,17 +339,13 @@ class TestTableInputComponent:
         call_args = mock_create_engine.call_args[0][0]
         assert "postgresql+psycopg2" in call_args
 
-    @patch('lfx.base.nacos.create_nacos_config')
-    @patch('sqlalchemy.create_engine')
+    @patch("lfx.base.nacos.create_nacos_config")
+    @patch("sqlalchemy.create_engine")
     def test_get_connection_sqlite(self, mock_create_engine, mock_nacos):
         """Test creating SQLite database connection."""
         mock_client = MagicMock()
         mock_client.get_json.return_value = {
-            "connections": [{
-                "name": "test_db",
-                "type": "sqlite",
-                "database": "/path/to/db.sqlite"
-            }]
+            "connections": [{"name": "test_db", "type": "sqlite", "database": "/path/to/db.sqlite"}]
         }
         mock_nacos.return_value = mock_client
 
@@ -393,7 +367,7 @@ class TestTableInputComponent:
         with pytest.raises(ValueError, match="required"):
             self.component._get_connection()
 
-    @patch('lfx.base.nacos.create_nacos_config')
+    @patch("lfx.base.nacos.create_nacos_config")
     def test_get_connection_config_not_found(self, mock_nacos):
         """Test that connection error is raised when config not found."""
         mock_client = MagicMock()
@@ -403,21 +377,23 @@ class TestTableInputComponent:
         with pytest.raises(ValueError, match="not found"):
             self.component._get_connection()
 
-    @patch('lfx.base.nacos.create_nacos_config')
-    @patch('sqlalchemy.create_engine')
+    @patch("lfx.base.nacos.create_nacos_config")
+    @patch("sqlalchemy.create_engine")
     def test_get_connection_engine_failure(self, mock_create_engine, mock_nacos):
         """Test that connection error is raised when engine creation fails."""
         mock_client = MagicMock()
         mock_client.get_json.return_value = {
-            "connections": [{
-                "name": "test_db",
-                "type": "mysql",
-                "host": "localhost",
-                "port": 3306,
-                "database": "testdb",
-                "username": "user",
-                "password": "pass"
-            }]
+            "connections": [
+                {
+                    "name": "test_db",
+                    "type": "mysql",
+                    "host": "localhost",
+                    "port": 3306,
+                    "database": "testdb",
+                    "username": "user",
+                    "password": "pass",
+                }
+            ]
         }
         mock_nacos.return_value = mock_client
         mock_create_engine.side_effect = Exception("Connection failed")
@@ -427,20 +403,16 @@ class TestTableInputComponent:
 
     # ===== Load Data Tests =====
 
-    @patch.object(TableInputComponent, '_get_connection')
-    @patch.object(TableInputComponent, '_validate_query_safety')
-    @patch('pandas.read_sql_query')
+    @patch.object(TableInputComponent, "_get_connection")
+    @patch.object(TableInputComponent, "_validate_query_safety")
+    @patch("pandas.read_sql_query")
     def test_load_data_success(self, mock_read_sql, mock_validate, mock_get_conn):
         """Test successful data loading."""
         # Setup
         mock_connection = MagicMock()
         mock_get_conn.return_value = mock_connection
 
-        test_df = pd.DataFrame({
-            'id': [1, 2, 3],
-            'name': ['Alice', 'Bob', 'Charlie'],
-            'age': [25, 30, 35]
-        })
+        test_df = pd.DataFrame({"id": [1, 2, 3], "name": ["Alice", "Bob", "Charlie"], "age": [25, 30, 35]})
         mock_read_sql.return_value = test_df
 
         self.component.sql_query = "SELECT * FROM users"
@@ -451,19 +423,19 @@ class TestTableInputComponent:
         # Verify
         assert len(result) == 3
         assert all(isinstance(item, Data) for item in result)
-        assert result[0].data['name'] == 'Alice'
-        assert result[1].data['name'] == 'Bob'
-        assert result[2].data['name'] == 'Charlie'
-        assert '_row_index' in result[0].data
-        assert 'text' in result[0].data
+        assert result[0].data["name"] == "Alice"
+        assert result[1].data["name"] == "Bob"
+        assert result[2].data["name"] == "Charlie"
+        assert "_row_index" in result[0].data
+        assert "text" in result[0].data
 
         mock_validate.assert_called_once()
         mock_get_conn.assert_called_once()
         mock_connection.close.assert_called_once()
 
-    @patch.object(TableInputComponent, '_get_connection')
-    @patch.object(TableInputComponent, '_validate_query_safety')
-    @patch('pandas.read_sql_query')
+    @patch.object(TableInputComponent, "_get_connection")
+    @patch.object(TableInputComponent, "_validate_query_safety")
+    @patch("pandas.read_sql_query")
     def test_load_data_empty_result(self, mock_read_sql, mock_validate, mock_get_conn):
         """Test loading data with empty query result."""
         mock_connection = MagicMock()
@@ -487,9 +459,9 @@ class TestTableInputComponent:
         with pytest.raises(ValueError, match="empty"):
             self.component.load_data()
 
-    @patch.object(TableInputComponent, '_get_connection')
-    @patch.object(TableInputComponent, '_validate_query_safety')
-    @patch('pandas.read_sql_query')
+    @patch.object(TableInputComponent, "_get_connection")
+    @patch.object(TableInputComponent, "_validate_query_safety")
+    @patch("pandas.read_sql_query")
     def test_load_data_execution_error(self, mock_read_sql, mock_validate, mock_get_conn):
         """Test that query execution error is properly handled."""
         mock_connection = MagicMock()
@@ -503,47 +475,40 @@ class TestTableInputComponent:
 
         mock_connection.close.assert_called_once()
 
-    @patch.object(TableInputComponent, '_get_connection')
-    @patch.object(TableInputComponent, '_validate_query_safety')
-    @patch('pandas.read_sql_query')
+    @patch.object(TableInputComponent, "_get_connection")
+    @patch.object(TableInputComponent, "_validate_query_safety")
+    @patch("pandas.read_sql_query")
     def test_load_data_text_generation(self, mock_read_sql, mock_validate, mock_get_conn):
         """Test that text field is properly generated from row data."""
         mock_connection = MagicMock()
         mock_get_conn.return_value = mock_connection
 
-        test_df = pd.DataFrame({
-            'id': [1],
-            'name': ['Alice'],
-            'email': ['alice@test.com']
-        })
+        test_df = pd.DataFrame({"id": [1], "name": ["Alice"], "email": ["alice@test.com"]})
         mock_read_sql.return_value = test_df
 
         self.component.sql_query = "SELECT * FROM users"
         result = self.component.load_data()
 
         # Verify text field contains all non-underscore fields
-        text = result[0].data['text']
-        assert 'id: 1' in text
-        assert 'name: Alice' in text
-        assert 'email: alice@test.com' in text
-        assert '_row_index' not in text  # Should not include underscore fields
+        text = result[0].data["text"]
+        assert "id: 1" in text
+        assert "name: Alice" in text
+        assert "email: alice@test.com" in text
+        assert "_row_index" not in text  # Should not include underscore fields
 
         mock_connection.close.assert_called_once()
 
     # ===== Load DataFrame Tests =====
 
-    @patch.object(TableInputComponent, '_get_connection')
-    @patch.object(TableInputComponent, '_validate_query_safety')
-    @patch('pandas.read_sql_query')
+    @patch.object(TableInputComponent, "_get_connection")
+    @patch.object(TableInputComponent, "_validate_query_safety")
+    @patch("pandas.read_sql_query")
     def test_load_dataframe_success(self, mock_read_sql, mock_validate, mock_get_conn):
         """Test successful DataFrame loading."""
         mock_connection = MagicMock()
         mock_get_conn.return_value = mock_connection
 
-        test_df = pd.DataFrame({
-            'id': [1, 2, 3],
-            'name': ['Alice', 'Bob', 'Charlie']
-        })
+        test_df = pd.DataFrame({"id": [1, 2, 3], "name": ["Alice", "Bob", "Charlie"]})
         mock_read_sql.return_value = test_df
 
         self.component.sql_query = "SELECT * FROM users"
@@ -552,7 +517,7 @@ class TestTableInputComponent:
 
         assert isinstance(result, DataFrame)
         assert len(result.data) == 3
-        assert list(result.data.columns) == ['id', 'name']
+        assert list(result.data.columns) == ["id", "name"]
 
         mock_validate.assert_called_once()
         mock_get_conn.assert_called_once()
@@ -565,9 +530,9 @@ class TestTableInputComponent:
         with pytest.raises(ValueError, match="empty"):
             self.component.load_dataframe()
 
-    @patch.object(TableInputComponent, '_get_connection')
-    @patch.object(TableInputComponent, '_validate_query_safety')
-    @patch('pandas.read_sql_query')
+    @patch.object(TableInputComponent, "_get_connection")
+    @patch.object(TableInputComponent, "_validate_query_safety")
+    @patch("pandas.read_sql_query")
     def test_load_dataframe_execution_error(self, mock_read_sql, mock_validate, mock_get_conn):
         """Test that DataFrame execution error is properly handled."""
         mock_connection = MagicMock()
@@ -583,17 +548,16 @@ class TestTableInputComponent:
 
     # ===== Integration Tests =====
 
-    @patch.object(TableInputComponent, '_get_connection')
-    @patch.object(TableInputComponent, '_validate_query_safety')
-    @patch('pandas.read_sql_query')
+    @patch.object(TableInputComponent, "_get_connection")
+    @patch.object(TableInputComponent, "_validate_query_safety")
+    @patch("pandas.read_sql_query")
     def test_safe_mode_integration(self, mock_read_sql, mock_validate, mock_get_conn):
         """Test safe mode validation during data loading."""
         self.component.safe_mode = True
         self.component.sql_query = "DROP TABLE users"
 
         # Mock validate to raise error as it would in real scenario
-        mock_validate.side_effect = ValueError(
-            "Dangerous operation DROP is not allowed")
+        mock_validate.side_effect = ValueError("Dangerous operation DROP is not allowed")
 
         with pytest.raises(ValueError, match="DROP"):
             self.component.load_data()
@@ -601,84 +565,80 @@ class TestTableInputComponent:
         # Connection should not be attempted
         mock_get_conn.assert_not_called()
 
-    @patch.object(TableInputComponent, '_get_connection')
-    @patch('pandas.read_sql_query')
+    @patch.object(TableInputComponent, "_get_connection")
+    @patch("pandas.read_sql_query")
     def test_load_data_with_special_characters(self, mock_read_sql, mock_get_conn):
         """Test loading data with special characters in values."""
         mock_connection = MagicMock()
         mock_get_conn.return_value = mock_connection
 
-        test_df = pd.DataFrame({
-            'name': ['O\'Brien', 'José', '北京'],
-            'description': ['Test | Pipe', 'Line\nBreak', 'Tab\there']
-        })
+        test_df = pd.DataFrame(
+            {"name": ["O'Brien", "José", "北京"], "description": ["Test | Pipe", "Line\nBreak", "Tab\there"]}
+        )
         mock_read_sql.return_value = test_df
 
         self.component.sql_query = "SELECT * FROM users"
         result = self.component.load_data()
 
         assert len(result) == 3
-        assert result[0].data['name'] == 'O\'Brien'
-        assert result[1].data['name'] == 'José'
-        assert result[2].data['name'] == '北京'
+        assert result[0].data["name"] == "O'Brien"
+        assert result[1].data["name"] == "José"
+        assert result[2].data["name"] == "北京"
 
         mock_connection.close.assert_called_once()
 
-    @patch.object(TableInputComponent, '_get_connection')
-    @patch('pandas.read_sql_query')
+    @patch.object(TableInputComponent, "_get_connection")
+    @patch("pandas.read_sql_query")
     def test_load_data_with_null_values(self, mock_read_sql, mock_get_conn):
         """Test loading data with NULL/None values."""
         mock_connection = MagicMock()
         mock_get_conn.return_value = mock_connection
 
-        test_df = pd.DataFrame({
-            'id': [1, 2, 3],
-            'name': ['Alice', None, 'Charlie'],
-            'email': ['alice@test.com', 'bob@test.com', None]
-        })
+        test_df = pd.DataFrame(
+            {"id": [1, 2, 3], "name": ["Alice", None, "Charlie"], "email": ["alice@test.com", "bob@test.com", None]}
+        )
         mock_read_sql.return_value = test_df
 
         self.component.sql_query = "SELECT * FROM users"
         result = self.component.load_data()
 
         assert len(result) == 3
-        assert result[0].data['name'] == 'Alice'
-        assert pd.isna(result[1].data['name'])
-        assert pd.isna(result[2].data['email'])
+        assert result[0].data["name"] == "Alice"
+        assert pd.isna(result[1].data["name"])
+        assert pd.isna(result[2].data["email"])
 
         mock_connection.close.assert_called_once()
 
-    @patch.object(TableInputComponent, '_get_connection')
-    @patch('pandas.read_sql_query')
+    @patch.object(TableInputComponent, "_get_connection")
+    @patch("pandas.read_sql_query")
     def test_status_messages(self, mock_read_sql, mock_get_conn):
         """Test that status messages are properly set during execution."""
         mock_connection = MagicMock()
         mock_get_conn.return_value = mock_connection
 
-        test_df = pd.DataFrame({
-            'id': [1, 2, 3, 4, 5]
-        })
+        test_df = pd.DataFrame({"id": [1, 2, 3, 4, 5]})
         mock_read_sql.return_value = test_df
 
         self.component.sql_query = "SELECT * FROM users"
         result = self.component.load_data()
 
         assert "5" in str(self.component.status)
-        assert "loaded" in self.component.status.lower(
-        ) or "success" in self.component.status.lower()
+        assert "loaded" in self.component.status.lower() or "success" in self.component.status.lower()
 
         mock_connection.close.assert_called_once()
 
 
 # ===== Edge Case Tests =====
 
+
 class TestTableInputEdgeCases:
     """Test edge cases and boundary conditions."""
 
     def setup_method(self):
         """Set up test fixtures."""
-        self.i18n_patcher = patch('lfx.components.input_output.table_input.i18n.t',
-                                  side_effect=TestTableInputComponent._mock_translation)
+        self.i18n_patcher = patch(
+            "lfx.components.input_output.table_input.i18n.t", side_effect=TestTableInputComponent._mock_translation
+        )
         self.i18n_patcher.start()
         self.component = TableInputComponent()
         self.component.safe_mode = True
@@ -720,18 +680,15 @@ class TestTableInputEdgeCases:
         # Should not raise for safe query
         self.component._validate_query_safety(query)
 
-    @patch.object(TableInputComponent, '_get_connection')
-    @patch('pandas.read_sql_query')
+    @patch.object(TableInputComponent, "_get_connection")
+    @patch("pandas.read_sql_query")
     def test_large_result_set(self, mock_read_sql, mock_get_conn):
         """Test loading large result sets."""
         mock_connection = MagicMock()
         mock_get_conn.return_value = mock_connection
 
         # Create a large DataFrame
-        large_df = pd.DataFrame({
-            'id': range(10000),
-            'value': [f'value_{i}' for i in range(10000)]
-        })
+        large_df = pd.DataFrame({"id": range(10000), "value": [f"value_{i}" for i in range(10000)]})
         mock_read_sql.return_value = large_df
 
         self.component.sql_query = "SELECT * FROM large_table"
@@ -742,23 +699,23 @@ class TestTableInputEdgeCases:
 
         mock_connection.close.assert_called_once()
 
-    @patch('lfx.base.nacos.create_nacos_config')
-    @patch('sqlalchemy.create_engine')
-    def test_connection_with_special_characters_in_password(
-        self, mock_create_engine, mock_nacos
-    ):
+    @patch("lfx.base.nacos.create_nacos_config")
+    @patch("sqlalchemy.create_engine")
+    def test_connection_with_special_characters_in_password(self, mock_create_engine, mock_nacos):
         """Test creating connection with special characters in password."""
         mock_client = MagicMock()
         mock_client.get_json.return_value = {
-            "connections": [{
-                "name": "test_db",
-                "type": "mysql",
-                "host": "localhost",
-                "port": 3306,
-                "database": "testdb",
-                "username": "user",
-                "password": "p@ss:w0rd/special"  # Special characters
-            }]
+            "connections": [
+                {
+                    "name": "test_db",
+                    "type": "mysql",
+                    "host": "localhost",
+                    "port": 3306,
+                    "database": "testdb",
+                    "username": "user",
+                    "password": "p@ss:w0rd/special",  # Special characters
+                }
+            ]
         }
         mock_nacos.return_value = mock_client
 

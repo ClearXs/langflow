@@ -1,4 +1,5 @@
 import os
+
 from langchain_core.documents import Document
 
 from lfx.custom.custom_component.custom_component import CustomComponent

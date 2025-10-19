@@ -1,11 +1,11 @@
-import os
-import i18n
 import json
+import os
 import subprocess
 import time
 from pathlib import Path
 from typing import Any
 
+import i18n
 from tenacity import retry, stop_after_attempt, wait_exponential
 from twelvelabs import TwelveLabs
 
@@ -37,10 +37,8 @@ class VideoValidationError(Exception):
 
 
 class TwelveLabsPegasus(Component):
-    display_name = i18n.t(
-        'components.twelvelabs.twelvelabs_pegasus.display_name')
-    description = i18n.t(
-        'components.twelvelabs.twelvelabs_pegasus.description')
+    display_name = i18n.t("components.twelvelabs.twelvelabs_pegasus.display_name")
+    description = i18n.t("components.twelvelabs.twelvelabs_pegasus.description")
     icon = "TwelveLabs"
     name = "TwelveLabsPegasus"
 
@@ -51,83 +49,65 @@ class TwelveLabsPegasus(Component):
     inputs = [
         DataInput(
             name="videodata",
-            display_name=i18n.t(
-                'components.twelvelabs.twelvelabs_pegasus.videodata.display_name'),
-            info=i18n.t(
-                'components.twelvelabs.twelvelabs_pegasus.videodata.info'),
-            is_list=True
+            display_name=i18n.t("components.twelvelabs.twelvelabs_pegasus.videodata.display_name"),
+            info=i18n.t("components.twelvelabs.twelvelabs_pegasus.videodata.info"),
+            is_list=True,
         ),
         SecretStrInput(
             name="api_key",
-            display_name=i18n.t(
-                'components.twelvelabs.twelvelabs_pegasus.api_key.display_name'),
-            info=i18n.t(
-                'components.twelvelabs.twelvelabs_pegasus.api_key.info'),
-            required=True
+            display_name=i18n.t("components.twelvelabs.twelvelabs_pegasus.api_key.display_name"),
+            info=i18n.t("components.twelvelabs.twelvelabs_pegasus.api_key.info"),
+            required=True,
         ),
         MessageInput(
             name="video_id",
-            display_name=i18n.t(
-                'components.twelvelabs.twelvelabs_pegasus.video_id.display_name'),
-            info=i18n.t(
-                'components.twelvelabs.twelvelabs_pegasus.video_id.info'),
+            display_name=i18n.t("components.twelvelabs.twelvelabs_pegasus.video_id.display_name"),
+            info=i18n.t("components.twelvelabs.twelvelabs_pegasus.video_id.info"),
         ),
         MessageInput(
             name="index_name",
-            display_name=i18n.t(
-                'components.twelvelabs.twelvelabs_pegasus.index_name.display_name'),
-            info=i18n.t(
-                'components.twelvelabs.twelvelabs_pegasus.index_name.info'),
+            display_name=i18n.t("components.twelvelabs.twelvelabs_pegasus.index_name.display_name"),
+            info=i18n.t("components.twelvelabs.twelvelabs_pegasus.index_name.info"),
             required=False,
         ),
         MessageInput(
             name="index_id",
-            display_name=i18n.t(
-                'components.twelvelabs.twelvelabs_pegasus.index_id.display_name'),
-            info=i18n.t(
-                'components.twelvelabs.twelvelabs_pegasus.index_id.info'),
+            display_name=i18n.t("components.twelvelabs.twelvelabs_pegasus.index_id.display_name"),
+            info=i18n.t("components.twelvelabs.twelvelabs_pegasus.index_id.info"),
             required=False,
         ),
         DropdownInput(
             name="model_name",
-            display_name=i18n.t(
-                'components.twelvelabs.twelvelabs_pegasus.model_name.display_name'),
-            info=i18n.t(
-                'components.twelvelabs.twelvelabs_pegasus.model_name.info'),
+            display_name=i18n.t("components.twelvelabs.twelvelabs_pegasus.model_name.display_name"),
+            info=i18n.t("components.twelvelabs.twelvelabs_pegasus.model_name.info"),
             options=["pegasus1.2"],
             value="pegasus1.2",
             advanced=False,
         ),
         MultilineInput(
             name="message",
-            display_name=i18n.t(
-                'components.twelvelabs.twelvelabs_pegasus.message.display_name'),
-            info=i18n.t(
-                'components.twelvelabs.twelvelabs_pegasus.message.info'),
+            display_name=i18n.t("components.twelvelabs.twelvelabs_pegasus.message.display_name"),
+            info=i18n.t("components.twelvelabs.twelvelabs_pegasus.message.info"),
             required=True,
         ),
         SliderInput(
             name="temperature",
-            display_name=i18n.t(
-                'components.twelvelabs.twelvelabs_pegasus.temperature.display_name'),
+            display_name=i18n.t("components.twelvelabs.twelvelabs_pegasus.temperature.display_name"),
             value=0.7,
             range_spec=RangeSpec(min=0, max=1, step=0.01),
-            info=i18n.t(
-                'components.twelvelabs.twelvelabs_pegasus.temperature.info'),
+            info=i18n.t("components.twelvelabs.twelvelabs_pegasus.temperature.info"),
         ),
     ]
 
     outputs = [
         Output(
-            display_name=i18n.t(
-                'components.twelvelabs.twelvelabs_pegasus.outputs.response.display_name'),
+            display_name=i18n.t("components.twelvelabs.twelvelabs_pegasus.outputs.response.display_name"),
             name="response",
             method="process_video",
             type_=Message,
         ),
         Output(
-            display_name=i18n.t(
-                'components.twelvelabs.twelvelabs_pegasus.outputs.processed_video_id.display_name'),
+            display_name=i18n.t("components.twelvelabs.twelvelabs_pegasus.outputs.processed_video_id.display_name"),
             name="processed_video_id",
             method="get_video_id",
             type_=Message,
@@ -154,8 +134,7 @@ class TwelveLabsPegasus(Component):
                 index = client.index.retrieve(id=self._index_id)
                 self.log(f"Found existing index with ID: {self._index_id}")
             except (ValueError, KeyError) as e:
-                self.log(
-                    f"Error retrieving index with ID {self._index_id}: {e!s}", "WARNING")
+                self.log(f"Error retrieving index with ID {self._index_id}: {e!s}", "WARNING")
             else:
                 return self._index_id, index.name
 
@@ -166,8 +145,7 @@ class TwelveLabsPegasus(Component):
                 indexes = client.index.list()
                 for idx in indexes:
                     if idx.name == self._index_name:
-                        self.log(
-                            f"Found existing index: {self._index_name} (ID: {idx.id})")
+                        self.log(f"Found existing index: {self._index_name} (ID: {idx.id})")
                         return idx.id, idx.name
 
                 # If we get here, index wasn't found - create it
@@ -182,8 +160,7 @@ class TwelveLabsPegasus(Component):
                     ],
                 )
             except (ValueError, KeyError) as e:
-                self.log(
-                    f"Error with index name {self._index_name}: {e!s}", "ERROR")
+                self.log(f"Error with index name {self._index_name}: {e!s}", "ERROR")
                 error_message = f"Error with index name {self._index_name}"
                 raise IndexCreationError(error_message) from e
             else:
@@ -313,14 +290,12 @@ class TwelveLabsPegasus(Component):
 
             probe_data = json.loads(result.stdout)
 
-            has_video = any(stream.get("codec_type") ==
-                            "video" for stream in probe_data.get("streams", []))
+            has_video = any(stream.get("codec_type") == "video" for stream in probe_data.get("streams", []))
 
             if not has_video:
                 return False, "No video stream found in file"
 
-            self.log(
-                f"Video validation successful: {json.dumps(probe_data, indent=2)}")
+            self.log(f"Video validation successful: {json.dumps(probe_data, indent=2)}")
         except subprocess.SubprocessError as e:
             return False, f"FFprobe process error: {e!s}"
         except json.JSONDecodeError as e:
@@ -345,20 +320,16 @@ class TwelveLabsPegasus(Component):
         """
         # Check and initialize inputs
         if hasattr(self, "index_id") and self.index_id:
-            self._index_id = self.index_id.text if hasattr(
-                self.index_id, "text") else self.index_id
+            self._index_id = self.index_id.text if hasattr(self.index_id, "text") else self.index_id
 
         if hasattr(self, "index_name") and self.index_name:
-            self._index_name = self.index_name.text if hasattr(
-                self.index_name, "text") else self.index_name
+            self._index_name = self.index_name.text if hasattr(self.index_name, "text") else self.index_name
 
         if hasattr(self, "video_id") and self.video_id:
-            self._video_id = self.video_id.text if hasattr(
-                self.video_id, "text") else self.video_id
+            self._video_id = self.video_id.text if hasattr(self.video_id, "text") else self.video_id
 
         if hasattr(self, "message") and self.message:
-            self._message = self.message.text if hasattr(
-                self.message, "text") else self.message
+            self._message = self.message.text if hasattr(self.message, "text") else self.message
 
         try:
             # If we have a message and already processed video, use existing video_id
@@ -401,8 +372,7 @@ class TwelveLabsPegasus(Component):
                 return Message(text=f"Failed to get/create index: {e}")
 
             with Path(video_path).open("rb") as video_file:
-                task = client.task.create(
-                    index_id=self._index_id, file=video_file)
+                task = client.task.create(index_id=self._index_id, file=video_file)
             self._task_id = task.id
 
             # Wait for processing to complete

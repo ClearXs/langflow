@@ -1,23 +1,32 @@
-import { useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import { Plus, X, Calculator } from 'lucide-react';
-import { cn } from '@/utils/utils';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { Calculator, Plus, X } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { Checkbox } from '@/components/ui/checkbox';
-import type { InputProps } from '../../types';
+} from "@/components/ui/select";
+import { cn } from "@/utils/utils";
+import type { InputProps } from "../../types";
 
 interface AggregationRule {
   id: string;
   field: string;
-  function: 'sum' | 'count' | 'avg' | 'min' | 'max' | 'std' | 'median' | 'first' | 'last';
+  function:
+    | "sum"
+    | "count"
+    | "avg"
+    | "min"
+    | "max"
+    | "std"
+    | "median"
+    | "first"
+    | "last";
   output_name: string;
   enabled: boolean;
 }
@@ -28,15 +37,15 @@ interface AggregationConfig {
 }
 
 const AGGREGATION_FUNCTIONS = [
-  { value: 'sum', label: 'Sum' },
-  { value: 'count', label: 'Count' },
-  { value: 'avg', label: 'Average' },
-  { value: 'min', label: 'Minimum' },
-  { value: 'max', label: 'Maximum' },
-  { value: 'std', label: 'Std Dev' },
-  { value: 'median', label: 'Median' },
-  { value: 'first', label: 'First' },
-  { value: 'last', label: 'Last' },
+  { value: "sum", label: "Sum" },
+  { value: "count", label: "Count" },
+  { value: "avg", label: "Average" },
+  { value: "min", label: "Minimum" },
+  { value: "max", label: "Maximum" },
+  { value: "std", label: "Std Dev" },
+  { value: "median", label: "Median" },
+  { value: "first", label: "First" },
+  { value: "last", label: "Last" },
 ] as const;
 
 export default function AggregationConfigComponent({
@@ -51,7 +60,7 @@ export default function AggregationConfigComponent({
     group_by_fields: [],
     aggregations: [],
   });
-  const [newGroupByField, setNewGroupByField] = useState('');
+  const [newGroupByField, setNewGroupByField] = useState("");
 
   useEffect(() => {
     if (!value) {
@@ -60,10 +69,14 @@ export default function AggregationConfigComponent({
     }
 
     try {
-      const parsed = typeof value === 'string' ? JSON.parse(value) : value;
+      const parsed = typeof value === "string" ? JSON.parse(value) : value;
       setConfig({
-        group_by_fields: Array.isArray(parsed.group_by_fields) ? parsed.group_by_fields : [],
-        aggregations: Array.isArray(parsed.aggregations) ? parsed.aggregations : [],
+        group_by_fields: Array.isArray(parsed.group_by_fields)
+          ? parsed.group_by_fields
+          : [],
+        aggregations: Array.isArray(parsed.aggregations)
+          ? parsed.aggregations
+          : [],
       });
     } catch (e) {
       setConfig({ group_by_fields: [], aggregations: [] });
@@ -83,7 +96,7 @@ export default function AggregationConfigComponent({
     };
     setConfig(newConfig);
     updateValue(newConfig);
-    setNewGroupByField('');
+    setNewGroupByField("");
   };
 
   const handleRemoveGroupByField = (field: string) => {
@@ -98,9 +111,9 @@ export default function AggregationConfigComponent({
   const handleAddAggregation = () => {
     const newAggregation: AggregationRule = {
       id: `agg-${Date.now()}`,
-      field: '',
-      function: 'sum',
-      output_name: '',
+      field: "",
+      function: "sum",
+      output_name: "",
       enabled: true,
     };
 
@@ -124,12 +137,12 @@ export default function AggregationConfigComponent({
   const handleUpdateAggregation = (
     id: string,
     field: keyof AggregationRule,
-    value: any
+    value: any,
   ) => {
     const newConfig = {
       ...config,
       aggregations: config.aggregations.map((a) =>
-        a.id === id ? { ...a, [field]: value } : a
+        a.id === id ? { ...a, [field]: value } : a,
       ),
     };
     setConfig(newConfig);
@@ -141,53 +154,53 @@ export default function AggregationConfigComponent({
   const hasAggregations = config.aggregations.length > 0;
 
   return (
-    <div className='w-full'>
-      <div className='flex flex-col gap-3'>
+    <div className="w-full">
+      <div className="flex flex-col gap-3">
         {/* Group By Fields Section */}
-        <div className='rounded-md border border-border bg-background p-3'>
-          <label className='mb-2 block text-sm font-medium'>
+        <div className="rounded-md border border-border bg-background p-3">
+          <label className="mb-2 block text-sm font-medium">
             Group By Fields
           </label>
 
           {/* Add Group By Field Input */}
-          <div className='mb-2 flex gap-2'>
+          <div className="mb-2 flex gap-2">
             <Input
               value={newGroupByField}
               onChange={(e) => setNewGroupByField(e.target.value)}
               onKeyPress={(e) => {
-                if (e.key === 'Enter') {
+                if (e.key === "Enter") {
                   handleAddGroupByField();
                 }
               }}
-              placeholder='Enter field name'
+              placeholder="Enter field name"
               disabled={isDisabled}
-              className='h-9 text-sm'
+              className="h-9 text-sm"
             />
             <Button
               onClick={handleAddGroupByField}
               disabled={isDisabled || !newGroupByField.trim()}
-              variant='outline'
-              size='sm'
+              variant="outline"
+              size="sm"
             >
-              <Plus className='h-4 w-4' />
+              <Plus className="h-4 w-4" />
             </Button>
           </div>
 
           {/* Group By Fields List */}
           {hasGroupByFields && (
-            <div className='flex flex-wrap gap-2'>
+            <div className="flex flex-wrap gap-2">
               {config.group_by_fields.map((field) => (
                 <div
                   key={field}
-                  className='flex items-center gap-1 rounded-md border border-border bg-muted px-2 py-1 text-sm'
+                  className="flex items-center gap-1 rounded-md border border-border bg-muted px-2 py-1 text-sm"
                 >
                   <span>{field}</span>
                   {!isDisabled && (
                     <button
                       onClick={() => handleRemoveGroupByField(field)}
-                      className='ml-1 hover:text-destructive'
+                      className="ml-1 hover:text-destructive"
                     >
-                      <X className='h-3 w-3' />
+                      <X className="h-3 w-3" />
                     </button>
                   )}
                 </div>
@@ -198,34 +211,32 @@ export default function AggregationConfigComponent({
 
         {/* Aggregation Rules Table */}
         {hasAggregations && (
-          <div className='rounded-md border border-border bg-background'>
-            <div className='grid grid-cols-[40px_1fr_140px_1fr_40px] gap-2 border-b border-border bg-muted/50 p-2 text-xs font-medium'>
-              <div className='flex items-center justify-center'>
-                Enabled
-              </div>
+          <div className="rounded-md border border-border bg-background">
+            <div className="grid grid-cols-[40px_1fr_140px_1fr_40px] gap-2 border-b border-border bg-muted/50 p-2 text-xs font-medium">
+              <div className="flex items-center justify-center">Enabled</div>
               <div>Field</div>
               <div>Function</div>
               <div>Output Name</div>
               <div></div>
             </div>
 
-            <div className='max-h-96 overflow-y-auto'>
+            <div className="max-h-96 overflow-y-auto">
               {config.aggregations.map((agg) => (
                 <div
                   key={agg.id}
                   className={cn(
-                    'grid grid-cols-[40px_1fr_140px_1fr_40px] gap-2 border-b border-border p-2 last:border-b-0',
-                    !agg.enabled && 'opacity-50'
+                    "grid grid-cols-[40px_1fr_140px_1fr_40px] gap-2 border-b border-border p-2 last:border-b-0",
+                    !agg.enabled && "opacity-50",
                   )}
                 >
-                  <div className='flex items-center justify-center'>
+                  <div className="flex items-center justify-center">
                     <Checkbox
                       checked={agg.enabled}
                       onCheckedChange={(checked) =>
                         handleUpdateAggregation(
                           agg.id,
-                          'enabled',
-                          checked as boolean
+                          "enabled",
+                          checked as boolean,
                         )
                       }
                       disabled={isDisabled}
@@ -235,21 +246,21 @@ export default function AggregationConfigComponent({
                   <Input
                     value={agg.field}
                     onChange={(e) =>
-                      handleUpdateAggregation(agg.id, 'field', e.target.value)
+                      handleUpdateAggregation(agg.id, "field", e.target.value)
                     }
-                    placeholder='Field name'
+                    placeholder="Field name"
                     disabled={isDisabled}
-                    className='h-8 text-sm'
+                    className="h-8 text-sm"
                   />
 
                   <Select
                     value={agg.function}
                     onValueChange={(value) =>
-                      handleUpdateAggregation(agg.id, 'function', value)
+                      handleUpdateAggregation(agg.id, "function", value)
                     }
                     disabled={isDisabled}
                   >
-                    <SelectTrigger className='h-8 text-sm'>
+                    <SelectTrigger className="h-8 text-sm">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -264,22 +275,26 @@ export default function AggregationConfigComponent({
                   <Input
                     value={agg.output_name}
                     onChange={(e) =>
-                      handleUpdateAggregation(agg.id, 'output_name', e.target.value)
+                      handleUpdateAggregation(
+                        agg.id,
+                        "output_name",
+                        e.target.value,
+                      )
                     }
-                    placeholder='Output column name'
+                    placeholder="Output column name"
                     disabled={isDisabled}
-                    className='h-8 text-sm'
+                    className="h-8 text-sm"
                   />
 
-                  <div className='flex items-center justify-center'>
+                  <div className="flex items-center justify-center">
                     {!isDisabled && (
                       <Button
-                        variant='ghost'
-                        size='icon'
-                        className='h-8 w-8 hover:bg-destructive/10 hover:text-destructive'
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 hover:bg-destructive/10 hover:text-destructive"
                         onClick={() => handleRemoveAggregation(agg.id)}
                       >
-                        <X className='h-4 w-4' />
+                        <X className="h-4 w-4" />
                       </Button>
                     )}
                   </div>
@@ -290,24 +305,27 @@ export default function AggregationConfigComponent({
         )}
 
         {/* Add Aggregation Button */}
-        <div className='flex items-center justify-between'>
+        <div className="flex items-center justify-between">
           <Button
             data-testid={`aggregation-add-${id}`}
             disabled={isDisabled}
-            variant='outline'
-            size='sm'
+            variant="outline"
+            size="sm"
             onClick={handleAddAggregation}
-            className='w-full'
+            className="w-full"
           >
-            <Plus className='mr-2 h-4 w-4' />
+            <Plus className="mr-2 h-4 w-4" />
             Add Aggregation Rule
           </Button>
         </div>
 
         {/* Info Text */}
         {(hasGroupByFields || hasAggregations) && (
-          <div className='text-xs text-muted-foreground'>
-            {config.group_by_fields.length} group by field{config.group_by_fields.length !== 1 ? 's' : ''}, {config.aggregations.length} aggregation{config.aggregations.length !== 1 ? 's' : ''}
+          <div className="text-xs text-muted-foreground">
+            {config.group_by_fields.length} group by field
+            {config.group_by_fields.length !== 1 ? "s" : ""},{" "}
+            {config.aggregations.length} aggregation
+            {config.aggregations.length !== 1 ? "s" : ""}
           </div>
         )}
       </div>

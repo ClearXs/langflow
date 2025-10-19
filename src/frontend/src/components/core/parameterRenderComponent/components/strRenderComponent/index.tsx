@@ -82,6 +82,7 @@ export function StrRenderComponent({
         toggleValue={templateData.toggle_value}
         toggleDisable={templateData.toggle_disable}
         hasRefreshButton={templateData.refresh_button}
+        actionButton={templateData.action_button}
       />
     );
   }

@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import json
 import threading
-import time
 from contextlib import contextmanager
 from typing import TYPE_CHECKING, Any
 

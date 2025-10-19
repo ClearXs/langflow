@@ -1,9 +1,9 @@
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { FileIcon } from "./FileIcon";
 import type { FileItem } from "../types";
+import { FileIcon } from "./FileIcon";
 
 interface FileDetailsProps {
   file?: FileItem | null;
@@ -40,7 +40,9 @@ export function FileDetails({
   // Calculate total size
   const totalSize = useMemo(() => {
     return safeSelectList.reduce((total, item) => {
-      return total + (item.type === "file" ? (item.file?.size || item.size || 0) : 0);
+      return (
+        total + (item.type === "file" ? item.file?.size || item.size || 0 : 0)
+      );
     }, 0);
   }, [safeSelectList]);
 
@@ -93,7 +95,9 @@ export function FileDetails({
         {safeSelectList.length === 0 && (
           <div className="flex h-full flex-col items-center justify-center text-center">
             <div className="mb-4 text-6xl opacity-20">📁</div>
-            <p className="text-sm text-muted-foreground">{t("fileDetails.selectFileToView")}</p>
+            <p className="text-sm text-muted-foreground">
+              {t("fileDetails.selectFileToView")}
+            </p>
           </div>
         )}
 
@@ -108,15 +112,21 @@ export function FileDetails({
             </h4>
             <div className="w-full space-y-2 text-left text-xs">
               <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">{t("fileDetails.folders")}：</span>
+                <span className="text-muted-foreground">
+                  {t("fileDetails.folders")}：
+                </span>
                 <span>{t("fileDetails.count", { count: folderCount })}</span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">{t("fileDetails.files")}：</span>
+                <span className="text-muted-foreground">
+                  {t("fileDetails.files")}：
+                </span>
                 <span>{t("fileDetails.count", { count: fileCount })}</span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">{t("fileDetails.totalSize")}：</span>
+                <span className="text-muted-foreground">
+                  {t("fileDetails.totalSize")}：
+                </span>
                 <span>{formatFileSize(totalSize)}</span>
               </div>
             </div>
@@ -139,30 +149,44 @@ export function FileDetails({
 
               <div className="space-y-2 text-xs">
                 <div className="flex">
-                  <span className="w-20 text-muted-foreground">{t("fileDetails.type")}：</span>
+                  <span className="w-20 text-muted-foreground">
+                    {t("fileDetails.type")}：
+                  </span>
                   <span>{formatFileType(file.type)}</span>
                 </div>
 
                 <div className="flex">
-                  <span className="w-20 text-muted-foreground">{t("fileDetails.size")}：</span>
+                  <span className="w-20 text-muted-foreground">
+                    {t("fileDetails.size")}：
+                  </span>
                   <span>
-                    {file.type === "folder" ? "-" : formatFileSize(file.file?.size || file.size)}
+                    {file.type === "folder"
+                      ? "-"
+                      : formatFileSize(file.file?.size || file.size)}
                   </span>
                 </div>
 
                 <div className="flex">
-                  <span className="w-20 text-muted-foreground">{t("fileDetails.updateTime")}：</span>
+                  <span className="w-20 text-muted-foreground">
+                    {t("fileDetails.updateTime")}：
+                  </span>
                   <span>{file.updateTime || "-"}</span>
                 </div>
 
                 <div className="flex">
-                  <span className="w-20 text-muted-foreground">{t("fileDetails.creator")}：</span>
+                  <span className="w-20 text-muted-foreground">
+                    {t("fileDetails.creator")}：
+                  </span>
                   <span>{file.createUser || "-"}</span>
                 </div>
 
                 <div className="flex">
-                  <span className="w-20 text-muted-foreground">{t("fileDetails.path")}：</span>
-                  <span className="flex-1 break-all">{file.path || currentPath}</span>
+                  <span className="w-20 text-muted-foreground">
+                    {t("fileDetails.path")}：
+                  </span>
+                  <span className="flex-1 break-all">
+                    {file.path || currentPath}
+                  </span>
                 </div>
               </div>
             </div>

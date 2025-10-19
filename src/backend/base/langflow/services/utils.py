@@ -50,8 +50,7 @@ async def get_or_create_super_user(session: AsyncSession, username, password, is
                 "base superuser credentials."
             )
             return None
-        logger.debug(
-            "User with superuser credentials exists but is not a superuser.")
+        logger.debug("User with superuser credentials exists but is not a superuser.")
         return None
 
     if user:
@@ -79,15 +78,13 @@ async def setup_superuser(settings_service: SettingsService, session: AsyncSessi
         # If AUTO_LOGIN is disabled, attempt to use configured credentials
         # or fall back to default credentials if none are provided.
         username = settings_service.auth_settings.SUPERUSER or DEFAULT_SUPERUSER
-        password = (
-            settings_service.auth_settings.SUPERUSER_PASSWORD or DEFAULT_SUPERUSER_PASSWORD).get_secret_value()
+        password = (settings_service.auth_settings.SUPERUSER_PASSWORD or DEFAULT_SUPERUSER_PASSWORD).get_secret_value()
 
     if not username or not password:
         msg = "Username and password must be set"
         raise ValueError(msg)
 
-    is_default = (username == DEFAULT_SUPERUSER) and (
-        password == DEFAULT_SUPERUSER_PASSWORD.get_secret_value())
+    is_default = (username == DEFAULT_SUPERUSER) and (password == DEFAULT_SUPERUSER_PASSWORD.get_secret_value())
 
     try:
         user = await get_or_create_super_user(
@@ -147,8 +144,7 @@ def initialize_settings_service() -> None:
     """Initialize the settings manager."""
     from lfx.services.settings import factory as settings_factory
 
-    get_service(ServiceType.SETTINGS_SERVICE,
-                settings_factory.SettingsServiceFactory())
+    get_service(ServiceType.SETTINGS_SERVICE, settings_factory.SettingsServiceFactory())
 
 
 def initialize_session_service() -> None:
@@ -241,6 +237,7 @@ def register_all_service_factories() -> None:
     from langflow.services.chat import factory as chat_factory
     from langflow.services.database import factory as database_factory
     from langflow.services.job_queue import factory as job_queue_factory
+    from langflow.services.nacos import factory as nacos_factory
     from langflow.services.session import factory as session_factory
     from langflow.services.shared_component_cache import factory as shared_component_cache_factory
     from langflow.services.state import factory as state_factory
@@ -250,7 +247,6 @@ def register_all_service_factories() -> None:
     from langflow.services.telemetry import factory as telemetry_factory
     from langflow.services.tracing import factory as tracing_factory
     from langflow.services.variable import factory as variable_factory
-    from langflow.services.nacos import factory as nacos_factory
 
     # Register all factories
     service_manager.register_factory(settings_factory.SettingsServiceFactory())
@@ -260,19 +256,15 @@ def register_all_service_factories() -> None:
     service_manager.register_factory(session_factory.SessionServiceFactory())
     service_manager.register_factory(storage_factory.StorageServiceFactory())
     service_manager.register_factory(variable_factory.VariableServiceFactory())
-    service_manager.register_factory(
-        telemetry_factory.TelemetryServiceFactory())
+    service_manager.register_factory(telemetry_factory.TelemetryServiceFactory())
     service_manager.register_factory(tracing_factory.TracingServiceFactory())
     service_manager.register_factory(state_factory.StateServiceFactory())
-    service_manager.register_factory(
-        job_queue_factory.JobQueueServiceFactory())
+    service_manager.register_factory(job_queue_factory.JobQueueServiceFactory())
     service_manager.register_factory(task_factory.TaskServiceFactory())
     service_manager.register_factory(store_factory.StoreServiceFactory())
-    service_manager.register_factory(
-        shared_component_cache_factory.SharedComponentCacheServiceFactory())
+    service_manager.register_factory(shared_component_cache_factory.SharedComponentCacheServiceFactory())
     service_manager.register_factory(auth_factory.AuthServiceFactory())
-    service_manager.register_factory(
-        mcp_composer_factory.MCPComposerServiceFactory())
+    service_manager.register_factory(mcp_composer_factory.MCPComposerServiceFactory())
     service_manager.register_factory(nacos_factory.NacosServiceFactory())
 
     service_manager.set_factory_registered()
@@ -283,8 +275,7 @@ async def initialize_services(*, fix_migration: bool = False) -> None:
     # Register all service factories first
     register_all_service_factories()
 
-    cache_service = get_service(
-        ServiceType.CACHE_SERVICE, default=CacheServiceFactory())
+    cache_service = get_service(ServiceType.CACHE_SERVICE, default=CacheServiceFactory())
     # Test external cache connection
     if isinstance(cache_service, ExternalAsyncBaseCacheService) and not (await cache_service.is_connected()):
         msg = "Cache service failed to connect to external database"

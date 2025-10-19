@@ -16,6 +16,7 @@ import { useGetRefreshFlowsQuery } from "@/controllers/API/queries/flows/use-get
 import { useGetFoldersQuery } from "@/controllers/API/queries/folders/use-get-folders";
 import { useCustomNavigate } from "@/customization/hooks/use-custom-navigate";
 import useSaveFlow from "@/hooks/flows/use-save-flow";
+import { useIsEmbedded } from "@/hooks/use-iframe-params";
 import { useUnsavedChanges } from "@/hooks/use-unsaved-changes";
 import useAlertStore from "@/stores/alertStore";
 import useFlowStore from "@/stores/flowStore";
@@ -26,6 +27,7 @@ import { cn, getNumberFromString } from "@/utils/utils";
 
 export const MenuBar = memo((): JSX.Element => {
   const { t } = useTranslation();
+  const isEmbedded = useIsEmbedded();
 
   const setSuccessData = useAlertStore((state) => state.setSuccessData);
   const saveLoading = useFlowsManagerStore((state) => state.saveLoading);
@@ -111,7 +113,10 @@ export const MenuBar = memo((): JSX.Element => {
     <Popover open={openSettings} onOpenChange={setOpenSettings}>
       <PopoverAnchor>
         <div
-          className="relative flex w-full items-center justify-center gap-2"
+          className={cn(
+            "relative flex w-full items-center justify-center gap-2",
+            isEmbedded && "h-0 w-0 overflow-hidden opacity-0",
+          )}
           data-testid="menu_bar_wrapper"
         >
           <div

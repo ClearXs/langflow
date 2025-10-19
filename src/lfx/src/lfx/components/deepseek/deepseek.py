@@ -1,4 +1,5 @@
 import os
+
 import i18n
 import requests
 from pydantic.v1 import SecretStr
@@ -15,7 +16,7 @@ DEEPSEEK_MODELS = ["deepseek-chat"]
 
 class DeepSeekModelComponent(LCModelComponent):
     display_name = "DeepSeek"
-    description = i18n.t('components.deepseek.deepseek.description')
+    description = i18n.t("components.deepseek.deepseek.description")
     icon = "DeepSeek"
 
     ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
@@ -24,65 +25,57 @@ class DeepSeekModelComponent(LCModelComponent):
         *LCModelComponent.get_base_inputs(),
         IntInput(
             name="max_tokens",
-            display_name=i18n.t(
-                'components.deepseek.deepseek.max_tokens.display_name'),
+            display_name=i18n.t("components.deepseek.deepseek.max_tokens.display_name"),
             advanced=True,
-            info=i18n.t('components.deepseek.deepseek.max_tokens.info'),
+            info=i18n.t("components.deepseek.deepseek.max_tokens.info"),
             range_spec=RangeSpec(min=0, max=128000),
         ),
         DictInput(
             name="model_kwargs",
-            display_name=i18n.t(
-                'components.deepseek.deepseek.model_kwargs.display_name'),
+            display_name=i18n.t("components.deepseek.deepseek.model_kwargs.display_name"),
             advanced=True,
-            info=i18n.t('components.deepseek.deepseek.model_kwargs.info'),
+            info=i18n.t("components.deepseek.deepseek.model_kwargs.info"),
         ),
         BoolInput(
             name="json_mode",
-            display_name=i18n.t(
-                'components.deepseek.deepseek.json_mode.display_name'),
+            display_name=i18n.t("components.deepseek.deepseek.json_mode.display_name"),
             advanced=True,
-            info=i18n.t('components.deepseek.deepseek.json_mode.info'),
+            info=i18n.t("components.deepseek.deepseek.json_mode.info"),
         ),
         DropdownInput(
             name="model_name",
-            display_name=i18n.t(
-                'components.deepseek.deepseek.model_name.display_name'),
-            info=i18n.t('components.deepseek.deepseek.model_name.info'),
+            display_name=i18n.t("components.deepseek.deepseek.model_name.display_name"),
+            info=i18n.t("components.deepseek.deepseek.model_name.info"),
             options=DEEPSEEK_MODELS,
             value="deepseek-chat",
             refresh_button=True,
         ),
         StrInput(
             name="api_base",
-            display_name=i18n.t(
-                'components.deepseek.deepseek.api_base.display_name'),
+            display_name=i18n.t("components.deepseek.deepseek.api_base.display_name"),
             advanced=True,
-            info=i18n.t('components.deepseek.deepseek.api_base.info'),
+            info=i18n.t("components.deepseek.deepseek.api_base.info"),
             value="https://api.deepseek.com",
         ),
         SecretStrInput(
             name="api_key",
-            display_name=i18n.t(
-                'components.deepseek.deepseek.api_key.display_name'),
-            info=i18n.t('components.deepseek.deepseek.api_key.info'),
+            display_name=i18n.t("components.deepseek.deepseek.api_key.display_name"),
+            info=i18n.t("components.deepseek.deepseek.api_key.info"),
             advanced=False,
             required=True,
         ),
         SliderInput(
             name="temperature",
-            display_name=i18n.t(
-                'components.deepseek.deepseek.temperature.display_name'),
-            info=i18n.t('components.deepseek.deepseek.temperature.info'),
+            display_name=i18n.t("components.deepseek.deepseek.temperature.display_name"),
+            info=i18n.t("components.deepseek.deepseek.temperature.info"),
             value=1.0,
             range_spec=RangeSpec(min=0, max=2, step=0.01),
             advanced=True,
         ),
         IntInput(
             name="seed",
-            display_name=i18n.t(
-                'components.deepseek.deepseek.seed.display_name'),
-            info=i18n.t('components.deepseek.deepseek.seed.info'),
+            display_name=i18n.t("components.deepseek.deepseek.seed.display_name"),
+            info=i18n.t("components.deepseek.deepseek.seed.info"),
             advanced=True,
             value=1,
         ),
@@ -95,29 +88,24 @@ class DeepSeekModelComponent(LCModelComponent):
             list[str]: List of available model IDs.
         """
         if not self.api_key:
-            logger.warning(
-                i18n.t('components.deepseek.deepseek.logs.no_api_key'))
+            logger.warning(i18n.t("components.deepseek.deepseek.logs.no_api_key"))
             return DEEPSEEK_MODELS
 
         url = f"{self.api_base}/models"
-        headers = {"Authorization": f"Bearer {self.api_key}",
-                   "Accept": "application/json"}
+        headers = {"Authorization": f"Bearer {self.api_key}", "Accept": "application/json"}
 
         try:
-            logger.info(i18n.t('components.deepseek.deepseek.logs.fetching_models',
-                               url=url))
+            logger.info(i18n.t("components.deepseek.deepseek.logs.fetching_models", url=url))
             response = requests.get(url, headers=headers, timeout=10)
             response.raise_for_status()
             model_list = response.json()
             models = [model["id"] for model in model_list.get("data", [])]
 
-            logger.info(i18n.t('components.deepseek.deepseek.logs.models_fetched',
-                               count=len(models)))
+            logger.info(i18n.t("components.deepseek.deepseek.logs.models_fetched", count=len(models)))
             return models
 
         except requests.RequestException as e:
-            error_msg = i18n.t('components.deepseek.deepseek.errors.fetch_models_failed',
-                               error=str(e))
+            error_msg = i18n.t("components.deepseek.deepseek.errors.fetch_models_failed", error=str(e))
             logger.error(error_msg)
             self.status = error_msg
             return DEEPSEEK_MODELS
@@ -135,12 +123,10 @@ class DeepSeekModelComponent(LCModelComponent):
             dict: The updated build configuration.
         """
         if field_name in {"api_key", "api_base", "model_name"}:
-            logger.debug(
-                i18n.t('components.deepseek.deepseek.logs.updating_models_list'))
+            logger.debug(i18n.t("components.deepseek.deepseek.logs.updating_models_list"))
             models = self.get_models()
             build_config["model_name"]["options"] = models
-            logger.debug(i18n.t('components.deepseek.deepseek.logs.models_list_updated',
-                                count=len(models)))
+            logger.debug(i18n.t("components.deepseek.deepseek.logs.models_list_updated", count=len(models)))
         return build_config
 
     def build_model(self) -> LanguageModel:
@@ -155,22 +141,24 @@ class DeepSeekModelComponent(LCModelComponent):
         """
         try:
             from langchain_openai import ChatOpenAI
-            logger.debug(
-                i18n.t('components.deepseek.deepseek.logs.langchain_import_successful'))
+
+            logger.debug(i18n.t("components.deepseek.deepseek.logs.langchain_import_successful"))
         except ImportError as e:
-            error_msg = i18n.t(
-                'components.deepseek.deepseek.errors.langchain_import_failed')
+            error_msg = i18n.t("components.deepseek.deepseek.errors.langchain_import_failed")
             logger.error(error_msg)
             raise ImportError(error_msg) from e
 
         try:
-            api_key = SecretStr(
-                self.api_key).get_secret_value() if self.api_key else None
+            api_key = SecretStr(self.api_key).get_secret_value() if self.api_key else None
 
-            logger.info(i18n.t('components.deepseek.deepseek.logs.building_model',
-                               model=self.model_name,
-                               temperature=self.temperature if self.temperature is not None else 0.1,
-                               max_tokens=self.max_tokens or "unlimited"))
+            logger.info(
+                i18n.t(
+                    "components.deepseek.deepseek.logs.building_model",
+                    model=self.model_name,
+                    temperature=self.temperature if self.temperature is not None else 0.1,
+                    max_tokens=self.max_tokens or "unlimited",
+                )
+            )
 
             output = ChatOpenAI(
                 model=self.model_name,
@@ -185,16 +173,13 @@ class DeepSeekModelComponent(LCModelComponent):
 
             if self.json_mode:
                 output = output.bind(response_format={"type": "json_object"})
-                logger.debug(
-                    i18n.t('components.deepseek.deepseek.logs.json_mode_enabled'))
+                logger.debug(i18n.t("components.deepseek.deepseek.logs.json_mode_enabled"))
 
-            logger.info(
-                i18n.t('components.deepseek.deepseek.logs.model_built'))
+            logger.info(i18n.t("components.deepseek.deepseek.logs.model_built"))
             return output
 
         except Exception as e:
-            error_msg = i18n.t('components.deepseek.deepseek.errors.build_model_failed',
-                               error=str(e))
+            error_msg = i18n.t("components.deepseek.deepseek.errors.build_model_failed", error=str(e))
             logger.exception(error_msg)
             raise ValueError(error_msg) from e
 
@@ -213,10 +198,8 @@ class DeepSeekModelComponent(LCModelComponent):
             if isinstance(e, BadRequestError):
                 message = e.body.get("message")
                 if message:
-                    logger.debug(i18n.t('components.deepseek.deepseek.logs.extracted_error_message',
-                                        message=message))
+                    logger.debug(i18n.t("components.deepseek.deepseek.logs.extracted_error_message", message=message))
                     return message
         except ImportError:
-            logger.debug(
-                i18n.t('components.deepseek.deepseek.logs.openai_not_available'))
+            logger.debug(i18n.t("components.deepseek.deepseek.logs.openai_not_available"))
         return None

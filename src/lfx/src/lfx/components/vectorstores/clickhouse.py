@@ -1,4 +1,5 @@
 import os
+
 import i18n
 from langchain_community.vectorstores import Clickhouse, ClickhouseSettings
 
@@ -17,8 +18,8 @@ from lfx.schema.data import Data
 
 
 class ClickhouseVectorStoreComponent(LCVectorStoreComponent):
-    display_name = i18n.t('components.vectorstores.clickhouse.display_name')
-    description = i18n.t('components.vectorstores.clickhouse.description')
+    display_name = i18n.t("components.vectorstores.clickhouse.display_name")
+    description = i18n.t("components.vectorstores.clickhouse.description")
     name = "Clickhouse"
     icon = "Clickhouse"
 
@@ -27,101 +28,84 @@ class ClickhouseVectorStoreComponent(LCVectorStoreComponent):
     inputs = [
         StrInput(
             name="host",
-            display_name=i18n.t(
-                'components.vectorstores.clickhouse.host.display_name'),
+            display_name=i18n.t("components.vectorstores.clickhouse.host.display_name"),
             required=True,
-            value="localhost"
+            value="localhost",
         ),
         IntInput(
             name="port",
-            display_name=i18n.t(
-                'components.vectorstores.clickhouse.port.display_name'),
+            display_name=i18n.t("components.vectorstores.clickhouse.port.display_name"),
             required=True,
-            value=8123
+            value=8123,
         ),
         StrInput(
             name="database",
-            display_name=i18n.t(
-                'components.vectorstores.clickhouse.database.display_name'),
-            required=True
+            display_name=i18n.t("components.vectorstores.clickhouse.database.display_name"),
+            required=True,
         ),
         StrInput(
-            name="table",
-            display_name=i18n.t(
-                'components.vectorstores.clickhouse.table.display_name'),
-            required=True
+            name="table", display_name=i18n.t("components.vectorstores.clickhouse.table.display_name"), required=True
         ),
         StrInput(
             name="username",
-            display_name=i18n.t(
-                'components.vectorstores.clickhouse.username.display_name'),
-            required=True
+            display_name=i18n.t("components.vectorstores.clickhouse.username.display_name"),
+            required=True,
         ),
         SecretStrInput(
             name="password",
-            display_name=i18n.t(
-                'components.vectorstores.clickhouse.password.display_name'),
-            required=True
+            display_name=i18n.t("components.vectorstores.clickhouse.password.display_name"),
+            required=True,
         ),
         DropdownInput(
             name="index_type",
-            display_name=i18n.t(
-                'components.vectorstores.clickhouse.index_type.display_name'),
+            display_name=i18n.t("components.vectorstores.clickhouse.index_type.display_name"),
             options=["annoy", "vector_similarity"],
-            info=i18n.t('components.vectorstores.clickhouse.index_type.info'),
+            info=i18n.t("components.vectorstores.clickhouse.index_type.info"),
             value="annoy",
             advanced=True,
         ),
         DropdownInput(
             name="metric",
-            display_name=i18n.t(
-                'components.vectorstores.clickhouse.metric.display_name'),
+            display_name=i18n.t("components.vectorstores.clickhouse.metric.display_name"),
             options=["angular", "euclidean", "manhattan", "hamming", "dot"],
-            info=i18n.t('components.vectorstores.clickhouse.metric.info'),
+            info=i18n.t("components.vectorstores.clickhouse.metric.info"),
             value="angular",
             advanced=True,
         ),
         BoolInput(
             name="secure",
-            display_name=i18n.t(
-                'components.vectorstores.clickhouse.secure.display_name'),
+            display_name=i18n.t("components.vectorstores.clickhouse.secure.display_name"),
             value=False,
             advanced=True,
         ),
         StrInput(
             name="index_param",
-            display_name=i18n.t(
-                'components.vectorstores.clickhouse.index_param.display_name'),
+            display_name=i18n.t("components.vectorstores.clickhouse.index_param.display_name"),
             value="100,'L2Distance'",
-            advanced=True
+            advanced=True,
         ),
         DictInput(
             name="index_query_params",
-            display_name=i18n.t(
-                'components.vectorstores.clickhouse.index_query_params.display_name'),
-            advanced=True
+            display_name=i18n.t("components.vectorstores.clickhouse.index_query_params.display_name"),
+            advanced=True,
         ),
         *LCVectorStoreComponent.inputs,
         HandleInput(
             name="embedding",
-            display_name=i18n.t(
-                'components.vectorstores.clickhouse.embedding.display_name'),
-            input_types=["Embeddings"]
+            display_name=i18n.t("components.vectorstores.clickhouse.embedding.display_name"),
+            input_types=["Embeddings"],
         ),
         IntInput(
             name="number_of_results",
-            display_name=i18n.t(
-                'components.vectorstores.clickhouse.number_of_results.display_name'),
-            info=i18n.t(
-                'components.vectorstores.clickhouse.number_of_results.info'),
+            display_name=i18n.t("components.vectorstores.clickhouse.number_of_results.display_name"),
+            info=i18n.t("components.vectorstores.clickhouse.number_of_results.info"),
             value=4,
             advanced=True,
         ),
         FloatInput(
             name="score_threshold",
-            display_name=i18n.t(
-                'components.vectorstores.clickhouse.score_threshold.display_name'),
-            advanced=True
+            display_name=i18n.t("components.vectorstores.clickhouse.score_threshold.display_name"),
+            advanced=True,
         ),
     ]
 
@@ -174,12 +158,10 @@ class ClickhouseVectorStoreComponent(LCVectorStoreComponent):
             **kwargs,
         )
         if documents:
-            clickhouse_vs = Clickhouse.from_documents(
-                documents=documents, embedding=self.embedding, config=settings)
+            clickhouse_vs = Clickhouse.from_documents(documents=documents, embedding=self.embedding, config=settings)
 
         else:
-            clickhouse_vs = Clickhouse(
-                embedding=self.embedding, config=settings)
+            clickhouse_vs = Clickhouse(embedding=self.embedding, config=settings)
 
         return clickhouse_vs
 
@@ -191,8 +173,7 @@ class ClickhouseVectorStoreComponent(LCVectorStoreComponent):
             if self.score_threshold:
                 kwargs["score_threshold"] = self.score_threshold
 
-            docs = vector_store.similarity_search(
-                query=self.search_query, k=self.number_of_results, **kwargs)
+            docs = vector_store.similarity_search(query=self.search_query, k=self.number_of_results, **kwargs)
 
             data = docs_to_data(docs)
             self.status = data

@@ -349,4 +349,18 @@ export type TableOptionsTypeAPI = {
   >;
   field_parsers?: Array<FieldParserType | { [key: string]: FieldParserType }>;
   description?: string;
+  action_buttons?: Array<{
+    name: string;
+    label: string;
+    icon: string;
+    position: "top" | "bottom";
+    preview_upstream?: {
+      enabled: boolean;
+      input_name: string;
+      sample_size?: number;
+      transform?: (
+        fields: Array<{ field_name: string; data_type: string }>,
+      ) => any;
+    };
+  }>;
 };

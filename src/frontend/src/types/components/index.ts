@@ -71,6 +71,11 @@ export type DropDownComponent = {
   dialogInputs?: any;
   externalOptions?: any;
   toggle?: boolean;
+  actionButton?: {
+    label: string;
+    icon?: string;
+    action: string;
+  };
 };
 export type ParameterComponentType = {
   selected?: boolean;

@@ -1,4 +1,5 @@
 import os
+
 import i18n
 from langchain_community.chat_models.baidu_qianfan_endpoint import QianfanChatEndpoint
 
@@ -9,10 +10,8 @@ from lfx.log.logger import logger
 
 
 class QianfanChatEndpointComponent(LCModelComponent):
-    display_name: str = i18n.t(
-        'components.baidu.baidu_qianfan_chat.display_name')
-    description: str = i18n.t(
-        'components.baidu.baidu_qianfan_chat.description')
+    display_name: str = i18n.t("components.baidu.baidu_qianfan_chat.display_name")
+    description: str = i18n.t("components.baidu.baidu_qianfan_chat.description")
     documentation: str = "https://python.langchain.com/docs/integrations/chat/baidu_qianfan_endpoint"
     icon = "BaiduQianfan"
     name = "BaiduQianfanChatModel"
@@ -23,8 +22,7 @@ class QianfanChatEndpointComponent(LCModelComponent):
         *LCModelComponent.get_base_inputs(),
         DropdownInput(
             name="model",
-            display_name=i18n.t(
-                'components.baidu.baidu_qianfan_chat.model.display_name'),
+            display_name=i18n.t("components.baidu.baidu_qianfan_chat.model.display_name"),
             options=[
                 "EB-turbo-AppBuilder",
                 "Llama-2-70b-chat",
@@ -52,66 +50,61 @@ class QianfanChatEndpointComponent(LCModelComponent):
                 "ERNIE-Speed-8K",
                 "Yi-34B-Chat",
             ],
-            info=i18n.t('components.baidu.baidu_qianfan_chat.model.info'),
+            info=i18n.t("components.baidu.baidu_qianfan_chat.model.info"),
             value="ERNIE-4.0-8K",
         ),
         SecretStrInput(
             name="qianfan_ak",
-            display_name=i18n.t(
-                'components.baidu.baidu_qianfan_chat.qianfan_ak.display_name'),
-            info=i18n.t('components.baidu.baidu_qianfan_chat.qianfan_ak.info'),
+            display_name=i18n.t("components.baidu.baidu_qianfan_chat.qianfan_ak.display_name"),
+            info=i18n.t("components.baidu.baidu_qianfan_chat.qianfan_ak.info"),
         ),
         SecretStrInput(
             name="qianfan_sk",
-            display_name=i18n.t(
-                'components.baidu.baidu_qianfan_chat.qianfan_sk.display_name'),
-            info=i18n.t('components.baidu.baidu_qianfan_chat.qianfan_sk.info'),
+            display_name=i18n.t("components.baidu.baidu_qianfan_chat.qianfan_sk.display_name"),
+            info=i18n.t("components.baidu.baidu_qianfan_chat.qianfan_sk.info"),
         ),
         FloatInput(
             name="top_p",
-            display_name=i18n.t(
-                'components.baidu.baidu_qianfan_chat.top_p.display_name'),
-            info=i18n.t('components.baidu.baidu_qianfan_chat.top_p.info'),
+            display_name=i18n.t("components.baidu.baidu_qianfan_chat.top_p.display_name"),
+            info=i18n.t("components.baidu.baidu_qianfan_chat.top_p.info"),
             value=0.8,
             advanced=True,
         ),
         FloatInput(
             name="temperature",
-            display_name=i18n.t(
-                'components.baidu.baidu_qianfan_chat.temperature.display_name'),
-            info=i18n.t(
-                'components.baidu.baidu_qianfan_chat.temperature.info'),
+            display_name=i18n.t("components.baidu.baidu_qianfan_chat.temperature.display_name"),
+            info=i18n.t("components.baidu.baidu_qianfan_chat.temperature.info"),
             value=0.95,
         ),
         FloatInput(
             name="penalty_score",
-            display_name=i18n.t(
-                'components.baidu.baidu_qianfan_chat.penalty_score.display_name'),
-            info=i18n.t(
-                'components.baidu.baidu_qianfan_chat.penalty_score.info'),
+            display_name=i18n.t("components.baidu.baidu_qianfan_chat.penalty_score.display_name"),
+            info=i18n.t("components.baidu.baidu_qianfan_chat.penalty_score.info"),
             value=1.0,
             advanced=True,
         ),
         MessageTextInput(
             name="endpoint",
-            display_name=i18n.t(
-                'components.baidu.baidu_qianfan_chat.endpoint.display_name'),
-            info=i18n.t('components.baidu.baidu_qianfan_chat.endpoint.info')
+            display_name=i18n.t("components.baidu.baidu_qianfan_chat.endpoint.display_name"),
+            info=i18n.t("components.baidu.baidu_qianfan_chat.endpoint.info"),
         ),
     ]
 
     def build_model(self) -> LanguageModel:  # type: ignore[type-var]
         """Build Baidu Qianfan chat model."""
         try:
-            self.status = i18n.t('components.baidu.baidu_qianfan_chat.status.initializing',
-                                 model=self.model)
+            self.status = i18n.t("components.baidu.baidu_qianfan_chat.status.initializing", model=self.model)
 
-            logger.debug(i18n.t('components.baidu.baidu_qianfan_chat.logs.building_model',
-                                model=self.model,
-                                temperature=self.temperature,
-                                top_p=self.top_p,
-                                penalty_score=self.penalty_score,
-                                has_endpoint=bool(self.endpoint)))
+            logger.debug(
+                i18n.t(
+                    "components.baidu.baidu_qianfan_chat.logs.building_model",
+                    model=self.model,
+                    temperature=self.temperature,
+                    top_p=self.top_p,
+                    penalty_score=self.penalty_score,
+                    has_endpoint=bool(self.endpoint),
+                )
+            )
 
             kwargs = {
                 "model": self.model,
@@ -124,20 +117,19 @@ class QianfanChatEndpointComponent(LCModelComponent):
 
             if self.endpoint:  # Only add endpoint if it has a value
                 kwargs["endpoint"] = self.endpoint
-                logger.debug(i18n.t('components.baidu.baidu_qianfan_chat.logs.custom_endpoint_set',
-                                    endpoint=self.endpoint))
+                logger.debug(
+                    i18n.t("components.baidu.baidu_qianfan_chat.logs.custom_endpoint_set", endpoint=self.endpoint)
+                )
 
             output = QianfanChatEndpoint(**kwargs)
 
-            success_msg = i18n.t('components.baidu.baidu_qianfan_chat.success.model_initialized',
-                                 model=self.model)
+            success_msg = i18n.t("components.baidu.baidu_qianfan_chat.success.model_initialized", model=self.model)
             logger.info(success_msg)
             self.status = success_msg
 
             return output
 
         except Exception as e:
-            error_msg = i18n.t('components.baidu.baidu_qianfan_chat.errors.connection_failed',
-                               error=str(e))
+            error_msg = i18n.t("components.baidu.baidu_qianfan_chat.errors.connection_failed", error=str(e))
             logger.exception(error_msg)
             raise ValueError(error_msg) from e

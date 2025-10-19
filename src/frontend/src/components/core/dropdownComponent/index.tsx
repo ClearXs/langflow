@@ -8,6 +8,7 @@ import LoadingTextComponent from "@/components/common/loadingTextComponent";
 import { usePostTemplateValue } from "@/controllers/API/queries/nodes/use-post-template-value";
 import { useFormLocale } from "@/i18n/locale";
 import useAlertStore from "@/stores/alertStore";
+import useDatasourceDialogStore from "@/stores/datasourceDialogStore";
 import useFlowStore from "@/stores/flowStore";
 import { useTypesStore } from "@/stores/typesStore";
 import { scapedJSONStringfy } from "@/utils/reactflowUtils";
@@ -60,6 +61,7 @@ export default function Dropdown({
   externalOptions,
   handleOnNewValue,
   toggle,
+  actionButton,
   ...baseInputProps
 }: BaseInputProps & DropDownComponent): JSX.Element {
   const validOptions = useMemo(
@@ -114,6 +116,9 @@ export default function Dropdown({
     node: nodeClass,
   });
   const setErrorData = useAlertStore((state) => state.setErrorData);
+  const openDatasourceDialog = useDatasourceDialogStore(
+    (state) => state.openDialog,
+  );
 
   // Utility functions
   const filterMetadataKeys = (
@@ -280,6 +285,12 @@ export default function Dropdown({
         setRefreshOptions(false);
       }, 2000);
     });
+  };
+
+  const handleActionButtonPress = () => {
+    setOpen(false);
+    // Open datasource dialog
+    openDatasourceDialog();
   };
 
   const formatTooltipContent = (option: string, index: number) => {
@@ -642,6 +653,23 @@ export default function Dropdown({
               </div>
             </CommandItem>
           )}
+          {actionButton && (
+            <CommandItem
+              className="flex w-full cursor-pointer items-center justify-start gap-2 truncate rounded-none py-2.5 text-xs font-semibold text-muted-foreground hover:bg-muted hover:text-foreground"
+              onSelect={() => {
+                handleActionButtonPress();
+              }}
+              data-testid={`action-dropdown-${name}`}
+            >
+              <div className="flex items-center gap-2 pl-1 text-[13px] font-semibold">
+                <ForwardedIconComponent
+                  name={actionButton.icon || "Plus"}
+                  className={cn("h-3 w-3")}
+                />
+                {actionButton.label}
+              </div>
+            </CommandItem>
+          )}
           <NodeDialog
             open={openDialog}
             dialogInputs={dialogInputs}
@@ -670,26 +698,48 @@ export default function Dropdown({
       <Command className="flex flex-col">
         {options?.length > 0 && renderSearchInput()}
         {renderOptionsList()}
-        {!sourceOptions?.fields && hasRefreshButton && (
+        {!sourceOptions?.fields && (hasRefreshButton || actionButton) && (
           <div className="sticky bottom-0 border-t bg-background">
-            <CommandItem className="flex cursor-pointer items-center justify-start gap-2 truncate rounded-b-md py-3 text-xs font-semibold text-muted-foreground">
-              <Button
-                className="w-full"
-                unstyled
-                data-testid={`refresh-dropdown-list-${name}`}
-                onClick={() => {
-                  handleRefreshButtonPress();
-                }}
-              >
-                <div className="flex items-center gap-2 pl-1">
-                  <ForwardedIconComponent
-                    name="RefreshCcw"
-                    className={cn("refresh-icon h-3 w-3 text-primary")}
-                  />
-                  {t("dropdown.refreshList")}
-                </div>
-              </Button>
-            </CommandItem>
+            {hasRefreshButton && (
+              <CommandItem className="flex cursor-pointer items-center justify-start gap-2 truncate rounded-b-md py-3 text-xs font-semibold text-muted-foreground">
+                <Button
+                  className="w-full"
+                  unstyled
+                  data-testid={`refresh-dropdown-list-${name}`}
+                  onClick={() => {
+                    handleRefreshButtonPress();
+                  }}
+                >
+                  <div className="flex items-center gap-2 pl-1">
+                    <ForwardedIconComponent
+                      name="RefreshCcw"
+                      className={cn("refresh-icon h-3 w-3 text-primary")}
+                    />
+                    {t("dropdown.refreshList")}
+                  </div>
+                </Button>
+              </CommandItem>
+            )}
+            {actionButton && (
+              <CommandItem className="flex cursor-pointer items-center justify-start gap-2 truncate rounded-b-md py-3 text-xs font-semibold text-muted-foreground">
+                <Button
+                  className="w-full"
+                  unstyled
+                  data-testid={`action-dropdown-${name}`}
+                  onClick={() => {
+                    handleActionButtonPress();
+                  }}
+                >
+                  <div className="flex items-center gap-2 pl-1">
+                    <ForwardedIconComponent
+                      name={actionButton.icon || "Plus"}
+                      className={cn("h-3 w-3 text-primary")}
+                    />
+                    {actionButton.label}
+                  </div>
+                </Button>
+              </CommandItem>
+            )}
           </div>
         )}
       </Command>

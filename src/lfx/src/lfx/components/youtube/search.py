@@ -1,7 +1,7 @@
 import os
-import i18n
 from contextlib import contextmanager
 
+import i18n
 import pandas as pd
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
@@ -15,8 +15,8 @@ from lfx.template.field.base import Output
 class YouTubeSearchComponent(Component):
     """A component that searches YouTube videos."""
 
-    display_name: str = i18n.t('components.youtube.search.display_name')
-    description: str = i18n.t('components.youtube.search.description')
+    display_name: str = i18n.t("components.youtube.search.display_name")
+    description: str = i18n.t("components.youtube.search.description")
     icon: str = "YouTube"
 
     ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
@@ -24,49 +24,42 @@ class YouTubeSearchComponent(Component):
     inputs = [
         MessageTextInput(
             name="query",
-            display_name=i18n.t(
-                'components.youtube.search.query.display_name'),
-            info=i18n.t('components.youtube.search.query.info'),
+            display_name=i18n.t("components.youtube.search.query.display_name"),
+            info=i18n.t("components.youtube.search.query.info"),
             tool_mode=True,
             required=True,
         ),
         SecretStrInput(
             name="api_key",
-            display_name=i18n.t(
-                'components.youtube.search.api_key.display_name'),
-            info=i18n.t('components.youtube.search.api_key.info'),
+            display_name=i18n.t("components.youtube.search.api_key.display_name"),
+            info=i18n.t("components.youtube.search.api_key.info"),
             required=True,
         ),
         IntInput(
             name="max_results",
-            display_name=i18n.t(
-                'components.youtube.search.max_results.display_name'),
+            display_name=i18n.t("components.youtube.search.max_results.display_name"),
             value=10,
-            info=i18n.t('components.youtube.search.max_results.info'),
+            info=i18n.t("components.youtube.search.max_results.info"),
         ),
         DropdownInput(
             name="order",
-            display_name=i18n.t(
-                'components.youtube.search.order.display_name'),
+            display_name=i18n.t("components.youtube.search.order.display_name"),
             options=["relevance", "date", "rating", "title", "viewCount"],
             value="relevance",
-            info=i18n.t('components.youtube.search.order.info'),
+            info=i18n.t("components.youtube.search.order.info"),
         ),
         BoolInput(
             name="include_metadata",
-            display_name=i18n.t(
-                'components.youtube.search.include_metadata.display_name'),
+            display_name=i18n.t("components.youtube.search.include_metadata.display_name"),
             value=True,
-            info=i18n.t('components.youtube.search.include_metadata.info'),
+            info=i18n.t("components.youtube.search.include_metadata.info"),
             advanced=True,
         ),
     ]
 
     outputs = [
         Output(
-            name="results",
-            display_name=i18n.t('components.youtube.search.outputs.results'),
-            method="search_videos"
+            name="results", display_name=i18n.t("components.youtube.search.outputs.results"), method="search_videos"
         ),
     ]
 
@@ -111,8 +104,7 @@ class YouTubeSearchComponent(Component):
 
                     if self.include_metadata:
                         # Get video details for additional metadata
-                        video_response = youtube.videos().list(
-                            part="statistics,contentDetails", id=video_id).execute()
+                        video_response = youtube.videos().list(part="statistics,contentDetails", id=video_id).execute()
 
                         if video_response.get("items"):
                             video_details = video_response["items"][0]

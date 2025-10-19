@@ -121,6 +121,26 @@ export const useSidebarCategories = () => {
         name: "tools",
         icon: "Hammer",
       },
+      {
+        display_name: t("flow.sidebar.components.manipulations"),
+        name: "manipulations",
+        icon: "Shuffle",
+      },
+      {
+        display_name: t("flow.sidebar.components.operations"),
+        name: "operations",
+        icon: "Calculator",
+      },
+      {
+        display_name: t("flow.sidebar.components.scripts"),
+        name: "scripts",
+        icon: "FileCode",
+      },
+      {
+        display_name: t("flow.sidebar.components.security"),
+        name: "security",
+        icon: "Shield",
+      },
     ],
     [],
   );

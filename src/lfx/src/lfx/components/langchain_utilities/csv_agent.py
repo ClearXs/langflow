@@ -1,4 +1,5 @@
 import os
+
 import i18n
 from langchain_experimental.agents.agent_toolkits.csv.base import create_csv_agent
 
@@ -17,10 +18,8 @@ from lfx.template.field.base import Output
 
 class CSVAgentComponent(LCAgentComponent):
     ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
-    display_name = i18n.t(
-        'components.langchain_utilities.csv_agent.display_name')
-    description = i18n.t(
-        'components.langchain_utilities.csv_agent.description')
+    display_name = i18n.t("components.langchain_utilities.csv_agent.display_name")
+    description = i18n.t("components.langchain_utilities.csv_agent.description")
     documentation = "https://python.langchain.com/docs/modules/agents/toolkits/csv"
     name = "CSVAgent"
     icon = "LangChain"
@@ -29,44 +28,36 @@ class CSVAgentComponent(LCAgentComponent):
         *LCAgentComponent.get_base_inputs(),
         HandleInput(
             name="llm",
-            display_name=i18n.t(
-                'components.langchain_utilities.csv_agent.llm.display_name'),
+            display_name=i18n.t("components.langchain_utilities.csv_agent.llm.display_name"),
             input_types=["LanguageModel"],
             required=True,
-            info=i18n.t('components.langchain_utilities.csv_agent.llm.info'),
+            info=i18n.t("components.langchain_utilities.csv_agent.llm.info"),
         ),
         FileInput(
             name="path",
-            display_name=i18n.t(
-                'components.langchain_utilities.csv_agent.path.display_name'),
+            display_name=i18n.t("components.langchain_utilities.csv_agent.path.display_name"),
             file_types=["csv"],
             input_types=["str", "Message"],
             required=True,
-            info=i18n.t('components.langchain_utilities.csv_agent.path.info'),
+            info=i18n.t("components.langchain_utilities.csv_agent.path.info"),
         ),
         DropdownInput(
             name="agent_type",
-            display_name=i18n.t(
-                'components.langchain_utilities.csv_agent.agent_type.display_name'),
+            display_name=i18n.t("components.langchain_utilities.csv_agent.agent_type.display_name"),
             advanced=True,
-            options=["zero-shot-react-description",
-                     "openai-functions", "openai-tools"],
+            options=["zero-shot-react-description", "openai-functions", "openai-tools"],
             value="openai-tools",
         ),
         MessageTextInput(
             name="input_value",
-            display_name=i18n.t(
-                'components.langchain_utilities.csv_agent.input_value.display_name'),
-            info=i18n.t(
-                'components.langchain_utilities.csv_agent.input_value.info'),
+            display_name=i18n.t("components.langchain_utilities.csv_agent.input_value.display_name"),
+            info=i18n.t("components.langchain_utilities.csv_agent.input_value.info"),
             required=True,
         ),
         DictInput(
             name="pandas_kwargs",
-            display_name=i18n.t(
-                'components.langchain_utilities.csv_agent.pandas_kwargs.display_name'),
-            info=i18n.t(
-                'components.langchain_utilities.csv_agent.pandas_kwargs.info'),
+            display_name=i18n.t("components.langchain_utilities.csv_agent.pandas_kwargs.display_name"),
+            info=i18n.t("components.langchain_utilities.csv_agent.pandas_kwargs.info"),
             advanced=True,
             is_list=True,
         ),
@@ -74,18 +65,16 @@ class CSVAgentComponent(LCAgentComponent):
 
     outputs = [
         Output(
-            display_name=i18n.t(
-                'components.langchain_utilities.csv_agent.outputs.response.display_name'),
+            display_name=i18n.t("components.langchain_utilities.csv_agent.outputs.response.display_name"),
             name="response",
-            method="build_agent_response"
+            method="build_agent_response",
         ),
         Output(
-            display_name=i18n.t(
-                'components.langchain_utilities.csv_agent.outputs.agent.display_name'),
+            display_name=i18n.t("components.langchain_utilities.csv_agent.outputs.agent.display_name"),
             name="agent",
             method="build_agent",
             hidden=True,
-            tool_mode=False
+            tool_mode=False,
         ),
     ]
 

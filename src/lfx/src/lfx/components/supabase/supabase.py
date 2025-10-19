@@ -1,4 +1,5 @@
 import os
+
 import i18n
 from langchain_community.vectorstores import SupabaseVectorStore
 from supabase.client import Client, create_client
@@ -10,8 +11,8 @@ from lfx.schema.data import Data
 
 
 class SupabaseVectorStoreComponent(LCVectorStoreComponent):
-    display_name = i18n.t('components.supabase.supabase.display_name')
-    description = i18n.t('components.supabase.supabase.description')
+    display_name = i18n.t("components.supabase.supabase.display_name")
+    description = i18n.t("components.supabase.supabase.description")
     documentation = "https://python.langchain.com/docs/integrations/vectorstores/supabase"
     name = "SupabaseVectorStore"
     icon = "Supabase"
@@ -21,39 +22,30 @@ class SupabaseVectorStoreComponent(LCVectorStoreComponent):
     inputs = [
         StrInput(
             name="supabase_url",
-            display_name=i18n.t(
-                'components.supabase.supabase.supabase_url.display_name'),
-            required=True
+            display_name=i18n.t("components.supabase.supabase.supabase_url.display_name"),
+            required=True,
         ),
         SecretStrInput(
             name="supabase_service_key",
-            display_name=i18n.t(
-                'components.supabase.supabase.supabase_service_key.display_name'),
-            required=True
+            display_name=i18n.t("components.supabase.supabase.supabase_service_key.display_name"),
+            required=True,
         ),
         StrInput(
             name="table_name",
-            display_name=i18n.t(
-                'components.supabase.supabase.table_name.display_name'),
-            advanced=True
+            display_name=i18n.t("components.supabase.supabase.table_name.display_name"),
+            advanced=True,
         ),
-        StrInput(
-            name="query_name",
-            display_name=i18n.t(
-                'components.supabase.supabase.query_name.display_name')
-        ),
+        StrInput(name="query_name", display_name=i18n.t("components.supabase.supabase.query_name.display_name")),
         *LCVectorStoreComponent.inputs,
         HandleInput(
             name="embedding",
-            display_name=i18n.t(
-                'components.supabase.supabase.embedding.display_name'),
-            input_types=["Embeddings"]
+            display_name=i18n.t("components.supabase.supabase.embedding.display_name"),
+            input_types=["Embeddings"],
         ),
         IntInput(
             name="number_of_results",
-            display_name=i18n.t(
-                'components.supabase.supabase.number_of_results.display_name'),
-            info=i18n.t('components.supabase.supabase.number_of_results.info'),
+            display_name=i18n.t("components.supabase.supabase.number_of_results.display_name"),
+            info=i18n.t("components.supabase.supabase.number_of_results.info"),
             value=4,
             advanced=True,
         ),
@@ -61,8 +53,7 @@ class SupabaseVectorStoreComponent(LCVectorStoreComponent):
 
     @check_cached_vector_store
     def build_vector_store(self) -> SupabaseVectorStore:
-        supabase: Client = create_client(
-            self.supabase_url, supabase_key=self.supabase_service_key)
+        supabase: Client = create_client(self.supabase_url, supabase_key=self.supabase_service_key)
 
         # Convert DataFrame to Data if needed using parent's method
         self.ingest_data = self._prepare_ingest_data()

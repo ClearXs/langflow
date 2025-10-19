@@ -1,4 +1,5 @@
 import type { Dispatch, SetStateAction } from "react";
+import { useIsEmbedded } from "@/hooks/use-iframe-params";
 import useFlowStore from "@/stores/flowStore";
 import PublishDropdown from "./deploy-dropdown";
 import PlaygroundButton from "./playground-button";
@@ -17,6 +18,8 @@ const FlowToolbarOptions = ({
 }: FlowToolbarOptionsProps) => {
   const hasIO = useFlowStore((state) => state.hasIO);
 
+  const isEmbedded = useIsEmbedded();
+
   return (
     <div className="flex items-center gap-1.5">
       <div className="flex h-full w-full gap-1.5 rounded-sm transition-all">
@@ -27,10 +30,12 @@ const FlowToolbarOptions = ({
           canvasOpen
         />
       </div>
-      <PublishDropdown
-        openApiModal={openApiModal}
-        setOpenApiModal={setOpenApiModal}
-      />
+      {!isEmbedded && (
+        <PublishDropdown
+          openApiModal={openApiModal}
+          setOpenApiModal={setOpenApiModal}
+        />
+      )}
     </div>
   );
 };

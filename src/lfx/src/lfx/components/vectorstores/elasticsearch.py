@@ -1,7 +1,7 @@
 import os
-import i18n
 from typing import Any
 
+import i18n
 from elasticsearch import Elasticsearch
 from langchain.schema import Document
 from langchain_elasticsearch import ElasticsearchStore
@@ -22,10 +22,8 @@ from lfx.schema.data import Data
 class ElasticsearchVectorStoreComponent(LCVectorStoreComponent):
     """Elasticsearch Vector Store with with advanced, customizable search capabilities."""
 
-    display_name: str = i18n.t(
-        'components.vectorstores.elasticsearch.display_name')
-    description: str = i18n.t(
-        'components.vectorstores.elasticsearch.description')
+    display_name: str = i18n.t("components.vectorstores.elasticsearch.display_name")
+    description: str = i18n.t("components.vectorstores.elasticsearch.description")
     name = "Elasticsearch"
     icon = "ElasticsearchStore"
 
@@ -34,92 +32,76 @@ class ElasticsearchVectorStoreComponent(LCVectorStoreComponent):
     inputs = [
         StrInput(
             name="elasticsearch_url",
-            display_name=i18n.t(
-                'components.vectorstores.elasticsearch.elasticsearch_url.display_name'),
+            display_name=i18n.t("components.vectorstores.elasticsearch.elasticsearch_url.display_name"),
             value="http://localhost:9200",
-            info=i18n.t(
-                'components.vectorstores.elasticsearch.elasticsearch_url.info'),
+            info=i18n.t("components.vectorstores.elasticsearch.elasticsearch_url.info"),
         ),
         SecretStrInput(
             name="cloud_id",
-            display_name=i18n.t(
-                'components.vectorstores.elasticsearch.cloud_id.display_name'),
+            display_name=i18n.t("components.vectorstores.elasticsearch.cloud_id.display_name"),
             value="",
-            info=i18n.t('components.vectorstores.elasticsearch.cloud_id.info'),
+            info=i18n.t("components.vectorstores.elasticsearch.cloud_id.info"),
         ),
         StrInput(
             name="index_name",
-            display_name=i18n.t(
-                'components.vectorstores.elasticsearch.index_name.display_name'),
+            display_name=i18n.t("components.vectorstores.elasticsearch.index_name.display_name"),
             value="langflow",
-            info=i18n.t(
-                'components.vectorstores.elasticsearch.index_name.info'),
+            info=i18n.t("components.vectorstores.elasticsearch.index_name.info"),
         ),
         *LCVectorStoreComponent.inputs,
         StrInput(
             name="username",
-            display_name=i18n.t(
-                'components.vectorstores.elasticsearch.username.display_name'),
+            display_name=i18n.t("components.vectorstores.elasticsearch.username.display_name"),
             value="",
             advanced=False,
-            info=i18n.t('components.vectorstores.elasticsearch.username.info'),
+            info=i18n.t("components.vectorstores.elasticsearch.username.info"),
         ),
         SecretStrInput(
             name="password",
-            display_name=i18n.t(
-                'components.vectorstores.elasticsearch.password.display_name'),
+            display_name=i18n.t("components.vectorstores.elasticsearch.password.display_name"),
             value="",
             advanced=False,
-            info=i18n.t('components.vectorstores.elasticsearch.password.info'),
+            info=i18n.t("components.vectorstores.elasticsearch.password.info"),
         ),
         HandleInput(
             name="embedding",
-            display_name=i18n.t(
-                'components.vectorstores.elasticsearch.embedding.display_name'),
+            display_name=i18n.t("components.vectorstores.elasticsearch.embedding.display_name"),
             input_types=["Embeddings"],
         ),
         DropdownInput(
             name="search_type",
-            display_name=i18n.t(
-                'components.vectorstores.elasticsearch.search_type.display_name'),
+            display_name=i18n.t("components.vectorstores.elasticsearch.search_type.display_name"),
             options=["similarity", "mmr"],
             value="similarity",
             advanced=True,
         ),
         IntInput(
             name="number_of_results",
-            display_name=i18n.t(
-                'components.vectorstores.elasticsearch.number_of_results.display_name'),
-            info=i18n.t(
-                'components.vectorstores.elasticsearch.number_of_results.info'),
+            display_name=i18n.t("components.vectorstores.elasticsearch.number_of_results.display_name"),
+            info=i18n.t("components.vectorstores.elasticsearch.number_of_results.info"),
             advanced=True,
             value=4,
         ),
         FloatInput(
             name="search_score_threshold",
-            display_name=i18n.t(
-                'components.vectorstores.elasticsearch.search_score_threshold.display_name'),
-            info=i18n.t(
-                'components.vectorstores.elasticsearch.search_score_threshold.info'),
+            display_name=i18n.t("components.vectorstores.elasticsearch.search_score_threshold.display_name"),
+            info=i18n.t("components.vectorstores.elasticsearch.search_score_threshold.info"),
             value=0.0,
             advanced=True,
         ),
         SecretStrInput(
             name="api_key",
-            display_name=i18n.t(
-                'components.vectorstores.elasticsearch.api_key.display_name'),
+            display_name=i18n.t("components.vectorstores.elasticsearch.api_key.display_name"),
             value="",
             advanced=True,
-            info=i18n.t('components.vectorstores.elasticsearch.api_key.info'),
+            info=i18n.t("components.vectorstores.elasticsearch.api_key.info"),
         ),
         BoolInput(
             name="verify_certs",
-            display_name=i18n.t(
-                'components.vectorstores.elasticsearch.verify_certs.display_name'),
+            display_name=i18n.t("components.vectorstores.elasticsearch.verify_certs.display_name"),
             value=True,
             advanced=True,
-            info=i18n.t(
-                'components.vectorstores.elasticsearch.verify_certs.info'),
+            info=i18n.t("components.vectorstores.elasticsearch.verify_certs.info"),
         ),
     ]
 
@@ -216,11 +198,9 @@ class ElasticsearchVectorStoreComponent(LCVectorStoreComponent):
                 raise ValueError(msg)
             try:
                 if search_type == "similarity":
-                    results = vector_store.similarity_search_with_score(
-                        query, **search_kwargs)
+                    results = vector_store.similarity_search_with_score(query, **search_kwargs)
                 elif search_type == "mmr":
-                    results = vector_store.max_marginal_relevance_search(
-                        query, **search_kwargs)
+                    results = vector_store.max_marginal_relevance_search(query, **search_kwargs)
             except Exception as e:
                 msg = (
                     "Error occurred while querying the Elasticsearch VectorStore,"

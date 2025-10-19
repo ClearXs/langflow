@@ -1,5 +1,5 @@
-import os
 from typing import Any
+
 import i18n
 
 from lfx.base.flow_processing.utils import build_data_from_result_data
@@ -14,8 +14,8 @@ from lfx.schema.dotdict import dotdict
 
 
 class SubFlowComponent(Component):
-    display_name = i18n.t('components.logic.sub_flow.display_name')
-    description = i18n.t('components.logic.sub_flow.description')
+    display_name = i18n.t("components.logic.sub_flow.display_name")
+    description = i18n.t("components.logic.sub_flow.description")
     name = "SubFlow"
     legacy: bool = True
     replacement = ["logic.RunFlow"]
@@ -26,8 +26,7 @@ class SubFlowComponent(Component):
             flow_data = await self.alist_flows()
             return [flow_data.data["name"] for flow_data in flow_data]
         except Exception as e:
-            error_message = i18n.t(
-                'components.logic.sub_flow.errors.failed_to_get_flow_names', error=str(e))
+            error_message = i18n.t("components.logic.sub_flow.errors.failed_to_get_flow_names", error=str(e))
             await logger.aexception(error_message)
             return []
 
@@ -38,13 +37,11 @@ class SubFlowComponent(Component):
                 if flow_data.data["name"] == flow_name:
                     return flow_data
 
-            warning_message = i18n.t(
-                'components.logic.sub_flow.warnings.flow_not_found', flow=flow_name)
+            warning_message = i18n.t("components.logic.sub_flow.warnings.flow_not_found", flow=flow_name)
             await logger.awarning(warning_message)
             return None
         except Exception as e:
-            error_message = i18n.t(
-                'components.logic.sub_flow.errors.failed_to_get_flow', flow=flow_name, error=str(e))
+            error_message = i18n.t("components.logic.sub_flow.errors.failed_to_get_flow", flow=flow_name, error=str(e))
             await logger.aexception(error_message)
             return None
 
@@ -53,8 +50,7 @@ class SubFlowComponent(Component):
             try:
                 build_config["flow_name"]["options"] = await self.get_flow_names()
             except Exception as e:
-                error_message = i18n.t(
-                    'components.logic.sub_flow.errors.failed_to_update_flow_options', error=str(e))
+                error_message = i18n.t("components.logic.sub_flow.errors.failed_to_update_flow_options", error=str(e))
                 await logger.aexception(error_message)
 
         # Clean up old build config
@@ -66,14 +62,14 @@ class SubFlowComponent(Component):
             try:
                 flow_data = await self.get_flow(field_value)
             except Exception as e:
-                error_message = i18n.t('components.logic.sub_flow.errors.failed_to_get_flow',
-                                       flow=field_value, error=str(e))
+                error_message = i18n.t(
+                    "components.logic.sub_flow.errors.failed_to_get_flow", flow=field_value, error=str(e)
+                )
                 await logger.aexception(error_message)
                 self.status = error_message
             else:
                 if not flow_data:
-                    error_message = i18n.t(
-                        'components.logic.sub_flow.errors.flow_not_found', flow=field_value)
+                    error_message = i18n.t("components.logic.sub_flow.errors.flow_not_found", flow=field_value)
                     await logger.aerror(error_message)
                     self.status = error_message
                 else:
@@ -82,15 +78,18 @@ class SubFlowComponent(Component):
                         # Get all inputs from the graph
                         inputs = get_flow_inputs(graph)
                         # Add inputs to the build config
-                        build_config = self.add_inputs_to_build_config(
-                            inputs, build_config)
+                        build_config = self.add_inputs_to_build_config(inputs, build_config)
 
-                        success_message = i18n.t('components.logic.sub_flow.success.build_config_updated',
-                                                 flow=field_value, count=len(inputs))
+                        success_message = i18n.t(
+                            "components.logic.sub_flow.success.build_config_updated",
+                            flow=field_value,
+                            count=len(inputs),
+                        )
                         self.status = success_message
                     except Exception as e:
-                        error_message = i18n.t('components.logic.sub_flow.errors.failed_to_build_graph',
-                                               flow=field_value, error=str(e))
+                        error_message = i18n.t(
+                            "components.logic.sub_flow.errors.failed_to_build_graph", flow=field_value, error=str(e)
+                        )
                         await logger.aexception(error_message)
                         self.status = error_message
 
@@ -105,8 +104,7 @@ class SubFlowComponent(Component):
             for inp in field_template:
                 if inp not in {"code", "_type"}:
                     # Create display name with vertex name prefix
-                    original_display_name = field_template[inp].get(
-                        "display_name", inp)
+                    original_display_name = field_template[inp].get("display_name", inp)
                     field_template[inp]["display_name"] = f"{vertex.display_name} - {original_display_name}"
                     field_template[inp]["name"] = vertex.id + "|" + inp
                     new_vertex_inputs.append(field_template[inp])
@@ -120,9 +118,8 @@ class SubFlowComponent(Component):
     inputs = [
         DropdownInput(
             name="flow_name",
-            display_name=i18n.t(
-                'components.logic.sub_flow.flow_name.display_name'),
-            info=i18n.t('components.logic.sub_flow.flow_name.info'),
+            display_name=i18n.t("components.logic.sub_flow.flow_name.display_name"),
+            info=i18n.t("components.logic.sub_flow.flow_name.info"),
             options=[],
             refresh_button=True,
             real_time_refresh=True,
@@ -132,9 +129,8 @@ class SubFlowComponent(Component):
     outputs = [
         Output(
             name="flow_outputs",
-            display_name=i18n.t(
-                'components.logic.sub_flow.outputs.flow_outputs.display_name'),
-            method="generate_results"
+            display_name=i18n.t("components.logic.sub_flow.outputs.flow_outputs.display_name"),
+            method="generate_results",
         )
     ]
 
@@ -154,19 +150,16 @@ class SubFlowComponent(Component):
 
             flow_name = self._attributes.get("flow_name")
             if not flow_name:
-                error_message = i18n.t(
-                    'components.logic.sub_flow.errors.no_flow_selected')
+                error_message = i18n.t("components.logic.sub_flow.errors.no_flow_selected")
                 self.status = error_message
                 raise ValueError(error_message)
 
             if tweak_count > 0:
-                info_message = i18n.t('components.logic.sub_flow.info.using_tweaks',
-                                      count=tweak_count, flow=flow_name)
+                info_message = i18n.t("components.logic.sub_flow.info.using_tweaks", count=tweak_count, flow=flow_name)
                 self.status = info_message
 
             # Execute the sub flow
-            executing_message = i18n.t(
-                'components.logic.sub_flow.info.executing_sub_flow', flow=flow_name)
+            executing_message = i18n.t("components.logic.sub_flow.info.executing_sub_flow", flow=flow_name)
             self.status = executing_message
 
             run_outputs = await self.run_flow(
@@ -177,8 +170,7 @@ class SubFlowComponent(Component):
 
             data: list[Data] = []
             if not run_outputs:
-                warning_message = i18n.t(
-                    'components.logic.sub_flow.warnings.no_outputs')
+                warning_message = i18n.t("components.logic.sub_flow.warnings.no_outputs")
                 self.status = warning_message
                 return data
 
@@ -188,15 +180,15 @@ class SubFlowComponent(Component):
                     if output:
                         data.extend(build_data_from_result_data(output))
 
-            success_message = i18n.t('components.logic.sub_flow.success.sub_flow_executed',
-                                     flow=flow_name, outputs=len(data))
+            success_message = i18n.t(
+                "components.logic.sub_flow.success.sub_flow_executed", flow=flow_name, outputs=len(data)
+            )
             self.status = success_message
 
             return data
 
         except Exception as e:
-            error_message = i18n.t(
-                'components.logic.sub_flow.errors.execution_failed', error=str(e))
+            error_message = i18n.t("components.logic.sub_flow.errors.execution_failed", error=str(e))
             self.status = error_message
             await logger.aexception(error_message)
             raise ValueError(error_message) from e

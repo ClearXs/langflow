@@ -1,11 +1,11 @@
 from __future__ import annotations
-import os
 
-import i18n
 import json
+import os
 import uuid
 from typing import Any
 
+import i18n
 from opensearchpy import OpenSearch, helpers
 
 from lfx.base.vectorstores.model import LCVectorStoreComponent, check_cached_vector_store
@@ -33,7 +33,7 @@ class OpenSearchVectorStoreComponent(LCVectorStoreComponent):
 
     display_name: str = "OpenSearch"
     icon: str = "OpenSearch"
-    description: str = i18n.t('components.elastic.opensearch.description')
+    description: str = i18n.t("components.elastic.opensearch.description")
 
     ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
@@ -63,24 +63,22 @@ class OpenSearchVectorStoreComponent(LCVectorStoreComponent):
 
     inputs = [
         TableInput(
-            trigger_text=i18n.t(
-                'components.inputs.input_mixin.open_table'),
+            trigger_text=i18n.t("components.inputs.input_mixin.open_table"),
             name="docs_metadata",
-            display_name=i18n.t(
-                'components.elastic.opensearch.docs_metadata.display_name'),
-            info=i18n.t('components.elastic.opensearch.docs_metadata.info'),
+            display_name=i18n.t("components.elastic.opensearch.docs_metadata.display_name"),
+            info=i18n.t("components.elastic.opensearch.docs_metadata.info"),
             table_schema=[
                 {
                     "name": "key",
-                    "display_name": i18n.t('components.elastic.opensearch.docs_metadata.schema.key'),
+                    "display_name": i18n.t("components.elastic.opensearch.docs_metadata.schema.key"),
                     "type": "str",
-                    "description": i18n.t('components.elastic.opensearch.docs_metadata.schema.key_desc'),
+                    "description": i18n.t("components.elastic.opensearch.docs_metadata.schema.key_desc"),
                 },
                 {
                     "name": "value",
-                    "display_name": i18n.t('components.elastic.opensearch.docs_metadata.schema.value'),
+                    "display_name": i18n.t("components.elastic.opensearch.docs_metadata.schema.value"),
                     "type": "str",
-                    "description": i18n.t('components.elastic.opensearch.docs_metadata.schema.value_desc'),
+                    "description": i18n.t("components.elastic.opensearch.docs_metadata.schema.value_desc"),
                 },
             ],
             value=[],
@@ -88,148 +86,128 @@ class OpenSearchVectorStoreComponent(LCVectorStoreComponent):
         ),
         StrInput(
             name="opensearch_url",
-            display_name=i18n.t(
-                'components.elastic.opensearch.opensearch_url.display_name'),
+            display_name=i18n.t("components.elastic.opensearch.opensearch_url.display_name"),
             value="http://localhost:9200",
-            info=i18n.t('components.elastic.opensearch.opensearch_url.info'),
+            info=i18n.t("components.elastic.opensearch.opensearch_url.info"),
         ),
         StrInput(
             name="index_name",
-            display_name=i18n.t(
-                'components.elastic.opensearch.index_name.display_name'),
+            display_name=i18n.t("components.elastic.opensearch.index_name.display_name"),
             value="langflow",
-            info=i18n.t('components.elastic.opensearch.index_name.info'),
+            info=i18n.t("components.elastic.opensearch.index_name.info"),
         ),
         DropdownInput(
             name="engine",
-            display_name=i18n.t(
-                'components.elastic.opensearch.engine.display_name'),
+            display_name=i18n.t("components.elastic.opensearch.engine.display_name"),
             options=["jvector", "nmslib", "faiss", "lucene"],
             value="jvector",
-            info=i18n.t('components.elastic.opensearch.engine.info'),
+            info=i18n.t("components.elastic.opensearch.engine.info"),
             advanced=True,
         ),
         DropdownInput(
             name="space_type",
-            display_name=i18n.t(
-                'components.elastic.opensearch.space_type.display_name'),
+            display_name=i18n.t("components.elastic.opensearch.space_type.display_name"),
             options=["l2", "l1", "cosinesimil", "linf", "innerproduct"],
             value="l2",
-            info=i18n.t('components.elastic.opensearch.space_type.info'),
+            info=i18n.t("components.elastic.opensearch.space_type.info"),
             advanced=True,
         ),
         IntInput(
             name="ef_construction",
-            display_name=i18n.t(
-                'components.elastic.opensearch.ef_construction.display_name'),
+            display_name=i18n.t("components.elastic.opensearch.ef_construction.display_name"),
             value=512,
-            info=i18n.t('components.elastic.opensearch.ef_construction.info'),
+            info=i18n.t("components.elastic.opensearch.ef_construction.info"),
             advanced=True,
         ),
         IntInput(
             name="m",
-            display_name=i18n.t(
-                'components.elastic.opensearch.m.display_name'),
+            display_name=i18n.t("components.elastic.opensearch.m.display_name"),
             value=16,
-            info=i18n.t('components.elastic.opensearch.m.info'),
+            info=i18n.t("components.elastic.opensearch.m.info"),
             advanced=True,
         ),
         *LCVectorStoreComponent.inputs,
         HandleInput(
             name="embedding",
-            display_name=i18n.t(
-                'components.elastic.opensearch.embedding.display_name'),
-            input_types=["Embeddings"]
+            display_name=i18n.t("components.elastic.opensearch.embedding.display_name"),
+            input_types=["Embeddings"],
         ),
         StrInput(
             name="vector_field",
-            display_name=i18n.t(
-                'components.elastic.opensearch.vector_field.display_name'),
+            display_name=i18n.t("components.elastic.opensearch.vector_field.display_name"),
             value="chunk_embedding",
             advanced=True,
-            info=i18n.t('components.elastic.opensearch.vector_field.info'),
+            info=i18n.t("components.elastic.opensearch.vector_field.info"),
         ),
         IntInput(
             name="number_of_results",
-            display_name=i18n.t(
-                'components.elastic.opensearch.number_of_results.display_name'),
+            display_name=i18n.t("components.elastic.opensearch.number_of_results.display_name"),
             value=10,
             advanced=True,
-            info=i18n.t(
-                'components.elastic.opensearch.number_of_results.info'),
+            info=i18n.t("components.elastic.opensearch.number_of_results.info"),
         ),
         MultilineInput(
             name="filter_expression",
-            display_name=i18n.t(
-                'components.elastic.opensearch.filter_expression.display_name'),
+            display_name=i18n.t("components.elastic.opensearch.filter_expression.display_name"),
             value="",
-            info=i18n.t(
-                'components.elastic.opensearch.filter_expression.info'),
+            info=i18n.t("components.elastic.opensearch.filter_expression.info"),
         ),
         DropdownInput(
             name="auth_mode",
-            display_name=i18n.t(
-                'components.elastic.opensearch.auth_mode.display_name'),
+            display_name=i18n.t("components.elastic.opensearch.auth_mode.display_name"),
             value="basic",
             options=["basic", "jwt"],
-            info=i18n.t('components.elastic.opensearch.auth_mode.info'),
+            info=i18n.t("components.elastic.opensearch.auth_mode.info"),
             real_time_refresh=True,
             advanced=False,
         ),
         StrInput(
             name="username",
-            display_name=i18n.t(
-                'components.elastic.opensearch.username.display_name'),
+            display_name=i18n.t("components.elastic.opensearch.username.display_name"),
             value="admin",
             show=False,
         ),
         SecretStrInput(
             name="password",
-            display_name=i18n.t(
-                'components.elastic.opensearch.password.display_name'),
+            display_name=i18n.t("components.elastic.opensearch.password.display_name"),
             value="admin",
             show=False,
         ),
         SecretStrInput(
             name="jwt_token",
-            display_name=i18n.t(
-                'components.elastic.opensearch.jwt_token.display_name'),
+            display_name=i18n.t("components.elastic.opensearch.jwt_token.display_name"),
             value="JWT",
             load_from_db=False,
             show=True,
-            info=i18n.t('components.elastic.opensearch.jwt_token.info'),
+            info=i18n.t("components.elastic.opensearch.jwt_token.info"),
         ),
         StrInput(
             name="jwt_header",
-            display_name=i18n.t(
-                'components.elastic.opensearch.jwt_header.display_name'),
+            display_name=i18n.t("components.elastic.opensearch.jwt_header.display_name"),
             value="Authorization",
             show=False,
             advanced=True,
         ),
         BoolInput(
             name="bearer_prefix",
-            display_name=i18n.t(
-                'components.elastic.opensearch.bearer_prefix.display_name'),
+            display_name=i18n.t("components.elastic.opensearch.bearer_prefix.display_name"),
             value=True,
             show=False,
             advanced=True,
         ),
         BoolInput(
             name="use_ssl",
-            display_name=i18n.t(
-                'components.elastic.opensearch.use_ssl.display_name'),
+            display_name=i18n.t("components.elastic.opensearch.use_ssl.display_name"),
             value=True,
             advanced=True,
-            info=i18n.t('components.elastic.opensearch.use_ssl.info'),
+            info=i18n.t("components.elastic.opensearch.use_ssl.info"),
         ),
         BoolInput(
             name="verify_certs",
-            display_name=i18n.t(
-                'components.elastic.opensearch.verify_certs.display_name'),
+            display_name=i18n.t("components.elastic.opensearch.verify_certs.display_name"),
             value=False,
             advanced=True,
-            info=i18n.t('components.elastic.opensearch.verify_certs.info'),
+            info=i18n.t("components.elastic.opensearch.verify_certs.info"),
         ),
     ]
 
@@ -244,8 +222,14 @@ class OpenSearchVectorStoreComponent(LCVectorStoreComponent):
         vector_field: str = "vector_field",
     ) -> dict[str, Any]:
         """Create the default OpenSearch index mapping for vector search."""
-        logger.debug(i18n.t('components.elastic.opensearch.logs.creating_index_mapping',
-                            dim=dim, engine=engine, space_type=space_type))
+        logger.debug(
+            i18n.t(
+                "components.elastic.opensearch.logs.creating_index_mapping",
+                dim=dim,
+                engine=engine,
+                space_type=space_type,
+            )
+        )
         return {
             "settings": {"index": {"knn": True, "knn.algo_param.ef_search": ef_search}},
             "mappings": {
@@ -267,18 +251,15 @@ class OpenSearchVectorStoreComponent(LCVectorStoreComponent):
     def _validate_aoss_with_engines(self, *, is_aoss: bool, engine: str) -> None:
         """Validate engine compatibility with Amazon OpenSearch Serverless."""
         if is_aoss and engine not in {"nmslib", "faiss"}:
-            error_msg = i18n.t(
-                'components.elastic.opensearch.errors.aoss_engine_incompatible')
+            error_msg = i18n.t("components.elastic.opensearch.errors.aoss_engine_incompatible")
             logger.error(error_msg)
             raise ValueError(error_msg)
 
     def _is_aoss_enabled(self, http_auth: Any) -> bool:
         """Determine if Amazon OpenSearch Serverless is being used."""
-        is_aoss = http_auth is not None and hasattr(
-            http_auth, "service") and http_auth.service == "aoss"
+        is_aoss = http_auth is not None and hasattr(http_auth, "service") and http_auth.service == "aoss"
         if is_aoss:
-            logger.debug(
-                i18n.t('components.elastic.opensearch.logs.aoss_detected'))
+            logger.debug(i18n.t("components.elastic.opensearch.logs.aoss_detected"))
         return is_aoss
 
     def _bulk_ingest_embeddings(
@@ -300,8 +281,7 @@ class OpenSearchVectorStoreComponent(LCVectorStoreComponent):
         if not mapping:
             mapping = {}
 
-        logger.info(i18n.t('components.elastic.opensearch.logs.preparing_bulk_ingest',
-                           count=len(texts)))
+        logger.info(i18n.t("components.elastic.opensearch.logs.preparing_bulk_ingest", count=len(texts)))
 
         requests = []
         return_ids = []
@@ -324,49 +304,46 @@ class OpenSearchVectorStoreComponent(LCVectorStoreComponent):
             return_ids.append(_id)
 
         if metadatas:
-            logger.debug(i18n.t('components.elastic.opensearch.logs.sample_metadata',
-                                metadata=str(metadatas[0] if metadatas else {})))
+            logger.debug(
+                i18n.t(
+                    "components.elastic.opensearch.logs.sample_metadata",
+                    metadata=str(metadatas[0] if metadatas else {}),
+                )
+            )
             self.log(f"Sample metadata: {metadatas[0] if metadatas else {}}")
 
         helpers.bulk(client, requests, max_chunk_bytes=max_chunk_bytes)
-        logger.info(i18n.t('components.elastic.opensearch.logs.bulk_ingest_completed',
-                           count=len(return_ids)))
+        logger.info(i18n.t("components.elastic.opensearch.logs.bulk_ingest_completed", count=len(return_ids)))
         return return_ids
 
     def _build_auth_kwargs(self) -> dict[str, Any]:
         """Build authentication configuration for OpenSearch client."""
         mode = (self.auth_mode or "basic").strip().lower()
-        logger.debug(i18n.t('components.elastic.opensearch.logs.building_auth',
-                            mode=mode))
+        logger.debug(i18n.t("components.elastic.opensearch.logs.building_auth", mode=mode))
 
         if mode == "jwt":
             token = (self.jwt_token or "").strip()
             if not token:
-                error_msg = i18n.t(
-                    'components.elastic.opensearch.errors.jwt_token_missing')
+                error_msg = i18n.t("components.elastic.opensearch.errors.jwt_token_missing")
                 logger.error(error_msg)
                 raise ValueError(error_msg)
             header_name = (self.jwt_header or "Authorization").strip()
             header_value = f"Bearer {token}" if self.bearer_prefix else token
-            logger.debug(
-                i18n.t('components.elastic.opensearch.logs.jwt_auth_configured'))
+            logger.debug(i18n.t("components.elastic.opensearch.logs.jwt_auth_configured"))
             return {"headers": {header_name: header_value}}
 
         user = (self.username or "").strip()
         pwd = (self.password or "").strip()
         if not user or not pwd:
-            error_msg = i18n.t(
-                'components.elastic.opensearch.errors.basic_auth_missing')
+            error_msg = i18n.t("components.elastic.opensearch.errors.basic_auth_missing")
             logger.error(error_msg)
             raise ValueError(error_msg)
-        logger.debug(
-            i18n.t('components.elastic.opensearch.logs.basic_auth_configured'))
+        logger.debug(i18n.t("components.elastic.opensearch.logs.basic_auth_configured"))
         return {"http_auth": (user, pwd)}
 
     def build_client(self) -> OpenSearch:
         """Create and configure an OpenSearch client instance."""
-        logger.info(i18n.t('components.elastic.opensearch.logs.building_client',
-                           url=self.opensearch_url))
+        logger.info(i18n.t("components.elastic.opensearch.logs.building_client", url=self.opensearch_url))
         auth_kwargs = self._build_auth_kwargs()
         client = OpenSearch(
             hosts=[self.opensearch_url],
@@ -376,13 +353,12 @@ class OpenSearchVectorStoreComponent(LCVectorStoreComponent):
             ssl_show_warn=False,
             **auth_kwargs,
         )
-        logger.info(i18n.t('components.elastic.opensearch.logs.client_created'))
+        logger.info(i18n.t("components.elastic.opensearch.logs.client_created"))
         return client
 
     @check_cached_vector_store
     def build_vector_store(self) -> OpenSearch:
-        logger.info(
-            i18n.t('components.elastic.opensearch.logs.building_vector_store'))
+        logger.info(i18n.t("components.elastic.opensearch.logs.building_vector_store"))
         self.log(self.ingest_data)
         client = self.build_client()
         self._add_documents_to_vector_store(client=client)
@@ -394,14 +370,12 @@ class OpenSearchVectorStoreComponent(LCVectorStoreComponent):
 
         docs = self.ingest_data or []
         if not docs:
-            log_msg = i18n.t(
-                'components.elastic.opensearch.logs.no_documents_to_ingest')
+            log_msg = i18n.t("components.elastic.opensearch.logs.no_documents_to_ingest")
             logger.info(log_msg)
             self.log(log_msg)
             return
 
-        logger.info(i18n.t('components.elastic.opensearch.logs.processing_documents',
-                           count=len(docs)))
+        logger.info(i18n.t("components.elastic.opensearch.logs.processing_documents", count=len(docs)))
 
         # Extract texts and metadata from documents
         texts = []
@@ -410,11 +384,9 @@ class OpenSearchVectorStoreComponent(LCVectorStoreComponent):
         if hasattr(self, "docs_metadata") and self.docs_metadata:
             logger.debug(f"[LF] Docs metadata {self.docs_metadata}")
             if isinstance(self.docs_metadata[-1], Data):
-                logger.debug(
-                    f"[LF] Docs metadata is a Data object {self.docs_metadata}")
+                logger.debug(f"[LF] Docs metadata is a Data object {self.docs_metadata}")
                 self.docs_metadata = self.docs_metadata[-1].data
-                logger.debug(
-                    f"[LF] Docs metadata is a Data object {self.docs_metadata}")
+                logger.debug(f"[LF] Docs metadata is a Data object {self.docs_metadata}")
                 additional_metadata.update(self.docs_metadata)
             else:
                 for item in self.docs_metadata:
@@ -435,25 +407,21 @@ class OpenSearchVectorStoreComponent(LCVectorStoreComponent):
         self.log(metadatas)
 
         if not self.embedding:
-            error_msg = i18n.t(
-                'components.elastic.opensearch.errors.embedding_required')
+            error_msg = i18n.t("components.elastic.opensearch.errors.embedding_required")
             logger.error(error_msg)
             raise ValueError(error_msg)
 
-        logger.info(i18n.t('components.elastic.opensearch.logs.generating_embeddings',
-                           count=len(texts)))
+        logger.info(i18n.t("components.elastic.opensearch.logs.generating_embeddings", count=len(texts)))
         vectors = self.embedding.embed_documents(texts)
 
         if not vectors:
-            log_msg = i18n.t(
-                'components.elastic.opensearch.logs.no_vectors_generated')
+            log_msg = i18n.t("components.elastic.opensearch.logs.no_vectors_generated")
             logger.warning(log_msg)
             self.log(log_msg)
             return
 
         dim = len(vectors[0]) if vectors else 768
-        logger.debug(i18n.t('components.elastic.opensearch.logs.vector_dimension',
-                            dim=dim))
+        logger.debug(i18n.t("components.elastic.opensearch.logs.vector_dimension", dim=dim))
 
         auth_kwargs = self._build_auth_kwargs()
         is_aoss = self._is_aoss_enabled(auth_kwargs.get("http_auth"))
@@ -474,9 +442,9 @@ class OpenSearchVectorStoreComponent(LCVectorStoreComponent):
             vector_field=self.vector_field,
         )
 
-        log_msg = i18n.t('components.elastic.opensearch.logs.indexing_documents',
-                         count=len(texts),
-                         index=self.index_name)
+        log_msg = i18n.t(
+            "components.elastic.opensearch.logs.indexing_documents", count=len(texts), index=self.index_name
+        )
         logger.info(log_msg)
         self.log(log_msg)
 
@@ -493,8 +461,7 @@ class OpenSearchVectorStoreComponent(LCVectorStoreComponent):
         )
         self.log(metadatas)
 
-        success_msg = i18n.t('components.elastic.opensearch.logs.successfully_indexed',
-                             count=len(return_ids))
+        success_msg = i18n.t("components.elastic.opensearch.logs.successfully_indexed", count=len(return_ids))
         logger.info(success_msg)
         self.log(success_msg)
 
@@ -509,11 +476,9 @@ class OpenSearchVectorStoreComponent(LCVectorStoreComponent):
         if isinstance(filter_obj, str):
             try:
                 filter_obj = json.loads(filter_obj)
-                logger.debug(
-                    i18n.t('components.elastic.opensearch.logs.filter_parsed'))
+                logger.debug(i18n.t("components.elastic.opensearch.logs.filter_parsed"))
             except json.JSONDecodeError:
-                logger.warning(
-                    i18n.t('components.elastic.opensearch.logs.invalid_filter_json'))
+                logger.warning(i18n.t("components.elastic.opensearch.logs.invalid_filter_json"))
                 return []
 
         # Case A: explicit filters
@@ -529,8 +494,7 @@ class OpenSearchVectorStoreComponent(LCVectorStoreComponent):
                     field, vals = next(iter(f["terms"].items()))
                     if isinstance(vals, list) and len(vals) > 0:
                         explicit_clauses.append(f)
-            logger.debug(i18n.t('components.elastic.opensearch.logs.explicit_filters',
-                                count=len(explicit_clauses)))
+            logger.debug(i18n.t("components.elastic.opensearch.logs.explicit_filters", count=len(explicit_clauses)))
             return explicit_clauses
 
         # Case B: context-style mapping
@@ -545,49 +509,43 @@ class OpenSearchVectorStoreComponent(LCVectorStoreComponent):
                 continue
             field = field_mapping.get(k, k)
             if len(values) == 0:
-                context_clauses.append(
-                    {"term": {field: "__IMPOSSIBLE_VALUE__"}})
+                context_clauses.append({"term": {field: "__IMPOSSIBLE_VALUE__"}})
             elif len(values) == 1:
                 if values[0] != "__IMPOSSIBLE_VALUE__":
                     context_clauses.append({"term": {field: values[0]}})
             else:
                 context_clauses.append({"terms": {field: values}})
-        logger.debug(i18n.t('components.elastic.opensearch.logs.context_filters',
-                            count=len(context_clauses)))
+        logger.debug(i18n.t("components.elastic.opensearch.logs.context_filters", count=len(context_clauses)))
         return context_clauses
 
     def search(self, query: str | None = None) -> list[dict[str, Any]]:
         """Perform hybrid search combining vector similarity and keyword matching."""
-        logger.info(
-            i18n.t('components.elastic.opensearch.logs.starting_hybrid_search'))
+        logger.info(i18n.t("components.elastic.opensearch.logs.starting_hybrid_search"))
         logger.info(self.ingest_data)
 
         client = self.build_client()
         q = (query or "").strip()
 
-        logger.debug(i18n.t('components.elastic.opensearch.logs.search_query',
-                            query=q[:100] + ("..." if len(q) > 100 else "")))
+        logger.debug(
+            i18n.t("components.elastic.opensearch.logs.search_query", query=q[:100] + ("..." if len(q) > 100 else ""))
+        )
 
         filter_obj = None
         if getattr(self, "filter_expression", "") and self.filter_expression.strip():
             try:
                 filter_obj = json.loads(self.filter_expression)
-                logger.debug(
-                    i18n.t('components.elastic.opensearch.logs.filter_expression_parsed'))
+                logger.debug(i18n.t("components.elastic.opensearch.logs.filter_expression_parsed"))
             except json.JSONDecodeError as e:
-                error_msg = i18n.t('components.elastic.opensearch.errors.invalid_filter_json',
-                                   error=str(e))
+                error_msg = i18n.t("components.elastic.opensearch.errors.invalid_filter_json", error=str(e))
                 logger.error(error_msg)
                 raise ValueError(error_msg) from e
 
         if not self.embedding:
-            error_msg = i18n.t(
-                'components.elastic.opensearch.errors.embedding_required_for_search')
+            error_msg = i18n.t("components.elastic.opensearch.errors.embedding_required_for_search")
             logger.error(error_msg)
             raise ValueError(error_msg)
 
-        logger.debug(
-            i18n.t('components.elastic.opensearch.logs.embedding_query'))
+        logger.debug(i18n.t("components.elastic.opensearch.logs.embedding_query"))
         vec = self.embedding.embed_query(q)
 
         filter_clauses = self._coerce_filter_clauses(filter_obj)
@@ -595,10 +553,14 @@ class OpenSearchVectorStoreComponent(LCVectorStoreComponent):
         limit = (filter_obj or {}).get("limit", self.number_of_results)
         score_threshold = (filter_obj or {}).get("score_threshold", 0)
 
-        logger.debug(i18n.t('components.elastic.opensearch.logs.search_params',
-                            limit=limit,
-                            threshold=score_threshold,
-                            filters=len(filter_clauses)))
+        logger.debug(
+            i18n.t(
+                "components.elastic.opensearch.logs.search_params",
+                limit=limit,
+                threshold=score_threshold,
+                filters=len(filter_clauses),
+            )
+        )
 
         body = {
             "query": {
@@ -649,13 +611,11 @@ class OpenSearchVectorStoreComponent(LCVectorStoreComponent):
         if isinstance(score_threshold, (int, float)) and score_threshold > 0:
             body["min_score"] = score_threshold
 
-        logger.debug(
-            i18n.t('components.elastic.opensearch.logs.executing_search'))
+        logger.debug(i18n.t("components.elastic.opensearch.logs.executing_search"))
         resp = client.search(index=self.index_name, body=body)
         hits = resp.get("hits", {}).get("hits", [])
 
-        logger.info(i18n.t('components.elastic.opensearch.logs.search_completed',
-                           count=len(hits)))
+        logger.info(i18n.t("components.elastic.opensearch.logs.search_completed", count=len(hits)))
 
         return [
             {
@@ -669,18 +629,14 @@ class OpenSearchVectorStoreComponent(LCVectorStoreComponent):
     def search_documents(self) -> list[Data]:
         """Search documents and return results as Data objects."""
         try:
-            logger.info(
-                i18n.t('components.elastic.opensearch.logs.searching_documents'))
+            logger.info(i18n.t("components.elastic.opensearch.logs.searching_documents"))
             raw = self.search(self.search_query or "")
-            results = [Data(text=hit["page_content"], **hit["metadata"])
-                       for hit in raw]
-            logger.info(i18n.t('components.elastic.opensearch.logs.documents_found',
-                               count=len(results)))
+            results = [Data(text=hit["page_content"], **hit["metadata"]) for hit in raw]
+            logger.info(i18n.t("components.elastic.opensearch.logs.documents_found", count=len(results)))
             self.log(self.ingest_data)
             return results
         except Exception as e:
-            error_msg = i18n.t('components.elastic.opensearch.errors.search_documents_failed',
-                               error=str(e))
+            error_msg = i18n.t("components.elastic.opensearch.errors.search_documents_failed", error=str(e))
             logger.exception(error_msg)
             self.log(error_msg)
             raise
@@ -693,8 +649,7 @@ class OpenSearchVectorStoreComponent(LCVectorStoreComponent):
                 is_basic = mode == "basic"
                 is_jwt = mode == "jwt"
 
-                logger.debug(i18n.t('components.elastic.opensearch.logs.auth_mode_changed',
-                                    mode=mode))
+                logger.debug(i18n.t("components.elastic.opensearch.logs.auth_mode_changed", mode=mode))
 
                 build_config["username"]["show"] = is_basic
                 build_config["password"]["show"] = is_basic
@@ -716,8 +671,7 @@ class OpenSearchVectorStoreComponent(LCVectorStoreComponent):
                 return build_config
 
         except (KeyError, ValueError) as e:
-            error_msg = i18n.t('components.elastic.opensearch.errors.update_config_failed',
-                               error=str(e))
+            error_msg = i18n.t("components.elastic.opensearch.errors.update_config_failed", error=str(e))
             logger.error(error_msg)
             self.log(error_msg)
 

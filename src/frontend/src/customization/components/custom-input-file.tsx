@@ -1,5 +1,5 @@
-import InputFileComponent from "@/components/core/parameterRenderComponent/components/inputFileComponent";
 import FileTableInputComponent from "@/components/core/parameterRenderComponent/components/fileTableInputComponent";
+import InputFileComponent from "@/components/core/parameterRenderComponent/components/inputFileComponent";
 import type {
   FileComponentType,
   InputProps,

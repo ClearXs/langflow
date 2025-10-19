@@ -1,6 +1,7 @@
 import os
-import i18n
+
 import httpx
+import i18n
 from httpx import HTTPError
 from langchain_core.tools import ToolException
 
@@ -12,8 +13,8 @@ from lfx.template.field.base import Output
 
 
 class WikidataComponent(Component):
-    display_name = i18n.t('components.wikipedia.wikidata.display_name')
-    description = i18n.t('components.wikipedia.wikidata.description')
+    display_name = i18n.t("components.wikipedia.wikidata.display_name")
+    description = i18n.t("components.wikipedia.wikidata.description")
     icon = "Wikipedia"
 
     ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
@@ -21,9 +22,8 @@ class WikidataComponent(Component):
     inputs = [
         MultilineInput(
             name="query",
-            display_name=i18n.t(
-                'components.wikipedia.wikidata.query.display_name'),
-            info=i18n.t('components.wikipedia.wikidata.query.info'),
+            display_name=i18n.t("components.wikipedia.wikidata.query.display_name"),
+            info=i18n.t("components.wikipedia.wikidata.query.info"),
             required=True,
             tool_mode=True,
         ),
@@ -31,10 +31,9 @@ class WikidataComponent(Component):
 
     outputs = [
         Output(
-            display_name=i18n.t(
-                'components.wikipedia.wikidata.outputs.dataframe'),
+            display_name=i18n.t("components.wikipedia.wikidata.outputs.dataframe"),
             name="dataframe",
-            method="fetch_content_dataframe"
+            method="fetch_content_dataframe",
         ),
     ]
 

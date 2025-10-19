@@ -7,6 +7,7 @@ from tempfile import TemporaryDirectory
 from typing import TYPE_CHECKING, Any
 from zipfile import ZipFile, is_zipfile
 
+import i18n
 import orjson
 import pandas as pd
 
@@ -124,7 +125,7 @@ class BaseFileComponent(Component, ABC):
     _base_inputs = [
         FileInput(
             name="path",
-            display_name="Files",
+            display_name=i18n.t("base.base_file.path.display_name"),
             fileTypes=[],  # Dynamically set in __init__
             info="",  # Dynamically set in __init__
             required=False,
@@ -134,11 +135,8 @@ class BaseFileComponent(Component, ABC):
         ),
         HandleInput(
             name="file_path",
-            display_name="Server File Path",
-            info=(
-                f"Data object with a '{SERVER_FILE_PATH_FIELDNAME}' property pointing to server file"
-                " or a Message object with a path to the file. Supercedes 'Path' but supports same file types."
-            ),
+            display_name=i18n.t("base.base_file.file_path.display_name"),
+            info=i18n.t("base.base_file.file_path.info"),
             required=False,
             input_types=["Data", "Message"],
             is_list=True,
@@ -146,38 +144,38 @@ class BaseFileComponent(Component, ABC):
         ),
         StrInput(
             name="separator",
-            display_name="Separator",
+            display_name=i18n.t("base.base_file.separator.display_name"),
             value="\n\n",
             show=True,
-            info="Specify the separator to use between multiple outputs in Message format.",
+            info=i18n.t("base.base_file.separator.info"),
             advanced=True,
         ),
         BoolInput(
             name="silent_errors",
-            display_name="Silent Errors",
+            display_name=i18n.t("base.base_file.silent_errors.display_name"),
             advanced=True,
-            info="If true, errors will not raise an exception.",
+            info=i18n.t("base.base_file.silent_errors.info"),
         ),
         BoolInput(
             name="delete_server_file_after_processing",
-            display_name="Delete Server File After Processing",
+            display_name=i18n.t("base.base_file.delete_server_file_after_processing.display_name"),
             advanced=True,
             value=True,
-            info="If true, the Server File Path will be deleted after processing.",
+            info=i18n.t("base.base_file.delete_server_file_after_processing.info"),
         ),
         BoolInput(
             name="ignore_unsupported_extensions",
-            display_name="Ignore Unsupported Extensions",
+            display_name=i18n.t("base.base_file.ignore_unsupported_extensions.display_name"),
             advanced=True,
             value=True,
-            info="If true, files with unsupported extensions will not be processed.",
+            info=i18n.t("base.base_file.ignore_unsupported_extensions.info"),
         ),
         BoolInput(
             name="ignore_unspecified_files",
-            display_name="Ignore Unspecified Files",
+            display_name=i18n.t("base.base_file.ignore_unspecified_files.display_name"),
             advanced=True,
             value=False,
-            info=f"If true, Data with no '{SERVER_FILE_PATH_FIELDNAME}' property will be ignored.",
+            info=i18n.t("base.base_file.ignore_unspecified_files.info"),
         ),
     ]
 

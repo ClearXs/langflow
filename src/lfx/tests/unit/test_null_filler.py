@@ -1,9 +1,9 @@
 import json
-import pytest
-from unittest.mock import Mock, patch
-import math
+from unittest.mock import patch
 
+import pytest
 from lfx.components.data.null_filler import NullFillerComponent
+
 from lfx.schema.data import Data
 
 
@@ -15,7 +15,7 @@ class TestNullFillerComponent:
         self.component = NullFillerComponent()
 
         # Mock translation function to return key
-        with patch('i18n.t', side_effect=lambda key, **kwargs: key.format(**kwargs) if kwargs else key):
+        with patch("i18n.t", side_effect=lambda key, **kwargs: key.format(**kwargs) if kwargs else key):
             self.component.display_name = "Null Filler"
             self.component.description = "Test null filler"
 
@@ -29,10 +29,7 @@ class TestNullFillerComponent:
 
     def test_parse_input_data_list_of_data_objects(self):
         """Test parsing list of Data objects."""
-        data_objects = [
-            Data(data={"id": 1, "name": "John", "age": None}),
-            Data(data={"id": 2, "name": "", "age": 25})
-        ]
+        data_objects = [Data(data={"id": 1, "name": "John", "age": None}), Data(data={"id": 2, "name": "", "age": 25})]
         self.component.data = data_objects
 
         result = self.component._parse_input_data()
@@ -74,7 +71,7 @@ class TestNullFillerComponent:
 
     def test_is_null_value_nan(self):
         """Test NaN detection."""
-        assert self.component._is_null_value(float('nan'), []) is True
+        assert self.component._is_null_value(float("nan"), []) is True
         assert self.component._is_null_value(3.14, []) is False
 
     def test_extract_numeric_values(self):
@@ -113,7 +110,7 @@ class TestNullFillerComponent:
         data_list = [
             {"id": 1, "name": "John", "score": 85},
             {"id": 2, "name": "Jane", "score": None},  # Should be filled with 85
-            {"id": 3, "name": "Bob", "score": 92}
+            {"id": 3, "name": "Bob", "score": 92},
         ]
 
         result = self.component._forward_fill(data_list, 1, "score")
@@ -128,7 +125,7 @@ class TestNullFillerComponent:
         data_list = [
             {"id": 1, "name": "John", "score": 85},
             {"id": 2, "name": "Jane", "score": None},  # Should be filled with 92
-            {"id": 3, "name": "Bob", "score": 92}
+            {"id": 3, "name": "Bob", "score": 92},
         ]
 
         result = self.component._backward_fill(data_list, 1, "score")
@@ -143,7 +140,7 @@ class TestNullFillerComponent:
         data_list = [
             {"id": 1, "value": 10},
             {"id": 2, "value": None},  # Should be interpolated to 15
-            {"id": 3, "value": 20}
+            {"id": 3, "value": 20},
         ]
 
         result = self.component._interpolate_value(data_list, 1, "value")
@@ -153,7 +150,7 @@ class TestNullFillerComponent:
         data_list_str = [
             {"id": 1, "value": "not_number"},
             {"id": 2, "value": None},
-            {"id": 3, "value": "also_not_number"}
+            {"id": 3, "value": "also_not_number"},
         ]
 
         result = self.component._interpolate_value(data_list_str, 1, "value")
@@ -171,7 +168,7 @@ class TestNullFillerComponent:
             field_stats=field_stats,
             data_list=[],
             record_idx=0,
-            original_value=None
+            original_value=None,
         )
 
         assert result == "default_value"
@@ -188,7 +185,7 @@ class TestNullFillerComponent:
             field_stats=field_stats,
             data_list=[],
             record_idx=0,
-            original_value=None
+            original_value=None,
         )
 
         assert result == 20.0
@@ -205,7 +202,7 @@ class TestNullFillerComponent:
             field_stats=field_stats,
             data_list=[],
             record_idx=0,
-            original_value=None
+            original_value=None,
         )
 
         assert result == 20.0
@@ -222,7 +219,7 @@ class TestNullFillerComponent:
             field_stats=field_stats,
             data_list=[],
             record_idx=0,
-            original_value=None
+            original_value=None,
         )
 
         assert result == "A"
@@ -232,7 +229,7 @@ class TestNullFillerComponent:
         filled_data = [
             {"id": 1, "name": "John", "score": 85},
             {"id": 2, "name": "Jane", "score": 90},
-            {"id": 3, "name": "", "score": 95}  # Empty string, should be detected if configured
+            {"id": 3, "name": "", "score": 95},  # Empty string, should be detected if configured
         ]
 
         self.component.treat_empty_string_as_null = True
@@ -247,7 +244,7 @@ class TestNullFillerComponent:
         test_data = [
             Data(data={"id": 1, "name": "John", "score": None}),
             Data(data={"id": 2, "name": "", "score": 85}),
-            Data(data={"id": 3, "name": "Bob", "score": 90})
+            Data(data={"id": 3, "name": "Bob", "score": 90}),
         ]
 
         self.component.data = test_data
@@ -255,7 +252,7 @@ class TestNullFillerComponent:
         self.component.default_fill_value = "Unknown"
         self.component.treat_empty_string_as_null = True
 
-        with patch('i18n.t', side_effect=lambda key, **kwargs: key.format(**kwargs) if kwargs else key):
+        with patch("i18n.t", side_effect=lambda key, **kwargs: key.format(**kwargs) if kwargs else key):
             result = self.component.fill_nulls()
 
         assert len(result) == 3
@@ -269,13 +266,13 @@ class TestNullFillerComponent:
         test_data = [
             Data(data={"id": 1, "score": 80}),
             Data(data={"id": 2, "score": None}),  # Should be filled with mean (85)
-            Data(data={"id": 3, "score": 90})
+            Data(data={"id": 3, "score": 90}),
         ]
 
         self.component.data = test_data
         self.component.default_strategy = "mean"
 
-        with patch('i18n.t', side_effect=lambda key, **kwargs: key.format(**kwargs) if kwargs else key):
+        with patch("i18n.t", side_effect=lambda key, **kwargs: key.format(**kwargs) if kwargs else key):
             result = self.component.fill_nulls()
 
         assert len(result) == 3
@@ -290,13 +287,15 @@ class TestNullFillerComponent:
 
         self.component.data = test_data
         self.component.use_field_strategies = True
-        self.component.field_strategies = json.dumps({
-            "name": {"strategy": "constant", "value": "Unknown"},
-            "age": {"strategy": "mean"},
-            "score": {"strategy": "forward_fill"}
-        })
+        self.component.field_strategies = json.dumps(
+            {
+                "name": {"strategy": "constant", "value": "Unknown"},
+                "age": {"strategy": "mean"},
+                "score": {"strategy": "forward_fill"},
+            }
+        )
 
-        with patch('i18n.t', side_effect=lambda key, **kwargs: key.format(**kwargs) if kwargs else key):
+        with patch("i18n.t", side_effect=lambda key, **kwargs: key.format(**kwargs) if kwargs else key):
             result = self.component.fill_nulls()
 
         assert len(result) == 2
@@ -317,7 +316,7 @@ class TestNullFillerComponent:
         self.component.default_fill_value = "unknown"
         self.component.custom_null_values = json.dumps(["N/A", "NULL", "null"])
 
-        with patch('i18n.t', side_effect=lambda key, **kwargs: key.format(**kwargs) if kwargs else key):
+        with patch("i18n.t", side_effect=lambda key, **kwargs: key.format(**kwargs) if kwargs else key):
             result = self.component.fill_nulls()
 
         assert len(result) == 3
@@ -337,10 +336,7 @@ class TestNullFillerComponent:
 
     def test_update_build_config(self):
         """Test build config updates based on field changes."""
-        build_config = {
-            "default_fill_value": {"show": False},
-            "field_strategies": {"show": False}
-        }
+        build_config = {"default_fill_value": {"show": False}, "field_strategies": {"show": False}}
 
         # Test default_strategy field
         result = self.component.update_build_config(build_config, "constant", "default_strategy")
@@ -369,7 +365,7 @@ class TestNullFillerComponent:
         self.component.validate_after_fill = True
         self.component.include_statistics = True
 
-        with patch('i18n.t', side_effect=lambda key, **kwargs: key.format(**kwargs) if kwargs else key):
+        with patch("i18n.t", side_effect=lambda key, **kwargs: key.format(**kwargs) if kwargs else key):
             result = self.component.fill_nulls()
 
         # Get the fill report to check validation results
@@ -385,13 +381,13 @@ class TestNullFillerComponent:
             Data(data={"id": 1, "value": 10}),
             Data(data={"id": 2, "value": None}),  # Should be interpolated
             Data(data={"id": 3, "value": None}),  # Should be interpolated
-            Data(data={"id": 4, "value": 30})
+            Data(data={"id": 4, "value": 30}),
         ]
 
         self.component.data = test_data
         self.component.default_strategy = "interpolate"
 
-        with patch('i18n.t', side_effect=lambda key, **kwargs: key.format(**kwargs) if kwargs else key):
+        with patch("i18n.t", side_effect=lambda key, **kwargs: key.format(**kwargs) if kwargs else key):
             result = self.component.fill_nulls()
 
         assert len(result) == 4
@@ -408,24 +404,17 @@ class TestNullFillerComponent:
                 "total_nulls_found": 3,
                 "total_nulls_filled": 2,
                 "processing_timestamp": "2024-01-01T12:00:00",
-                "default_strategy": "mean"
+                "default_strategy": "mean",
             },
             "field_analysis": {
-                "score": {
-                    "null_count": 2,
-                    "null_percentage": 40.0,
-                    "fill_strategy": "mean",
-                    "data_type": "int"
-                }
+                "score": {"null_count": 2, "null_percentage": 40.0, "fill_strategy": "mean", "data_type": "int"}
             },
             "errors": [],
             "statistics": {
                 "fill_success_rate": 66.67,
                 "data_quality_improvement": 66.67,
-                "strategy_usage": {
-                    "mean": {"count": 2, "success_count": 2}
-                }
-            }
+                "strategy_usage": {"mean": {"count": 2, "success_count": 2}},
+            },
         }
 
         report_text = self.component._format_fill_report(fill_report)

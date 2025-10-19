@@ -1,4 +1,5 @@
 import os
+
 import i18n
 from langchain.docstore.document import Document
 from langchain_experimental.text_splitter import SemanticChunker
@@ -19,11 +20,9 @@ class SemanticTextSplitterComponent(LCTextSplitterComponent):
     ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
     """Split text into semantically meaningful chunks using semantic similarity."""
 
-    display_name: str = i18n.t(
-        'components.langchain_utilities.language_semantic.display_name')
+    display_name: str = i18n.t("components.langchain_utilities.language_semantic.display_name")
     name: str = "SemanticTextSplitter"
-    description: str = i18n.t(
-        'components.langchain_utilities.language_semantic.description')
+    description: str = i18n.t("components.langchain_utilities.language_semantic.description")
     documentation = "https://python.langchain.com/docs/how_to/semantic-chunker/"
     beta = True  # this component is beta because it is imported from langchain_experimental
     icon = "LangChain"
@@ -31,20 +30,16 @@ class SemanticTextSplitterComponent(LCTextSplitterComponent):
     inputs = [
         HandleInput(
             name="data_inputs",
-            display_name=i18n.t(
-                'components.langchain_utilities.language_semantic.data_inputs.display_name'),
-            info=i18n.t(
-                'components.langchain_utilities.language_semantic.data_inputs.info'),
+            display_name=i18n.t("components.langchain_utilities.language_semantic.data_inputs.display_name"),
+            info=i18n.t("components.langchain_utilities.language_semantic.data_inputs.info"),
             input_types=["Data"],
             is_list=True,
             required=True,
         ),
         HandleInput(
             name="embeddings",
-            display_name=i18n.t(
-                'components.langchain_utilities.language_semantic.embeddings.display_name'),
-            info=i18n.t(
-                'components.langchain_utilities.language_semantic.embeddings.info'),
+            display_name=i18n.t("components.langchain_utilities.language_semantic.embeddings.display_name"),
+            info=i18n.t("components.langchain_utilities.language_semantic.embeddings.info"),
             input_types=["Embeddings"],
             is_list=False,
             required=True,
@@ -52,43 +47,37 @@ class SemanticTextSplitterComponent(LCTextSplitterComponent):
         DropdownInput(
             name="breakpoint_threshold_type",
             display_name=i18n.t(
-                'components.langchain_utilities.language_semantic.breakpoint_threshold_type.display_name'),
-            info=i18n.t(
-                'components.langchain_utilities.language_semantic.breakpoint_threshold_type.info'),
+                "components.langchain_utilities.language_semantic.breakpoint_threshold_type.display_name"
+            ),
+            info=i18n.t("components.langchain_utilities.language_semantic.breakpoint_threshold_type.info"),
             value="percentile",
             options=["percentile", "standard_deviation", "interquartile"],
         ),
         FloatInput(
             name="breakpoint_threshold_amount",
             display_name=i18n.t(
-                'components.langchain_utilities.language_semantic.breakpoint_threshold_amount.display_name'),
-            info=i18n.t(
-                'components.langchain_utilities.language_semantic.breakpoint_threshold_amount.info'),
+                "components.langchain_utilities.language_semantic.breakpoint_threshold_amount.display_name"
+            ),
+            info=i18n.t("components.langchain_utilities.language_semantic.breakpoint_threshold_amount.info"),
             value=0.5,
         ),
         IntInput(
             name="number_of_chunks",
-            display_name=i18n.t(
-                'components.langchain_utilities.language_semantic.number_of_chunks.display_name'),
-            info=i18n.t(
-                'components.langchain_utilities.language_semantic.number_of_chunks.info'),
+            display_name=i18n.t("components.langchain_utilities.language_semantic.number_of_chunks.display_name"),
+            info=i18n.t("components.langchain_utilities.language_semantic.number_of_chunks.info"),
             value=5,
         ),
         MessageTextInput(
             name="sentence_split_regex",
-            display_name=i18n.t(
-                'components.langchain_utilities.language_semantic.sentence_split_regex.display_name'),
-            info=i18n.t(
-                'components.langchain_utilities.language_semantic.sentence_split_regex.info'),
+            display_name=i18n.t("components.langchain_utilities.language_semantic.sentence_split_regex.display_name"),
+            info=i18n.t("components.langchain_utilities.language_semantic.sentence_split_regex.info"),
             value="",
             advanced=True,
         ),
         IntInput(
             name="buffer_size",
-            display_name=i18n.t(
-                'components.langchain_utilities.language_semantic.buffer_size.display_name'),
-            info=i18n.t(
-                'components.langchain_utilities.language_semantic.buffer_size.info'),
+            display_name=i18n.t("components.langchain_utilities.language_semantic.buffer_size.display_name"),
+            info=i18n.t("components.langchain_utilities.language_semantic.buffer_size.info"),
             value=0,
             advanced=True,
         ),
@@ -96,10 +85,9 @@ class SemanticTextSplitterComponent(LCTextSplitterComponent):
 
     outputs = [
         Output(
-            display_name=i18n.t(
-                'components.langchain_utilities.language_semantic.outputs.chunks.display_name'),
+            display_name=i18n.t("components.langchain_utilities.language_semantic.outputs.chunks.display_name"),
             name="chunks",
-            method="split_text"
+            method="split_text",
         ),
     ]
 

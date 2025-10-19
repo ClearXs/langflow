@@ -1,11 +1,11 @@
-import pytest
 import json
-from lfx.components.data.string_replacer import StringReplacerComponent
+
+import pytest
 from langflow.schema import Data
+from lfx.components.data.string_replacer import StringReplacerComponent
 
 
 class TestStringReplacerComponent:
-
     @pytest.fixture
     def component(self):
         return StringReplacerComponent()

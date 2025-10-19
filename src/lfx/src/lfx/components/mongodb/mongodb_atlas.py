@@ -1,9 +1,9 @@
 import os
-import i18n
 import tempfile
 import time
 
 import certifi
+import i18n
 from langchain_community.vectorstores import MongoDBAtlasVectorSearch
 from pymongo.collection import Collection
 from pymongo.operations import SearchIndexModel
@@ -15,8 +15,8 @@ from lfx.schema.data import Data
 
 
 class MongoVectorStoreComponent(LCVectorStoreComponent):
-    display_name = i18n.t('components.mongodb.mongodb_atlas.display_name')
-    description = i18n.t('components.mongodb.mongodb_atlas.description')
+    display_name = i18n.t("components.mongodb.mongodb_atlas.display_name")
+    description = i18n.t("components.mongodb.mongodb_atlas.description")
     name = "MongoDBAtlasVector"
     icon = "MongoDB"
 
@@ -28,112 +28,93 @@ class MongoVectorStoreComponent(LCVectorStoreComponent):
     inputs = [
         SecretStrInput(
             name="mongodb_atlas_cluster_uri",
-            display_name=i18n.t(
-                'components.mongodb.mongodb_atlas.mongodb_atlas_cluster_uri.display_name'),
-            required=True
+            display_name=i18n.t("components.mongodb.mongodb_atlas.mongodb_atlas_cluster_uri.display_name"),
+            required=True,
         ),
         BoolInput(
             name="enable_mtls",
-            display_name=i18n.t(
-                'components.mongodb.mongodb_atlas.enable_mtls.display_name'),
+            display_name=i18n.t("components.mongodb.mongodb_atlas.enable_mtls.display_name"),
             value=False,
             advanced=True,
-            required=True
+            required=True,
         ),
         SecretStrInput(
             name="mongodb_atlas_client_cert",
-            display_name=i18n.t(
-                'components.mongodb.mongodb_atlas.mongodb_atlas_client_cert.display_name'),
+            display_name=i18n.t("components.mongodb.mongodb_atlas.mongodb_atlas_client_cert.display_name"),
             required=False,
-            info=i18n.t(
-                'components.mongodb.mongodb_atlas.mongodb_atlas_client_cert.info'),
+            info=i18n.t("components.mongodb.mongodb_atlas.mongodb_atlas_client_cert.info"),
         ),
         StrInput(
-            name="db_name",
-            display_name=i18n.t(
-                'components.mongodb.mongodb_atlas.db_name.display_name'),
-            required=True
+            name="db_name", display_name=i18n.t("components.mongodb.mongodb_atlas.db_name.display_name"), required=True
         ),
         StrInput(
             name="collection_name",
-            display_name=i18n.t(
-                'components.mongodb.mongodb_atlas.collection_name.display_name'),
-            required=True
+            display_name=i18n.t("components.mongodb.mongodb_atlas.collection_name.display_name"),
+            required=True,
         ),
         StrInput(
             name="index_name",
-            display_name=i18n.t(
-                'components.mongodb.mongodb_atlas.index_name.display_name'),
+            display_name=i18n.t("components.mongodb.mongodb_atlas.index_name.display_name"),
             required=True,
-            info=i18n.t('components.mongodb.mongodb_atlas.index_name.info'),
+            info=i18n.t("components.mongodb.mongodb_atlas.index_name.info"),
         ),
         *LCVectorStoreComponent.inputs,
         DropdownInput(
             name="insert_mode",
-            display_name=i18n.t(
-                'components.mongodb.mongodb_atlas.insert_mode.display_name'),
+            display_name=i18n.t("components.mongodb.mongodb_atlas.insert_mode.display_name"),
             options=INSERT_MODES,
             value=INSERT_MODES[0],
-            info=i18n.t('components.mongodb.mongodb_atlas.insert_mode.info'),
+            info=i18n.t("components.mongodb.mongodb_atlas.insert_mode.info"),
             advanced=True,
         ),
         HandleInput(
             name="embedding",
-            display_name=i18n.t(
-                'components.mongodb.mongodb_atlas.embedding.display_name'),
-            input_types=["Embeddings"]
+            display_name=i18n.t("components.mongodb.mongodb_atlas.embedding.display_name"),
+            input_types=["Embeddings"],
         ),
         IntInput(
             name="number_of_results",
-            display_name=i18n.t(
-                'components.mongodb.mongodb_atlas.number_of_results.display_name'),
-            info=i18n.t(
-                'components.mongodb.mongodb_atlas.number_of_results.info'),
+            display_name=i18n.t("components.mongodb.mongodb_atlas.number_of_results.display_name"),
+            info=i18n.t("components.mongodb.mongodb_atlas.number_of_results.info"),
             value=4,
             advanced=True,
         ),
         StrInput(
             name="index_field",
-            display_name=i18n.t(
-                'components.mongodb.mongodb_atlas.index_field.display_name'),
+            display_name=i18n.t("components.mongodb.mongodb_atlas.index_field.display_name"),
             advanced=True,
             required=True,
-            info=i18n.t('components.mongodb.mongodb_atlas.index_field.info'),
+            info=i18n.t("components.mongodb.mongodb_atlas.index_field.info"),
             value="embedding",
         ),
         StrInput(
             name="filter_field",
-            display_name=i18n.t(
-                'components.mongodb.mongodb_atlas.filter_field.display_name'),
+            display_name=i18n.t("components.mongodb.mongodb_atlas.filter_field.display_name"),
             advanced=True,
-            info=i18n.t('components.mongodb.mongodb_atlas.filter_field.info')
+            info=i18n.t("components.mongodb.mongodb_atlas.filter_field.info"),
         ),
         IntInput(
             name="number_dimensions",
-            display_name=i18n.t(
-                'components.mongodb.mongodb_atlas.number_dimensions.display_name'),
-            info=i18n.t(
-                'components.mongodb.mongodb_atlas.number_dimensions.info'),
+            display_name=i18n.t("components.mongodb.mongodb_atlas.number_dimensions.display_name"),
+            info=i18n.t("components.mongodb.mongodb_atlas.number_dimensions.info"),
             value=1536,
             advanced=True,
             required=True,
         ),
         DropdownInput(
             name="similarity",
-            display_name=i18n.t(
-                'components.mongodb.mongodb_atlas.similarity.display_name'),
+            display_name=i18n.t("components.mongodb.mongodb_atlas.similarity.display_name"),
             options=SIMILARITY_OPTIONS,
             value=SIMILARITY_OPTIONS[0],
-            info=i18n.t('components.mongodb.mongodb_atlas.similarity.info'),
+            info=i18n.t("components.mongodb.mongodb_atlas.similarity.info"),
             advanced=True,
         ),
         DropdownInput(
             name="quantization",
-            display_name=i18n.t(
-                'components.mongodb.mongodb_atlas.quantization.display_name'),
+            display_name=i18n.t("components.mongodb.mongodb_atlas.quantization.display_name"),
             options=QUANTIZATION_OPTIONS,
             value=None,
-            info=i18n.t('components.mongodb.mongodb_atlas.quantization.info'),
+            info=i18n.t("components.mongodb.mongodb_atlas.quantization.info"),
             advanced=True,
         ),
     ]
@@ -151,14 +132,12 @@ class MongoVectorStoreComponent(LCVectorStoreComponent):
             client_cert_path = None
             try:
                 client_cert = self.mongodb_atlas_client_cert.replace(" ", "\n")
-                client_cert = client_cert.replace(
-                    "-----BEGIN\nPRIVATE\nKEY-----", "-----BEGIN PRIVATE KEY-----")
+                client_cert = client_cert.replace("-----BEGIN\nPRIVATE\nKEY-----", "-----BEGIN PRIVATE KEY-----")
                 client_cert = client_cert.replace(
                     "-----END\nPRIVATE\nKEY-----\n-----BEGIN\nCERTIFICATE-----",
                     "-----END PRIVATE KEY-----\n-----BEGIN CERTIFICATE-----",
                 )
-                client_cert = client_cert.replace(
-                    "-----END\nCERTIFICATE-----", "-----END CERTIFICATE-----")
+                client_cert = client_cert.replace("-----END\nCERTIFICATE-----", "-----END CERTIFICATE-----")
                 with tempfile.NamedTemporaryFile(delete=False) as client_cert_file:
                     client_cert_file.write(client_cert.encode("utf-8"))
                     client_cert_path = client_cert_file.name

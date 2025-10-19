@@ -6,6 +6,7 @@ import {
 } from "@/constants/constants";
 import { useRefreshAccessToken } from "@/controllers/API/queries/auth";
 import { CustomNavigate } from "@/customization/components/custom-navigate";
+import { useIsEmbedded } from "@/hooks/use-iframe-params";
 import useAuthStore from "@/stores/authStore";
 
 export const ProtectedRoute = ({ children }) => {
@@ -14,8 +15,11 @@ export const ProtectedRoute = ({ children }) => {
   const autoLogin = useAuthStore((state) => state.autoLogin);
   const isAutoLoginEnv = IS_AUTO_LOGIN;
   const testMockAutoLogin = sessionStorage.getItem("testMockAutoLogin");
+  const isEmbedded = useIsEmbedded();
 
+  // Skip authentication check in embedded mode
   const shouldRedirect =
+    !isEmbedded &&
     !isAuthenticated &&
     autoLogin !== undefined &&
     (!autoLogin || !isAutoLoginEnv);

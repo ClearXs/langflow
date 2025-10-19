@@ -5,6 +5,7 @@ from langflow.api.v1.files import router as files_router
 from langflow.api.v1.flows import router as flows_router
 from langflow.api.v1.folders import router as folders_router
 from langflow.api.v1.knowledge_bases import router as knowledge_bases_router
+from langflow.api.v1.locale import router as locale_router
 from langflow.api.v1.login import router as login_router
 from langflow.api.v1.mcp import router as mcp_router
 from langflow.api.v1.mcp_projects import router as mcp_projects_router
@@ -17,7 +18,6 @@ from langflow.api.v1.users import router as users_router
 from langflow.api.v1.validate import router as validate_router
 from langflow.api.v1.variable import router as variables_router
 from langflow.api.v1.voice_mode import router as voice_mode_router
-from langflow.api.v1.locale import router as locale_router
 
 __all__ = [
     "api_key_router",
@@ -27,6 +27,7 @@ __all__ = [
     "flows_router",
     "folders_router",
     "knowledge_bases_router",
+    "locale_router",
     "login_router",
     "mcp_projects_router",
     "mcp_router",
@@ -39,5 +40,4 @@ __all__ = [
     "validate_router",
     "variables_router",
     "voice_mode_router",
-    "locale_router"
 ]

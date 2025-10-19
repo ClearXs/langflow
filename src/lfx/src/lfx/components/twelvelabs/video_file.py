@@ -1,6 +1,7 @@
 import os
-import i18n
 from pathlib import Path
+
+import i18n
 
 from lfx.base.data import BaseFileComponent
 from lfx.io import FileInput
@@ -13,8 +14,8 @@ class VideoFileComponent(BaseFileComponent):
     This component supports processing video files in common video formats.
     """
 
-    display_name = i18n.t('components.twelvelabs.video_file.display_name')
-    description = i18n.t('components.twelvelabs.video_file.description')
+    display_name = i18n.t("components.twelvelabs.video_file.display_name")
+    description = i18n.t("components.twelvelabs.video_file.description")
     icon = "TwelveLabs"
     name = "VideoFile"
 
@@ -57,8 +58,7 @@ class VideoFileComponent(BaseFileComponent):
 
     inputs = [
         FileInput(
-            display_name=i18n.t(
-                'components.twelvelabs.video_file.file_path.display_name'),
+            display_name=i18n.t("components.twelvelabs.video_file.file_path.display_name"),
             name="file_path",
             file_types=[
                 # Common video formats
@@ -93,7 +93,7 @@ class VideoFileComponent(BaseFileComponent):
                 "y4m",
             ],
             required=True,
-            info=i18n.t('components.twelvelabs.video_file.file_path.info'),
+            info=i18n.t("components.twelvelabs.video_file.file_path.info"),
         ),
     ]
 
@@ -127,8 +127,7 @@ class VideoFileComponent(BaseFileComponent):
                     raise ValueError(error_msg)
 
                 # Create a dictionary instead of a Document
-                doc_data = {"text": file_path, "metadata": {
-                    "source": file_path, "type": "video"}}
+                doc_data = {"text": file_path, "metadata": {"source": file_path, "type": "video"}}
 
                 # Pass the dictionary to Data
                 file.data = Data(data=doc_data)
@@ -155,8 +154,7 @@ class VideoFileComponent(BaseFileComponent):
             # Verify file exists
             file_path_obj = Path(self.file_path)
             if not file_path_obj.exists():
-                self.log(
-                    f"DEBUG: Video file not found at path: {self.file_path}")
+                self.log(f"DEBUG: Video file not found at path: {self.file_path}")
                 return DataFrame()
 
             # Verify file size
@@ -178,12 +176,10 @@ class VideoFileComponent(BaseFileComponent):
             self.log(f"DEBUG: File error in video load_files: {e!s}", "ERROR")
             return DataFrame()
         except ImportError as e:
-            self.log(
-                f"DEBUG: Import error in video load_files: {e!s}", "ERROR")
+            self.log(f"DEBUG: Import error in video load_files: {e!s}", "ERROR")
             return DataFrame()
         except (ValueError, TypeError) as e:
-            self.log(
-                f"DEBUG: Value or type error in video load_files: {e!s}", "ERROR")
+            self.log(f"DEBUG: Value or type error in video load_files: {e!s}", "ERROR")
             return DataFrame()
         else:
             return result

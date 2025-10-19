@@ -1,4 +1,5 @@
 import os
+
 from lfx.custom.custom_component.custom_component import CustomComponent
 from lfx.field_typing import Embeddings
 from lfx.schema.data import Data

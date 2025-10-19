@@ -25,6 +25,7 @@ export const mutateTemplate = async (
   parameterName?: string,
   callback?: () => void,
   toolMode?: boolean,
+  action?: string,
 ) => {
   // Get or create a debounced function for this node ID
   if (!debouncedFunctions.has(nodeId)) {
@@ -44,6 +45,7 @@ export const mutateTemplate = async (
           parameterName?: string,
           callback?: () => void,
           toolMode?: boolean,
+          action?: string,
         ) => {
           try {
             const newNode = cloneDeep(node);
@@ -51,6 +53,7 @@ export const mutateTemplate = async (
               value: newValue,
               field_name: parameterName,
               tool_mode: toolMode ?? node.tool_mode,
+              action: action,
             });
             if (newTemplate) {
               newNode.template = newTemplate.template;
@@ -94,5 +97,6 @@ export const mutateTemplate = async (
     parameterName,
     callback,
     toolMode,
+    action,
   );
 };

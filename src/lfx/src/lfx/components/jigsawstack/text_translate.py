@@ -1,41 +1,39 @@
 import os
+
 import i18n
+
 from lfx.custom.custom_component.component import Component
 from lfx.io import MessageTextInput, Output, SecretStrInput, StrInput
 from lfx.schema.data import Data
 
 
 class JigsawStackTextTranslateComponent(Component):
-    display_name = i18n.t('components.jigsawstack.text_translate.display_name')
-    description = i18n.t('components.jigsawstack.text_translate.description')
+    display_name = i18n.t("components.jigsawstack.text_translate.display_name")
+    description = i18n.t("components.jigsawstack.text_translate.description")
     documentation = "https://jigsawstack.com/docs/api-reference/ai/translate"
     icon = "JigsawStack"
     name = "JigsawStackTextTranslate"
 
     ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
-    
+
     inputs = [
         SecretStrInput(
             name="api_key",
-            display_name=i18n.t(
-                'components.jigsawstack.text_translate.api_key.display_name'),
-            info=i18n.t('components.jigsawstack.text_translate.api_key.info'),
+            display_name=i18n.t("components.jigsawstack.text_translate.api_key.display_name"),
+            info=i18n.t("components.jigsawstack.text_translate.api_key.info"),
             required=True,
         ),
         StrInput(
             name="target_language",
-            display_name=i18n.t(
-                'components.jigsawstack.text_translate.target_language.display_name'),
-            info=i18n.t(
-                'components.jigsawstack.text_translate.target_language.info'),
+            display_name=i18n.t("components.jigsawstack.text_translate.target_language.display_name"),
+            info=i18n.t("components.jigsawstack.text_translate.target_language.info"),
             required=True,
             tool_mode=True,
         ),
         MessageTextInput(
             name="text",
-            display_name=i18n.t(
-                'components.jigsawstack.text_translate.text.display_name'),
-            info=i18n.t('components.jigsawstack.text_translate.text.info'),
+            display_name=i18n.t("components.jigsawstack.text_translate.text.display_name"),
+            info=i18n.t("components.jigsawstack.text_translate.text.info"),
             required=True,
             is_list=True,
             tool_mode=True,
@@ -44,10 +42,9 @@ class JigsawStackTextTranslateComponent(Component):
 
     outputs = [
         Output(
-            display_name=i18n.t(
-                'components.jigsawstack.text_translate.outputs.translation_results.display_name'),
+            display_name=i18n.t("components.jigsawstack.text_translate.outputs.translation_results.display_name"),
             name="translation_results",
-            method="translation"
+            method="translation",
         ),
     ]
 

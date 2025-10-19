@@ -1,4 +1,5 @@
 import os
+
 import i18n
 from langchain_core.tools import tool
 from metaphor_python import Metaphor
@@ -11,7 +12,7 @@ from lfx.log.logger import logger
 
 class ExaSearchToolkit(Component):
     display_name = "Exa Search"
-    description = i18n.t('components.exa.exa_search.description')
+    description = i18n.t("components.exa.exa_search.description")
     documentation = "https://python.langchain.com/docs/integrations/tools/metaphor_search"
     beta = True
     name = "ExaSearch"
@@ -22,40 +23,35 @@ class ExaSearchToolkit(Component):
     inputs = [
         SecretStrInput(
             name="metaphor_api_key",
-            display_name=i18n.t(
-                'components.exa.exa_search.metaphor_api_key.display_name'),
+            display_name=i18n.t("components.exa.exa_search.metaphor_api_key.display_name"),
             password=True,
-            info=i18n.t('components.exa.exa_search.metaphor_api_key.info'),
+            info=i18n.t("components.exa.exa_search.metaphor_api_key.info"),
         ),
         BoolInput(
             name="use_autoprompt",
-            display_name=i18n.t(
-                'components.exa.exa_search.use_autoprompt.display_name'),
+            display_name=i18n.t("components.exa.exa_search.use_autoprompt.display_name"),
             value=True,
-            info=i18n.t('components.exa.exa_search.use_autoprompt.info'),
+            info=i18n.t("components.exa.exa_search.use_autoprompt.info"),
         ),
         IntInput(
             name="search_num_results",
-            display_name=i18n.t(
-                'components.exa.exa_search.search_num_results.display_name'),
+            display_name=i18n.t("components.exa.exa_search.search_num_results.display_name"),
             value=5,
-            info=i18n.t('components.exa.exa_search.search_num_results.info'),
+            info=i18n.t("components.exa.exa_search.search_num_results.info"),
         ),
         IntInput(
             name="similar_num_results",
-            display_name=i18n.t(
-                'components.exa.exa_search.similar_num_results.display_name'),
+            display_name=i18n.t("components.exa.exa_search.similar_num_results.display_name"),
             value=5,
-            info=i18n.t('components.exa.exa_search.similar_num_results.info'),
+            info=i18n.t("components.exa.exa_search.similar_num_results.info"),
         ),
     ]
 
     outputs = [
         Output(
             name="tools",
-            display_name=i18n.t(
-                'components.exa.exa_search.outputs.tools.display_name'),
-            method="build_toolkit"
+            display_name=i18n.t("components.exa.exa_search.outputs.tools.display_name"),
+            method="build_toolkit",
         ),
     ]
 
@@ -69,22 +65,18 @@ class ExaSearchToolkit(Component):
             ValueError: If API key is invalid or client creation fails.
         """
         try:
-            logger.info(
-                i18n.t('components.exa.exa_search.logs.building_toolkit'))
+            logger.info(i18n.t("components.exa.exa_search.logs.building_toolkit"))
 
             if not self.metaphor_api_key:
-                error_msg = i18n.t(
-                    'components.exa.exa_search.errors.api_key_required')
+                error_msg = i18n.t("components.exa.exa_search.errors.api_key_required")
                 logger.error(error_msg)
                 raise ValueError(error_msg)
 
             client = Metaphor(api_key=self.metaphor_api_key)
-            logger.info(
-                i18n.t('components.exa.exa_search.logs.client_created'))
+            logger.info(i18n.t("components.exa.exa_search.logs.client_created"))
 
         except Exception as e:
-            error_msg = i18n.t('components.exa.exa_search.errors.client_creation_failed',
-                               error=str(e))
+            error_msg = i18n.t("components.exa.exa_search.errors.client_creation_failed", error=str(e))
             logger.exception(error_msg)
             raise ValueError(error_msg) from e
 
@@ -99,22 +91,20 @@ class ExaSearchToolkit(Component):
                 Search results from Exa.
             """
             try:
-                logger.info(i18n.t('components.exa.exa_search.logs.searching',
-                                   query=query[:100] + ("..." if len(query) > 100 else "")))
-
-                results = client.search(
-                    query,
-                    use_autoprompt=self.use_autoprompt,
-                    num_results=self.search_num_results
+                logger.info(
+                    i18n.t(
+                        "components.exa.exa_search.logs.searching",
+                        query=query[:100] + ("..." if len(query) > 100 else ""),
+                    )
                 )
 
-                logger.info(i18n.t('components.exa.exa_search.logs.search_completed',
-                                   count=self.search_num_results))
+                results = client.search(query, use_autoprompt=self.use_autoprompt, num_results=self.search_num_results)
+
+                logger.info(i18n.t("components.exa.exa_search.logs.search_completed", count=self.search_num_results))
                 return results
 
             except Exception as e:
-                error_msg = i18n.t('components.exa.exa_search.errors.search_failed',
-                                   error=str(e))
+                error_msg = i18n.t("components.exa.exa_search.errors.search_failed", error=str(e))
                 logger.error(error_msg)
                 raise
 
@@ -131,18 +121,15 @@ class ExaSearchToolkit(Component):
                 Content of the specified webpages.
             """
             try:
-                logger.info(i18n.t('components.exa.exa_search.logs.getting_contents',
-                                   count=len(ids)))
+                logger.info(i18n.t("components.exa.exa_search.logs.getting_contents", count=len(ids)))
 
                 contents = client.get_contents(ids)
 
-                logger.info(i18n.t('components.exa.exa_search.logs.contents_retrieved',
-                                   count=len(ids)))
+                logger.info(i18n.t("components.exa.exa_search.logs.contents_retrieved", count=len(ids)))
                 return contents
 
             except Exception as e:
-                error_msg = i18n.t('components.exa.exa_search.errors.get_contents_failed',
-                                   error=str(e))
+                error_msg = i18n.t("components.exa.exa_search.errors.get_contents_failed", error=str(e))
                 logger.error(error_msg)
                 raise
 
@@ -159,21 +146,17 @@ class ExaSearchToolkit(Component):
                 Similar search results.
             """
             try:
-                logger.info(i18n.t('components.exa.exa_search.logs.finding_similar',
-                                   url=url))
+                logger.info(i18n.t("components.exa.exa_search.logs.finding_similar", url=url))
 
-                results = client.find_similar(
-                    url, num_results=self.similar_num_results)
+                results = client.find_similar(url, num_results=self.similar_num_results)
 
-                logger.info(i18n.t('components.exa.exa_search.logs.similar_found',
-                                   count=self.similar_num_results))
+                logger.info(i18n.t("components.exa.exa_search.logs.similar_found", count=self.similar_num_results))
                 return results
 
             except Exception as e:
-                error_msg = i18n.t('components.exa.exa_search.errors.find_similar_failed',
-                                   error=str(e))
+                error_msg = i18n.t("components.exa.exa_search.errors.find_similar_failed", error=str(e))
                 logger.error(error_msg)
                 raise
 
-        logger.info(i18n.t('components.exa.exa_search.logs.toolkit_built'))
+        logger.info(i18n.t("components.exa.exa_search.logs.toolkit_built"))
         return [search, get_contents, find_similar]

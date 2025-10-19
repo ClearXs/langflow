@@ -1,7 +1,10 @@
-import { useEffect, useCallback, useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { usePostMessageStore } from "@/stores/postMessageStore";
-import type { PostMessageData, StoredMessage } from "@/types/zustand/postMessage";
+import type {
+  PostMessageData,
+  StoredMessage,
+} from "@/types/zustand/postMessage";
 
 export interface UsePostMessageOptions {
   // Origins to accept messages from (empty = all origins)
@@ -28,7 +31,11 @@ export interface UsePostMessageOptions {
 
 export interface UsePostMessageReturn {
   // Send a message to parent window
-  sendToParent: <T = any>(type: string, payload?: T, targetOrigin?: string) => void;
+  sendToParent: <T = any>(
+    type: string,
+    payload?: T,
+    targetOrigin?: string,
+  ) => void;
 
   // Send a message to a specific window
   sendToWindow: <T = any>(
@@ -94,7 +101,9 @@ export function usePostMessage(
     (event: MessageEvent) => {
       // Security check: validate origin
       if (!isOriginAllowed(event.origin)) {
-        console.warn(`Message from unauthorized origin blocked: ${event.origin}`);
+        console.warn(
+          `Message from unauthorized origin blocked: ${event.origin}`,
+        );
         return;
       }
 

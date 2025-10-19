@@ -1,4 +1,5 @@
 import os
+
 import i18n
 from langchain_community.utilities.sql_database import SQLDatabase
 from sqlalchemy import create_engine
@@ -13,30 +14,25 @@ from lfx.io import (
 
 class SQLDatabaseComponent(Component):
     ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
-    display_name = i18n.t(
-        'components.langchain_utilities.sql_database.display_name')
-    description = i18n.t(
-        'components.langchain_utilities.sql_database.description')
+    display_name = i18n.t("components.langchain_utilities.sql_database.display_name")
+    description = i18n.t("components.langchain_utilities.sql_database.description")
     name = "SQLDatabase"
     icon = "LangChain"
 
     inputs = [
         StrInput(
             name="uri",
-            display_name=i18n.t(
-                'components.langchain_utilities.sql_database.uri.display_name'),
-            info=i18n.t(
-                'components.langchain_utilities.sql_database.uri.info'),
-            required=True
+            display_name=i18n.t("components.langchain_utilities.sql_database.uri.display_name"),
+            info=i18n.t("components.langchain_utilities.sql_database.uri.info"),
+            required=True,
         ),
     ]
 
     outputs = [
         Output(
-            display_name=i18n.t(
-                'components.langchain_utilities.sql_database.outputs.sql_database.display_name'),
+            display_name=i18n.t("components.langchain_utilities.sql_database.outputs.sql_database.display_name"),
             name="SQLDatabase",
-            method="build_sqldatabase"
+            method="build_sqldatabase",
         ),
     ]
 

@@ -1,19 +1,36 @@
-import { useState, useCallback, useMemo, useRef, useEffect } from "react";
-import type { FileItem, TableColumn, Position, FileTableViewProps } from "../types";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
+import type {
+  FileItem,
+  FileTableViewProps,
+  Position,
+  TableColumn,
+} from "../types";
 
 export function useFileTable(props: FileTableViewProps) {
+  const { t } = useTranslation();
   const [fileList, setFileList] = useState<FileItem[]>(props.files || []);
   const [selectedItems, setSelectedItems] = useState<FileItem[]>([]);
-  const [currentParentId, setCurrentParentId] = useState<number>(props.parentId || 0);
-  const [currentPath, setCurrentPath] = useState<string>(props.currentPath || "/");
-  const [pathHistory, setPathHistory] = useState<Array<{ name: string; id: number }>>(
-    props.pathHistory || []
+  const [currentParentId, setCurrentParentId] = useState<number>(
+    props.parentId || 0,
   );
+  const [currentPath, setCurrentPath] = useState<string>(
+    props.currentPath || "/",
+  );
+  const [pathHistory, setPathHistory] = useState<
+    Array<{ name: string; id: number }>
+  >(props.pathHistory || []);
   const [hoveredRow, setHoveredRow] = useState<FileItem | null>(null);
   const [contextMenuVisible, setContextMenuVisible] = useState(false);
-  const [contextMenuPosition, setContextMenuPosition] = useState<Position>({ x: 0, y: 0 });
+  const [contextMenuPosition, setContextMenuPosition] = useState<Position>({
+    x: 0,
+    y: 0,
+  });
   const [contextMenuFile, setContextMenuFile] = useState<FileItem | null>(null);
-  const [sortConfig, setSortConfig] = useState({ prop: "", order: null as "ascending" | "descending" | null });
+  const [sortConfig, setSortConfig] = useState({
+    prop: "",
+    order: null as "ascending" | "descending" | null,
+  });
 
   // Folder creation and rename states
   const [isCreatingFolder, setIsCreatingFolder] = useState(false);
@@ -67,15 +84,21 @@ export function useFileTable(props: FileTableViewProps) {
     (folder: FileItem) => {
       setCurrentPath(`${currentPath}${folder.name}/`);
       setCurrentParentId(folder.id as number);
-      setPathHistory([...pathHistory, { name: folder.name, id: folder.id as number }]);
+      setPathHistory([
+        ...pathHistory,
+        { name: folder.name, id: folder.id as number },
+      ]);
 
       if (!props.keepSelection) {
         setSelectedItems([]);
       }
 
-      props.onNavigation?.(folder.id as number, `${currentPath}${folder.name}/`);
+      props.onNavigation?.(
+        folder.id as number,
+        `${currentPath}${folder.name}/`,
+      );
     },
-    [currentPath, pathHistory, props.keepSelection, props.onNavigation]
+    [currentPath, pathHistory, props.keepSelection, props.onNavigation],
   );
 
   // Navigate to root
@@ -111,7 +134,13 @@ export function useFileTable(props: FileTableViewProps) {
 
       props.onNavigation?.(currentParentId, path);
     },
-    [pathHistory, currentParentId, props.keepSelection, props.customRootId, props.onNavigation]
+    [
+      pathHistory,
+      currentParentId,
+      props.keepSelection,
+      props.customRootId,
+      props.onNavigation,
+    ],
   );
 
   // Start creating folder
@@ -126,7 +155,9 @@ export function useFileTable(props: FileTableViewProps) {
 
   // Confirm create folder
   const confirmCreateFolder = useCallback(
-    async (createFolderApi?: (parentId: number, name: string) => Promise<any>) => {
+    async (
+      createFolderApi?: (parentId: number, name: string) => Promise<any>,
+    ) => {
       if (!newFolderName.trim()) {
         console.warn("Folder name cannot be empty");
         return;
@@ -134,7 +165,10 @@ export function useFileTable(props: FileTableViewProps) {
 
       try {
         if (createFolderApi) {
-          const response = await createFolderApi(currentParentId, newFolderName.trim());
+          const response = await createFolderApi(
+            currentParentId,
+            newFolderName.trim(),
+          );
           if (response && response.data && response.data.success) {
             await fetchFiles();
           }
@@ -156,7 +190,7 @@ export function useFileTable(props: FileTableViewProps) {
         setNewFolderName("");
       }
     },
-    [newFolderName, currentParentId, fileList, fetchFiles]
+    [newFolderName, currentParentId, fileList, fetchFiles],
   );
 
   // Cancel create folder
@@ -184,7 +218,9 @@ export function useFileTable(props: FileTableViewProps) {
 
   // Confirm rename
   const confirmRename = useCallback(
-    async (renameApi?: (id: number, name: string, parentId: number) => Promise<any>) => {
+    async (
+      renameApi?: (id: number, name: string, parentId: number) => Promise<any>,
+    ) => {
       if (!newFolderName.trim()) {
         console.warn("Folder name cannot be empty");
         return;
@@ -197,7 +233,7 @@ export function useFileTable(props: FileTableViewProps) {
           const response = await renameApi(
             fileToRename.id as number,
             newFolderName.trim(),
-            currentParentId
+            currentParentId,
           );
           if (response && response.data && response.data.success) {
             await fetchFiles();
@@ -206,8 +242,10 @@ export function useFileTable(props: FileTableViewProps) {
           // Update folder name in list for demo
           setFileList(
             fileList.map((item) =>
-              item.id === fileToRename.id ? { ...item, name: newFolderName.trim() } : item
-            )
+              item.id === fileToRename.id
+                ? { ...item, name: newFolderName.trim() }
+                : item,
+            ),
           );
         }
       } catch (error) {
@@ -218,7 +256,7 @@ export function useFileTable(props: FileTableViewProps) {
         setNewFolderName("");
       }
     },
-    [newFolderName, fileToRename, currentParentId, fileList, fetchFiles]
+    [newFolderName, fileToRename, currentParentId, fileList, fetchFiles],
   );
 
   // Cancel rename
@@ -241,13 +279,26 @@ export function useFileTable(props: FileTableViewProps) {
   // Check if file is selectable
   const isFileSelectable = useCallback(
     (file: FileItem): boolean => {
-      if (!props.selectableFileTypes || props.selectableFileTypes.length === 0) {
+      // Folders are always selectable
+      if (file.type === "folder") {
         return true;
       }
 
+      // If no file type restrictions, all files are selectable
+      if (
+        !props.selectableFileTypes ||
+        props.selectableFileTypes.length === 0
+      ) {
+        return true;
+      }
+
+      // Check if file matches any allowed type
       return props.selectableFileTypes.some((allowedType) => {
         // Match type field
-        if (file.type && file.type.toLowerCase() === allowedType.toLowerCase()) {
+        if (
+          file.type &&
+          file.type.toLowerCase() === allowedType.toLowerCase()
+        ) {
           return true;
         }
 
@@ -255,28 +306,35 @@ export function useFileTable(props: FileTableViewProps) {
         if (allowedType.startsWith(".")) {
           const extension = allowedType.toLowerCase();
           if (file.name) {
-            const nameExtension = "." + (file.name.split(".").pop() || "").toLowerCase();
+            const nameExtension =
+              "." + (file.name.split(".").pop() || "").toLowerCase();
             if (nameExtension === extension) {
               return true;
             }
           }
           if (file.suffix) {
             const suffixLower = file.suffix.toLowerCase();
-            if (suffixLower === extension || suffixLower === extension.substring(1)) {
+            if (
+              suffixLower === extension ||
+              suffixLower === extension.substring(1)
+            ) {
               return true;
             }
           }
         }
 
         // Match suffix
-        if (file.suffix && file.suffix.toLowerCase() === allowedType.toLowerCase()) {
+        if (
+          file.suffix &&
+          file.suffix.toLowerCase() === allowedType.toLowerCase()
+        ) {
           return true;
         }
 
         return false;
       });
     },
-    [props.selectableFileTypes]
+    [props.selectableFileTypes],
   );
 
   // Table columns configuration
@@ -284,7 +342,7 @@ export function useFileTable(props: FileTableViewProps) {
     const cols: TableColumn[] = [
       {
         prop: "name",
-        label: "名称",
+        label: t("fileTableModal.name"),
         sortable: true,
         className: "name-column",
       },
@@ -292,7 +350,7 @@ export function useFileTable(props: FileTableViewProps) {
     if (props.showUpdateTime) {
       cols.push({
         prop: "updateTime",
-        label: "修改时间",
+        label: t("fileTableModal.modifyTime"),
         sortable: true,
         style: { width: "20%", flexShrink: 0 },
       });
@@ -300,30 +358,35 @@ export function useFileTable(props: FileTableViewProps) {
     if (props.showSize) {
       cols.push({
         prop: "size",
-        label: "大小",
+        label: t("common.size"),
         sortable: true,
         style: { width: "10%", flexShrink: 0 },
       });
     }
-    if (props.showUser) {
+    // Add actions column if context menu is enabled
+    if (props.enableContextMenu) {
       cols.push({
-        prop: "createUser",
-        label: "创建者",
-        style: { width: "10%", flexShrink: 0 },
+        prop: "actions",
+        label: t("fileTableModal.actions"),
+        sortable: false,
+        style: { width: "120px", flexShrink: 0 },
       });
     }
     return cols;
-  }, [props.showUpdateTime, props.showSize, props.showUser]);
+  }, [props.showUpdateTime, props.showSize, props.enableContextMenu, t]);
 
   // Event handlers
   const handleRowClick = useCallback(
     (row: FileItem) => {
-      if (!props.keepSelection) {
-        setSelectedItems([row]);
+      // Only allow selection if file is selectable
+      if (isFileSelectable(row)) {
+        if (!props.keepSelection) {
+          setSelectedItems([row]);
+        }
+        props.onFileSelect?.(row);
       }
-      props.onFileSelect?.(row);
     },
-    [props.keepSelection, props.onFileSelect]
+    [props.keepSelection, props.onFileSelect, isFileSelectable],
   );
 
   const handleRowDblClick = useCallback(
@@ -332,7 +395,7 @@ export function useFileTable(props: FileTableViewProps) {
         navigateToFolder(row);
       }
     },
-    [navigateToFolder]
+    [navigateToFolder],
   );
 
   const handleSelectionChange = useCallback(
@@ -340,23 +403,29 @@ export function useFileTable(props: FileTableViewProps) {
       setSelectedItems(selection);
       props.onSelectionChange?.(selection);
     },
-    [props.onSelectionChange]
+    [props.onSelectionChange],
   );
 
-  const handleSortChange = useCallback((config: { prop: string; order: "ascending" | "descending" | null }) => {
-    setSortConfig(config);
-  }, []);
+  const handleSortChange = useCallback(
+    (config: { prop: string; order: "ascending" | "descending" | null }) => {
+      setSortConfig(config);
+    },
+    [],
+  );
 
-  const handleContextMenu = useCallback((event: React.MouseEvent, file: FileItem) => {
-    if (!props.enableContextMenu) return;
+  const handleContextMenu = useCallback(
+    (event: React.MouseEvent, file: FileItem) => {
+      if (!props.enableContextMenu) return;
 
-    setContextMenuPosition({
-      x: event.clientX,
-      y: event.clientY,
-    });
-    setContextMenuFile(file);
-    setContextMenuVisible(true);
-  }, [props.enableContextMenu]);
+      setContextMenuPosition({
+        x: event.clientX,
+        y: event.clientY,
+      });
+      setContextMenuFile(file);
+      setContextMenuVisible(true);
+    },
+    [props.enableContextMenu],
+  );
 
   const handleMouseEnter = useCallback((row: FileItem) => {
     setHoveredRow(row);

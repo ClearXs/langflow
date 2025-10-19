@@ -1,9 +1,9 @@
 import inspect
-from abc import ABC
 import os
+from abc import ABC
 
-import i18n
 import graph_retriever.strategies as strategies_module
+import i18n
 from langchain_graph_retriever import GraphRetriever
 
 from lfx.base.vectorstores.model import LCVectorStoreComponent
@@ -24,14 +24,11 @@ def traversal_strategies() -> list[str]:
     """
     try:
         classes = inspect.getmembers(strategies_module, inspect.isclass)
-        strategies = [name for name,
-                      cls in classes if ABC not in cls.__bases__]
-        logger.debug(i18n.t('components.datastax.graph_rag.logs.strategies_loaded',
-                            count=len(strategies)))
+        strategies = [name for name, cls in classes if ABC not in cls.__bases__]
+        logger.debug(i18n.t("components.datastax.graph_rag.logs.strategies_loaded", count=len(strategies)))
         return strategies
     except Exception as e:
-        logger.error(i18n.t('components.datastax.graph_rag.errors.strategies_load_failed',
-                            error=str(e)))
+        logger.error(i18n.t("components.datastax.graph_rag.errors.strategies_load_failed", error=str(e)))
         return []
 
 
@@ -54,8 +51,8 @@ class GraphRAGComponent(LCVectorStoreComponent):
             Processes the edge definition input and returns it as a tuple.
     """
 
-    display_name: str = i18n.t('components.datastax.graph_rag.display_name')
-    description: str = i18n.t('components.datastax.graph_rag.description')
+    display_name: str = i18n.t("components.datastax.graph_rag.display_name")
+    description: str = i18n.t("components.datastax.graph_rag.description")
     name = "Graph RAG"
     icon: str = "AstraDB"
 
@@ -64,43 +61,36 @@ class GraphRAGComponent(LCVectorStoreComponent):
     inputs = [
         HandleInput(
             name="embedding_model",
-            display_name=i18n.t(
-                'components.datastax.graph_rag.embedding_model.display_name'),
+            display_name=i18n.t("components.datastax.graph_rag.embedding_model.display_name"),
             input_types=["Embeddings"],
-            info=i18n.t('components.datastax.graph_rag.embedding_model.info'),
+            info=i18n.t("components.datastax.graph_rag.embedding_model.info"),
             required=False,
         ),
         HandleInput(
             name="vector_store",
-            display_name=i18n.t(
-                'components.datastax.graph_rag.vector_store.display_name'),
+            display_name=i18n.t("components.datastax.graph_rag.vector_store.display_name"),
             input_types=["VectorStore"],
-            info=i18n.t('components.datastax.graph_rag.vector_store.info'),
+            info=i18n.t("components.datastax.graph_rag.vector_store.info"),
         ),
         StrInput(
             name="edge_definition",
-            display_name=i18n.t(
-                'components.datastax.graph_rag.edge_definition.display_name'),
-            info=i18n.t('components.datastax.graph_rag.edge_definition.info'),
+            display_name=i18n.t("components.datastax.graph_rag.edge_definition.display_name"),
+            info=i18n.t("components.datastax.graph_rag.edge_definition.info"),
         ),
         DropdownInput(
             name="strategy",
-            display_name=i18n.t(
-                'components.datastax.graph_rag.strategy.display_name'),
+            display_name=i18n.t("components.datastax.graph_rag.strategy.display_name"),
             options=traversal_strategies(),
         ),
         MultilineInput(
             name="search_query",
-            display_name=i18n.t(
-                'components.datastax.graph_rag.search_query.display_name'),
+            display_name=i18n.t("components.datastax.graph_rag.search_query.display_name"),
             tool_mode=True,
         ),
         NestedDictInput(
             name="graphrag_strategy_kwargs",
-            display_name=i18n.t(
-                'components.datastax.graph_rag.graphrag_strategy_kwargs.display_name'),
-            info=i18n.t(
-                'components.datastax.graph_rag.graphrag_strategy_kwargs.info'),
+            display_name=i18n.t("components.datastax.graph_rag.graphrag_strategy_kwargs.display_name"),
+            info=i18n.t("components.datastax.graph_rag.graphrag_strategy_kwargs.info"),
             advanced=True,
         ),
     ]
@@ -117,35 +107,33 @@ class GraphRAGComponent(LCVectorStoreComponent):
             ValueError: If there is a value error.
         """
         try:
-            logger.info(i18n.t('components.datastax.graph_rag.logs.searching_documents',
-                               strategy=self.strategy,
-                               edge_definition=self.edge_definition))
-            self.status = i18n.t(
-                'components.datastax.graph_rag.status.searching')
+            logger.info(
+                i18n.t(
+                    "components.datastax.graph_rag.logs.searching_documents",
+                    strategy=self.strategy,
+                    edge_definition=self.edge_definition,
+                )
+            )
+            self.status = i18n.t("components.datastax.graph_rag.status.searching")
 
             additional_params = self.graphrag_strategy_kwargs or {}
-            logger.debug(i18n.t('components.datastax.graph_rag.logs.additional_params',
-                                params=str(additional_params)))
+            logger.debug(i18n.t("components.datastax.graph_rag.logs.additional_params", params=str(additional_params)))
 
             # Evaluate edge definition
             edge_def = self._evaluate_edge_definition_input()
-            logger.debug(i18n.t('components.datastax.graph_rag.logs.edge_definition_evaluated',
-                                edge_def=str(edge_def)))
+            logger.debug(i18n.t("components.datastax.graph_rag.logs.edge_definition_evaluated", edge_def=str(edge_def)))
 
             # Get strategy class
             try:
                 strategy_class = getattr(strategies_module, self.strategy)
-                logger.debug(i18n.t('components.datastax.graph_rag.logs.strategy_class_loaded',
-                                    strategy=self.strategy))
+                logger.debug(i18n.t("components.datastax.graph_rag.logs.strategy_class_loaded", strategy=self.strategy))
             except AttributeError as e:
-                error_msg = i18n.t('components.datastax.graph_rag.errors.strategy_not_found',
-                                   strategy=self.strategy)
+                error_msg = i18n.t("components.datastax.graph_rag.errors.strategy_not_found", strategy=self.strategy)
                 logger.error(error_msg)
                 raise ValueError(error_msg) from e
 
             # Create retriever
-            logger.info(
-                i18n.t('components.datastax.graph_rag.logs.creating_retriever'))
+            logger.info(i18n.t("components.datastax.graph_rag.logs.creating_retriever"))
             retriever = GraphRetriever(
                 store=self.vector_store,
                 edges=[edge_def],
@@ -153,24 +141,20 @@ class GraphRAGComponent(LCVectorStoreComponent):
             )
 
             # Invoke retriever
-            logger.info(i18n.t('components.datastax.graph_rag.logs.invoking_retriever',
-                               query=self.search_query))
+            logger.info(i18n.t("components.datastax.graph_rag.logs.invoking_retriever", query=self.search_query))
             docs = retriever.invoke(self.search_query)
 
-            logger.info(i18n.t('components.datastax.graph_rag.logs.documents_retrieved',
-                               count=len(docs)))
+            logger.info(i18n.t("components.datastax.graph_rag.logs.documents_retrieved", count=len(docs)))
 
             data = docs_to_data(docs)
-            success_msg = i18n.t('components.datastax.graph_rag.status.search_completed',
-                                 count=len(data))
+            success_msg = i18n.t("components.datastax.graph_rag.status.search_completed", count=len(data))
             self.status = success_msg
             logger.info(success_msg)
 
             return data
 
         except (AttributeError, TypeError, ValueError) as e:
-            error_msg = i18n.t('components.datastax.graph_rag.errors.search_failed',
-                               error=str(e))
+            error_msg = i18n.t("components.datastax.graph_rag.errors.search_failed", error=str(e))
             logger.exception(error_msg)
             self.status = error_msg
             raise ValueError(error_msg) from e
@@ -186,22 +170,19 @@ class GraphRAGComponent(LCVectorStoreComponent):
         """
         try:
             if not self.edge_definition:
-                error_msg = i18n.t(
-                    'components.datastax.graph_rag.errors.edge_definition_empty')
+                error_msg = i18n.t("components.datastax.graph_rag.errors.edge_definition_empty")
                 logger.error(error_msg)
                 raise ValueError(error_msg)
 
             values = self.edge_definition.split(",")
             values = [value.strip() for value in values]
 
-            logger.debug(i18n.t('components.datastax.graph_rag.logs.edge_definition_parsed',
-                                values=str(values)))
+            logger.debug(i18n.t("components.datastax.graph_rag.logs.edge_definition_parsed", values=str(values)))
 
             return tuple(values)
 
         except Exception as e:
-            error_msg = i18n.t('components.datastax.graph_rag.errors.edge_definition_parse_failed',
-                               error=str(e))
+            error_msg = i18n.t("components.datastax.graph_rag.errors.edge_definition_parse_failed", error=str(e))
             logger.error(error_msg)
             raise ValueError(error_msg) from e
 
@@ -220,11 +201,10 @@ class GraphRAGComponent(LCVectorStoreComponent):
         """
         try:
             from graph_retriever.edges.metadata import Id
-            logger.debug(
-                i18n.t('components.datastax.graph_rag.logs.id_module_imported'))
+
+            logger.debug(i18n.t("components.datastax.graph_rag.logs.id_module_imported"))
         except ImportError as e:
-            error_msg = i18n.t(
-                'components.datastax.graph_rag.errors.id_module_import_failed')
+            error_msg = i18n.t("components.datastax.graph_rag.errors.id_module_import_failed")
             logger.error(error_msg)
             raise ImportError(error_msg) from e
 
@@ -236,20 +216,18 @@ class GraphRAGComponent(LCVectorStoreComponent):
                 if value == "Id()":
                     # Evaluate Id() as a function call
                     evaluated_values.append(Id())
-                    logger.debug(
-                        i18n.t('components.datastax.graph_rag.logs.id_function_evaluated'))
+                    logger.debug(i18n.t("components.datastax.graph_rag.logs.id_function_evaluated"))
                 else:
                     evaluated_values.append(value)
-                    logger.debug(i18n.t('components.datastax.graph_rag.logs.value_added',
-                                        value=value))
+                    logger.debug(i18n.t("components.datastax.graph_rag.logs.value_added", value=value))
 
             result = tuple(evaluated_values)
-            logger.debug(i18n.t('components.datastax.graph_rag.logs.edge_definition_evaluation_completed',
-                                result=str(result)))
+            logger.debug(
+                i18n.t("components.datastax.graph_rag.logs.edge_definition_evaluation_completed", result=str(result))
+            )
             return result
 
         except Exception as e:
-            error_msg = i18n.t('components.datastax.graph_rag.errors.edge_definition_evaluation_failed',
-                               error=str(e))
+            error_msg = i18n.t("components.datastax.graph_rag.errors.edge_definition_evaluation_failed", error=str(e))
             logger.error(error_msg)
             raise ValueError(error_msg) from e

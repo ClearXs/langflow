@@ -1826,6 +1826,82 @@ class Component(CustomComponent):
         """
         return f"[Component: {self.display_name or self.__class__.__name__}] {message}"
 
+    async def get_upstream_data(
+        self, input_name: str, graph_data: dict, sample_size: int | None = None, vertex_id: str | None = None
+    ) -> list[Data]:
+        """Get data from upstream node connected to specified input.
+
+        This is a utility method for components to fetch actual runtime data from upstream
+        nodes during update_build_config. Useful for auto-populating configuration based
+        on upstream data structure.
+
+        Args:
+            input_name: Name of the input field to get upstream data from
+            graph_data: Flow graph data (from build_config or frontend_node)
+            sample_size: Optional limit on number of records to return
+            vertex_id: Optional vertex ID (auto-detected if not provided)
+
+        Returns:
+            List of Data objects from the upstream node's execution
+
+        Raises:
+            ValueError: If no upstream node found or execution fails
+
+        Example:
+            async def update_build_config(self, build_config, field_value, field_name, action):
+                if action == "analyze_fields":
+                    # Get graph data from build_config
+                    graph_data = build_config.get("_graph_data", {})
+
+                    # Fetch upstream data
+                    upstream_data = await self.get_upstream_data(
+                        input_name="data_input",
+                        graph_data=graph_data,
+                        sample_size=10
+                    )
+
+                    # Process data for this component's needs
+                    fields = self._extract_fields(upstream_data)
+                    build_config["my_table"]["value"] = fields
+
+                return build_config
+        """
+        from lfx.custom.graph_utils import execute_node_and_get_result, find_upstream_node_id
+
+        # Find the vertex ID
+        if not vertex_id:
+            # Try to get from self._vertex first (runtime context)
+            if hasattr(self, "_vertex") and self._vertex:
+                vertex_id = self._vertex.id
+
+        if not vertex_id:
+            msg = "Component vertex ID not found. Please ensure node_id is passed in design-time context."
+            raise ValueError(msg)
+
+        upstream_node_id = find_upstream_node_id(graph_data, vertex_id, input_name)
+        if not upstream_node_id:
+            msg = f"No upstream node connected to input '{input_name}'"
+            raise ValueError(msg)
+
+        # Check if we have a graph instance
+        if hasattr(self, "graph") and self.graph is not None:
+            # Runtime context - use existing graph
+            return await execute_node_and_get_result(self.graph, upstream_node_id, sample_size)
+
+        # Design-time context - need to build a temporary graph
+        from lfx.graph.graph.base import Graph
+
+        # Build a temporary graph from graph_data
+        try:
+            # Create a minimal flow data structure that Graph can parse
+            flow_data = {"data": graph_data}
+            temp_graph = Graph.from_payload(flow_data)
+
+            return await execute_node_and_get_result(temp_graph, upstream_node_id, sample_size)
+        except Exception as e:
+            msg = f"Failed to build temporary graph for execution: {e}"
+            raise ValueError(msg) from e
+
 
 def _get_component_toolkit():
     from lfx.base.tools.component_tool import ComponentToolkit

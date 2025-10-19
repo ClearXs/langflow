@@ -1,7 +1,8 @@
 import os
-import i18n
-# from lfx.field_typing import Data
 
+import i18n
+
+# from lfx.field_typing import Data
 # TODO: remove ignore once the google package is published with types
 from google.ai.generativelanguage_v1beta.types import BatchEmbedContentsRequest
 from langchain_core.embeddings import Embeddings
@@ -18,8 +19,7 @@ MAX_DIMENSION = 768
 
 class GoogleGenerativeAIEmbeddingsComponent(Component):
     display_name = "Google Generative AI Embeddings"
-    description = i18n.t(
-        'components.google.google_generative_ai_embeddings.description')
+    description = i18n.t("components.google.google_generative_ai_embeddings.description")
     documentation: str = "https://python.langchain.com/v0.2/docs/integrations/text_embedding/google_generative_ai/"
     icon = "GoogleGenerativeAI"
     name = "Google Generative AI Embeddings"
@@ -29,26 +29,22 @@ class GoogleGenerativeAIEmbeddingsComponent(Component):
     inputs = [
         SecretStrInput(
             name="api_key",
-            display_name=i18n.t(
-                'components.google.google_generative_ai_embeddings.api_key.display_name'),
-            required=True
+            display_name=i18n.t("components.google.google_generative_ai_embeddings.api_key.display_name"),
+            required=True,
         ),
         MessageTextInput(
             name="model_name",
-            display_name=i18n.t(
-                'components.google.google_generative_ai_embeddings.model_name.display_name'),
+            display_name=i18n.t("components.google.google_generative_ai_embeddings.model_name.display_name"),
             value="models/text-embedding-004",
-            info=i18n.t(
-                'components.google.google_generative_ai_embeddings.model_name.info')
+            info=i18n.t("components.google.google_generative_ai_embeddings.model_name.info"),
         ),
     ]
 
     outputs = [
         Output(
-            display_name=i18n.t(
-                'components.google.google_generative_ai_embeddings.outputs.embeddings.display_name'),
+            display_name=i18n.t("components.google.google_generative_ai_embeddings.outputs.embeddings.display_name"),
             name="embeddings",
-            method="build_embeddings"
+            method="build_embeddings",
         ),
     ]
 
@@ -62,18 +58,17 @@ class GoogleGenerativeAIEmbeddingsComponent(Component):
             ValueError: If API key is missing.
         """
         if not self.api_key:
-            error_msg = i18n.t(
-                'components.google.google_generative_ai_embeddings.errors.api_key_required')
+            error_msg = i18n.t("components.google.google_generative_ai_embeddings.errors.api_key_required")
             logger.error(error_msg)
             raise ValueError(error_msg)
 
-        logger.info(i18n.t('components.google.google_generative_ai_embeddings.logs.building_embeddings',
-                           model=self.model_name))
+        logger.info(
+            i18n.t("components.google.google_generative_ai_embeddings.logs.building_embeddings", model=self.model_name)
+        )
 
         class HotaGoogleGenerativeAIEmbeddings(GoogleGenerativeAIEmbeddings):
             def __init__(self, *args, **kwargs) -> None:
-                super(GoogleGenerativeAIEmbeddings,
-                      self).__init__(*args, **kwargs)
+                super(GoogleGenerativeAIEmbeddings, self).__init__(*args, **kwargs)
 
             def embed_documents(
                 self,
@@ -105,21 +100,25 @@ class GoogleGenerativeAIEmbeddingsComponent(Component):
                     GoogleGenerativeAIError: If API call fails.
                 """
                 if output_dimensionality is not None and output_dimensionality < MIN_DIMENSION:
-                    error_msg = i18n.t(
-                        'components.google.google_generative_ai_embeddings.errors.min_dimension')
+                    error_msg = i18n.t("components.google.google_generative_ai_embeddings.errors.min_dimension")
                     logger.error(error_msg)
                     raise ValueError(error_msg)
 
                 if output_dimensionality is not None and output_dimensionality > MAX_DIMENSION:
-                    error_msg = i18n.t('components.google.google_generative_ai_embeddings.errors.max_dimension',
-                                       max=MAX_DIMENSION)
+                    error_msg = i18n.t(
+                        "components.google.google_generative_ai_embeddings.errors.max_dimension", max=MAX_DIMENSION
+                    )
                     logger.error(error_msg)
                     raise ValueError(error_msg)
 
-                logger.debug(i18n.t('components.google.google_generative_ai_embeddings.logs.embedding_documents',
-                                    count=len(texts),
-                                    batch_size=batch_size,
-                                    dimensionality=output_dimensionality or 'default'))
+                logger.debug(
+                    i18n.t(
+                        "components.google.google_generative_ai_embeddings.logs.embedding_documents",
+                        count=len(texts),
+                        batch_size=batch_size,
+                        dimensionality=output_dimensionality or "default",
+                    )
+                )
 
                 embeddings: list[list[float]] = []
                 batch_start_index = 0
@@ -127,13 +126,16 @@ class GoogleGenerativeAIEmbeddingsComponent(Component):
 
                 for batch in GoogleGenerativeAIEmbeddings._prepare_batches(texts, batch_size):
                     batch_count += 1
-                    logger.debug(i18n.t('components.google.google_generative_ai_embeddings.logs.processing_batch',
-                                        batch_num=batch_count,
-                                        batch_size=len(batch)))
+                    logger.debug(
+                        i18n.t(
+                            "components.google.google_generative_ai_embeddings.logs.processing_batch",
+                            batch_num=batch_count,
+                            batch_size=len(batch),
+                        )
+                    )
 
                     if titles:
-                        titles_batch = titles[batch_start_index:
-                                              batch_start_index + len(batch)]
+                        titles_batch = titles[batch_start_index : batch_start_index + len(batch)]
                         batch_start_index += len(batch)
                     else:
                         # type: ignore[list-item]
@@ -151,22 +153,29 @@ class GoogleGenerativeAIEmbeddingsComponent(Component):
 
                     try:
                         result = self.client.batch_embed_contents(
-                            BatchEmbedContentsRequest(
-                                requests=requests, model=self.model)
+                            BatchEmbedContentsRequest(requests=requests, model=self.model)
                         )
-                        embeddings.extend([list(e.values)
-                                          for e in result.embeddings])
-                        logger.debug(i18n.t('components.google.google_generative_ai_embeddings.logs.batch_completed',
-                                            batch_num=batch_count,
-                                            embeddings_count=len(result.embeddings)))
+                        embeddings.extend([list(e.values) for e in result.embeddings])
+                        logger.debug(
+                            i18n.t(
+                                "components.google.google_generative_ai_embeddings.logs.batch_completed",
+                                batch_num=batch_count,
+                                embeddings_count=len(result.embeddings),
+                            )
+                        )
                     except Exception as e:
-                        error_msg = i18n.t('components.google.google_generative_ai_embeddings.errors.embedding_failed',
-                                           error=str(e))
+                        error_msg = i18n.t(
+                            "components.google.google_generative_ai_embeddings.errors.embedding_failed", error=str(e)
+                        )
                         logger.exception(error_msg)
                         raise GoogleGenerativeAIError(error_msg) from e
 
-                logger.info(i18n.t('components.google.google_generative_ai_embeddings.logs.documents_embedded',
-                                   total=len(embeddings)))
+                logger.info(
+                    i18n.t(
+                        "components.google.google_generative_ai_embeddings.logs.documents_embedded",
+                        total=len(embeddings),
+                    )
+                )
                 return embeddings
 
             def embed_query(
@@ -193,20 +202,24 @@ class GoogleGenerativeAIEmbeddingsComponent(Component):
                     ValueError: If output_dimensionality is out of valid range.
                 """
                 if output_dimensionality is not None and output_dimensionality < MIN_DIMENSION:
-                    error_msg = i18n.t(
-                        'components.google.google_generative_ai_embeddings.errors.min_dimension')
+                    error_msg = i18n.t("components.google.google_generative_ai_embeddings.errors.min_dimension")
                     logger.error(error_msg)
                     raise ValueError(error_msg)
 
                 if output_dimensionality is not None and output_dimensionality > MAX_DIMENSION:
-                    error_msg = i18n.t('components.google.google_generative_ai_embeddings.errors.max_dimension',
-                                       max=MAX_DIMENSION)
+                    error_msg = i18n.t(
+                        "components.google.google_generative_ai_embeddings.errors.max_dimension", max=MAX_DIMENSION
+                    )
                     logger.error(error_msg)
                     raise ValueError(error_msg)
 
-                logger.debug(i18n.t('components.google.google_generative_ai_embeddings.logs.embedding_query',
-                                    text_length=len(text),
-                                    dimensionality=output_dimensionality or 'default'))
+                logger.debug(
+                    i18n.t(
+                        "components.google.google_generative_ai_embeddings.logs.embedding_query",
+                        text_length=len(text),
+                        dimensionality=output_dimensionality or "default",
+                    )
+                )
 
                 task_type = task_type or "RETRIEVAL_QUERY"
                 result = self.embed_documents(
@@ -216,18 +229,16 @@ class GoogleGenerativeAIEmbeddingsComponent(Component):
                     output_dimensionality=output_dimensionality,
                 )[0]
 
-                logger.debug(i18n.t('components.google.google_generative_ai_embeddings.logs.query_embedded',
-                                    dimension=len(result)))
+                logger.debug(
+                    i18n.t(
+                        "components.google.google_generative_ai_embeddings.logs.query_embedded", dimension=len(result)
+                    )
+                )
                 return result
 
-        embeddings_instance = HotaGoogleGenerativeAIEmbeddings(
-            model=self.model_name,
-            google_api_key=self.api_key
-        )
+        embeddings_instance = HotaGoogleGenerativeAIEmbeddings(model=self.model_name, google_api_key=self.api_key)
 
-        logger.info(i18n.t(
-            'components.google.google_generative_ai_embeddings.logs.embeddings_built'))
-        self.status = i18n.t('components.google.google_generative_ai_embeddings.logs.ready',
-                             model=self.model_name)
+        logger.info(i18n.t("components.google.google_generative_ai_embeddings.logs.embeddings_built"))
+        self.status = i18n.t("components.google.google_generative_ai_embeddings.logs.ready", model=self.model_name)
 
         return embeddings_instance

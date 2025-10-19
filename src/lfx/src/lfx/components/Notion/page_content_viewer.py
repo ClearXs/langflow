@@ -1,4 +1,5 @@
 import os
+
 import i18n
 import requests
 from langchain.tools import StructuredTool
@@ -12,8 +13,8 @@ from lfx.schema.data import Data
 
 
 class NotionPageContent(LCToolComponent):
-    display_name = i18n.t('components.notion.page_content_viewer.display_name')
-    description = i18n.t('components.notion.page_content_viewer.description')
+    display_name = i18n.t("components.notion.page_content_viewer.display_name")
+    description = i18n.t("components.notion.page_content_viewer.description")
     documentation = "https://docs.langflow.org/integrations/notion/page-content-viewer"
     icon = "NotionDirectoryLoader"
 
@@ -22,23 +23,19 @@ class NotionPageContent(LCToolComponent):
     inputs = [
         StrInput(
             name="page_id",
-            display_name=i18n.t(
-                'components.notion.page_content_viewer.page_id.display_name'),
-            info=i18n.t('components.notion.page_content_viewer.page_id.info'),
+            display_name=i18n.t("components.notion.page_content_viewer.page_id.display_name"),
+            info=i18n.t("components.notion.page_content_viewer.page_id.info"),
         ),
         SecretStrInput(
             name="notion_secret",
-            display_name=i18n.t(
-                'components.notion.page_content_viewer.notion_secret.display_name'),
-            info=i18n.t(
-                'components.notion.page_content_viewer.notion_secret.info'),
+            display_name=i18n.t("components.notion.page_content_viewer.notion_secret.display_name"),
+            info=i18n.t("components.notion.page_content_viewer.notion_secret.info"),
             required=True,
         ),
     ]
 
     class NotionPageContentSchema(BaseModel):
-        page_id: str = Field(...,
-                             description="The ID of the Notion page to retrieve.")
+        page_id: str = Field(..., description="The ID of the Notion page to retrieve.")
 
     def run_model(self) -> Data:
         result = self._retrieve_page_content(self.page_id)
@@ -63,8 +60,7 @@ class NotionPageContent(LCToolComponent):
             "Notion-Version": "2022-06-28",
         }
         try:
-            blocks_response = requests.get(
-                blocks_url, headers=headers, timeout=10)
+            blocks_response = requests.get(blocks_url, headers=headers, timeout=10)
             blocks_response.raise_for_status()
             blocks_data = blocks_response.json()
             return self.parse_blocks(blocks_data.get("results", []))
@@ -82,17 +78,13 @@ class NotionPageContent(LCToolComponent):
         for block in blocks:
             block_type = block.get("type")
             if block_type in {"paragraph", "heading_1", "heading_2", "heading_3", "quote"}:
-                content += self.parse_rich_text(
-                    block[block_type].get("rich_text", [])) + "\n\n"
+                content += self.parse_rich_text(block[block_type].get("rich_text", [])) + "\n\n"
             elif block_type in {"bulleted_list_item", "numbered_list_item"}:
-                content += self.parse_rich_text(
-                    block[block_type].get("rich_text", [])) + "\n"
+                content += self.parse_rich_text(block[block_type].get("rich_text", [])) + "\n"
             elif block_type == "to_do":
-                content += self.parse_rich_text(
-                    block["to_do"].get("rich_text", [])) + "\n"
+                content += self.parse_rich_text(block["to_do"].get("rich_text", [])) + "\n"
             elif block_type == "code":
-                content += self.parse_rich_text(
-                    block["code"].get("rich_text", [])) + "\n\n"
+                content += self.parse_rich_text(block["code"].get("rich_text", [])) + "\n\n"
             elif block_type == "image":
                 content += f"[Image: {block['image'].get('external', {}).get('url', 'No URL')}]\n\n"
             elif block_type == "divider":

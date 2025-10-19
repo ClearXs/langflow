@@ -1,6 +1,7 @@
 import os
-import i18n
 import tempfile
+
+import i18n
 
 from lfx.custom.custom_component.component import Component
 from lfx.io import Output, SecretStrInput, StrInput
@@ -10,7 +11,7 @@ from lfx.schema.data import Data
 
 class JigsawStackFileReadComponent(Component):
     display_name = "File Read"
-    description = i18n.t('components.jigsawstack.file_read.description')
+    description = i18n.t("components.jigsawstack.file_read.description")
     documentation = "https://jigsawstack.com/docs/api-reference/store/file/get"
     icon = "JigsawStack"
     name = "JigsawStackFileRead"
@@ -20,16 +21,14 @@ class JigsawStackFileReadComponent(Component):
     inputs = [
         SecretStrInput(
             name="api_key",
-            display_name=i18n.t(
-                'components.jigsawstack.file_read.api_key.display_name'),
-            info=i18n.t('components.jigsawstack.file_read.api_key.info'),
+            display_name=i18n.t("components.jigsawstack.file_read.api_key.display_name"),
+            info=i18n.t("components.jigsawstack.file_read.api_key.info"),
             required=True,
         ),
         StrInput(
             name="key",
-            display_name=i18n.t(
-                'components.jigsawstack.file_read.key.display_name'),
-            info=i18n.t('components.jigsawstack.file_read.key.info'),
+            display_name=i18n.t("components.jigsawstack.file_read.key.display_name"),
+            info=i18n.t("components.jigsawstack.file_read.key.info"),
             required=True,
             tool_mode=True,
         ),
@@ -37,10 +36,9 @@ class JigsawStackFileReadComponent(Component):
 
     outputs = [
         Output(
-            display_name=i18n.t(
-                'components.jigsawstack.file_read.outputs.file_path.display_name'),
+            display_name=i18n.t("components.jigsawstack.file_read.outputs.file_path.display_name"),
             name="file_path",
-            method="read_and_save_file"
+            method="read_and_save_file",
         ),
     ]
 
@@ -54,69 +52,62 @@ class JigsawStackFileReadComponent(Component):
             ImportError: If JigsawStack package is not installed.
             ValueError: If key is empty or invalid.
         """
-        logger.info(i18n.t('components.jigsawstack.file_read.logs.starting_read',
-                           key=self.key))
+        logger.info(i18n.t("components.jigsawstack.file_read.logs.starting_read", key=self.key))
 
         try:
             from jigsawstack import JigsawStack, JigsawStackError
         except ImportError as e:
-            error_msg = i18n.t(
-                'components.jigsawstack.file_read.errors.import_error')
+            error_msg = i18n.t("components.jigsawstack.file_read.errors.import_error")
             logger.error(error_msg)
             raise ImportError(error_msg) from e
 
         try:
             if not self.key or self.key.strip() == "":
-                error_msg = i18n.t(
-                    'components.jigsawstack.file_read.errors.empty_key')
+                error_msg = i18n.t("components.jigsawstack.file_read.errors.empty_key")
                 logger.error(error_msg)
                 raise ValueError(error_msg)
 
-            logger.debug(
-                i18n.t('components.jigsawstack.file_read.logs.creating_client'))
+            logger.debug(i18n.t("components.jigsawstack.file_read.logs.creating_client"))
             client = JigsawStack(api_key=self.api_key)
 
             # Download file content
-            logger.info(i18n.t('components.jigsawstack.file_read.logs.downloading_file',
-                               key=self.key))
+            logger.info(i18n.t("components.jigsawstack.file_read.logs.downloading_file", key=self.key))
             response = client.store.get(self.key)
 
             # Determine file extension
-            logger.debug(
-                i18n.t('components.jigsawstack.file_read.logs.detecting_extension'))
+            logger.debug(i18n.t("components.jigsawstack.file_read.logs.detecting_extension"))
             file_extension = self._detect_file_extension(response)
 
-            logger.debug(i18n.t('components.jigsawstack.file_read.logs.extension_detected',
-                                extension=file_extension))
+            logger.debug(i18n.t("components.jigsawstack.file_read.logs.extension_detected", extension=file_extension))
 
             # Create temporary file
-            logger.debug(
-                i18n.t('components.jigsawstack.file_read.logs.creating_temp_file'))
+            logger.debug(i18n.t("components.jigsawstack.file_read.logs.creating_temp_file"))
             with tempfile.NamedTemporaryFile(
                 delete=False, suffix=file_extension, prefix=f"jigsawstack_{self.key}_"
             ) as temp_file:
                 if isinstance(response, bytes):
                     temp_file.write(response)
                     content_size = len(response)
-                    logger.debug(i18n.t('components.jigsawstack.file_read.logs.wrote_binary',
-                                        size=content_size))
+                    logger.debug(i18n.t("components.jigsawstack.file_read.logs.wrote_binary", size=content_size))
                 else:
                     # Handle string content
                     encoded_content = response.encode("utf-8")
                     temp_file.write(encoded_content)
                     content_size = len(encoded_content)
-                    logger.debug(i18n.t('components.jigsawstack.file_read.logs.wrote_text',
-                                        size=content_size))
+                    logger.debug(i18n.t("components.jigsawstack.file_read.logs.wrote_text", size=content_size))
 
                 temp_path = temp_file.name
 
-            logger.info(i18n.t('components.jigsawstack.file_read.logs.file_saved',
-                               path=temp_path,
-                               size=content_size,
-                               extension=file_extension))
+            logger.info(
+                i18n.t(
+                    "components.jigsawstack.file_read.logs.file_saved",
+                    path=temp_path,
+                    size=content_size,
+                    extension=file_extension,
+                )
+            )
 
-            status_msg = i18n.t('components.jigsawstack.file_read.logs.read_complete',
-                                key=self.key)
+            status_msg = i18n.t("components.jigsawstack.file_read.logs.read_complete", key=self.key)
             self.status = status_msg
 
             return Data(
@@ -130,8 +121,7 @@ class JigsawStackFileReadComponent(Component):
             )
 
         except JigsawStackError as e:
-            error_msg = i18n.t('components.jigsawstack.file_read.errors.jigsawstack_error',
-                               error=str(e))
+            error_msg = i18n.t("components.jigsawstack.file_read.errors.jigsawstack_error", error=str(e))
             logger.error(error_msg)
             error_data = {"error": str(e), "success": False}
             self.status = f"Error: {e!s}"
@@ -145,8 +135,7 @@ class JigsawStackFileReadComponent(Component):
             return Data(data=error_data)
 
         except Exception as e:
-            error_msg = i18n.t('components.jigsawstack.file_read.errors.unexpected_error',
-                               error=str(e))
+            error_msg = i18n.t("components.jigsawstack.file_read.errors.unexpected_error", error=str(e))
             logger.exception(error_msg)
             error_data = {"error": str(e), "success": False}
             self.status = f"Error: {e!s}"
@@ -162,59 +151,46 @@ class JigsawStackFileReadComponent(Component):
             str: Detected file extension with leading dot.
         """
         if isinstance(content, bytes):
-            logger.debug(
-                i18n.t('components.jigsawstack.file_read.logs.analyzing_binary'))
+            logger.debug(i18n.t("components.jigsawstack.file_read.logs.analyzing_binary"))
 
             # Check magic numbers for common file types
             if content.startswith(b"\xff\xd8\xff"):
-                logger.debug(i18n.t('components.jigsawstack.file_read.logs.detected_type',
-                                    type='JPEG'))
+                logger.debug(i18n.t("components.jigsawstack.file_read.logs.detected_type", type="JPEG"))
                 return ".jpg"
             if content.startswith(b"\x89PNG\r\n\x1a\n"):
-                logger.debug(i18n.t('components.jigsawstack.file_read.logs.detected_type',
-                                    type='PNG'))
+                logger.debug(i18n.t("components.jigsawstack.file_read.logs.detected_type", type="PNG"))
                 return ".png"
             if content.startswith((b"GIF87a", b"GIF89a")):
-                logger.debug(i18n.t('components.jigsawstack.file_read.logs.detected_type',
-                                    type='GIF'))
+                logger.debug(i18n.t("components.jigsawstack.file_read.logs.detected_type", type="GIF"))
                 return ".gif"
             if content.startswith(b"%PDF"):
-                logger.debug(i18n.t('components.jigsawstack.file_read.logs.detected_type',
-                                    type='PDF'))
+                logger.debug(i18n.t("components.jigsawstack.file_read.logs.detected_type", type="PDF"))
                 return ".pdf"
             if content.startswith(b"PK\x03\x04"):  # ZIP/DOCX/XLSX
-                logger.debug(i18n.t('components.jigsawstack.file_read.logs.detected_type',
-                                    type='ZIP/Office'))
+                logger.debug(i18n.t("components.jigsawstack.file_read.logs.detected_type", type="ZIP/Office"))
                 return ".zip"
             if content.startswith(b"\x00\x00\x01\x00"):  # ICO
-                logger.debug(i18n.t('components.jigsawstack.file_read.logs.detected_type',
-                                    type='ICO'))
+                logger.debug(i18n.t("components.jigsawstack.file_read.logs.detected_type", type="ICO"))
                 return ".ico"
             if content.startswith(b"RIFF") and b"WEBP" in content[:12]:
-                logger.debug(i18n.t('components.jigsawstack.file_read.logs.detected_type',
-                                    type='WebP'))
+                logger.debug(i18n.t("components.jigsawstack.file_read.logs.detected_type", type="WebP"))
                 return ".webp"
             if content.startswith((b"\xff\xfb", b"\xff\xf3", b"\xff\xf2")):
-                logger.debug(i18n.t('components.jigsawstack.file_read.logs.detected_type',
-                                    type='MP3'))
+                logger.debug(i18n.t("components.jigsawstack.file_read.logs.detected_type", type="MP3"))
                 return ".mp3"
             if content.startswith((b"ftypmp4", b"\x00\x00\x00\x20ftypmp4")):
-                logger.debug(i18n.t('components.jigsawstack.file_read.logs.detected_type',
-                                    type='MP4'))
+                logger.debug(i18n.t("components.jigsawstack.file_read.logs.detected_type", type="MP4"))
                 return ".mp4"
 
             # Try to decode as text
             try:
                 content.decode("utf-8")
-                logger.debug(i18n.t('components.jigsawstack.file_read.logs.detected_type',
-                                    type='Text'))
+                logger.debug(i18n.t("components.jigsawstack.file_read.logs.detected_type", type="Text"))
                 return ".txt"
             except UnicodeDecodeError:
-                logger.debug(i18n.t('components.jigsawstack.file_read.logs.detected_type',
-                                    type='Binary'))
+                logger.debug(i18n.t("components.jigsawstack.file_read.logs.detected_type", type="Binary"))
                 return ".bin"  # Binary file
         else:
             # String content
-            logger.debug(i18n.t('components.jigsawstack.file_read.logs.detected_type',
-                                type='Text'))
+            logger.debug(i18n.t("components.jigsawstack.file_read.logs.detected_type", type="Text"))
             return ".txt"

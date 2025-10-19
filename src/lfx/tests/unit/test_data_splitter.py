@@ -1,11 +1,9 @@
 import pytest
-import json
-from lfx.components.data.data_splitter import DataSplitterComponent
 from langflow.schema import Data
+from lfx.components.data.data_splitter import DataSplitterComponent
 
 
 class TestDataSplitterComponent:
-
     @pytest.fixture
     def component(self):
         return DataSplitterComponent()
@@ -28,7 +26,7 @@ class TestDataSplitterComponent:
     def test_ratio_splitting(self, component, sample_data):
         component.data = sample_data
         component.split_strategy = "ratio"
-        component.split_ratios = '[0.6, 0.3, 0.1]'  # 60%, 30%, 10%
+        component.split_ratios = "[0.6, 0.3, 0.1]"  # 60%, 30%, 10%
 
         result = component.split_data()
 
@@ -45,7 +43,7 @@ class TestDataSplitterComponent:
     def test_random_splitting(self, component, sample_data):
         component.data = sample_data
         component.split_strategy = "random"
-        component.split_ratios = '[0.5, 0.5]'
+        component.split_ratios = "[0.5, 0.5]"
         component.random_seed = 42  # For reproducibility
 
         result1 = component.split_data()
@@ -62,7 +60,7 @@ class TestDataSplitterComponent:
     def test_sequential_splitting(self, component, sample_data):
         component.data = sample_data
         component.split_strategy = "sequential"
-        component.split_ratios = '[0.4, 0.6]'  # 40%, 60%
+        component.split_ratios = "[0.4, 0.6]"  # 40%, 60%
 
         result = component.split_data()
 
@@ -72,17 +70,17 @@ class TestDataSplitterComponent:
         second_split_ids = [item["id"] for item in result.data[1]["data"]]
 
         # IDs should be in order and non-overlapping
-        assert all(id1 < id2 for id1, id2 in zip(first_split_ids[:-1], first_split_ids[1:]))
-        assert all(id1 < id2 for id1, id2 in zip(second_split_ids[:-1], second_split_ids[1:]))
+        assert all(id1 < id2 for id1, id2 in zip(first_split_ids[:-1], first_split_ids[1:], strict=False))
+        assert all(id1 < id2 for id1, id2 in zip(second_split_ids[:-1], second_split_ids[1:], strict=False))
         assert max(first_split_ids) < min(second_split_ids)
 
     def test_conditional_splitting(self, component, sample_data):
         component.data = sample_data
         component.split_strategy = "conditional"
-        component.split_conditions = '''[
+        component.split_conditions = """[
             {"condition": "value >= 50", "name": "high_value"},
             {"condition": "value < 50", "name": "low_value"}
-        ]'''
+        ]"""
 
         result = component.split_data()
 
@@ -135,7 +133,7 @@ class TestDataSplitterComponent:
     def test_stratified_sampling(self, component, sample_data):
         component.data = sample_data
         component.split_strategy = "ratio"
-        component.split_ratios = '[0.7, 0.3]'
+        component.split_ratios = "[0.7, 0.3]"
         component.stratify_field = "category"
 
         result = component.split_data()
@@ -163,7 +161,7 @@ class TestDataSplitterComponent:
     def test_shuffle_data(self, component, sample_data):
         component.data = sample_data
         component.split_strategy = "ratio"
-        component.split_ratios = '[1.0]'  # Single split to test shuffling
+        component.split_ratios = "[1.0]"  # Single split to test shuffling
         component.shuffle_data = True
         component.random_seed = 42
 
@@ -181,7 +179,7 @@ class TestDataSplitterComponent:
     def test_preserve_order(self, component, sample_data):
         component.data = sample_data
         component.split_strategy = "ratio"
-        component.split_ratios = '[0.5, 0.5]'
+        component.split_ratios = "[0.5, 0.5]"
         component.preserve_order = True
         component.shuffle_data = False
 
@@ -195,7 +193,7 @@ class TestDataSplitterComponent:
     def test_include_remainder(self, component, sample_data):
         component.data = sample_data
         component.split_strategy = "ratio"
-        component.split_ratios = '[0.3, 0.3]'  # Only 60%, leaving 40% remainder
+        component.split_ratios = "[0.3, 0.3]"  # Only 60%, leaving 40% remainder
         component.include_remainder = True
 
         result = component.split_data()
@@ -209,7 +207,7 @@ class TestDataSplitterComponent:
     def test_subset_names(self, component, sample_data):
         component.data = sample_data
         component.split_strategy = "ratio"
-        component.split_ratios = '[0.6, 0.2, 0.2]'
+        component.split_ratios = "[0.6, 0.2, 0.2]"
         component.subset_names = '["train", "validation", "test"]'
 
         result = component.split_data()
@@ -223,7 +221,7 @@ class TestDataSplitterComponent:
     def test_output_format_combined(self, component, sample_data):
         component.data = sample_data
         component.split_strategy = "ratio"
-        component.split_ratios = '[0.7, 0.3]'
+        component.split_ratios = "[0.7, 0.3]"
         component.output_format = "combined"
 
         result = component.split_data()
@@ -236,7 +234,7 @@ class TestDataSplitterComponent:
     def test_split_report(self, component, sample_data):
         component.data = sample_data
         component.split_strategy = "ratio"
-        component.split_ratios = '[0.6, 0.4]'
+        component.split_ratios = "[0.6, 0.4]"
 
         # Run splitting first
         component.split_data()
@@ -279,7 +277,7 @@ class TestDataSplitterComponent:
     def test_invalid_ratios_sum(self, component, sample_data):
         component.data = sample_data
         component.split_strategy = "ratio"
-        component.split_ratios = '[0.6, 0.6]'  # Sums to 1.2 > 1.0
+        component.split_ratios = "[0.6, 0.6]"  # Sums to 1.2 > 1.0
 
         with pytest.raises(ValueError, match="sum to 1.0"):
             component.split_data()
@@ -304,7 +302,7 @@ class TestDataSplitterComponent:
         small_data = [Data(data={"id": 1})]
         component.data = small_data
         component.split_strategy = "ratio"
-        component.split_ratios = '[0.4, 0.3, 0.3]'  # 3 splits for 1 record
+        component.split_ratios = "[0.4, 0.3, 0.3]"  # 3 splits for 1 record
 
         # Should handle gracefully, possibly with warning
         result = component.split_data()
@@ -314,7 +312,7 @@ class TestDataSplitterComponent:
         single_data = [Data(data={"id": 1, "category": "A"})]
         component.data = single_data
         component.split_strategy = "ratio"
-        component.split_ratios = '[1.0]'
+        component.split_ratios = "[1.0]"
 
         result = component.split_data()
 
@@ -325,7 +323,7 @@ class TestDataSplitterComponent:
     def test_zero_ratio_handling(self, component, sample_data):
         component.data = sample_data
         component.split_strategy = "ratio"
-        component.split_ratios = '[0.8, 0.2, 0.0]'  # Third split gets 0%
+        component.split_ratios = "[0.8, 0.2, 0.0]"  # Third split gets 0%
 
         result = component.split_data()
 

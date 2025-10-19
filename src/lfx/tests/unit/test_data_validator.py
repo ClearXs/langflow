@@ -1,8 +1,9 @@
 import json
-import pytest
-from unittest.mock import Mock, patch
+from unittest.mock import patch
 
+import pytest
 from lfx.components.data.data_validator import DataValidatorComponent
+
 from lfx.schema.data import Data
 
 
@@ -14,7 +15,7 @@ class TestDataValidatorComponent:
         self.component = DataValidatorComponent()
 
         # Mock translation function to return key
-        with patch('i18n.t', side_effect=lambda key, **kwargs: key.format(**kwargs) if kwargs else key):
+        with patch("i18n.t", side_effect=lambda key, **kwargs: key.format(**kwargs) if kwargs else key):
             self.component.display_name = "Data Validator"
             self.component.description = "Test data validator"
 
@@ -28,10 +29,7 @@ class TestDataValidatorComponent:
 
     def test_parse_input_data_list_of_data_objects(self):
         """Test parsing list of Data objects."""
-        data_objects = [
-            Data(data={"id": 1, "name": "John"}),
-            Data(data={"id": 2, "name": "Jane"})
-        ]
+        data_objects = [Data(data={"id": 1, "name": "John"}), Data(data={"id": 2, "name": "Jane"})]
         self.component.data = data_objects
 
         result = self.component._parse_input_data()
@@ -158,7 +156,7 @@ class TestDataValidatorComponent:
         data_list = [
             {"id": 1, "name": "John"},
             {"id": 2, "name": "Jane"},
-            {"id": 1, "name": "John"}  # Duplicate
+            {"id": 1, "name": "John"},  # Duplicate
         ]
 
         errors = self.component._check_duplicates(data_list)
@@ -173,7 +171,7 @@ class TestDataValidatorComponent:
         data_list = [
             {"id": 1, "name": "John", "age": 30},
             {"id": 2, "name": "", "age": 25},
-            {"id": 3, "name": "Bob", "age": None}
+            {"id": 3, "name": "Bob", "age": None},
         ]
 
         stats = self.component._generate_statistics(data_list)
@@ -189,13 +187,13 @@ class TestDataValidatorComponent:
         """Test successful validation with valid data."""
         self.component.data = [
             Data(data={"id": 1, "name": "John", "email": "john@example.com"}),
-            Data(data={"id": 2, "name": "Jane", "email": "jane@example.com"})
+            Data(data={"id": 2, "name": "Jane", "email": "jane@example.com"}),
         ]
         self.component.validation_mode = "tolerant"
         self.component.check_null_values = True
         self.component.check_duplicates = True
 
-        with patch('i18n.t', side_effect=lambda key, **kwargs: key.format(**kwargs) if kwargs else key):
+        with patch("i18n.t", side_effect=lambda key, **kwargs: key.format(**kwargs) if kwargs else key):
             result = self.component.validate_data()
 
         assert isinstance(result, Data)
@@ -207,14 +205,14 @@ class TestDataValidatorComponent:
         """Test validation with errors in tolerant mode."""
         self.component.data = [
             Data(data={"id": 1, "name": "John", "email": ""}),  # Empty email
-            Data(data={"id": "invalid", "name": "Jane", "email": "jane@example.com"})  # Invalid ID type
+            Data(data={"id": "invalid", "name": "Jane", "email": "jane@example.com"}),  # Invalid ID type
         ]
         self.component.validation_mode = "tolerant"
         self.component.check_null_values = True
         self.component.check_data_types = True
         self.component.type_schema = '{"id": "integer", "email": "email"}'
 
-        with patch('i18n.t', side_effect=lambda key, **kwargs: key.format(**kwargs) if kwargs else key):
+        with patch("i18n.t", side_effect=lambda key, **kwargs: key.format(**kwargs) if kwargs else key):
             result = self.component.validate_data()
 
         assert result.data["summary"]["total_records"] == 2
@@ -225,12 +223,12 @@ class TestDataValidatorComponent:
         """Test validation in strict mode fails on first error."""
         self.component.data = [
             Data(data={"id": 1, "name": "John", "email": ""}),  # Empty email - should fail immediately
-            Data(data={"id": 2, "name": "Jane", "email": "jane@example.com"})
+            Data(data={"id": 2, "name": "Jane", "email": "jane@example.com"}),
         ]
         self.component.validation_mode = "strict"
         self.component.check_null_values = True
 
-        with patch('i18n.t', side_effect=lambda key, **kwargs: key.format(**kwargs) if kwargs else key):
+        with patch("i18n.t", side_effect=lambda key, **kwargs: key.format(**kwargs) if kwargs else key):
             with pytest.raises(ValueError):
                 result = self.component.validate_data()
                 # In strict mode, should raise an error before completing
@@ -251,7 +249,7 @@ class TestDataValidatorComponent:
         error_records = [
             {
                 "data": {"id": "123", "name": "Jane"},  # String ID that can be converted
-                "errors": [{"type": "data_type", "field": "id", "expected_type": "integer"}]
+                "errors": [{"type": "data_type", "field": "id", "expected_type": "integer"}],
             }
         ]
 
@@ -268,20 +266,14 @@ class TestDataValidatorComponent:
                 "valid_records": 8,
                 "invalid_records": 2,
                 "validation_timestamp": "2024-01-01T12:00:00",
-                "validation_mode": "tolerant"
+                "validation_mode": "tolerant",
             },
             "checks_performed": ["null_value_check", "data_type_check"],
-            "errors": [
-                {"type": "null_value", "field": "email"},
-                {"type": "data_type", "field": "id"}
-            ],
+            "errors": [{"type": "null_value", "field": "email"}, {"type": "data_type", "field": "id"}],
             "statistics": {
                 "data_quality_score": 85.5,
-                "field_analysis": {
-                    "name": {"null_percentage": 10.0},
-                    "email": {"null_percentage": 20.0}
-                }
-            }
+                "field_analysis": {"name": {"null_percentage": 10.0}, "email": {"null_percentage": 20.0}},
+            },
         }
 
         report = self.component._format_validation_report(results)
@@ -298,7 +290,7 @@ class TestDataValidatorComponent:
             "type_schema": {"show": False},
             "range_schema": {"show": False},
             "custom_rules": {"show": False},
-            "null_threshold": {"show": False}
+            "null_threshold": {"show": False},
         }
 
         # Test check_data_types field

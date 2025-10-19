@@ -1,4 +1,5 @@
 from .api_key import ApiKey
+from .datasource import DataSource
 from .file import File
 from .flow import Flow
 from .folder import Folder
@@ -9,6 +10,7 @@ from .variable import Variable
 
 __all__ = [
     "ApiKey",
+    "DataSource",
     "File",
     "Flow",
     "Folder",

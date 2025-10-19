@@ -1,11 +1,11 @@
-import pytest
 import json
-from lfx.components.data.value_mapper import ValueMapperComponent
+
+import pytest
 from langflow.schema import Data
+from lfx.components.data.value_mapper import ValueMapperComponent
 
 
 class TestValueMapperComponent:
-
     @pytest.fixture
     def component(self):
         return ValueMapperComponent()
@@ -37,12 +37,12 @@ class TestValueMapperComponent:
         component.data = sample_data
         component.mapping_strategy = "conditional"
         component.target_fields = '["grade"]'
-        component.conditional_rules = '''[
+        component.conditional_rules = """[
             {"condition": "score >= 90", "value": "A"},
             {"condition": "score >= 80", "value": "B"},
             {"condition": "score >= 70", "value": "C"},
             {"condition": "score < 70", "value": "F"}
-        ]'''
+        ]"""
 
         result = component.map_values()
 
@@ -61,26 +61,26 @@ class TestValueMapperComponent:
         result = component.map_values()
 
         assert result.data[0].data["bonus"] == 8.5  # active, score 85
-        assert result.data[1].data["bonus"] == 0    # inactive
+        assert result.data[1].data["bonus"] == 0  # inactive
         assert result.data[3].data["bonus"] == 9.5  # active, score 95
 
     def test_lookup_table_mapping(self, component, sample_data):
         component.data = sample_data
         component.mapping_strategy = "lookup"
         component.target_fields = '["category"]'
-        component.lookup_table = '''[
+        component.lookup_table = """[
             {"code": "A", "name": "Premium"},
             {"code": "B", "name": "Standard"},
             {"code": "C", "name": "Basic"}
-        ]'''
+        ]"""
         component.lookup_key_field = "code"
         component.lookup_value_field = "name"
 
         result = component.map_values()
 
-        assert result.data[0].data["category"] == "Premium"   # A
+        assert result.data[0].data["category"] == "Premium"  # A
         assert result.data[1].data["category"] == "Standard"  # B
-        assert result.data[3].data["category"] == "Basic"     # C
+        assert result.data[3].data["category"] == "Basic"  # C
 
     def test_regex_mapping(self, component):
         email_data = [
@@ -92,17 +92,17 @@ class TestValueMapperComponent:
         component.data = email_data
         component.mapping_strategy = "regex"
         component.target_fields = '["domain_type"]'
-        component.regex_patterns = '''{
+        component.regex_patterns = """{
             ".*@gmail\\.com": "Personal",
             ".*@.*\\.org": "Organization",
             ".*@yahoo\\.com": "Personal"
-        }'''
+        }"""
 
         result = component.map_values()
 
-        assert result.data[0].data["domain_type"] == "Personal"     # gmail
-        assert result.data[1].data["domain_type"] == "Organization" # .org
-        assert result.data[2].data["domain_type"] == "Personal"     # yahoo
+        assert result.data[0].data["domain_type"] == "Personal"  # gmail
+        assert result.data[1].data["domain_type"] == "Organization"  # .org
+        assert result.data[2].data["domain_type"] == "Personal"  # yahoo
 
     def test_case_sensitivity(self, component, sample_data):
         component.data = sample_data
@@ -127,7 +127,7 @@ class TestValueMapperComponent:
 
         assert result.data[0].data["status"] == "enabled"  # Mapped
         assert result.data[1].data["status"] == "inactive"  # Preserved (unmapped)
-        assert result.data[2].data["status"] == "pending"   # Preserved (unmapped)
+        assert result.data[2].data["status"] == "pending"  # Preserved (unmapped)
 
     def test_default_value(self, component, sample_data):
         component.data = sample_data
@@ -162,7 +162,7 @@ class TestValueMapperComponent:
     def test_all_fields_when_target_empty(self, component, sample_data):
         component.data = sample_data
         component.mapping_strategy = "simple"
-        component.target_fields = '[]'  # Empty means all fields
+        component.target_fields = "[]"  # Empty means all fields
         component.value_mappings = '{"A": "Alpha", "B": "Beta"}'
 
         result = component.map_values()
@@ -265,18 +265,12 @@ class TestValueMapperComponent:
         assert result.data[0].data["status"] == "enabled"
 
     def test_nested_field_access_in_expressions(self, component):
-        nested_data = [
-            Data(data={
-                "id": 1,
-                "user": {"name": "John", "age": 25},
-                "scores": [80, 90, 85]
-            })
-        ]
+        nested_data = [Data(data={"id": 1, "user": {"name": "John", "age": 25}, "scores": [80, 90, 85]})]
 
         component.data = nested_data
         component.mapping_strategy = "calculated"
         component.target_fields = '["summary"]'
-        component.calculated_expressions = '{"summary": "f\"{user[\'name\']} is {user[\'age\']} years old\""}'
+        component.calculated_expressions = '{"summary": "f"{user[\'name\']} is {user[\'age\']} years old""}'
 
         result = component.map_values()
 
@@ -286,13 +280,13 @@ class TestValueMapperComponent:
         component.data = sample_data
         component.mapping_strategy = "simple"
         component.target_fields = '["status", "category"]'
-        component.value_mappings = '''{
+        component.value_mappings = """{
             "active": "enabled",
             "inactive": "disabled",
             "A": "Alpha",
             "B": "Beta",
             "C": "Gamma"
-        }'''
+        }"""
 
         result = component.map_values()
 

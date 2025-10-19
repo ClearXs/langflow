@@ -1,9 +1,9 @@
-import os
 import ast
 import json
+import os
 from typing import Any
-import i18n
 
+import i18n
 from langchain.agents import Tool
 from langchain_core.tools import StructuredTool
 from pydantic.v1 import Field, create_model
@@ -33,25 +33,20 @@ class PythonCodeStructuredTool(LCToolComponent):
         "_classes",
         "_functions",
     ]
-    display_name = i18n.t(
-        'components.tools.python_code_structured_tool.display_name')
-    description = i18n.t(
-        'components.tools.python_code_structured_tool.description')
+    display_name = i18n.t("components.tools.python_code_structured_tool.display_name")
+    description = i18n.t("components.tools.python_code_structured_tool.description")
     documentation = "https://python.langchain.com/docs/modules/tools/custom_tools/#structuredtool-dataclass"
     name = "PythonCodeStructuredTool"
     icon = "Python"
-    field_order = ["name", "description",
-                   "tool_code", "return_direct", "tool_function"]
+    field_order = ["name", "description", "tool_code", "return_direct", "tool_function"]
     legacy: bool = True
     replacement = ["processing.PythonREPLComponent"]
 
     inputs = [
         MultilineInput(
             name="tool_code",
-            display_name=i18n.t(
-                'components.tools.python_code_structured_tool.tool_code.display_name'),
-            info=i18n.t(
-                'components.tools.python_code_structured_tool.tool_code.info'),
+            display_name=i18n.t("components.tools.python_code_structured_tool.tool_code.display_name"),
+            info=i18n.t("components.tools.python_code_structured_tool.tool_code.info"),
             placeholder="def my_function(args):\n    pass",
             required=True,
             real_time_refresh=True,
@@ -59,33 +54,25 @@ class PythonCodeStructuredTool(LCToolComponent):
         ),
         MessageTextInput(
             name="tool_name",
-            display_name=i18n.t(
-                'components.tools.python_code_structured_tool.tool_name.display_name'),
-            info=i18n.t(
-                'components.tools.python_code_structured_tool.tool_name.info'),
+            display_name=i18n.t("components.tools.python_code_structured_tool.tool_name.display_name"),
+            info=i18n.t("components.tools.python_code_structured_tool.tool_name.info"),
             required=True,
         ),
         MessageTextInput(
             name="tool_description",
-            display_name=i18n.t(
-                'components.tools.python_code_structured_tool.tool_description.display_name'),
-            info=i18n.t(
-                'components.tools.python_code_structured_tool.tool_description.info'),
+            display_name=i18n.t("components.tools.python_code_structured_tool.tool_description.display_name"),
+            info=i18n.t("components.tools.python_code_structured_tool.tool_description.info"),
             required=True,
         ),
         BoolInput(
             name="return_direct",
-            display_name=i18n.t(
-                'components.tools.python_code_structured_tool.return_direct.display_name'),
-            info=i18n.t(
-                'components.tools.python_code_structured_tool.return_direct.info'),
+            display_name=i18n.t("components.tools.python_code_structured_tool.return_direct.display_name"),
+            info=i18n.t("components.tools.python_code_structured_tool.return_direct.info"),
         ),
         DropdownInput(
             name="tool_function",
-            display_name=i18n.t(
-                'components.tools.python_code_structured_tool.tool_function.display_name'),
-            info=i18n.t(
-                'components.tools.python_code_structured_tool.tool_function.info'),
+            display_name=i18n.t("components.tools.python_code_structured_tool.tool_function.display_name"),
+            info=i18n.t("components.tools.python_code_structured_tool.tool_function.info"),
             options=[],
             required=True,
             real_time_refresh=True,
@@ -93,34 +80,29 @@ class PythonCodeStructuredTool(LCToolComponent):
         ),
         HandleInput(
             name="global_variables",
-            display_name=i18n.t(
-                'components.tools.python_code_structured_tool.global_variables.display_name'),
-            info=i18n.t(
-                'components.tools.python_code_structured_tool.global_variables.info'),
+            display_name=i18n.t("components.tools.python_code_structured_tool.global_variables.display_name"),
+            info=i18n.t("components.tools.python_code_structured_tool.global_variables.info"),
             input_types=["Data"],
             field_type=FieldTypes.DICT,
             is_list=True,
         ),
         MessageTextInput(
             name="_classes",
-            display_name=i18n.t(
-                'components.tools.python_code_structured_tool._classes.display_name'),
-            advanced=True
+            display_name=i18n.t("components.tools.python_code_structured_tool._classes.display_name"),
+            advanced=True,
         ),
         MessageTextInput(
             name="_functions",
-            display_name=i18n.t(
-                'components.tools.python_code_structured_tool._functions.display_name'),
-            advanced=True
+            display_name=i18n.t("components.tools.python_code_structured_tool._functions.display_name"),
+            advanced=True,
         ),
     ]
 
     outputs = [
         Output(
-            display_name=i18n.t(
-                'components.tools.python_code_structured_tool.outputs.result_tool.display_name'),
+            display_name=i18n.t("components.tools.python_code_structured_tool.outputs.result_tool.display_name"),
             name="result_tool",
-            method="build_tool"
+            method="build_tool",
         ),
     ]
 
@@ -136,8 +118,7 @@ class PythonCodeStructuredTool(LCToolComponent):
 
         try:
             named_functions = {}
-            [classes, functions] = self._parse_code(
-                build_config["tool_code"]["value"])
+            [classes, functions] = self._parse_code(build_config["tool_code"]["value"])
             existing_fields = {}
             if len(build_config) > len(self.DEFAULT_KEYS):
                 for key in build_config.copy():
@@ -155,10 +136,12 @@ class PythonCodeStructuredTool(LCToolComponent):
                         build_config[field_name] = existing_fields[field_name]
                         continue
 
-                    display_name = i18n.t('components.tools.python_code_structured_tool.dynamic_field.display_name',
-                                          arg_name=arg['name'])
-                    info = i18n.t('components.tools.python_code_structured_tool.dynamic_field.info',
-                                  arg_name=arg['name'])
+                    display_name = i18n.t(
+                        "components.tools.python_code_structured_tool.dynamic_field.display_name", arg_name=arg["name"]
+                    )
+                    info = i18n.t(
+                        "components.tools.python_code_structured_tool.dynamic_field.info", arg_name=arg["name"]
+                    )
 
                     field = MessageTextInput(
                         display_name=display_name,
@@ -172,14 +155,14 @@ class PythonCodeStructuredTool(LCToolComponent):
             build_config["tool_function"]["options"] = names
 
         except Exception as e:  # noqa: BLE001
-            error_message = i18n.t('components.tools.python_code_structured_tool.errors.failed_to_extract_names',
-                                   error=str(e))
+            error_message = i18n.t(
+                "components.tools.python_code_structured_tool.errors.failed_to_extract_names", error=str(e)
+            )
             self.status = error_message
             logger.debug(self.status, exc_info=True)
             build_config["tool_function"]["options"] = [
-                i18n.t(
-                    'components.tools.python_code_structured_tool.errors.failed_to_parse'),
-                str(e)
+                i18n.t("components.tools.python_code_structured_tool.errors.failed_to_parse"),
+                str(e),
             ]
         return build_config
 
@@ -240,21 +223,19 @@ class PythonCodeStructuredTool(LCToolComponent):
 
                 func_name = attr.split("|")[0]
                 field_name = attr.split("|")[1]
-                func_arg = self._find_arg(
-                    named_functions, func_name, field_name)
+                func_arg = self._find_arg(named_functions, func_name, field_name)
 
                 if func_arg is None:
-                    error_message = i18n.t('components.tools.python_code_structured_tool.errors.failed_to_find_arg',
-                                           field_name=field_name)
+                    error_message = i18n.t(
+                        "components.tools.python_code_structured_tool.errors.failed_to_find_arg", field_name=field_name
+                    )
                     raise ValueError(error_message)
 
                 field_annotation = func_arg["annotation"]
-                field_description = self._get_value(
-                    self._attributes[attr], str)
+                field_description = self._get_value(self._attributes[attr], str)
 
                 if field_annotation:
-                    exec(
-                        f"temp_annotation_type = {field_annotation}", globals_)
+                    exec(f"temp_annotation_type = {field_annotation}", globals_)
                     schema_annotation = globals_["temp_annotation_type"]
                 else:
                     schema_annotation = Any
@@ -272,11 +253,11 @@ class PythonCodeStructuredTool(LCToolComponent):
 
             python_code_tool_schema = None
             if schema_fields:
-                python_code_tool_schema = create_model(
-                    "PythonCodeToolSchema", **schema_fields)
+                python_code_tool_schema = create_model("PythonCodeToolSchema", **schema_fields)
 
-            success_message = i18n.t('components.tools.python_code_structured_tool.success.tool_created',
-                                     name=self.tool_name)
+            success_message = i18n.t(
+                "components.tools.python_code_structured_tool.success.tool_created", name=self.tool_name
+            )
             self.status = success_message
 
             return StructuredTool.from_function(
@@ -288,8 +269,9 @@ class PythonCodeStructuredTool(LCToolComponent):
             )
 
         except Exception as e:
-            error_message = i18n.t('components.tools.python_code_structured_tool.errors.tool_creation_failed',
-                                   error=str(e))
+            error_message = i18n.t(
+                "components.tools.python_code_structured_tool.errors.tool_creation_failed", error=str(e)
+            )
             self.status = error_message
             raise ValueError(error_message) from e
 
@@ -312,8 +294,9 @@ class PythonCodeStructuredTool(LCToolComponent):
                 frontend_node = await super().update_frontend_node(new_frontend_node, current_frontend_node)
             return frontend_node
         except Exception as e:
-            error_message = i18n.t('components.tools.python_code_structured_tool.errors.frontend_update_failed',
-                                   error=str(e))
+            error_message = i18n.t(
+                "components.tools.python_code_structured_tool.errors.frontend_update_failed", error=str(e)
+            )
             logger.warning(error_message, exc_info=True)
             return current_frontend_node
 
@@ -326,9 +309,9 @@ class PythonCodeStructuredTool(LCToolComponent):
 
             for node in parsed_code.body:
                 if isinstance(node, ast.ClassDef):
-                    class_lines = lines[node.lineno - 1: node.end_lineno]
+                    class_lines = lines[node.lineno - 1 : node.end_lineno]
                     class_lines[-1] = class_lines[-1][: node.end_col_offset]
-                    class_lines[0] = class_lines[0][node.col_offset:]
+                    class_lines[0] = class_lines[0][node.col_offset :]
                     classes.append(
                         {
                             "name": node.name,
@@ -344,7 +327,8 @@ class PythonCodeStructuredTool(LCToolComponent):
                 for arg in node.args.args:
                     if arg.lineno != arg.end_lineno:
                         error_message = i18n.t(
-                            'components.tools.python_code_structured_tool.errors.multiline_args_not_supported')
+                            "components.tools.python_code_structured_tool.errors.multiline_args_not_supported"
+                        )
                         raise ValueError(error_message)
 
                     func_arg = {
@@ -372,18 +356,15 @@ class PythonCodeStructuredTool(LCToolComponent):
                         if isinstance(default, ast.Name):
                             func_arg["default"] = default.id
                         elif isinstance(default, ast.Constant):
-                            func_arg["default"] = str(
-                                default.value) if default.value is not None else None
+                            func_arg["default"] = str(default.value) if default.value is not None else None
 
                     if arg.annotation:
                         annotation_line = lines[arg.annotation.lineno - 1]
-                        annotation_line = annotation_line[:
-                                                          arg.annotation.end_col_offset]
-                        annotation_line = annotation_line[arg.annotation.col_offset:]
+                        annotation_line = annotation_line[: arg.annotation.end_col_offset]
+                        annotation_line = annotation_line[arg.annotation.col_offset :]
                         func_arg["annotation"] = annotation_line
                         if isinstance(func_arg["annotation"], str) and func_arg["annotation"].count("=") > 0:
-                            func_arg["annotation"] = "=".join(
-                                func_arg["annotation"].split("=")[:-1]).strip()
+                            func_arg["annotation"] = "=".join(func_arg["annotation"].split("=")[:-1]).strip()
                     if isinstance(func["args"], list):
                         func["args"].append(func_arg)
                 functions.append(func)
@@ -391,8 +372,9 @@ class PythonCodeStructuredTool(LCToolComponent):
             return classes, functions
 
         except Exception as e:
-            error_message = i18n.t('components.tools.python_code_structured_tool.errors.code_parsing_failed',
-                                   error=str(e))
+            error_message = i18n.t(
+                "components.tools.python_code_structured_tool.errors.code_parsing_failed", error=str(e)
+            )
             raise ValueError(error_message) from e
 
     def _find_imports(self, code: str) -> dotdict:
@@ -407,8 +389,9 @@ class PythonCodeStructuredTool(LCToolComponent):
                     from_imports.append(node)
             return dotdict({"imports": imports, "from_imports": from_imports})
         except Exception as e:
-            error_message = i18n.t('components.tools.python_code_structured_tool.errors.import_parsing_failed',
-                                   error=str(e))
+            error_message = i18n.t(
+                "components.tools.python_code_structured_tool.errors.import_parsing_failed", error=str(e)
+            )
             logger.warning(error_message)
             return dotdict({"imports": [], "from_imports": []})
 

@@ -1,4 +1,5 @@
 import os
+
 import i18n
 
 from lfx.base.prompts.api_utils import process_prompt_template
@@ -11,8 +12,8 @@ from lfx.template.utils import update_template_values
 
 class PromptComponent(Component):
     ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
-    display_name: str = i18n.t('components.processing.prompt.display_name')
-    description: str = i18n.t('components.processing.prompt.description')
+    display_name: str = i18n.t("components.processing.prompt.display_name")
+    description: str = i18n.t("components.processing.prompt.description")
     documentation: str = "https://docs.langflow.org/components-prompts"
     icon = "braces"
     trace_type = "prompt"
@@ -22,26 +23,23 @@ class PromptComponent(Component):
     inputs = [
         PromptInput(
             name="template",
-            display_name=i18n.t(
-                'components.processing.prompt.template.display_name'),
-            info=i18n.t('components.processing.prompt.template.info'),
+            display_name=i18n.t("components.processing.prompt.template.display_name"),
+            info=i18n.t("components.processing.prompt.template.info"),
         ),
         MessageTextInput(
             name="tool_placeholder",
-            display_name=i18n.t(
-                'components.processing.prompt.tool_placeholder.display_name'),
+            display_name=i18n.t("components.processing.prompt.tool_placeholder.display_name"),
             tool_mode=True,
             advanced=True,
-            info=i18n.t('components.processing.prompt.tool_placeholder.info'),
+            info=i18n.t("components.processing.prompt.tool_placeholder.info"),
         ),
     ]
 
     outputs = [
         Output(
-            display_name=i18n.t(
-                'components.processing.prompt.outputs.prompt.display_name'),
+            display_name=i18n.t("components.processing.prompt.outputs.prompt.display_name"),
             name="prompt",
-            method="build_prompt"
+            method="build_prompt",
         ),
     ]
 
@@ -49,9 +47,8 @@ class PromptComponent(Component):
         """Build the prompt message from template and variables."""
         try:
             # Validate template
-            if not hasattr(self, 'template') or not self.template:
-                error_msg = i18n.t(
-                    'components.processing.prompt.errors.empty_template')
+            if not hasattr(self, "template") or not self.template:
+                error_msg = i18n.t("components.processing.prompt.errors.empty_template")
                 self.status = error_msg
                 raise ValueError(error_msg)
 
@@ -59,14 +56,12 @@ class PromptComponent(Component):
             prompt = Message.from_template(**self._attributes)
 
             if not prompt or not prompt.text:
-                warning_msg = i18n.t(
-                    'components.processing.prompt.warnings.empty_prompt_generated')
+                warning_msg = i18n.t("components.processing.prompt.warnings.empty_prompt_generated")
                 self.status = warning_msg
                 return Message(text="")
 
             # Log successful creation
-            self.log(i18n.t(
-                'components.processing.prompt.logs.prompt_created', length=len(prompt.text)))
+            self.log(i18n.t("components.processing.prompt.logs.prompt_created", length=len(prompt.text)))
 
             # Set status with truncated prompt for display
             max_display_length = 200
@@ -75,15 +70,13 @@ class PromptComponent(Component):
             else:
                 display_text = prompt.text
 
-            success_msg = i18n.t(
-                'components.processing.prompt.success.prompt_built', preview=display_text)
+            success_msg = i18n.t("components.processing.prompt.success.prompt_built", preview=display_text)
             self.status = success_msg
 
             return prompt
 
         except Exception as e:
-            error_msg = i18n.t(
-                'components.processing.prompt.errors.prompt_build_failed', error=str(e))
+            error_msg = i18n.t("components.processing.prompt.errors.prompt_build_failed", error=str(e))
             self.status = error_msg
             self.log(error_msg, "error")
             raise ValueError(error_msg) from e
@@ -103,12 +96,11 @@ class PromptComponent(Component):
                 frontend_node_template=frontend_node_template,
             )
 
-            self.log(i18n.t('components.processing.prompt.logs.template_updated'))
+            self.log(i18n.t("components.processing.prompt.logs.template_updated"))
             return frontend_node
 
         except Exception as e:
-            error_msg = i18n.t(
-                'components.processing.prompt.errors.template_update_failed', error=str(e))
+            error_msg = i18n.t("components.processing.prompt.errors.template_update_failed", error=str(e))
             self.log(error_msg, "error")
             # Return original node if update fails
             return frontend_node
@@ -131,16 +123,13 @@ class PromptComponent(Component):
             # Update template values from current node
             # Now that template is updated, we need to grab any values that were set in the current_frontend_node
             # and update the frontend_node with those values
-            update_template_values(
-                new_template=frontend_node, previous_template=current_frontend_node["template"])
+            update_template_values(new_template=frontend_node, previous_template=current_frontend_node["template"])
 
-            self.log(
-                i18n.t('components.processing.prompt.logs.frontend_node_updated'))
+            self.log(i18n.t("components.processing.prompt.logs.frontend_node_updated"))
             return frontend_node
 
         except Exception as e:
-            error_msg = i18n.t(
-                'components.processing.prompt.errors.frontend_node_update_failed', error=str(e))
+            error_msg = i18n.t("components.processing.prompt.errors.frontend_node_update_failed", error=str(e))
             self.log(error_msg, "error")
             # Return the new node if update fails
             return new_frontend_node
@@ -150,8 +139,7 @@ class PromptComponent(Component):
         try:
             return DefaultPromptField(**kwargs)
         except Exception as e:
-            error_msg = i18n.t(
-                'components.processing.prompt.errors.fallback_input_failed', error=str(e))
+            error_msg = i18n.t("components.processing.prompt.errors.fallback_input_failed", error=str(e))
             self.log(error_msg, "error")
             # Return a basic fallback
             return DefaultPromptField()

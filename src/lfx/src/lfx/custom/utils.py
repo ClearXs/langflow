@@ -737,10 +737,11 @@ async def update_component_build_config(
     build_config: dotdict,
     field_value: Any,
     field_name: str | None = None,
+    action: str | None = None,  # New: action parameter for action buttons
 ):
     if inspect.iscoroutinefunction(component.update_build_config):
-        return await component.update_build_config(build_config, field_value, field_name)
-    return await asyncio.to_thread(component.update_build_config, build_config, field_value, field_name)
+        return await component.update_build_config(build_config, field_value, field_name, action)
+    return await asyncio.to_thread(component.update_build_config, build_config, field_value, field_name, action)
 
 
 async def get_all_types_dict(components_paths: list[str]):

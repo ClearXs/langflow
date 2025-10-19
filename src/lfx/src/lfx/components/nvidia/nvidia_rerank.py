@@ -1,6 +1,7 @@
 import os
-import i18n
 from typing import Any
+
+import i18n
 
 from lfx.base.compressors.model import LCCompressorComponent
 from lfx.field_typing import BaseDocumentCompressor
@@ -11,8 +12,8 @@ from lfx.template.field.base import Output
 
 
 class NvidiaRerankComponent(LCCompressorComponent):
-    display_name = i18n.t('components.nvidia.nvidia_rerank.display_name')
-    description = i18n.t('components.nvidia.nvidia_rerank.description')
+    display_name = i18n.t("components.nvidia.nvidia_rerank.display_name")
+    description = i18n.t("components.nvidia.nvidia_rerank.description")
     icon = "NVIDIA"
 
     ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
@@ -21,21 +22,18 @@ class NvidiaRerankComponent(LCCompressorComponent):
         *LCCompressorComponent.inputs,
         SecretStrInput(
             name="api_key",
-            display_name=i18n.t(
-                'components.nvidia.nvidia_rerank.api_key.display_name'),
+            display_name=i18n.t("components.nvidia.nvidia_rerank.api_key.display_name"),
         ),
         StrInput(
             name="base_url",
-            display_name=i18n.t(
-                'components.nvidia.nvidia_rerank.base_url.display_name'),
+            display_name=i18n.t("components.nvidia.nvidia_rerank.base_url.display_name"),
             value="https://integrate.api.nvidia.com/v1",
             refresh_button=True,
-            info=i18n.t('components.nvidia.nvidia_rerank.base_url.info'),
+            info=i18n.t("components.nvidia.nvidia_rerank.base_url.info"),
         ),
         DropdownInput(
             name="model",
-            display_name=i18n.t(
-                'components.nvidia.nvidia_rerank.model.display_name'),
+            display_name=i18n.t("components.nvidia.nvidia_rerank.model.display_name"),
             options=["nv-rerank-qa-mistral-4b:1"],
             value="nv-rerank-qa-mistral-4b:1",
         ),
@@ -43,8 +41,7 @@ class NvidiaRerankComponent(LCCompressorComponent):
 
     outputs = [
         Output(
-            display_name=i18n.t(
-                'components.nvidia.nvidia_rerank.outputs.reranked_documents.display_name'),
+            display_name=i18n.t("components.nvidia.nvidia_rerank.outputs.reranked_documents.display_name"),
             name="reranked_documents",
             method="compress_documents",
         ),

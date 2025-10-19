@@ -1,8 +1,8 @@
-import os
-import i18n
 import json
+import os
 from typing import Any
 
+import i18n
 import requests
 from langchain.tools import StructuredTool
 from pydantic import BaseModel, Field
@@ -23,8 +23,7 @@ class HomeAssistantControl(LCToolComponent):
     """
 
     display_name: str = "Home Assistant Control"
-    description: str = i18n.t(
-        'components.homeassistant.home_assistant_control.description')
+    description: str = i18n.t("components.homeassistant.home_assistant_control.description")
     documentation: str = "https://developers.home-assistant.io/docs/api/rest/"
     icon: str = "HomeAssistant"
 
@@ -34,34 +33,26 @@ class HomeAssistantControl(LCToolComponent):
     inputs = [
         SecretStrInput(
             name="ha_token",
-            display_name=i18n.t(
-                'components.homeassistant.home_assistant_control.ha_token.display_name'),
-            info=i18n.t(
-                'components.homeassistant.home_assistant_control.ha_token.info'),
+            display_name=i18n.t("components.homeassistant.home_assistant_control.ha_token.display_name"),
+            info=i18n.t("components.homeassistant.home_assistant_control.ha_token.info"),
             required=True,
         ),
         StrInput(
             name="base_url",
-            display_name=i18n.t(
-                'components.homeassistant.home_assistant_control.base_url.display_name'),
-            info=i18n.t(
-                'components.homeassistant.home_assistant_control.base_url.info'),
+            display_name=i18n.t("components.homeassistant.home_assistant_control.base_url.display_name"),
+            info=i18n.t("components.homeassistant.home_assistant_control.base_url.info"),
             required=True,
         ),
         StrInput(
             name="default_action",
-            display_name=i18n.t(
-                'components.homeassistant.home_assistant_control.default_action.display_name'),
-            info=i18n.t(
-                'components.homeassistant.home_assistant_control.default_action.info'),
+            display_name=i18n.t("components.homeassistant.home_assistant_control.default_action.display_name"),
+            info=i18n.t("components.homeassistant.home_assistant_control.default_action.info"),
             required=False,
         ),
         StrInput(
             name="default_entity_id",
-            display_name=i18n.t(
-                'components.homeassistant.home_assistant_control.default_entity_id.display_name'),
-            info=i18n.t(
-                'components.homeassistant.home_assistant_control.default_entity_id.info'),
+            display_name=i18n.t("components.homeassistant.home_assistant_control.default_entity_id.display_name"),
+            info=i18n.t("components.homeassistant.home_assistant_control.default_entity_id.info"),
             required=False,
         ),
     ]
@@ -70,10 +61,7 @@ class HomeAssistantControl(LCToolComponent):
     class ToolSchema(BaseModel):
         """Parameters to be passed by the agent: action, entity_id only."""
 
-        action: str = Field(
-            ...,
-            description="Home Assistant service name. (One of turn_on, turn_off, toggle)"
-        )
+        action: str = Field(..., description="Home Assistant service name. (One of turn_on, turn_off, toggle)")
         entity_id: str = Field(
             ...,
             description=(
@@ -93,9 +81,13 @@ class HomeAssistantControl(LCToolComponent):
         action = self.default_action or "turn_off"
         entity_id = self.default_entity_id or "switch.unknown_switch_3"
 
-        logger.info(i18n.t('components.homeassistant.home_assistant_control.logs.running_with_defaults',
-                           action=action,
-                           entity_id=entity_id))
+        logger.info(
+            i18n.t(
+                "components.homeassistant.home_assistant_control.logs.running_with_defaults",
+                action=action,
+                entity_id=entity_id,
+            )
+        )
 
         result = self._control_device(
             ha_token=self.ha_token,
@@ -113,8 +105,7 @@ class HomeAssistantControl(LCToolComponent):
         Returns:
             Tool: Structured tool for agent use.
         """
-        logger.debug(
-            i18n.t('components.homeassistant.home_assistant_control.logs.building_tool'))
+        logger.debug(i18n.t("components.homeassistant.home_assistant_control.logs.building_tool"))
 
         return StructuredTool.from_function(
             name="home_assistant_control",
@@ -139,9 +130,11 @@ class HomeAssistantControl(LCToolComponent):
         Returns:
             dict or str: Control result or error message.
         """
-        logger.info(i18n.t('components.homeassistant.home_assistant_control.logs.tool_invoked',
-                           action=action,
-                           entity_id=entity_id))
+        logger.info(
+            i18n.t(
+                "components.homeassistant.home_assistant_control.logs.tool_invoked", action=action, entity_id=entity_id
+            )
+        )
 
         return self._control_device(
             ha_token=self.ha_token,
@@ -172,16 +165,21 @@ class HomeAssistantControl(LCToolComponent):
             dict or str: Home Assistant response or error message.
         """
         try:
-            logger.debug(i18n.t('components.homeassistant.home_assistant_control.logs.extracting_domain',
-                                entity_id=entity_id))
+            logger.debug(
+                i18n.t("components.homeassistant.home_assistant_control.logs.extracting_domain", entity_id=entity_id)
+            )
 
             domain = entity_id.split(".")[0]  # switch, light, cover, etc.
             url = f"{base_url}/api/services/{domain}/{action}"
 
-            logger.debug(i18n.t('components.homeassistant.home_assistant_control.logs.calling_service',
-                                url=url,
-                                domain=domain,
-                                action=action))
+            logger.debug(
+                i18n.t(
+                    "components.homeassistant.home_assistant_control.logs.calling_service",
+                    url=url,
+                    domain=domain,
+                    action=action,
+                )
+            )
 
             headers = {
                 "Authorization": f"Bearer {ha_token}",
@@ -189,51 +187,56 @@ class HomeAssistantControl(LCToolComponent):
             }
             payload = {"entity_id": entity_id}
 
-            response = requests.post(
-                url, headers=headers, json=payload, timeout=10)
+            response = requests.post(url, headers=headers, json=payload, timeout=10)
             response.raise_for_status()
 
-            logger.info(i18n.t('components.homeassistant.home_assistant_control.logs.control_successful',
-                               entity_id=entity_id,
-                               action=action))
+            logger.info(
+                i18n.t(
+                    "components.homeassistant.home_assistant_control.logs.control_successful",
+                    entity_id=entity_id,
+                    action=action,
+                )
+            )
 
             return response.json()  # HA response JSON on success
 
         except requests.exceptions.Timeout as e:
-            error_msg = i18n.t('components.homeassistant.home_assistant_control.errors.timeout',
-                               error=str(e))
+            error_msg = i18n.t("components.homeassistant.home_assistant_control.errors.timeout", error=str(e))
             logger.error(error_msg)
             return error_msg
 
         except requests.exceptions.ConnectionError as e:
-            error_msg = i18n.t('components.homeassistant.home_assistant_control.errors.connection_failed',
-                               base_url=base_url,
-                               error=str(e))
+            error_msg = i18n.t(
+                "components.homeassistant.home_assistant_control.errors.connection_failed",
+                base_url=base_url,
+                error=str(e),
+            )
             logger.error(error_msg)
             return error_msg
 
         except requests.exceptions.HTTPError as e:
-            error_msg = i18n.t('components.homeassistant.home_assistant_control.errors.http_error',
-                               status=response.status_code,
-                               error=str(e))
+            error_msg = i18n.t(
+                "components.homeassistant.home_assistant_control.errors.http_error",
+                status=response.status_code,
+                error=str(e),
+            )
             logger.error(error_msg)
             return error_msg
 
         except requests.exceptions.RequestException as e:
-            error_msg = i18n.t('components.homeassistant.home_assistant_control.errors.request_failed',
-                               error=str(e))
+            error_msg = i18n.t("components.homeassistant.home_assistant_control.errors.request_failed", error=str(e))
             logger.error(error_msg)
             return error_msg
 
         except IndexError:
-            error_msg = i18n.t('components.homeassistant.home_assistant_control.errors.invalid_entity_format',
-                               entity_id=entity_id)
+            error_msg = i18n.t(
+                "components.homeassistant.home_assistant_control.errors.invalid_entity_format", entity_id=entity_id
+            )
             logger.error(error_msg)
             return error_msg
 
         except Exception as e:
-            error_msg = i18n.t('components.homeassistant.home_assistant_control.errors.unexpected_error',
-                               error=str(e))
+            error_msg = i18n.t("components.homeassistant.home_assistant_control.errors.unexpected_error", error=str(e))
             logger.exception(error_msg)
             return error_msg
 
@@ -248,12 +251,10 @@ class HomeAssistantControl(LCToolComponent):
         """
         if isinstance(result, str):
             # Handle error messages
-            logger.debug(i18n.t(
-                'components.homeassistant.home_assistant_control.logs.returning_error_response'))
+            logger.debug(i18n.t("components.homeassistant.home_assistant_control.logs.returning_error_response"))
             return Data(text=result)
 
         # Convert dict to JSON string
-        logger.debug(i18n.t(
-            'components.homeassistant.home_assistant_control.logs.formatting_success_response'))
+        logger.debug(i18n.t("components.homeassistant.home_assistant_control.logs.formatting_success_response"))
         formatted_json = json.dumps(result, indent=2, ensure_ascii=False)
         return Data(data=result, text=formatted_json)

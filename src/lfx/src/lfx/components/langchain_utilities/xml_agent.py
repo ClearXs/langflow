@@ -1,4 +1,5 @@
 import os
+
 import i18n
 from langchain.agents import create_xml_agent
 from langchain_core.prompts import ChatPromptTemplate, HumanMessagePromptTemplate, PromptTemplate
@@ -14,10 +15,8 @@ from lfx.schema.data import Data
 
 class XMLAgentComponent(LCToolsAgentComponent):
     ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
-    display_name: str = i18n.t(
-        'components.langchain_utilities.xml_agent.display_name')
-    description: str = i18n.t(
-        'components.langchain_utilities.xml_agent.description')
+    display_name: str = i18n.t("components.langchain_utilities.xml_agent.display_name")
+    description: str = i18n.t("components.langchain_utilities.xml_agent.description")
     icon = "LangChain"
     beta = True
     name = "XMLAgent"
@@ -25,24 +24,20 @@ class XMLAgentComponent(LCToolsAgentComponent):
         *LCToolsAgentComponent.get_base_inputs(),
         HandleInput(
             name="llm",
-            display_name=i18n.t(
-                'components.langchain_utilities.xml_agent.llm.display_name'),
+            display_name=i18n.t("components.langchain_utilities.xml_agent.llm.display_name"),
             input_types=["LanguageModel"],
-            required=True
+            required=True,
         ),
         DataInput(
             name="chat_history",
-            display_name=i18n.t(
-                'components.langchain_utilities.xml_agent.chat_history.display_name'),
+            display_name=i18n.t("components.langchain_utilities.xml_agent.chat_history.display_name"),
             is_list=True,
-            advanced=True
+            advanced=True,
         ),
         MultilineInput(
             name="system_prompt",
-            display_name=i18n.t(
-                'components.langchain_utilities.xml_agent.system_prompt.display_name'),
-            info=i18n.t(
-                'components.langchain_utilities.xml_agent.system_prompt.info'),
+            display_name=i18n.t("components.langchain_utilities.xml_agent.system_prompt.display_name"),
+            info=i18n.t("components.langchain_utilities.xml_agent.system_prompt.info"),
             value="""You are a helpful assistant. Help the user answer any questions.
 
 You have access to the following tools:
@@ -70,11 +65,9 @@ Question: {input}
         ),
         MultilineInput(
             name="user_prompt",
-            display_name=i18n.t(
-                'components.langchain_utilities.xml_agent.user_prompt.display_name'),
-            info=i18n.t(
-                'components.langchain_utilities.xml_agent.user_prompt.info'),
-            value="{input}"
+            display_name=i18n.t("components.langchain_utilities.xml_agent.user_prompt.display_name"),
+            info=i18n.t("components.langchain_utilities.xml_agent.user_prompt.info"),
+            value="{input}",
         ),
     ]
 
@@ -88,8 +81,7 @@ Question: {input}
         messages = [
             ("system", self.system_prompt),
             ("placeholder", "{chat_history}"),
-            HumanMessagePromptTemplate(prompt=PromptTemplate(
-                input_variables=["input"], template=self.user_prompt)),
+            HumanMessagePromptTemplate(prompt=PromptTemplate(input_variables=["input"], template=self.user_prompt)),
             ("ai", "{agent_scratchpad}"),
         ]
         prompt = ChatPromptTemplate.from_messages(messages)

@@ -31,6 +31,8 @@ from langflow.api.v1.schemas import (
     ConfigResponse,
     CustomComponentRequest,
     CustomComponentResponse,
+    PreviewUpstreamRequest,
+    PreviewUpstreamResponse,
     RunResponse,
     SimplifiedAPIRequest,
     TaskStatusResponse,
@@ -100,7 +102,7 @@ async def get_all():
         raise HTTPException(status_code=500, detail=str(exc)) from exc
 
 
-@router.get('/force_all', dependencies=[Depends(get_current_active_user)])
+@router.get("/force_all", dependencies=[Depends(get_current_active_user)])
 async def get_all_force():
     """Retrieve all component types with compression for better performance, forcing a refresh of the cache.
 
@@ -168,8 +170,7 @@ async def simple_run_flow(
             msg = f"Flow {flow_id_str} has no data"
             raise ValueError(msg)
         graph_data = flow.data.copy()
-        graph_data = process_tweaks(
-            graph_data, input_request.tweaks or {}, stream=stream)
+        graph_data = process_tweaks(graph_data, input_request.tweaks or {}, stream=stream)
         graph = Graph.from_payload(
             graph_data, flow_id=flow_id_str, user_id=str(user_id), flow_name=flow.name, context=context
         )
@@ -401,12 +402,10 @@ async def simplified_run_flow(
         input_request = await parse_input_request_from_body(http_request)
 
     if flow is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Flow not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Flow not found")
 
     # Extract request-level variables from headers with prefix X-LANGFLOW-GLOBAL-VAR-*
-    request_variables = extract_global_variables_from_headers(
-        http_request.headers)
+    request_variables = extract_global_variables_from_headers(http_request.headers)
 
     # Merge request variables with existing context
     if request_variables:
@@ -478,16 +477,12 @@ async def simplified_run_flow(
         )
         if "badly formed hexadecimal UUID string" in str(exc):
             # This means the Flow ID is not a valid UUID which means it can't find the flow
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
         if "not found" in str(exc):
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
-        raise APIException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, exception=exc, flow=flow) from exc
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
+        raise APIException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, exception=exc, flow=flow) from exc
     except InvalidChatInputError as exc:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
     except Exception as exc:
         background_tasks.add_task(
             telemetry_service.log_package_run,
@@ -499,10 +494,79 @@ async def simplified_run_flow(
                 run_id=run_id,
             ),
         )
-        raise APIException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, exception=exc, flow=flow) from exc
+        raise APIException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, exception=exc, flow=flow) from exc
 
     return result
+
+
+@router.post("/flows/{flow_id}/nodes/{node_id}/preview_upstream")
+async def preview_upstream_data(
+    flow_id: str,
+    node_id: str,
+    request: PreviewUpstreamRequest,
+    session: Annotated[DbSession, Depends(get_session_service)],
+    current_user: Annotated[User, Depends(get_current_active_user)],
+):
+    """Preview data from upstream node connected to specified input.
+
+    This endpoint executes the upstream node connected to a specific input of the target node
+    and returns field schema information to help with field mapping configuration.
+
+    Args:
+        flow_id: Flow identifier
+        node_id: Current node identifier (e.g., FieldNameMapping node)
+        request: Preview request with input_name and optional sample_size
+        session: Database session dependency
+        current_user: Authenticated user dependency
+
+    Returns:
+        PreviewUpstreamResponse with field schema and sample data
+
+    Raises:
+        HTTPException: For flow not found (404) or execution errors (500)
+    """
+    from langflow.api.v1.preview_utils import analyze_field_structure, execute_upstream_node, find_upstream_node
+
+    try:
+        logger.info(f"[PreviewAPI] Previewing upstream data for flow {flow_id}, node {node_id}")
+
+        # 1. Load flow
+        stmt = select(Flow).where(Flow.id == UUID(flow_id)).where(Flow.user_id == current_user.id)
+        result = await session.exec(stmt)
+        flow = result.first()
+
+        if not flow:
+            raise HTTPException(status_code=404, detail=f"Flow {flow_id} not found")
+
+        flow_data = flow.data
+
+        # 2. Find upstream node
+        upstream_node_id = find_upstream_node(flow_data, node_id, request.input_name)
+        if not upstream_node_id:
+            return PreviewUpstreamResponse(
+                success=False,
+                fields=[],
+                record_count=0,
+                error=f"No upstream node connected to input '{request.input_name}'",
+            )
+
+        # 3. Execute upstream node
+        sample_data = await execute_upstream_node(flow_data, upstream_node_id, sample_size=request.sample_size)
+
+        # 4. Analyze field structure
+        fields = analyze_field_structure(sample_data)
+
+        # 5. Return response
+        return PreviewUpstreamResponse(
+            success=True, fields=fields, record_count=len(sample_data), upstream_node_id=upstream_node_id
+        )
+
+    except HTTPException:
+        # Re-raise HTTP exceptions as is
+        raise
+    except Exception as e:
+        logger.error(f"[PreviewAPI] Preview upstream failed: {e}", exc_info=True)
+        return PreviewUpstreamResponse(success=False, fields=[], record_count=0, error=str(e))
 
 
 @router.post("/webhook/{flow_id_or_name}", response_model=dict, status_code=HTTPStatus.ACCEPTED)  # noqa: RUF100, FAST003
@@ -550,8 +614,7 @@ async def webhook_run_flow(
         tweaks = {}
 
         for component in webhook_components:
-            tweaks[component["id"]] = {
-                "data": data.decode() if isinstance(data, bytes) else data}
+            tweaks[component["id"]] = {"data": data.decode() if isinstance(data, bytes) else data}
         input_request = SimplifiedAPIRequest(
             input_value="",
             input_type="chat",
@@ -651,49 +714,40 @@ async def experimental_run_flow(
         try:
             session_data = await session_service.load_session(session_id, flow_id=flow_id_str)
         except Exception as exc:
-            raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(exc)) from exc
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(exc)) from exc
         graph, _artifacts = session_data or (None, None)
         if graph is None:
             msg = f"Session {session_id} not found"
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND, detail=msg)
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=msg)
     else:
         try:
             # Get the flow that matches the flow_id and belongs to the user
             # flow = session.query(Flow).filter(Flow.id == flow_id).filter(Flow.user_id == api_key_user.id).first()
-            stmt = select(Flow).where(Flow.id == flow_id).where(
-                Flow.user_id == api_key_user.id)
+            stmt = select(Flow).where(Flow.id == flow_id).where(Flow.user_id == api_key_user.id)
             flow = (await session.exec(stmt)).first()
         except sa.exc.StatementError as exc:
             # StatementError('(builtins.ValueError) badly formed hexadecimal UUID string')
             if "badly formed hexadecimal UUID string" in str(exc):
                 await logger.aerror(f"Flow ID {flow_id_str} is not a valid UUID")
                 # This means the Flow ID is not a valid UUID which means it can't find the flow
-                raise HTTPException(
-                    status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
-            raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(exc)) from exc
+                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(exc)) from exc
         except Exception as exc:
-            raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(exc)) from exc
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(exc)) from exc
 
         if flow is None:
             msg = f"Flow {flow_id_str} not found"
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND, detail=msg)
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=msg)
 
         if flow.data is None:
             msg = f"Flow {flow_id_str} has no data"
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND, detail=msg)
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=msg)
         try:
             graph_data = flow.data
             graph_data = process_tweaks(graph_data, tweaks or {})
             graph = Graph.from_payload(graph_data, flow_id=flow_id_str)
         except Exception as exc:
-            raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(exc)) from exc
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(exc)) from exc
 
     try:
         task_result, session_id = await run_graph_internal(
@@ -705,8 +759,7 @@ async def experimental_run_flow(
             stream=stream,
         )
     except Exception as exc:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(exc)) from exc
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(exc)) from exc
 
     return RunResponse(outputs=task_result, session_id=session_id)
 
@@ -782,8 +835,7 @@ async def custom_component(
 ) -> CustomComponentResponse:
     component = Component(_code=raw_code.code)
 
-    built_frontend_node, component_instance = build_custom_component_template(
-        component, user_id=user.id)
+    built_frontend_node, component_instance = build_custom_component_template(component, user_id=user.id)
     if raw_code.frontend_node is not None:
         built_frontend_node = await component_instance.update_frontend_node(built_frontend_node, raw_code.frontend_node)
 
@@ -841,15 +893,22 @@ async def custom_component_update(
                 params = await update_params_with_load_from_db_fields(cc_instance, params, load_from_db_fields)
                 cc_instance.set_attributes(params)
         updated_build_config = code_request.get_template()
+
+        # Add graph_data and node_id to build_config if provided (for preview operations)
+        if code_request.graph_data:
+            updated_build_config["_graph_data"] = code_request.graph_data
+        if code_request.node_id:
+            updated_build_config["_node_id"] = code_request.node_id
+
         await update_component_build_config(
             cc_instance,
             build_config=updated_build_config,
             field_value=code_request.field_value,
             field_name=code_request.field,
+            action=code_request.action,  # Pass action parameter
         )
         if "code" not in updated_build_config or not updated_build_config.get("code", {}).get("value"):
-            updated_build_config = add_code_field_to_build_config(
-                updated_build_config, code_request.code)
+            updated_build_config = add_code_field_to_build_config(updated_build_config, code_request.code)
         component_node["template"] = updated_build_config
 
         if isinstance(cc_instance, Component):
@@ -865,8 +924,7 @@ async def custom_component_update(
     try:
         return jsonable_encoder(component_node)
     except Exception as exc:
-        raise SerializationError.from_exception(
-            exc, data=component_node) from exc
+        raise SerializationError.from_exception(exc, data=component_node) from exc
 
 
 @router.get("/config")

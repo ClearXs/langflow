@@ -1,5 +1,6 @@
 # mypy: disable-error-code="attr-defined"
 import os
+
 from langchain_community.retrievers import MetalRetriever
 
 from lfx.base.vectorstores.model import check_cached_vector_store

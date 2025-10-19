@@ -1,10 +1,10 @@
-import os
-import i18n
 import asyncio
+import os
 from typing import Any
 from urllib.parse import urljoin
 
 import httpx
+import i18n
 from langchain_ollama import ChatOllama
 
 from lfx.base.models.model import LCModelComponent
@@ -18,8 +18,8 @@ HTTP_STATUS_OK = 200
 
 
 class ChatOllamaComponent(LCModelComponent):
-    display_name = i18n.t('components.ollama.ollama.display_name')
-    description = i18n.t('components.ollama.ollama.description')
+    display_name = i18n.t("components.ollama.ollama.display_name")
+    description = i18n.t("components.ollama.ollama.description")
     icon = "Ollama"
     name = "OllamaModel"
 
@@ -42,160 +42,142 @@ class ChatOllamaComponent(LCModelComponent):
         ),
         DropdownInput(
             name="model_name",
-            display_name=i18n.t(
-                'components.ollama.ollama.model_name.display_name'),
+            display_name=i18n.t("components.ollama.ollama.model_name.display_name"),
             options=[],
-            info=i18n.t('components.ollama.ollama.model_name.info'),
+            info=i18n.t("components.ollama.ollama.model_name.info"),
             refresh_button=True,
             real_time_refresh=True,
         ),
         SliderInput(
             name="temperature",
-            display_name=i18n.t(
-                'components.ollama.ollama.temperature.display_name'),
+            display_name=i18n.t("components.ollama.ollama.temperature.display_name"),
             value=0.1,
             range_spec=RangeSpec(min=0, max=1, step=0.01),
             advanced=True,
         ),
         MessageTextInput(
             name="format",
-            display_name=i18n.t(
-                'components.ollama.ollama.format.display_name'),
-            info=i18n.t('components.ollama.ollama.format.info'),
-            advanced=True
+            display_name=i18n.t("components.ollama.ollama.format.display_name"),
+            info=i18n.t("components.ollama.ollama.format.info"),
+            advanced=True,
         ),
         DictInput(
             name="metadata",
-            display_name=i18n.t(
-                'components.ollama.ollama.metadata.display_name'),
-            info=i18n.t('components.ollama.ollama.metadata.info'),
-            advanced=True
+            display_name=i18n.t("components.ollama.ollama.metadata.display_name"),
+            info=i18n.t("components.ollama.ollama.metadata.info"),
+            advanced=True,
         ),
         DropdownInput(
             name="mirostat",
-            display_name=i18n.t(
-                'components.ollama.ollama.mirostat.display_name'),
+            display_name=i18n.t("components.ollama.ollama.mirostat.display_name"),
             options=["Disabled", "Mirostat", "Mirostat 2.0"],
-            info=i18n.t('components.ollama.ollama.mirostat.info'),
+            info=i18n.t("components.ollama.ollama.mirostat.info"),
             value="Disabled",
             advanced=True,
             real_time_refresh=True,
         ),
         FloatInput(
             name="mirostat_eta",
-            display_name=i18n.t(
-                'components.ollama.ollama.mirostat_eta.display_name'),
-            info=i18n.t('components.ollama.ollama.mirostat_eta.info'),
+            display_name=i18n.t("components.ollama.ollama.mirostat_eta.display_name"),
+            info=i18n.t("components.ollama.ollama.mirostat_eta.info"),
             advanced=True,
         ),
         FloatInput(
             name="mirostat_tau",
-            display_name=i18n.t(
-                'components.ollama.ollama.mirostat_tau.display_name'),
-            info=i18n.t('components.ollama.ollama.mirostat_tau.info'),
+            display_name=i18n.t("components.ollama.ollama.mirostat_tau.display_name"),
+            info=i18n.t("components.ollama.ollama.mirostat_tau.info"),
             advanced=True,
         ),
         IntInput(
             name="num_ctx",
-            display_name=i18n.t(
-                'components.ollama.ollama.num_ctx.display_name'),
-            info=i18n.t('components.ollama.ollama.num_ctx.info'),
+            display_name=i18n.t("components.ollama.ollama.num_ctx.display_name"),
+            info=i18n.t("components.ollama.ollama.num_ctx.info"),
             advanced=True,
         ),
         IntInput(
             name="num_gpu",
-            display_name=i18n.t(
-                'components.ollama.ollama.num_gpu.display_name'),
-            info=i18n.t('components.ollama.ollama.num_gpu.info'),
+            display_name=i18n.t("components.ollama.ollama.num_gpu.display_name"),
+            info=i18n.t("components.ollama.ollama.num_gpu.info"),
             advanced=True,
         ),
         IntInput(
             name="num_thread",
-            display_name=i18n.t(
-                'components.ollama.ollama.num_thread.display_name'),
-            info=i18n.t('components.ollama.ollama.num_thread.info'),
+            display_name=i18n.t("components.ollama.ollama.num_thread.display_name"),
+            info=i18n.t("components.ollama.ollama.num_thread.info"),
             advanced=True,
         ),
         IntInput(
             name="repeat_last_n",
-            display_name=i18n.t(
-                'components.ollama.ollama.repeat_last_n.display_name'),
-            info=i18n.t('components.ollama.ollama.repeat_last_n.info'),
+            display_name=i18n.t("components.ollama.ollama.repeat_last_n.display_name"),
+            info=i18n.t("components.ollama.ollama.repeat_last_n.info"),
             advanced=True,
         ),
         FloatInput(
             name="repeat_penalty",
-            display_name=i18n.t(
-                'components.ollama.ollama.repeat_penalty.display_name'),
-            info=i18n.t('components.ollama.ollama.repeat_penalty.info'),
+            display_name=i18n.t("components.ollama.ollama.repeat_penalty.display_name"),
+            info=i18n.t("components.ollama.ollama.repeat_penalty.info"),
             advanced=True,
         ),
         FloatInput(
             name="tfs_z",
-            display_name=i18n.t('components.ollama.ollama.tfs_z.display_name'),
-            info=i18n.t('components.ollama.ollama.tfs_z.info'),
-            advanced=True
+            display_name=i18n.t("components.ollama.ollama.tfs_z.display_name"),
+            info=i18n.t("components.ollama.ollama.tfs_z.info"),
+            advanced=True,
         ),
         IntInput(
             name="timeout",
-            display_name=i18n.t(
-                'components.ollama.ollama.timeout.display_name'),
-            info=i18n.t('components.ollama.ollama.timeout.info'),
-            advanced=True
+            display_name=i18n.t("components.ollama.ollama.timeout.display_name"),
+            info=i18n.t("components.ollama.ollama.timeout.info"),
+            advanced=True,
         ),
         IntInput(
             name="top_k",
-            display_name=i18n.t('components.ollama.ollama.top_k.display_name'),
-            info=i18n.t('components.ollama.ollama.top_k.info'),
-            advanced=True
+            display_name=i18n.t("components.ollama.ollama.top_k.display_name"),
+            info=i18n.t("components.ollama.ollama.top_k.info"),
+            advanced=True,
         ),
         FloatInput(
             name="top_p",
-            display_name=i18n.t('components.ollama.ollama.top_p.display_name'),
-            info=i18n.t('components.ollama.ollama.top_p.info'),
-            advanced=True
+            display_name=i18n.t("components.ollama.ollama.top_p.display_name"),
+            info=i18n.t("components.ollama.ollama.top_p.info"),
+            advanced=True,
         ),
         BoolInput(
             name="verbose",
-            display_name=i18n.t(
-                'components.ollama.ollama.verbose.display_name'),
-            info=i18n.t('components.ollama.ollama.verbose.info'),
-            advanced=True
+            display_name=i18n.t("components.ollama.ollama.verbose.display_name"),
+            info=i18n.t("components.ollama.ollama.verbose.info"),
+            advanced=True,
         ),
         MessageTextInput(
             name="tags",
-            display_name=i18n.t('components.ollama.ollama.tags.display_name'),
-            info=i18n.t('components.ollama.ollama.tags.info'),
+            display_name=i18n.t("components.ollama.ollama.tags.display_name"),
+            info=i18n.t("components.ollama.ollama.tags.info"),
             advanced=True,
         ),
         MessageTextInput(
             name="stop_tokens",
-            display_name=i18n.t(
-                'components.ollama.ollama.stop_tokens.display_name'),
-            info=i18n.t('components.ollama.ollama.stop_tokens.info'),
+            display_name=i18n.t("components.ollama.ollama.stop_tokens.display_name"),
+            info=i18n.t("components.ollama.ollama.stop_tokens.info"),
             advanced=True,
         ),
         MessageTextInput(
             name="system",
-            display_name=i18n.t(
-                'components.ollama.ollama.system.display_name'),
-            info=i18n.t('components.ollama.ollama.system.info'),
-            advanced=True
+            display_name=i18n.t("components.ollama.ollama.system.display_name"),
+            info=i18n.t("components.ollama.ollama.system.info"),
+            advanced=True,
         ),
         BoolInput(
             name="tool_model_enabled",
-            display_name=i18n.t(
-                'components.ollama.ollama.tool_model_enabled.display_name'),
-            info=i18n.t('components.ollama.ollama.tool_model_enabled.info'),
+            display_name=i18n.t("components.ollama.ollama.tool_model_enabled.display_name"),
+            info=i18n.t("components.ollama.ollama.tool_model_enabled.info"),
             value=True,
             real_time_refresh=True,
         ),
         MessageTextInput(
             name="template",
-            display_name=i18n.t(
-                'components.ollama.ollama.template.display_name'),
-            info=i18n.t('components.ollama.ollama.template.info'),
-            advanced=True
+            display_name=i18n.t("components.ollama.ollama.template.display_name"),
+            info=i18n.t("components.ollama.ollama.template.info"),
+            advanced=True,
         ),
         *LCModelComponent.get_base_inputs(),
     ]
@@ -220,8 +202,7 @@ class ChatOllamaComponent(LCModelComponent):
         # Check if URL contains /v1 suffix (OpenAI-compatible mode)
         if transformed_base_url and transformed_base_url.rstrip("/").endswith("/v1"):
             # Strip /v1 suffix and log warning
-            transformed_base_url = transformed_base_url.rstrip(
-                "/").removesuffix("/v1")
+            transformed_base_url = transformed_base_url.rstrip("/").removesuffix("/v1")
             logger.warning(
                 "Detected '/v1' suffix in base URL. The Ollama component uses the native Ollama API, "
                 "not the OpenAI-compatible API. The '/v1' suffix has been automatically removed. "
@@ -304,8 +285,7 @@ class ChatOllamaComponent(LCModelComponent):
 
         if field_name in {"model_name", "base_url", "tool_model_enabled"}:
             if await self.is_valid_ollama_url(self.base_url):
-                tool_model_enabled = build_config["tool_model_enabled"].get(
-                    "value", False) or self.tool_model_enabled
+                tool_model_enabled = build_config["tool_model_enabled"].get("value", False) or self.tool_model_enabled
                 build_config["model_name"]["options"] = await self.get_models(
                     self.base_url, tool_model_enabled=tool_model_enabled
                 )
@@ -373,8 +353,7 @@ class ChatOllamaComponent(LCModelComponent):
                     json_data = show_response.json()
                     if asyncio.iscoroutine(json_data):
                         json_data = await json_data
-                    capabilities = json_data.get(
-                        self.JSON_CAPABILITIES_KEY, [])
+                    capabilities = json_data.get(self.JSON_CAPABILITIES_KEY, [])
                     await logger.adebug(f"Model: {model_name}, Capabilities: {capabilities}")
 
                     if self.DESIRED_CAPABILITY in capabilities and (

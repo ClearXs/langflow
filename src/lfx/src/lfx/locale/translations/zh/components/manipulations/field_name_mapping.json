@@ -1,23 +1,44 @@
 {
   "display_name": "字段名映射",
-  "description": "映射源字段名到目标字段名",
-  "status": {
-    "success": "映射了 {count} 条记录"
-  },
-  "errors": {
-    "mapping_failed": "字段映射失败: {error}",
-    "missing_config": "字段映射是必需的"
-  },
+  "description": "将源字段名映射到目标字段名,用于数据转换",
   "data_input": {
     "display_name": "数据输入",
-    "info": "要转换的输入数据"
-  },
-  "drop_unmapped": {
-    "display_name": "删除未映射字段",
-    "info": "删除不在映射中的字段"
+    "info": "包含需要重命名字段的输入数据"
   },
   "field_mappings": {
     "display_name": "字段映射",
-    "info": "源字段到目标字段的映射"
+    "info": "定义源字段到目标字段的名称映射",
+    "source_field": "源字段",
+    "source_field_desc": "输入数据中的原始字段名",
+    "target_field": "目标字段",
+    "target_field_desc": "输出数据中的新字段名",
+    "description": "备注",
+    "description_desc": "关于此映射规则的可选说明",
+    "analyze_button": "自动解析字段"
+  },
+  "drop_unmapped": {
+    "display_name": "删除未映射字段",
+    "info": "删除未在映射中指定的字段(禁用则保留所有字段)"
+  },
+  "outputs": {
+    "data": {
+      "display_name": "映射后数据"
+    }
+  },
+  "status": {
+    "success": "成功映射{count}条记录,共{fields}个字段转换",
+    "analyzing_fields": "正在从输入数据中解析字段...",
+    "analysis_success": "成功从输入数据中解析了{count}个字段",
+    "no_fields_found": "在输入数据中未找到字段"
+  },
+  "errors": {
+    "missing_config": "缺少字段映射配置",
+    "mapping_failed": "字段映射失败: {error}",
+    "source_field_not_found": "在输入数据中未找到源字段'{field}'",
+    "duplicate_target_field": "检测到重复的目标字段名'{field}'",
+    "no_data_input": "未提供数据输入。请先连接数据源。",
+    "no_graph_data": "没有图数据可用。请先保存工作流。",
+    "graph_not_available": "自动解析功能仅在流程执行期间可用。此按钮在流程运行时有效，而不是在设计时。",
+    "analysis_failed": "字段解析失败: {error}"
   }
 }

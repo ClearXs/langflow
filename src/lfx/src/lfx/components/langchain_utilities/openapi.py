@@ -1,7 +1,7 @@
 import os
-import i18n
 from pathlib import Path
 
+import i18n
 import yaml
 from langchain.agents import AgentExecutor
 from langchain_community.agent_toolkits import create_openapi_agent
@@ -15,37 +15,32 @@ from lfx.inputs.inputs import BoolInput, FileInput, HandleInput
 
 class OpenAPIAgentComponent(LCAgentComponent):
     ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
-    display_name = i18n.t(
-        'components.langchain_utilities.openapi.display_name')
-    description = i18n.t('components.langchain_utilities.openapi.description')
+    display_name = i18n.t("components.langchain_utilities.openapi.display_name")
+    description = i18n.t("components.langchain_utilities.openapi.description")
     name = "OpenAPIAgent"
     icon = "LangChain"
     inputs = [
         *LCAgentComponent.get_base_inputs(),
         HandleInput(
             name="llm",
-            display_name=i18n.t(
-                'components.langchain_utilities.openapi.llm.display_name'),
+            display_name=i18n.t("components.langchain_utilities.openapi.llm.display_name"),
             input_types=["LanguageModel"],
             required=True,
-            info=i18n.t('components.langchain_utilities.openapi.llm.info'),
+            info=i18n.t("components.langchain_utilities.openapi.llm.info"),
         ),
         FileInput(
             name="path",
-            display_name=i18n.t(
-                'components.langchain_utilities.openapi.path.display_name'),
+            display_name=i18n.t("components.langchain_utilities.openapi.path.display_name"),
             file_types=["json", "yaml", "yml"],
             required=True,
-            info=i18n.t('components.langchain_utilities.openapi.path.info'),
+            info=i18n.t("components.langchain_utilities.openapi.path.info"),
         ),
         BoolInput(
             name="allow_dangerous_requests",
-            display_name=i18n.t(
-                'components.langchain_utilities.openapi.allow_dangerous_requests.display_name'),
+            display_name=i18n.t("components.langchain_utilities.openapi.allow_dangerous_requests.display_name"),
             value=False,
             required=True,
-            info=i18n.t(
-                'components.langchain_utilities.openapi.allow_dangerous_requests.info'),
+            info=i18n.t("components.langchain_utilities.openapi.allow_dangerous_requests.info"),
         ),
     ]
 

@@ -1,5 +1,5 @@
-import os
 from typing import cast
+
 import i18n
 
 from lfx.custom import Component
@@ -8,8 +8,8 @@ from lfx.schema.data import Data
 
 
 class NotifyComponent(Component):
-    display_name = i18n.t('components.logic.notify.display_name')
-    description = i18n.t('components.logic.notify.description')
+    display_name = i18n.t("components.logic.notify.display_name")
+    description = i18n.t("components.logic.notify.description")
     icon = "Notify"
     name = "Notify"
     beta: bool = True
@@ -17,23 +17,21 @@ class NotifyComponent(Component):
     inputs = [
         StrInput(
             name="context_key",
-            display_name=i18n.t(
-                'components.logic.notify.context_key.display_name'),
-            info=i18n.t('components.logic.notify.context_key.info'),
+            display_name=i18n.t("components.logic.notify.context_key.display_name"),
+            info=i18n.t("components.logic.notify.context_key.info"),
             required=True,
         ),
         HandleInput(
             name="input_value",
-            display_name=i18n.t(
-                'components.logic.notify.input_value.display_name'),
-            info=i18n.t('components.logic.notify.input_value.info'),
+            display_name=i18n.t("components.logic.notify.input_value.display_name"),
+            info=i18n.t("components.logic.notify.input_value.info"),
             required=False,
             input_types=["Data", "Message", "DataFrame"],
         ),
         BoolInput(
             name="append",
-            display_name=i18n.t('components.logic.notify.append.display_name'),
-            info=i18n.t('components.logic.notify.append.info'),
+            display_name=i18n.t("components.logic.notify.append.display_name"),
+            info=i18n.t("components.logic.notify.append.info"),
             value=False,
             required=False,
         ),
@@ -41,8 +39,7 @@ class NotifyComponent(Component):
 
     outputs = [
         Output(
-            display_name=i18n.t(
-                'components.logic.notify.outputs.result.display_name'),
+            display_name=i18n.t("components.logic.notify.outputs.result.display_name"),
             name="result",
             method="notify_components",
             cache=False,
@@ -64,8 +61,7 @@ class NotifyComponent(Component):
             ValueError: If the component is not part of a graph.
         """
         if not self._vertex:
-            error_message = i18n.t(
-                'components.logic.notify.errors.must_be_in_graph')
+            error_message = i18n.t("components.logic.notify.errors.must_be_in_graph")
             raise ValueError(error_message)
 
         input_value: Data | str | dict | None = self.input_value
@@ -86,20 +82,16 @@ class NotifyComponent(Component):
                     current_data = [current_data]
                 current_data.append(input_value)
                 self.update_ctx({self.context_key: current_data})
-                success_message = i18n.t('components.logic.notify.success.appended_to_context',
-                                         key=self.context_key)
+                success_message = i18n.t("components.logic.notify.success.appended_to_context", key=self.context_key)
             else:
                 self.update_ctx({self.context_key: input_value})
-                success_message = i18n.t('components.logic.notify.success.stored_in_context',
-                                         key=self.context_key)
+                success_message = i18n.t("components.logic.notify.success.stored_in_context", key=self.context_key)
 
             self.status = success_message
         else:
-            no_record_message = i18n.t(
-                'components.logic.notify.warnings.no_record_provided')
+            no_record_message = i18n.t("components.logic.notify.warnings.no_record_provided")
             self.status = no_record_message
 
         self._vertex.is_state = True
-        self.graph.activate_state_vertices(
-            name=self.context_key, caller=self._id)
+        self.graph.activate_state_vertices(name=self.context_key, caller=self._id)
         return cast("Data", input_value)

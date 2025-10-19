@@ -1,7 +1,7 @@
 import os
-import i18n
 import warnings
 
+import i18n
 import requests
 from langchain_core.messages import AIMessage, BaseMessage, HumanMessage, SystemMessage
 from pydantic.v1 import SecretStr
@@ -45,8 +45,8 @@ ND_MODEL_MAPPING = {
 
 
 class NotDiamondComponent(Component):
-    display_name = i18n.t('components.notdiamond.notdiamond.display_name')
-    description = i18n.t('components.notdiamond.notdiamond.description')
+    display_name = i18n.t("components.notdiamond.notdiamond.display_name")
+    description = i18n.t("components.notdiamond.notdiamond.description")
     documentation: str = "https://docs.notdiamond.ai/"
     icon = "NotDiamond"
     name = "NotDiamond"
@@ -60,57 +60,49 @@ class NotDiamondComponent(Component):
     inputs = [
         MessageInput(
             name="input_value",
-            display_name=i18n.t(
-                'components.notdiamond.notdiamond.input_value.display_name'),
-            required=True
+            display_name=i18n.t("components.notdiamond.notdiamond.input_value.display_name"),
+            required=True,
         ),
         MessageTextInput(
             name="system_message",
-            display_name=i18n.t(
-                'components.notdiamond.notdiamond.system_message.display_name'),
-            info=i18n.t(
-                'components.notdiamond.notdiamond.system_message.info'),
+            display_name=i18n.t("components.notdiamond.notdiamond.system_message.display_name"),
+            info=i18n.t("components.notdiamond.notdiamond.system_message.info"),
             advanced=False,
         ),
         HandleInput(
             name="models",
-            display_name=i18n.t(
-                'components.notdiamond.notdiamond.models.display_name'),
+            display_name=i18n.t("components.notdiamond.notdiamond.models.display_name"),
             input_types=["LanguageModel"],
             required=True,
             is_list=True,
-            info=i18n.t('components.notdiamond.notdiamond.models.info'),
+            info=i18n.t("components.notdiamond.notdiamond.models.info"),
         ),
         SecretStrInput(
             name="api_key",
-            display_name=i18n.t(
-                'components.notdiamond.notdiamond.api_key.display_name'),
-            info=i18n.t('components.notdiamond.notdiamond.api_key.info'),
+            display_name=i18n.t("components.notdiamond.notdiamond.api_key.display_name"),
+            info=i18n.t("components.notdiamond.notdiamond.api_key.info"),
             advanced=False,
             value="NOTDIAMOND_API_KEY",
             required=True,
         ),
         StrInput(
             name="preference_id",
-            display_name=i18n.t(
-                'components.notdiamond.notdiamond.preference_id.display_name'),
-            info=i18n.t('components.notdiamond.notdiamond.preference_id.info'),
+            display_name=i18n.t("components.notdiamond.notdiamond.preference_id.display_name"),
+            info=i18n.t("components.notdiamond.notdiamond.preference_id.info"),
             advanced=False,
         ),
         DropdownInput(
             name="tradeoff",
-            display_name=i18n.t(
-                'components.notdiamond.notdiamond.tradeoff.display_name'),
-            info=i18n.t('components.notdiamond.notdiamond.tradeoff.info'),
+            display_name=i18n.t("components.notdiamond.notdiamond.tradeoff.display_name"),
+            info=i18n.t("components.notdiamond.notdiamond.tradeoff.info"),
             advanced=False,
             options=["quality", "cost", "latency"],
             value="quality",
         ),
         BoolInput(
             name="hash_content",
-            display_name=i18n.t(
-                'components.notdiamond.notdiamond.hash_content.display_name'),
-            info=i18n.t('components.notdiamond.notdiamond.hash_content.info'),
+            display_name=i18n.t("components.notdiamond.notdiamond.hash_content.display_name"),
+            info=i18n.t("components.notdiamond.notdiamond.hash_content.info"),
             advanced=False,
             value=False,
         ),
@@ -118,14 +110,12 @@ class NotDiamondComponent(Component):
 
     outputs = [
         Output(
-            display_name=i18n.t(
-                'components.notdiamond.notdiamond.outputs.output.display_name'),
+            display_name=i18n.t("components.notdiamond.notdiamond.outputs.output.display_name"),
             name="output",
-            method="model_select"
+            method="model_select",
         ),
         Output(
-            display_name=i18n.t(
-                'components.notdiamond.notdiamond.outputs.selected_model.display_name'),
+            display_name=i18n.t("components.notdiamond.notdiamond.outputs.selected_model.display_name"),
             name="selected_model",
             method="get_selected_model",
             required_inputs=["output"],
@@ -136,8 +126,7 @@ class NotDiamondComponent(Component):
         return self._selected_model_name
 
     def model_select(self) -> Message:
-        api_key = SecretStr(
-            self.api_key).get_secret_value() if self.api_key else None
+        api_key = SecretStr(self.api_key).get_secret_value() if self.api_key else None
         input_value = self.input_value
         system_message = self.system_message
         messages = self._format_input(input_value, system_message)
@@ -242,13 +231,10 @@ class NotDiamondComponent(Component):
         openai_messages = []
         for msg in messages:
             if isinstance(msg, HumanMessage):
-                openai_messages.append(
-                    {"role": "user", "content": msg.content})
+                openai_messages.append({"role": "user", "content": msg.content})
             elif isinstance(msg, AIMessage):
-                openai_messages.append(
-                    {"role": "assistant", "content": msg.content})
+                openai_messages.append({"role": "assistant", "content": msg.content})
             elif isinstance(msg, SystemMessage):
-                openai_messages.append(
-                    {"role": "system", "content": msg.content})
+                openai_messages.append({"role": "system", "content": msg.content})
 
         return openai_messages

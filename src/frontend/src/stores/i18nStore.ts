@@ -7,9 +7,9 @@ export const useI18nStore = create<I18nType>((set, get) => ({
     if (stored !== null) {
       return JSON.parse(stored);
     }
-    const browserLanguage = navigator.language || navigator.languages[0];
-    const detectedLanguage = browserLanguage.split("-")[0];
-    return detectedLanguage;
+    // const browserLanguage = navigator.language || navigator.languages[0];
+    // const detectedLanguage = browserLanguage.split("-")[0];
+    return "zh";
   })(),
 
   setLanguage(lang) {

@@ -1,31 +1,28 @@
 """Unit tests for ETL components."""
 
-import pytest
 from lfx.components.input_output import (
-    ETLTableInputComponent,
-    ETLFileInputComponent,
     ETLAPIInputComponent,
-)
-from lfx.components.operations import (
-    ETLDualStreamJoinComponent,
-    ETLMultiStreamUnionComponent,
-    ETLGroupByComponent,
-    ETLDeduplicationComponent,
+    ETLCSVOutputComponent,
+    ETLExcelOutputComponent,
+    ETLFileInputComponent,
+    ETLTableInputComponent,
+    ETLTableOutputComponent,
 )
 from lfx.components.manipulations import (
-    ETLFieldNameMappingComponent,
     ETLDataCleaningComponent,
+    ETLFieldNameMappingComponent,
 )
-from lfx.components.security import ETLDataMaskingComponent
-from lfx.components.input_output import (
-    ETLTableOutputComponent,
-    ETLExcelOutputComponent,
-    ETLCSVOutputComponent,
+from lfx.components.operations import (
+    ETLDeduplicationComponent,
+    ETLDualStreamJoinComponent,
+    ETLGroupByComponent,
+    ETLMultiStreamUnionComponent,
 )
 from lfx.components.scripts import (
-    ETLShellScriptComponent,
     ETLPythonScriptComponent,
+    ETLShellScriptComponent,
 )
+from lfx.components.security import ETLDataMaskingComponent
 
 
 class TestETLInputComponents:

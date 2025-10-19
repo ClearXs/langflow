@@ -1,5 +1,7 @@
 import os
+
 import i18n
+
 from lfx.custom.custom_component.component import Component
 from lfx.field_typing.range_spec import RangeSpec
 from lfx.io import DropdownInput, FloatInput, IntInput, MessageTextInput, Output, SecretStrInput, StrInput
@@ -7,8 +9,8 @@ from lfx.schema.message import Message
 
 
 class VectaraRagComponent(Component):
-    display_name = i18n.t('components.vectorstores.vectara_rag.display_name')
-    description = i18n.t('components.vectorstores.vectara_rag.description')
+    display_name = i18n.t("components.vectorstores.vectara_rag.display_name")
+    description = i18n.t("components.vectorstores.vectara_rag.description")
     documentation = "https://docs.vectara.com/docs"
     icon = "Vectara"
     name = "VectaraRAG"
@@ -57,117 +59,98 @@ class VectaraRagComponent(Component):
         "urd",
     ]
 
-    field_order = ["vectara_customer_id", "vectara_corpus_id",
-                   "vectara_api_key", "search_query", "reranker"]
+    field_order = ["vectara_customer_id", "vectara_corpus_id", "vectara_api_key", "search_query", "reranker"]
 
     inputs = [
         StrInput(
             name="vectara_customer_id",
-            display_name=i18n.t(
-                'components.vectorstores.vectara_rag.vectara_customer_id.display_name'),
-            required=True
+            display_name=i18n.t("components.vectorstores.vectara_rag.vectara_customer_id.display_name"),
+            required=True,
         ),
         StrInput(
             name="vectara_corpus_id",
-            display_name=i18n.t(
-                'components.vectorstores.vectara_rag.vectara_corpus_id.display_name'),
-            required=True
+            display_name=i18n.t("components.vectorstores.vectara_rag.vectara_corpus_id.display_name"),
+            required=True,
         ),
         SecretStrInput(
             name="vectara_api_key",
-            display_name=i18n.t(
-                'components.vectorstores.vectara_rag.vectara_api_key.display_name'),
-            required=True
+            display_name=i18n.t("components.vectorstores.vectara_rag.vectara_api_key.display_name"),
+            required=True,
         ),
         MessageTextInput(
             name="search_query",
-            display_name=i18n.t(
-                'components.vectorstores.vectara_rag.search_query.display_name'),
-            info=i18n.t(
-                'components.vectorstores.vectara_rag.search_query.info'),
+            display_name=i18n.t("components.vectorstores.vectara_rag.search_query.display_name"),
+            info=i18n.t("components.vectorstores.vectara_rag.search_query.info"),
             tool_mode=True,
         ),
         FloatInput(
             name="lexical_interpolation",
-            display_name=i18n.t(
-                'components.vectorstores.vectara_rag.lexical_interpolation.display_name'),
+            display_name=i18n.t("components.vectorstores.vectara_rag.lexical_interpolation.display_name"),
             range_spec=RangeSpec(min=0.005, max=0.1, step=0.005),
             value=0.005,
             advanced=True,
-            info=i18n.t(
-                'components.vectorstores.vectara_rag.lexical_interpolation.info'),
+            info=i18n.t("components.vectorstores.vectara_rag.lexical_interpolation.info"),
         ),
         MessageTextInput(
             name="filter",
-            display_name=i18n.t(
-                'components.vectorstores.vectara_rag.filter.display_name'),
+            display_name=i18n.t("components.vectorstores.vectara_rag.filter.display_name"),
             value="",
             advanced=True,
-            info=i18n.t('components.vectorstores.vectara_rag.filter.info'),
+            info=i18n.t("components.vectorstores.vectara_rag.filter.info"),
         ),
         DropdownInput(
             name="reranker",
-            display_name=i18n.t(
-                'components.vectorstores.vectara_rag.reranker.display_name'),
+            display_name=i18n.t("components.vectorstores.vectara_rag.reranker.display_name"),
             options=RERANKER_TYPES,
             value=RERANKER_TYPES[0],
-            info=i18n.t('components.vectorstores.vectara_rag.reranker.info'),
+            info=i18n.t("components.vectorstores.vectara_rag.reranker.info"),
         ),
         IntInput(
             name="reranker_k",
-            display_name=i18n.t(
-                'components.vectorstores.vectara_rag.reranker_k.display_name'),
+            display_name=i18n.t("components.vectorstores.vectara_rag.reranker_k.display_name"),
             value=50,
             range_spec=RangeSpec(min=1, max=100, step=1),
             advanced=True,
         ),
         FloatInput(
             name="diversity_bias",
-            display_name=i18n.t(
-                'components.vectorstores.vectara_rag.diversity_bias.display_name'),
+            display_name=i18n.t("components.vectorstores.vectara_rag.diversity_bias.display_name"),
             value=0.2,
             range_spec=RangeSpec(min=0, max=1, step=0.01),
             advanced=True,
-            info=i18n.t(
-                'components.vectorstores.vectara_rag.diversity_bias.info'),
+            info=i18n.t("components.vectorstores.vectara_rag.diversity_bias.info"),
         ),
         IntInput(
             name="max_results",
-            display_name=i18n.t(
-                'components.vectorstores.vectara_rag.max_results.display_name'),
+            display_name=i18n.t("components.vectorstores.vectara_rag.max_results.display_name"),
             value=7,
             range_spec=RangeSpec(min=1, max=100, step=1),
             advanced=True,
-            info=i18n.t(
-                'components.vectorstores.vectara_rag.max_results.info'),
+            info=i18n.t("components.vectorstores.vectara_rag.max_results.info"),
         ),
         DropdownInput(
             name="response_lang",
-            display_name=i18n.t(
-                'components.vectorstores.vectara_rag.response_lang.display_name'),
+            display_name=i18n.t("components.vectorstores.vectara_rag.response_lang.display_name"),
             options=RESPONSE_LANGUAGES,
             value="eng",
             advanced=True,
-            info=i18n.t(
-                'components.vectorstores.vectara_rag.response_lang.info'),
+            info=i18n.t("components.vectorstores.vectara_rag.response_lang.info"),
         ),
         DropdownInput(
             name="prompt",
-            display_name=i18n.t(
-                'components.vectorstores.vectara_rag.prompt.display_name'),
+            display_name=i18n.t("components.vectorstores.vectara_rag.prompt.display_name"),
             options=SUMMARIZER_PROMPTS,
             value=SUMMARIZER_PROMPTS[0],
             advanced=True,
-            info=i18n.t('components.vectorstores.vectara_rag.prompt.info'),
+            info=i18n.t("components.vectorstores.vectara_rag.prompt.info"),
         ),
     ]
 
     outputs = [
         Output(
             name="answer",
-            display_name=i18n.t(
-                'components.vectorstores.vectara_rag.outputs.answer'),
-            method="generate_response"
+            display_name=i18n.t("components.vectorstores.vectara_rag.outputs.answer"),
+            method="generate_response",
         ),
     ]
 
@@ -183,10 +166,8 @@ class VectaraRagComponent(Component):
             msg = "Could not import Vectara. Please install it with `pip install langchain-community`."
             raise ImportError(msg) from e
 
-        vectara = Vectara(self.vectara_customer_id,
-                          self.vectara_corpus_id, self.vectara_api_key)
-        rerank_config = RerankConfig(
-            self.reranker, self.reranker_k, self.diversity_bias)
+        vectara = Vectara(self.vectara_customer_id, self.vectara_corpus_id, self.vectara_api_key)
+        rerank_config = RerankConfig(self.reranker, self.reranker_k, self.diversity_bias)
         summary_config = SummaryConfig(
             is_enabled=True, max_results=self.max_results, response_lang=self.response_lang, prompt_name=self.prompt
         )
@@ -197,8 +178,7 @@ class VectaraRagComponent(Component):
             rerank_config=rerank_config,
         )
         rag = vectara.as_rag(config)
-        response = rag.invoke(self.search_query, config={
-                              "callbacks": self.get_langchain_callbacks()})
+        response = rag.invoke(self.search_query, config={"callbacks": self.get_langchain_callbacks()})
 
         text_output = response["answer"]
 

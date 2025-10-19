@@ -1,14 +1,14 @@
 import type { handleOnNewValueType } from "@/CustomNodes/hooks/use-handle-new-value";
+import AggregationConfigComponent from "@/components/core/parameterRenderComponent/components/aggregationConfigComponent";
 import CodeAreaComponent from "@/components/core/parameterRenderComponent/components/codeAreaComponent";
+import EncryptionConfigComponent from "@/components/core/parameterRenderComponent/components/encryptionConfigComponent";
 import FieldMappingTableInputComponent from "@/components/core/parameterRenderComponent/components/fieldMappingTableInputComponent";
+import FieldValueMappingComponent from "@/components/core/parameterRenderComponent/components/fieldValueMappingComponent";
+import MaskingRulesComponent from "@/components/core/parameterRenderComponent/components/maskingRulesComponent";
 import SliderComponent from "@/components/core/parameterRenderComponent/components/sliderComponent";
+import StreamJoinConfigComponent from "@/components/core/parameterRenderComponent/components/streamJoinConfigComponent";
 import TableNodeComponent from "@/components/core/parameterRenderComponent/components/TableNodeComponent";
 import TabComponent from "@/components/core/parameterRenderComponent/components/tabComponent";
-import StreamJoinConfigComponent from "@/components/core/parameterRenderComponent/components/streamJoinConfigComponent";
-import AggregationConfigComponent from "@/components/core/parameterRenderComponent/components/aggregationConfigComponent";
-import MaskingRulesComponent from "@/components/core/parameterRenderComponent/components/maskingRulesComponent";
-import EncryptionConfigComponent from "@/components/core/parameterRenderComponent/components/encryptionConfigComponent";
-import FieldValueMappingComponent from "@/components/core/parameterRenderComponent/components/fieldValueMappingComponent";
 import { TEXT_FIELD_TYPES } from "@/constants/constants";
 import CustomConnectionComponent from "@/customization/components/custom-connectionComponent";
 import CustomInputFileComponent from "@/customization/components/custom-input-file";
@@ -200,6 +200,7 @@ export function ParameterRenderComponent({
         return (
           <TableNodeComponent
             {...baseInputProps}
+            componentName={name}
             description={templateData.info || "Add or edit data"}
             columns={
               templateData?.table_schema?.columns ?? templateData?.table_schema

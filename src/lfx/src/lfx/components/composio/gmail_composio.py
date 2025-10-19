@@ -1,4 +1,3 @@
-import os
 from lfx.base.composio.composio_base import ComposioBaseComponent
 
 
@@ -8,7 +7,7 @@ class ComposioGmailAPIComponent(ComposioBaseComponent):
     documentation: str = "https://docs.composio.dev"
     app_name = "gmail"
 
-    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
+    ignore: bool = True
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)

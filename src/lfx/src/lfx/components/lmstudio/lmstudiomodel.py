@@ -1,9 +1,8 @@
-import os
-import i18n
 from typing import Any
 from urllib.parse import urljoin
 
 import httpx
+import i18n
 from langchain_openai import ChatOpenAI
 
 from lfx.base.models.model import LCModelComponent
@@ -13,10 +12,12 @@ from lfx.inputs.inputs import DictInput, DropdownInput, FloatInput, IntInput, Se
 
 
 class LMStudioModelComponent(LCModelComponent):
-    display_name = i18n.t('components.lmstudio.lmstudiomodel.display_name')
-    description = i18n.t('components.lmstudio.lmstudiomodel.description')
+    display_name = i18n.t("components.lmstudio.lmstudiomodel.display_name")
+    description = i18n.t("components.lmstudio.lmstudiomodel.description")
     icon = "LMStudio"
     name = "LMStudioModel"
+
+    ignore: bool = True
 
     async def update_build_config(self, build_config: dict, field_value: Any, field_name: str | None = None):
         if field_name == "model_name":
@@ -55,53 +56,46 @@ class LMStudioModelComponent(LCModelComponent):
         *LCModelComponent.get_base_inputs(),
         IntInput(
             name="max_tokens",
-            display_name=i18n.t(
-                'components.lmstudio.lmstudiomodel.max_tokens.display_name'),
+            display_name=i18n.t("components.lmstudio.lmstudiomodel.max_tokens.display_name"),
             advanced=True,
-            info=i18n.t('components.lmstudio.lmstudiomodel.max_tokens.info'),
+            info=i18n.t("components.lmstudio.lmstudiomodel.max_tokens.info"),
             range_spec=RangeSpec(min=0, max=128000),
         ),
         DictInput(
             name="model_kwargs",
-            display_name=i18n.t(
-                'components.lmstudio.lmstudiomodel.model_kwargs.display_name'),
-            advanced=True
+            display_name=i18n.t("components.lmstudio.lmstudiomodel.model_kwargs.display_name"),
+            advanced=True,
         ),
         DropdownInput(
             name="model_name",
-            display_name=i18n.t(
-                'components.lmstudio.lmstudiomodel.model_name.display_name'),
+            display_name=i18n.t("components.lmstudio.lmstudiomodel.model_name.display_name"),
             advanced=False,
             refresh_button=True,
         ),
         StrInput(
             name="base_url",
-            display_name=i18n.t(
-                'components.lmstudio.lmstudiomodel.base_url.display_name'),
+            display_name=i18n.t("components.lmstudio.lmstudiomodel.base_url.display_name"),
             advanced=False,
-            info=i18n.t('components.lmstudio.lmstudiomodel.base_url.info'),
+            info=i18n.t("components.lmstudio.lmstudiomodel.base_url.info"),
             value="http://localhost:1234/v1",
         ),
         SecretStrInput(
             name="api_key",
-            display_name=i18n.t(
-                'components.lmstudio.lmstudiomodel.api_key.display_name'),
-            info=i18n.t('components.lmstudio.lmstudiomodel.api_key.info'),
+            display_name=i18n.t("components.lmstudio.lmstudiomodel.api_key.display_name"),
+            info=i18n.t("components.lmstudio.lmstudiomodel.api_key.info"),
             advanced=True,
             value="LMSTUDIO_API_KEY",
         ),
         FloatInput(
             name="temperature",
-            display_name=i18n.t(
-                'components.lmstudio.lmstudiomodel.temperature.display_name'),
+            display_name=i18n.t("components.lmstudio.lmstudiomodel.temperature.display_name"),
             value=0.1,
             advanced=True,
         ),
         IntInput(
             name="seed",
-            display_name=i18n.t(
-                'components.lmstudio.lmstudiomodel.seed.display_name'),
-            info=i18n.t('components.lmstudio.lmstudiomodel.seed.info'),
+            display_name=i18n.t("components.lmstudio.lmstudiomodel.seed.display_name"),
+            info=i18n.t("components.lmstudio.lmstudiomodel.seed.info"),
             advanced=True,
             value=1,
         ),

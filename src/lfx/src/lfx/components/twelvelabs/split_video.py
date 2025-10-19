@@ -1,11 +1,12 @@
-import os
-import i18n
 import hashlib
 import math
+import os
 import subprocess
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
+
+import i18n
 
 from lfx.custom import Component
 from lfx.inputs import BoolInput, DropdownInput, HandleInput, IntInput
@@ -16,11 +17,11 @@ from lfx.template import Output
 class SplitVideoComponent(Component):
     """A component that splits a video into multiple clips of specified duration using FFmpeg."""
 
-    display_name = i18n.t('components.twelvelabs.split_video.display_name')
-    description = i18n.t('components.twelvelabs.split_video.description')
+    display_name = i18n.t("components.twelvelabs.split_video.display_name")
+    description = i18n.t("components.twelvelabs.split_video.description")
     icon = "TwelveLabs"
     name = "SplitVideo"
-    
+
     ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     documentation = "https://github.com/twelvelabs-io/twelvelabs-developer-experience/blob/main/integrations/Langflow/TWELVE_LABS_COMPONENTS_README.md"
@@ -28,37 +29,30 @@ class SplitVideoComponent(Component):
     inputs = [
         HandleInput(
             name="videodata",
-            display_name=i18n.t(
-                'components.twelvelabs.split_video.videodata.display_name'),
-            info=i18n.t('components.twelvelabs.split_video.videodata.info'),
+            display_name=i18n.t("components.twelvelabs.split_video.videodata.display_name"),
+            info=i18n.t("components.twelvelabs.split_video.videodata.info"),
             required=True,
             input_types=["Data"],
         ),
         IntInput(
             name="clip_duration",
-            display_name=i18n.t(
-                'components.twelvelabs.split_video.clip_duration.display_name'),
-            info=i18n.t(
-                'components.twelvelabs.split_video.clip_duration.info'),
+            display_name=i18n.t("components.twelvelabs.split_video.clip_duration.display_name"),
+            info=i18n.t("components.twelvelabs.split_video.clip_duration.info"),
             required=True,
             value=30,
         ),
         DropdownInput(
             name="last_clip_handling",
-            display_name=i18n.t(
-                'components.twelvelabs.split_video.last_clip_handling.display_name'),
-            info=i18n.t(
-                'components.twelvelabs.split_video.last_clip_handling.info'),
+            display_name=i18n.t("components.twelvelabs.split_video.last_clip_handling.display_name"),
+            info=i18n.t("components.twelvelabs.split_video.last_clip_handling.info"),
             options=["Truncate", "Overlap Previous", "Keep Short"],
             value="Overlap Previous",
             required=True,
         ),
         BoolInput(
             name="include_original",
-            display_name=i18n.t(
-                'components.twelvelabs.split_video.include_original.display_name'),
-            info=i18n.t(
-                'components.twelvelabs.split_video.include_original.info'),
+            display_name=i18n.t("components.twelvelabs.split_video.include_original.display_name"),
+            info=i18n.t("components.twelvelabs.split_video.include_original.info"),
             value=False,
         ),
     ]
@@ -66,8 +60,7 @@ class SplitVideoComponent(Component):
     outputs = [
         Output(
             name="clips",
-            display_name=i18n.t(
-                'components.twelvelabs.split_video.outputs.clips.display_name'),
+            display_name=i18n.t("components.twelvelabs.split_video.outputs.clips.display_name"),
             method="process",
             output_types=["Data"],
         ),
@@ -119,8 +112,7 @@ class SplitVideoComponent(Component):
         path_hash = hashlib.sha256(video_path.encode()).hexdigest()[:8]
 
         # Create the output directory path
-        output_dir = Path(path_obj.parent) / \
-            f"clips_{base_name}_{timestamp}_{path_hash}"
+        output_dir = Path(path_obj.parent) / f"clips_{base_name}_{timestamp}_{path_hash}"
 
         # Create the directory if it doesn't exist
         output_dir.mkdir(parents=True, exist_ok=True)

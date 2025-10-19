@@ -1,18 +1,19 @@
 import os
-import requests
 from datetime import datetime, timedelta
-from typing import Any, Optional
+from typing import Any
+
 import i18n
+import requests
 
 from lfx.custom.custom_component.component import Component
-from lfx.io import IntInput, MessageTextInput, DropdownInput, BoolInput, Output
+from lfx.io import BoolInput, DropdownInput, IntInput, MessageTextInput, Output
 from lfx.schema.data import Data
 
 
 class NewsSearchComponent(Component):
     ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
-    display_name = i18n.t('components.data.news_search.display_name')
-    description = i18n.t('components.data.news_search.description')
+    display_name = i18n.t("components.data.news_search.display_name")
+    description = i18n.t("components.data.news_search.description")
     icon = "newspaper"
     name = "NewsSearch"
     legacy = True
@@ -21,88 +22,75 @@ class NewsSearchComponent(Component):
     inputs = [
         MessageTextInput(
             name="query",
-            display_name=i18n.t(
-                'components.data.news_search.query.display_name'),
-            info=i18n.t('components.data.news_search.query.info'),
+            display_name=i18n.t("components.data.news_search.query.display_name"),
+            info=i18n.t("components.data.news_search.query.info"),
             required=True,
         ),
         MessageTextInput(
             name="api_key",
-            display_name=i18n.t(
-                'components.data.news_search.api_key.display_name'),
-            info=i18n.t('components.data.news_search.api_key.info'),
+            display_name=i18n.t("components.data.news_search.api_key.display_name"),
+            info=i18n.t("components.data.news_search.api_key.info"),
             password=True,
             required=True,
         ),
         DropdownInput(
             name="source",
-            display_name=i18n.t(
-                'components.data.news_search.source.display_name'),
-            info=i18n.t('components.data.news_search.source.info'),
+            display_name=i18n.t("components.data.news_search.source.display_name"),
+            info=i18n.t("components.data.news_search.source.info"),
             options=["newsapi", "gnews", "newsdata"],
             value="newsapi",
             real_time_refresh=True,
         ),
         DropdownInput(
             name="language",
-            display_name=i18n.t(
-                'components.data.news_search.language.display_name'),
-            info=i18n.t('components.data.news_search.language.info'),
-            options=["en", "zh", "es", "fr", "de",
-                     "it", "pt", "ru", "ja", "ko"],
+            display_name=i18n.t("components.data.news_search.language.display_name"),
+            info=i18n.t("components.data.news_search.language.info"),
+            options=["en", "zh", "es", "fr", "de", "it", "pt", "ru", "ja", "ko"],
             value="en",
             advanced=True,
         ),
         DropdownInput(
             name="country",
-            display_name=i18n.t(
-                'components.data.news_search.country.display_name'),
-            info=i18n.t('components.data.news_search.country.info'),
-            options=["us", "cn", "gb", "ca", "au",
-                     "de", "fr", "jp", "kr", "in"],
+            display_name=i18n.t("components.data.news_search.country.display_name"),
+            info=i18n.t("components.data.news_search.country.info"),
+            options=["us", "cn", "gb", "ca", "au", "de", "fr", "jp", "kr", "in"],
             value="us",
             advanced=True,
         ),
         DropdownInput(
             name="category",
-            display_name=i18n.t(
-                'components.data.news_search.category.display_name'),
-            info=i18n.t('components.data.news_search.category.info'),
-            options=["general", "business", "entertainment",
-                     "health", "science", "sports", "technology"],
+            display_name=i18n.t("components.data.news_search.category.display_name"),
+            info=i18n.t("components.data.news_search.category.info"),
+            options=["general", "business", "entertainment", "health", "science", "sports", "technology"],
             value="general",
             advanced=True,
         ),
         IntInput(
             name="max_results",
-            display_name=i18n.t(
-                'components.data.news_search.max_results.display_name'),
-            info=i18n.t('components.data.news_search.max_results.info'),
+            display_name=i18n.t("components.data.news_search.max_results.display_name"),
+            info=i18n.t("components.data.news_search.max_results.info"),
             value=10,
             range_spec=(1, 100),
         ),
         IntInput(
             name="days_back",
-            display_name=i18n.t(
-                'components.data.news_search.days_back.display_name'),
-            info=i18n.t('components.data.news_search.days_back.info'),
+            display_name=i18n.t("components.data.news_search.days_back.display_name"),
+            info=i18n.t("components.data.news_search.days_back.info"),
             value=7,
             range_spec=(1, 30),
             advanced=True,
         ),
         BoolInput(
             name="include_content",
-            display_name=i18n.t(
-                'components.data.news_search.include_content.display_name'),
-            info=i18n.t('components.data.news_search.include_content.info'),
+            display_name=i18n.t("components.data.news_search.include_content.display_name"),
+            info=i18n.t("components.data.news_search.include_content.info"),
             value=True,
             advanced=True,
         ),
         MessageTextInput(
             name="text_key",
-            display_name=i18n.t(
-                'components.data.news_search.text_key.display_name'),
-            info=i18n.t('components.data.news_search.text_key.info'),
+            display_name=i18n.t("components.data.news_search.text_key.display_name"),
+            info=i18n.t("components.data.news_search.text_key.info"),
             value="content",
             advanced=True,
         ),
@@ -111,13 +99,14 @@ class NewsSearchComponent(Component):
     outputs = [
         Output(
             name="news_list",
-            display_name=i18n.t(
-                'components.data.news_search.outputs.news_list.display_name'),
-            method="search_news"
+            display_name=i18n.t("components.data.news_search.outputs.news_list.display_name"),
+            method="search_news",
         ),
     ]
 
-    def update_build_config(self, build_config: dict[str, Any], field_value: Any, field_name: str | None = None) -> dict[str, Any]:
+    def update_build_config(
+        self, build_config: dict[str, Any], field_value: Any, field_name: str | None = None
+    ) -> dict[str, Any]:
         """Update build config based on news source selection."""
         if field_name == "source":
             # Different sources might have different parameter requirements
@@ -135,14 +124,12 @@ class NewsSearchComponent(Component):
     def search_news(self) -> list[Data]:
         try:
             if not self.query.strip():
-                error_message = i18n.t(
-                    'components.data.news_search.errors.empty_query')
+                error_message = i18n.t("components.data.news_search.errors.empty_query")
                 self.status = error_message
                 raise ValueError(error_message)
 
             if not self.api_key.strip():
-                error_message = i18n.t(
-                    'components.data.news_search.errors.missing_api_key')
+                error_message = i18n.t("components.data.news_search.errors.missing_api_key")
                 self.status = error_message
                 raise ValueError(error_message)
 
@@ -157,19 +144,17 @@ class NewsSearchComponent(Component):
             elif self.source == "newsdata":
                 articles = self._search_newsdata()
             else:
-                error_message = i18n.t(
-                    'components.data.news_search.errors.invalid_source', source=self.source)
+                error_message = i18n.t("components.data.news_search.errors.invalid_source", source=self.source)
                 self.status = error_message
                 raise ValueError(error_message)
 
             if not articles:
-                self.status = i18n.t(
-                    'components.data.news_search.errors.no_results')
+                self.status = i18n.t("components.data.news_search.errors.no_results")
                 return []
 
             # Convert to Data objects
             result = []
-            for article in articles[:self.max_results]:
+            for article in articles[: self.max_results]:
                 data_dict = {
                     "title": article.get("title", ""),
                     "description": article.get("description", ""),
@@ -191,14 +176,12 @@ class NewsSearchComponent(Component):
 
                 result.append(Data(data=data_dict, text_key=self.text_key))
 
-            success_message = i18n.t(
-                'components.data.news_search.success.found_articles', count=len(result))
+            success_message = i18n.t("components.data.news_search.success.found_articles", count=len(result))
             self.status = success_message
             return result
 
         except Exception as e:
-            error_message = i18n.t(
-                'components.data.news_search.errors.search_error', error=str(e))
+            error_message = i18n.t("components.data.news_search.errors.search_error", error=str(e))
             self.status = error_message
             raise ValueError(error_message) from e
 
@@ -206,8 +189,7 @@ class NewsSearchComponent(Component):
         """Search using NewsAPI."""
         url = "https://newsapi.org/v2/everything"
 
-        from_date = (datetime.now() - timedelta(days=self.days_back)
-                     ).strftime('%Y-%m-%d')
+        from_date = (datetime.now() - timedelta(days=self.days_back)).strftime("%Y-%m-%d")
 
         params = {
             "q": self.query,
@@ -215,7 +197,7 @@ class NewsSearchComponent(Component):
             "language": self.language,
             "sortBy": "publishedAt",
             "pageSize": min(self.max_results, 100),
-            "apiKey": self.api_key
+            "apiKey": self.api_key,
         }
 
         response = requests.get(url, params=params, timeout=30)
@@ -246,7 +228,7 @@ class NewsSearchComponent(Component):
             "lang": self.language,
             "country": self.country,
             "max": min(self.max_results, 100),
-            "token": self.api_key
+            "token": self.api_key,
         }
 
         response = requests.get(url, params=params, timeout=30)
@@ -278,7 +260,7 @@ class NewsSearchComponent(Component):
             "country": self.country,
             "category": self.category,
             "size": min(self.max_results, 50),
-            "apikey": self.api_key
+            "apikey": self.api_key,
         }
 
         response = requests.get(url, params=params, timeout=30)

@@ -1,8 +1,8 @@
-import os
-import i18n
 import json
+import os
 from typing import Any
 
+import i18n
 import requests
 from langchain.tools import StructuredTool
 from pydantic import BaseModel, Field
@@ -14,8 +14,8 @@ from lfx.schema.data import Data
 
 
 class NotionPageCreator(LCToolComponent):
-    display_name: str = i18n.t('components.notion.create_page.display_name')
-    description: str = i18n.t('components.notion.create_page.description')
+    display_name: str = i18n.t("components.notion.create_page.display_name")
+    description: str = i18n.t("components.notion.create_page.description")
     documentation: str = "https://docs.langflow.org/integrations/notion/page-create"
     icon = "NotionDirectoryLoader"
 
@@ -24,34 +24,28 @@ class NotionPageCreator(LCToolComponent):
     inputs = [
         StrInput(
             name="database_id",
-            display_name=i18n.t(
-                'components.notion.create_page.database_id.display_name'),
-            info=i18n.t('components.notion.create_page.database_id.info'),
+            display_name=i18n.t("components.notion.create_page.database_id.display_name"),
+            info=i18n.t("components.notion.create_page.database_id.info"),
         ),
         SecretStrInput(
             name="notion_secret",
-            display_name=i18n.t(
-                'components.notion.create_page.notion_secret.display_name'),
-            info=i18n.t('components.notion.create_page.notion_secret.info'),
+            display_name=i18n.t("components.notion.create_page.notion_secret.display_name"),
+            info=i18n.t("components.notion.create_page.notion_secret.info"),
             required=True,
         ),
         MultilineInput(
             name="properties_json",
-            display_name=i18n.t(
-                'components.notion.create_page.properties_json.display_name'),
-            info=i18n.t('components.notion.create_page.properties_json.info'),
+            display_name=i18n.t("components.notion.create_page.properties_json.display_name"),
+            info=i18n.t("components.notion.create_page.properties_json.info"),
         ),
     ]
 
     class NotionPageCreatorSchema(BaseModel):
-        database_id: str = Field(...,
-                                 description="The ID of the Notion database.")
-        properties_json: str = Field(
-            ..., description="The properties of the new page as a JSON string.")
+        database_id: str = Field(..., description="The ID of the Notion database.")
+        properties_json: str = Field(..., description="The properties of the new page as a JSON string.")
 
     def run_model(self) -> Data:
-        result = self._create_notion_page(
-            self.database_id, self.properties_json)
+        result = self._create_notion_page(self.database_id, self.properties_json)
         if isinstance(result, str):
             # An error occurred, return it as text
             return Data(text=result)
@@ -91,8 +85,7 @@ class NotionPageCreator(LCToolComponent):
         }
 
         try:
-            response = requests.post(
-                "https://api.notion.com/v1/pages", headers=headers, json=data, timeout=10)
+            response = requests.post("https://api.notion.com/v1/pages", headers=headers, json=data, timeout=10)
             response.raise_for_status()
             return response.json()
         except requests.exceptions.RequestException as e:

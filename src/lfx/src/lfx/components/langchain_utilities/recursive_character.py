@@ -1,7 +1,7 @@
 import os
-import i18n
 from typing import Any
 
+import i18n
 from langchain_text_splitters import RecursiveCharacterTextSplitter, TextSplitter
 
 from lfx.base.textsplitters.model import LCTextSplitterComponent
@@ -11,10 +11,8 @@ from lfx.utils.util import unescape_string
 
 class RecursiveCharacterTextSplitterComponent(LCTextSplitterComponent):
     ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
-    display_name: str = i18n.t(
-        'components.langchain_utilities.recursive_character.display_name')
-    description: str = i18n.t(
-        'components.langchain_utilities.recursive_character.description')
+    display_name: str = i18n.t("components.langchain_utilities.recursive_character.display_name")
+    description: str = i18n.t("components.langchain_utilities.recursive_character.description")
     documentation: str = "https://docs.langflow.org/components-processing"
     name = "RecursiveCharacterTextSplitter"
     icon = "LangChain"
@@ -22,35 +20,27 @@ class RecursiveCharacterTextSplitterComponent(LCTextSplitterComponent):
     inputs = [
         IntInput(
             name="chunk_size",
-            display_name=i18n.t(
-                'components.langchain_utilities.recursive_character.chunk_size.display_name'),
-            info=i18n.t(
-                'components.langchain_utilities.recursive_character.chunk_size.info'),
+            display_name=i18n.t("components.langchain_utilities.recursive_character.chunk_size.display_name"),
+            info=i18n.t("components.langchain_utilities.recursive_character.chunk_size.info"),
             value=1000,
         ),
         IntInput(
             name="chunk_overlap",
-            display_name=i18n.t(
-                'components.langchain_utilities.recursive_character.chunk_overlap.display_name'),
-            info=i18n.t(
-                'components.langchain_utilities.recursive_character.chunk_overlap.info'),
+            display_name=i18n.t("components.langchain_utilities.recursive_character.chunk_overlap.display_name"),
+            info=i18n.t("components.langchain_utilities.recursive_character.chunk_overlap.info"),
             value=200,
         ),
         DataInput(
             name="data_input",
-            display_name=i18n.t(
-                'components.langchain_utilities.recursive_character.data_input.display_name'),
-            info=i18n.t(
-                'components.langchain_utilities.recursive_character.data_input.info'),
+            display_name=i18n.t("components.langchain_utilities.recursive_character.data_input.display_name"),
+            info=i18n.t("components.langchain_utilities.recursive_character.data_input.info"),
             input_types=["Document", "Data"],
             required=True,
         ),
         MessageTextInput(
             name="separators",
-            display_name=i18n.t(
-                'components.langchain_utilities.recursive_character.separators.display_name'),
-            info=i18n.t(
-                'components.langchain_utilities.recursive_character.separators.info'),
+            display_name=i18n.t("components.langchain_utilities.recursive_character.separators.display_name"),
+            info=i18n.t("components.langchain_utilities.recursive_character.separators.info"),
             is_list=True,
         ),
     ]

@@ -1,4 +1,5 @@
 import os
+
 import i18n
 from langchain_community.chat_models import ChatMaritalk
 
@@ -9,8 +10,8 @@ from lfx.inputs.inputs import DropdownInput, FloatInput, IntInput, SecretStrInpu
 
 
 class MaritalkModelComponent(LCModelComponent):
-    display_name = i18n.t('components.maritalk.maritalk.display_name')
-    description = i18n.t('components.maritalk.maritalk.description')
+    display_name = i18n.t("components.maritalk.maritalk.display_name")
+    description = i18n.t("components.maritalk.maritalk.description")
     icon = "Maritalk"
     name = "Maritalk"
 
@@ -20,33 +21,29 @@ class MaritalkModelComponent(LCModelComponent):
         *LCModelComponent.get_base_inputs(),
         IntInput(
             name="max_tokens",
-            display_name=i18n.t(
-                'components.maritalk.maritalk.max_tokens.display_name'),
+            display_name=i18n.t("components.maritalk.maritalk.max_tokens.display_name"),
             advanced=True,
             value=512,
-            info=i18n.t('components.maritalk.maritalk.max_tokens.info'),
+            info=i18n.t("components.maritalk.maritalk.max_tokens.info"),
         ),
         DropdownInput(
             name="model_name",
-            display_name=i18n.t(
-                'components.maritalk.maritalk.model_name.display_name'),
+            display_name=i18n.t("components.maritalk.maritalk.model_name.display_name"),
             advanced=False,
             options=["sabia-2-small", "sabia-2-medium"],
             value=["sabia-2-small"],
         ),
         SecretStrInput(
             name="api_key",
-            display_name=i18n.t(
-                'components.maritalk.maritalk.api_key.display_name'),
-            info=i18n.t('components.maritalk.maritalk.api_key.info'),
+            display_name=i18n.t("components.maritalk.maritalk.api_key.display_name"),
+            info=i18n.t("components.maritalk.maritalk.api_key.info"),
             advanced=False,
         ),
         FloatInput(
             name="temperature",
-            display_name=i18n.t(
-                'components.maritalk.maritalk.temperature.display_name'),
+            display_name=i18n.t("components.maritalk.maritalk.temperature.display_name"),
             value=0.1,
-            range_spec=RangeSpec(min=0, max=1)
+            range_spec=RangeSpec(min=0, max=1),
         ),
     ]
 

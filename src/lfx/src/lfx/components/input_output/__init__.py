@@ -14,6 +14,7 @@ _dynamic_imports = {
     "ETLAPIOutputComponent": "api_output",
 }
 
+
 def __getattr__(attr_name: str):
     if attr_name not in _dynamic_imports:
         msg = f"module {__name__!r} has no attribute {attr_name!r}"
@@ -23,5 +24,6 @@ def __getattr__(attr_name: str):
     component_class = getattr(module, attr_name)
     globals()[attr_name] = component_class
     return component_class
+
 
 __all__ = list(_dynamic_imports.keys())

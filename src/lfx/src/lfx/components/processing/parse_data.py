@@ -1,4 +1,5 @@
 import os
+
 import i18n
 
 from lfx.custom.custom_component.component import Component
@@ -10,13 +11,12 @@ from lfx.schema.message import Message
 
 class ParseDataComponent(Component):
     ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
-    display_name = i18n.t('components.processing.parse_data.display_name')
-    description = i18n.t('components.processing.parse_data.description')
+    display_name = i18n.t("components.processing.parse_data.display_name")
+    description = i18n.t("components.processing.parse_data.description")
     icon = "message-square"
     name = "ParseData"
     legacy = True
-    replacement = ["processing.DataOperations",
-                   "processing.TypeConverterComponent"]
+    replacement = ["processing.DataOperations", "processing.TypeConverterComponent"]
     metadata = {
         "legacy_name": "Parse Data",
     }
@@ -24,45 +24,38 @@ class ParseDataComponent(Component):
     inputs = [
         DataInput(
             name="data",
-            display_name=i18n.t(
-                'components.processing.parse_data.data.display_name'),
-            info=i18n.t('components.processing.parse_data.data.info'),
+            display_name=i18n.t("components.processing.parse_data.data.display_name"),
+            info=i18n.t("components.processing.parse_data.data.info"),
             is_list=True,
             required=True,
         ),
         MultilineInput(
             name="template",
-            display_name=i18n.t(
-                'components.processing.parse_data.template.display_name'),
-            info=i18n.t('components.processing.parse_data.template.info'),
+            display_name=i18n.t("components.processing.parse_data.template.display_name"),
+            info=i18n.t("components.processing.parse_data.template.info"),
             value="{text}",
             required=True,
         ),
         StrInput(
             name="sep",
-            display_name=i18n.t(
-                'components.processing.parse_data.sep.display_name'),
-            info=i18n.t('components.processing.parse_data.sep.info'),
+            display_name=i18n.t("components.processing.parse_data.sep.display_name"),
+            info=i18n.t("components.processing.parse_data.sep.info"),
             advanced=True,
-            value="\n"
+            value="\n",
         ),
     ]
 
     outputs = [
         Output(
-            display_name=i18n.t(
-                'components.processing.parse_data.outputs.message.display_name'),
+            display_name=i18n.t("components.processing.parse_data.outputs.message.display_name"),
             name="text",
-            info=i18n.t(
-                'components.processing.parse_data.outputs.message.info'),
+            info=i18n.t("components.processing.parse_data.outputs.message.info"),
             method="parse_data",
         ),
         Output(
-            display_name=i18n.t(
-                'components.processing.parse_data.outputs.data_list.display_name'),
+            display_name=i18n.t("components.processing.parse_data.outputs.data_list.display_name"),
             name="data_list",
-            info=i18n.t(
-                'components.processing.parse_data.outputs.data_list.info'),
+            info=i18n.t("components.processing.parse_data.outputs.data_list.info"),
             method="parse_data_as_list",
         ),
     ]
@@ -74,8 +67,7 @@ class ParseDataComponent(Component):
 
             # Validate data
             if not data or all(item is None for item in data):
-                error_msg = i18n.t(
-                    'components.processing.parse_data.errors.empty_data')
+                error_msg = i18n.t("components.processing.parse_data.errors.empty_data")
                 self.status = error_msg
                 raise ValueError(error_msg)
 
@@ -88,8 +80,7 @@ class ParseDataComponent(Component):
             return data, template, sep
 
         except Exception as e:
-            error_msg = i18n.t(
-                'components.processing.parse_data.errors.argument_validation_failed', error=str(e))
+            error_msg = i18n.t("components.processing.parse_data.errors.argument_validation_failed", error=str(e))
             self.status = error_msg
             raise ValueError(error_msg) from e
 
@@ -99,21 +90,22 @@ class ParseDataComponent(Component):
             data, template, sep = self._clean_args()
 
             if not data:
-                warning_msg = i18n.t(
-                    'components.processing.parse_data.warnings.no_valid_data')
+                warning_msg = i18n.t("components.processing.parse_data.warnings.no_valid_data")
                 self.status = warning_msg
                 return Message(text="")
 
             result_string = data_to_text(template, data, sep)
 
             if not result_string:
-                warning_msg = i18n.t(
-                    'components.processing.parse_data.warnings.empty_result')
+                warning_msg = i18n.t("components.processing.parse_data.warnings.empty_result")
                 self.status = warning_msg
                 return Message(text="")
 
-            success_msg = i18n.t('components.processing.parse_data.success.data_parsed_to_message',
-                                 count=len(data), length=len(result_string))
+            success_msg = i18n.t(
+                "components.processing.parse_data.success.data_parsed_to_message",
+                count=len(data),
+                length=len(result_string),
+            )
             self.status = success_msg
 
             return Message(text=result_string)
@@ -122,8 +114,7 @@ class ParseDataComponent(Component):
             # Re-raise ValueError as is (already has i18n message)
             raise
         except Exception as e:
-            error_msg = i18n.t(
-                'components.processing.parse_data.errors.parse_to_message_failed', error=str(e))
+            error_msg = i18n.t("components.processing.parse_data.errors.parse_to_message_failed", error=str(e))
             self.status = error_msg
             raise ValueError(error_msg) from e
 
@@ -133,8 +124,7 @@ class ParseDataComponent(Component):
             data, template, _ = self._clean_args()
 
             if not data:
-                warning_msg = i18n.t(
-                    'components.processing.parse_data.warnings.no_valid_data')
+                warning_msg = i18n.t("components.processing.parse_data.warnings.no_valid_data")
                 self.status = warning_msg
                 return []
 
@@ -144,8 +134,7 @@ class ParseDataComponent(Component):
             for item, text in zip(data_list, text_list, strict=True):
                 item.set_text(text)
 
-            success_msg = i18n.t('components.processing.parse_data.success.data_parsed_to_list',
-                                 count=len(data_list))
+            success_msg = i18n.t("components.processing.parse_data.success.data_parsed_to_list", count=len(data_list))
             self.status = success_msg
 
             return data_list
@@ -154,7 +143,6 @@ class ParseDataComponent(Component):
             # Re-raise ValueError as is (already has i18n message)
             raise
         except Exception as e:
-            error_msg = i18n.t(
-                'components.processing.parse_data.errors.parse_to_list_failed', error=str(e))
+            error_msg = i18n.t("components.processing.parse_data.errors.parse_to_list_failed", error=str(e))
             self.status = error_msg
             raise ValueError(error_msg) from e

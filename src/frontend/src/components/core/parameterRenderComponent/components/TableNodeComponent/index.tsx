@@ -6,8 +6,13 @@ import type { AgGridReact } from "ag-grid-react";
 import { cloneDeep } from "lodash";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { mutateTemplate } from "@/CustomNodes/helpers/mutate-template";
 import ShadTooltip from "@/components/common/shadTooltipComponent";
+import { previewUpstreamData } from "@/controllers/API/datasources";
+import { usePostTemplateValue } from "@/controllers/API/queries/nodes/use-post-template-value";
 import TableModal from "@/modals/tableModal";
+import useAlertStore from "@/stores/alertStore";
+import useFlowStore from "@/stores/flowStore";
 import { isMarkdownTable } from "@/utils/markdownUtils";
 import { FormatColumns, generateBackendColumnsFromValue } from "@/utils/utils";
 import { ForwardedIconComponent } from "../../../../common/genericIconComponent";
@@ -26,11 +31,27 @@ export default function TableNodeComponent({
   table_options,
   trigger_icon = "Table",
   table_icon,
+  componentName,
   ...props
-}: InputProps<any[], TableComponentType>): JSX.Element {
+}: InputProps<any[], TableComponentType> & {
+  componentName?: string;
+}): JSX.Element {
   const { t } = useTranslation();
 
-  const { trigger_text = t("components.table.openTable") } = props;
+  const {
+    trigger_text = t("components.table.openTable"),
+    nodeId,
+    nodeClass,
+    handleNodeClass,
+  } = props;
+
+  // API hooks for action button triggers
+  const postTemplateValue = usePostTemplateValue({
+    parameterId: id,
+    nodeId: nodeId,
+    node: nodeClass,
+  });
+  const setErrorData = useAlertStore((state) => state.setErrorData);
 
   const dataTypeDefinitions: {
     [cellDataType: string]: DataTypeDefinition<any>;
@@ -134,6 +155,98 @@ export default function TableNodeComponent({
       newRow[column.name] = column.default ?? null; // Use the default value if available
     });
     setTempValue([...tempValue, newRow]);
+  }
+
+  // Handle action button clicks
+  async function handleActionButton(actionName: string) {
+    if (!nodeId || !nodeClass || !handleNodeClass) {
+      return;
+    }
+
+    try {
+      // Check if this action requires preview upstream data
+      const actionButton = table_options?.action_buttons?.find(
+        (btn) => btn.name === actionName,
+      );
+      const previewConfig = actionButton?.preview_upstream;
+
+      // If preview_upstream is configured and enabled, fetch upstream data first
+      if (previewConfig?.enabled) {
+        const currentFlowId = useFlowStore.getState().currentFlowId;
+        if (!currentFlowId) {
+          setErrorData({
+            title: t("errors.flowNotFound"),
+            list: [t("errors.saveFlowFirst")],
+          });
+          return;
+        }
+
+        const previewResponse = await previewUpstreamData(
+          currentFlowId,
+          nodeId,
+          {
+            input_name: previewConfig.input_name,
+            sample_size: previewConfig.sample_size || 10,
+          },
+        );
+
+        if (!previewResponse.success) {
+          setErrorData({
+            title: t("errors.previewFailed"),
+            list: [previewResponse.error || t("errors.unknownError")],
+          });
+          return;
+        }
+
+        // Transform field data using custom transform function if provided
+        // Otherwise use default transformation (field_name -> field_name)
+        let transformedData;
+        if (previewConfig.transform) {
+          transformedData = previewConfig.transform(previewResponse.fields);
+        } else {
+          transformedData = previewResponse.fields.map((field) => ({
+            source_field: field.field_name,
+            target_field: field.field_name,
+            description: "",
+          }));
+        }
+
+        // Call mutateTemplate with transformed data
+        await mutateTemplate(
+          transformedData,
+          nodeId,
+          nodeClass,
+          handleNodeClass,
+          postTemplateValue,
+          setErrorData,
+          componentName || id,
+          undefined,
+          undefined,
+          actionName,
+        );
+      } else {
+        // No preview needed - use original behavior
+        await mutateTemplate(
+          actionName,
+          nodeId,
+          nodeClass,
+          handleNodeClass,
+          postTemplateValue,
+          setErrorData,
+          componentName || id,
+          undefined,
+          undefined,
+          actionName,
+        );
+      }
+    } catch (error) {
+      setErrorData({
+        title: t("errors.actionFailed"),
+        list: [
+          error instanceof Error ? error.message : t("errors.unknownError"),
+        ],
+      });
+    }
   }
 
   function updateComponent() {
@@ -282,6 +395,7 @@ export default function TableNodeComponent({
           pagination={!table_options?.hide_options}
           addRow={addRow}
           onDelete={deleteRow}
+          onActionButton={handleActionButton}
           gridOptions={{
             ensureDomOrder: true,
             suppressRowClickSelection: true,

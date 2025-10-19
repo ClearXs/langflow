@@ -1,9 +1,8 @@
-import os
-import i18n
 from typing import Any
 from urllib.parse import urljoin
 
 import httpx
+import i18n
 
 from lfx.base.embeddings.model import LCEmbeddingsModel
 from lfx.field_typing import Embeddings
@@ -12,13 +11,11 @@ from lfx.io import FloatInput, MessageTextInput
 
 
 class LMStudioEmbeddingsComponent(LCEmbeddingsModel):
-    display_name: str = i18n.t(
-        'components.lmstudio.lmstudioembeddings.display_name')
-    description: str = i18n.t(
-        'components.lmstudio.lmstudioembeddings.description')
+    display_name: str = i18n.t("components.lmstudio.lmstudioembeddings.display_name")
+    description: str = i18n.t("components.lmstudio.lmstudioembeddings.description")
     icon = "LMStudio"
 
-    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
+    ignore: bool = True
 
     async def update_build_config(self, build_config: dict, field_value: Any, field_name: str | None = None):  # noqa: ARG002
         if field_name == "model":
@@ -50,39 +47,33 @@ class LMStudioEmbeddingsComponent(LCEmbeddingsModel):
     inputs = [
         DropdownInput(
             name="model",
-            display_name=i18n.t(
-                'components.lmstudio.lmstudioembeddings.model.display_name'),
+            display_name=i18n.t("components.lmstudio.lmstudioembeddings.model.display_name"),
             advanced=False,
             refresh_button=True,
             required=True,
-            info=i18n.t('components.lmstudio.lmstudioembeddings.model.info'),
+            info=i18n.t("components.lmstudio.lmstudioembeddings.model.info"),
         ),
         MessageTextInput(
             name="base_url",
-            display_name=i18n.t(
-                'components.lmstudio.lmstudioembeddings.base_url.display_name'),
+            display_name=i18n.t("components.lmstudio.lmstudioembeddings.base_url.display_name"),
             refresh_button=True,
             value="http://localhost:1234/v1",
             required=True,
-            info=i18n.t(
-                'components.lmstudio.lmstudioembeddings.base_url.info'),
+            info=i18n.t("components.lmstudio.lmstudioembeddings.base_url.info"),
         ),
         SecretStrInput(
             name="api_key",
-            display_name=i18n.t(
-                'components.lmstudio.lmstudioembeddings.api_key.display_name'),
+            display_name=i18n.t("components.lmstudio.lmstudioembeddings.api_key.display_name"),
             advanced=True,
             value="LMSTUDIO_API_KEY",
-            info=i18n.t('components.lmstudio.lmstudioembeddings.api_key.info'),
+            info=i18n.t("components.lmstudio.lmstudioembeddings.api_key.info"),
         ),
         FloatInput(
             name="temperature",
-            display_name=i18n.t(
-                'components.lmstudio.lmstudioembeddings.temperature.display_name'),
+            display_name=i18n.t("components.lmstudio.lmstudioembeddings.temperature.display_name"),
             value=0.1,
             advanced=True,
-            info=i18n.t(
-                'components.lmstudio.lmstudioembeddings.temperature.info'),
+            info=i18n.t("components.lmstudio.lmstudioembeddings.temperature.info"),
         ),
     ]
 

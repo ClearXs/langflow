@@ -1,7 +1,7 @@
 import os
-import i18n
 from pathlib import Path
 
+import i18n
 import yaml
 from langchain.agents import AgentExecutor
 from langchain_community.agent_toolkits import create_json_agent
@@ -14,10 +14,8 @@ from lfx.inputs.inputs import FileInput, HandleInput
 
 class JsonAgentComponent(LCAgentComponent):
     ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
-    display_name = i18n.t(
-        'components.langchain_utilities.json_agent.display_name')
-    description = i18n.t(
-        'components.langchain_utilities.json_agent.description')
+    display_name = i18n.t("components.langchain_utilities.json_agent.display_name")
+    description = i18n.t("components.langchain_utilities.json_agent.description")
     name = "JsonAgent"
     legacy: bool = True
     icon = "LangChain"
@@ -26,19 +24,17 @@ class JsonAgentComponent(LCAgentComponent):
         *LCAgentComponent.get_base_inputs(),
         HandleInput(
             name="llm",
-            display_name=i18n.t(
-                'components.langchain_utilities.json_agent.llm.display_name'),
+            display_name=i18n.t("components.langchain_utilities.json_agent.llm.display_name"),
             input_types=["LanguageModel"],
             required=True,
-            info=i18n.t('components.langchain_utilities.json_agent.llm.info'),
+            info=i18n.t("components.langchain_utilities.json_agent.llm.info"),
         ),
         FileInput(
             name="path",
-            display_name=i18n.t(
-                'components.langchain_utilities.json_agent.path.display_name'),
+            display_name=i18n.t("components.langchain_utilities.json_agent.path.display_name"),
             file_types=["json", "yaml", "yml"],
             required=True,
-            info=i18n.t('components.langchain_utilities.json_agent.path.info'),
+            info=i18n.t("components.langchain_utilities.json_agent.path.info"),
         ),
     ]
 

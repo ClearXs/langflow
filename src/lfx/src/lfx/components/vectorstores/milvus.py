@@ -1,5 +1,7 @@
 import os
+
 import i18n
+
 from lfx.base.vectorstores.model import LCVectorStoreComponent, check_cached_vector_store
 from lfx.helpers.data import docs_to_data
 from lfx.io import (
@@ -18,8 +20,8 @@ from lfx.schema.data import Data
 class MilvusVectorStoreComponent(LCVectorStoreComponent):
     """Milvus vector store with search capabilities."""
 
-    display_name: str = i18n.t('components.vectorstores.milvus.display_name')
-    description: str = i18n.t('components.vectorstores.milvus.description')
+    display_name: str = i18n.t("components.vectorstores.milvus.display_name")
+    description: str = i18n.t("components.vectorstores.milvus.description")
     name = "Milvus"
     icon = "Milvus"
 
@@ -28,99 +30,81 @@ class MilvusVectorStoreComponent(LCVectorStoreComponent):
     inputs = [
         StrInput(
             name="collection_name",
-            display_name=i18n.t(
-                'components.vectorstores.milvus.collection_name.display_name'),
-            value="langflow"
+            display_name=i18n.t("components.vectorstores.milvus.collection_name.display_name"),
+            value="langflow",
         ),
         StrInput(
             name="collection_description",
-            display_name=i18n.t(
-                'components.vectorstores.milvus.collection_description.display_name'),
-            value=""
+            display_name=i18n.t("components.vectorstores.milvus.collection_description.display_name"),
+            value="",
         ),
         StrInput(
             name="uri",
-            display_name=i18n.t(
-                'components.vectorstores.milvus.uri.display_name'),
+            display_name=i18n.t("components.vectorstores.milvus.uri.display_name"),
             value="http://localhost:19530",
         ),
         SecretStrInput(
             name="password",
-            display_name=i18n.t(
-                'components.vectorstores.milvus.password.display_name'),
+            display_name=i18n.t("components.vectorstores.milvus.password.display_name"),
             value="",
-            info=i18n.t('components.vectorstores.milvus.password.info'),
+            info=i18n.t("components.vectorstores.milvus.password.info"),
         ),
         DictInput(
             name="connection_args",
-            display_name=i18n.t(
-                'components.vectorstores.milvus.connection_args.display_name'),
-            advanced=True
+            display_name=i18n.t("components.vectorstores.milvus.connection_args.display_name"),
+            advanced=True,
         ),
         StrInput(
             name="primary_field",
-            display_name=i18n.t(
-                'components.vectorstores.milvus.primary_field.display_name'),
-            value="pk"
+            display_name=i18n.t("components.vectorstores.milvus.primary_field.display_name"),
+            value="pk",
         ),
         StrInput(
             name="text_field",
-            display_name=i18n.t(
-                'components.vectorstores.milvus.text_field.display_name'),
-            value="text"
+            display_name=i18n.t("components.vectorstores.milvus.text_field.display_name"),
+            value="text",
         ),
         StrInput(
             name="vector_field",
-            display_name=i18n.t(
-                'components.vectorstores.milvus.vector_field.display_name'),
-            value="vector"
+            display_name=i18n.t("components.vectorstores.milvus.vector_field.display_name"),
+            value="vector",
         ),
         DropdownInput(
             name="consistency_level",
-            display_name=i18n.t(
-                'components.vectorstores.milvus.consistency_level.display_name'),
+            display_name=i18n.t("components.vectorstores.milvus.consistency_level.display_name"),
             options=["Bounded", "Session", "Strong", "Eventual"],
             value="Session",
             advanced=True,
         ),
         DictInput(
             name="index_params",
-            display_name=i18n.t(
-                'components.vectorstores.milvus.index_params.display_name'),
-            advanced=True
+            display_name=i18n.t("components.vectorstores.milvus.index_params.display_name"),
+            advanced=True,
         ),
         DictInput(
             name="search_params",
-            display_name=i18n.t(
-                'components.vectorstores.milvus.search_params.display_name'),
-            advanced=True
+            display_name=i18n.t("components.vectorstores.milvus.search_params.display_name"),
+            advanced=True,
         ),
         BoolInput(
             name="drop_old",
-            display_name=i18n.t(
-                'components.vectorstores.milvus.drop_old.display_name'),
+            display_name=i18n.t("components.vectorstores.milvus.drop_old.display_name"),
             value=False,
-            advanced=True
+            advanced=True,
         ),
         FloatInput(
-            name="timeout",
-            display_name=i18n.t(
-                'components.vectorstores.milvus.timeout.display_name'),
-            advanced=True
+            name="timeout", display_name=i18n.t("components.vectorstores.milvus.timeout.display_name"), advanced=True
         ),
         *LCVectorStoreComponent.inputs,
         HandleInput(
             name="embedding",
-            display_name=i18n.t(
-                'components.vectorstores.milvus.embedding.display_name'),
-            input_types=["Embeddings"]
+            display_name=i18n.t("components.vectorstores.milvus.embedding.display_name"),
+            input_types=["Embeddings"],
         ),
         IntInput(
             name="number_of_results",
-            display_name=i18n.t(
-                'components.vectorstores.milvus.number_of_results.display_name'),
-            info=i18n.t(
-                'components.vectorstores.milvus.number_of_results.info'),
+            display_name=i18n.t("components.vectorstores.milvus.number_of_results.display_name"),
+            info=i18n.t("components.vectorstores.milvus.number_of_results.info"),
             value=4,
             advanced=True,
         ),

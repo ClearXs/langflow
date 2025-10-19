@@ -8,7 +8,6 @@ if TYPE_CHECKING:
     from lfx.components.data.api_request import APIRequestComponent
     from lfx.components.data.csv_to_data import CSVToDataComponent
     from lfx.components.data.directory import DirectoryComponent
-    from lfx.components.data.field_selector import FieldSelectorComponent
     from lfx.components.data.file import FileComponent
     from lfx.components.data.json_to_data import JSONToDataComponent
     from lfx.components.data.news_search import NewsSearchComponent
@@ -21,7 +20,6 @@ _dynamic_imports = {
     "APIRequestComponent": "api_request",
     "CSVToDataComponent": "csv_to_data",
     "DirectoryComponent": "directory",
-    "FieldSelectorComponent": "field_selector",
     "FileComponent": "file",
     "JSONToDataComponent": "json_to_data",
     "NewsSearchComponent": "news_search",
@@ -34,7 +32,6 @@ __all__ = [
     "APIRequestComponent",
     "CSVToDataComponent",
     "DirectoryComponent",
-    "FieldSelectorComponent",
     "FileComponent",
     "JSONToDataComponent",
     "NewsSearchComponent",
@@ -51,8 +48,7 @@ def __getattr__(attr_name: str) -> Any:
         msg = f"module '{__name__}' has no attribute '{attr_name}'"
         raise AttributeError(msg)
     try:
-        result = import_mod(
-            attr_name, _dynamic_imports[attr_name], __spec__.parent)
+        result = import_mod(attr_name, _dynamic_imports[attr_name], __spec__.parent)
     except (ModuleNotFoundError, ImportError, AttributeError) as e:
         msg = f"Could not import '{attr_name}' from '{__name__}': {e}"
         raise AttributeError(msg) from e

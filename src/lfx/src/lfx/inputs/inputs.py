@@ -477,6 +477,8 @@ class DropdownInput(BaseInputMixin, DropDownMixin, MetadataTraceMixin, ToolModeM
         combobox (CoalesceBool): Variable that defines if the user can insert custom values in the dropdown.
         toggle (CoalesceBool): Variable that defines if a toggle button is shown.
         toggle_value (CoalesceBool | None): Variable that defines the value of the toggle button. Defaults to None.
+        action_button (dict[str, Any] | None): Optional custom action button configuration.
+            Should include: label, icon, action.
     """
 
     field_type: SerializableFieldTypes = FieldTypes.TEXT
@@ -488,6 +490,7 @@ class DropdownInput(BaseInputMixin, DropDownMixin, MetadataTraceMixin, ToolModeM
     toggle: bool = False
     toggle_disable: bool | None = None
     toggle_value: bool | None = None
+    action_button: dict[str, Any] | None = None
 
 
 class ConnectionInput(BaseInputMixin, ConnectionMixin, MetadataTraceMixin, ToolModeMixin):

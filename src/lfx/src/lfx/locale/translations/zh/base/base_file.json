@@ -1,0 +1,30 @@
+{
+  "path": {
+    "display_name": "文件",
+    "info": "要加载内容的文件路径。"
+  },
+  "file_path": {
+    "display_name": "服务器文件路径",
+    "info": "包含'file_path'属性指向服务器文件的数据对象,或包含文件路径的消息对象。优先于'路径'但支持相同的文件类型。"
+  },
+  "separator": {
+    "display_name": "分隔符",
+    "info": "指定在消息格式中多个输出之间使用的分隔符。"
+  },
+  "silent_errors": {
+    "display_name": "静默错误",
+    "info": "如果为true,错误将不会引发异常。"
+  },
+  "delete_server_file_after_processing": {
+    "display_name": "处理后删除服务器文件",
+    "info": "如果为true,处理后将删除服务器文件路径。"
+  },
+  "ignore_unsupported_extensions": {
+    "display_name": "忽略不支持的扩展名",
+    "info": "如果为true,将不会处理不支持扩展名的文件。"
+  },
+  "ignore_unspecified_files": {
+    "display_name": "忽略未指定的文件",
+    "info": "如果为true,将忽略没有'file_path'属性的数据。"
+  }
+}

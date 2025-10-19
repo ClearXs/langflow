@@ -13,7 +13,9 @@ import { CustomProductSelector } from "@/customization/components/custom-product
 import { ENABLE_DATASTAX_LANGFLOW } from "@/customization/feature-flags";
 import { useCustomNavigate } from "@/customization/hooks/use-custom-navigate";
 import useTheme from "@/customization/hooks/use-custom-theme";
+import { useIsEmbedded } from "@/hooks/use-iframe-params";
 import useAlertStore from "@/stores/alertStore";
+import { cn } from "@/utils/utils";
 import FlowMenu from "./components/FlowMenu";
 
 export default function AppHeader(): JSX.Element {
@@ -23,6 +25,8 @@ export default function AppHeader(): JSX.Element {
   const notificationRef = useRef<HTMLButtonElement | null>(null);
   const notificationContentRef = useRef<HTMLDivElement | null>(null);
   useTheme();
+
+  const isEmbedded = useIsEmbedded();
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -51,7 +55,10 @@ export default function AppHeader(): JSX.Element {
 
   return (
     <div
-      className={`z-10 flex h-[48px] w-full items-center justify-between border-b pr-5 pl-2.5 dark:bg-background`}
+      className={cn(
+        `z-10 flex w-full items-center justify-between border-b pr-5 pl-2.5 dark:bg-background`,
+        isEmbedded ? "h-0 overflow-hidden border-0 p-0" : "h-[48px]",
+      )}
       data-testid="app-header"
     >
       {/* Left Section */}

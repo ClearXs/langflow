@@ -1,70 +1,271 @@
 from typing import Any
+
 import i18n
 import pandas as pd
 
 from lfx.custom.custom_component.component import Component
-from lfx.io import DataInput, TableInput, BoolInput, Output
+from lfx.io import BoolInput, DataInput, Output, TableInput
+from lfx.log.logger import logger
 from lfx.schema import Data
 
 
 class ETLFieldNameMappingComponent(Component):
-    display_name = i18n.t('components.manipulations.field_name_mapping.display_name')
-    description = i18n.t('components.manipulations.field_name_mapping.description')
+    display_name = i18n.t("components.manipulations.field_name_mapping.display_name")
+    description = i18n.t("components.manipulations.field_name_mapping.description")
     icon = "shuffle"
     name = "ETLFieldNameMapping"
 
     inputs = [
         DataInput(
             name="data_input",
-            display_name=i18n.t('components.manipulations.field_name_mapping.data_input.display_name'),
-            info=i18n.t('components.manipulations.field_name_mapping.data_input.info'),
+            display_name=i18n.t("components.manipulations.field_name_mapping.data_input.display_name"),
+            info=i18n.t("components.manipulations.field_name_mapping.data_input.info"),
             is_list=True,
-            required=True
+            required=True,
         ),
         TableInput(
             name="field_mappings",
-            display_name=i18n.t('components.manipulations.field_name_mapping.field_mappings.display_name'),
-            info=i18n.t('components.manipulations.field_name_mapping.field_mappings.info'),
+            display_name=i18n.t("components.manipulations.field_name_mapping.field_mappings.display_name"),
+            info=i18n.t("components.manipulations.field_name_mapping.field_mappings.info"),
             table_schema=[
-                {"name": "source_field", "display_name": "Source Field", "type": "str"},
-                {"name": "target_field", "display_name": "Target Field", "type": "str"}
+                {
+                    "name": "source_field",
+                    "display_name": i18n.t("components.manipulations.field_name_mapping.field_mappings.source_field"),
+                    "type": "str",
+                    "description": i18n.t(
+                        "components.manipulations.field_name_mapping.field_mappings.source_field_desc"
+                    ),
+                },
+                {
+                    "name": "target_field",
+                    "display_name": i18n.t("components.manipulations.field_name_mapping.field_mappings.target_field"),
+                    "type": "str",
+                    "description": i18n.t(
+                        "components.manipulations.field_name_mapping.field_mappings.target_field_desc"
+                    ),
+                },
+                {
+                    "name": "description",
+                    "display_name": i18n.t("components.manipulations.field_name_mapping.field_mappings.description"),
+                    "type": "str",
+                    "description": i18n.t(
+                        "components.manipulations.field_name_mapping.field_mappings.description_desc"
+                    ),
+                },
             ],
             value=[],
-            required=True
+            required=True,
+            table_options={
+                "action_buttons": [
+                    {
+                        "name": "analyze_fields",
+                        "label": i18n.t("components.manipulations.field_name_mapping.field_mappings.analyze_button"),
+                        "icon": "RefreshCw",
+                        "position": "top",
+                    }
+                ],
+            },
         ),
         BoolInput(
             name="drop_unmapped",
-            display_name=i18n.t('components.manipulations.field_name_mapping.drop_unmapped.display_name'),
-            info=i18n.t('components.manipulations.field_name_mapping.drop_unmapped.info'),
+            display_name=i18n.t("components.manipulations.field_name_mapping.drop_unmapped.display_name"),
+            info=i18n.t("components.manipulations.field_name_mapping.drop_unmapped.info"),
             value=False,
-            advanced=True
-        )
+            advanced=True,
+        ),
     ]
 
     outputs = [
-        Output(name="data", display_name="Mapped Data", method="map_field_names")
+        Output(
+            name="data",
+            display_name=i18n.t("components.manipulations.field_name_mapping.outputs.data.display_name"),
+            method="map_field_names",
+        )
     ]
+
+    async def update_build_config(
+        self,
+        build_config: dict,
+        field_value: Any,
+        field_name: str | None = None,
+        action: str | None = None,  # noqa: ARG002
+    ):
+        """Dynamic configuration updates based on action button clicks.
+
+        Args:
+            build_config: Current build configuration
+            field_value: Value of the field that changed (unused in this implementation)
+            field_name: Name of the field that changed
+            action: Name of the action button that was clicked (if any)
+        """
+        logger.info(f"[FieldNameMapping] update_build_config called - field_name: {field_name}, action: {action}")
+
+        # Handle action button clicks (from field_mappings table)
+        if field_name == "field_mappings" and action == "analyze_fields":
+            logger.info("[FieldNameMapping] Field analysis triggered by action button")
+
+            try:
+                # Try to get graph_data and node_id from build_config first (passed from frontend)
+                graph_data = build_config.get("_graph_data", {})
+                node_id = build_config.get("_node_id")
+
+                # If not in build_config, try to get from self.graph (runtime context)
+                if not graph_data and hasattr(self, "graph") and self.graph is not None:
+                    if hasattr(self.graph, "data"):
+                        graph_data = self.graph.data
+                    else:
+                        # PlaceholderGraph - no data available
+                        logger.warning("[FieldNameMapping] PlaceholderGraph detected - no graph data available")
+
+                if not graph_data:
+                    logger.warning("[FieldNameMapping] No graph data available")
+                    self.status = i18n.t("components.manipulations.field_name_mapping.errors.no_graph_data")
+                    return build_config
+
+                # Use the generic get_upstream_data method to fetch actual data
+                upstream_data = await self.get_upstream_data(
+                    input_name="data_input", graph_data=graph_data, sample_size=10, vertex_id=node_id
+                )
+
+                if not upstream_data:
+                    logger.warning("[FieldNameMapping] No data returned from upstream node")
+                    self.status = i18n.t("components.manipulations.field_name_mapping.status.no_fields_found")
+                    return build_config
+
+                # Extract field names from upstream data
+                field_mappings = self._extract_field_mappings(upstream_data)
+
+                if field_mappings:
+                    # Update build_config with field mappings
+                    build_config["field_mappings"]["value"] = field_mappings
+                    logger.info(f"[FieldNameMapping] Generated {len(field_mappings)} field mappings")
+                    self.status = i18n.t(
+                        "components.manipulations.field_name_mapping.status.analysis_success", count=len(field_mappings)
+                    )
+                else:
+                    logger.warning("[FieldNameMapping] No fields extracted from upstream data")
+                    self.status = i18n.t("components.manipulations.field_name_mapping.status.no_fields_found")
+
+            except ValueError as e:
+                # Handle expected errors (no upstream node, etc.)
+                error_msg = str(e)
+                logger.warning(f"[FieldNameMapping] Field analysis warning: {error_msg}")
+                self.status = i18n.t(
+                    "components.manipulations.field_name_mapping.errors.analysis_failed", error=error_msg
+                )
+            except Exception:  # noqa: BLE001
+                # Handle unexpected errors - broad exception needed for production stability
+                logger.exception("[FieldNameMapping] Field analysis failed with unexpected error")
+                self.status = i18n.t("components.manipulations.field_name_mapping.errors.graph_not_available")
+
+        logger.debug(f"[FieldNameMapping] Returning build_config with keys: {list(build_config.keys())}")
+        return build_config
+
+    def _extract_field_mappings(self, data_list: list[Data]) -> list[dict]:
+        """Extract field mappings from upstream data.
+
+        Args:
+            data_list: List of Data objects from upstream node
+
+        Returns:
+            List of field mapping dictionaries with source_field, target_field, description
+        """
+        try:
+            if not data_list:
+                return []
+
+            # Get first record to extract field names
+            first_record = data_list[0]
+            if hasattr(first_record, "data"):
+                data_dict = first_record.data
+            elif isinstance(first_record, dict):
+                data_dict = first_record
+            else:
+                logger.warning(f"[FieldNameMapping] Unexpected data type: {type(first_record)}")
+                return []
+
+            if not isinstance(data_dict, dict):
+                logger.warning(f"[FieldNameMapping] Expected dict, got {type(data_dict)}")
+                return []
+
+            # Generate field mappings from field names
+            field_mappings = [
+                {
+                    "source_field": field_name,
+                    "target_field": field_name,  # Default: same as source
+                    "description": "",  # Empty description by default
+                }
+                for field_name in data_dict
+            ]
+
+            logger.debug(f"[FieldNameMapping] Extracted {len(field_mappings)} field mappings")
+            return field_mappings
+
+        except Exception:  # noqa: BLE001
+            # Broad exception needed to handle various data format issues
+            logger.exception("[FieldNameMapping] Failed to extract field mappings")
+            return []
 
     def map_field_names(self) -> list[Data]:
         """Map source field names to target field names."""
         try:
             if not self.data_input or not self.field_mappings:
-                raise ValueError(i18n.t('components.manipulations.field_name_mapping.errors.missing_config'))
+                raise ValueError(i18n.t("components.manipulations.field_name_mapping.errors.missing_config"))
 
-            df = pd.DataFrame([d.data if hasattr(d, 'data') else d for d in self.data_input])
+            # Convert to DataFrame
+            df = pd.DataFrame([d.data if hasattr(d, "data") else d for d in self.data_input])
 
-            mapping_dict = {m['source_field']: m['target_field'] for m in self.field_mappings}
+            # Build mapping dictionary and validate
+            mapping_dict = {}
+            target_fields_seen = set()
+
+            for mapping in self.field_mappings:
+                source = mapping.get("source_field", "").strip()
+                target = mapping.get("target_field", "").strip()
+
+                if not source or not target:
+                    continue
+
+                # Validate source field exists
+                if source not in df.columns:
+                    raise ValueError(
+                        i18n.t(
+                            "components.manipulations.field_name_mapping.errors.source_field_not_found", field=source
+                        )
+                    )
+
+                # Check for duplicate target fields
+                if target in target_fields_seen:
+                    raise ValueError(
+                        i18n.t(
+                            "components.manipulations.field_name_mapping.errors.duplicate_target_field", field=target
+                        )
+                    )
+
+                target_fields_seen.add(target)
+                mapping_dict[source] = target
+
+            # Apply field name mapping
             df = df.rename(columns=mapping_dict)
 
+            # Optionally drop unmapped fields
             if self.drop_unmapped:
                 mapped_fields = list(mapping_dict.values())
                 df = df[mapped_fields]
 
+            # Convert back to Data objects
             result = [Data(data=row.to_dict()) for _, row in df.iterrows()]
-            self.status = i18n.t('components.manipulations.field_name_mapping.status.success', count=len(result))
+
+            # Success status
+            self.status = i18n.t(
+                "components.manipulations.field_name_mapping.status.success",
+                count=len(result),
+                fields=len(mapping_dict),
+            )
+
             return result
 
         except Exception as e:
-            error_msg = i18n.t('components.manipulations.field_name_mapping.errors.mapping_failed', error=str(e))
+            error_msg = i18n.t("components.manipulations.field_name_mapping.errors.mapping_failed", error=str(e))
             self.status = error_msg
             raise ValueError(error_msg) from e

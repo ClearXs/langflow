@@ -1,5 +1,7 @@
 import os
+
 import i18n
+
 from lfx.custom.custom_component.component import Component
 from lfx.io import (
     MessageTextInput,
@@ -10,10 +12,8 @@ from lfx.schema.data import Data
 
 
 class ScrapeGraphMarkdownifyApi(Component):
-    display_name: str = i18n.t(
-        'components.scrapegraph.scrapegraph_markdownify_api.display_name')
-    description: str = i18n.t(
-        'components.scrapegraph.scrapegraph_markdownify_api.description')
+    display_name: str = i18n.t("components.scrapegraph.scrapegraph_markdownify_api.display_name")
+    description: str = i18n.t("components.scrapegraph.scrapegraph_markdownify_api.description")
     name = "ScrapeGraphMarkdownifyApi"
 
     output_types: list[str] = ["Document"]
@@ -25,29 +25,24 @@ class ScrapeGraphMarkdownifyApi(Component):
     inputs = [
         SecretStrInput(
             name="api_key",
-            display_name=i18n.t(
-                'components.scrapegraph.scrapegraph_markdownify_api.api_key.display_name'),
+            display_name=i18n.t("components.scrapegraph.scrapegraph_markdownify_api.api_key.display_name"),
             required=True,
             password=True,
-            info=i18n.t(
-                'components.scrapegraph.scrapegraph_markdownify_api.api_key.info'),
+            info=i18n.t("components.scrapegraph.scrapegraph_markdownify_api.api_key.info"),
         ),
         MessageTextInput(
             name="url",
-            display_name=i18n.t(
-                'components.scrapegraph.scrapegraph_markdownify_api.url.display_name'),
+            display_name=i18n.t("components.scrapegraph.scrapegraph_markdownify_api.url.display_name"),
             tool_mode=True,
-            info=i18n.t(
-                'components.scrapegraph.scrapegraph_markdownify_api.url.info'),
+            info=i18n.t("components.scrapegraph.scrapegraph_markdownify_api.url.info"),
         ),
     ]
 
     outputs = [
         Output(
-            display_name=i18n.t(
-                'components.scrapegraph.scrapegraph_markdownify_api.outputs.data.display_name'),
+            display_name=i18n.t("components.scrapegraph.scrapegraph_markdownify_api.outputs.data.display_name"),
             name="data",
-            method="scrape"
+            method="scrape",
         ),
     ]
 

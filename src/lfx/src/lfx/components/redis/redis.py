@@ -1,7 +1,7 @@
 import os
-import i18n
 from pathlib import Path
 
+import i18n
 from langchain.text_splitter import CharacterTextSplitter
 from langchain_community.vectorstores.redis import Redis
 
@@ -14,8 +14,8 @@ from lfx.schema.data import Data
 class RedisVectorStoreComponent(LCVectorStoreComponent):
     """A custom component for implementing a Vector Store using Redis."""
 
-    display_name = i18n.t('components.redis.redis.display_name')
-    description = i18n.t('components.redis.redis.description')
+    display_name = i18n.t("components.redis.redis.display_name")
+    description = i18n.t("components.redis.redis.description")
     documentation = "https://python.langchain.com/docs/integrations/vectorstores/redis"
     name = "Redis"
     icon = "Redis"
@@ -25,38 +25,30 @@ class RedisVectorStoreComponent(LCVectorStoreComponent):
     inputs = [
         SecretStrInput(
             name="redis_server_url",
-            display_name=i18n.t(
-                'components.redis.redis.redis_server_url.display_name'),
-            required=True
+            display_name=i18n.t("components.redis.redis.redis_server_url.display_name"),
+            required=True,
         ),
         StrInput(
             name="redis_index_name",
-            display_name=i18n.t(
-                'components.redis.redis.redis_index_name.display_name'),
+            display_name=i18n.t("components.redis.redis.redis_index_name.display_name"),
         ),
-        StrInput(
-            name="code",
-            display_name=i18n.t('components.redis.redis.code.display_name'),
-            advanced=True
-        ),
+        StrInput(name="code", display_name=i18n.t("components.redis.redis.code.display_name"), advanced=True),
         StrInput(
             name="schema",
-            display_name=i18n.t('components.redis.redis.schema.display_name'),
+            display_name=i18n.t("components.redis.redis.schema.display_name"),
         ),
         *LCVectorStoreComponent.inputs,
         IntInput(
             name="number_of_results",
-            display_name=i18n.t(
-                'components.redis.redis.number_of_results.display_name'),
-            info=i18n.t('components.redis.redis.number_of_results.info'),
+            display_name=i18n.t("components.redis.redis.number_of_results.display_name"),
+            info=i18n.t("components.redis.redis.number_of_results.info"),
             value=4,
             advanced=True,
         ),
         HandleInput(
             name="embedding",
-            display_name=i18n.t(
-                'components.redis.redis.embedding.display_name'),
-            input_types=["Embeddings"]
+            display_name=i18n.t("components.redis.redis.embedding.display_name"),
+            input_types=["Embeddings"],
         ),
     ]
 
@@ -85,8 +77,7 @@ class RedisVectorStoreComponent(LCVectorStoreComponent):
                 redis_url=self.redis_server_url,
             )
         else:
-            text_splitter = CharacterTextSplitter(
-                chunk_size=1000, chunk_overlap=0)
+            text_splitter = CharacterTextSplitter(chunk_size=1000, chunk_overlap=0)
             docs = text_splitter.split_documents(documents)
             redis_vs = Redis.from_documents(
                 documents=docs,

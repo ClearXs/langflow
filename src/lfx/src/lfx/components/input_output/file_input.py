@@ -1,184 +1,236 @@
-import csv
-import json
-from pathlib import Path
+"""File input component for selecting files from file management system.
+
+This component allows users to select structured data files (CSV, Excel, JSON)
+through the file management UI and outputs file information for downstream processing.
+"""
+
+from __future__ import annotations
+
 from typing import Any
+
 import i18n
-import pandas as pd
 
-from lfx.custom.custom_component.component import Component
-from lfx.io import (
-    MessageTextInput,
-    DropdownInput,
-    BoolInput,
-    IntInput,
-    Output
-)
-from lfx.schema import Data
+from lfx.base.data.base_file import BaseFileComponent
+from lfx.io import FileInput, Output
+from lfx.schema.data import Data
+from lfx.schema.message import Message
 
 
-class ETLFileInputComponent(Component):
-    display_name = i18n.t('components.input_output.file_input.display_name')
-    description = i18n.t('components.input_output.file_input.description')
-    icon = "file-text"
+class ETLFileInputComponent(BaseFileComponent):
+    """File input component for selecting structured data files from file management system.
+
+    This component provides a file selection interface that allows users to:
+    - Select single or multiple structured data files from the file management system
+    - Supported formats: CSV, Excel (xlsx, xls), JSON
+    - Output file information for downstream processing nodes
+    """
+
+    display_name = i18n.t("components.input_output.file_input.display_name")
+    description = i18n.t("components.input_output.file_input.description")
+    documentation: str = "https://docs.langflow.org/components-input-output#file-input"
+    icon = "file-input"
     name = "ETLFileInput"
 
-    inputs = [
-        MessageTextInput(
-            name="file_path",
-            display_name=i18n.t('components.input_output.file_input.file_path.display_name'),
-            info=i18n.t('components.input_output.file_input.file_path.info'),
-            required=True,
-            placeholder="/path/to/file.csv"
-        ),
-        DropdownInput(
-            name="file_type",
-            display_name=i18n.t('components.input_output.file_input.file_type.display_name'),
-            info=i18n.t('components.input_output.file_input.file_type.info'),
-            options=["CSV", "Excel", "JSON", "Auto-Detect"],
-            value="Auto-Detect"
-        ),
-        MessageTextInput(
-            name="encoding",
-            display_name=i18n.t('components.input_output.file_input.encoding.display_name'),
-            info=i18n.t('components.input_output.file_input.encoding.info'),
-            value="utf-8",
-            advanced=True
-        ),
-        MessageTextInput(
-            name="delimiter",
-            display_name=i18n.t('components.input_output.file_input.delimiter.display_name'),
-            info=i18n.t('components.input_output.file_input.delimiter.info'),
-            value=",",
-            advanced=True
-        ),
-        BoolInput(
-            name="has_header",
-            display_name=i18n.t('components.input_output.file_input.has_header.display_name'),
-            info=i18n.t('components.input_output.file_input.has_header.info'),
-            value=True,
-            advanced=True
-        ),
-        IntInput(
-            name="skip_rows",
-            display_name=i18n.t('components.input_output.file_input.skip_rows.display_name'),
-            info=i18n.t('components.input_output.file_input.skip_rows.info'),
-            value=0,
-            advanced=True
-        ),
-        IntInput(
-            name="max_rows",
-            display_name=i18n.t('components.input_output.file_input.max_rows.display_name'),
-            info=i18n.t('components.input_output.file_input.max_rows.info'),
-            value=0,
-            advanced=True
-        ),
-        MessageTextInput(
-            name="sheet_name",
-            display_name=i18n.t('components.input_output.file_input.sheet_name.display_name'),
-            info=i18n.t('components.input_output.file_input.sheet_name.info'),
-            value="Sheet1",
-            advanced=True
-        )
+    # Define supported file extensions - only structured data files
+    VALID_EXTENSIONS = [
+        "csv",
+        "xlsx",
+        "xls",
+        "json",
     ]
+
+    # Configure base inputs from BaseFileComponent
+    _base_inputs = BaseFileComponent.get_base_inputs()
+
+    # Customize the FileInput to use file table UI (temp_file=False)
+    for input_item in _base_inputs:
+        if isinstance(input_item, FileInput) and input_item.name == "path":
+            # Configure path field to use FileTableInputComponent
+            input_item.temp_file = False  # Enable FileTableInputComponent in frontend
+            input_item.display_name = i18n.t("components.input_output.file_input.path.display_name")
+            input_item.info = i18n.t("components.input_output.file_input.path.info")
+            # Ensure path field is visible
+            input_item.advanced = False
+            if hasattr(input_item, "show"):
+                input_item.show = True
+        else:
+            # Hide all other inputs
+            if hasattr(input_item, "advanced"):
+                input_item.advanced = True
+            if hasattr(input_item, "show"):
+                input_item.show = False
+
+    # Use all base inputs (they are all needed for BaseFileComponent to work properly)
+    inputs = _base_inputs
 
     outputs = [
-        Output(name="data", display_name="Data", method="read_file"),
-        Output(name="file_info", display_name="File Info", method="get_file_info")
+        Output(
+            display_name=i18n.t("components.input_output.file_input.outputs.file_data.display_name"),
+            name="file_data",
+            method="get_file_data",
+        ),
+        Output(
+            display_name=i18n.t("components.input_output.file_input.outputs.file_path.display_name"),
+            name="file_paths",
+            method="get_file_paths",
+        ),
+        Output(
+            display_name=i18n.t("components.input_output.file_input.outputs.message.display_name"),
+            name="message",
+            method="get_file_message",
+        ),
     ]
 
-    def read_file(self) -> list[Data]:
-        """Read data from CSV, Excel, or JSON files with encoding support."""
-        try:
-            self.status = i18n.t('components.input_output.file_input.status.reading')
+    def process_files(
+        self,
+        file_list: list[BaseFileComponent.BaseFile],
+    ) -> list[BaseFileComponent.BaseFile]:
+        """Process selected files and extract metadata.
 
-            file_path = Path(self.file_path)
+        This method processes each file in the list and builds basic metadata information.
+        The metadata is stored in the file's Data object for downstream processing.
 
-            if not file_path.exists():
-                raise FileNotFoundError(i18n.t('components.input_output.file_input.errors.file_not_found', path=self.file_path))
+        Args:
+            file_list: List of BaseFile objects representing selected files
 
-            # Detect file type
-            file_type = self._detect_file_type(file_path)
+        Returns:
+            List of BaseFile objects with updated Data containing file metadata
 
-            # Read file based on type
-            if file_type == "CSV":
-                df = self._read_csv(file_path)
-            elif file_type == "Excel":
-                df = self._read_excel(file_path)
-            elif file_type == "JSON":
-                df = self._read_json(file_path)
+        Raises:
+            ValueError: If no files are selected
+        """
+        if not file_list:
+            msg = i18n.t("components.input_output.file_input.errors.no_files_selected")
+            # Fallback if i18n returns the key unchanged
+            if not msg or "components.input_output" in msg:
+                msg = "No files selected. Please select at least one file."
+            if not self.silent_errors:
+                raise ValueError(msg)
+            return []
+
+        processed_files = []
+
+        for file in file_list:
+            file_path = file.path
+
+            # Build basic metadata
+            metadata: dict[str, Any] = {
+                "file_path": str(file_path),
+                "file_name": file_path.name,
+                "file_extension": file_path.suffix,
+                "file_stem": file_path.stem,  # filename without extension
+            }
+
+            # Add file size if file exists
+            if file_path.exists():
+                try:
+                    stat = file_path.stat()
+                    metadata.update(
+                        {
+                            "file_size": stat.st_size,
+                            "file_size_mb": round(stat.st_size / (1024 * 1024), 2),
+                            "file_size_kb": round(stat.st_size / 1024, 2),
+                        }
+                    )
+                except Exception as e:
+                    self.log(f"Failed to get file size for {file_path}: {e}")
+                    if not self.silent_errors:
+                        raise
+
+            # Create Data object with metadata
+            file.data = Data(data=metadata)
+            processed_files.append(file)
+
+            # Log success
+            if "file_size_mb" in metadata:
+                self.log(
+                    i18n.t(
+                        "components.input_output.file_input.success.file_selected_with_metadata",
+                        name=metadata["file_name"],
+                        size=metadata["file_size_mb"],
+                    )
+                )
             else:
-                raise ValueError(i18n.t('components.input_output.file_input.errors.unsupported_type', type=file_type))
+                self.log(
+                    i18n.t(
+                        "components.input_output.file_input.success.file_selected",
+                        name=metadata["file_name"],
+                    )
+                )
 
-            # Convert to Data objects
-            result_data = []
-            max_rows = self.max_rows if self.max_rows > 0 else len(df)
-
-            for idx, row in df.head(max_rows).iterrows():
-                row_dict = row.to_dict()
-                row_dict["_row_number"] = idx
-                result_data.append(Data(data=row_dict))
-
-            self.status = i18n.t('components.input_output.file_input.status.success', rows=len(result_data))
-            return result_data
-
-        except Exception as e:
-            error_msg = i18n.t('components.input_output.file_input.errors.read_failed', error=str(e))
-            self.status = error_msg
-            raise ValueError(error_msg) from e
-
-    def _detect_file_type(self, file_path: Path) -> str:
-        """Detect file type based on extension or user selection."""
-        if self.file_type != "Auto-Detect":
-            return self.file_type
-
-        suffix = file_path.suffix.lower()
-        if suffix == ".csv":
-            return "CSV"
-        elif suffix in [".xlsx", ".xls"]:
-            return "Excel"
-        elif suffix == ".json":
-            return "JSON"
-        else:
-            return "CSV"
-
-    def _read_csv(self, file_path: Path) -> pd.DataFrame:
-        """Read CSV file with encoding and delimiter support."""
-        return pd.read_csv(
-            file_path,
-            encoding=self.encoding,
-            delimiter=self.delimiter,
-            header=0 if self.has_header else None,
-            skiprows=self.skip_rows
+        # Update status with file count
+        status_msg = i18n.t(
+            "components.input_output.file_input.status.files_processed",
+            count=len(processed_files),
         )
+        # Fallback if i18n returns the key unchanged
+        if not status_msg or "components.input_output" in status_msg:
+            status_msg = f"Processed {len(processed_files)} file(s)"
+        self.status = status_msg
 
-    def _read_excel(self, file_path: Path) -> pd.DataFrame:
-        """Read Excel file with sheet name support."""
-        return pd.read_excel(
-            file_path,
-            sheet_name=self.sheet_name,
-            header=0 if self.has_header else None,
-            skiprows=self.skip_rows
+        return processed_files
+
+    def get_file_data(self) -> list[Data]:
+        """Return file information as Data objects.
+
+        Each Data object contains file metadata including path, name, extension, and file size.
+
+        Returns:
+            List of Data objects containing file metadata
+        """
+        return self.load_files_base()
+
+    def get_file_paths(self) -> list[str]:
+        """Return list of file paths as strings.
+
+        This output is useful for passing file paths to other components
+        that need file locations as simple string values.
+
+        Returns:
+            List of file path strings
+        """
+        files = self.load_files_base()
+        if not files:
+            return []
+        return [str(data.data.get("file_path", "")) for data in files]
+
+    def get_file_message(self) -> Message:
+        """Return file information as a Message object.
+
+        Creates a formatted message containing information about all selected files,
+        including names and sizes.
+
+        Returns:
+            Message object with formatted file information
+        """
+        files = self.load_files_base()
+
+        if not files:
+            no_files_msg = i18n.t("components.input_output.file_input.message.no_files")
+            # Fallback if i18n returns the key unchanged
+            if not no_files_msg or "components.input_output" in no_files_msg:
+                no_files_msg = "No files selected"
+            return Message(text=no_files_msg)
+
+        file_info = []
+        for data in files:
+            name = data.data.get("file_name", "")
+            size_mb = data.data.get("file_size_mb")
+
+            if size_mb is not None:
+                file_info.append(f"- {name} ({size_mb} MB)")
+            else:
+                file_info.append(f"- {name}")
+
+        # Build message with count
+        files_selected_msg = i18n.t(
+            "components.input_output.file_input.message.files_selected",
+            count=len(files),
         )
+        # Fallback if i18n returns the key unchanged
+        if not files_selected_msg or "components.input_output" in files_selected_msg:
+            files_selected_msg = f"Selected {len(files)} file(s):"
 
-    def _read_json(self, file_path: Path) -> pd.DataFrame:
-        """Read JSON file with encoding support."""
-        with open(file_path, 'r', encoding=self.encoding) as f:
-            data = json.load(f)
+        text = files_selected_msg + "\n" + "\n".join(file_info)
 
-        if isinstance(data, list):
-            return pd.DataFrame(data)
-        elif isinstance(data, dict):
-            return pd.DataFrame([data])
-        else:
-            raise ValueError(i18n.t('components.input_output.file_input.errors.invalid_json'))
-
-    def get_file_info(self) -> Data:
-        """Get file information."""
-        file_path = Path(self.file_path)
-        info = {
-            "file_name": file_path.name,
-            "file_size": file_path.stat().st_size if file_path.exists() else 0,
-            "file_type": self._detect_file_type(file_path),
-            "encoding": self.encoding
-        }
-        return Data(data=info)
+        return Message(text=text)

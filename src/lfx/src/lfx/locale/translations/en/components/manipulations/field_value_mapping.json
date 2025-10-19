@@ -1,27 +1,58 @@
 {
   "display_name": "Field Value Mapping",
-  "description": "Map field values with transformation rules",
+  "description": "Map field values based on conditional comparisons. Supports multiple fields and various comparison operators.",
   "data_input": {
     "display_name": "Data Input",
-    "info": "Input data to transform"
+    "info": "Input data stream to transform"
   },
-  "field_name": {
-    "display_name": "Field Name",
-    "info": "Field to apply mapping"
+  "mapping_rules": {
+    "display_name": "Mapping Rules",
+    "info": "Configure multiple field value mapping rules. Each rule compares a field value against a condition and outputs a replacement value when matched."
   },
-  "value_mappings": {
-    "display_name": "Value Mappings",
-    "info": "Source to target value mappings"
+  "input_field": "Input Field",
+  "input_field_desc": "The field name to read the value from for comparison",
+  "operator": "Operator",
+  "operator_desc": "Comparison operator to use (=, !=, >, <, contains, etc.)",
+  "compare_value": "Compare Value",
+  "compare_value_desc": "The value to compare against the input field value",
+  "replacement_value": "Replacement Value",
+  "replacement_value_desc": "The value to output when the condition matches",
+  "output_field": "Output Field",
+  "output_field_desc": "The field name to write the replacement value to (can be same as input field to overwrite)",
+  "analyze_button": "Analyze Fields",
+  "operators": {
+    "equal": "Equal (=)",
+    "not_equal": "Not Equal (≠)",
+    "greater_than": "Greater Than (>)",
+    "less_than": "Less Than (<)",
+    "greater_equal": "Greater or Equal (≥)",
+    "less_equal": "Less or Equal (≤)",
+    "contains": "Contains",
+    "not_contains": "Not Contains",
+    "starts_with": "Starts With",
+    "ends_with": "Ends With",
+    "in": "In (comma-separated)",
+    "not_in": "Not In (comma-separated)"
   },
-  "default_value": {
-    "display_name": "Default Value",
-    "info": "Default for unmapped values"
+  "outputs": {
+    "data": "Mapped Data"
   },
   "status": {
-    "success": "Mapped {count} records"
+    "success": "Successfully mapped {count} records using {rules} rules",
+    "processing": "Processing field value mappings...",
+    "analysis_success": "Field analysis completed, generated {count} mapping templates"
   },
   "errors": {
-    "missing_config": "Value mappings are required",
-    "mapping_failed": "Value mapping failed: {error}"
+    "missing_config": "Mapping rules are required",
+    "missing_fields": "Input field and output field are required for each rule",
+    "invalid_operator": "Invalid operator: {operator}",
+    "mapping_failed": "Field value mapping failed: {error}",
+    "no_data_input": "No data input available for field analysis",
+    "no_fields_found": "No fields found in the data",
+    "analysis_failed": "Field analysis failed: {error}"
+  },
+  "warnings": {
+    "field_not_found": "Input field '{field}' not found in data",
+    "no_match": "No mapping rule matched for field '{field}' value '{value}'"
   }
 }

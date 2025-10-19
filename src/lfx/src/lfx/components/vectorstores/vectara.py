@@ -1,7 +1,7 @@
 import os
-import i18n
 from typing import TYPE_CHECKING
 
+import i18n
 from langchain_community.vectorstores import Vectara
 
 from lfx.base.vectorstores.model import LCVectorStoreComponent, check_cached_vector_store
@@ -16,8 +16,8 @@ if TYPE_CHECKING:
 class VectaraVectorStoreComponent(LCVectorStoreComponent):
     """Vectara Vector Store with search capabilities."""
 
-    display_name: str = i18n.t('components.vectorstores.vectara.display_name')
-    description: str = i18n.t('components.vectorstores.vectara.description')
+    display_name: str = i18n.t("components.vectorstores.vectara.display_name")
+    description: str = i18n.t("components.vectorstores.vectara.description")
     name = "Vectara"
     icon = "Vectara"
 
@@ -26,35 +26,29 @@ class VectaraVectorStoreComponent(LCVectorStoreComponent):
     inputs = [
         StrInput(
             name="vectara_customer_id",
-            display_name=i18n.t(
-                'components.vectorstores.vectara.vectara_customer_id.display_name'),
-            required=True
+            display_name=i18n.t("components.vectorstores.vectara.vectara_customer_id.display_name"),
+            required=True,
         ),
         StrInput(
             name="vectara_corpus_id",
-            display_name=i18n.t(
-                'components.vectorstores.vectara.vectara_corpus_id.display_name'),
-            required=True
+            display_name=i18n.t("components.vectorstores.vectara.vectara_corpus_id.display_name"),
+            required=True,
         ),
         SecretStrInput(
             name="vectara_api_key",
-            display_name=i18n.t(
-                'components.vectorstores.vectara.vectara_api_key.display_name'),
-            required=True
+            display_name=i18n.t("components.vectorstores.vectara.vectara_api_key.display_name"),
+            required=True,
         ),
         HandleInput(
             name="embedding",
-            display_name=i18n.t(
-                'components.vectorstores.vectara.embedding.display_name'),
+            display_name=i18n.t("components.vectorstores.vectara.embedding.display_name"),
             input_types=["Embeddings"],
         ),
         *LCVectorStoreComponent.inputs,
         IntInput(
             name="number_of_results",
-            display_name=i18n.t(
-                'components.vectorstores.vectara.number_of_results.display_name'),
-            info=i18n.t(
-                'components.vectorstores.vectara.number_of_results.info'),
+            display_name=i18n.t("components.vectorstores.vectara.number_of_results.display_name"),
+            info=i18n.t("components.vectorstores.vectara.number_of_results.info"),
             value=4,
             advanced=True,
         ),

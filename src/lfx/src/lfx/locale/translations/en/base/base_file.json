@@ -1,0 +1,30 @@
+{
+  "path": {
+    "display_name": "Files",
+    "info": "Path to the file(s) to load content from."
+  },
+  "file_path": {
+    "display_name": "Server File Path",
+    "info": "Data object with a 'file_path' property pointing to server file or a Message object with a path to the file. Supercedes 'Path' but supports same file types."
+  },
+  "separator": {
+    "display_name": "Separator",
+    "info": "Specify the separator to use between multiple outputs in Message format."
+  },
+  "silent_errors": {
+    "display_name": "Silent Errors",
+    "info": "If true, errors will not raise an exception."
+  },
+  "delete_server_file_after_processing": {
+    "display_name": "Delete Server File After Processing",
+    "info": "If true, the Server File Path will be deleted after processing."
+  },
+  "ignore_unsupported_extensions": {
+    "display_name": "Ignore Unsupported Extensions",
+    "info": "If true, files with unsupported extensions will not be processed."
+  },
+  "ignore_unspecified_files": {
+    "display_name": "Ignore Unspecified Files",
+    "info": "If true, Data with no 'file_path' property will be ignored."
+  }
+}

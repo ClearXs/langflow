@@ -1,12 +1,12 @@
-import { useEffect, useState, useCallback } from 'react';
-import { useTranslation } from 'react-i18next';
-import { X } from 'lucide-react';
-import { cn } from '@/utils/utils';
-import { Button } from '@/components/ui/button';
-import FileTableViewModal from '@/modals/fileTableViewModal';
-import type { FileItem } from '@/components/core/fileTableView/types';
-import type { FileComponentType, InputProps } from '../../types';
-import useDataAPI from '@/controllers/DATA_API/api';
+import { X } from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
+import type { FileItem } from "@/components/core/fileTableView/types";
+import { Button } from "@/components/ui/button";
+import useDataAPI from "@/controllers/DATA_API/api";
+import FileTableViewModal from "@/modals/fileTableViewModal";
+import { cn } from "@/utils/utils";
+import type { FileComponentType, InputProps } from "../../types";
 
 export default function FileTableInputComponent({
   value,
@@ -24,18 +24,21 @@ export default function FileTableInputComponent({
   const dataApi = useDataAPI();
 
   // Use useCallback to memoize the fetchFiles function and prevent infinite loops
-  const fetchFiles = useCallback(async (
-    parentId: string = "0"
-  ): Promise<{ data: FileItem[]; total: number }> => {
-    return  await dataApi.get(
-      `/data-construction/resource-folder/lazy-tree-resources?parentId=${parentId}`,
-    );
-  }, [dataApi]);
+  const fetchFiles = useCallback(
+    async (
+      parentId: string = "0",
+    ): Promise<{ data: FileItem[]; total: number }> => {
+      return await dataApi.get(
+        `/data-construction/resource-folder/lazy-tree-resources?parentId=${parentId}`,
+      );
+    },
+    [dataApi],
+  );
 
   // Parse file types for filtering
   const allowedExtensions =
     fileTypes && fileTypes.length > 0
-      ? fileTypes.map((type) => (type.startsWith('.') ? type.slice(1) : type))
+      ? fileTypes.map((type) => (type.startsWith(".") ? type.slice(1) : type))
       : undefined;
 
   // Initialize selected files from props
@@ -54,9 +57,9 @@ export default function FileTableInputComponent({
 
         return {
           id: path,
-          name: names[index] || path.split('/').pop() || '',
+          name: names[index] || path.split("/").pop() || "",
           path: path,
-          type: 'file' as const,
+          type: "file" as const,
         };
       })
       .filter((f): f is FileItem => f !== null);
@@ -71,8 +74,8 @@ export default function FileTableInputComponent({
     const filePaths = files.map((f) => f.path || f.name);
 
     handleOnNewValue({
-      value: isList ? fileNames : fileNames[0] || '',
-      file_path: isList ? filePaths : filePaths[0] || '',
+      value: isList ? fileNames : fileNames[0] || "",
+      file_path: isList ? filePaths : filePaths[0] || "",
     });
   };
 
@@ -85,27 +88,27 @@ export default function FileTableInputComponent({
   const hasFiles = selectedFiles.length > 0;
 
   return (
-    <div className='w-full'>
-      <div className='flex flex-col gap-2'>
+    <div className="w-full">
+      <div className="flex flex-col gap-2">
         {/* Selected Files Display */}
         {hasFiles && (
-          <div className='flex max-h-44 flex-col gap-1.5 overflow-y-auto rounded-md border border-border bg-background p-2'>
+          <div className="flex max-h-44 flex-col gap-1.5 overflow-y-auto rounded-md border border-border bg-background p-2">
             {selectedFiles.map((file) => (
               <div
                 key={file.id}
-                className='flex items-center justify-between gap-2 rounded-sm border border-border bg-muted/50 px-3 py-1.5 text-sm hover:bg-muted'
+                className="flex items-center justify-between gap-2 rounded-sm border border-border bg-muted/50 px-3 py-1.5 text-sm hover:bg-muted"
               >
-                <span className='flex-1 truncate' title={file.name}>
+                <span className="flex-1 truncate" title={file.name}>
                   {file.name}
                 </span>
                 {!isDisabled && (
                   <Button
-                    variant='ghost'
-                    size='icon'
-                    className='h-5 w-5 shrink-0 hover:bg-destructive/10'
+                    variant="ghost"
+                    size="icon"
+                    className="h-5 w-5 shrink-0 hover:bg-destructive/10"
                     onClick={() => handleRemoveFile(file.id)}
                   >
-                    <X className='h-3 w-3' />
+                    <X className="h-3 w-3" />
                   </Button>
                 )}
               </div>
@@ -119,41 +122,41 @@ export default function FileTableInputComponent({
           handleSubmit={handleSelectFiles}
           selectableFileTypes={allowedExtensions}
           allowMultiple={isList ?? false}
-          title={t('fileInput.modalTitle')}
+          title={t("fileInput.modalTitle")}
           description={
             allowedExtensions
-              ? t('fileInput.modalDescriptionWithTypes', {
-                  types: allowedExtensions.join(', '),
+              ? t("fileInput.modalDescriptionWithTypes", {
+                  types: allowedExtensions.join(", "),
                 })
-              : t('fileInput.modalDescription')
+              : t("fileInput.modalDescription")
           }
-          submitLabel={t('fileInput.selectFiles')}
+          submitLabel={t("fileInput.selectFiles")}
           showNavBar={true}
           showFileDetails={true}
         >
           <Button
             data-testid={`file-table-input-${id}`}
             disabled={isDisabled}
-            variant={hasFiles && !isList ? 'outline' : 'default'}
+            variant={hasFiles && !isList ? "outline" : "default"}
             className={cn(
-              'w-full',
+              "w-full",
               hasFiles &&
                 !isList &&
-                'border-accent-emerald-foreground text-accent-emerald-foreground hover:bg-accent-emerald-foreground/10'
+                "border-accent-emerald-foreground text-accent-emerald-foreground hover:bg-accent-emerald-foreground/10",
             )}
           >
             {hasFiles && !isList
-              ? t('fileInput.changeFile')
+              ? t("fileInput.changeFile")
               : hasFiles && isList
-              ? t('fileInput.addMore')
-              : t('fileInput.selectFile')}
+                ? t("fileInput.addMore")
+                : t("fileInput.selectFile")}
           </Button>
         </FileTableViewModal>
 
         {/* File Count Display */}
         {hasFiles && isList && (
-          <div className='text-xs text-muted-foreground'>
-            {t('fileInput.filesSelected', { count: selectedFiles.length })}
+          <div className="text-xs text-muted-foreground">
+            {t("fileInput.filesSelected", { count: selectedFiles.length })}
           </div>
         )}
       </div>

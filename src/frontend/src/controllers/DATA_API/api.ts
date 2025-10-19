@@ -2,15 +2,14 @@
  * DATA_API - Data Management System API Configuration (React Hook Version)
  */
 
-import { useEffect, useRef, useCallback } from "react";
 import axios, {
   type AxiosError,
   type AxiosInstance,
   type AxiosRequestConfig,
   type AxiosResponse,
 } from "axios";
-import { usePostMessageStore } from "@/stores/postMessageStore";
-
+import { useCallback, useEffect, useRef } from "react";
+import { useUrlParam } from "@/hooks/use-iframe-params";
 
 export interface DataAPIConfig {
   baseURL: string;
@@ -78,8 +77,7 @@ export let showError = (message: string): void => {
   console.error("[DATA_API]", message);
 };
 
-export let refreshAccessToken = async (): Promise<void> => {
-};
+export let refreshAccessToken = async (): Promise<void> => {};
 
 // ============================================================================
 // React Hook: useDataAPI
@@ -112,7 +110,7 @@ export function useDataAPI(options: UseDataAPIOptions = {}): AxiosInstance {
   const isErrorShownRef = useRef(false);
   const configRef = useRef<DataAPIConfig>({ ...DEFAULT_CONFIG, ...config });
 
-  const messages = usePostMessageStore(state => state.messages)
+  const token = useUrlParam("token");
 
   if (!apiRef.current) {
     apiRef.current = axios.create({
@@ -139,58 +137,56 @@ export function useDataAPI(options: UseDataAPIOptions = {}): AxiosInstance {
     }
   }, [onRefreshToken]);
 
-
   const handleUnauthorized = useCallback(
     async (
       config: DataRequestConfig,
-      response: AxiosResponse
+      response: AxiosResponse,
     ): Promise<AxiosResponse> => {
-      return Promise.reject()
+      return Promise.reject();
     },
-    [api]
+    [api],
   );
 
   // 设置请求拦截器
   useEffect(() => {
     const requestInterceptor = api.interceptors.request.use(
       (config: DataRequestConfig) => {
+        const isMinioFile = config.url && config.url.startsWith("/minio-file");
+        if (isMinioFile) {
+          return config;
+        }
 
-      const isMinioFile = config.url && config.url.startsWith('/minio-file');
-      if (isMinioFile) {
+        // Add security headers
+        if (!config.headers) {
+          config.headers = {} as any;
+        }
+        config.headers["Blade-Requested-With"] = "BladeHttpRequest";
+
+        config.headers["Authorization"] = "Basic c2FiZXIzOnNhYmVyM19zZWNyZXQ=";
+        config.headers[DEFAULT_CONFIG.tokenHeader] =
+          token ||
+          "bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJibGFkZXguY24iLCJhdWQiOlsiYmxhZGV4Il0sInRva2VuX3R5cGUiOiJhY2Nlc3NfdG9rZW4iLCJjbGllbnRfaWQiOiJzYWJlcjMiLCJ0ZW5hbnRfaWQiOiIwMDAwMDAiLCJ1c2VyX2lkIjoiMTEyMzU5ODgyMTczODY3NTIwMSIsImRlcHRfaWQiOiIxMTIzNTk4ODEzNzM4Njc1MjAxIiwicG9zdF9pZCI6IjExMjM1OTg4MTc3Mzg2NzUyMDEiLCJyb2xlX2lkIjoiMTEyMzU5ODgxNjczODY3NTIwMSwxOTEyMzk2MDkzMzk1MTQ0NzA2Iiwib2F1dGhfaWQiOiIiLCJhY2NvdW50IjoiYWRtaW4iLCJ1c2VyX25hbWUiOiJhZG1pbiIsIm5pY2tfbmFtZSI6IueuoeeQhuWRmCIsInJlYWxfbmFtZSI6IueuoeeQhuWRmCIsInJvbGVfbmFtZSI6ImFkbWluaXN0cmF0b3Is5pWw5o2u566h55CG5Yaz562W6ICFIiwiZGV0YWlsIjp7InR5cGUiOiJ3ZWIiLCJleHQiOiI0NueUqOaIt-W5s-WPsOafpeivoue7k-aenCJ9LCJleHAiOjE3NjQwMjM4MzIsIm5iZiI6MTc2MDQyMzgzMn0.I9sKs0DKTiB9gLO21AOOEsiQ2ofDMGQVowxgdI8_JZk";
+
+        // Get metadata
+        const meta = config.meta || {};
+        // Add access token
+        if (config.text === true) {
+          config.headers["Content-Type"] = "text/plain";
+        }
+        if (config.isFormData || meta.isFormData) {
+          config.headers["Content-Type"] = "multipart/form-data";
+        }
+
+        // Serialize form data
+        if (config.method === "post" && meta.isSerialize === true) {
+          config.data = serialize(config.data);
+        }
+
         return config;
-      }
-
-      // Add security headers
-      if (!config.headers) {
-        config.headers = {} as any;
-      }
-      config.headers['Blade-Requested-With'] = 'BladeHttpRequest';
-
-      const token = messages.find(message => message.data.payload?.key === 'Token')
-
-      config.headers['Authorization'] = 'Basic c2FiZXIzOnNhYmVyM19zZWNyZXQ=';
-      config.headers[DEFAULT_CONFIG.tokenHeader] = token?.data.payload?.value || 'bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJibGFkZXguY24iLCJhdWQiOlsiYmxhZGV4Il0sInRva2VuX3R5cGUiOiJhY2Nlc3NfdG9rZW4iLCJjbGllbnRfaWQiOiJzYWJlcjMiLCJ0ZW5hbnRfaWQiOiIwMDAwMDAiLCJ1c2VyX2lkIjoiMTEyMzU5ODgyMTczODY3NTIwMSIsImRlcHRfaWQiOiIxMTIzNTk4ODEzNzM4Njc1MjAxIiwicG9zdF9pZCI6IjExMjM1OTg4MTc3Mzg2NzUyMDEiLCJyb2xlX2lkIjoiMTEyMzU5ODgxNjczODY3NTIwMSwxOTEyMzk2MDkzMzk1MTQ0NzA2Iiwib2F1dGhfaWQiOiIiLCJhY2NvdW50IjoiYWRtaW4iLCJ1c2VyX25hbWUiOiJhZG1pbiIsIm5pY2tfbmFtZSI6IueuoeeQhuWRmCIsInJlYWxfbmFtZSI6IueuoeeQhuWRmCIsInJvbGVfbmFtZSI6ImFkbWluaXN0cmF0b3Is5pWw5o2u566h55CG5Yaz562W6ICFIiwiZGV0YWlsIjp7InR5cGUiOiJ3ZWIiLCJleHQiOiI0NueUqOaIt-W5s-WPsOafpeivoue7k-aenCJ9LCJleHAiOjE3NjQwMjM4MzIsIm5iZiI6MTc2MDQyMzgzMn0.I9sKs0DKTiB9gLO21AOOEsiQ2ofDMGQVowxgdI8_JZk';
-
-      // Get metadata
-      const meta = config.meta || {};
-      // Add access token
-      if (config.text === true) {
-        config.headers['Content-Type'] = 'text/plain';
-      }
-      if (config.isFormData || meta.isFormData) {
-        config.headers['Content-Type'] = 'multipart/form-data';
-      }
-
-      // Serialize form data
-      if (config.method === 'post' && meta.isSerialize === true) {
-        config.data = serialize(config.data);
-      }
-
-      return config;
       },
       (error) => {
         return Promise.reject(error);
-      }
+      },
     );
 
     return () => {
@@ -244,7 +240,7 @@ export function useDataAPI(options: UseDataAPIOptions = {}): AxiosInstance {
       },
       (error: AxiosError) => {
         return Promise.reject(error);
-      }
+      },
     );
 
     return () => {
@@ -259,7 +255,9 @@ function handleAuthenticationError(message: string): void {
   showError(message || "User token is unavailable, please login again");
 }
 
-export function createDataAPI(config: Partial<DataAPIConfig> = {}): AxiosInstance {
+export function createDataAPI(
+  config: Partial<DataAPIConfig> = {},
+): AxiosInstance {
   const finalConfig = { ...DEFAULT_CONFIG, ...config };
   const instance = axios.create({
     baseURL: finalConfig.baseURL,

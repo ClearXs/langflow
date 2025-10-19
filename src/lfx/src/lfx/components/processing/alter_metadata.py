@@ -1,4 +1,5 @@
 import os
+
 import i18n
 
 from lfx.custom.custom_component.component import Component
@@ -10,8 +11,8 @@ from lfx.schema.dataframe import DataFrame
 
 class AlterMetadataComponent(Component):
     ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
-    display_name = i18n.t('components.processing.alter_metadata.display_name')
-    description = i18n.t('components.processing.alter_metadata.description')
+    display_name = i18n.t("components.processing.alter_metadata.display_name")
+    description = i18n.t("components.processing.alter_metadata.description")
     icon = "merge"
     name = "AlterMetadata"
     legacy = True
@@ -20,35 +21,29 @@ class AlterMetadataComponent(Component):
     inputs = [
         HandleInput(
             name="input_value",
-            display_name=i18n.t(
-                'components.processing.alter_metadata.input_value.display_name'),
-            info=i18n.t(
-                'components.processing.alter_metadata.input_value.info'),
+            display_name=i18n.t("components.processing.alter_metadata.input_value.display_name"),
+            info=i18n.t("components.processing.alter_metadata.input_value.info"),
             required=False,
             input_types=["Message", "Data"],
             is_list=True,
         ),
         StrInput(
             name="text_in",
-            display_name=i18n.t(
-                'components.processing.alter_metadata.text_in.display_name'),
-            info=i18n.t('components.processing.alter_metadata.text_in.info'),
+            display_name=i18n.t("components.processing.alter_metadata.text_in.display_name"),
+            info=i18n.t("components.processing.alter_metadata.text_in.info"),
             required=False,
         ),
         NestedDictInput(
             name="metadata",
-            display_name=i18n.t(
-                'components.processing.alter_metadata.metadata.display_name'),
-            info=i18n.t('components.processing.alter_metadata.metadata.info'),
+            display_name=i18n.t("components.processing.alter_metadata.metadata.display_name"),
+            info=i18n.t("components.processing.alter_metadata.metadata.info"),
             input_types=["Data"],
             required=True,
         ),
         MessageTextInput(
             name="remove_fields",
-            display_name=i18n.t(
-                'components.processing.alter_metadata.remove_fields.display_name'),
-            info=i18n.t(
-                'components.processing.alter_metadata.remove_fields.info'),
+            display_name=i18n.t("components.processing.alter_metadata.remove_fields.display_name"),
+            info=i18n.t("components.processing.alter_metadata.remove_fields.info"),
             required=False,
             is_list=True,
         ),
@@ -57,18 +52,14 @@ class AlterMetadataComponent(Component):
     outputs = [
         Output(
             name="data",
-            display_name=i18n.t(
-                'components.processing.alter_metadata.outputs.data.display_name'),
-            info=i18n.t(
-                'components.processing.alter_metadata.outputs.data.info'),
+            display_name=i18n.t("components.processing.alter_metadata.outputs.data.display_name"),
+            info=i18n.t("components.processing.alter_metadata.outputs.data.info"),
             method="process_output",
         ),
         Output(
-            display_name=i18n.t(
-                'components.processing.alter_metadata.outputs.dataframe.display_name'),
+            display_name=i18n.t("components.processing.alter_metadata.outputs.dataframe.display_name"),
             name="dataframe",
-            info=i18n.t(
-                'components.processing.alter_metadata.outputs.dataframe.info'),
+            info=i18n.t("components.processing.alter_metadata.outputs.dataframe.info"),
             method="as_dataframe",
         ),
     ]
@@ -81,27 +72,25 @@ class AlterMetadataComponent(Component):
             elif isinstance(obj, Data):
                 as_dict = obj.data
             else:
-                error_msg = i18n.t('components.processing.alter_metadata.errors.invalid_object_type',
-                                   obj_type=type(obj).__name__)
+                error_msg = i18n.t(
+                    "components.processing.alter_metadata.errors.invalid_object_type", obj_type=type(obj).__name__
+                )
                 raise TypeError(error_msg)
 
             return {k: v for k, v in (as_dict or {}).items() if k and k.strip()}
 
         except Exception as e:
-            error_msg = i18n.t('components.processing.alter_metadata.errors.dict_conversion_failed',
-                               error=str(e))
+            error_msg = i18n.t("components.processing.alter_metadata.errors.dict_conversion_failed", error=str(e))
             raise ValueError(error_msg) from e
 
     def process_output(self) -> list[Data]:
         try:
             # Ensure metadata is a dictionary, filtering out any empty keys
             if not self.metadata:
-                warning_msg = i18n.t(
-                    'components.processing.alter_metadata.warnings.empty_metadata')
+                warning_msg = i18n.t("components.processing.alter_metadata.warnings.empty_metadata")
                 self.status = warning_msg
 
-            metadata = self._as_clean_dict(
-                self.metadata) if self.metadata else {}
+            metadata = self._as_clean_dict(self.metadata) if self.metadata else {}
 
             # Convert text_in to a Data object if it exists, and initialize our list of Data objects
             data_objects = []
@@ -113,8 +102,7 @@ class AlterMetadataComponent(Component):
                 data_objects.extend(self.input_value)
 
             if not data_objects:
-                warning_msg = i18n.t(
-                    'components.processing.alter_metadata.warnings.no_input_data')
+                warning_msg = i18n.t("components.processing.alter_metadata.warnings.no_input_data")
                 self.status = warning_msg
                 return []
 
@@ -125,27 +113,28 @@ class AlterMetadataComponent(Component):
 
             # Handle removal of fields specified in remove_fields
             if self.remove_fields:
-                fields_to_remove = {
-                    field.strip() for field in self.remove_fields if field and field.strip()}
+                fields_to_remove = {field.strip() for field in self.remove_fields if field and field.strip()}
 
                 if fields_to_remove:
                     removed_count = 0
                     # Remove specified fields from each Data object's metadata
                     for data in data_objects:
                         original_keys = set(data.data.keys())
-                        data.data = {
-                            k: v for k, v in data.data.items() if k not in fields_to_remove}
-                        removed_count += len(original_keys -
-                                             set(data.data.keys()))
+                        data.data = {k: v for k, v in data.data.items() if k not in fields_to_remove}
+                        removed_count += len(original_keys - set(data.data.keys()))
 
                     if removed_count > 0:
-                        info_msg = i18n.t('components.processing.alter_metadata.info.fields_removed',
-                                          count=removed_count, fields=', '.join(fields_to_remove))
+                        info_msg = i18n.t(
+                            "components.processing.alter_metadata.info.fields_removed",
+                            count=removed_count,
+                            fields=", ".join(fields_to_remove),
+                        )
                         self.log(info_msg)
 
             # Set the status for tracking/debugging purposes
-            success_msg = i18n.t('components.processing.alter_metadata.success.metadata_processed',
-                                 count=len(data_objects))
+            success_msg = i18n.t(
+                "components.processing.alter_metadata.success.metadata_processed", count=len(data_objects)
+            )
             self.status = success_msg
 
             return data_objects
@@ -157,8 +146,7 @@ class AlterMetadataComponent(Component):
             # Re-raise ValueError as is (already has i18n message)
             raise
         except Exception as e:
-            error_msg = i18n.t('components.processing.alter_metadata.errors.processing_failed',
-                               error=str(e))
+            error_msg = i18n.t("components.processing.alter_metadata.errors.processing_failed", error=str(e))
             self.status = error_msg
             raise ValueError(error_msg) from e
 
@@ -173,20 +161,17 @@ class AlterMetadataComponent(Component):
             data_list = self.process_output()
 
             if not data_list:
-                warning_msg = i18n.t(
-                    'components.processing.alter_metadata.warnings.empty_dataframe')
+                warning_msg = i18n.t("components.processing.alter_metadata.warnings.empty_dataframe")
                 self.status = warning_msg
                 return DataFrame([])
 
             dataframe = DataFrame(data_list)
-            success_msg = i18n.t('components.processing.alter_metadata.success.dataframe_created',
-                                 rows=len(data_list))
+            success_msg = i18n.t("components.processing.alter_metadata.success.dataframe_created", rows=len(data_list))
             self.status = success_msg
 
             return dataframe
 
         except Exception as e:
-            error_msg = i18n.t('components.processing.alter_metadata.errors.dataframe_creation_failed',
-                               error=str(e))
+            error_msg = i18n.t("components.processing.alter_metadata.errors.dataframe_creation_failed", error=str(e))
             self.status = error_msg
             return DataFrame([])

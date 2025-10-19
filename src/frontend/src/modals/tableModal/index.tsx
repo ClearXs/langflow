@@ -1,5 +1,6 @@
 import type { AgGridReact } from "ag-grid-react";
 import { type ForwardedRef, forwardRef } from "react";
+import { useTranslation } from "react-i18next";
 import ForwardedIconComponent from "@/components/common/genericIconComponent";
 import TableComponent, {
   type TableComponentProps,
@@ -19,6 +20,7 @@ interface TableModalProps extends TableComponentProps {
   setOpen?: (open: boolean) => void;
   onSave?: () => void;
   onCancel?: () => void;
+  onActionButton?: (actionName: string) => void; // NEW: callback for action buttons
 }
 
 const TableModal = forwardRef<AgGridReact, TableModalProps>(
@@ -29,14 +31,18 @@ const TableModal = forwardRef<AgGridReact, TableModalProps>(
       children,
       disabled,
       tableIcon,
+      tableOptions, // Extract tableOptions explicitly
       open,
       setOpen,
       onSave,
       onCancel,
+      onActionButton, // NEW: extract callback
       ...props
     }: TableModalProps,
     ref: ForwardedRef<AgGridReact>,
   ) => {
+    const { t } = useTranslation();
+
     const handleSetOpen = (newOpen: boolean) => {
       if (!newOpen && onCancel) {
         onCancel();
@@ -69,7 +75,7 @@ const TableModal = forwardRef<AgGridReact, TableModalProps>(
       >
         <BaseModal.Trigger asChild>{children}</BaseModal.Trigger>
         <BaseModal.Header
-          description={props.tableOptions?.description ?? description}
+          description={tableOptions?.description ?? description}
         >
           <span className="pr-2">{tableTitle}</span>
           <ForwardedIconComponent
@@ -81,11 +87,17 @@ const TableModal = forwardRef<AgGridReact, TableModalProps>(
           <TableComponent
             className="h-full w-full"
             ref={ref}
+            tableOptions={tableOptions}
+            onActionButton={onActionButton}
             {...props}
           ></TableComponent>
         </BaseModal.Content>
         <BaseModal.Footer
-          submit={onSave ? { label: "Save", onClick: onSave } : undefined}
+          submit={
+            onSave
+              ? { label: t("components.button.save"), onClick: onSave }
+              : undefined
+          }
         ></BaseModal.Footer>
       </BaseModal>
     );

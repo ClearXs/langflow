@@ -1,5 +1,6 @@
 import ForwardedIconComponent from "@/components/common/genericIconComponent";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
 import { useDarkStore } from "@/stores/darkStore";
 import "@/style/ag-theme-shadcn.css"; // Custom CSS applied to the grid
 import type { ColDef } from "ag-grid-community";
@@ -34,6 +35,7 @@ export interface TableComponentProps extends AgGridReactProps {
   addRow?: () => void;
   tableOptions?: TableOptionsTypeAPI;
   paginationInfo?: string;
+  onActionButton?: (actionName: string) => void;
 }
 
 const TableComponent = forwardRef<
@@ -367,6 +369,25 @@ const TableComponent = forwardRef<
         "relative",
       )} // applying the grid theme
     >
+      {/* Render top action buttons */}
+      {props.tableOptions?.action_buttons
+        ?.filter((btn) => btn.position === "top")
+        .map((button) => (
+          <div key={button.name} className="mb-3 px-1">
+            <Button
+              onClick={() => props.onActionButton?.(button.name)}
+              variant="outline"
+              size="sm"
+              data-testid={`table-action-button-${button.name}`}
+            >
+              <ForwardedIconComponent
+                name={button.icon}
+                className="mr-2 h-4 w-4"
+              />
+              {button.label}
+            </Button>
+          </div>
+        ))}
       <AgGridReact
         {...props}
         defaultColDef={{

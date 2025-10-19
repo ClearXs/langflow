@@ -37,13 +37,13 @@ export default defineConfig(({ mode }) => {
     return proxyObj;
   }, {});
 
-  proxyTargets['/data-api'] = {
-    target: 'http://192.168.110.180:31201',
+  proxyTargets["/data-api"] = {
+    target: "http://192.168.110.180:31201",
     changeOrigin: true,
     secure: false,
     ws: true,
-    rewrite: path => path.replace(/^\/data-api/, ''),  // 修改为匹配 /data-api
-  }
+    rewrite: (path) => path.replace(/^\/data-api/, ""), // 修改为匹配 /data-api
+  };
 
   return {
     base: BASENAME || "",

@@ -52,6 +52,16 @@ export default function SettingsPage(): JSX.Element {
       ),
     },
     {
+      title: t("dataSource.management"),
+      href: "/settings/datasources",
+      icon: (
+        <ForwardedIconComponent
+          name="Database"
+          className="w-4 flex-shrink-0 justify-start stroke-[1.5]"
+        />
+      ),
+    },
+    {
       title: t("settings.globalVariables"),
       href: "/settings/global-variables",
       icon: (

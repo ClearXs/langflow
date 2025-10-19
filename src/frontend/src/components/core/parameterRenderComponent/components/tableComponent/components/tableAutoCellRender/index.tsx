@@ -1,5 +1,6 @@
 import type { CustomCellRendererProps } from "ag-grid-react";
 import { uniqueId } from "lodash";
+import { useTranslation } from "react-i18next";
 import NumberReader from "@/components/common/numberReader";
 import ObjectRender from "@/components/common/objectRender";
 import StringReader from "@/components/common/stringReaderComponent";
@@ -21,6 +22,30 @@ export default function TableAutoCellRender({
   api,
   ...props
 }: CustomCellRender) {
+  const { t } = useTranslation();
+
+  // Try to translate value for known patterns (data types and transformation rules)
+  const getTranslatedValue = (val: string) => {
+    if (typeof val !== "string") return val;
+
+    // Check if it's a data type
+    const dataTypeKey = `dataTypes.${val}`;
+    const dataTypeTranslation = t(dataTypeKey);
+    if (dataTypeTranslation !== dataTypeKey) {
+      return dataTypeTranslation;
+    }
+
+    // Check if it's a transformation rule
+    const transformKey = `transformation.rules.${val}`;
+    const transformTranslation = t(transformKey);
+    if (transformTranslation !== transformKey) {
+      return transformTranslation;
+    }
+
+    // Return original if no translation found
+    return val;
+  };
+
   function getCellType() {
     let format: string = formatter ? formatter : typeof value;
     //convert text to string to bind to the string reader
@@ -36,7 +61,10 @@ export default function TableAutoCellRender({
           />
         );
 
-      case "string":
+      case "string": {
+        // Translate the value if applicable
+        const translatedValue = getTranslatedValue(value);
+
         if (isTimeStampString(value)) {
           return <DateReader date={value} />;
         }
@@ -91,10 +119,11 @@ export default function TableAutoCellRender({
                 !!api.getGridOption("onCellValueChanged")
               }
               setValue={setValue!}
-              string={value}
+              string={translatedValue}
             />
           );
         }
+      }
       case "number":
         return <NumberReader number={value} />;
       case "undefined":

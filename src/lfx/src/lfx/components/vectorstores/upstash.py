@@ -1,4 +1,5 @@
 import os
+
 import i18n
 from langchain_community.vectorstores import UpstashVectorStore
 
@@ -15,8 +16,8 @@ from lfx.schema.data import Data
 
 
 class UpstashVectorStoreComponent(LCVectorStoreComponent):
-    display_name = i18n.t('components.vectorstores.upstash.display_name')
-    description = i18n.t('components.vectorstores.upstash.description')
+    display_name = i18n.t("components.vectorstores.upstash.display_name")
+    description = i18n.t("components.vectorstores.upstash.description")
     name = "Upstash"
     icon = "Upstash"
 
@@ -25,53 +26,44 @@ class UpstashVectorStoreComponent(LCVectorStoreComponent):
     inputs = [
         StrInput(
             name="index_url",
-            display_name=i18n.t(
-                'components.vectorstores.upstash.index_url.display_name'),
-            info=i18n.t('components.vectorstores.upstash.index_url.info'),
+            display_name=i18n.t("components.vectorstores.upstash.index_url.display_name"),
+            info=i18n.t("components.vectorstores.upstash.index_url.info"),
             required=True,
         ),
         SecretStrInput(
             name="index_token",
-            display_name=i18n.t(
-                'components.vectorstores.upstash.index_token.display_name'),
-            info=i18n.t('components.vectorstores.upstash.index_token.info'),
+            display_name=i18n.t("components.vectorstores.upstash.index_token.display_name"),
+            info=i18n.t("components.vectorstores.upstash.index_token.info"),
             required=True,
         ),
         StrInput(
             name="text_key",
-            display_name=i18n.t(
-                'components.vectorstores.upstash.text_key.display_name'),
-            info=i18n.t('components.vectorstores.upstash.text_key.info'),
+            display_name=i18n.t("components.vectorstores.upstash.text_key.display_name"),
+            info=i18n.t("components.vectorstores.upstash.text_key.info"),
             value="text",
             advanced=True,
         ),
         StrInput(
             name="namespace",
-            display_name=i18n.t(
-                'components.vectorstores.upstash.namespace.display_name'),
-            info=i18n.t('components.vectorstores.upstash.namespace.info'),
+            display_name=i18n.t("components.vectorstores.upstash.namespace.display_name"),
+            info=i18n.t("components.vectorstores.upstash.namespace.info"),
         ),
         *LCVectorStoreComponent.inputs,
         MultilineInput(
             name="metadata_filter",
-            display_name=i18n.t(
-                'components.vectorstores.upstash.metadata_filter.display_name'),
-            info=i18n.t(
-                'components.vectorstores.upstash.metadata_filter.info'),
+            display_name=i18n.t("components.vectorstores.upstash.metadata_filter.display_name"),
+            info=i18n.t("components.vectorstores.upstash.metadata_filter.info"),
         ),
         HandleInput(
             name="embedding",
-            display_name=i18n.t(
-                'components.vectorstores.upstash.embedding.display_name'),
+            display_name=i18n.t("components.vectorstores.upstash.embedding.display_name"),
             input_types=["Embeddings"],
-            info=i18n.t('components.vectorstores.upstash.embedding.info'),
+            info=i18n.t("components.vectorstores.upstash.embedding.info"),
         ),
         IntInput(
             name="number_of_results",
-            display_name=i18n.t(
-                'components.vectorstores.upstash.number_of_results.display_name'),
-            info=i18n.t(
-                'components.vectorstores.upstash.number_of_results.info'),
+            display_name=i18n.t("components.vectorstores.upstash.number_of_results.display_name"),
+            info=i18n.t("components.vectorstores.upstash.number_of_results.info"),
             value=4,
             advanced=True,
         ),

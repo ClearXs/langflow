@@ -1,8 +1,8 @@
-import os
-import i18n
 import json
+import os
 
 import httpx
+import i18n
 
 from lfx.custom.custom_component.component import Component
 from lfx.io import MessageTextInput, Output
@@ -11,8 +11,8 @@ from lfx.schema.data import Data
 
 
 class OlivyaComponent(Component):
-    display_name = i18n.t('components.olivya.olivya.display_name')
-    description = i18n.t('components.olivya.olivya.description')
+    display_name = i18n.t("components.olivya.olivya.display_name")
+    description = i18n.t("components.olivya.olivya.description")
     documentation: str = "http://docs.langflow.org/components/olivya"
     icon = "Olivya"
     name = "OlivyaComponent"
@@ -22,50 +22,44 @@ class OlivyaComponent(Component):
     inputs = [
         MessageTextInput(
             name="api_key",
-            display_name=i18n.t(
-                'components.olivya.olivya.api_key.display_name'),
-            info=i18n.t('components.olivya.olivya.api_key.info'),
+            display_name=i18n.t("components.olivya.olivya.api_key.display_name"),
+            info=i18n.t("components.olivya.olivya.api_key.info"),
             value="",
             required=True,
         ),
         MessageTextInput(
             name="from_number",
-            display_name=i18n.t(
-                'components.olivya.olivya.from_number.display_name'),
-            info=i18n.t('components.olivya.olivya.from_number.info'),
+            display_name=i18n.t("components.olivya.olivya.from_number.display_name"),
+            info=i18n.t("components.olivya.olivya.from_number.info"),
             value="",
             required=True,
         ),
         MessageTextInput(
             name="to_number",
-            display_name=i18n.t(
-                'components.olivya.olivya.to_number.display_name'),
-            info=i18n.t('components.olivya.olivya.to_number.info'),
+            display_name=i18n.t("components.olivya.olivya.to_number.display_name"),
+            info=i18n.t("components.olivya.olivya.to_number.info"),
             value="",
             required=True,
         ),
         MessageTextInput(
             name="first_message",
-            display_name=i18n.t(
-                'components.olivya.olivya.first_message.display_name'),
-            info=i18n.t('components.olivya.olivya.first_message.info'),
+            display_name=i18n.t("components.olivya.olivya.first_message.display_name"),
+            info=i18n.t("components.olivya.olivya.first_message.info"),
             value="",
             required=False,
             tool_mode=True,
         ),
         MessageTextInput(
             name="system_prompt",
-            display_name=i18n.t(
-                'components.olivya.olivya.system_prompt.display_name'),
-            info=i18n.t('components.olivya.olivya.system_prompt.info'),
+            display_name=i18n.t("components.olivya.olivya.system_prompt.display_name"),
+            info=i18n.t("components.olivya.olivya.system_prompt.info"),
             value="",
             required=False,
         ),
         MessageTextInput(
             name="conversation_history",
-            display_name=i18n.t(
-                'components.olivya.olivya.conversation_history.display_name'),
-            info=i18n.t('components.olivya.olivya.conversation_history.info'),
+            display_name=i18n.t("components.olivya.olivya.conversation_history.display_name"),
+            info=i18n.t("components.olivya.olivya.conversation_history.info"),
             value="",
             required=False,
             tool_mode=True,
@@ -74,10 +68,9 @@ class OlivyaComponent(Component):
 
     outputs = [
         Output(
-            display_name=i18n.t(
-                'components.olivya.olivya.outputs.output.display_name'),
+            display_name=i18n.t("components.olivya.olivya.outputs.output.display_name"),
             name="output",
-            method="build_output"
+            method="build_output",
         ),
     ]
 
@@ -116,15 +109,13 @@ class OlivyaComponent(Component):
 
         except httpx.HTTPStatusError as http_err:
             await logger.aexception("HTTP error occurred")
-            response_data = {
-                "error": f"HTTP error occurred: {http_err}", "response_text": response.text}
+            response_data = {"error": f"HTTP error occurred: {http_err}", "response_text": response.text}
         except httpx.RequestError as req_err:
             await logger.aexception("Request failed")
             response_data = {"error": f"Request failed: {req_err}"}
         except json.JSONDecodeError as json_err:
             await logger.aexception("Response parsing failed")
-            response_data = {
-                "error": f"Response parsing failed: {json_err}", "raw_response": response.text}
+            response_data = {"error": f"Response parsing failed: {json_err}", "raw_response": response.text}
         except Exception as e:  # noqa: BLE001
             await logger.aexception("An unexpected error occurred")
             response_data = {"error": f"An unexpected error occurred: {e!s}"}

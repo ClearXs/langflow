@@ -6,14 +6,26 @@
  * to all components via usePostMessageContext.
  */
 
-import React, { createContext, useContext, ReactNode, useCallback } from "react";
-import { usePostMessage, UsePostMessageOptions } from "@/customization/hooks/use-post-message";
+import React, {
+  createContext,
+  ReactNode,
+  useCallback,
+  useContext,
+} from "react";
+import {
+  UsePostMessageOptions,
+  usePostMessage,
+} from "@/customization/hooks/use-post-message";
 import type { StoredMessage } from "@/types/zustand/postMessage";
 
 // Context value type
 export interface PostMessageContextValue {
   // Send message to parent window
-  sendToParent: <T = any>(type: string, payload?: T, targetOrigin?: string) => void;
+  sendToParent: <T = any>(
+    type: string,
+    payload?: T,
+    targetOrigin?: string,
+  ) => void;
 
   // Send message to specific window
   sendToWindow: <T = any>(
@@ -116,7 +128,7 @@ export const usePostMessageContext = (): PostMessageContextValue => {
   if (!context) {
     throw new Error(
       "usePostMessageContext must be used within a PostMessageProvider. " +
-      "Make sure your component is wrapped with <PostMessageProvider>."
+        "Make sure your component is wrapped with <PostMessageProvider>.",
     );
   }
 

@@ -4,20 +4,15 @@ import asyncio
 import os
 import uuid
 from typing import Any
-import i18n
 
+import i18n
 from langchain_core.tools import StructuredTool  # noqa: TC002
 
 from lfx.base.agents.utils import maybe_unflatten_dict, safe_cache_get, safe_cache_set
-from lfx.base.mcp.util import (
-    MCPStdioClient,
-    MCPStreamableHttpClient,
-    create_input_schema_from_json_schema,
-    update_tools,
-)
+from lfx.base.mcp.util import MCPSseClient, MCPStdioClient, create_input_schema_from_json_schema, update_tools
 from lfx.custom.custom_component.component_with_cache import ComponentWithCache
 from lfx.inputs.inputs import InputTypes  # noqa: TC001
-from lfx.io import BoolInput, DropdownInput, McpInput, MessageTextInput, Output
+from lfx.io import DropdownInput, McpInput, MessageTextInput, Output
 from lfx.io.schema import flatten_schema, schema_to_langflow_inputs
 from lfx.log.logger import logger
 from lfx.schema.dataframe import DataFrame
@@ -38,31 +33,24 @@ class MCPToolsComponent(ComponentWithCache):
         self._ensure_cache_structure()
 
         # Initialize clients with access to the component cache
-        self.stdio_client: MCPStdioClient = MCPStdioClient(
-            component_cache=self._shared_component_cache)
-        self.streamable_http_client: MCPStreamableHttpClient = MCPStreamableHttpClient(
-            component_cache=self._shared_component_cache
-        )
+        self.stdio_client: MCPStdioClient = MCPStdioClient(component_cache=self._shared_component_cache)
+        self.sse_client: MCPSseClient = MCPSseClient(component_cache=self._shared_component_cache)
 
     def _ensure_cache_structure(self):
         """Ensure the cache has the required structure."""
         try:
             # Check if servers key exists and is not CacheMiss
-            servers_value = safe_cache_get(
-                self._shared_component_cache, "servers")
+            servers_value = safe_cache_get(self._shared_component_cache, "servers")
             if servers_value is None:
                 safe_cache_set(self._shared_component_cache, "servers", {})
 
             # Check if last_selected_server key exists and is not CacheMiss
-            last_server_value = safe_cache_get(
-                self._shared_component_cache, "last_selected_server")
+            last_server_value = safe_cache_get(self._shared_component_cache, "last_selected_server")
             if last_server_value is None:
-                safe_cache_set(self._shared_component_cache,
-                               "last_selected_server", "")
+                safe_cache_set(self._shared_component_cache, "last_selected_server", "")
 
         except Exception as e:
-            error_msg = i18n.t(
-                'components.agents.mcp_component.errors.cache_structure_init_failed', error=str(e))
+            error_msg = i18n.t("components.agents.mcp_component.errors.cache_structure_init_failed", error=str(e))
             logger.warning(error_msg)
 
     default_keys: list[str] = [
@@ -72,11 +60,10 @@ class MCPToolsComponent(ComponentWithCache):
         "tool_placeholder",
         "mcp_server",
         "tool",
-        "use_cache",
     ]
 
-    display_name = i18n.t('components.agents.mcp_component.display_name')
-    description = i18n.t('components.agents.mcp_component.description')
+    display_name = i18n.t("components.agents.mcp_component.display_name")
+    description = i18n.t("components.agents.mcp_component.description")
     documentation: str = "https://docs.langflow.org/mcp-client"
     icon = "Mcp"
     name = "MCPTools"
@@ -86,38 +73,24 @@ class MCPToolsComponent(ComponentWithCache):
     inputs = [
         McpInput(
             name="mcp_server",
-            display_name=i18n.t(
-                'components.agents.mcp_component.mcp_server.display_name'),
-            info=i18n.t('components.agents.mcp_component.mcp_server.info'),
+            display_name=i18n.t("components.agents.mcp_component.mcp_server.display_name"),
+            info=i18n.t("components.agents.mcp_component.mcp_server.info"),
             real_time_refresh=True,
-        ),
-        BoolInput(
-            name="use_cache",
-            display_name="Use Cached Server",
-            info=(
-                "Enable caching of MCP Server and tools to improve performance. "
-                "Disable to always fetch fresh tools and server updates."
-            ),
-            value=False,
-            advanced=True,
         ),
         DropdownInput(
             name="tool",
-            display_name=i18n.t(
-                'components.agents.mcp_component.tool.display_name'),
+            display_name=i18n.t("components.agents.mcp_component.tool.display_name"),
             options=[],
             value="",
-            info=i18n.t('components.agents.mcp_component.tool.info'),
+            info=i18n.t("components.agents.mcp_component.tool.info"),
             show=False,
             required=True,
             real_time_refresh=True,
         ),
         MessageTextInput(
             name="tool_placeholder",
-            display_name=i18n.t(
-                'components.agents.mcp_component.tool_placeholder.display_name'),
-            info=i18n.t(
-                'components.agents.mcp_component.tool_placeholder.info'),
+            display_name=i18n.t("components.agents.mcp_component.tool_placeholder.display_name"),
+            info=i18n.t("components.agents.mcp_component.tool_placeholder.info"),
             value="",
             show=False,
             tool_mode=False,
@@ -126,10 +99,9 @@ class MCPToolsComponent(ComponentWithCache):
 
     outputs = [
         Output(
-            display_name=i18n.t(
-                'components.agents.mcp_component.outputs.response.display_name'),
+            display_name=i18n.t("components.agents.mcp_component.outputs.response.display_name"),
             name="response",
-            method="build_output"
+            method="build_output",
         ),
     ]
 
@@ -137,27 +109,25 @@ class MCPToolsComponent(ComponentWithCache):
         """Validate and process schema inputs for a tool."""
         try:
             if not tool_obj or not hasattr(tool_obj, "args_schema"):
-                error_msg = i18n.t(
-                    'components.agents.mcp_component.errors.invalid_tool_object')
+                error_msg = i18n.t("components.agents.mcp_component.errors.invalid_tool_object")
                 raise ValueError(error_msg)
 
             flat_schema = flatten_schema(tool_obj.args_schema.schema())
             input_schema = create_input_schema_from_json_schema(flat_schema)
             if not input_schema:
-                error_msg = i18n.t(
-                    'components.agents.mcp_component.errors.empty_input_schema', tool_name=tool_obj.name)
+                error_msg = i18n.t("components.agents.mcp_component.errors.empty_input_schema", tool_name=tool_obj.name)
                 raise ValueError(error_msg)
 
             schema_inputs = schema_to_langflow_inputs(input_schema)
             if not schema_inputs:
                 warning_msg = i18n.t(
-                    'components.agents.mcp_component.warnings.no_input_parameters', tool_name=tool_obj.name)
+                    "components.agents.mcp_component.warnings.no_input_parameters", tool_name=tool_obj.name
+                )
                 await logger.awarning(warning_msg)
                 return []
 
         except Exception as e:
-            error_msg = i18n.t(
-                'components.agents.mcp_component.errors.schema_validation_failed', error=str(e))
+            error_msg = i18n.t("components.agents.mcp_component.errors.schema_validation_failed", error=str(e))
             await logger.aexception(error_msg)
             raise ValueError(error_msg) from e
         else:
@@ -167,8 +137,7 @@ class MCPToolsComponent(ComponentWithCache):
         """Update the list of available tools from MCP server."""
         try:
             # Accepts mcp_server_value as dict {name, config} or uses self.mcp_server
-            mcp_server = mcp_server_value if mcp_server_value is not None else getattr(
-                self, "mcp_server", None)
+            mcp_server = mcp_server_value if mcp_server_value is not None else getattr(self, "mcp_server", None)
             server_name = None
             server_config_from_value = None
             if isinstance(mcp_server, dict):
@@ -180,35 +149,23 @@ class MCPToolsComponent(ComponentWithCache):
                 self.tools = []
                 return [], {"name": server_name, "config": server_config_from_value}
 
-        # Check if caching is enabled, default to False
-        use_cache = getattr(self, "use_cache", False)
+            # Use shared cache if available
+            servers_cache = safe_cache_get(self._shared_component_cache, "servers", {})
+            cached = servers_cache.get(server_name) if isinstance(servers_cache, dict) else None
 
-        # Use shared cache if available and caching is enabled
-        cached = None
-        if use_cache:
-            servers_cache = safe_cache_get(
-                self._shared_component_cache, "servers", {})
-            cached = servers_cache.get(server_name) if isinstance(
-                servers_cache, dict) else None
-
-        if cached is not None:
-            try:
+            if cached is not None:
                 self.tools = cached["tools"]
                 self.tool_names = cached["tool_names"]
                 self._tool_cache = cached["tool_cache"]
                 server_config_from_value = cached["config"]
-            except (TypeError, KeyError, AttributeError) as e:
-                # Handle corrupted cache data by clearing it and continuing to fetch fresh tools
-                msg = f"Unable to use cached data for MCP Server{server_name}: {e}"
-                await logger.awarning(msg)
-                # Clear the corrupted cache entry
-                current_servers_cache = safe_cache_get(
-                    self._shared_component_cache, "servers", {})
-                if isinstance(current_servers_cache, dict) and server_name in current_servers_cache:
-                    current_servers_cache.pop(server_name)
-                    safe_cache_set(self._shared_component_cache,
-                                   "servers", current_servers_cache)
-            else:
+
+                success_msg = i18n.t(
+                    "components.agents.mcp_component.success.tools_loaded_from_cache",
+                    server_name=server_name,
+                    count=len(self.tools),
+                )
+                await logger.ainfo(success_msg)
+
                 return self.tools, {"name": server_name, "config": server_config_from_value}
 
             try:
@@ -216,14 +173,12 @@ class MCPToolsComponent(ComponentWithCache):
                     from langflow.api.v2.mcp import get_server
                     from langflow.services.database.models.user.crud import get_user_by_id
                 except ImportError as e:
-                    error_msg = i18n.t(
-                        'components.agents.mcp_component.errors.langflow_mcp_not_available')
+                    error_msg = i18n.t("components.agents.mcp_component.errors.langflow_mcp_not_available")
                     raise ImportError(error_msg) from e
 
                 async with session_scope() as db:
                     if not self.user_id:
-                        error_msg = i18n.t(
-                            'components.agents.mcp_component.errors.user_id_required')
+                        error_msg = i18n.t("components.agents.mcp_component.errors.user_id_required")
                         raise ValueError(error_msg)
                     current_user = await get_user_by_id(db, self.user_id)
 
@@ -241,26 +196,25 @@ class MCPToolsComponent(ComponentWithCache):
                     server_config = server_config_from_value
 
                 if not server_config:
-                    warning_msg = i18n.t('components.agents.mcp_component.warnings.no_server_config',
-                                         server_name=server_name)
+                    warning_msg = i18n.t(
+                        "components.agents.mcp_component.warnings.no_server_config", server_name=server_name
+                    )
                     await logger.awarning(warning_msg)
                     self.tools = []
                     return [], {"name": server_name, "config": server_config}
 
-            _, tool_list, tool_cache = await update_tools(
-                server_name=server_name,
-                server_config=server_config,
-                mcp_stdio_client=self.stdio_client,
-                mcp_streamable_http_client=self.streamable_http_client,
-            )
+                _, tool_list, tool_cache = await update_tools(
+                    server_name=server_name,
+                    server_config=server_config,
+                    mcp_stdio_client=self.stdio_client,
+                    mcp_sse_client=self.sse_client,
+                )
 
-            self.tool_names = [
-                tool.name for tool in tool_list if hasattr(tool, "name")]
-            self._tool_cache = tool_cache
-            self.tools = tool_list
+                self.tool_names = [tool.name for tool in tool_list if hasattr(tool, "name")]
+                self._tool_cache = tool_cache
+                self.tools = tool_list
 
-            # Cache the result only if caching is enabled
-            if use_cache:
+                # Cache the result using shared cache
                 cache_data = {
                     "tools": tool_list,
                     "tool_names": self.tool_names,
@@ -269,29 +223,31 @@ class MCPToolsComponent(ComponentWithCache):
                 }
 
                 # Safely update the servers cache
-                current_servers_cache = safe_cache_get(
-                    self._shared_component_cache, "servers", {})
+                current_servers_cache = safe_cache_get(self._shared_component_cache, "servers", {})
                 if isinstance(current_servers_cache, dict):
                     current_servers_cache[server_name] = cache_data
-                    safe_cache_set(self._shared_component_cache,
-                                   "servers", current_servers_cache)
+                    safe_cache_set(self._shared_component_cache, "servers", current_servers_cache)
+
+                success_msg = i18n.t(
+                    "components.agents.mcp_component.success.tools_updated",
+                    server_name=server_name,
+                    count=len(tool_list),
+                )
+                await logger.ainfo(success_msg)
 
             except (TimeoutError, asyncio.TimeoutError) as e:
-                error_msg = i18n.t(
-                    'components.agents.mcp_component.errors.timeout_updating_tools', error=str(e))
+                error_msg = i18n.t("components.agents.mcp_component.errors.timeout_updating_tools", error=str(e))
                 await logger.aexception(error_msg)
                 raise TimeoutError(error_msg) from e
             except Exception as e:
-                error_msg = i18n.t(
-                    'components.agents.mcp_component.errors.tool_update_failed', error=str(e))
+                error_msg = i18n.t("components.agents.mcp_component.errors.tool_update_failed", error=str(e))
                 await logger.aexception(error_msg)
                 raise ValueError(error_msg) from e
             else:
                 return tool_list, {"name": server_name, "config": server_config}
 
         except Exception as e:
-            error_msg = i18n.t(
-                'components.agents.mcp_component.errors.update_tool_list_failed', error=str(e))
+            error_msg = i18n.t("components.agents.mcp_component.errors.update_tool_list_failed", error=str(e))
             await logger.aexception(error_msg)
             raise ValueError(error_msg) from e
 
@@ -303,20 +259,22 @@ class MCPToolsComponent(ComponentWithCache):
                     if len(self.tools) == 0:
                         try:
                             self.tools, build_config["mcp_server"]["value"] = await self.update_tool_list()
-                            build_config["tool"]["options"] = [
-                                tool.name for tool in self.tools]
+                            build_config["tool"]["options"] = [tool.name for tool in self.tools]
                             build_config["tool"]["placeholder"] = i18n.t(
-                                'components.agents.mcp_component.placeholders.select_tool')
+                                "components.agents.mcp_component.placeholders.select_tool"
+                            )
                         except (TimeoutError, asyncio.TimeoutError) as e:
                             error_msg = i18n.t(
-                                'components.agents.mcp_component.errors.timeout_updating_tools', error=str(e))
+                                "components.agents.mcp_component.errors.timeout_updating_tools", error=str(e)
+                            )
                             await logger.aexception(error_msg)
                             if not build_config["tools_metadata"]["show"]:
                                 build_config["tool"]["show"] = True
                                 build_config["tool"]["options"] = []
                                 build_config["tool"]["value"] = ""
                                 build_config["tool"]["placeholder"] = i18n.t(
-                                    'components.agents.mcp_component.placeholders.timeout_mcp_server')
+                                    "components.agents.mcp_component.placeholders.timeout_mcp_server"
+                                )
                             else:
                                 build_config["tool"]["show"] = False
                         except ValueError:
@@ -325,7 +283,8 @@ class MCPToolsComponent(ComponentWithCache):
                                 build_config["tool"]["options"] = []
                                 build_config["tool"]["value"] = ""
                                 build_config["tool"]["placeholder"] = i18n.t(
-                                    'components.agents.mcp_component.placeholders.error_mcp_server')
+                                    "components.agents.mcp_component.placeholders.error_mcp_server"
+                                )
                             else:
                                 build_config["tool"]["show"] = False
 
@@ -338,15 +297,17 @@ class MCPToolsComponent(ComponentWithCache):
                             tool_obj = tool
                             break
                     if tool_obj is None:
-                        warning_msg = i18n.t('components.agents.mcp_component.warnings.tool_not_found',
-                                             tool_name=field_value, available_tools=str(self.tools))
+                        warning_msg = i18n.t(
+                            "components.agents.mcp_component.warnings.tool_not_found",
+                            tool_name=field_value,
+                            available_tools=str(self.tools),
+                        )
                         await logger.awarning(warning_msg)
                         return build_config
                     await self._update_tool_config(build_config, field_value)
                 except Exception as e:
                     build_config["tool"]["options"] = []
-                    error_msg = i18n.t(
-                        'components.agents.mcp_component.errors.tools_update_failed', error=str(e))
+                    error_msg = i18n.t("components.agents.mcp_component.errors.tools_update_failed", error=str(e))
                     raise ValueError(error_msg) from e
                 else:
                     return build_config
@@ -363,16 +324,13 @@ class MCPToolsComponent(ComponentWithCache):
 
                 build_config["tool_placeholder"]["tool_mode"] = True
 
-                current_server_name = field_value.get("name") if isinstance(
-                    field_value, dict) else field_value
-                _last_selected_server = safe_cache_get(
-                    self._shared_component_cache, "last_selected_server", "")
+                current_server_name = field_value.get("name") if isinstance(field_value, dict) else field_value
+                _last_selected_server = safe_cache_get(self._shared_component_cache, "last_selected_server", "")
 
                 # To avoid unnecessary updates, only proceed if the server has actually changed
                 if (_last_selected_server in (current_server_name, "")) and build_config["tool"]["show"]:
                     if current_server_name:
-                        servers_cache = safe_cache_get(
-                            self._shared_component_cache, "servers", {})
+                        servers_cache = safe_cache_get(self._shared_component_cache, "servers", {})
                         if isinstance(servers_cache, dict):
                             cached = servers_cache.get(current_server_name)
                             if cached is not None and cached.get("tool_names"):
@@ -385,29 +343,19 @@ class MCPToolsComponent(ComponentWithCache):
 
                 # Determine if "Tool Mode" is active by checking if the tool dropdown is hidden.
                 is_in_tool_mode = build_config["tools_metadata"]["show"]
-                safe_cache_set(self._shared_component_cache,
-                               "last_selected_server", current_server_name)
+                safe_cache_set(self._shared_component_cache, "last_selected_server", current_server_name)
 
                 # Check if tools are already cached for this server before clearing
                 cached_tools = None
                 if current_server_name:
-                    use_cache = getattr(self, "use_cache", True)
-                    if use_cache:
-                        servers_cache = safe_cache_get(
-                            self._shared_component_cache, "servers", {})
-                        if isinstance(servers_cache, dict):
-                            cached = servers_cache.get(current_server_name)
-                            if cached is not None:
-                                try:
-                                    cached_tools = cached["tools"]
-                                    self.tools = cached_tools
-                                    self.tool_names = cached["tool_names"]
-                                    self._tool_cache = cached["tool_cache"]
-                                except (TypeError, KeyError, AttributeError) as e:
-                                    # Handle corrupted cache data by ignoring it
-                                    msg = f"Unable to use cached data for MCP Server,{current_server_name}: {e}"
-                                    await logger.awarning(msg)
-                                    cached_tools = None
+                    servers_cache = safe_cache_get(self._shared_component_cache, "servers", {})
+                    if isinstance(servers_cache, dict):
+                        cached = servers_cache.get(current_server_name)
+                        if cached is not None:
+                            cached_tools = cached["tools"]
+                            self.tools = cached_tools
+                            self.tool_names = cached["tool_names"]
+                            self._tool_cache = cached["tool_cache"]
 
                 # Only clear tools if we don't have cached tools for the current server
                 if not cached_tools:
@@ -421,14 +369,15 @@ class MCPToolsComponent(ComponentWithCache):
                     build_config["tool"]["show"] = True
                     if cached_tools:
                         # Use cached tools to populate options immediately
-                        build_config["tool"]["options"] = [
-                            tool.name for tool in cached_tools]
+                        build_config["tool"]["options"] = [tool.name for tool in cached_tools]
                         build_config["tool"]["placeholder"] = i18n.t(
-                            'components.agents.mcp_component.placeholders.select_tool')
+                            "components.agents.mcp_component.placeholders.select_tool"
+                        )
                     else:
                         # Show loading state only when we need to fetch tools
                         build_config["tool"]["placeholder"] = i18n.t(
-                            'components.agents.mcp_component.placeholders.loading_tools')
+                            "components.agents.mcp_component.placeholders.loading_tools"
+                        )
                         build_config["tool"]["options"] = []
                     build_config["tool"]["value"] = uuid.uuid4()
                 else:
@@ -438,8 +387,7 @@ class MCPToolsComponent(ComponentWithCache):
 
             elif field_name == "tool_mode":
                 build_config["tool"]["placeholder"] = ""
-                build_config["tool"]["show"] = not bool(
-                    field_value) and bool(build_config["mcp_server"])
+                build_config["tool"]["show"] = not bool(field_value) and bool(build_config["mcp_server"])
                 self.remove_non_default_keys(build_config)
                 self.tool = build_config["tool"]["value"]
                 if field_value:
@@ -449,13 +397,13 @@ class MCPToolsComponent(ComponentWithCache):
                     build_config["tool"]["options"] = []
                     build_config["tool"]["show"] = True
                     build_config["tool"]["placeholder"] = i18n.t(
-                        'components.agents.mcp_component.placeholders.loading_tools')
+                        "components.agents.mcp_component.placeholders.loading_tools"
+                    )
             elif field_name == "tools_metadata":
                 self._not_load_actions = False
 
         except Exception as e:
-            error_msg = i18n.t(
-                'components.agents.mcp_component.errors.build_config_update_failed', error=str(e))
+            error_msg = i18n.t("components.agents.mcp_component.errors.build_config_update_failed", error=str(e))
             await logger.aexception(error_msg)
             raise ValueError(error_msg) from e
         else:
@@ -470,20 +418,21 @@ class MCPToolsComponent(ComponentWithCache):
                     continue
                 try:
                     flat_schema = flatten_schema(tool.args_schema.schema())
-                    input_schema = create_input_schema_from_json_schema(
-                        flat_schema)
+                    input_schema = create_input_schema_from_json_schema(flat_schema)
                     langflow_inputs = schema_to_langflow_inputs(input_schema)
                     inputs[tool.name] = langflow_inputs
                 except (AttributeError, ValueError, TypeError, KeyError) as e:
-                    error_msg = i18n.t('components.agents.mcp_component.errors.tool_input_schema_failed',
-                                       tool_name=getattr(tool, 'name', 'unknown'), error=str(e))
+                    error_msg = i18n.t(
+                        "components.agents.mcp_component.errors.tool_input_schema_failed",
+                        tool_name=getattr(tool, "name", "unknown"),
+                        error=str(e),
+                    )
                     logger.exception(error_msg)
                     continue
             return inputs
 
         except Exception as e:
-            error_msg = i18n.t(
-                'components.agents.mcp_component.errors.get_inputs_for_tools_failed', error=str(e))
+            error_msg = i18n.t("components.agents.mcp_component.errors.get_inputs_for_tools_failed", error=str(e))
             logger.exception(error_msg)
             return {}
 
@@ -493,8 +442,7 @@ class MCPToolsComponent(ComponentWithCache):
         """Remove the input schema for the tool from the build config."""
         try:
             # Keep only schemas that don't belong to the current tool
-            input_schema = {k: v for k,
-                            v in input_schema.items() if k != tool_name}
+            input_schema = {k: v for k, v in input_schema.items() if k != tool_name}
             # Remove all inputs from other tools
             for value in input_schema.values():
                 for _input in value:
@@ -502,8 +450,9 @@ class MCPToolsComponent(ComponentWithCache):
                         build_config.pop(_input.name)
 
         except Exception as e:
-            error_msg = i18n.t('components.agents.mcp_component.errors.remove_input_schema_failed',
-                               tool_name=tool_name, error=str(e))
+            error_msg = i18n.t(
+                "components.agents.mcp_component.errors.remove_input_schema_failed", tool_name=tool_name, error=str(e)
+            )
             logger.warning(error_msg)
 
     def remove_non_default_keys(self, build_config: dict) -> None:
@@ -514,8 +463,7 @@ class MCPToolsComponent(ComponentWithCache):
                     build_config.pop(key)
 
         except Exception as e:
-            error_msg = i18n.t(
-                'components.agents.mcp_component.errors.remove_non_default_keys_failed', error=str(e))
+            error_msg = i18n.t("components.agents.mcp_component.errors.remove_non_default_keys_failed", error=str(e))
             logger.warning(error_msg)
 
     async def _update_tool_config(self, build_config: dict, tool_name: str) -> None:
@@ -527,11 +475,13 @@ class MCPToolsComponent(ComponentWithCache):
             if not tool_name:
                 return
 
-            tool_obj = next(
-                (tool for tool in self.tools if tool.name == tool_name), None)
+            tool_obj = next((tool for tool in self.tools if tool.name == tool_name), None)
             if not tool_obj:
-                warning_msg = i18n.t('components.agents.mcp_component.warnings.tool_not_found_in_config',
-                                     tool_name=tool_name, available_tools=str(self.tools))
+                warning_msg = i18n.t(
+                    "components.agents.mcp_component.warnings.tool_not_found_in_config",
+                    tool_name=tool_name,
+                    available_tools=str(self.tools),
+                )
                 self.remove_non_default_keys(build_config)
                 build_config["tool"]["value"] = ""
                 await logger.awarning(warning_msg)
@@ -545,24 +495,20 @@ class MCPToolsComponent(ComponentWithCache):
                         current_values[key] = value["value"]
 
                 # Get all tool inputs and remove old ones
-                input_schema_for_all_tools = self.get_inputs_for_all_tools(
-                    self.tools)
-                self.remove_input_schema_from_build_config(
-                    build_config, tool_name, input_schema_for_all_tools)
+                input_schema_for_all_tools = self.get_inputs_for_all_tools(self.tools)
+                self.remove_input_schema_from_build_config(build_config, tool_name, input_schema_for_all_tools)
 
                 # Get and validate new inputs
                 self.schema_inputs = await self._validate_schema_inputs(tool_obj)
                 if not self.schema_inputs:
-                    info_msg = i18n.t(
-                        'components.agents.mcp_component.info.no_input_parameters', tool_name=tool_name)
+                    info_msg = i18n.t("components.agents.mcp_component.info.no_input_parameters", tool_name=tool_name)
                     await logger.ainfo(info_msg)
                     return
 
                 # Add new inputs to build config
                 for schema_input in self.schema_inputs:
                     if not schema_input or not hasattr(schema_input, "name"):
-                        warning_msg = i18n.t(
-                            'components.agents.mcp_component.warnings.invalid_schema_input')
+                        warning_msg = i18n.t("components.agents.mcp_component.warnings.invalid_schema_input")
                         await logger.awarning(warning_msg)
                         continue
 
@@ -579,26 +525,30 @@ class MCPToolsComponent(ComponentWithCache):
                             build_config[name]["value"] = current_values[name]
 
                     except (AttributeError, KeyError, TypeError) as e:
-                        error_msg = i18n.t('components.agents.mcp_component.errors.schema_input_processing_failed',
-                                           schema_input=str(schema_input), error=str(e))
+                        error_msg = i18n.t(
+                            "components.agents.mcp_component.errors.schema_input_processing_failed",
+                            schema_input=str(schema_input),
+                            error=str(e),
+                        )
                         await logger.aexception(error_msg)
                         continue
 
             except ValueError as e:
-                error_msg = i18n.t('components.agents.mcp_component.errors.tool_schema_validation_failed',
-                                   tool_name=tool_name, error=str(e))
+                error_msg = i18n.t(
+                    "components.agents.mcp_component.errors.tool_schema_validation_failed",
+                    tool_name=tool_name,
+                    error=str(e),
+                )
                 await logger.aexception(error_msg)
                 self.schema_inputs = []
                 return
             except (AttributeError, KeyError, TypeError) as e:
-                error_msg = i18n.t(
-                    'components.agents.mcp_component.errors.tool_config_update_failed', error=str(e))
+                error_msg = i18n.t("components.agents.mcp_component.errors.tool_config_update_failed", error=str(e))
                 await logger.aexception(error_msg)
                 raise ValueError(error_msg) from e
 
         except Exception as e:
-            error_msg = i18n.t(
-                'components.agents.mcp_component.errors.update_tool_config_failed', error=str(e))
+            error_msg = i18n.t("components.agents.mcp_component.errors.update_tool_config_failed", error=str(e))
             await logger.aexception(error_msg)
             raise ValueError(error_msg) from e
 
@@ -611,12 +561,10 @@ class MCPToolsComponent(ComponentWithCache):
                 session_context = self._get_session_context()
                 if session_context:
                     self.stdio_client.set_session_context(session_context)
-                    self.streamable_http_client.set_session_context(
-                        session_context)
+                    self.sse_client.set_session_context(session_context)
 
                 exec_tool = self._tool_cache[self.tool]
-                tool_args = self.get_inputs_for_all_tools(self.tools)[
-                    self.tool]
+                tool_args = self.get_inputs_for_all_tools(self.tools)[self.tool]
                 kwargs = {}
                 for arg in tool_args:
                     value = getattr(self, arg.name, None)
@@ -635,19 +583,20 @@ class MCPToolsComponent(ComponentWithCache):
                     item_dict = item.model_dump()
                     tool_content.append(item_dict)
 
-                success_msg = i18n.t('components.agents.mcp_component.success.tool_executed',
-                                     tool_name=self.tool, result_count=len(tool_content))
+                success_msg = i18n.t(
+                    "components.agents.mcp_component.success.tool_executed",
+                    tool_name=self.tool,
+                    result_count=len(tool_content),
+                )
                 await logger.ainfo(success_msg)
 
                 return DataFrame(data=tool_content)
 
-            error_msg = i18n.t(
-                'components.agents.mcp_component.errors.no_tool_selected')
+            error_msg = i18n.t("components.agents.mcp_component.errors.no_tool_selected")
             return DataFrame(data=[{"error": error_msg}])
 
         except Exception as e:
-            error_msg = i18n.t(
-                'components.agents.mcp_component.errors.build_output_failed', error=str(e))
+            error_msg = i18n.t("components.agents.mcp_component.errors.build_output_failed", error=str(e))
             await logger.aexception(error_msg)
             raise ValueError(error_msg) from e
 
@@ -668,8 +617,7 @@ class MCPToolsComponent(ComponentWithCache):
             return None
 
         except Exception as e:
-            error_msg = i18n.t(
-                'components.agents.mcp_component.errors.session_context_failed', error=str(e))
+            error_msg = i18n.t("components.agents.mcp_component.errors.session_context_failed", error=str(e))
             logger.warning(error_msg)
             return None
 
@@ -683,7 +631,6 @@ class MCPToolsComponent(ComponentWithCache):
             return []
 
         except Exception as e:
-            error_msg = i18n.t(
-                'components.agents.mcp_component.errors.get_tools_failed', error=str(e))
+            error_msg = i18n.t("components.agents.mcp_component.errors.get_tools_failed", error=str(e))
             await logger.aexception(error_msg)
             return []

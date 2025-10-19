@@ -1,7 +1,7 @@
 import os
-import i18n
 from pathlib import Path
 
+import i18n
 from langchain_community.vectorstores import FAISS
 
 from lfx.base.vectorstores.model import LCVectorStoreComponent, check_cached_vector_store
@@ -13,8 +13,8 @@ from lfx.schema.data import Data
 class FaissVectorStoreComponent(LCVectorStoreComponent):
     """FAISS Vector Store with search capabilities."""
 
-    display_name: str = i18n.t('components.vectorstores.faiss.display_name')
-    description: str = i18n.t('components.vectorstores.faiss.description')
+    display_name: str = i18n.t("components.vectorstores.faiss.display_name")
+    description: str = i18n.t("components.vectorstores.faiss.description")
     name = "FAISS"
     icon = "FAISS"
 
@@ -23,39 +23,31 @@ class FaissVectorStoreComponent(LCVectorStoreComponent):
     inputs = [
         StrInput(
             name="index_name",
-            display_name=i18n.t(
-                'components.vectorstores.faiss.index_name.display_name'),
+            display_name=i18n.t("components.vectorstores.faiss.index_name.display_name"),
             value="langflow_index",
         ),
         StrInput(
             name="persist_directory",
-            display_name=i18n.t(
-                'components.vectorstores.faiss.persist_directory.display_name'),
-            info=i18n.t(
-                'components.vectorstores.faiss.persist_directory.info'),
+            display_name=i18n.t("components.vectorstores.faiss.persist_directory.display_name"),
+            info=i18n.t("components.vectorstores.faiss.persist_directory.info"),
         ),
         *LCVectorStoreComponent.inputs,
         BoolInput(
             name="allow_dangerous_deserialization",
-            display_name=i18n.t(
-                'components.vectorstores.faiss.allow_dangerous_deserialization.display_name'),
-            info=i18n.t(
-                'components.vectorstores.faiss.allow_dangerous_deserialization.info'),
+            display_name=i18n.t("components.vectorstores.faiss.allow_dangerous_deserialization.display_name"),
+            info=i18n.t("components.vectorstores.faiss.allow_dangerous_deserialization.info"),
             advanced=True,
             value=True,
         ),
         HandleInput(
             name="embedding",
-            display_name=i18n.t(
-                'components.vectorstores.faiss.embedding.display_name'),
-            input_types=["Embeddings"]
+            display_name=i18n.t("components.vectorstores.faiss.embedding.display_name"),
+            input_types=["Embeddings"],
         ),
         IntInput(
             name="number_of_results",
-            display_name=i18n.t(
-                'components.vectorstores.faiss.number_of_results.display_name'),
-            info=i18n.t(
-                'components.vectorstores.faiss.number_of_results.info'),
+            display_name=i18n.t("components.vectorstores.faiss.number_of_results.display_name"),
+            info=i18n.t("components.vectorstores.faiss.number_of_results.info"),
             advanced=True,
             value=4,
         ),
@@ -94,8 +86,7 @@ class FaissVectorStoreComponent(LCVectorStoreComponent):
             else:
                 documents.append(_input)
 
-        faiss = FAISS.from_documents(
-            documents=documents, embedding=self.embedding)
+        faiss = FAISS.from_documents(documents=documents, embedding=self.embedding)
         faiss.save_local(str(path), self.index_name)
         return faiss
 

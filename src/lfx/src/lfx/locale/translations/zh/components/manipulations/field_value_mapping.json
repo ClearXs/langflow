@@ -1,27 +1,58 @@
 {
   "display_name": "字段值映射",
-  "description": "映射字段值",
-  "status": {
-    "success": "映射了 {count} 条记录"
-  },
-  "errors": {
-    "mapping_failed": "值映射失败: {error}",
-    "missing_config": "值映射是必需的"
-  },
+  "description": "基于条件比较映射字段值。支持多字段和多种比较运算符。",
   "data_input": {
     "display_name": "数据输入",
-    "info": "要转换的输入数据"
+    "info": "要转换的输入数据流"
   },
-  "default_value": {
-    "display_name": "默认值",
-    "info": "未映射值的默认值"
+  "mapping_rules": {
+    "display_name": "映射规则",
+    "info": "配置多个字段值映射规则。每条规则将字段值与条件进行比较,匹配时输出替换值。"
   },
-  "field_name": {
-    "display_name": "字段名",
-    "info": "应用映射的字段"
+  "input_field": "输入字段",
+  "input_field_desc": "要读取值进行比较的字段名称",
+  "operator": "运算符",
+  "operator_desc": "使用的比较运算符 (=, !=, >, <, 包含等)",
+  "compare_value": "比较值",
+  "compare_value_desc": "与输入字段值进行比较的值",
+  "replacement_value": "替换值",
+  "replacement_value_desc": "条件匹配时输出的值",
+  "output_field": "输出字段",
+  "output_field_desc": "写入替换值的字段名称(可以与输入字段相同以覆盖原值)",
+  "analyze_button": "分析字段",
+  "operators": {
+    "equal": "等于 (=)",
+    "not_equal": "不等于 (≠)",
+    "greater_than": "大于 (>)",
+    "less_than": "小于 (<)",
+    "greater_equal": "大于等于 (≥)",
+    "less_equal": "小于等于 (≤)",
+    "contains": "包含",
+    "not_contains": "不包含",
+    "starts_with": "开头是",
+    "ends_with": "结尾是",
+    "in": "在列表中 (逗号分隔)",
+    "not_in": "不在列表中 (逗号分隔)"
   },
-  "value_mappings": {
-    "display_name": "值映射",
-    "info": "源值到目标值的映射"
+  "outputs": {
+    "data": "映射后的数据"
+  },
+  "status": {
+    "success": "成功使用 {rules} 条规则映射了 {count} 条记录",
+    "processing": "正在处理字段值映射...",
+    "analysis_success": "字段分析完成，已生成 {count} 个映射模板"
+  },
+  "errors": {
+    "missing_config": "映射规则是必需的",
+    "missing_fields": "每条规则都需要输入字段和输出字段",
+    "invalid_operator": "无效的运算符: {operator}",
+    "mapping_failed": "字段值映射失败: {error}",
+    "no_data_input": "没有可用于字段分析的数据输入",
+    "no_fields_found": "在数据中未找到字段",
+    "analysis_failed": "字段分析失败: {error}"
+  },
+  "warnings": {
+    "field_not_found": "在数据中未找到输入字段 '{field}'",
+    "no_match": "字段 '{field}' 值 '{value}' 没有匹配的映射规则"
   }
 }

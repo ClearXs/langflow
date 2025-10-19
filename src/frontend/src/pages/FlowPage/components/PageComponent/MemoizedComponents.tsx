@@ -9,6 +9,7 @@ import LogCanvasControls from "@/components/core/logCanvasControlsComponent";
 import { Button } from "@/components/ui/button";
 import { SidebarTrigger, useSidebar } from "@/components/ui/sidebar";
 import { ENABLE_NEW_SIDEBAR } from "@/customization/feature-flags";
+import { useIsEmbedded } from "@/hooks/use-iframe-params";
 import useFlowStore from "@/stores/flowStore";
 import { cn } from "@/utils/utils";
 import { useSearchContext } from "../flowSidebarComponent";
@@ -68,6 +69,8 @@ export const MemoizedSidebarTrigger = memo(() => {
   const { focusSearch, isSearchFocused } = useSearchContext();
   const navItems = getNavItems(t);
 
+  const isEmbedded = useIsEmbedded();
+
   if (ENABLE_NEW_SIDEBAR) {
     return (
       <Panel
@@ -77,25 +80,32 @@ export const MemoizedSidebarTrigger = memo(() => {
         )}
         position="top-left"
       >
-        {navItems.map((item) => (
-          <CanvasControlButton
-            data-testid={`sidebar-trigger-${item.id}`}
-            iconName={item.icon}
-            iconClasses={item.id === "mcp" ? "h-8 w-8" : ""}
-            tooltipText={item.tooltip}
-            onClick={() => {
-              setActiveSection(item.id);
-              if (!open) {
-                toggleSidebar();
-              }
-              if (item.id === "search") {
-                // Add a small delay to ensure the sidebar is open and input is rendered
-                setTimeout(() => focusSearch(), 100);
-              }
-            }}
-            testId={item.id}
-          />
-        ))}
+        {navItems
+          .filter((item) => {
+            if (item.id === "mcp" || item.id === "bundles") {
+              return !isEmbedded;
+            }
+            return true;
+          })
+          .map((item) => (
+            <CanvasControlButton
+              data-testid={`sidebar-trigger-${item.id}`}
+              iconName={item.icon}
+              iconClasses={item.id === "mcp" ? "h-8 w-8" : ""}
+              tooltipText={item.tooltip}
+              onClick={() => {
+                setActiveSection(item.id);
+                if (!open) {
+                  toggleSidebar();
+                }
+                if (item.id === "search") {
+                  // Add a small delay to ensure the sidebar is open and input is rendered
+                  setTimeout(() => focusSearch(), 100);
+                }
+              }}
+              testId={item.id}
+            />
+          ))}
       </Panel>
     );
   }

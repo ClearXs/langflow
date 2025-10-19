@@ -8,10 +8,10 @@ Notes:
   utilities (and optional threading via `parallel_load_data`).
 """
 
-import os
 from __future__ import annotations
 
 import json
+import os
 import subprocess
 import sys
 import textwrap
@@ -19,6 +19,7 @@ from copy import deepcopy
 from typing import Any
 
 import i18n
+
 from lfx.base.data.base_file import BaseFileComponent
 from lfx.base.data.utils import TEXT_FILE_TYPES, parallel_load_data, parse_text_file_to_data
 from lfx.inputs.inputs import DropdownInput, MessageTextInput, StrInput
@@ -32,8 +33,8 @@ class FileComponent(BaseFileComponent):
     ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
     """File component with optional Docling processing (isolated in a subprocess)."""
 
-    display_name = i18n.t('components.data.file.display_name')
-    description = i18n.t('components.data.file.description')
+    display_name = i18n.t("components.data.file.display_name")
+    description = i18n.t("components.data.file.description")
     documentation: str = "https://docs.langflow.org/components-data#file"
     icon = "file-text"
     name = "File"
@@ -72,26 +73,23 @@ class FileComponent(BaseFileComponent):
 
     for input_item in _base_inputs:
         if isinstance(input_item, FileInput) and input_item.name == "path":
-            input_item.display_name = i18n.t(
-                'components.data.file.path.display_name')
-            input_item.info = i18n.t('components.data.file.path.info')
+            input_item.display_name = i18n.t("components.data.file.path.display_name")
+            input_item.info = i18n.t("components.data.file.path.info")
 
     inputs = [
         *_base_inputs,
         BoolInput(
             name="advanced_mode",
-            display_name=i18n.t(
-                'components.data.file.advanced_mode.display_name'),
+            display_name=i18n.t("components.data.file.advanced_mode.display_name"),
             value=False,
             real_time_refresh=True,
-            info=i18n.t('components.data.file.advanced_mode.info'),
+            info=i18n.t("components.data.file.advanced_mode.info"),
             show=True,
         ),
         DropdownInput(
             name="pipeline",
-            display_name=i18n.t(
-                'components.data.file.pipeline.display_name'),
-            info=i18n.t('components.data.file.pipeline.info'),
+            display_name=i18n.t("components.data.file.pipeline.display_name"),
+            info=i18n.t("components.data.file.pipeline.info"),
             options=["standard", "vlm"],
             value="standard",
             advanced=True,
@@ -99,9 +97,8 @@ class FileComponent(BaseFileComponent):
         ),
         DropdownInput(
             name="ocr_engine",
-            display_name=i18n.t(
-                'components.data.file.ocr_engine.display_name'),
-            info=i18n.t('components.data.file.ocr_engine.info'),
+            display_name=i18n.t("components.data.file.ocr_engine.display_name"),
+            info=i18n.t("components.data.file.ocr_engine.info"),
             options=["None", "easyocr"],
             value="easyocr",
             show=False,
@@ -109,28 +106,24 @@ class FileComponent(BaseFileComponent):
         ),
         StrInput(
             name="md_image_placeholder",
-            display_name=i18n.t(
-                'components.data.file.md_image_placeholder.display_name'),
-            info=i18n.t('components.data.file.md_image_placeholder.info'),
+            display_name=i18n.t("components.data.file.md_image_placeholder.display_name"),
+            info=i18n.t("components.data.file.md_image_placeholder.info"),
             value="<!-- image -->",
             advanced=True,
             show=False,
         ),
         StrInput(
             name="md_page_break_placeholder",
-            display_name=i18n.t(
-                'components.data.file.md_page_break_placeholder.display_name'),
-            info=i18n.t(
-                'components.data.file.md_page_break_placeholder.info'),
+            display_name=i18n.t("components.data.file.md_page_break_placeholder.display_name"),
+            info=i18n.t("components.data.file.md_page_break_placeholder.info"),
             value="",
             advanced=True,
             show=False,
         ),
         MessageTextInput(
             name="doc_key",
-            display_name=i18n.t(
-                'components.data.file.doc_key.display_name'),
-            info=i18n.t('components.data.file.doc_key.info'),
+            display_name=i18n.t("components.data.file.doc_key.display_name"),
+            info=i18n.t("components.data.file.doc_key.info"),
             value="doc",
             advanced=True,
             show=False,
@@ -138,34 +131,33 @@ class FileComponent(BaseFileComponent):
         # Deprecated input retained for backward-compatibility.
         BoolInput(
             name="use_multithreading",
-            display_name=i18n.t(
-                'components.data.file.use_multithreading.display_name'),
+            display_name=i18n.t("components.data.file.use_multithreading.display_name"),
             advanced=True,
             value=True,
-            info=i18n.t('components.data.file.use_multithreading.info'),
+            info=i18n.t("components.data.file.use_multithreading.info"),
         ),
         IntInput(
             name="concurrency_multithreading",
-            display_name=i18n.t(
-                'components.data.file.concurrency_multithreading.display_name'),
+            display_name=i18n.t("components.data.file.concurrency_multithreading.display_name"),
             advanced=True,
-            info=i18n.t(
-                'components.data.file.concurrency_multithreading.info'),
+            info=i18n.t("components.data.file.concurrency_multithreading.info"),
             value=1,
         ),
         BoolInput(
             name="markdown",
-            display_name=i18n.t(
-                'components.data.file.markdown.display_name'),
-            info=i18n.t('components.data.file.markdown.info'),
+            display_name=i18n.t("components.data.file.markdown.display_name"),
+            info=i18n.t("components.data.file.markdown.info"),
             value=False,
             show=False,
         ),
     ]
 
     outputs = [
-        Output(display_name=i18n.t('components.data.file.outputs.message.display_name'),
-               name="message", method="load_files_message"),
+        Output(
+            display_name=i18n.t("components.data.file.outputs.message.display_name"),
+            name="message",
+            method="load_files_message",
+        ),
     ]
 
     # ------------------------------ UI helpers --------------------------------------
@@ -185,8 +177,7 @@ class FileComponent(BaseFileComponent):
             paths = self._path_value(build_config)
 
             # Advanced mode only for single (non-tabular) file
-            allow_advanced = file_count == 1 and not file_path.endswith(
-                (".csv", ".xlsx", ".parquet"))
+            allow_advanced = file_count == 1 and not file_path.endswith((".csv", ".xlsx", ".parquet"))
             build_config["advanced_mode"]["show"] = allow_advanced
             if not allow_advanced:
                 build_config["advanced_mode"]["value"] = False
@@ -227,43 +218,34 @@ class FileComponent(BaseFileComponent):
             file_path = paths[0] if field_name == "path" else frontend_node["template"]["path"]["file_path"][0]
             if file_path.endswith((".csv", ".xlsx", ".parquet")):
                 frontend_node["outputs"].append(
-                    Output(display_name="Structured Content",
-                           name="dataframe", method="load_files_structured"),
+                    Output(display_name="Structured Content", name="dataframe", method="load_files_structured"),
                 )
             elif file_path.endswith(".json"):
                 frontend_node["outputs"].append(
-                    Output(display_name="Structured Content",
-                           name="json", method="load_files_json"),
+                    Output(display_name="Structured Content", name="json", method="load_files_json"),
                 )
 
-            advanced_mode = frontend_node.get("template", {}).get(
-                "advanced_mode", {}).get("value", False)
+            advanced_mode = frontend_node.get("template", {}).get("advanced_mode", {}).get("value", False)
             if advanced_mode:
                 frontend_node["outputs"].append(
-                    Output(display_name="Structured Output",
-                           name="advanced_dataframe", method="load_files_dataframe"),
+                    Output(display_name="Structured Output", name="advanced_dataframe", method="load_files_dataframe"),
                 )
                 frontend_node["outputs"].append(
-                    Output(display_name="Markdown", name="advanced_markdown",
-                           method="load_files_markdown"),
+                    Output(display_name="Markdown", name="advanced_markdown", method="load_files_markdown"),
                 )
                 frontend_node["outputs"].append(
-                    Output(display_name="File Path", name="path",
-                           method="load_files_path"),
+                    Output(display_name="File Path", name="path", method="load_files_path"),
                 )
             else:
                 frontend_node["outputs"].append(
-                    Output(display_name="Raw Content", name="message",
-                           method="load_files_message"),
+                    Output(display_name="Raw Content", name="message", method="load_files_message"),
                 )
                 frontend_node["outputs"].append(
-                    Output(display_name="File Path", name="path",
-                           method="load_files_path"),
+                    Output(display_name="File Path", name="path", method="load_files_path"),
                 )
         else:
             # Multiple files => DataFrame output; advanced parser disabled
-            frontend_node["outputs"].append(
-                Output(display_name="Files", name="dataframe", method="load_files"))
+            frontend_node["outputs"].append(Output(display_name="Files", name="dataframe", method="load_files"))
 
         return frontend_node
 
@@ -518,8 +500,7 @@ class FileComponent(BaseFileComponent):
         )
 
         if not proc.stdout:
-            err_msg = proc.stderr.decode(
-                "utf-8", errors="replace") or "no output from child process"
+            err_msg = proc.stderr.decode("utf-8", errors="replace") or "no output from child process"
             return Data(data={"error": f"Docling subprocess error: {err_msg}", "file_path": file_path})
 
         try:
@@ -527,8 +508,7 @@ class FileComponent(BaseFileComponent):
         except Exception as e:  # noqa: BLE001
             err_msg = proc.stderr.decode("utf-8", errors="replace")
             return Data(
-                data={"error": f"Invalid JSON from Docling subprocess: {e}. stderr={err_msg}",
-                      "file_path": file_path},
+                data={"error": f"Invalid JSON from Docling subprocess: {e}. stderr={err_msg}", "file_path": file_path},
             )
 
         if not result.get("ok"):
@@ -539,8 +519,7 @@ class FileComponent(BaseFileComponent):
             exported_content = str(result.get("text", ""))
             return Data(
                 text=exported_content,
-                data={"exported_content": exported_content,
-                      "export_format": self.EXPORT_FORMAT, **meta},
+                data={"exported_content": exported_content, "export_format": self.EXPORT_FORMAT, **meta},
             )
 
         rows = list(result.get("doc", []))
@@ -577,8 +556,7 @@ class FileComponent(BaseFileComponent):
         if len(file_list) == 1:
             file_path = str(file_list[0].path)
             if self.advanced_mode and self._is_docling_compatible(file_path):
-                advanced_data: Data | None = self._process_docling_in_subprocess(
-                    file_path)
+                advanced_data: Data | None = self._process_docling_in_subprocess(file_path)
 
                 # --- UNNEST: expand each element in `doc` to its own Data row
                 payload = getattr(advanced_data, "data", {}) or {}
@@ -596,16 +574,13 @@ class FileComponent(BaseFileComponent):
                     final_return.extend(self.rollup_data(file_list, rows))
                 else:
                     # If not structured, keep as-is (e.g., markdown export or error dict)
-                    final_return.extend(self.rollup_data(
-                        file_list, [advanced_data]))
+                    final_return.extend(self.rollup_data(file_list, [advanced_data]))
             return final_return
 
         # Standard multi-file (or single non-advanced) path
-        concurrency = 1 if not self.use_multithreading else max(
-            1, self.concurrency_multithreading)
+        concurrency = 1 if not self.use_multithreading else max(1, self.concurrency_multithreading)
         file_paths = [str(f.path) for f in file_list]
-        self.log(
-            f"Starting parallel processing of {len(file_paths)} files with concurrency: {concurrency}.")
+        self.log(f"Starting parallel processing of {len(file_paths)} files with concurrency: {concurrency}.")
         my_data = parallel_load_data(
             file_paths,
             silent_errors=self.silent_errors,

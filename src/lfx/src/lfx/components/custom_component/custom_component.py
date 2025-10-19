@@ -1,4 +1,3 @@
-import os
 import i18n
 
 from lfx.custom.custom_component.component import Component
@@ -8,7 +7,6 @@ from lfx.schema.data import Data
 
 
 class CustomComponent(Component):
-    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
     display_name = i18n.t("components.custom_component.custom_component.display_name")
     description = i18n.t("components.custom_component.custom_component.description")
     documentation: str = "https://docs.langflow.org/components-custom-components"

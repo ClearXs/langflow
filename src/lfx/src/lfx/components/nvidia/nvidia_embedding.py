@@ -1,6 +1,7 @@
 import os
-import i18n
 from typing import Any
+
+import i18n
 
 from lfx.base.embeddings.model import LCEmbeddingsModel
 from lfx.field_typing import Embeddings
@@ -10,9 +11,8 @@ from lfx.schema.dotdict import dotdict
 
 
 class NVIDIAEmbeddingsComponent(LCEmbeddingsModel):
-    display_name: str = i18n.t(
-        'components.nvidia.nvidia_embedding.display_name')
-    description: str = i18n.t('components.nvidia.nvidia_embedding.description')
+    display_name: str = i18n.t("components.nvidia.nvidia_embedding.display_name")
+    description: str = i18n.t("components.nvidia.nvidia_embedding.description")
     icon = "NVIDIA"
 
     ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
@@ -20,8 +20,7 @@ class NVIDIAEmbeddingsComponent(LCEmbeddingsModel):
     inputs = [
         DropdownInput(
             name="model",
-            display_name=i18n.t(
-                'components.nvidia.nvidia_embedding.model.display_name'),
+            display_name=i18n.t("components.nvidia.nvidia_embedding.model.display_name"),
             options=[
                 "nvidia/nv-embed-v1",
                 "snowflake/arctic-embed-I",
@@ -31,26 +30,22 @@ class NVIDIAEmbeddingsComponent(LCEmbeddingsModel):
         ),
         MessageTextInput(
             name="base_url",
-            display_name=i18n.t(
-                'components.nvidia.nvidia_embedding.base_url.display_name'),
+            display_name=i18n.t("components.nvidia.nvidia_embedding.base_url.display_name"),
             refresh_button=True,
             value="https://integrate.api.nvidia.com/v1",
             required=True,
         ),
         SecretStrInput(
             name="nvidia_api_key",
-            display_name=i18n.t(
-                'components.nvidia.nvidia_embedding.nvidia_api_key.display_name'),
-            info=i18n.t(
-                'components.nvidia.nvidia_embedding.nvidia_api_key.info'),
+            display_name=i18n.t("components.nvidia.nvidia_embedding.nvidia_api_key.display_name"),
+            info=i18n.t("components.nvidia.nvidia_embedding.nvidia_api_key.info"),
             advanced=False,
             value="NVIDIA_API_KEY",
             required=True,
         ),
         FloatInput(
             name="temperature",
-            display_name=i18n.t(
-                'components.nvidia.nvidia_embedding.temperature.display_name'),
+            display_name=i18n.t("components.nvidia.nvidia_embedding.temperature.display_name"),
             value=0.1,
             advanced=True,
         ),

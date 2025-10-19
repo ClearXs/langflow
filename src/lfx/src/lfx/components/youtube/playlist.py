@@ -1,4 +1,5 @@
 import os
+
 import i18n
 from pytube import Playlist  # Ensure you have pytube installed
 
@@ -10,8 +11,8 @@ from lfx.template.field.base import Output
 
 
 class YouTubePlaylistComponent(Component):
-    display_name = i18n.t('components.youtube.playlist.display_name')
-    description = i18n.t('components.youtube.playlist.description')
+    display_name = i18n.t("components.youtube.playlist.display_name")
+    description = i18n.t("components.youtube.playlist.description")
     icon = "YouTube"
 
     ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
@@ -19,19 +20,17 @@ class YouTubePlaylistComponent(Component):
     inputs = [
         MessageTextInput(
             name="playlist_url",
-            display_name=i18n.t(
-                'components.youtube.playlist.playlist_url.display_name'),
-            info=i18n.t('components.youtube.playlist.playlist_url.info'),
+            display_name=i18n.t("components.youtube.playlist.playlist_url.display_name"),
+            info=i18n.t("components.youtube.playlist.playlist_url.info"),
             required=True,
         ),
     ]
 
     outputs = [
         Output(
-            display_name=i18n.t(
-                'components.youtube.playlist.outputs.video_urls'),
+            display_name=i18n.t("components.youtube.playlist.outputs.video_urls"),
             name="video_urls",
-            method="extract_video_urls"
+            method="extract_video_urls",
         ),
     ]
 

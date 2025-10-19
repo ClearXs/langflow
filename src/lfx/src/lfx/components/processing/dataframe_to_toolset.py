@@ -5,9 +5,9 @@ Each row becomes a tool where the action name comes from one column and the cont
 comes from another column.
 """
 
-import os
 from __future__ import annotations
 
+import os
 import re
 from typing import TYPE_CHECKING
 

@@ -1,5 +1,7 @@
 import os
+
 import i18n
+
 from lfx.custom.custom_component.component import Component
 from lfx.io import (
     MessageTextInput,
@@ -10,10 +12,8 @@ from lfx.schema.data import Data
 
 
 class ScrapeGraphSearchApi(Component):
-    display_name: str = i18n.t(
-        'components.scrapegraph.scrapegraph_search_api.display_name')
-    description: str = i18n.t(
-        'components.scrapegraph.scrapegraph_search_api.description')
+    display_name: str = i18n.t("components.scrapegraph.scrapegraph_search_api.display_name")
+    description: str = i18n.t("components.scrapegraph.scrapegraph_search_api.description")
     name = "ScrapeGraphSearchApi"
 
     documentation: str = "https://docs.scrapegraphai.com/services/searchscraper"
@@ -24,29 +24,24 @@ class ScrapeGraphSearchApi(Component):
     inputs = [
         SecretStrInput(
             name="api_key",
-            display_name=i18n.t(
-                'components.scrapegraph.scrapegraph_search_api.api_key.display_name'),
+            display_name=i18n.t("components.scrapegraph.scrapegraph_search_api.api_key.display_name"),
             required=True,
             password=True,
-            info=i18n.t(
-                'components.scrapegraph.scrapegraph_search_api.api_key.info'),
+            info=i18n.t("components.scrapegraph.scrapegraph_search_api.api_key.info"),
         ),
         MessageTextInput(
             name="user_prompt",
-            display_name=i18n.t(
-                'components.scrapegraph.scrapegraph_search_api.user_prompt.display_name'),
+            display_name=i18n.t("components.scrapegraph.scrapegraph_search_api.user_prompt.display_name"),
             tool_mode=True,
-            info=i18n.t(
-                'components.scrapegraph.scrapegraph_search_api.user_prompt.info'),
+            info=i18n.t("components.scrapegraph.scrapegraph_search_api.user_prompt.info"),
         ),
     ]
 
     outputs = [
         Output(
-            display_name=i18n.t(
-                'components.scrapegraph.scrapegraph_search_api.outputs.data.display_name'),
+            display_name=i18n.t("components.scrapegraph.scrapegraph_search_api.outputs.data.display_name"),
             name="data",
-            method="search"
+            method="search",
         ),
     ]
 

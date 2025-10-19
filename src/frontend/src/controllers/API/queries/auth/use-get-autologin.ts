@@ -7,6 +7,7 @@ import {
 } from "@/constants/constants";
 import { AuthContext } from "@/contexts/authContext";
 import { useCustomNavigate } from "@/customization/hooks/use-custom-navigate";
+import { useIsEmbedded, useUrlParam } from "@/hooks/use-iframe-params";
 import useAuthStore from "@/stores/authStore";
 import type { Users, useQueryFunctionType } from "../../../../types/api";
 import { api } from "../../api";
@@ -32,11 +33,28 @@ export const useGetAutoLogin: useQueryFunctionType<undefined, undefined> = (
   const navigate = useCustomNavigate();
   const { mutateAsync: mutationLogout } = useLogout();
   const autoLogin = useAuthStore((state) => state.autoLogin);
+  const isEmbedded = useIsEmbedded();
+  const embedToken = useUrlParam("token");
 
   const retryCountRef = useRef(0);
   const retryTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   async function getAutoLoginFn(): Promise<null> {
+    // Skip auto-login in embedded mode and set mock authentication
+    if (isEmbedded) {
+      // If there's a token in the URL, use it for authentication
+      if (embedToken) {
+        login(embedToken, embedToken); // Use token as both access and refresh
+        setAutoLogin(true);
+      } else {
+        // Set mock authentication even without token
+        // This allows the app to render, but API calls may fail
+        console.warn("[Embed Mode] No token provided. API calls may fail.");
+        setAutoLogin(true);
+      }
+      return null;
+    }
+
     try {
       const response = await api.get<Users>(`${getURL("AUTOLOGIN")}`);
       const user = response.data;

@@ -1,4 +1,5 @@
 import os
+
 import i18n
 from langchain_community.utilities.wolfram_alpha import WolframAlphaAPIWrapper
 
@@ -11,36 +12,30 @@ from lfx.schema.dataframe import DataFrame
 
 
 class WolframAlphaAPIComponent(LCToolComponent):
-    display_name = i18n.t(
-        'components.wolframalpha.wolfram_alpha_api.display_name')
-    description = i18n.t(
-        'components.wolframalpha.wolfram_alpha_api.description')
+    display_name = i18n.t("components.wolframalpha.wolfram_alpha_api.display_name")
+    description = i18n.t("components.wolframalpha.wolfram_alpha_api.description")
     name = "WolframAlphaAPI"
 
     ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     outputs = [
         Output(
-            display_name=i18n.t(
-                'components.wolframalpha.wolfram_alpha_api.outputs.dataframe'),
+            display_name=i18n.t("components.wolframalpha.wolfram_alpha_api.outputs.dataframe"),
             name="dataframe",
-            method="fetch_content_dataframe"
+            method="fetch_content_dataframe",
         ),
     ]
 
     inputs = [
         MultilineInput(
             name="input_value",
-            display_name=i18n.t(
-                'components.wolframalpha.wolfram_alpha_api.input_value.display_name'),
-            info=i18n.t(
-                'components.wolframalpha.wolfram_alpha_api.input_value.info')
+            display_name=i18n.t("components.wolframalpha.wolfram_alpha_api.input_value.display_name"),
+            info=i18n.t("components.wolframalpha.wolfram_alpha_api.input_value.info"),
         ),
         SecretStrInput(
             name="app_id",
-            display_name=i18n.t(
-                'components.wolframalpha.wolfram_alpha_api.app_id.display_name'),
-            required=True
+            display_name=i18n.t("components.wolframalpha.wolfram_alpha_api.app_id.display_name"),
+            required=True,
         ),
     ]
 

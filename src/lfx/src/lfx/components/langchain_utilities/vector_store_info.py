@@ -1,4 +1,5 @@
 import os
+
 import i18n
 from langchain.agents.agent_toolkits.vectorstore.toolkit import VectorStoreInfo
 
@@ -9,10 +10,8 @@ from lfx.template.field.base import Output
 
 class VectorStoreInfoComponent(Component):
     ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
-    display_name = i18n.t(
-        'components.langchain_utilities.vector_store_info.display_name')
-    description = i18n.t(
-        'components.langchain_utilities.vector_store_info.description')
+    display_name = i18n.t("components.langchain_utilities.vector_store_info.display_name")
+    description = i18n.t("components.langchain_utilities.vector_store_info.description")
     name = "VectorStoreInfo"
     legacy: bool = True
     icon = "LangChain"
@@ -20,24 +19,21 @@ class VectorStoreInfoComponent(Component):
     inputs = [
         MessageTextInput(
             name="vectorstore_name",
-            display_name=i18n.t(
-                'components.langchain_utilities.vector_store_info.vectorstore_name.display_name'),
-            info=i18n.t(
-                'components.langchain_utilities.vector_store_info.vectorstore_name.info'),
+            display_name=i18n.t("components.langchain_utilities.vector_store_info.vectorstore_name.display_name"),
+            info=i18n.t("components.langchain_utilities.vector_store_info.vectorstore_name.info"),
             required=True,
         ),
         MultilineInput(
             name="vectorstore_description",
             display_name=i18n.t(
-                'components.langchain_utilities.vector_store_info.vectorstore_description.display_name'),
-            info=i18n.t(
-                'components.langchain_utilities.vector_store_info.vectorstore_description.info'),
+                "components.langchain_utilities.vector_store_info.vectorstore_description.display_name"
+            ),
+            info=i18n.t("components.langchain_utilities.vector_store_info.vectorstore_description.info"),
             required=True,
         ),
         HandleInput(
             name="input_vectorstore",
-            display_name=i18n.t(
-                'components.langchain_utilities.vector_store_info.input_vectorstore.display_name'),
+            display_name=i18n.t("components.langchain_utilities.vector_store_info.input_vectorstore.display_name"),
             input_types=["VectorStore"],
             required=True,
         ),
@@ -45,10 +41,9 @@ class VectorStoreInfoComponent(Component):
 
     outputs = [
         Output(
-            display_name=i18n.t(
-                'components.langchain_utilities.vector_store_info.outputs.info.display_name'),
+            display_name=i18n.t("components.langchain_utilities.vector_store_info.outputs.info.display_name"),
             name="info",
-            method="build_info"
+            method="build_info",
         ),
     ]
 

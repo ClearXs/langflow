@@ -1,4 +1,5 @@
 import os
+
 import i18n
 from langchain.chains import LLMMathChain
 
@@ -10,9 +11,8 @@ from lfx.template.field.base import Output
 
 class LLMMathChainComponent(LCChainComponent):
     ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
-    display_name = i18n.t(
-        'components.langchain_utilities.llm_math.display_name')
-    description = i18n.t('components.langchain_utilities.llm_math.description')
+    display_name = i18n.t("components.langchain_utilities.llm_math.display_name")
+    description = i18n.t("components.langchain_utilities.llm_math.description")
     documentation = "https://python.langchain.com/docs/modules/chains/additional/llm_math"
     name = "LLMMathChain"
     legacy: bool = True
@@ -20,16 +20,13 @@ class LLMMathChainComponent(LCChainComponent):
     inputs = [
         MultilineInput(
             name="input_value",
-            display_name=i18n.t(
-                'components.langchain_utilities.llm_math.input_value.display_name'),
-            info=i18n.t(
-                'components.langchain_utilities.llm_math.input_value.info'),
+            display_name=i18n.t("components.langchain_utilities.llm_math.input_value.display_name"),
+            info=i18n.t("components.langchain_utilities.llm_math.input_value.info"),
             required=True,
         ),
         HandleInput(
             name="llm",
-            display_name=i18n.t(
-                'components.langchain_utilities.llm_math.llm.display_name'),
+            display_name=i18n.t("components.langchain_utilities.llm_math.llm.display_name"),
             input_types=["LanguageModel"],
             required=True,
         ),
@@ -37,10 +34,9 @@ class LLMMathChainComponent(LCChainComponent):
 
     outputs = [
         Output(
-            display_name=i18n.t(
-                'components.langchain_utilities.llm_math.outputs.text.display_name'),
+            display_name=i18n.t("components.langchain_utilities.llm_math.outputs.text.display_name"),
             name="text",
-            method="invoke_chain"
+            method="invoke_chain",
         )
     ]
 

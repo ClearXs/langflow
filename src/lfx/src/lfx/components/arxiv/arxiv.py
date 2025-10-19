@@ -14,8 +14,8 @@ from lfx.schema.dataframe import DataFrame
 
 
 class ArXivComponent(Component):
-    display_name = i18n.t('components.arxiv.arxiv.display_name')
-    description = i18n.t('components.arxiv.arxiv.description')
+    display_name = i18n.t("components.arxiv.arxiv.display_name")
+    description = i18n.t("components.arxiv.arxiv.description")
     icon = "arXiv"
     name = "ArXiv"
 
@@ -24,34 +24,30 @@ class ArXivComponent(Component):
     inputs = [
         MessageTextInput(
             name="search_query",
-            display_name=i18n.t(
-                'components.arxiv.arxiv.search_query.display_name'),
-            info=i18n.t('components.arxiv.arxiv.search_query.info'),
+            display_name=i18n.t("components.arxiv.arxiv.search_query.display_name"),
+            info=i18n.t("components.arxiv.arxiv.search_query.info"),
             tool_mode=True,
         ),
         DropdownInput(
             name="search_type",
-            display_name=i18n.t(
-                'components.arxiv.arxiv.search_type.display_name'),
-            info=i18n.t('components.arxiv.arxiv.search_type.info'),
+            display_name=i18n.t("components.arxiv.arxiv.search_type.display_name"),
+            info=i18n.t("components.arxiv.arxiv.search_type.info"),
             options=["all", "title", "abstract", "author", "cat"],
             value="all",
         ),
         IntInput(
             name="max_results",
-            display_name=i18n.t(
-                'components.arxiv.arxiv.max_results.display_name'),
-            info=i18n.t('components.arxiv.arxiv.max_results.info'),
+            display_name=i18n.t("components.arxiv.arxiv.max_results.display_name"),
+            info=i18n.t("components.arxiv.arxiv.max_results.info"),
             value=10,
         ),
     ]
 
     outputs = [
         Output(
-            display_name=i18n.t(
-                'components.arxiv.arxiv.outputs.dataframe.display_name'),
+            display_name=i18n.t("components.arxiv.arxiv.outputs.dataframe.display_name"),
             name="dataframe",
-            method="search_papers_dataframe"
+            method="search_papers_dataframe",
         ),
     ]
 
@@ -60,18 +56,12 @@ class ArXivComponent(Component):
         try:
             base_url = "http://export.arxiv.org/api/query?"
 
-        # Build the search query based on search type
-        if self.search_type == "all":
-            search_query = self.search_query  # No prefix for all fields
-        else:
-            # Map dropdown values to ArXiv API prefixes
-            prefix_map = {"title": "ti", "abstract": "abs",
-                          "author": "au", "cat": "cat"}
-            prefix = prefix_map.get(self.search_type, "")
-            search_query = f"{prefix}:{self.search_query}"
+            # Build the search query
+            search_query = f"{self.search_type}:{self.search_query}"
 
-            logger.debug(i18n.t('components.arxiv.arxiv.logs.building_query',
-                                type=self.search_type, query=self.search_query))
+            logger.debug(
+                i18n.t("components.arxiv.arxiv.logs.building_query", type=self.search_type, query=self.search_query)
+            )
 
             # URL parameters
             params = {
@@ -80,33 +70,28 @@ class ArXivComponent(Component):
             }
 
             # Convert params to URL query string
-            query_string = "&".join(
-                [f"{k}={urllib.parse.quote(str(v))}" for k, v in params.items()])
+            query_string = "&".join([f"{k}={urllib.parse.quote(str(v))}" for k, v in params.items()])
 
             url = base_url + query_string
-            logger.debug(
-                i18n.t('components.arxiv.arxiv.logs.query_url_built', url=url))
+            logger.debug(i18n.t("components.arxiv.arxiv.logs.query_url_built", url=url))
 
             return url
 
         except Exception as e:
-            error_msg = i18n.t(
-                'components.arxiv.arxiv.errors.query_build_failed', error=str(e))
+            error_msg = i18n.t("components.arxiv.arxiv.errors.query_build_failed", error=str(e))
             logger.exception(error_msg)
             raise ValueError(error_msg) from e
 
     def parse_atom_response(self, response_text: str) -> list[dict]:
         """Parse the Atom XML response from arXiv."""
         try:
-            self.status = i18n.t(
-                'components.arxiv.arxiv.status.parsing_response')
+            self.status = i18n.t("components.arxiv.arxiv.status.parsing_response")
 
             # Parse XML safely using defusedxml
             root = fromstring(response_text)
 
             # Define namespace dictionary for XML parsing
-            ns = {"atom": "http://www.w3.org/2005/Atom",
-                  "arxiv": "http://arxiv.org/schemas/atom"}
+            ns = {"atom": "http://www.w3.org/2005/Atom", "arxiv": "http://arxiv.org/schemas/atom"}
 
             papers = []
             # Process each entry (paper)
@@ -127,13 +112,11 @@ class ArXivComponent(Component):
                 }
                 papers.append(paper)
 
-            logger.info(
-                i18n.t('components.arxiv.arxiv.logs.papers_parsed', count=len(papers)))
+            logger.info(i18n.t("components.arxiv.arxiv.logs.papers_parsed", count=len(papers)))
             return papers
 
         except Exception as e:
-            error_msg = i18n.t(
-                'components.arxiv.arxiv.errors.response_parse_failed', error=str(e))
+            error_msg = i18n.t("components.arxiv.arxiv.errors.response_parse_failed", error=str(e))
             logger.exception(error_msg)
             raise ValueError(error_msg) from e
 
@@ -160,8 +143,7 @@ class ArXivComponent(Component):
     def search_papers(self) -> list[Data]:
         """Search arXiv and return results."""
         try:
-            self.status = i18n.t(
-                'components.arxiv.arxiv.status.searching', query=self.search_query)
+            self.status = i18n.t("components.arxiv.arxiv.status.searching", query=self.search_query)
 
             # Build the query URL
             url = self.build_query_url()
@@ -169,15 +151,13 @@ class ArXivComponent(Component):
             # Validate URL scheme and host
             parsed_url = urlparse(url)
             if parsed_url.scheme not in {"http", "https"}:
-                error_msg = i18n.t('components.arxiv.arxiv.errors.invalid_url_scheme',
-                                   scheme=parsed_url.scheme)
+                error_msg = i18n.t("components.arxiv.arxiv.errors.invalid_url_scheme", scheme=parsed_url.scheme)
                 raise ValueError(error_msg)
             if parsed_url.hostname != "export.arxiv.org":
-                error_msg = i18n.t('components.arxiv.arxiv.errors.invalid_host',
-                                   host=parsed_url.hostname)
+                error_msg = i18n.t("components.arxiv.arxiv.errors.invalid_host", host=parsed_url.hostname)
                 raise ValueError(error_msg)
 
-            logger.debug(i18n.t('components.arxiv.arxiv.logs.url_validated'))
+            logger.debug(i18n.t("components.arxiv.arxiv.logs.url_validated"))
 
             # Create a custom opener that only allows http/https schemes
             class RestrictedHTTPHandler(urllib.request.HTTPHandler):
@@ -189,22 +169,18 @@ class ArXivComponent(Component):
                     return super().https_open(req)
 
             # Build opener with restricted handlers
-            opener = urllib.request.build_opener(
-                RestrictedHTTPHandler, RestrictedHTTPSHandler)
+            opener = urllib.request.build_opener(RestrictedHTTPHandler, RestrictedHTTPSHandler)
             urllib.request.install_opener(opener)
 
-            self.status = i18n.t(
-                'components.arxiv.arxiv.status.fetching_results')
+            self.status = i18n.t("components.arxiv.arxiv.status.fetching_results")
 
             # Make the request with validated URL using restricted opener
             try:
                 response = opener.open(url)
                 response_text = response.read().decode("utf-8")
-                logger.debug(
-                    i18n.t('components.arxiv.arxiv.logs.response_received'))
+                logger.debug(i18n.t("components.arxiv.arxiv.logs.response_received"))
             except urllib.error.URLError as e:
-                error_msg = i18n.t(
-                    'components.arxiv.arxiv.errors.request_failed', error=str(e))
+                error_msg = i18n.t("components.arxiv.arxiv.errors.request_failed", error=str(e))
                 logger.error(error_msg)
                 raise
 
@@ -214,16 +190,14 @@ class ArXivComponent(Component):
             # Convert to Data objects
             results = [Data(data=paper) for paper in papers]
 
-            success_msg = i18n.t(
-                'components.arxiv.arxiv.success.papers_found', count=len(results))
+            success_msg = i18n.t("components.arxiv.arxiv.success.papers_found", count=len(results))
             logger.info(success_msg)
             self.status = success_msg
 
             return results
 
         except urllib.error.URLError as e:
-            error_msg = i18n.t(
-                'components.arxiv.arxiv.errors.request_error', error=str(e))
+            error_msg = i18n.t("components.arxiv.arxiv.errors.request_error", error=str(e))
             logger.error(error_msg)
             error_data = Data(data={"error": error_msg})
             self.status = error_data
@@ -234,8 +208,7 @@ class ArXivComponent(Component):
             self.status = error_data
             return [error_data]
         except Exception as e:
-            error_msg = i18n.t(
-                'components.arxiv.arxiv.errors.search_failed', error=str(e))
+            error_msg = i18n.t("components.arxiv.arxiv.errors.search_failed", error=str(e))
             logger.exception(error_msg)
             error_data = Data(data={"error": error_msg})
             self.status = error_data
@@ -248,17 +221,14 @@ class ArXivComponent(Component):
             DataFrame: A DataFrame containing the search results.
         """
         try:
-            self.status = i18n.t(
-                'components.arxiv.arxiv.status.converting_to_dataframe')
+            self.status = i18n.t("components.arxiv.arxiv.status.converting_to_dataframe")
             data = self.search_papers()
             df = DataFrame(data)
 
-            logger.info(
-                i18n.t('components.arxiv.arxiv.logs.dataframe_created', rows=len(data)))
+            logger.info(i18n.t("components.arxiv.arxiv.logs.dataframe_created", rows=len(data)))
             return df
 
         except Exception as e:
-            error_msg = i18n.t('components.arxiv.arxiv.errors.dataframe_creation_failed',
-                               error=str(e))
+            error_msg = i18n.t("components.arxiv.arxiv.errors.dataframe_creation_failed", error=str(e))
             logger.exception(error_msg)
             raise ValueError(error_msg) from e

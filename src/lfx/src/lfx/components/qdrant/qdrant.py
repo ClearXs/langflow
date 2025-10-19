@@ -1,4 +1,5 @@
 import os
+
 import i18n
 from langchain.embeddings.base import Embeddings
 from langchain_community.vectorstores import Qdrant
@@ -16,8 +17,8 @@ from lfx.schema.data import Data
 
 
 class QdrantVectorStoreComponent(LCVectorStoreComponent):
-    display_name = i18n.t('components.qdrant.qdrant.display_name')
-    description = i18n.t('components.qdrant.qdrant.description')
+    display_name = i18n.t("components.qdrant.qdrant.display_name")
+    description = i18n.t("components.qdrant.qdrant.description")
     documentation = "https://python.langchain.com/docs/integrations/vectorstores/qdrant"
     icon = "Qdrant"
 
@@ -26,91 +27,60 @@ class QdrantVectorStoreComponent(LCVectorStoreComponent):
     inputs = [
         StrInput(
             name="collection_name",
-            display_name=i18n.t(
-                'components.qdrant.qdrant.collection_name.display_name'),
-            required=True
+            display_name=i18n.t("components.qdrant.qdrant.collection_name.display_name"),
+            required=True,
         ),
         StrInput(
             name="host",
-            display_name=i18n.t('components.qdrant.qdrant.host.display_name'),
+            display_name=i18n.t("components.qdrant.qdrant.host.display_name"),
             value="localhost",
-            advanced=True
+            advanced=True,
         ),
         IntInput(
-            name="port",
-            display_name=i18n.t('components.qdrant.qdrant.port.display_name'),
-            value=6333,
-            advanced=True
+            name="port", display_name=i18n.t("components.qdrant.qdrant.port.display_name"), value=6333, advanced=True
         ),
         IntInput(
             name="grpc_port",
-            display_name=i18n.t(
-                'components.qdrant.qdrant.grpc_port.display_name'),
+            display_name=i18n.t("components.qdrant.qdrant.grpc_port.display_name"),
             value=6334,
-            advanced=True
+            advanced=True,
         ),
         SecretStrInput(
-            name="api_key",
-            display_name=i18n.t(
-                'components.qdrant.qdrant.api_key.display_name'),
-            advanced=True
+            name="api_key", display_name=i18n.t("components.qdrant.qdrant.api_key.display_name"), advanced=True
         ),
-        StrInput(
-            name="prefix",
-            display_name=i18n.t(
-                'components.qdrant.qdrant.prefix.display_name'),
-            advanced=True
-        ),
-        IntInput(
-            name="timeout",
-            display_name=i18n.t(
-                'components.qdrant.qdrant.timeout.display_name'),
-            advanced=True
-        ),
-        StrInput(
-            name="path",
-            display_name=i18n.t('components.qdrant.qdrant.path.display_name'),
-            advanced=True
-        ),
-        StrInput(
-            name="url",
-            display_name=i18n.t('components.qdrant.qdrant.url.display_name'),
-            advanced=True
-        ),
+        StrInput(name="prefix", display_name=i18n.t("components.qdrant.qdrant.prefix.display_name"), advanced=True),
+        IntInput(name="timeout", display_name=i18n.t("components.qdrant.qdrant.timeout.display_name"), advanced=True),
+        StrInput(name="path", display_name=i18n.t("components.qdrant.qdrant.path.display_name"), advanced=True),
+        StrInput(name="url", display_name=i18n.t("components.qdrant.qdrant.url.display_name"), advanced=True),
         DropdownInput(
             name="distance_func",
-            display_name=i18n.t(
-                'components.qdrant.qdrant.distance_func.display_name'),
+            display_name=i18n.t("components.qdrant.qdrant.distance_func.display_name"),
             options=["Cosine", "Euclidean", "Dot Product"],
             value="Cosine",
             advanced=True,
         ),
         StrInput(
             name="content_payload_key",
-            display_name=i18n.t(
-                'components.qdrant.qdrant.content_payload_key.display_name'),
+            display_name=i18n.t("components.qdrant.qdrant.content_payload_key.display_name"),
             value="page_content",
-            advanced=True
+            advanced=True,
         ),
         StrInput(
             name="metadata_payload_key",
-            display_name=i18n.t(
-                'components.qdrant.qdrant.metadata_payload_key.display_name'),
+            display_name=i18n.t("components.qdrant.qdrant.metadata_payload_key.display_name"),
             value="metadata",
-            advanced=True
+            advanced=True,
         ),
         *LCVectorStoreComponent.inputs,
         HandleInput(
             name="embedding",
-            display_name=i18n.t(
-                'components.qdrant.qdrant.embedding.display_name'),
-            input_types=["Embeddings"]
+            display_name=i18n.t("components.qdrant.qdrant.embedding.display_name"),
+            input_types=["Embeddings"],
         ),
         IntInput(
             name="number_of_results",
-            display_name=i18n.t(
-                'components.qdrant.qdrant.number_of_results.display_name'),
-            info=i18n.t('components.qdrant.qdrant.number_of_results.info'),
+            display_name=i18n.t("components.qdrant.qdrant.number_of_results.display_name"),
+            info=i18n.t("components.qdrant.qdrant.number_of_results.info"),
             value=4,
             advanced=True,
         ),
@@ -136,8 +106,7 @@ class QdrantVectorStoreComponent(LCVectorStoreComponent):
             "url": self.url or None,
         }
 
-        server_kwargs = {k: v for k,
-                         v in server_kwargs.items() if v is not None}
+        server_kwargs = {k: v for k, v in server_kwargs.items() if v is not None}
 
         # Convert DataFrame to Data if needed using parent's method
         self.ingest_data = self._prepare_ingest_data()
@@ -154,14 +123,12 @@ class QdrantVectorStoreComponent(LCVectorStoreComponent):
             raise TypeError(msg)
 
         if documents:
-            qdrant = Qdrant.from_documents(
-                documents, embedding=self.embedding, **qdrant_kwargs, **server_kwargs)
+            qdrant = Qdrant.from_documents(documents, embedding=self.embedding, **qdrant_kwargs, **server_kwargs)
         else:
             from qdrant_client import QdrantClient
 
             client = QdrantClient(**server_kwargs)
-            qdrant = Qdrant(embeddings=self.embedding,
-                            client=client, **qdrant_kwargs)
+            qdrant = Qdrant(embeddings=self.embedding, client=client, **qdrant_kwargs)
 
         return qdrant
 

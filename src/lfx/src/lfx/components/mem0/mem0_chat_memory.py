@@ -1,6 +1,6 @@
-import i18n
 import os
 
+import i18n
 from mem0 import Memory, MemoryClient
 
 from lfx.base.memory.model import LCChatMemoryComponent
@@ -11,8 +11,8 @@ from lfx.schema.data import Data
 
 
 class Mem0MemoryComponent(LCChatMemoryComponent):
-    display_name = i18n.t('components.mem0.mem0_chat_memory.display_name')
-    description = i18n.t('components.mem0.mem0_chat_memory.description')
+    display_name = i18n.t("components.mem0.mem0_chat_memory.display_name")
+    description = i18n.t("components.mem0.mem0_chat_memory.description")
     name = "mem0_chat_memory"
     icon: str = "Mem0"
 
@@ -21,72 +21,59 @@ class Mem0MemoryComponent(LCChatMemoryComponent):
     inputs = [
         NestedDictInput(
             name="mem0_config",
-            display_name=i18n.t(
-                'components.mem0.mem0_chat_memory.mem0_config.display_name'),
-            info=i18n.t('components.mem0.mem0_chat_memory.mem0_config.info'),
+            display_name=i18n.t("components.mem0.mem0_chat_memory.mem0_config.display_name"),
+            info=i18n.t("components.mem0.mem0_chat_memory.mem0_config.info"),
             input_types=["Data"],
         ),
         MessageTextInput(
             name="ingest_message",
-            display_name=i18n.t(
-                'components.mem0.mem0_chat_memory.ingest_message.display_name'),
-            info=i18n.t(
-                'components.mem0.mem0_chat_memory.ingest_message.info'),
+            display_name=i18n.t("components.mem0.mem0_chat_memory.ingest_message.display_name"),
+            info=i18n.t("components.mem0.mem0_chat_memory.ingest_message.info"),
         ),
         HandleInput(
             name="existing_memory",
-            display_name=i18n.t(
-                'components.mem0.mem0_chat_memory.existing_memory.display_name'),
+            display_name=i18n.t("components.mem0.mem0_chat_memory.existing_memory.display_name"),
             input_types=["Memory"],
-            info=i18n.t(
-                'components.mem0.mem0_chat_memory.existing_memory.info'),
+            info=i18n.t("components.mem0.mem0_chat_memory.existing_memory.info"),
         ),
         MessageTextInput(
             name="user_id",
-            display_name=i18n.t(
-                'components.mem0.mem0_chat_memory.user_id.display_name'),
-            info=i18n.t('components.mem0.mem0_chat_memory.user_id.info')
+            display_name=i18n.t("components.mem0.mem0_chat_memory.user_id.display_name"),
+            info=i18n.t("components.mem0.mem0_chat_memory.user_id.info"),
         ),
         MessageTextInput(
             name="search_query",
-            display_name=i18n.t(
-                'components.mem0.mem0_chat_memory.search_query.display_name'),
-            info=i18n.t('components.mem0.mem0_chat_memory.search_query.info')
+            display_name=i18n.t("components.mem0.mem0_chat_memory.search_query.display_name"),
+            info=i18n.t("components.mem0.mem0_chat_memory.search_query.info"),
         ),
         SecretStrInput(
             name="mem0_api_key",
-            display_name=i18n.t(
-                'components.mem0.mem0_chat_memory.mem0_api_key.display_name'),
-            info=i18n.t('components.mem0.mem0_chat_memory.mem0_api_key.info'),
+            display_name=i18n.t("components.mem0.mem0_chat_memory.mem0_api_key.display_name"),
+            info=i18n.t("components.mem0.mem0_chat_memory.mem0_api_key.info"),
         ),
         DictInput(
             name="metadata",
-            display_name=i18n.t(
-                'components.mem0.mem0_chat_memory.metadata.display_name'),
-            info=i18n.t('components.mem0.mem0_chat_memory.metadata.info'),
+            display_name=i18n.t("components.mem0.mem0_chat_memory.metadata.display_name"),
+            info=i18n.t("components.mem0.mem0_chat_memory.metadata.info"),
             advanced=True,
         ),
         SecretStrInput(
             name="openai_api_key",
-            display_name=i18n.t(
-                'components.mem0.mem0_chat_memory.openai_api_key.display_name'),
+            display_name=i18n.t("components.mem0.mem0_chat_memory.openai_api_key.display_name"),
             required=False,
-            info=i18n.t(
-                'components.mem0.mem0_chat_memory.openai_api_key.info'),
+            info=i18n.t("components.mem0.mem0_chat_memory.openai_api_key.info"),
         ),
     ]
 
     outputs = [
         Output(
             name="memory",
-            display_name=i18n.t(
-                'components.mem0.mem0_chat_memory.outputs.memory.display_name'),
-            method="ingest_data"
+            display_name=i18n.t("components.mem0.mem0_chat_memory.outputs.memory.display_name"),
+            method="ingest_data",
         ),
         Output(
             name="search_results",
-            display_name=i18n.t(
-                'components.mem0.mem0_chat_memory.outputs.search_results.display_name'),
+            display_name=i18n.t("components.mem0.mem0_chat_memory.outputs.search_results.display_name"),
             method="build_search_results",
         ),
     ]
@@ -111,8 +98,7 @@ class Mem0MemoryComponent(LCChatMemoryComponent):
         mem0_memory = self.existing_memory or self.build_mem0()
 
         if not self.ingest_message or not self.user_id:
-            logger.warning(
-                "Missing 'ingest_message' or 'user_id'; cannot ingest data.")
+            logger.warning("Missing 'ingest_message' or 'user_id'; cannot ingest data.")
             return mem0_memory
 
         metadata = self.metadata or {}
@@ -120,8 +106,7 @@ class Mem0MemoryComponent(LCChatMemoryComponent):
         logger.info("Ingesting message for user_id: %s", self.user_id)
 
         try:
-            mem0_memory.add(self.ingest_message,
-                            user_id=self.user_id, metadata=metadata)
+            mem0_memory.add(self.ingest_message, user_id=self.user_id, metadata=metadata)
         except Exception:
             logger.exception("Failed to add message to Mem0 memory.")
             raise
@@ -139,8 +124,7 @@ class Mem0MemoryComponent(LCChatMemoryComponent):
         try:
             if search_query:
                 logger.info("Performing search with query.")
-                related_memories = mem0_memory.search(
-                    query=search_query, user_id=user_id)
+                related_memories = mem0_memory.search(query=search_query, user_id=user_id)
             else:
                 logger.info("Retrieving all memories for user_id: %s", user_id)
                 related_memories = mem0_memory.get_all(user_id=user_id)

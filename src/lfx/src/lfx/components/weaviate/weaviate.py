@@ -1,4 +1,5 @@
 import os
+
 import i18n
 import weaviate
 from langchain_community.vectorstores import Weaviate
@@ -10,8 +11,8 @@ from lfx.schema.data import Data
 
 
 class WeaviateVectorStoreComponent(LCVectorStoreComponent):
-    display_name = i18n.t('components.weaviate.weaviate.display_name')
-    description = i18n.t('components.weaviate.weaviate.description')
+    display_name = i18n.t("components.weaviate.weaviate.display_name")
+    description = i18n.t("components.weaviate.weaviate.description")
     name = "Weaviate"
     icon = "Weaviate"
 
@@ -20,51 +21,42 @@ class WeaviateVectorStoreComponent(LCVectorStoreComponent):
     inputs = [
         StrInput(
             name="url",
-            display_name=i18n.t(
-                'components.weaviate.weaviate.url.display_name'),
+            display_name=i18n.t("components.weaviate.weaviate.url.display_name"),
             value="http://localhost:8080",
-            required=True
+            required=True,
         ),
         SecretStrInput(
-            name="api_key",
-            display_name=i18n.t(
-                'components.weaviate.weaviate.api_key.display_name'),
-            required=False
+            name="api_key", display_name=i18n.t("components.weaviate.weaviate.api_key.display_name"), required=False
         ),
         StrInput(
             name="index_name",
-            display_name=i18n.t(
-                'components.weaviate.weaviate.index_name.display_name'),
+            display_name=i18n.t("components.weaviate.weaviate.index_name.display_name"),
             required=True,
-            info=i18n.t('components.weaviate.weaviate.index_name.info'),
+            info=i18n.t("components.weaviate.weaviate.index_name.info"),
         ),
         StrInput(
             name="text_key",
-            display_name=i18n.t(
-                'components.weaviate.weaviate.text_key.display_name'),
+            display_name=i18n.t("components.weaviate.weaviate.text_key.display_name"),
             value="text",
-            advanced=True
+            advanced=True,
         ),
         *LCVectorStoreComponent.inputs,
         HandleInput(
             name="embedding",
-            display_name=i18n.t(
-                'components.weaviate.weaviate.embedding.display_name'),
-            input_types=["Embeddings"]
+            display_name=i18n.t("components.weaviate.weaviate.embedding.display_name"),
+            input_types=["Embeddings"],
         ),
         IntInput(
             name="number_of_results",
-            display_name=i18n.t(
-                'components.weaviate.weaviate.number_of_results.display_name'),
-            info=i18n.t('components.weaviate.weaviate.number_of_results.info'),
+            display_name=i18n.t("components.weaviate.weaviate.number_of_results.display_name"),
+            info=i18n.t("components.weaviate.weaviate.number_of_results.info"),
             value=4,
             advanced=True,
         ),
         BoolInput(
             name="search_by_text",
-            display_name=i18n.t(
-                'components.weaviate.weaviate.search_by_text.display_name'),
-            advanced=True
+            display_name=i18n.t("components.weaviate.weaviate.search_by_text.display_name"),
+            advanced=True,
         ),
     ]
 
@@ -72,8 +64,7 @@ class WeaviateVectorStoreComponent(LCVectorStoreComponent):
     def build_vector_store(self) -> Weaviate:
         if self.api_key:
             auth_config = weaviate.AuthApiKey(api_key=self.api_key)
-            client = weaviate.Client(
-                url=self.url, auth_client_secret=auth_config)
+            client = weaviate.Client(url=self.url, auth_client_secret=auth_config)
         else:
             client = weaviate.Client(url=self.url)
 

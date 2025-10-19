@@ -1,7 +1,7 @@
 import os
 from typing import Any
-import i18n
 
+import i18n
 from langchain_openai import OpenAIEmbeddings
 
 from lfx.base.embeddings.model import LCEmbeddingsModel
@@ -21,8 +21,8 @@ from lfx.schema.dotdict import dotdict
 
 class EmbeddingModelComponent(LCEmbeddingsModel):
     ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
-    display_name = i18n.t('components.models.embedding_model.display_name')
-    description = i18n.t('components.models.embedding_model.description')
+    display_name = i18n.t("components.models.embedding_model.display_name")
+    description = i18n.t("components.models.embedding_model.description")
     documentation: str = "https://docs.langflow.org/components-embedding-models"
     icon = "binary"
     name = "EmbeddingModel"
@@ -31,82 +31,70 @@ class EmbeddingModelComponent(LCEmbeddingsModel):
     inputs = [
         DropdownInput(
             name="provider",
-            display_name=i18n.t(
-                'components.models.embedding_model.provider.display_name'),
+            display_name=i18n.t("components.models.embedding_model.provider.display_name"),
             options=["OpenAI"],
             value="OpenAI",
-            info=i18n.t('components.models.embedding_model.provider.info'),
+            info=i18n.t("components.models.embedding_model.provider.info"),
             real_time_refresh=True,
             options_metadata=[{"icon": "OpenAI"}],
         ),
         DropdownInput(
             name="model",
-            display_name=i18n.t(
-                'components.models.embedding_model.model.display_name'),
+            display_name=i18n.t("components.models.embedding_model.model.display_name"),
             options=OPENAI_EMBEDDING_MODEL_NAMES,
             value=OPENAI_EMBEDDING_MODEL_NAMES[0],
-            info=i18n.t('components.models.embedding_model.model.info'),
+            info=i18n.t("components.models.embedding_model.model.info"),
         ),
         SecretStrInput(
             name="api_key",
-            display_name=i18n.t(
-                'components.models.embedding_model.api_key.display_name'),
-            info=i18n.t('components.models.embedding_model.api_key.info'),
+            display_name=i18n.t("components.models.embedding_model.api_key.display_name"),
+            info=i18n.t("components.models.embedding_model.api_key.info"),
             required=True,
             show=True,
             real_time_refresh=True,
         ),
         MessageTextInput(
             name="api_base",
-            display_name=i18n.t(
-                'components.models.embedding_model.api_base.display_name'),
-            info=i18n.t('components.models.embedding_model.api_base.info'),
+            display_name=i18n.t("components.models.embedding_model.api_base.display_name"),
+            info=i18n.t("components.models.embedding_model.api_base.info"),
             advanced=True,
         ),
         IntInput(
             name="dimensions",
-            display_name=i18n.t(
-                'components.models.embedding_model.dimensions.display_name'),
-            info=i18n.t('components.models.embedding_model.dimensions.info'),
+            display_name=i18n.t("components.models.embedding_model.dimensions.display_name"),
+            info=i18n.t("components.models.embedding_model.dimensions.info"),
             advanced=True,
         ),
         IntInput(
             name="chunk_size",
-            display_name=i18n.t(
-                'components.models.embedding_model.chunk_size.display_name'),
-            info=i18n.t('components.models.embedding_model.chunk_size.info'),
+            display_name=i18n.t("components.models.embedding_model.chunk_size.display_name"),
+            info=i18n.t("components.models.embedding_model.chunk_size.info"),
             advanced=True,
-            value=1000
+            value=1000,
         ),
         FloatInput(
             name="request_timeout",
-            display_name=i18n.t(
-                'components.models.embedding_model.request_timeout.display_name'),
-            info=i18n.t(
-                'components.models.embedding_model.request_timeout.info'),
-            advanced=True
+            display_name=i18n.t("components.models.embedding_model.request_timeout.display_name"),
+            info=i18n.t("components.models.embedding_model.request_timeout.info"),
+            advanced=True,
         ),
         IntInput(
             name="max_retries",
-            display_name=i18n.t(
-                'components.models.embedding_model.max_retries.display_name'),
-            info=i18n.t('components.models.embedding_model.max_retries.info'),
+            display_name=i18n.t("components.models.embedding_model.max_retries.display_name"),
+            info=i18n.t("components.models.embedding_model.max_retries.info"),
             advanced=True,
-            value=3
+            value=3,
         ),
         BoolInput(
             name="show_progress_bar",
-            display_name=i18n.t(
-                'components.models.embedding_model.show_progress_bar.display_name'),
-            info=i18n.t(
-                'components.models.embedding_model.show_progress_bar.info'),
-            advanced=True
+            display_name=i18n.t("components.models.embedding_model.show_progress_bar.display_name"),
+            info=i18n.t("components.models.embedding_model.show_progress_bar.info"),
+            advanced=True,
         ),
         DictInput(
             name="model_kwargs",
-            display_name=i18n.t(
-                'components.models.embedding_model.model_kwargs.display_name'),
-            info=i18n.t('components.models.embedding_model.model_kwargs.info'),
+            display_name=i18n.t("components.models.embedding_model.model_kwargs.display_name"),
+            info=i18n.t("components.models.embedding_model.model_kwargs.info"),
             advanced=True,
         ),
     ]
@@ -125,14 +113,14 @@ class EmbeddingModelComponent(LCEmbeddingsModel):
 
         if provider == "OpenAI":
             if not api_key:
-                error_message = i18n.t(
-                    'components.models.embedding_model.errors.openai_api_key_required')
+                error_message = i18n.t("components.models.embedding_model.errors.openai_api_key_required")
                 self.status = error_message
                 raise ValueError(error_message)
 
             try:
-                success_message = i18n.t('components.models.embedding_model.success.openai_embeddings_created',
-                                         model=model)
+                success_message = i18n.t(
+                    "components.models.embedding_model.success.openai_embeddings_created", model=model
+                )
                 self.status = success_message
 
                 return OpenAIEmbeddings(
@@ -147,13 +135,15 @@ class EmbeddingModelComponent(LCEmbeddingsModel):
                     model_kwargs=model_kwargs,
                 )
             except Exception as e:
-                error_message = i18n.t('components.models.embedding_model.errors.failed_to_create_embeddings',
-                                       provider=provider, error=str(e))
+                error_message = i18n.t(
+                    "components.models.embedding_model.errors.failed_to_create_embeddings",
+                    provider=provider,
+                    error=str(e),
+                )
                 self.status = error_message
                 raise ValueError(error_message) from e
 
-        error_message = i18n.t(
-            'components.models.embedding_model.errors.unknown_provider', provider=provider)
+        error_message = i18n.t("components.models.embedding_model.errors.unknown_provider", provider=provider)
         self.status = error_message
         raise ValueError(error_message)
 
@@ -162,7 +152,9 @@ class EmbeddingModelComponent(LCEmbeddingsModel):
             build_config["model"]["options"] = OPENAI_EMBEDDING_MODEL_NAMES
             build_config["model"]["value"] = OPENAI_EMBEDDING_MODEL_NAMES[0]
             build_config["api_key"]["display_name"] = i18n.t(
-                'components.models.embedding_model.api_key.openai_display_name')
+                "components.models.embedding_model.api_key.openai_display_name"
+            )
             build_config["api_base"]["display_name"] = i18n.t(
-                'components.models.embedding_model.api_base.openai_display_name')
+                "components.models.embedding_model.api_base.openai_display_name"
+            )
         return build_config

@@ -1,6 +1,7 @@
 import os
 from pathlib import Path
 from typing import Any
+
 import i18n
 
 from lfx.custom.custom_component.component import Component
@@ -50,8 +51,8 @@ class S3BucketUploaderComponent(Component):
         to work with File and Director components as inputs
     """
 
-    display_name = i18n.t('components.amazon.s3_bucket_uploader.display_name')
-    description = i18n.t('components.amazon.s3_bucket_uploader.description')
+    display_name = i18n.t("components.amazon.s3_bucket_uploader.display_name")
+    description = i18n.t("components.amazon.s3_bucket_uploader.description")
     icon = "Amazon"
     name = "s3bucketuploader"
 
@@ -60,67 +61,52 @@ class S3BucketUploaderComponent(Component):
     inputs = [
         SecretStrInput(
             name="aws_access_key_id",
-            display_name=i18n.t(
-                'components.amazon.s3_bucket_uploader.aws_access_key_id.display_name'),
+            display_name=i18n.t("components.amazon.s3_bucket_uploader.aws_access_key_id.display_name"),
             required=True,
             password=True,
-            info=i18n.t(
-                'components.amazon.s3_bucket_uploader.aws_access_key_id.info'),
+            info=i18n.t("components.amazon.s3_bucket_uploader.aws_access_key_id.info"),
         ),
         SecretStrInput(
             name="aws_secret_access_key",
-            display_name=i18n.t(
-                'components.amazon.s3_bucket_uploader.aws_secret_access_key.display_name'),
+            display_name=i18n.t("components.amazon.s3_bucket_uploader.aws_secret_access_key.display_name"),
             required=True,
             password=True,
-            info=i18n.t(
-                'components.amazon.s3_bucket_uploader.aws_secret_access_key.info'),
+            info=i18n.t("components.amazon.s3_bucket_uploader.aws_secret_access_key.info"),
         ),
         StrInput(
             name="bucket_name",
-            display_name=i18n.t(
-                'components.amazon.s3_bucket_uploader.bucket_name.display_name'),
-            info=i18n.t(
-                'components.amazon.s3_bucket_uploader.bucket_name.info'),
+            display_name=i18n.t("components.amazon.s3_bucket_uploader.bucket_name.display_name"),
+            info=i18n.t("components.amazon.s3_bucket_uploader.bucket_name.info"),
             advanced=False,
         ),
         DropdownInput(
             name="strategy",
-            display_name=i18n.t(
-                'components.amazon.s3_bucket_uploader.strategy.display_name'),
+            display_name=i18n.t("components.amazon.s3_bucket_uploader.strategy.display_name"),
             options=[
-                i18n.t(
-                    'components.amazon.s3_bucket_uploader.strategy.options.store_data'),
-                i18n.t(
-                    'components.amazon.s3_bucket_uploader.strategy.options.store_original_file')
+                i18n.t("components.amazon.s3_bucket_uploader.strategy.options.store_data"),
+                i18n.t("components.amazon.s3_bucket_uploader.strategy.options.store_original_file"),
             ],
-            value=i18n.t(
-                'components.amazon.s3_bucket_uploader.strategy.options.store_data'),
-            info=i18n.t('components.amazon.s3_bucket_uploader.strategy.info'),
+            value=i18n.t("components.amazon.s3_bucket_uploader.strategy.options.store_data"),
+            info=i18n.t("components.amazon.s3_bucket_uploader.strategy.info"),
         ),
         HandleInput(
             name="data_inputs",
-            display_name=i18n.t(
-                'components.amazon.s3_bucket_uploader.data_inputs.display_name'),
-            info=i18n.t(
-                'components.amazon.s3_bucket_uploader.data_inputs.info'),
+            display_name=i18n.t("components.amazon.s3_bucket_uploader.data_inputs.display_name"),
+            info=i18n.t("components.amazon.s3_bucket_uploader.data_inputs.info"),
             input_types=["Data"],
             is_list=True,
             required=True,
         ),
         StrInput(
             name="s3_prefix",
-            display_name=i18n.t(
-                'components.amazon.s3_bucket_uploader.s3_prefix.display_name'),
-            info=i18n.t('components.amazon.s3_bucket_uploader.s3_prefix.info'),
+            display_name=i18n.t("components.amazon.s3_bucket_uploader.s3_prefix.display_name"),
+            info=i18n.t("components.amazon.s3_bucket_uploader.s3_prefix.info"),
             advanced=True,
         ),
         BoolInput(
             name="strip_path",
-            display_name=i18n.t(
-                'components.amazon.s3_bucket_uploader.strip_path.display_name'),
-            info=i18n.t(
-                'components.amazon.s3_bucket_uploader.strip_path.info'),
+            display_name=i18n.t("components.amazon.s3_bucket_uploader.strip_path.display_name"),
+            info=i18n.t("components.amazon.s3_bucket_uploader.strip_path.info"),
             required=True,
             advanced=True,
         ),
@@ -128,10 +114,9 @@ class S3BucketUploaderComponent(Component):
 
     outputs = [
         Output(
-            display_name=i18n.t(
-                'components.amazon.s3_bucket_uploader.outputs.data.display_name'),
+            display_name=i18n.t("components.amazon.s3_bucket_uploader.outputs.data.display_name"),
             name="data",
-            method="process_files"
+            method="process_files",
         ),
     ]
 
@@ -148,14 +133,11 @@ class S3BucketUploaderComponent(Component):
             None
         """
         try:
-            self.status = i18n.t(
-                'components.amazon.s3_bucket_uploader.status.processing_files')
+            self.status = i18n.t("components.amazon.s3_bucket_uploader.status.processing_files")
 
             # Get localized strategy names
-            store_data = i18n.t(
-                'components.amazon.s3_bucket_uploader.strategy.options.store_data')
-            store_original = i18n.t(
-                'components.amazon.s3_bucket_uploader.strategy.options.store_original_file')
+            store_data = i18n.t("components.amazon.s3_bucket_uploader.strategy.options.store_data")
+            store_original = i18n.t("components.amazon.s3_bucket_uploader.strategy.options.store_original_file")
 
             strategy_methods = {
                 "Store Data": self.process_files_by_data,
@@ -168,14 +150,14 @@ class S3BucketUploaderComponent(Component):
             if method:
                 method()
             else:
-                error_msg = i18n.t('components.amazon.s3_bucket_uploader.errors.invalid_strategy',
-                                   strategy=self.strategy)
+                error_msg = i18n.t(
+                    "components.amazon.s3_bucket_uploader.errors.invalid_strategy", strategy=self.strategy
+                )
                 logger.error(error_msg)
                 self.status = error_msg
 
         except Exception as e:
-            error_msg = i18n.t('components.amazon.s3_bucket_uploader.errors.process_files_failed',
-                               error=str(e))
+            error_msg = i18n.t("components.amazon.s3_bucket_uploader.errors.process_files_failed", error=str(e))
             logger.exception(error_msg)
             self.status = error_msg
             raise
@@ -195,8 +177,7 @@ class S3BucketUploaderComponent(Component):
         """
         try:
             if not self.data_inputs:
-                warning_msg = i18n.t(
-                    'components.amazon.s3_bucket_uploader.warnings.no_data_inputs')
+                warning_msg = i18n.t("components.amazon.s3_bucket_uploader.warnings.no_data_inputs")
                 logger.warning(warning_msg)
                 self.status = warning_msg
                 return
@@ -212,38 +193,48 @@ class S3BucketUploaderComponent(Component):
                     if file_path and text_content:
                         normalized_path = self._normalize_path(file_path)
 
-                        logger.info(i18n.t('components.amazon.s3_bucket_uploader.logs.uploading_data',
-                                           path=file_path, key=normalized_path))
-
-                        self._s3_client().put_object(
-                            Bucket=self.bucket_name,
-                            Key=normalized_path,
-                            Body=text_content
+                        logger.info(
+                            i18n.t(
+                                "components.amazon.s3_bucket_uploader.logs.uploading_data",
+                                path=file_path,
+                                key=normalized_path,
+                            )
                         )
 
+                        self._s3_client().put_object(Bucket=self.bucket_name, Key=normalized_path, Body=text_content)
+
                         uploaded_count += 1
-                        logger.info(i18n.t('components.amazon.s3_bucket_uploader.logs.data_uploaded',
-                                           key=normalized_path))
+                        logger.info(
+                            i18n.t("components.amazon.s3_bucket_uploader.logs.data_uploaded", key=normalized_path)
+                        )
                     else:
                         skipped_count += 1
-                        logger.warning(i18n.t('components.amazon.s3_bucket_uploader.warnings.missing_data',
-                                              path=file_path or 'unknown'))
+                        logger.warning(
+                            i18n.t(
+                                "components.amazon.s3_bucket_uploader.warnings.missing_data",
+                                path=file_path or "unknown",
+                            )
+                        )
 
                 except Exception as e:
-                    error_msg = i18n.t('components.amazon.s3_bucket_uploader.errors.upload_data_failed',
-                                       path=file_path if 'file_path' in locals() else 'unknown',
-                                       error=str(e))
+                    error_msg = i18n.t(
+                        "components.amazon.s3_bucket_uploader.errors.upload_data_failed",
+                        path=file_path if "file_path" in locals() else "unknown",
+                        error=str(e),
+                    )
                     logger.error(error_msg)
                     # Continue processing other files
 
-            success_msg = i18n.t('components.amazon.s3_bucket_uploader.success.files_processed_by_data',
-                                 uploaded=uploaded_count, skipped=skipped_count)
+            success_msg = i18n.t(
+                "components.amazon.s3_bucket_uploader.success.files_processed_by_data",
+                uploaded=uploaded_count,
+                skipped=skipped_count,
+            )
             logger.info(success_msg)
             self.status = success_msg
 
         except Exception as e:
-            error_msg = i18n.t('components.amazon.s3_bucket_uploader.errors.process_by_data_failed',
-                               error=str(e))
+            error_msg = i18n.t("components.amazon.s3_bucket_uploader.errors.process_by_data_failed", error=str(e))
             logger.exception(error_msg)
             self.status = error_msg
             raise
@@ -260,8 +251,7 @@ class S3BucketUploaderComponent(Component):
         """
         try:
             if not self.data_inputs:
-                warning_msg = i18n.t(
-                    'components.amazon.s3_bucket_uploader.warnings.no_data_inputs')
+                warning_msg = i18n.t("components.amazon.s3_bucket_uploader.warnings.no_data_inputs")
                 logger.warning(warning_msg)
                 self.status = warning_msg
                 return
@@ -277,44 +267,50 @@ class S3BucketUploaderComponent(Component):
                         # Verify file exists
                         if not Path(file_path).exists():
                             skipped_count += 1
-                            logger.warning(i18n.t('components.amazon.s3_bucket_uploader.warnings.file_not_found',
-                                                  path=file_path))
+                            logger.warning(
+                                i18n.t("components.amazon.s3_bucket_uploader.warnings.file_not_found", path=file_path)
+                            )
                             continue
 
                         normalized_path = self._normalize_path(file_path)
 
-                        logger.info(i18n.t('components.amazon.s3_bucket_uploader.logs.uploading_file',
-                                           path=file_path, key=normalized_path))
-
-                        self._s3_client().upload_file(
-                            file_path,
-                            Bucket=self.bucket_name,
-                            Key=normalized_path
+                        logger.info(
+                            i18n.t(
+                                "components.amazon.s3_bucket_uploader.logs.uploading_file",
+                                path=file_path,
+                                key=normalized_path,
+                            )
                         )
 
+                        self._s3_client().upload_file(file_path, Bucket=self.bucket_name, Key=normalized_path)
+
                         uploaded_count += 1
-                        logger.info(i18n.t('components.amazon.s3_bucket_uploader.logs.file_uploaded',
-                                           key=normalized_path))
+                        logger.info(
+                            i18n.t("components.amazon.s3_bucket_uploader.logs.file_uploaded", key=normalized_path)
+                        )
                     else:
                         skipped_count += 1
-                        logger.warning(
-                            i18n.t('components.amazon.s3_bucket_uploader.warnings.no_file_path'))
+                        logger.warning(i18n.t("components.amazon.s3_bucket_uploader.warnings.no_file_path"))
 
                 except Exception as e:
-                    error_msg = i18n.t('components.amazon.s3_bucket_uploader.errors.upload_file_failed',
-                                       path=file_path if 'file_path' in locals() else 'unknown',
-                                       error=str(e))
+                    error_msg = i18n.t(
+                        "components.amazon.s3_bucket_uploader.errors.upload_file_failed",
+                        path=file_path if "file_path" in locals() else "unknown",
+                        error=str(e),
+                    )
                     logger.error(error_msg)
                     # Continue processing other files
 
-            success_msg = i18n.t('components.amazon.s3_bucket_uploader.success.files_processed_by_name',
-                                 uploaded=uploaded_count, skipped=skipped_count)
+            success_msg = i18n.t(
+                "components.amazon.s3_bucket_uploader.success.files_processed_by_name",
+                uploaded=uploaded_count,
+                skipped=skipped_count,
+            )
             logger.info(success_msg)
             self.status = success_msg
 
         except Exception as e:
-            error_msg = i18n.t('components.amazon.s3_bucket_uploader.errors.process_by_name_failed',
-                               error=str(e))
+            error_msg = i18n.t("components.amazon.s3_bucket_uploader.errors.process_by_name_failed", error=str(e))
             logger.exception(error_msg)
             self.status = error_msg
             raise
@@ -328,8 +324,7 @@ class S3BucketUploaderComponent(Component):
         try:
             import boto3
         except ImportError as e:
-            error_msg = i18n.t(
-                'components.amazon.s3_bucket_uploader.errors.boto3_not_installed')
+            error_msg = i18n.t("components.amazon.s3_bucket_uploader.errors.boto3_not_installed")
             raise ImportError(error_msg) from e
 
         try:
@@ -339,8 +334,7 @@ class S3BucketUploaderComponent(Component):
                 aws_secret_access_key=self.aws_secret_access_key,
             )
         except Exception as e:
-            error_msg = i18n.t('components.amazon.s3_bucket_uploader.errors.s3_client_creation_failed',
-                               error=str(e))
+            error_msg = i18n.t("components.amazon.s3_bucket_uploader.errors.s3_client_creation_failed", error=str(e))
             logger.exception(error_msg)
             raise RuntimeError(error_msg) from e
 
@@ -361,20 +355,29 @@ class S3BucketUploaderComponent(Component):
             if strip_path:
                 # Filename only
                 processed_path = Path(file_path).name
-                logger.debug(i18n.t('components.amazon.s3_bucket_uploader.logs.path_stripped',
-                                    original=file_path, stripped=processed_path))
+                logger.debug(
+                    i18n.t(
+                        "components.amazon.s3_bucket_uploader.logs.path_stripped",
+                        original=file_path,
+                        stripped=processed_path,
+                    )
+                )
 
             # Concatenate the s3_prefix if it exists
             if prefix:
                 processed_path = str(Path(prefix) / processed_path)
-                logger.debug(i18n.t('components.amazon.s3_bucket_uploader.logs.prefix_added',
-                                    prefix=prefix, result=processed_path))
+                logger.debug(
+                    i18n.t(
+                        "components.amazon.s3_bucket_uploader.logs.prefix_added", prefix=prefix, result=processed_path
+                    )
+                )
 
             return processed_path
 
         except Exception as e:
-            error_msg = i18n.t('components.amazon.s3_bucket_uploader.errors.path_normalization_failed',
-                               path=file_path, error=str(e))
+            error_msg = i18n.t(
+                "components.amazon.s3_bucket_uploader.errors.path_normalization_failed", path=file_path, error=str(e)
+            )
             logger.error(error_msg)
             # Return original path as fallback
             return file_path

@@ -76,8 +76,7 @@ class RunResponse(BaseModel):
             serialized_outputs = []
             for output in self.outputs:
                 if isinstance(output, BaseModel) and not isinstance(output, RunOutputs):
-                    serialized_outputs.append(
-                        output.model_dump(exclude_none=True))
+                    serialized_outputs.append(output.model_dump(exclude_none=True))
                 else:
                     serialized_outputs.append(output)
             serialized["outputs"] = serialized_outputs
@@ -207,6 +206,9 @@ class UpdateCustomComponentRequest(CustomComponentRequest):
     field_value: str | int | float | bool | dict | list | None = None
     template: dict
     tool_mode: bool = False
+    action: str | None = None  # Optional action name for action buttons
+    graph_data: dict | None = None  # Optional flow graph data for preview operations
+    node_id: str | None = None  # Optional node ID for identifying the current node in graph
 
     def get_template(self):
         return dotdict(self.template)
@@ -315,8 +317,7 @@ class VertexBuildResponse(BaseModel):
     """JSON string of the params."""
     data: ResultDataResponse
     """Mapping of vertex ids to result dict containing the param name and result value."""
-    timestamp: datetime | None = Field(
-        default_factory=lambda: datetime.now(timezone.utc))
+    timestamp: datetime | None = Field(default_factory=lambda: datetime.now(timezone.utc))
     """Timestamp of the build."""
 
     @field_serializer("data")
@@ -338,12 +339,9 @@ class VerticesBuiltResponse(BaseModel):
 
 
 class SimplifiedAPIRequest(BaseModel):
-    input_value: str | None = Field(
-        default=None, description="The input value")
-    input_type: InputType | None = Field(
-        default="chat", description="The input type")
-    output_type: OutputType | None = Field(
-        default="chat", description="The output type")
+    input_value: str | None = Field(default=None, description="The input value")
+    input_type: InputType | None = Field(default="chat", description="The input type")
+    output_type: OutputType | None = Field(default="chat", description="The output type")
     output_component: str | None = Field(
         default="",
         description="If there are multiple output components, you can specify the component to get the output from.",
@@ -471,3 +469,28 @@ class MCPInstallRequest(BaseModel):
 
 class SwitchLocaleRequest(BaseModel):
     lang: str
+
+
+class FieldSchema(BaseModel):
+    """Schema for a single field with type information."""
+
+    field_name: str
+    data_type: str  # "string", "integer", "float", "boolean", "datetime"
+    sample_values: list[Any] | None = None  # Optional: sample values from data
+
+
+class PreviewUpstreamRequest(BaseModel):
+    """Request schema for previewing upstream node data."""
+
+    input_name: str  # Name of the input field to get upstream data from
+    sample_size: int = 10  # Number of records to sample, default 10
+
+
+class PreviewUpstreamResponse(BaseModel):
+    """Response schema for upstream data preview."""
+
+    success: bool
+    fields: list[FieldSchema]
+    record_count: int  # Actual number of records sampled
+    upstream_node_id: str | None = None
+    error: str | None = None

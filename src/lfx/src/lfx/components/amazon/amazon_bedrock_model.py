@@ -1,5 +1,7 @@
 import os
+
 import i18n
+
 from lfx.base.models.aws_constants import AWS_REGIONS, AWS_MODEL_IDs
 from lfx.base.models.model import LCModelComponent
 from lfx.field_typing import LanguageModel
@@ -26,74 +28,58 @@ class AmazonBedrockComponent(LCModelComponent):
         *LCModelComponent.get_base_inputs(),
         DropdownInput(
             name="model_id",
-            display_name=i18n.t(
-                'components.amazon.amazon_bedrock_model.model_id.display_name'),
+            display_name=i18n.t("components.amazon.amazon_bedrock_model.model_id.display_name"),
             options=AWS_MODEL_IDs,
             value="anthropic.claude-3-haiku-20240307-v1:0",
-            info=i18n.t(
-                'components.amazon.amazon_bedrock_model.model_id.info'),
+            info=i18n.t("components.amazon.amazon_bedrock_model.model_id.info"),
         ),
         SecretStrInput(
             name="aws_access_key_id",
-            display_name=i18n.t(
-                'components.amazon.amazon_bedrock_model.aws_access_key_id.display_name'),
-            info=i18n.t(
-                'components.amazon.amazon_bedrock_model.aws_access_key_id.info'),
+            display_name=i18n.t("components.amazon.amazon_bedrock_model.aws_access_key_id.display_name"),
+            info=i18n.t("components.amazon.amazon_bedrock_model.aws_access_key_id.info"),
             value="AWS_ACCESS_KEY_ID",
             required=True,
         ),
         SecretStrInput(
             name="aws_secret_access_key",
-            display_name=i18n.t(
-                'components.amazon.amazon_bedrock_model.aws_secret_access_key.display_name'),
-            info=i18n.t(
-                'components.amazon.amazon_bedrock_model.aws_secret_access_key.info'),
+            display_name=i18n.t("components.amazon.amazon_bedrock_model.aws_secret_access_key.display_name"),
+            info=i18n.t("components.amazon.amazon_bedrock_model.aws_secret_access_key.info"),
             value="AWS_SECRET_ACCESS_KEY",
             required=True,
         ),
         SecretStrInput(
             name="aws_session_token",
-            display_name=i18n.t(
-                'components.amazon.amazon_bedrock_model.aws_session_token.display_name'),
+            display_name=i18n.t("components.amazon.amazon_bedrock_model.aws_session_token.display_name"),
             advanced=False,
-            info=i18n.t(
-                'components.amazon.amazon_bedrock_model.aws_session_token.info'),
+            info=i18n.t("components.amazon.amazon_bedrock_model.aws_session_token.info"),
             load_from_db=False,
         ),
         SecretStrInput(
             name="credentials_profile_name",
-            display_name=i18n.t(
-                'components.amazon.amazon_bedrock_model.credentials_profile_name.display_name'),
+            display_name=i18n.t("components.amazon.amazon_bedrock_model.credentials_profile_name.display_name"),
             advanced=True,
-            info=i18n.t(
-                'components.amazon.amazon_bedrock_model.credentials_profile_name.info'),
+            info=i18n.t("components.amazon.amazon_bedrock_model.credentials_profile_name.info"),
             load_from_db=False,
         ),
         DropdownInput(
             name="region_name",
-            display_name=i18n.t(
-                'components.amazon.amazon_bedrock_model.region_name.display_name'),
+            display_name=i18n.t("components.amazon.amazon_bedrock_model.region_name.display_name"),
             value="us-east-1",
             options=AWS_REGIONS,
-            info=i18n.t(
-                'components.amazon.amazon_bedrock_model.region_name.info'),
+            info=i18n.t("components.amazon.amazon_bedrock_model.region_name.info"),
         ),
         DictInput(
             name="model_kwargs",
-            display_name=i18n.t(
-                'components.amazon.amazon_bedrock_model.model_kwargs.display_name'),
+            display_name=i18n.t("components.amazon.amazon_bedrock_model.model_kwargs.display_name"),
             advanced=True,
             is_list=True,
-            info=i18n.t(
-                'components.amazon.amazon_bedrock_model.model_kwargs.info'),
+            info=i18n.t("components.amazon.amazon_bedrock_model.model_kwargs.info"),
         ),
         MessageTextInput(
             name="endpoint_url",
-            display_name=i18n.t(
-                'components.amazon.amazon_bedrock_model.endpoint_url.display_name'),
+            display_name=i18n.t("components.amazon.amazon_bedrock_model.endpoint_url.display_name"),
             advanced=True,
-            info=i18n.t(
-                'components.amazon.amazon_bedrock_model.endpoint_url.info'),
+            info=i18n.t("components.amazon.amazon_bedrock_model.endpoint_url.info"),
         ),
     ]
 
@@ -104,19 +90,16 @@ class AmazonBedrockComponent(LCModelComponent):
             try:
                 from langchain_aws import ChatBedrock
             except ImportError as e:
-                error_msg = i18n.t(
-                    'components.amazon.amazon_bedrock_model.errors.langchain_aws_not_installed')
+                error_msg = i18n.t("components.amazon.amazon_bedrock_model.errors.langchain_aws_not_installed")
                 raise ImportError(error_msg) from e
 
             try:
                 import boto3
             except ImportError as e:
-                error_msg = i18n.t(
-                    'components.amazon.amazon_bedrock_model.errors.boto3_not_installed')
+                error_msg = i18n.t("components.amazon.amazon_bedrock_model.errors.boto3_not_installed")
                 raise ImportError(error_msg) from e
 
-            self.status = i18n.t(
-                'components.amazon.amazon_bedrock_model.status.creating_session')
+            self.status = i18n.t("components.amazon.amazon_bedrock_model.status.creating_session")
 
             # Create AWS session based on provided credentials
             try:
@@ -126,50 +109,49 @@ class AmazonBedrockComponent(LCModelComponent):
                         aws_secret_access_key=self.aws_secret_access_key,
                         aws_session_token=self.aws_session_token,
                     )
-                    logger.debug(
-                        i18n.t('components.amazon.amazon_bedrock_model.logs.session_created_with_keys'))
+                    logger.debug(i18n.t("components.amazon.amazon_bedrock_model.logs.session_created_with_keys"))
                 elif self.credentials_profile_name:
-                    session = boto3.Session(
-                        profile_name=self.credentials_profile_name)
-                    logger.debug(i18n.t('components.amazon.amazon_bedrock_model.logs.session_created_with_profile',
-                                        profile=self.credentials_profile_name))
+                    session = boto3.Session(profile_name=self.credentials_profile_name)
+                    logger.debug(
+                        i18n.t(
+                            "components.amazon.amazon_bedrock_model.logs.session_created_with_profile",
+                            profile=self.credentials_profile_name,
+                        )
+                    )
                 else:
                     session = boto3.Session()
-                    logger.debug(
-                        i18n.t('components.amazon.amazon_bedrock_model.logs.session_created_default'))
+                    logger.debug(i18n.t("components.amazon.amazon_bedrock_model.logs.session_created_default"))
 
             except Exception as e:
-                error_msg = i18n.t('components.amazon.amazon_bedrock_model.errors.session_creation_failed',
-                                   error=str(e))
+                error_msg = i18n.t(
+                    "components.amazon.amazon_bedrock_model.errors.session_creation_failed", error=str(e)
+                )
                 raise ValueError(error_msg) from e
 
             # Prepare client parameters
             client_params = {}
             if self.endpoint_url:
                 client_params["endpoint_url"] = self.endpoint_url
-                logger.debug(i18n.t('components.amazon.amazon_bedrock_model.logs.endpoint_url_set',
-                                    url=self.endpoint_url))
+                logger.debug(
+                    i18n.t("components.amazon.amazon_bedrock_model.logs.endpoint_url_set", url=self.endpoint_url)
+                )
 
             if self.region_name:
                 client_params["region_name"] = self.region_name
-                logger.debug(i18n.t('components.amazon.amazon_bedrock_model.logs.region_set',
-                                    region=self.region_name))
+                logger.debug(i18n.t("components.amazon.amazon_bedrock_model.logs.region_set", region=self.region_name))
 
-            self.status = i18n.t(
-                'components.amazon.amazon_bedrock_model.status.creating_client')
+            self.status = i18n.t("components.amazon.amazon_bedrock_model.status.creating_client")
 
             try:
-                boto3_client = session.client(
-                    "bedrock-runtime", **client_params)
-                logger.debug(
-                    i18n.t('components.amazon.amazon_bedrock_model.logs.client_created'))
+                boto3_client = session.client("bedrock-runtime", **client_params)
+                logger.debug(i18n.t("components.amazon.amazon_bedrock_model.logs.client_created"))
             except Exception as e:
-                error_msg = i18n.t('components.amazon.amazon_bedrock_model.errors.client_creation_failed',
-                                   error=str(e))
+                error_msg = i18n.t("components.amazon.amazon_bedrock_model.errors.client_creation_failed", error=str(e))
                 raise RuntimeError(error_msg) from e
 
-            self.status = i18n.t('components.amazon.amazon_bedrock_model.status.initializing_model',
-                                 model=self.model_id)
+            self.status = i18n.t(
+                "components.amazon.amazon_bedrock_model.status.initializing_model", model=self.model_id
+            )
 
             try:
                 output = ChatBedrock(
@@ -181,23 +163,26 @@ class AmazonBedrockComponent(LCModelComponent):
                     streaming=self.stream,
                 )
 
-                success_msg = i18n.t('components.amazon.amazon_bedrock_model.success.model_initialized',
-                                     model=self.model_id, region=self.region_name)
+                success_msg = i18n.t(
+                    "components.amazon.amazon_bedrock_model.success.model_initialized",
+                    model=self.model_id,
+                    region=self.region_name,
+                )
                 logger.info(success_msg)
                 self.status = success_msg
 
                 return output
 
             except Exception as e:
-                error_msg = i18n.t('components.amazon.amazon_bedrock_model.errors.model_connection_failed',
-                                   error=str(e))
+                error_msg = i18n.t(
+                    "components.amazon.amazon_bedrock_model.errors.model_connection_failed", error=str(e)
+                )
                 raise ValueError(error_msg) from e
 
-        except (ImportError, ValueError, RuntimeError) as e:
+        except (ImportError, ValueError, RuntimeError):
             # Re-raise these as they already have i18n messages
             raise
         except Exception as e:
-            error_msg = i18n.t('components.amazon.amazon_bedrock_model.errors.model_build_failed',
-                               error=str(e))
+            error_msg = i18n.t("components.amazon.amazon_bedrock_model.errors.model_build_failed", error=str(e))
             logger.exception(error_msg)
             raise ValueError(error_msg) from e

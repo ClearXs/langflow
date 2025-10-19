@@ -1,4 +1,5 @@
 import os
+
 import i18n
 from spider.spider import Spider
 
@@ -18,106 +19,87 @@ from lfx.schema.data import Data
 
 class SpiderTool(Component):
     ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
-    display_name: str = i18n.t(
-        'components.langchain_utilities.spider.display_name')
-    description: str = i18n.t(
-        'components.langchain_utilities.spider.description')
+    display_name: str = i18n.t("components.langchain_utilities.spider.display_name")
+    description: str = i18n.t("components.langchain_utilities.spider.description")
     output_types: list[str] = ["Document"]
     documentation: str = "https://spider.cloud/docs/api"
 
     inputs = [
         SecretStrInput(
             name="spider_api_key",
-            display_name=i18n.t(
-                'components.langchain_utilities.spider.spider_api_key.display_name'),
+            display_name=i18n.t("components.langchain_utilities.spider.spider_api_key.display_name"),
             required=True,
             password=True,
-            info=i18n.t(
-                'components.langchain_utilities.spider.spider_api_key.info'),
+            info=i18n.t("components.langchain_utilities.spider.spider_api_key.info"),
         ),
         StrInput(
             name="url",
-            display_name=i18n.t(
-                'components.langchain_utilities.spider.url.display_name'),
+            display_name=i18n.t("components.langchain_utilities.spider.url.display_name"),
             required=True,
-            info=i18n.t('components.langchain_utilities.spider.url.info'),
+            info=i18n.t("components.langchain_utilities.spider.url.info"),
         ),
         DropdownInput(
             name="mode",
-            display_name=i18n.t(
-                'components.langchain_utilities.spider.mode.display_name'),
+            display_name=i18n.t("components.langchain_utilities.spider.mode.display_name"),
             required=True,
             options=MODES,
             value=MODES[0],
-            info=i18n.t('components.langchain_utilities.spider.mode.info'),
+            info=i18n.t("components.langchain_utilities.spider.mode.info"),
         ),
         IntInput(
             name="limit",
-            display_name=i18n.t(
-                'components.langchain_utilities.spider.limit.display_name'),
-            info=i18n.t('components.langchain_utilities.spider.limit.info'),
+            display_name=i18n.t("components.langchain_utilities.spider.limit.display_name"),
+            info=i18n.t("components.langchain_utilities.spider.limit.info"),
             advanced=True,
         ),
         IntInput(
             name="depth",
-            display_name=i18n.t(
-                'components.langchain_utilities.spider.depth.display_name'),
-            info=i18n.t('components.langchain_utilities.spider.depth.info'),
+            display_name=i18n.t("components.langchain_utilities.spider.depth.display_name"),
+            info=i18n.t("components.langchain_utilities.spider.depth.info"),
             advanced=True,
         ),
         StrInput(
             name="blacklist",
-            display_name=i18n.t(
-                'components.langchain_utilities.spider.blacklist.display_name'),
-            info=i18n.t(
-                'components.langchain_utilities.spider.blacklist.info'),
+            display_name=i18n.t("components.langchain_utilities.spider.blacklist.display_name"),
+            info=i18n.t("components.langchain_utilities.spider.blacklist.info"),
             advanced=True,
         ),
         StrInput(
             name="whitelist",
-            display_name=i18n.t(
-                'components.langchain_utilities.spider.whitelist.display_name'),
-            info=i18n.t(
-                'components.langchain_utilities.spider.whitelist.info'),
+            display_name=i18n.t("components.langchain_utilities.spider.whitelist.display_name"),
+            info=i18n.t("components.langchain_utilities.spider.whitelist.info"),
             advanced=True,
         ),
         BoolInput(
             name="readability",
-            display_name=i18n.t(
-                'components.langchain_utilities.spider.readability.display_name'),
-            info=i18n.t(
-                'components.langchain_utilities.spider.readability.info'),
+            display_name=i18n.t("components.langchain_utilities.spider.readability.display_name"),
+            info=i18n.t("components.langchain_utilities.spider.readability.info"),
             advanced=True,
         ),
         IntInput(
             name="request_timeout",
-            display_name=i18n.t(
-                'components.langchain_utilities.spider.request_timeout.display_name'),
-            info=i18n.t(
-                'components.langchain_utilities.spider.request_timeout.info'),
+            display_name=i18n.t("components.langchain_utilities.spider.request_timeout.display_name"),
+            info=i18n.t("components.langchain_utilities.spider.request_timeout.info"),
             advanced=True,
         ),
         BoolInput(
             name="metadata",
-            display_name=i18n.t(
-                'components.langchain_utilities.spider.metadata.display_name'),
-            info=i18n.t('components.langchain_utilities.spider.metadata.info'),
+            display_name=i18n.t("components.langchain_utilities.spider.metadata.display_name"),
+            info=i18n.t("components.langchain_utilities.spider.metadata.info"),
             advanced=True,
         ),
         DictInput(
             name="params",
-            display_name=i18n.t(
-                'components.langchain_utilities.spider.params.display_name'),
-            info=i18n.t('components.langchain_utilities.spider.params.info'),
+            display_name=i18n.t("components.langchain_utilities.spider.params.display_name"),
+            info=i18n.t("components.langchain_utilities.spider.params.info"),
         ),
     ]
 
     outputs = [
         Output(
-            display_name=i18n.t(
-                'components.langchain_utilities.spider.outputs.content.display_name'),
+            display_name=i18n.t("components.langchain_utilities.spider.outputs.content.display_name"),
             name="content",
-            method="crawl"
+            method="crawl",
         ),
     ]
 
@@ -160,8 +142,7 @@ class SpiderTool(Component):
                     )
                 )
             else:
-                records.append(
-                    Data(data={"content": record["content"], "url": record["url"]}))
+                records.append(Data(data={"content": record["content"], "url": record["url"]}))
         return records
 
 

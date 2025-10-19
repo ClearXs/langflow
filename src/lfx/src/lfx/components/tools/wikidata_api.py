@@ -1,8 +1,8 @@
 import os
 from typing import Any
-import i18n
 
 import httpx
+import i18n
 from langchain_core.tools import StructuredTool, ToolException
 from pydantic import BaseModel, Field
 
@@ -33,8 +33,7 @@ class WikidataAPIWrapper(BaseModel):
             }
 
             # Send request to Wikidata API
-            response = httpx.get(self.wikidata_api_url,
-                                 params=params, timeout=30.0)
+            response = httpx.get(self.wikidata_api_url, params=params, timeout=30.0)
             response.raise_for_status()
             response_json = response.json()
 
@@ -42,46 +41,40 @@ class WikidataAPIWrapper(BaseModel):
             return response_json.get("search", [])
 
         except httpx.TimeoutException as e:
-            error_message = i18n.t(
-                'components.tools.wikidata_api.errors.timeout')
+            error_message = i18n.t("components.tools.wikidata_api.errors.timeout")
             raise ToolException(error_message) from e
         except httpx.HTTPStatusError as e:
-            error_message = i18n.t('components.tools.wikidata_api.errors.http_error',
-                                   status=e.response.status_code)
+            error_message = i18n.t("components.tools.wikidata_api.errors.http_error", status=e.response.status_code)
             raise ToolException(error_message) from e
         except Exception as e:
-            error_message = i18n.t(
-                'components.tools.wikidata_api.errors.request_failed', error=str(e))
+            error_message = i18n.t("components.tools.wikidata_api.errors.request_failed", error=str(e))
             raise ToolException(error_message) from e
 
     def run(self, query: str) -> list[dict[str, Any]]:
         try:
             if not query or not query.strip():
-                error_message = i18n.t(
-                    'components.tools.wikidata_api.errors.empty_query')
+                error_message = i18n.t("components.tools.wikidata_api.errors.empty_query")
                 raise ToolException(error_message)
 
             results = self.results(query)
             if results:
                 return results
 
-            error_message = i18n.t(
-                'components.tools.wikidata_api.errors.no_results', query=query)
+            error_message = i18n.t("components.tools.wikidata_api.errors.no_results", query=query)
             raise ToolException(error_message)
 
         except ToolException:
             # Re-raise ToolException as is (already has i18n message)
             raise
         except Exception as e:
-            error_message = i18n.t(
-                'components.tools.wikidata_api.errors.search_failed', error=str(e))
+            error_message = i18n.t("components.tools.wikidata_api.errors.search_failed", error=str(e))
             raise ToolException(error_message) from e
 
 
 class WikidataAPIComponent(LCToolComponent):
     ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
-    display_name = i18n.t('components.tools.wikidata_api.display_name')
-    description = i18n.t('components.tools.wikidata_api.description')
+    display_name = i18n.t("components.tools.wikidata_api.display_name")
+    description = i18n.t("components.tools.wikidata_api.description")
     name = "WikidataAPI"
     icon = "Wikipedia"
     legacy = True
@@ -90,9 +83,8 @@ class WikidataAPIComponent(LCToolComponent):
     inputs = [
         MultilineInput(
             name="query",
-            display_name=i18n.t(
-                'components.tools.wikidata_api.query.display_name'),
-            info=i18n.t('components.tools.wikidata_api.query.info'),
+            display_name=i18n.t("components.tools.wikidata_api.query.display_name"),
+            info=i18n.t("components.tools.wikidata_api.query.info"),
             required=True,
         ),
     ]
@@ -104,42 +96,36 @@ class WikidataAPIComponent(LCToolComponent):
             # Define the tool using StructuredTool and wrapper's run method
             tool = StructuredTool.from_function(
                 name="wikidata_search_api",
-                description=i18n.t(
-                    'components.tools.wikidata_api.tool_description'),
+                description=i18n.t("components.tools.wikidata_api.tool_description"),
                 func=wrapper.run,
                 args_schema=WikidataSearchSchema,
             )
 
-            success_message = i18n.t(
-                'components.tools.wikidata_api.success.tool_created')
+            success_message = i18n.t("components.tools.wikidata_api.success.tool_created")
             self.status = success_message
 
             return tool
 
         except Exception as e:
-            error_message = i18n.t(
-                'components.tools.wikidata_api.errors.tool_creation_failed', error=str(e))
+            error_message = i18n.t("components.tools.wikidata_api.errors.tool_creation_failed", error=str(e))
             self.status = error_message
             raise ValueError(error_message) from e
 
     def run_model(self) -> list[Data]:
         try:
             if not self.query or not self.query.strip():
-                warning_message = i18n.t(
-                    'components.tools.wikidata_api.warnings.empty_input')
+                warning_message = i18n.t("components.tools.wikidata_api.warnings.empty_input")
                 self.status = warning_message
                 return [Data(data={"error": warning_message})]
 
-            executing_message = i18n.t(
-                'components.tools.wikidata_api.info.executing_search', query=self.query)
+            executing_message = i18n.t("components.tools.wikidata_api.info.executing_search", query=self.query)
             self.status = executing_message
 
             tool = self.build_tool()
             results = tool.run({"query": self.query})
 
             if not results:
-                warning_message = i18n.t(
-                    'components.tools.wikidata_api.warnings.no_results_returned')
+                warning_message = i18n.t("components.tools.wikidata_api.warnings.no_results_returned")
                 self.status = warning_message
                 return [Data(data={"message": warning_message, "query": self.query})]
 
@@ -159,8 +145,9 @@ class WikidataAPIComponent(LCToolComponent):
                 for result in results
             ]
 
-            success_message = i18n.t('components.tools.wikidata_api.success.search_completed',
-                                     count=len(data), query=self.query)
+            success_message = i18n.t(
+                "components.tools.wikidata_api.success.search_completed", count=len(data), query=self.query
+            )
             self.status = success_message
 
             return data
@@ -172,8 +159,7 @@ class WikidataAPIComponent(LCToolComponent):
             logger.debug("Error running Wikidata API", exc_info=True)
             return [Data(data={"error": error_message, "query": self.query})]
         except Exception as e:
-            error_message = i18n.t(
-                'components.tools.wikidata_api.errors.execution_failed', error=str(e))
+            error_message = i18n.t("components.tools.wikidata_api.errors.execution_failed", error=str(e))
             self.status = error_message
             logger.debug("Error running Wikidata API", exc_info=True)
             return [Data(data={"error": error_message, "query": self.query})]

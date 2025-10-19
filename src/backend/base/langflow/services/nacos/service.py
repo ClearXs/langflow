@@ -5,9 +5,10 @@ from __future__ import annotations
 import os
 from typing import TYPE_CHECKING, Any
 
+from lfx.log.logger import logger
+
 from langflow.services.base import Service
 from langflow.services.nacos.manager import NacosConfigManager, NacosServiceManager
-from lfx.log.logger import logger
 
 if TYPE_CHECKING:
     from langflow.services.settings.service import SettingsService
@@ -49,24 +50,18 @@ class NacosService(Service):
 
             # If no server addresses configured, do not initialize
             if not server_addresses:
-                logger.info(
-                    "Nacos server addresses not configured, skipping initialization")
+                logger.info("Nacos server addresses not configured, skipping initialization")
                 return
 
             # Get other configuration from environment or settings
             namespace = os.getenv("NACOS_NAMESPACE") or getattr(
                 self.settings_service.settings, "nacos_namespace", "public"
             )
-            username = os.getenv("NACOS_USERNAME") or getattr(
-                self.settings_service.settings, "nacos_username", None
-            )
-            password = os.getenv("NACOS_PASSWORD") or getattr(
-                self.settings_service.settings, "nacos_password", None
-            )
+            username = os.getenv("NACOS_USERNAME") or getattr(self.settings_service.settings, "nacos_username", None)
+            password = os.getenv("NACOS_PASSWORD") or getattr(self.settings_service.settings, "nacos_password", None)
 
             # Initialize config manager
-            logger.info(
-                f"Initializing Nacos config manager: {server_addresses}, namespace: {namespace}")
+            logger.info(f"Initializing Nacos config manager: {server_addresses}, namespace: {namespace}")
             self.config_manager = NacosConfigManager(
                 server_addresses=server_addresses,
                 namespace=namespace,
@@ -75,11 +70,9 @@ class NacosService(Service):
             )
 
             # Initialize service manager if service registration is enabled
-            service_registration_enabled = (
-                os.getenv("LANGFLOW_NACOS_SERVICE_REGISTRATION_ENABLED",
-                          "").lower() == "true"
-                or getattr(self.settings_service.settings, "nacos_service_registration_enabled", False)
-            )
+            service_registration_enabled = os.getenv(
+                "LANGFLOW_NACOS_SERVICE_REGISTRATION_ENABLED", ""
+            ).lower() == "true" or getattr(self.settings_service.settings, "nacos_service_registration_enabled", False)
 
             if service_registration_enabled:
                 service_name = os.getenv("LANGFLOW_NACOS_SERVICE_NAME") or getattr(
@@ -103,16 +96,12 @@ class NacosService(Service):
                     try:
                         metadata = json.loads(metadata_str)
                     except json.JSONDecodeError:
-                        logger.warning(
-                            "Failed to parse LANGFLOW_NACOS_SERVICE_METADATA as JSON, using empty dict")
+                        logger.warning("Failed to parse LANGFLOW_NACOS_SERVICE_METADATA as JSON, using empty dict")
                         metadata = {}
                 else:
-                    metadata = getattr(
-                        self.settings_service.settings, "nacos_service_metadata", {})
+                    metadata = getattr(self.settings_service.settings, "nacos_service_metadata", {})
 
-                logger.info(
-                    f"Initializing Nacos service registration: {service_name} at {service_ip}:{service_port}"
-                )
+                logger.info(f"Initializing Nacos service registration: {service_name} at {service_ip}:{service_port}")
                 self.service_manager = NacosServiceManager(
                     server_addresses=server_addresses,
                     service_name=service_name,
@@ -124,18 +113,15 @@ class NacosService(Service):
                     metadata=metadata,
                 )
                 if self.service_manager.register():
-                    logger.info(
-                        f"Nacos service registered successfully: {service_name}")
+                    logger.info(f"Nacos service registered successfully: {service_name}")
                 else:
-                    logger.warning(
-                        f"Failed to register Nacos service: {service_name}")
+                    logger.warning(f"Failed to register Nacos service: {service_name}")
 
             self._enabled = True
             logger.info("Nacos service initialized successfully")
 
         except ImportError:
-            logger.warning(
-                "nacos-sdk-python not installed, Nacos features disabled")
+            logger.warning("nacos-sdk-python not installed, Nacos features disabled")
         except Exception:
             logger.exception("Failed to initialize Nacos service")
 

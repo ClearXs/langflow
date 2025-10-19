@@ -1,4 +1,5 @@
 import os
+
 import i18n
 from langchain_community.retrievers.needle import NeedleRetriever
 
@@ -9,8 +10,8 @@ from lfx.utils.constants import MESSAGE_SENDER_AI
 
 
 class NeedleComponent(Component):
-    display_name = i18n.t('components.needle.needle.display_name')
-    description = i18n.t('components.needle.needle.description')
+    display_name = i18n.t("components.needle.needle.display_name")
+    description = i18n.t("components.needle.needle.description")
     documentation = "https://docs.needle-ai.com"
     icon = "Needle"
     name = "needle"
@@ -20,29 +21,27 @@ class NeedleComponent(Component):
     inputs = [
         SecretStrInput(
             name="needle_api_key",
-            display_name=i18n.t(
-                'components.needle.needle.needle_api_key.display_name'),
-            info=i18n.t('components.needle.needle.needle_api_key.info'),
+            display_name=i18n.t("components.needle.needle.needle_api_key.display_name"),
+            info=i18n.t("components.needle.needle.needle_api_key.info"),
             required=True,
         ),
         MessageTextInput(
             name="collection_id",
-            display_name=i18n.t(
-                'components.needle.needle.collection_id.display_name'),
-            info=i18n.t('components.needle.needle.collection_id.info'),
+            display_name=i18n.t("components.needle.needle.collection_id.display_name"),
+            info=i18n.t("components.needle.needle.collection_id.info"),
             required=True,
         ),
         MessageTextInput(
             name="query",
-            display_name=i18n.t('components.needle.needle.query.display_name'),
-            info=i18n.t('components.needle.needle.query.info'),
+            display_name=i18n.t("components.needle.needle.query.display_name"),
+            info=i18n.t("components.needle.needle.query.info"),
             required=True,
             tool_mode=True,
         ),
         IntInput(
             name="top_k",
-            display_name=i18n.t('components.needle.needle.top_k.display_name'),
-            info=i18n.t('components.needle.needle.top_k.info'),
+            display_name=i18n.t("components.needle.needle.top_k.display_name"),
+            info=i18n.t("components.needle.needle.top_k.info"),
             value=20,
             required=True,
         ),
@@ -50,27 +49,24 @@ class NeedleComponent(Component):
 
     outputs = [
         Output(
-            display_name=i18n.t(
-                'components.needle.needle.outputs.result.display_name'),
+            display_name=i18n.t("components.needle.needle.outputs.result.display_name"),
             name="result",
             type_="Message",
-            method="run"
+            method="run",
         )
     ]
 
     def run(self) -> Message:
         # Extract query and top_k
         query_input = self.query
-        actual_query = query_input.get("query", "") if isinstance(
-            query_input, dict) else query_input
+        actual_query = query_input.get("query", "") if isinstance(query_input, dict) else query_input
 
         # Parse top_k from tool input or use default, always enforcing minimum of 20
         try:
             if isinstance(query_input, dict) and "top_k" in query_input:
                 agent_top_k = query_input.get("top_k")
                 # Check if agent_top_k is not None before converting to int
-                top_k = max(20, int(agent_top_k)) if agent_top_k is not None else max(
-                    20, self.top_k)
+                top_k = max(20, int(agent_top_k)) if agent_top_k is not None else max(20, self.top_k)
             else:
                 top_k = max(20, self.top_k)
         except (ValueError, TypeError):
@@ -101,8 +97,7 @@ class NeedleComponent(Component):
             if not docs:
                 text_content = "No relevant documents found for the query."
             else:
-                context = "\n\n".join(
-                    [f"Document {i + 1}:\n{doc.page_content}" for i, doc in enumerate(docs)])
+                context = "\n\n".join([f"Document {i + 1}:\n{doc.page_content}" for i, doc in enumerate(docs)])
                 text_content = f"Question: {actual_query}\n\nContext:\n{context}"
 
             # Return formatted message

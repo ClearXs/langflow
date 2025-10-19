@@ -1,6 +1,7 @@
-import os
 import json
+import os
 from typing import Any
+
 import i18n
 
 from lfx.custom import Component
@@ -141,49 +142,44 @@ def _parse_csv_to_data(text: str) -> Data:
 
 class TypeConverterComponent(Component):
     ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
-    display_name = i18n.t('components.processing.converter.display_name')
-    description = i18n.t('components.processing.converter.description')
+    display_name = i18n.t("components.processing.converter.display_name")
+    description = i18n.t("components.processing.converter.description")
     documentation: str = "https://docs.langflow.org/components-processing#type-convert"
     icon = "repeat"
 
     inputs = [
         HandleInput(
             name="input_data",
-            display_name=i18n.t(
-                'components.processing.converter.input_data.display_name'),
+            display_name=i18n.t("components.processing.converter.input_data.display_name"),
             input_types=["Message", "Data", "DataFrame"],
-            info=i18n.t('components.processing.converter.input_data.info'),
+            info=i18n.t("components.processing.converter.input_data.info"),
             required=True,
         ),
         BoolInput(
             name="auto_parse",
-            display_name=i18n.t(
-                'components.processing.converter.auto_parse.display_name'),
-            info=i18n.t('components.processing.converter.auto_parse.info'),
+            display_name=i18n.t("components.processing.converter.auto_parse.display_name"),
+            info=i18n.t("components.processing.converter.auto_parse.info"),
             advanced=True,
             value=False,
             required=False,
         ),
         TabInput(
             name="output_type",
-            display_name=i18n.t(
-                'components.processing.converter.output_type.display_name'),
+            display_name=i18n.t("components.processing.converter.output_type.display_name"),
             options=[
-                i18n.t('components.processing.converter.output_type.message'),
-                i18n.t('components.processing.converter.output_type.data'),
-                i18n.t('components.processing.converter.output_type.dataframe')
+                i18n.t("components.processing.converter.output_type.message"),
+                i18n.t("components.processing.converter.output_type.data"),
+                i18n.t("components.processing.converter.output_type.dataframe"),
             ],
-            info=i18n.t('components.processing.converter.output_type.info'),
+            info=i18n.t("components.processing.converter.output_type.info"),
             real_time_refresh=True,
-            value=i18n.t(
-                'components.processing.converter.output_type.message'),
+            value=i18n.t("components.processing.converter.output_type.message"),
         ),
     ]
 
     outputs = [
         Output(
-            display_name=i18n.t(
-                'components.processing.converter.outputs.message_output.display_name'),
+            display_name=i18n.t("components.processing.converter.outputs.message_output.display_name"),
             name="message_output",
             method="convert_to_message",
         )
@@ -196,18 +192,14 @@ class TypeConverterComponent(Component):
             frontend_node["outputs"] = []
 
             # Add only the selected output type
-            message_option = i18n.t(
-                'components.processing.converter.output_type.message')
-            data_option = i18n.t(
-                'components.processing.converter.output_type.data')
-            dataframe_option = i18n.t(
-                'components.processing.converter.output_type.dataframe')
+            message_option = i18n.t("components.processing.converter.output_type.message")
+            data_option = i18n.t("components.processing.converter.output_type.data")
+            dataframe_option = i18n.t("components.processing.converter.output_type.dataframe")
 
             if field_value in ["Message", message_option]:
                 frontend_node["outputs"].append(
                     Output(
-                        display_name=i18n.t(
-                            'components.processing.converter.outputs.message_output.display_name'),
+                        display_name=i18n.t("components.processing.converter.outputs.message_output.display_name"),
                         name="message_output",
                         method="convert_to_message",
                     ).to_dict()
@@ -215,8 +207,7 @@ class TypeConverterComponent(Component):
             elif field_value in ["Data", data_option]:
                 frontend_node["outputs"].append(
                     Output(
-                        display_name=i18n.t(
-                            'components.processing.converter.outputs.data_output.display_name'),
+                        display_name=i18n.t("components.processing.converter.outputs.data_output.display_name"),
                         name="data_output",
                         method="convert_to_data",
                     ).to_dict()
@@ -224,8 +215,7 @@ class TypeConverterComponent(Component):
             elif field_value in ["DataFrame", dataframe_option]:
                 frontend_node["outputs"].append(
                     Output(
-                        display_name=i18n.t(
-                            'components.processing.converter.outputs.dataframe_output.display_name'),
+                        display_name=i18n.t("components.processing.converter.outputs.dataframe_output.display_name"),
                         name="dataframe_output",
                         method="convert_to_dataframe",
                     ).to_dict()
@@ -236,8 +226,7 @@ class TypeConverterComponent(Component):
     def convert_to_message(self) -> Message:
         """Convert input to Message type."""
         try:
-            input_value = self.input_data[0] if isinstance(
-                self.input_data, list) else self.input_data
+            input_value = self.input_data[0] if isinstance(self.input_data, list) else self.input_data
 
             # Handle string input by converting to Message first
             if isinstance(input_value, str):
@@ -245,23 +234,20 @@ class TypeConverterComponent(Component):
 
             result = convert_to_message(input_value)
 
-            success_msg = i18n.t(
-                'components.processing.converter.success.converted_to_message')
+            success_msg = i18n.t("components.processing.converter.success.converted_to_message")
             self.status = success_msg
 
             return result
 
         except Exception as e:
-            error_msg = i18n.t('components.processing.converter.errors.message_conversion_failed',
-                               error=str(e))
+            error_msg = i18n.t("components.processing.converter.errors.message_conversion_failed", error=str(e))
             self.status = error_msg
             return Message(text=error_msg)
 
     def convert_to_data(self) -> Data:
         """Convert input to Data type."""
         try:
-            input_value = self.input_data[0] if isinstance(
-                self.input_data, list) else self.input_data
+            input_value = self.input_data[0] if isinstance(self.input_data, list) else self.input_data
 
             # Handle string input by converting to Message first
             if isinstance(input_value, str):
@@ -270,46 +256,40 @@ class TypeConverterComponent(Component):
             result = convert_to_data(input_value, auto_parse=self.auto_parse)
 
             if self.auto_parse:
-                success_msg = i18n.t(
-                    'components.processing.converter.success.converted_to_data_with_parsing')
+                success_msg = i18n.t("components.processing.converter.success.converted_to_data_with_parsing")
             else:
-                success_msg = i18n.t(
-                    'components.processing.converter.success.converted_to_data')
+                success_msg = i18n.t("components.processing.converter.success.converted_to_data")
             self.status = success_msg
 
             return result
 
         except Exception as e:
-            error_msg = i18n.t('components.processing.converter.errors.data_conversion_failed',
-                               error=str(e))
+            error_msg = i18n.t("components.processing.converter.errors.data_conversion_failed", error=str(e))
             self.status = error_msg
             return Data(data={"error": error_msg})
 
     def convert_to_dataframe(self) -> DataFrame:
         """Convert input to DataFrame type."""
         try:
-            input_value = self.input_data[0] if isinstance(
-                self.input_data, list) else self.input_data
+            input_value = self.input_data[0] if isinstance(self.input_data, list) else self.input_data
 
             # Handle string input by converting to Message first
             if isinstance(input_value, str):
                 input_value = Message(text=input_value)
 
-            result = convert_to_dataframe(
-                input_value, auto_parse=self.auto_parse)
+            result = convert_to_dataframe(input_value, auto_parse=self.auto_parse)
 
             if self.auto_parse:
-                success_msg = i18n.t('components.processing.converter.success.converted_to_dataframe_with_parsing',
-                                     rows=len(result))
+                success_msg = i18n.t(
+                    "components.processing.converter.success.converted_to_dataframe_with_parsing", rows=len(result)
+                )
             else:
-                success_msg = i18n.t('components.processing.converter.success.converted_to_dataframe',
-                                     rows=len(result))
+                success_msg = i18n.t("components.processing.converter.success.converted_to_dataframe", rows=len(result))
             self.status = success_msg
 
             return result
 
         except Exception as e:
-            error_msg = i18n.t('components.processing.converter.errors.dataframe_conversion_failed',
-                               error=str(e))
+            error_msg = i18n.t("components.processing.converter.errors.dataframe_conversion_failed", error=str(e))
             self.status = error_msg
             return DataFrame([Data(data={"error": error_msg})])

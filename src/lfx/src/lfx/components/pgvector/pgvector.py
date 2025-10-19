@@ -1,4 +1,5 @@
 import os
+
 import i18n
 from langchain_community.vectorstores import PGVector
 
@@ -10,8 +11,8 @@ from lfx.utils.connection_string_parser import transform_connection_string
 
 
 class PGVectorStoreComponent(LCVectorStoreComponent):
-    display_name = i18n.t('components.pgvector.pgvector.display_name')
-    description = i18n.t('components.pgvector.pgvector.description')
+    display_name = i18n.t("components.pgvector.pgvector.display_name")
+    description = i18n.t("components.pgvector.pgvector.description")
     documentation = "https://python.langchain.com/docs/integrations/vectorstores/pgvector"
     name = "pgvector"
     icon = "cpu"
@@ -21,31 +22,27 @@ class PGVectorStoreComponent(LCVectorStoreComponent):
     inputs = [
         SecretStrInput(
             name="pg_server_url",
-            display_name=i18n.t(
-                'components.pgvector.pgvector.pg_server_url.display_name'),
-            info=i18n.t('components.pgvector.pgvector.pg_server_url.info'),
-            required=True
+            display_name=i18n.t("components.pgvector.pgvector.pg_server_url.display_name"),
+            info=i18n.t("components.pgvector.pgvector.pg_server_url.info"),
+            required=True,
         ),
         StrInput(
             name="collection_name",
-            display_name=i18n.t(
-                'components.pgvector.pgvector.collection_name.display_name'),
-            info=i18n.t('components.pgvector.pgvector.collection_name.info'),
-            required=True
+            display_name=i18n.t("components.pgvector.pgvector.collection_name.display_name"),
+            info=i18n.t("components.pgvector.pgvector.collection_name.info"),
+            required=True,
         ),
         *LCVectorStoreComponent.inputs,
         HandleInput(
             name="embedding",
-            display_name=i18n.t(
-                'components.pgvector.pgvector.embedding.display_name'),
+            display_name=i18n.t("components.pgvector.pgvector.embedding.display_name"),
             input_types=["Embeddings"],
-            required=True
+            required=True,
         ),
         IntInput(
             name="number_of_results",
-            display_name=i18n.t(
-                'components.pgvector.pgvector.number_of_results.display_name'),
-            info=i18n.t('components.pgvector.pgvector.number_of_results.info'),
+            display_name=i18n.t("components.pgvector.pgvector.number_of_results.display_name"),
+            info=i18n.t("components.pgvector.pgvector.number_of_results.info"),
             value=4,
             advanced=True,
         ),
@@ -63,8 +60,7 @@ class PGVectorStoreComponent(LCVectorStoreComponent):
             else:
                 documents.append(_input)
 
-        connection_string_parsed = transform_connection_string(
-            self.pg_server_url)
+        connection_string_parsed = transform_connection_string(self.pg_server_url)
 
         if documents:
             pgvector = PGVector.from_documents(

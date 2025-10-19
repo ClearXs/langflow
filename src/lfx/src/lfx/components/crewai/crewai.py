@@ -1,5 +1,7 @@
 import os
+
 import i18n
+
 from lfx.base.agents.crewai.crew import convert_llm, convert_tools
 from lfx.custom.custom_component.component import Component
 from lfx.io import BoolInput, DictInput, HandleInput, MultilineInput, Output
@@ -19,8 +21,8 @@ class CrewAIAgentComponent(Component):
         Agent: CrewAI agent.
     """
 
-    display_name = i18n.t('components.crewai.crewai.display_name')
-    description = i18n.t('components.crewai.crewai.description')
+    display_name = i18n.t("components.crewai.crewai.display_name")
+    description = i18n.t("components.crewai.crewai.description")
     documentation: str = "https://docs.crewai.com/how-to/LLM-Connections/"
     icon = "CrewAI"
     legacy = True
@@ -31,69 +33,63 @@ class CrewAIAgentComponent(Component):
     inputs = [
         MultilineInput(
             name="role",
-            display_name=i18n.t('components.crewai.crewai.role.display_name'),
-            info=i18n.t('components.crewai.crewai.role.info')
+            display_name=i18n.t("components.crewai.crewai.role.display_name"),
+            info=i18n.t("components.crewai.crewai.role.info"),
         ),
         MultilineInput(
             name="goal",
-            display_name=i18n.t('components.crewai.crewai.goal.display_name'),
-            info=i18n.t('components.crewai.crewai.goal.info')
+            display_name=i18n.t("components.crewai.crewai.goal.display_name"),
+            info=i18n.t("components.crewai.crewai.goal.info"),
         ),
         MultilineInput(
             name="backstory",
-            display_name=i18n.t(
-                'components.crewai.crewai.backstory.display_name'),
-            info=i18n.t('components.crewai.crewai.backstory.info')
+            display_name=i18n.t("components.crewai.crewai.backstory.display_name"),
+            info=i18n.t("components.crewai.crewai.backstory.info"),
         ),
         HandleInput(
             name="tools",
-            display_name=i18n.t('components.crewai.crewai.tools.display_name'),
+            display_name=i18n.t("components.crewai.crewai.tools.display_name"),
             input_types=["Tool"],
             is_list=True,
-            info=i18n.t('components.crewai.crewai.tools.info'),
+            info=i18n.t("components.crewai.crewai.tools.info"),
             value=[],
         ),
         HandleInput(
             name="llm",
-            display_name=i18n.t('components.crewai.crewai.llm.display_name'),
-            info=i18n.t('components.crewai.crewai.llm.info'),
+            display_name=i18n.t("components.crewai.crewai.llm.display_name"),
+            info=i18n.t("components.crewai.crewai.llm.info"),
             input_types=["LanguageModel"],
         ),
         BoolInput(
             name="memory",
-            display_name=i18n.t(
-                'components.crewai.crewai.memory.display_name'),
-            info=i18n.t('components.crewai.crewai.memory.info'),
+            display_name=i18n.t("components.crewai.crewai.memory.display_name"),
+            info=i18n.t("components.crewai.crewai.memory.info"),
             advanced=True,
             value=True,
         ),
         BoolInput(
             name="verbose",
-            display_name=i18n.t(
-                'components.crewai.crewai.verbose.display_name'),
+            display_name=i18n.t("components.crewai.crewai.verbose.display_name"),
             advanced=True,
             value=False,
         ),
         BoolInput(
             name="allow_delegation",
-            display_name=i18n.t(
-                'components.crewai.crewai.allow_delegation.display_name'),
-            info=i18n.t('components.crewai.crewai.allow_delegation.info'),
+            display_name=i18n.t("components.crewai.crewai.allow_delegation.display_name"),
+            info=i18n.t("components.crewai.crewai.allow_delegation.info"),
             value=True,
         ),
         BoolInput(
             name="allow_code_execution",
-            display_name=i18n.t(
-                'components.crewai.crewai.allow_code_execution.display_name'),
-            info=i18n.t('components.crewai.crewai.allow_code_execution.info'),
+            display_name=i18n.t("components.crewai.crewai.allow_code_execution.display_name"),
+            info=i18n.t("components.crewai.crewai.allow_code_execution.info"),
             value=False,
             advanced=True,
         ),
         DictInput(
             name="kwargs",
-            display_name=i18n.t(
-                'components.crewai.crewai.kwargs.display_name'),
-            info=i18n.t('components.crewai.crewai.kwargs.info'),
+            display_name=i18n.t("components.crewai.crewai.kwargs.display_name"),
+            info=i18n.t("components.crewai.crewai.kwargs.info"),
             is_list=True,
             advanced=True,
         ),
@@ -101,10 +97,9 @@ class CrewAIAgentComponent(Component):
 
     outputs = [
         Output(
-            display_name=i18n.t(
-                'components.crewai.crewai.outputs.agent.display_name'),
+            display_name=i18n.t("components.crewai.crewai.outputs.agent.display_name"),
             name="output",
-            method="build_output"
+            method="build_output",
         ),
     ]
 
@@ -120,28 +115,26 @@ class CrewAIAgentComponent(Component):
         """
         try:
             from crewai import Agent
-            logger.debug(
-                i18n.t('components.crewai.crewai.logs.imports_successful'))
+
+            logger.debug(i18n.t("components.crewai.crewai.logs.imports_successful"))
         except ImportError as e:
-            error_msg = i18n.t('components.crewai.crewai.errors.import_failed')
+            error_msg = i18n.t("components.crewai.crewai.errors.import_failed")
             logger.error(error_msg)
             raise ImportError(error_msg) from e
 
         try:
-            logger.info(i18n.t('components.crewai.crewai.logs.creating_agent',
-                               role=self.role))
-            self.status = i18n.t(
-                'components.crewai.crewai.status.creating_agent')
+            logger.info(i18n.t("components.crewai.crewai.logs.creating_agent", role=self.role))
+            self.status = i18n.t("components.crewai.crewai.status.creating_agent")
 
             kwargs = self.kwargs or {}
 
             # Convert LLM and tools
-            logger.debug(
-                i18n.t('components.crewai.crewai.logs.converting_llm'))
+            logger.debug(i18n.t("components.crewai.crewai.logs.converting_llm"))
             converted_llm = convert_llm(self.llm)
 
-            logger.debug(i18n.t('components.crewai.crewai.logs.converting_tools',
-                                count=len(self.tools) if self.tools else 0))
+            logger.debug(
+                i18n.t("components.crewai.crewai.logs.converting_tools", count=len(self.tools) if self.tools else 0)
+            )
             converted_tools = convert_tools(self.tools)
 
             # Define the Agent
@@ -158,16 +151,14 @@ class CrewAIAgentComponent(Component):
                 **kwargs,
             )
 
-            success_msg = i18n.t('components.crewai.crewai.status.agent_created',
-                                 role=self.role)
+            success_msg = i18n.t("components.crewai.crewai.status.agent_created", role=self.role)
             self.status = repr(agent)
             logger.info(success_msg)
 
             return agent
 
         except Exception as e:
-            error_msg = i18n.t('components.crewai.crewai.errors.creation_failed',
-                               error=str(e))
+            error_msg = i18n.t("components.crewai.crewai.errors.creation_failed", error=str(e))
             logger.exception(error_msg)
             self.status = error_msg
             raise ValueError(error_msg) from e

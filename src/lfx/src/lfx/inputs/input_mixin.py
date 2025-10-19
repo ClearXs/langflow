@@ -39,8 +39,7 @@ class FieldTypes(str, Enum):
     MCP = "mcp"
 
 
-SerializableFieldTypes = Annotated[FieldTypes, PlainSerializer(
-    lambda v: v.value, return_type=str)]
+SerializableFieldTypes = Annotated[FieldTypes, PlainSerializer(lambda v: v.value, return_type=str)]
 
 
 # Base mixin for common input field attributes and methods
@@ -52,8 +51,7 @@ class BaseInputMixin(CrossModuleModel, validate_assignment=True):
         populate_by_name=True,
     )
 
-    field_type: SerializableFieldTypes = Field(
-        default=FieldTypes.TEXT, alias="type")
+    field_type: SerializableFieldTypes = Field(default=FieldTypes.TEXT, alias="type")
 
     required: bool = False
     """Specifies if the field is required. Defaults to False."""
@@ -318,6 +316,21 @@ class TableMixin(BaseModel):
     trigger_icon: str = Field(default="Table")
     table_icon: str = Field(default="Table")
     table_options: dict | None = None
+    action_buttons: list[dict[str, str]] | None = None
+    """Custom action buttons to display in the table UI.
+
+    Each button should be a dict with:
+    - name: Unique identifier for the action
+    - label: Display text for the button
+    - icon: Icon name (Lucide icon)
+    - position: 'top' or 'bottom' (where to display the button)
+
+    Example:
+        [
+            {"name": "analyze_sql", "label": "Analyze SQL", "icon": "Search", "position": "top"},
+            {"name": "clear_data", "label": "Clear", "icon": "Trash", "position": "bottom"}
+        ]
+    """
 
 
 class McpMixin(BaseModel):

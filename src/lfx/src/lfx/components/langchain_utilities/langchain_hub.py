@@ -1,7 +1,7 @@
 import os
-import i18n
 import re
 
+import i18n
 from langchain_core.prompts import HumanMessagePromptTemplate
 
 from lfx.custom.custom_component.component import Component
@@ -12,10 +12,8 @@ from lfx.schema.message import Message
 
 class LangChainHubPromptComponent(Component):
     ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
-    display_name: str = i18n.t(
-        'components.langchain_utilities.langchain_hub.display_name')
-    description: str = i18n.t(
-        'components.langchain_utilities.langchain_hub.description')
+    display_name: str = i18n.t("components.langchain_utilities.langchain_hub.display_name")
+    description: str = i18n.t("components.langchain_utilities.langchain_hub.description")
     beta = True
     icon = "LangChain"
     trace_type = "prompt"
@@ -24,18 +22,14 @@ class LangChainHubPromptComponent(Component):
     inputs = [
         SecretStrInput(
             name="langchain_api_key",
-            display_name=i18n.t(
-                'components.langchain_utilities.langchain_hub.langchain_api_key.display_name'),
-            info=i18n.t(
-                'components.langchain_utilities.langchain_hub.langchain_api_key.info'),
+            display_name=i18n.t("components.langchain_utilities.langchain_hub.langchain_api_key.display_name"),
+            info=i18n.t("components.langchain_utilities.langchain_hub.langchain_api_key.info"),
             required=True,
         ),
         StrInput(
             name="langchain_hub_prompt",
-            display_name=i18n.t(
-                'components.langchain_utilities.langchain_hub.langchain_hub_prompt.display_name'),
-            info=i18n.t(
-                'components.langchain_utilities.langchain_hub.langchain_hub_prompt.info'),
+            display_name=i18n.t("components.langchain_utilities.langchain_hub.langchain_hub_prompt.display_name"),
+            info=i18n.t("components.langchain_utilities.langchain_hub.langchain_hub_prompt.info"),
             refresh_button=True,
             required=True,
         ),
@@ -43,10 +37,9 @@ class LangChainHubPromptComponent(Component):
 
     outputs = [
         Output(
-            display_name=i18n.t(
-                'components.langchain_utilities.langchain_hub.outputs.prompt.display_name'),
+            display_name=i18n.t("components.langchain_utilities.langchain_hub.outputs.prompt.display_name"),
             name="prompt",
-            method="build_prompt"
+            method="build_prompt",
         ),
     ]
 
@@ -65,8 +58,7 @@ class LangChainHubPromptComponent(Component):
             template_messages = [HumanMessagePromptTemplate(prompt=template)]
 
         # Extract the messages from the prompt data
-        prompt_template = [
-            message_data.prompt for message_data in template_messages]
+        prompt_template = [message_data.prompt for message_data in template_messages]
 
         # Regular expression to find all instances of {<string>}
         pattern = r"\{(.*?)\}"
@@ -114,10 +106,8 @@ class LangChainHubPromptComponent(Component):
         template = self._fetch_langchain_hub_template()
 
         # Get the parameters from the attributes
-        params_dict = {param: getattr(
-            self, "param_" + param, f"{{{param}}}") for param in template.input_variables}
-        original_params = {k: v.text if hasattr(
-            v, "text") else v for k, v in params_dict.items() if v is not None}
+        params_dict = {param: getattr(self, "param_" + param, f"{{{param}}}") for param in template.input_variables}
+        original_params = {k: v.text if hasattr(v, "text") else v for k, v in params_dict.items() if v is not None}
         prompt_value = template.invoke(original_params)
 
         # Update the template with the new value

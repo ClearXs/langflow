@@ -135,6 +135,7 @@ dependencies = [
     "traceloop-sdk>=0.43.1,<1.0.0",
     "vlmrun[all]>=0.2.0",
     "nacos-sdk-python>=2.0.9",
+    "sqlparse>=0.5.3",
 ]
 
 [dependency-groups]

@@ -1,7 +1,7 @@
 import os
-import i18n
 from contextlib import contextmanager
 
+import i18n
 import pandas as pd
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
@@ -15,8 +15,8 @@ from lfx.template.field.base import Output
 class YouTubeCommentsComponent(Component):
     """A component that retrieves comments from YouTube videos."""
 
-    display_name: str = i18n.t('components.youtube.comments.display_name')
-    description: str = i18n.t('components.youtube.comments.description')
+    display_name: str = i18n.t("components.youtube.comments.display_name")
+    description: str = i18n.t("components.youtube.comments.description")
     icon: str = "YouTube"
 
     ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
@@ -29,48 +29,42 @@ class YouTubeCommentsComponent(Component):
     inputs = [
         MessageTextInput(
             name="video_url",
-            display_name=i18n.t(
-                'components.youtube.comments.video_url.display_name'),
-            info=i18n.t('components.youtube.comments.video_url.info'),
+            display_name=i18n.t("components.youtube.comments.video_url.display_name"),
+            info=i18n.t("components.youtube.comments.video_url.info"),
             tool_mode=True,
             required=True,
         ),
         SecretStrInput(
             name="api_key",
-            display_name=i18n.t(
-                'components.youtube.comments.api_key.display_name'),
-            info=i18n.t('components.youtube.comments.api_key.info'),
+            display_name=i18n.t("components.youtube.comments.api_key.display_name"),
+            info=i18n.t("components.youtube.comments.api_key.info"),
             required=True,
         ),
         IntInput(
             name="max_results",
-            display_name=i18n.t(
-                'components.youtube.comments.max_results.display_name'),
+            display_name=i18n.t("components.youtube.comments.max_results.display_name"),
             value=20,
-            info=i18n.t('components.youtube.comments.max_results.info'),
+            info=i18n.t("components.youtube.comments.max_results.info"),
         ),
         DropdownInput(
             name="sort_by",
-            display_name=i18n.t(
-                'components.youtube.comments.sort_by.display_name'),
+            display_name=i18n.t("components.youtube.comments.sort_by.display_name"),
             options=["time", "relevance"],
             value="relevance",
-            info=i18n.t('components.youtube.comments.sort_by.info'),
+            info=i18n.t("components.youtube.comments.sort_by.info"),
         ),
         BoolInput(
             name="include_replies",
-            display_name=i18n.t(
-                'components.youtube.comments.include_replies.display_name'),
+            display_name=i18n.t("components.youtube.comments.include_replies.display_name"),
             value=False,
-            info=i18n.t('components.youtube.comments.include_replies.info'),
+            info=i18n.t("components.youtube.comments.include_replies.info"),
             advanced=True,
         ),
         BoolInput(
             name="include_metrics",
-            display_name=i18n.t(
-                'components.youtube.comments.include_metrics.display_name'),
+            display_name=i18n.t("components.youtube.comments.include_metrics.display_name"),
             value=True,
-            info=i18n.t('components.youtube.comments.include_metrics.info'),
+            info=i18n.t("components.youtube.comments.include_metrics.info"),
             advanced=True,
         ),
     ]
@@ -78,9 +72,8 @@ class YouTubeCommentsComponent(Component):
     outputs = [
         Output(
             name="comments",
-            display_name=i18n.t(
-                'components.youtube.comments.outputs.comments'),
-            method="get_video_comments"
+            display_name=i18n.t("components.youtube.comments.outputs.comments"),
+            method="get_video_comments",
         ),
     ]
 
@@ -150,8 +143,7 @@ class YouTubeCommentsComponent(Component):
         # Add replies if requested
         if include_replies and item["snippet"]["totalReplyCount"] > 0 and "replies" in item:
             for reply in item["replies"]["comments"]:
-                reply_data = self._process_reply(
-                    reply, parent_id=comment_id, include_metrics=include_metrics)
+                reply_data = self._process_reply(reply, parent_id=comment_id, include_metrics=include_metrics)
                 processed_comments.append(reply_data)
 
         return processed_comments
@@ -201,8 +193,7 @@ class YouTubeCommentsComponent(Component):
                         request = youtube.commentThreads().list(
                             part="snippet,replies",
                             videoId=video_id,
-                            maxResults=min(self.API_MAX_RESULTS,
-                                           self.max_results - results_count),
+                            maxResults=min(self.API_MAX_RESULTS, self.max_results - results_count),
                             order=self.sort_by,
                             textFormat="plainText",
                             pageToken=response["nextPageToken"],

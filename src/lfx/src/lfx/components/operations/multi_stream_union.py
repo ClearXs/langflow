@@ -1,110 +1,104 @@
-from typing import Any
 import i18n
 import pandas as pd
 
 from lfx.custom.custom_component.component import Component
-from lfx.io import (
-    DataInput,
-    BoolInput,
-    MessageTextInput,
-    Output
-)
+from lfx.io import BoolInput, DataInput, MessageTextInput, Output
 from lfx.schema import Data
 
 
 class ETLMultiStreamUnionComponent(Component):
-    display_name = i18n.t('components.operations.multi_stream_union.display_name')
-    description = i18n.t('components.operations.multi_stream_union.description')
+    display_name = i18n.t("components.operations.multi_stream_union.display_name")
+    description = i18n.t("components.operations.multi_stream_union.description")
     icon = "layers"
     name = "ETLMultiStreamUnion"
 
     inputs = [
         DataInput(
             name="stream_1",
-            display_name=i18n.t('components.operations.multi_stream_union.stream_1.display_name'),
-            info=i18n.t('components.operations.multi_stream_union.stream_1.info'),
+            display_name=i18n.t("components.operations.multi_stream_union.stream_1.display_name"),
+            info=i18n.t("components.operations.multi_stream_union.stream_1.info"),
             is_list=True,
-            required=True
+            required=True,
         ),
         DataInput(
             name="stream_2",
-            display_name=i18n.t('components.operations.multi_stream_union.stream_2.display_name'),
-            info=i18n.t('components.operations.multi_stream_union.stream_2.info'),
-            is_list=True
+            display_name=i18n.t("components.operations.multi_stream_union.stream_2.display_name"),
+            info=i18n.t("components.operations.multi_stream_union.stream_2.info"),
+            is_list=True,
         ),
         DataInput(
             name="stream_3",
-            display_name=i18n.t('components.operations.multi_stream_union.stream_3.display_name'),
-            info=i18n.t('components.operations.multi_stream_union.stream_3.info'),
+            display_name=i18n.t("components.operations.multi_stream_union.stream_3.display_name"),
+            info=i18n.t("components.operations.multi_stream_union.stream_3.info"),
             is_list=True,
-            advanced=True
+            advanced=True,
         ),
         DataInput(
             name="stream_4",
-            display_name=i18n.t('components.operations.multi_stream_union.stream_4.display_name'),
-            info=i18n.t('components.operations.multi_stream_union.stream_4.info'),
+            display_name=i18n.t("components.operations.multi_stream_union.stream_4.display_name"),
+            info=i18n.t("components.operations.multi_stream_union.stream_4.info"),
             is_list=True,
-            advanced=True
+            advanced=True,
         ),
         DataInput(
             name="stream_5",
-            display_name=i18n.t('components.operations.multi_stream_union.stream_5.display_name'),
-            info=i18n.t('components.operations.multi_stream_union.stream_5.info'),
+            display_name=i18n.t("components.operations.multi_stream_union.stream_5.display_name"),
+            info=i18n.t("components.operations.multi_stream_union.stream_5.info"),
             is_list=True,
-            advanced=True
+            advanced=True,
         ),
         BoolInput(
             name="drop_duplicates",
-            display_name=i18n.t('components.operations.multi_stream_union.drop_duplicates.display_name'),
-            info=i18n.t('components.operations.multi_stream_union.drop_duplicates.info'),
+            display_name=i18n.t("components.operations.multi_stream_union.drop_duplicates.display_name"),
+            info=i18n.t("components.operations.multi_stream_union.drop_duplicates.info"),
             value=False,
-            advanced=True
+            advanced=True,
         ),
         BoolInput(
             name="align_schemas",
-            display_name=i18n.t('components.operations.multi_stream_union.align_schemas.display_name'),
-            info=i18n.t('components.operations.multi_stream_union.align_schemas.info'),
+            display_name=i18n.t("components.operations.multi_stream_union.align_schemas.display_name"),
+            info=i18n.t("components.operations.multi_stream_union.align_schemas.info"),
             value=True,
-            advanced=True
+            advanced=True,
         ),
         MessageTextInput(
             name="source_column",
-            display_name=i18n.t('components.operations.multi_stream_union.source_column.display_name'),
-            info=i18n.t('components.operations.multi_stream_union.source_column.info'),
+            display_name=i18n.t("components.operations.multi_stream_union.source_column.display_name"),
+            info=i18n.t("components.operations.multi_stream_union.source_column.info"),
             value="_source_stream",
-            advanced=True
+            advanced=True,
         ),
         BoolInput(
             name="include_source_info",
-            display_name=i18n.t('components.operations.multi_stream_union.include_source_info.display_name'),
-            info=i18n.t('components.operations.multi_stream_union.include_source_info.info'),
+            display_name=i18n.t("components.operations.multi_stream_union.include_source_info.display_name"),
+            info=i18n.t("components.operations.multi_stream_union.include_source_info.info"),
             value=False,
-            advanced=True
-        )
+            advanced=True,
+        ),
     ]
 
     outputs = [
         Output(name="data", display_name="Merged Data", method="union_streams"),
-        Output(name="union_stats", display_name="Union Statistics", method="get_union_stats")
+        Output(name="union_stats", display_name="Union Statistics", method="get_union_stats"),
     ]
 
     def union_streams(self) -> list[Data]:
         """Merge multiple data streams with schema alignment and deduplication."""
         try:
-            self.status = i18n.t('components.operations.multi_stream_union.status.merging')
+            self.status = i18n.t("components.operations.multi_stream_union.status.merging")
 
             # Collect all streams
             all_streams = []
             stream_names = []
 
             for i in range(1, 6):
-                stream = getattr(self, f'stream_{i}', None)
+                stream = getattr(self, f"stream_{i}", None)
                 if stream:
                     all_streams.append(stream)
-                    stream_names.append(f'stream_{i}')
+                    stream_names.append(f"stream_{i}")
 
             if not all_streams:
-                raise ValueError(i18n.t('components.operations.multi_stream_union.errors.no_streams'))
+                raise ValueError(i18n.t("components.operations.multi_stream_union.errors.no_streams"))
 
             # Convert to DataFrames
             dataframes = []
@@ -119,7 +113,7 @@ class ETLMultiStreamUnionComponent(Component):
             # Merge all DataFrames
             if self.align_schemas:
                 merged_df = pd.concat(dataframes, ignore_index=True, sort=False)
-                merged_df = merged_df.fillna('')
+                merged_df = merged_df.fillna("")
             else:
                 merged_df = pd.concat(dataframes, ignore_index=True)
 
@@ -133,11 +127,11 @@ class ETLMultiStreamUnionComponent(Component):
                 row_dict = row.to_dict()
                 result_data.append(Data(data=row_dict))
 
-            self.status = i18n.t('components.operations.multi_stream_union.status.success', records=len(result_data))
+            self.status = i18n.t("components.operations.multi_stream_union.status.success", records=len(result_data))
             return result_data
 
         except Exception as e:
-            error_msg = i18n.t('components.operations.multi_stream_union.errors.union_failed', error=str(e))
+            error_msg = i18n.t("components.operations.multi_stream_union.errors.union_failed", error=str(e))
             self.status = error_msg
             raise ValueError(error_msg) from e
 
@@ -145,7 +139,7 @@ class ETLMultiStreamUnionComponent(Component):
         """Convert list of Data objects to pandas DataFrame."""
         records = []
         for data_obj in data_list:
-            if hasattr(data_obj, 'data') and isinstance(data_obj.data, dict):
+            if hasattr(data_obj, "data") and isinstance(data_obj.data, dict):
                 records.append(data_obj.data)
             elif isinstance(data_obj, dict):
                 records.append(data_obj)
@@ -158,7 +152,7 @@ class ETLMultiStreamUnionComponent(Component):
 
         stream_counts = []
         for i in range(1, 6):
-            stream = getattr(self, f'stream_{i}', None)
+            stream = getattr(self, f"stream_{i}", None)
             if stream:
                 stream_counts.append(len(stream))
 
@@ -167,7 +161,7 @@ class ETLMultiStreamUnionComponent(Component):
             "stream_counts": stream_counts,
             "merged_count": len(merged),
             "drop_duplicates": self.drop_duplicates,
-            "align_schemas": self.align_schemas
+            "align_schemas": self.align_schemas,
         }
 
         return Data(data=stats)

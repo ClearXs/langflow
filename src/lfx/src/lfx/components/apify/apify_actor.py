@@ -20,8 +20,8 @@ MAX_DESCRIPTION_LEN = 250
 
 
 class ApifyActorsComponent(Component):
-    display_name = i18n.t('components.apify.apify_actor.display_name')
-    description = i18n.t('components.apify.apify_actor.description')
+    display_name = i18n.t("components.apify.apify_actor.display_name")
+    description = i18n.t("components.apify.apify_actor.description")
     documentation: str = "http://docs.langflow.org/integrations-apify"
     icon = "Apify"
     name = "ApifyActors"
@@ -31,56 +31,49 @@ class ApifyActorsComponent(Component):
     inputs = [
         SecretStrInput(
             name="apify_token",
-            display_name=i18n.t(
-                'components.apify.apify_actor.apify_token.display_name'),
-            info=i18n.t('components.apify.apify_actor.apify_token.info'),
+            display_name=i18n.t("components.apify.apify_actor.apify_token.display_name"),
+            info=i18n.t("components.apify.apify_actor.apify_token.info"),
             required=True,
             password=True,
         ),
         StrInput(
             name="actor_id",
-            display_name=i18n.t(
-                'components.apify.apify_actor.actor_id.display_name'),
-            info=i18n.t('components.apify.apify_actor.actor_id.info'),
+            display_name=i18n.t("components.apify.apify_actor.actor_id.display_name"),
+            info=i18n.t("components.apify.apify_actor.actor_id.info"),
             value="apify/website-content-crawler",
             required=True,
         ),
         MultilineInput(
             name="run_input",
-            display_name=i18n.t(
-                'components.apify.apify_actor.run_input.display_name'),
-            info=i18n.t('components.apify.apify_actor.run_input.info'),
+            display_name=i18n.t("components.apify.apify_actor.run_input.display_name"),
+            info=i18n.t("components.apify.apify_actor.run_input.info"),
             value='{"startUrls":[{"url":"https://docs.apify.com/academy/web-scraping-for-beginners"}],"maxCrawlDepth":0}',
             required=True,
         ),
         MultilineInput(
             name="dataset_fields",
-            display_name=i18n.t(
-                'components.apify.apify_actor.dataset_fields.display_name'),
-            info=i18n.t('components.apify.apify_actor.dataset_fields.info'),
+            display_name=i18n.t("components.apify.apify_actor.dataset_fields.display_name"),
+            info=i18n.t("components.apify.apify_actor.dataset_fields.info"),
         ),
         BoolInput(
             name="flatten_dataset",
-            display_name=i18n.t(
-                'components.apify.apify_actor.flatten_dataset.display_name'),
-            info=i18n.t('components.apify.apify_actor.flatten_dataset.info'),
+            display_name=i18n.t("components.apify.apify_actor.flatten_dataset.display_name"),
+            info=i18n.t("components.apify.apify_actor.flatten_dataset.info"),
         ),
     ]
 
     outputs = [
         Output(
-            display_name=i18n.t(
-                'components.apify.apify_actor.outputs.output.display_name'),
+            display_name=i18n.t("components.apify.apify_actor.outputs.output.display_name"),
             name="output",
             type_=list[Data],
-            method="run_model"
+            method="run_model",
         ),
         Output(
-            display_name=i18n.t(
-                'components.apify.apify_actor.outputs.tool.display_name'),
+            display_name=i18n.t("components.apify.apify_actor.outputs.tool.display_name"),
             name="tool",
             type_=Tool,
-            method="build_tool"
+            method="build_tool",
         ),
     ]
 
@@ -91,36 +84,35 @@ class ApifyActorsComponent(Component):
     def run_model(self) -> list[Data]:
         """Run the Actor and return node output."""
         try:
-            self.status = i18n.t(
-                'components.apify.apify_actor.status.parsing_input')
+            self.status = i18n.t("components.apify.apify_actor.status.parsing_input")
 
             try:
                 input_ = json.loads(self.run_input)
             except json.JSONDecodeError as e:
-                error_msg = i18n.t(
-                    'components.apify.apify_actor.errors.invalid_json', error=str(e))
+                error_msg = i18n.t("components.apify.apify_actor.errors.invalid_json", error=str(e))
                 logger.error(error_msg)
                 raise ValueError(error_msg) from e
 
-            fields = ApifyActorsComponent.parse_dataset_fields(
-                self.dataset_fields) if self.dataset_fields else None
+            fields = ApifyActorsComponent.parse_dataset_fields(self.dataset_fields) if self.dataset_fields else None
 
-            logger.info(i18n.t('components.apify.apify_actor.logs.running_actor',
-                               actor=self.actor_id, fields=len(fields) if fields else 0))
+            logger.info(
+                i18n.t(
+                    "components.apify.apify_actor.logs.running_actor",
+                    actor=self.actor_id,
+                    fields=len(fields) if fields else 0,
+                )
+            )
 
             res = self._run_actor(self.actor_id, input_, fields=fields)
 
             if self.flatten_dataset:
-                self.status = i18n.t(
-                    'components.apify.apify_actor.status.flattening_dataset')
+                self.status = i18n.t("components.apify.apify_actor.status.flattening_dataset")
                 res = [ApifyActorsComponent.flatten(item) for item in res]
-                logger.debug(
-                    i18n.t('components.apify.apify_actor.logs.dataset_flattened'))
+                logger.debug(i18n.t("components.apify.apify_actor.logs.dataset_flattened"))
 
             data = [Data(data=item) for item in res]
 
-            success_msg = i18n.t('components.apify.apify_actor.success.actor_run_completed',
-                                 count=len(data))
+            success_msg = i18n.t("components.apify.apify_actor.success.actor_run_completed", count=len(data))
             logger.info(success_msg)
             self.status = success_msg
 
@@ -129,8 +121,7 @@ class ApifyActorsComponent(Component):
         except (ValueError, json.JSONDecodeError):
             raise
         except Exception as e:
-            error_msg = i18n.t(
-                'components.apify.apify_actor.errors.run_model_failed', error=str(e))
+            error_msg = i18n.t("components.apify.apify_actor.errors.run_model_failed", error=str(e))
             logger.exception(error_msg)
             self.status = error_msg
             raise ValueError(error_msg) from e
@@ -138,45 +129,37 @@ class ApifyActorsComponent(Component):
     def build_tool(self) -> Tool:
         """Build a tool for an agent that runs the Apify Actor."""
         try:
-            self.status = i18n.t(
-                'components.apify.apify_actor.status.building_tool')
+            self.status = i18n.t("components.apify.apify_actor.status.building_tool")
 
             actor_id = self.actor_id
 
-            logger.debug(
-                i18n.t('components.apify.apify_actor.logs.fetching_build', actor=actor_id))
+            logger.debug(i18n.t("components.apify.apify_actor.logs.fetching_build", actor=actor_id))
             build = self._get_actor_latest_build(actor_id)
 
             readme = build.get("readme", "")[:250] + "..."
             if not (input_schema_str := build.get("inputSchema")):
-                error_msg = i18n.t(
-                    'components.apify.apify_actor.errors.input_schema_not_found')
+                error_msg = i18n.t("components.apify.apify_actor.errors.input_schema_not_found")
                 raise ValueError(error_msg)
 
             input_schema = json.loads(input_schema_str)
-            properties, required = ApifyActorsComponent.get_actor_input_schema_from_build(
-                input_schema)
+            properties, required = ApifyActorsComponent.get_actor_input_schema_from_build(input_schema)
             properties = {"run_input": properties}
 
             info_ = [
-                i18n.t('components.apify.apify_actor.tool.input_schema_prefix'),
-                f"\n\n{json.dumps(properties, separators=(',', ':'))}"
+                i18n.t("components.apify.apify_actor.tool.input_schema_prefix"),
+                f"\n\n{json.dumps(properties, separators=(',', ':'))}",
             ]
             if required:
                 info_.append(
-                    i18n.t('components.apify.apify_actor.tool.required_fields_prefix') +
-                    "\n" + "\n".join(required)
+                    i18n.t("components.apify.apify_actor.tool.required_fields_prefix") + "\n" + "\n".join(required)
                 )
 
             info = "".join(info_)
 
-            input_model_cls = ApifyActorsComponent.create_input_model_class(
-                info)
-            tool_cls = ApifyActorsComponent.create_tool_class(
-                self, readme, input_model_cls, actor_id)
+            input_model_cls = ApifyActorsComponent.create_input_model_class(info)
+            tool_cls = ApifyActorsComponent.create_tool_class(self, readme, input_model_cls, actor_id)
 
-            success_msg = i18n.t(
-                'components.apify.apify_actor.success.tool_built', actor=actor_id)
+            success_msg = i18n.t("components.apify.apify_actor.success.tool_built", actor=actor_id)
             logger.info(success_msg)
             self.status = success_msg
 
@@ -185,8 +168,7 @@ class ApifyActorsComponent(Component):
         except ValueError:
             raise
         except Exception as e:
-            error_msg = i18n.t(
-                'components.apify.apify_actor.errors.build_tool_failed', error=str(e))
+            error_msg = i18n.t("components.apify.apify_actor.errors.build_tool_failed", error=str(e))
             logger.exception(error_msg)
             self.status = error_msg
             raise ValueError(error_msg) from e
@@ -201,10 +183,7 @@ class ApifyActorsComponent(Component):
             """Tool that runs Apify Actors."""
 
             name: str = f"apify_actor_{ApifyActorsComponent.actor_id_to_tool_name(actor_id)}"
-            description: str = (
-                i18n.t('components.apify.apify_actor.tool.description_prefix') +
-                f"\n\n{readme}\n\n"
-            )
+            description: str = i18n.t("components.apify.apify_actor.tool.description_prefix") + f"\n\n{readme}\n\n"
 
             args_schema: type[BaseModel] = input_model
 
@@ -215,16 +194,14 @@ class ApifyActorsComponent(Component):
             def _run(self, run_input: str | dict) -> str:
                 """Use the Apify Actor."""
                 try:
-                    input_dict = json.loads(run_input) if isinstance(
-                        run_input, str) else run_input
+                    input_dict = json.loads(run_input) if isinstance(run_input, str) else run_input
                     input_dict = input_dict.get("run_input", input_dict)
 
                     res = parent._run_actor(actor_id, input_dict)
                     return "\n\n".join([ApifyActorsComponent.dict_to_json_str(item) for item in res])
 
                 except Exception as e:
-                    error_msg = i18n.t(
-                        'components.apify.apify_actor.errors.tool_run_failed', error=str(e))
+                    error_msg = i18n.t("components.apify.apify_actor.errors.tool_run_failed", error=str(e))
                     logger.exception(error_msg)
                     raise ValueError(error_msg) from e
 
@@ -245,24 +222,21 @@ class ApifyActorsComponent(Component):
         """Get the Apify client."""
         try:
             if not self.apify_token:
-                error_msg = i18n.t(
-                    'components.apify.apify_actor.errors.api_token_required')
+                error_msg = i18n.t("components.apify.apify_actor.errors.api_token_required")
                 raise ValueError(error_msg)
 
             if self._apify_client is None or self._apify_client.token != self.apify_token:
                 self._apify_client = ApifyClient(self.apify_token)
                 if httpx_client := self._apify_client.http_client.httpx_client:
                     httpx_client.headers["user-agent"] += "; Origin/langflow"
-                logger.debug(
-                    i18n.t('components.apify.apify_actor.logs.client_created'))
+                logger.debug(i18n.t("components.apify.apify_actor.logs.client_created"))
 
             return self._apify_client
 
         except ValueError:
             raise
         except Exception as e:
-            error_msg = i18n.t(
-                'components.apify.apify_actor.errors.client_creation_failed', error=str(e))
+            error_msg = i18n.t("components.apify.apify_actor.errors.client_creation_failed", error=str(e))
             logger.exception(error_msg)
             raise RuntimeError(error_msg) from e
 
@@ -273,29 +247,25 @@ class ApifyActorsComponent(Component):
             actor = client.actor(actor_id=actor_id)
 
             if not (actor_info := actor.get()):
-                error_msg = i18n.t(
-                    'components.apify.apify_actor.errors.actor_not_found', actor=actor_id)
+                error_msg = i18n.t("components.apify.apify_actor.errors.actor_not_found", actor=actor_id)
                 raise ValueError(error_msg)
 
-            default_build_tag = actor_info.get(
-                "defaultRunOptions", {}).get("build")
-            latest_build_id = actor_info.get("taggedBuilds", {}).get(
-                default_build_tag, {}).get("buildId")
+            default_build_tag = actor_info.get("defaultRunOptions", {}).get("build")
+            latest_build_id = actor_info.get("taggedBuilds", {}).get(default_build_tag, {}).get("buildId")
 
             if (build := client.build(latest_build_id).get()) is None:
-                error_msg = i18n.t('components.apify.apify_actor.errors.build_not_found',
-                                   build=latest_build_id)
+                error_msg = i18n.t("components.apify.apify_actor.errors.build_not_found", build=latest_build_id)
                 raise ValueError(error_msg)
 
-            logger.debug(i18n.t('components.apify.apify_actor.logs.build_retrieved',
-                                actor=actor_id, build=latest_build_id))
+            logger.debug(
+                i18n.t("components.apify.apify_actor.logs.build_retrieved", actor=actor_id, build=latest_build_id)
+            )
             return build
 
         except ValueError:
             raise
         except Exception as e:
-            error_msg = i18n.t('components.apify.apify_actor.errors.get_build_failed',
-                               actor=actor_id, error=str(e))
+            error_msg = i18n.t("components.apify.apify_actor.errors.get_build_failed", actor=actor_id, error=str(e))
             logger.exception(error_msg)
             raise RuntimeError(error_msg) from e
 
@@ -310,8 +280,7 @@ class ApifyActorsComponent(Component):
             properties_out[item] = {}
             if desc := meta.get("description"):
                 properties_out[item]["description"] = (
-                    desc[:MAX_DESCRIPTION_LEN] +
-                    "..." if len(desc) > MAX_DESCRIPTION_LEN else desc
+                    desc[:MAX_DESCRIPTION_LEN] + "..." if len(desc) > MAX_DESCRIPTION_LEN else desc
                 )
             for key_name in ("type", "default", "prefill", "enum"):
                 if value := meta.get(key_name):
@@ -326,24 +295,20 @@ class ApifyActorsComponent(Component):
             run = client.run(run_id=run_id)
 
             if (dataset := run.dataset().get()) is None:
-                error_msg = i18n.t(
-                    'components.apify.apify_actor.errors.dataset_not_found')
+                error_msg = i18n.t("components.apify.apify_actor.errors.dataset_not_found")
                 raise ValueError(error_msg)
 
             if (did := dataset.get("id")) is None:
-                error_msg = i18n.t(
-                    'components.apify.apify_actor.errors.dataset_id_not_found')
+                error_msg = i18n.t("components.apify.apify_actor.errors.dataset_id_not_found")
                 raise ValueError(error_msg)
 
-            logger.debug(i18n.t('components.apify.apify_actor.logs.dataset_id_retrieved',
-                                run=run_id, dataset=did))
+            logger.debug(i18n.t("components.apify.apify_actor.logs.dataset_id_retrieved", run=run_id, dataset=did))
             return did
 
         except ValueError:
             raise
         except Exception as e:
-            error_msg = i18n.t('components.apify.apify_actor.errors.get_dataset_id_failed',
-                               run=run_id, error=str(e))
+            error_msg = i18n.t("components.apify.apify_actor.errors.get_dataset_id_failed", run=run_id, error=str(e))
             logger.exception(error_msg)
             raise RuntimeError(error_msg) from e
 
@@ -361,27 +326,22 @@ class ApifyActorsComponent(Component):
     def _run_actor(self, actor_id: str, run_input: dict, fields: list[str] | None = None) -> list[dict]:
         """Run an Apify Actor and return the output dataset."""
         try:
-            self.status = i18n.t(
-                'components.apify.apify_actor.status.calling_actor', actor=actor_id)
+            self.status = i18n.t("components.apify.apify_actor.status.calling_actor", actor=actor_id)
 
             client = self._get_apify_client()
             if (details := client.actor(actor_id=actor_id).call(run_input=run_input, wait_secs=1)) is None:
-                error_msg = i18n.t(
-                    'components.apify.apify_actor.errors.actor_run_details_not_found')
+                error_msg = i18n.t("components.apify.apify_actor.errors.actor_run_details_not_found")
                 raise ValueError(error_msg)
 
             if (run_id := details.get("id")) is None:
-                error_msg = i18n.t(
-                    'components.apify.apify_actor.errors.run_id_not_found')
+                error_msg = i18n.t("components.apify.apify_actor.errors.run_id_not_found")
                 raise ValueError(error_msg)
 
             if (run_client := client.run(run_id)) is None:
-                error_msg = i18n.t(
-                    'components.apify.apify_actor.errors.run_client_not_found')
+                error_msg = i18n.t("components.apify.apify_actor.errors.run_client_not_found")
                 raise ValueError(error_msg)
 
-            self.status = i18n.t(
-                'components.apify.apify_actor.status.streaming_logs', run=run_id)
+            self.status = i18n.t("components.apify.apify_actor.status.streaming_logs", run=run_id)
 
             # stream logs
             with run_client.log().stream() as response:
@@ -389,15 +349,12 @@ class ApifyActorsComponent(Component):
                     for line in response.iter_lines():
                         self.log(line)
 
-            self.status = i18n.t(
-                'components.apify.apify_actor.status.waiting_for_finish')
+            self.status = i18n.t("components.apify.apify_actor.status.waiting_for_finish")
             run_client.wait_for_finish()
 
-            logger.info(
-                i18n.t('components.apify.apify_actor.logs.actor_run_finished', run=run_id))
+            logger.info(i18n.t("components.apify.apify_actor.logs.actor_run_finished", run=run_id))
 
-            self.status = i18n.t(
-                'components.apify.apify_actor.status.loading_dataset')
+            self.status = i18n.t("components.apify.apify_actor.status.loading_dataset")
             dataset_id = self._get_run_dataset_id(run_id)
 
             loader = ApifyDatasetLoader(
@@ -408,16 +365,16 @@ class ApifyActorsComponent(Component):
             )
 
             result = loader.load()
-            logger.info(i18n.t('components.apify.apify_actor.logs.dataset_loaded',
-                               dataset=dataset_id, items=len(result)))
+            logger.info(
+                i18n.t("components.apify.apify_actor.logs.dataset_loaded", dataset=dataset_id, items=len(result))
+            )
 
             return result
 
         except ValueError:
             raise
         except Exception as e:
-            error_msg = i18n.t('components.apify.apify_actor.errors.run_actor_failed',
-                               actor=actor_id, error=str(e))
+            error_msg = i18n.t("components.apify.apify_actor.errors.run_actor_failed", actor=actor_id, error=str(e))
             logger.exception(error_msg)
             raise RuntimeError(error_msg) from e
 
@@ -435,8 +392,7 @@ class ApifyActorsComponent(Component):
     @staticmethod
     def parse_dataset_fields(dataset_fields: str) -> list[str]:
         """Convert a string of comma-separated fields into a list of fields."""
-        dataset_fields = dataset_fields.replace(
-            "'", "").replace('"', "").replace("`", "")
+        dataset_fields = dataset_fields.replace("'", "").replace('"', "").replace("`", "")
         return [field.strip() for field in dataset_fields.split(",")]
 
     @staticmethod

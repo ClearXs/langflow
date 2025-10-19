@@ -1,19 +1,19 @@
 import os
-from typing import Any, Generator
+from collections.abc import Generator
+from typing import Any
+
 import i18n
 
 from lfx.custom.custom_component.component import Component
 from lfx.helpers.data import safe_convert
-from lfx.inputs.inputs import BoolInput, DropdownInput, HandleInput, MessageTextInput, IntInput
+from lfx.inputs.inputs import BoolInput, DropdownInput, HandleInput, IntInput, MessageTextInput
 from lfx.schema.data import Data
-from lfx.schema.dataframe import DataFrame
-from lfx.schema.message import Message
 from lfx.template.field.base import Output
 
 
 class TextOutputComponent(Component):
-    display_name = i18n.t('components.input_output.text_output.display_name')
-    description = i18n.t('components.input_output.text_output.description')
+    display_name = i18n.t("components.input_output.text_output.display_name")
+    description = i18n.t("components.input_output.text_output.description")
     documentation: str = "https://docs.langflow.org/components-io#text-output"
     icon = "Type"
     name = "TextOutput"
@@ -23,88 +23,73 @@ class TextOutputComponent(Component):
     inputs = [
         HandleInput(
             name="input_value",
-            display_name=i18n.t(
-                'components.input_output.text_output.input_value.display_name'),
-            info=i18n.t(
-                'components.input_output.text_output.input_value.info'),
+            display_name=i18n.t("components.input_output.text_output.input_value.display_name"),
+            info=i18n.t("components.input_output.text_output.input_value.info"),
             input_types=["Data", "DataFrame", "Message", "Text"],
             required=True,
         ),
         MessageTextInput(
             name="template",
-            display_name=i18n.t(
-                'components.input_output.text_output.template.display_name'),
-            info=i18n.t('components.input_output.text_output.template.info'),
+            display_name=i18n.t("components.input_output.text_output.template.display_name"),
+            info=i18n.t("components.input_output.text_output.template.info"),
             placeholder="{text}",
             advanced=True,
         ),
         BoolInput(
             name="clean_data",
-            display_name=i18n.t(
-                'components.input_output.text_output.clean_data.display_name'),
-            info=i18n.t('components.input_output.text_output.clean_data.info'),
+            display_name=i18n.t("components.input_output.text_output.clean_data.display_name"),
+            info=i18n.t("components.input_output.text_output.clean_data.info"),
             value=True,
             advanced=True,
         ),
         DropdownInput(
             name="output_format",
-            display_name=i18n.t(
-                'components.input_output.text_output.output_format.display_name'),
-            info=i18n.t(
-                'components.input_output.text_output.output_format.info'),
+            display_name=i18n.t("components.input_output.text_output.output_format.display_name"),
+            info=i18n.t("components.input_output.text_output.output_format.info"),
             options=["text", "markdown", "json", "html"],
             value="text",
             advanced=True,
         ),
         BoolInput(
             name="preserve_whitespace",
-            display_name=i18n.t(
-                'components.input_output.text_output.preserve_whitespace.display_name'),
-            info=i18n.t(
-                'components.input_output.text_output.preserve_whitespace.info'),
+            display_name=i18n.t("components.input_output.text_output.preserve_whitespace.display_name"),
+            info=i18n.t("components.input_output.text_output.preserve_whitespace.info"),
             value=False,
             advanced=True,
         ),
         IntInput(
             name="max_length",
-            display_name=i18n.t(
-                'components.input_output.text_output.max_length.display_name'),
-            info=i18n.t('components.input_output.text_output.max_length.info'),
+            display_name=i18n.t("components.input_output.text_output.max_length.display_name"),
+            info=i18n.t("components.input_output.text_output.max_length.info"),
             value=0,
             range_spec=(0, 100000),
             advanced=True,
         ),
         BoolInput(
             name="show_line_numbers",
-            display_name=i18n.t(
-                'components.input_output.text_output.show_line_numbers.display_name'),
-            info=i18n.t(
-                'components.input_output.text_output.show_line_numbers.info'),
+            display_name=i18n.t("components.input_output.text_output.show_line_numbers.display_name"),
+            info=i18n.t("components.input_output.text_output.show_line_numbers.info"),
             value=False,
             advanced=True,
         ),
         MessageTextInput(
             name="prefix",
-            display_name=i18n.t(
-                'components.input_output.text_output.prefix.display_name'),
-            info=i18n.t('components.input_output.text_output.prefix.info'),
+            display_name=i18n.t("components.input_output.text_output.prefix.display_name"),
+            info=i18n.t("components.input_output.text_output.prefix.info"),
             placeholder="Output: ",
             advanced=True,
         ),
         MessageTextInput(
             name="suffix",
-            display_name=i18n.t(
-                'components.input_output.text_output.suffix.display_name'),
-            info=i18n.t('components.input_output.text_output.suffix.info'),
+            display_name=i18n.t("components.input_output.text_output.suffix.display_name"),
+            info=i18n.t("components.input_output.text_output.suffix.info"),
             placeholder="",
             advanced=True,
         ),
         BoolInput(
             name="enable_streaming",
-            display_name=i18n.t(
-                'components.input_output.text_output.enable_streaming.display_name'),
-            info=i18n.t(
-                'components.input_output.text_output.enable_streaming.info'),
+            display_name=i18n.t("components.input_output.text_output.enable_streaming.display_name"),
+            info=i18n.t("components.input_output.text_output.enable_streaming.info"),
             value=False,
             advanced=True,
         ),
@@ -112,20 +97,20 @@ class TextOutputComponent(Component):
 
     outputs = [
         Output(
-            display_name=i18n.t(
-                'components.input_output.text_output.outputs.text.display_name'),
+            display_name=i18n.t("components.input_output.text_output.outputs.text.display_name"),
             name="text",
             method="get_text_output",
         ),
         Output(
-            display_name=i18n.t(
-                'components.input_output.text_output.outputs.formatted_output.display_name'),
+            display_name=i18n.t("components.input_output.text_output.outputs.formatted_output.display_name"),
             name="formatted_output",
             method="get_formatted_output",
         ),
     ]
 
-    def update_build_config(self, build_config: dict[str, Any], field_value: Any, field_name: str | None = None) -> dict[str, Any]:
+    def update_build_config(
+        self, build_config: dict[str, Any], field_value: Any, field_name: str | None = None
+    ) -> dict[str, Any]:
         """Update build config based on user selection."""
         if field_name == "output_format":
             # Show/hide format-specific options
@@ -154,14 +139,12 @@ class TextOutputComponent(Component):
     def _validate_inputs(self) -> None:
         """Validate the component inputs."""
         if self.input_value is None:
-            error_message = i18n.t(
-                'components.input_output.text_output.errors.input_cannot_be_none')
+            error_message = i18n.t("components.input_output.text_output.errors.input_cannot_be_none")
             self.status = error_message
             raise ValueError(error_message)
 
         if self.max_length < 0:
-            error_message = i18n.t(
-                'components.input_output.text_output.errors.invalid_max_length')
+            error_message = i18n.t("components.input_output.text_output.errors.invalid_max_length")
             self.status = error_message
             raise ValueError(error_message)
 
@@ -176,9 +159,8 @@ class TextOutputComponent(Component):
             # Handle streaming data
             if self.enable_streaming:
                 return self.input_value
-            else:
-                # Convert generator to string
-                return "".join(str(chunk) for chunk in self.input_value)
+            # Convert generator to string
+            return "".join(str(chunk) for chunk in self.input_value)
 
         # Handle single items
         return safe_convert(self.input_value, clean_data=self.clean_data)
@@ -192,12 +174,10 @@ class TextOutputComponent(Component):
             # Simple template substitution
             if "{text}" in self.template:
                 return self.template.replace("{text}", text)
-            else:
-                # If no {text} placeholder, append text to template
-                return f"{self.template}{text}"
+            # If no {text} placeholder, append text to template
+            return f"{self.template}{text}"
         except Exception as e:
-            warning_message = i18n.t(
-                'components.input_output.text_output.warnings.template_error', error=str(e))
+            warning_message = i18n.t("components.input_output.text_output.warnings.template_error", error=str(e))
             self.status = warning_message
             return text
 
@@ -211,15 +191,15 @@ class TextOutputComponent(Component):
 
             elif self.output_format == "json":
                 import json
+
                 try:
                     # Try to parse and reformat as JSON
                     if isinstance(self.input_value, (Data, dict)):
-                        if hasattr(self.input_value, 'data'):
+                        if hasattr(self.input_value, "data"):
                             json_data = self.input_value.data
                         else:
                             json_data = self.input_value
-                        text = json.dumps(json_data, indent=2,
-                                          ensure_ascii=False)
+                        text = json.dumps(json_data, indent=2, ensure_ascii=False)
                     else:
                         # Try to parse existing text as JSON and reformat
                         parsed = json.loads(text)
@@ -230,29 +210,30 @@ class TextOutputComponent(Component):
 
             elif self.output_format == "html":
                 # Basic HTML formatting
-                text = text.replace('\n', '<br>\n')
+                text = text.replace("\n", "<br>\n")
                 text = f"<div>{text}</div>"
 
             # Apply whitespace preservation
             if not self.preserve_whitespace and self.output_format != "json":
-                lines = text.split('\n')
-                text = '\n'.join(line.strip()
-                                 for line in lines if line.strip())
+                lines = text.split("\n")
+                text = "\n".join(line.strip() for line in lines if line.strip())
 
             return text
 
         except Exception as e:
-            error_message = i18n.t('components.input_output.text_output.errors.format_error',
-                                   format=self.output_format, error=str(e))
+            error_message = i18n.t(
+                "components.input_output.text_output.errors.format_error", format=self.output_format, error=str(e)
+            )
             self.status = error_message
             return text
 
     def _apply_length_limit(self, text: str) -> str:
         """Apply maximum length limit to the text."""
         if self.max_length > 0 and len(text) > self.max_length:
-            truncated_text = text[:self.max_length]
-            warning_message = i18n.t('components.input_output.text_output.warnings.text_truncated',
-                                     original=len(text), limit=self.max_length)
+            truncated_text = text[: self.max_length]
+            warning_message = i18n.t(
+                "components.input_output.text_output.warnings.text_truncated", original=len(text), limit=self.max_length
+            )
             self.status = warning_message
             return truncated_text + "..."
         return text
@@ -262,12 +243,12 @@ class TextOutputComponent(Component):
         if not self.show_line_numbers:
             return text
 
-        lines = text.split('\n')
+        lines = text.split("\n")
         numbered_lines = []
         for i, line in enumerate(lines, 1):
             numbered_lines.append(f"{i:4d}: {line}")
 
-        return '\n'.join(numbered_lines)
+        return "\n".join(numbered_lines)
 
     def _add_prefix_suffix(self, text: str) -> str:
         """Add prefix and suffix to the text."""
@@ -302,15 +283,13 @@ class TextOutputComponent(Component):
             # Add prefix and suffix
             text = self._add_prefix_suffix(text)
 
-            success_message = i18n.t('components.input_output.text_output.success.text_processed',
-                                     length=len(text))
+            success_message = i18n.t("components.input_output.text_output.success.text_processed", length=len(text))
             self.status = success_message
 
             return text
 
         except Exception as e:
-            error_message = i18n.t(
-                'components.input_output.text_output.errors.text_output_error', error=str(e))
+            error_message = i18n.t("components.input_output.text_output.errors.text_output_error", error=str(e))
             self.status = error_message
             raise ValueError(error_message) from e
 
@@ -332,15 +311,17 @@ class TextOutputComponent(Component):
             # Add line numbers if requested
             text = self._add_line_numbers(text)
 
-            success_message = i18n.t('components.input_output.text_output.success.formatted_output_processed',
-                                     format=self.output_format, length=len(text))
+            success_message = i18n.t(
+                "components.input_output.text_output.success.formatted_output_processed",
+                format=self.output_format,
+                length=len(text),
+            )
             self.status = success_message
 
             return text
 
         except Exception as e:
-            error_message = i18n.t(
-                'components.input_output.text_output.errors.formatted_output_error', error=str(e))
+            error_message = i18n.t("components.input_output.text_output.errors.formatted_output_error", error=str(e))
             self.status = error_message
             raise ValueError(error_message) from e
 
@@ -369,7 +350,6 @@ class TextOutputComponent(Component):
             }
 
         except Exception as e:
-            error_message = i18n.t(
-                'components.input_output.text_output.errors.output_info_error', error=str(e))
+            error_message = i18n.t("components.input_output.text_output.errors.output_info_error", error=str(e))
             self.status = error_message
             return {"error": str(e)}

@@ -1,12 +1,11 @@
-import pytest
 import json
-from unittest.mock import Mock
-from lfx.components.data.deduplicator import DeduplicatorComponent
+
+import pytest
 from langflow.schema import Data
+from lfx.components.data.deduplicator import DeduplicatorComponent
 
 
 class TestDeduplicatorComponent:
-
     @pytest.fixture
     def component(self):
         return DeduplicatorComponent()

@@ -1,15 +1,15 @@
 import os
+
 import i18n
+
 from lfx.base.agents.crewai.crew import BaseCrewComponent
 from lfx.io import HandleInput
 from lfx.log.logger import logger
 
 
 class HierarchicalCrewComponent(BaseCrewComponent):
-    display_name: str = i18n.t(
-        'components.crewai.hierarchical_crew.display_name')
-    description: str = i18n.t(
-        'components.crewai.hierarchical_crew.description')
+    display_name: str = i18n.t("components.crewai.hierarchical_crew.display_name")
+    description: str = i18n.t("components.crewai.hierarchical_crew.description")
     documentation: str = "https://docs.crewai.com/how-to/Hierarchical/"
     icon = "CrewAI"
     legacy = True
@@ -21,36 +21,31 @@ class HierarchicalCrewComponent(BaseCrewComponent):
         *BaseCrewComponent.get_base_inputs(),
         HandleInput(
             name="agents",
-            display_name=i18n.t(
-                'components.crewai.hierarchical_crew.agents.display_name'),
+            display_name=i18n.t("components.crewai.hierarchical_crew.agents.display_name"),
             input_types=["Agent"],
             is_list=True,
-            info=i18n.t('components.crewai.hierarchical_crew.agents.info')
+            info=i18n.t("components.crewai.hierarchical_crew.agents.info"),
         ),
         HandleInput(
             name="tasks",
-            display_name=i18n.t(
-                'components.crewai.hierarchical_crew.tasks.display_name'),
+            display_name=i18n.t("components.crewai.hierarchical_crew.tasks.display_name"),
             input_types=["HierarchicalTask"],
             is_list=True,
-            info=i18n.t('components.crewai.hierarchical_crew.tasks.info')
+            info=i18n.t("components.crewai.hierarchical_crew.tasks.info"),
         ),
         HandleInput(
             name="manager_llm",
-            display_name=i18n.t(
-                'components.crewai.hierarchical_crew.manager_llm.display_name'),
+            display_name=i18n.t("components.crewai.hierarchical_crew.manager_llm.display_name"),
             input_types=["LanguageModel"],
             required=False,
-            info=i18n.t('components.crewai.hierarchical_crew.manager_llm.info')
+            info=i18n.t("components.crewai.hierarchical_crew.manager_llm.info"),
         ),
         HandleInput(
             name="manager_agent",
-            display_name=i18n.t(
-                'components.crewai.hierarchical_crew.manager_agent.display_name'),
+            display_name=i18n.t("components.crewai.hierarchical_crew.manager_agent.display_name"),
             input_types=["Agent"],
             required=False,
-            info=i18n.t(
-                'components.crewai.hierarchical_crew.manager_agent.info')
+            info=i18n.t("components.crewai.hierarchical_crew.manager_agent.info"),
         ),
     ]
 
@@ -66,43 +61,44 @@ class HierarchicalCrewComponent(BaseCrewComponent):
         """
         try:
             from crewai import Crew, Process
-            logger.debug(
-                i18n.t('components.crewai.hierarchical_crew.logs.imports_successful'))
+
+            logger.debug(i18n.t("components.crewai.hierarchical_crew.logs.imports_successful"))
         except ImportError as e:
-            error_msg = i18n.t(
-                'components.crewai.hierarchical_crew.errors.import_failed')
+            error_msg = i18n.t("components.crewai.hierarchical_crew.errors.import_failed")
             logger.error(error_msg)
             raise ImportError(error_msg) from e
 
         try:
-            logger.info(
-                i18n.t('components.crewai.hierarchical_crew.logs.building_crew'))
-            self.status = i18n.t(
-                'components.crewai.hierarchical_crew.status.building')
+            logger.info(i18n.t("components.crewai.hierarchical_crew.logs.building_crew"))
+            self.status = i18n.t("components.crewai.hierarchical_crew.status.building")
 
-            logger.debug(
-                i18n.t('components.crewai.hierarchical_crew.logs.getting_tasks_agents'))
+            logger.debug(i18n.t("components.crewai.hierarchical_crew.logs.getting_tasks_agents"))
             tasks, agents = self.get_tasks_and_agents()
 
-            logger.info(i18n.t('components.crewai.hierarchical_crew.logs.retrieved_items',
-                               task_count=len(tasks),
-                               agent_count=len(agents)))
+            logger.info(
+                i18n.t(
+                    "components.crewai.hierarchical_crew.logs.retrieved_items",
+                    task_count=len(tasks),
+                    agent_count=len(agents),
+                )
+            )
 
-            logger.debug(
-                i18n.t('components.crewai.hierarchical_crew.logs.getting_manager_llm'))
+            logger.debug(i18n.t("components.crewai.hierarchical_crew.logs.getting_manager_llm"))
             manager_llm = self.get_manager_llm()
 
             if manager_llm:
-                logger.info(
-                    i18n.t('components.crewai.hierarchical_crew.logs.manager_llm_set'))
+                logger.info(i18n.t("components.crewai.hierarchical_crew.logs.manager_llm_set"))
 
-            if hasattr(self, 'manager_agent') and self.manager_agent:
-                logger.info(
-                    i18n.t('components.crewai.hierarchical_crew.logs.manager_agent_set'))
+            if hasattr(self, "manager_agent") and self.manager_agent:
+                logger.info(i18n.t("components.crewai.hierarchical_crew.logs.manager_agent_set"))
 
-            logger.info(i18n.t('components.crewai.hierarchical_crew.logs.creating_hierarchical_crew',
-                               agent_count=len(agents),
-                               task_count=len(tasks)))
+            logger.info(
+                i18n.t(
+                    "components.crewai.hierarchical_crew.logs.creating_hierarchical_crew",
+                    agent_count=len(agents),
+                    task_count=len(tasks),
+                )
+            )
 
             crew = Crew(
                 agents=agents,
@@ -120,9 +116,11 @@ class HierarchicalCrewComponent(BaseCrewComponent):
                 task_callback=self.get_task_callback(),
             )
 
-            success_msg = i18n.t('components.crewai.hierarchical_crew.status.crew_created',
-                                 agent_count=len(agents),
-                                 task_count=len(tasks))
+            success_msg = i18n.t(
+                "components.crewai.hierarchical_crew.status.crew_created",
+                agent_count=len(agents),
+                task_count=len(tasks),
+            )
             self.status = success_msg
             logger.info(success_msg)
 
@@ -131,8 +129,7 @@ class HierarchicalCrewComponent(BaseCrewComponent):
         except ImportError:
             raise
         except Exception as e:
-            error_msg = i18n.t('components.crewai.hierarchical_crew.errors.build_failed',
-                               error=str(e))
+            error_msg = i18n.t("components.crewai.hierarchical_crew.errors.build_failed", error=str(e))
             logger.exception(error_msg)
             self.status = error_msg
             raise ValueError(error_msg) from e

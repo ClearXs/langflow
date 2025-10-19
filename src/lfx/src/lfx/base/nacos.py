@@ -4,18 +4,19 @@ from __future__ import annotations
 
 import json
 import threading
+from collections.abc import Callable
 from contextlib import contextmanager
-from typing import Any, Callable
+from typing import Any
 
 from lfx.log.logger import logger
 
 try:
     import nacos
+
     NACOS_AVAILABLE = True
 except ImportError:
     NACOS_AVAILABLE = False
-    logger.warning(
-        "nacos-sdk-python not installed. Nacos features will be disabled.")
+    logger.warning("nacos-sdk-python not installed. Nacos features will be disabled.")
 
 
 class LFXNacosConfig:
@@ -135,8 +136,7 @@ class LFXNacosConfig:
             True if successful
         """
         try:
-            result = self.client.publish_config(
-                data_id, group, content, timeout=self.timeout)
+            result = self.client.publish_config(data_id, group, content, timeout=self.timeout)
             if result:
                 cache_key = f"{group}:{data_id}"
                 with self._lock:
@@ -233,8 +233,7 @@ class LFXNacosService:
                 username=username,
                 password=password,
             )
-            logger.info(
-                f"LFX Nacos service client initialized for {service_name}")
+            logger.info(f"LFX Nacos service client initialized for {service_name}")
         except Exception:
             logger.exception("Failed to initialize Nacos service client")
             raise
@@ -260,12 +259,10 @@ class LFXNacosService:
                 ephemeral=True,
             )
             self._registered = True
-            logger.info(
-                f"LFX service registered: {self.service_name} at {self.ip}:{self.port}")
+            logger.info(f"LFX service registered: {self.service_name} at {self.ip}:{self.port}")
             return True
         except Exception:
-            logger.exception(
-                f"Failed to register service: {self.service_name}")
+            logger.exception(f"Failed to register service: {self.service_name}")
             return False
 
     def deregister(self) -> bool:
@@ -287,8 +284,7 @@ class LFXNacosService:
             logger.info(f"LFX service deregistered: {self.service_name}")
             return True
         except Exception:
-            logger.exception(
-                f"Failed to deregister service: {self.service_name}")
+            logger.exception(f"Failed to deregister service: {self.service_name}")
             return False
 
     def discover(
@@ -413,8 +409,7 @@ def create_nacos_config(
 
     # If no server addresses configured, return None
     if not server_addresses:
-        logger.info(
-            "Nacos server addresses not configured, skipping initialization")
+        logger.info("Nacos server addresses not configured, skipping initialization")
         return None
 
     namespace = namespace or os.getenv("NACOS_NAMESPACE", "public")
@@ -422,8 +417,7 @@ def create_nacos_config(
     password = password or os.getenv("NACOS_PASSWORD")
 
     try:
-        logger.info(
-            f"Creating LFX Nacos config: {server_addresses}, namespace: {namespace}")
+        logger.info(f"Creating LFX Nacos config: {server_addresses}, namespace: {namespace}")
         return LFXNacosConfig(
             server_addresses=server_addresses,
             namespace=namespace,
@@ -519,8 +513,7 @@ def create_nacos_service(
 
     # If no server addresses configured, return None
     if not server_addresses:
-        logger.info(
-            "Nacos server addresses not configured, skipping service registration")
+        logger.info("Nacos server addresses not configured, skipping service registration")
         return None
 
     namespace = namespace or os.getenv("NACOS_NAMESPACE", "public")
@@ -528,8 +521,7 @@ def create_nacos_service(
     password = password or os.getenv("NACOS_PASSWORD")
 
     # Service configuration
-    service_name = service_name or os.getenv(
-        "NACOS_SERVICE_NAME", "lfx-service")
+    service_name = service_name or os.getenv("NACOS_SERVICE_NAME", "lfx-service")
     ip = ip or os.getenv("NACOS_SERVICE_IP", "127.0.0.1")
 
     # Handle port
@@ -544,15 +536,13 @@ def create_nacos_service(
             try:
                 metadata = json.loads(metadata_env)
             except json.JSONDecodeError:
-                logger.warning(
-                    "Failed to parse NACOS_SERVICE_METADATA as JSON, using empty dict")
+                logger.warning("Failed to parse NACOS_SERVICE_METADATA as JSON, using empty dict")
                 metadata = {}
         else:
             metadata = {}
 
     try:
-        logger.info(
-            f"Creating LFX Nacos service: {service_name} at {ip}:{port}")
+        logger.info(f"Creating LFX Nacos service: {service_name} at {ip}:{port}")
         return LFXNacosService(
             server_addresses=server_addresses,
             service_name=service_name,

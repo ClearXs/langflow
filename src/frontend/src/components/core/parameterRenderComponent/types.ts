@@ -120,6 +120,11 @@ export type DropDownComponentType = {
   toggle?: boolean;
   toggleValue?: boolean;
   toggleDisable?: boolean;
+  actionButton?: {
+    label: string;
+    icon?: string;
+    action: string;
+  };
 };
 
 export type TextAreaComponentType = {

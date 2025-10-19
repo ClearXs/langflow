@@ -25,6 +25,7 @@ import SkeletonGroup from "@/components/ui/skeletonGroup";
 import { useGetMCPServers } from "@/controllers/API/queries/mcp/use-get-mcp-servers";
 import { ENABLE_NEW_SIDEBAR } from "@/customization/feature-flags";
 import { useAddComponent } from "@/hooks/use-add-component";
+import { useIsEmbedded } from "@/hooks/use-iframe-params";
 import { useSidebarBundles, useSidebarCategories } from "@/i18n/locale";
 import { useShortcutsStore } from "@/stores/shortcuts";
 import { setLocalStorage } from "@/utils/local-storage-util";
@@ -149,6 +150,8 @@ export function FlowSidebarComponent({ isLoading }: FlowSidebarComponentProps) {
   const BUNDLES = useSidebarBundles();
   const CATEGORIES = useSidebarCategories();
   const { t } = useTranslation();
+
+  const isEmbedded = useIsEmbedded();
 
   const {
     getFilterEdge,
@@ -672,7 +675,7 @@ export function FlowSidebarComponent({ isLoading }: FlowSidebarComponentProps) {
                         setShowConfig={setShowConfig}
                       />
                     )}
-                    {showComponents && (
+                    {showComponents && !isEmbedded && (
                       <Button
                         onClick={() => setActiveSection("bundles")}
                         variant="ghost"

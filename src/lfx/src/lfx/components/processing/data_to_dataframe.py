@@ -1,4 +1,5 @@
 import os
+
 import i18n
 
 from lfx.custom.custom_component.component import Component
@@ -9,34 +10,28 @@ from lfx.schema.dataframe import DataFrame
 
 class DataToDataFrameComponent(Component):
     ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
-    display_name = i18n.t(
-        'components.processing.data_to_dataframe.display_name')
-    description = i18n.t('components.processing.data_to_dataframe.description')
+    display_name = i18n.t("components.processing.data_to_dataframe.display_name")
+    description = i18n.t("components.processing.data_to_dataframe.description")
     icon = "table"
     name = "DataToDataFrame"
     legacy = True
-    replacement = ["processing.DataOperations",
-                   "processing.TypeConverterComponent"]
+    replacement = ["processing.DataOperations", "processing.TypeConverterComponent"]
 
     inputs = [
         DataInput(
             name="data_list",
-            display_name=i18n.t(
-                'components.processing.data_to_dataframe.data_list.display_name'),
-            info=i18n.t(
-                'components.processing.data_to_dataframe.data_list.info'),
+            display_name=i18n.t("components.processing.data_to_dataframe.data_list.display_name"),
+            info=i18n.t("components.processing.data_to_dataframe.data_list.info"),
             is_list=True,
         ),
     ]
 
     outputs = [
         Output(
-            display_name=i18n.t(
-                'components.processing.data_to_dataframe.outputs.dataframe.display_name'),
+            display_name=i18n.t("components.processing.data_to_dataframe.outputs.dataframe.display_name"),
             name="dataframe",
             method="build_dataframe",
-            info=i18n.t(
-                'components.processing.data_to_dataframe.outputs.dataframe.info'),
+            info=i18n.t("components.processing.data_to_dataframe.outputs.dataframe.info"),
         ),
     ]
 
@@ -54,8 +49,7 @@ class DataToDataFrameComponent(Component):
 
             # Validate input
             if not data_input:
-                warning_msg = i18n.t(
-                    'components.processing.data_to_dataframe.warnings.empty_data_list')
+                warning_msg = i18n.t("components.processing.data_to_dataframe.warnings.empty_data_list")
                 self.status = warning_msg
                 return DataFrame([])
 
@@ -68,8 +62,11 @@ class DataToDataFrameComponent(Component):
 
             for idx, item in enumerate(data_input):
                 if not isinstance(item, Data):
-                    error_msg = i18n.t('components.processing.data_to_dataframe.errors.invalid_data_type',
-                                       index=idx, actual_type=type(item).__name__)
+                    error_msg = i18n.t(
+                        "components.processing.data_to_dataframe.errors.invalid_data_type",
+                        index=idx,
+                        actual_type=type(item).__name__,
+                    )
                     self.status = error_msg
                     raise TypeError(error_msg)
 
@@ -87,8 +84,11 @@ class DataToDataFrameComponent(Component):
             # Build a DataFrame from these row dictionaries
             df_result = DataFrame(rows)
 
-            success_msg = i18n.t('components.processing.data_to_dataframe.success.dataframe_created',
-                                 rows=len(rows), objects=processed_count)
+            success_msg = i18n.t(
+                "components.processing.data_to_dataframe.success.dataframe_created",
+                rows=len(rows),
+                objects=processed_count,
+            )
             self.status = success_msg
 
             return df_result
@@ -97,7 +97,6 @@ class DataToDataFrameComponent(Component):
             # Re-raise TypeError as is (already has i18n message)
             raise
         except Exception as e:
-            error_msg = i18n.t('components.processing.data_to_dataframe.errors.dataframe_creation_failed',
-                               error=str(e))
+            error_msg = i18n.t("components.processing.data_to_dataframe.errors.dataframe_creation_failed", error=str(e))
             self.status = error_msg
             raise ValueError(error_msg) from e

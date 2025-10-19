@@ -1,8 +1,8 @@
-import os
 import ast
 import operator
-import i18n
+import os
 
+import i18n
 import pytest
 from langchain_core.tools import ToolException
 from pydantic import BaseModel, Field
@@ -16,8 +16,8 @@ from lfx.schema.data import Data
 
 class CalculatorToolComponent(LCToolComponent):
     ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
-    display_name = i18n.t('components.tools.calculator.display_name')
-    description = i18n.t('components.tools.calculator.description')
+    display_name = i18n.t("components.tools.calculator.display_name")
+    description = i18n.t("components.tools.calculator.description")
     icon = "calculator"
     name = "CalculatorTool"
     legacy = True
@@ -26,15 +26,13 @@ class CalculatorToolComponent(LCToolComponent):
     inputs = [
         MessageTextInput(
             name="expression",
-            display_name=i18n.t(
-                'components.tools.calculator.expression.display_name'),
-            info=i18n.t('components.tools.calculator.expression.info'),
+            display_name=i18n.t("components.tools.calculator.expression.display_name"),
+            info=i18n.t("components.tools.calculator.expression.info"),
         ),
     ]
 
     class CalculatorToolSchema(BaseModel):
-        expression: str = Field(...,
-                                description="The arithmetic expression to evaluate.")
+        expression: str = Field(..., description="The arithmetic expression to evaluate.")
 
     def run_model(self) -> list[Data]:
         return self._evaluate_expression(self.expression)
@@ -47,7 +45,7 @@ class CalculatorToolComponent(LCToolComponent):
 
         return StructuredTool.from_function(
             name="calculator",
-            description=i18n.t('components.tools.calculator.tool_description'),
+            description=i18n.t("components.tools.calculator.tool_description"),
             func=self._eval_expr_with_error,
             args_schema=self.CalculatorToolSchema,
         )
@@ -63,11 +61,9 @@ class CalculatorToolComponent(LCToolComponent):
             operand_val = self._eval_expr(node.operand)
             return self.operators[type(node.op)](operand_val)
         if isinstance(node, ast.Call):
-            msg = i18n.t(
-                'components.tools.calculator.errors.function_calls_not_supported')
+            msg = i18n.t("components.tools.calculator.errors.function_calls_not_supported")
             raise TypeError(msg)
-        msg = i18n.t('components.tools.calculator.errors.unsupported_operation',
-                     operation=type(node).__name__)
+        msg = i18n.t("components.tools.calculator.errors.unsupported_operation", operation=type(node).__name__)
         raise TypeError(msg)
 
     def _eval_expr_with_error(self, expression: str) -> list[Data]:
@@ -85,25 +81,25 @@ class CalculatorToolComponent(LCToolComponent):
             # Format the result to a reasonable number of decimal places
             formatted_result = f"{result:.6f}".rstrip("0").rstrip(".")
 
-            success_message = i18n.t('components.tools.calculator.success.calculation_completed',
-                                     expression=expression, result=formatted_result)
+            success_message = i18n.t(
+                "components.tools.calculator.success.calculation_completed",
+                expression=expression,
+                result=formatted_result,
+            )
             self.status = success_message
             return [Data(data={"result": formatted_result})]
 
         except (SyntaxError, TypeError, KeyError) as e:
-            error_message = i18n.t(
-                'components.tools.calculator.errors.invalid_expression', error=str(e))
+            error_message = i18n.t("components.tools.calculator.errors.invalid_expression", error=str(e))
             self.status = error_message
             return [Data(data={"error": error_message, "input": expression})]
         except ZeroDivisionError:
-            error_message = i18n.t(
-                'components.tools.calculator.errors.division_by_zero')
+            error_message = i18n.t("components.tools.calculator.errors.division_by_zero")
             self.status = error_message
             return [Data(data={"error": error_message, "input": expression})]
         except Exception as e:  # noqa: BLE001
             logger.debug("Error evaluating expression", exc_info=True)
-            error_message = i18n.t(
-                'components.tools.calculator.errors.calculation_error', error=str(e))
+            error_message = i18n.t("components.tools.calculator.errors.calculation_error", error=str(e))
             self.status = error_message
             return [Data(data={"error": error_message, "input": expression})]
 

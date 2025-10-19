@@ -1,4 +1,3 @@
-import os
 from lfx.base.composio.composio_base import ComposioBaseComponent
 
 
@@ -8,7 +7,7 @@ class ComposioDiscordAPIComponent(ComposioBaseComponent):
     documentation: str = "https://docs.composio.dev"
     app_name = "discord"
 
-    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
+    ignore: bool = True
 
     def set_default_tools(self):
         """Set the default tools for Discord component."""

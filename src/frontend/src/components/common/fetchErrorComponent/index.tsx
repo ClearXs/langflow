@@ -10,8 +10,7 @@ export default function FetchErrorComponent({
   setRetry,
   isLoadingHealth,
 }: fetchErrorComponentType) {
-
-  const {t} = useTranslation()
+  const { t } = useTranslation();
 
   return (
     <>

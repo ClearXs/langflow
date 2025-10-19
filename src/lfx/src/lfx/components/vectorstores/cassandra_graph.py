@@ -1,7 +1,7 @@
 import os
-import i18n
 from uuid import UUID
 
+import i18n
 from langchain_community.graph_vectorstores import CassandraGraphVectorStore
 
 from lfx.base.vectorstores.model import LCVectorStoreComponent, check_cached_vector_store
@@ -18,94 +18,75 @@ from lfx.schema.data import Data
 
 
 class CassandraGraphVectorStoreComponent(LCVectorStoreComponent):
-    display_name = i18n.t(
-        'components.vectorstores.cassandra_graph.display_name')
-    description = i18n.t('components.vectorstores.cassandra_graph.description')
+    display_name = i18n.t("components.vectorstores.cassandra_graph.display_name")
+    description = i18n.t("components.vectorstores.cassandra_graph.description")
     name = "CassandraGraph"
     icon = "Cassandra"
-    
+
     ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     inputs = [
         MessageTextInput(
             name="database_ref",
-            display_name=i18n.t(
-                'components.vectorstores.cassandra_graph.database_ref.display_name'),
-            info=i18n.t(
-                'components.vectorstores.cassandra_graph.database_ref.info'),
+            display_name=i18n.t("components.vectorstores.cassandra_graph.database_ref.display_name"),
+            info=i18n.t("components.vectorstores.cassandra_graph.database_ref.info"),
             required=True,
         ),
         MessageTextInput(
             name="username",
-            display_name=i18n.t(
-                'components.vectorstores.cassandra_graph.username.display_name'),
-            info=i18n.t(
-                'components.vectorstores.cassandra_graph.username.info')
+            display_name=i18n.t("components.vectorstores.cassandra_graph.username.display_name"),
+            info=i18n.t("components.vectorstores.cassandra_graph.username.info"),
         ),
         SecretStrInput(
             name="token",
-            display_name=i18n.t(
-                'components.vectorstores.cassandra_graph.token.display_name'),
-            info=i18n.t('components.vectorstores.cassandra_graph.token.info'),
+            display_name=i18n.t("components.vectorstores.cassandra_graph.token.display_name"),
+            info=i18n.t("components.vectorstores.cassandra_graph.token.info"),
             required=True,
         ),
         MessageTextInput(
             name="keyspace",
-            display_name=i18n.t(
-                'components.vectorstores.cassandra_graph.keyspace.display_name'),
-            info=i18n.t(
-                'components.vectorstores.cassandra_graph.keyspace.info'),
+            display_name=i18n.t("components.vectorstores.cassandra_graph.keyspace.display_name"),
+            info=i18n.t("components.vectorstores.cassandra_graph.keyspace.info"),
             required=True,
         ),
         MessageTextInput(
             name="table_name",
-            display_name=i18n.t(
-                'components.vectorstores.cassandra_graph.table_name.display_name'),
-            info=i18n.t(
-                'components.vectorstores.cassandra_graph.table_name.info'),
+            display_name=i18n.t("components.vectorstores.cassandra_graph.table_name.display_name"),
+            info=i18n.t("components.vectorstores.cassandra_graph.table_name.info"),
             required=True,
         ),
         DropdownInput(
             name="setup_mode",
-            display_name=i18n.t(
-                'components.vectorstores.cassandra_graph.setup_mode.display_name'),
-            info=i18n.t(
-                'components.vectorstores.cassandra_graph.setup_mode.info'),
+            display_name=i18n.t("components.vectorstores.cassandra_graph.setup_mode.display_name"),
+            info=i18n.t("components.vectorstores.cassandra_graph.setup_mode.info"),
             options=["Sync", "Off"],
             value="Sync",
             advanced=True,
         ),
         DictInput(
             name="cluster_kwargs",
-            display_name=i18n.t(
-                'components.vectorstores.cassandra_graph.cluster_kwargs.display_name'),
-            info=i18n.t(
-                'components.vectorstores.cassandra_graph.cluster_kwargs.info'),
+            display_name=i18n.t("components.vectorstores.cassandra_graph.cluster_kwargs.display_name"),
+            info=i18n.t("components.vectorstores.cassandra_graph.cluster_kwargs.info"),
             advanced=True,
             list=True,
         ),
         *LCVectorStoreComponent.inputs,
         HandleInput(
             name="embedding",
-            display_name=i18n.t(
-                'components.vectorstores.cassandra_graph.embedding.display_name'),
-            input_types=["Embeddings"]
+            display_name=i18n.t("components.vectorstores.cassandra_graph.embedding.display_name"),
+            input_types=["Embeddings"],
         ),
         IntInput(
             name="number_of_results",
-            display_name=i18n.t(
-                'components.vectorstores.cassandra_graph.number_of_results.display_name'),
-            info=i18n.t(
-                'components.vectorstores.cassandra_graph.number_of_results.info'),
+            display_name=i18n.t("components.vectorstores.cassandra_graph.number_of_results.display_name"),
+            info=i18n.t("components.vectorstores.cassandra_graph.number_of_results.info"),
             value=4,
             advanced=True,
         ),
         DropdownInput(
             name="search_type",
-            display_name=i18n.t(
-                'components.vectorstores.cassandra_graph.search_type.display_name'),
-            info=i18n.t(
-                'components.vectorstores.cassandra_graph.search_type.info'),
+            display_name=i18n.t("components.vectorstores.cassandra_graph.search_type.display_name"),
+            info=i18n.t("components.vectorstores.cassandra_graph.search_type.info"),
             options=[
                 "Traversal",
                 "MMR traversal",
@@ -118,27 +99,22 @@ class CassandraGraphVectorStoreComponent(LCVectorStoreComponent):
         ),
         IntInput(
             name="depth",
-            display_name=i18n.t(
-                'components.vectorstores.cassandra_graph.depth.display_name'),
-            info=i18n.t('components.vectorstores.cassandra_graph.depth.info'),
+            display_name=i18n.t("components.vectorstores.cassandra_graph.depth.display_name"),
+            info=i18n.t("components.vectorstores.cassandra_graph.depth.info"),
             value=1,
             advanced=True,
         ),
         FloatInput(
             name="search_score_threshold",
-            display_name=i18n.t(
-                'components.vectorstores.cassandra_graph.search_score_threshold.display_name'),
-            info=i18n.t(
-                'components.vectorstores.cassandra_graph.search_score_threshold.info'),
+            display_name=i18n.t("components.vectorstores.cassandra_graph.search_score_threshold.display_name"),
+            info=i18n.t("components.vectorstores.cassandra_graph.search_score_threshold.info"),
             value=0,
             advanced=True,
         ),
         DictInput(
             name="search_filter",
-            display_name=i18n.t(
-                'components.vectorstores.cassandra_graph.search_filter.display_name'),
-            info=i18n.t(
-                'components.vectorstores.cassandra_graph.search_filter.info'),
+            display_name=i18n.t("components.vectorstores.cassandra_graph.search_filter.display_name"),
+            info=i18n.t("components.vectorstores.cassandra_graph.search_filter.info"),
             advanced=True,
             list=True,
         ),
@@ -233,8 +209,7 @@ class CassandraGraphVectorStoreComponent(LCVectorStoreComponent):
 
                 self.log(f"Search args: {search_args}")
 
-                docs = vector_store.search(
-                    query=self.search_query, search_type=search_type, **search_args)
+                docs = vector_store.search(query=self.search_query, search_type=search_type, **search_args)
             except KeyError as e:
                 if "content" in str(e):
                     msg = (
@@ -259,8 +234,7 @@ class CassandraGraphVectorStoreComponent(LCVectorStoreComponent):
         }
 
         if self.search_filter:
-            clean_filter = {k: v for k,
-                            v in self.search_filter.items() if k and v}
+            clean_filter = {k: v for k, v in self.search_filter.items() if k and v}
             if len(clean_filter) > 0:
                 args["filter"] = clean_filter
         return args

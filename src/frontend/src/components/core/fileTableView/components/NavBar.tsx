@@ -1,14 +1,14 @@
-import { FolderPlus, Upload, Download, Trash2, Search } from "lucide-react";
+import { Download, FolderPlus, Search, Trash2, Upload } from "lucide-react";
+import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useState } from "react";
-import { cn } from "@/utils/utils";
+import { Input } from "@/components/ui/input";
 import type { FileItem } from "../types";
 
 interface NavBarProps {
@@ -34,6 +34,7 @@ export function NavBar({
   onDownload,
   onBatchDelete,
 }: NavBarProps) {
+  const { t } = useTranslation();
   const [query, setQuery] = useState(searchQuery);
   const hasSelection = selectList.length > 0;
 
@@ -56,51 +57,56 @@ export function NavBar({
 
   return (
     <div className="flex items-center justify-between border-b bg-background px-4 py-3">
-      <div className="flex items-center gap-2">
-        {/* FIXED: Always render all buttons, use CSS to hide/show - prevents flickering */}
-        <div className={cn("flex items-center gap-2", hasSelection && "hidden")}>
-          <Button onClick={onCreate} variant="default">
-            <FolderPlus className="mr-2 h-4 w-4" />
-            新建文件夹
-          </Button>
+      <div className="flex items-center gap-2 relative min-h-[36px]">
+        {/* Create/Upload buttons - shown when no selection */}
+        {!hasSelection && (
+          <div className="flex items-center gap-2">
+            <Button onClick={onCreate} variant="default" size="sm">
+              <FolderPlus className="mr-2 h-4 w-4" />
+              {t("fileTableModal.newFolder")}
+            </Button>
 
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="default">
-                <Upload className="mr-2 h-4 w-4" />
-                上传
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent>
-              <DropdownMenuItem onClick={onUpload}>
-                <Upload className="mr-2 h-4 w-4" />
-                上传文件
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={onUploadFolder}>
-                <FolderPlus className="mr-2 h-4 w-4" />
-                上传文件夹
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="default" size="sm">
+                  <Upload className="mr-2 h-4 w-4" />
+                  {t("fileTableModal.upload")}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuItem onClick={onUpload}>
+                  <Upload className="mr-2 h-4 w-4" />
+                  {t("fileTableModal.uploadFile")}
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={onUploadFolder}>
+                  <FolderPlus className="mr-2 h-4 w-4" />
+                  {t("fileTableModal.uploadFolder")}
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        )}
 
-        <div className={cn("flex items-center gap-2", !hasSelection && "hidden")}>
-          <Button onClick={onDownload} variant="outline">
-            <Download className="mr-2 h-4 w-4" />
-            下载
-          </Button>
-          <Button onClick={onBatchDelete} variant="outline">
-            <Trash2 className="mr-2 h-4 w-4" />
-            删除
-          </Button>
-        </div>
+        {/* Download/Delete buttons - shown when has selection */}
+        {hasSelection && (
+          <div className="flex items-center gap-2">
+            <Button onClick={onDownload} variant="outline" size="sm">
+              <Download className="mr-2 h-4 w-4" />
+              {t("fileTableModal.download")}
+            </Button>
+            <Button onClick={onBatchDelete} variant="outline" size="sm">
+              <Trash2 className="mr-2 h-4 w-4" />
+              {t("fileTableModal.delete")}
+            </Button>
+          </div>
+        )}
       </div>
 
       <div className="flex items-center gap-2">
         <div className="relative w-60">
           <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="搜索文件"
+            placeholder={t("fileTableModal.searchFiles")}
             value={query}
             onChange={(e) => handleSearchInput(e.target.value)}
             onKeyDown={handleKeyDown}

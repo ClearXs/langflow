@@ -1,4 +1,5 @@
 import os
+
 import i18n
 import requests
 from langchain_openai import ChatOpenAI
@@ -21,8 +22,8 @@ from lfx.inputs.inputs import (
 
 
 class NovitaModelComponent(LCModelComponent):
-    display_name = i18n.t('components.novita.novita.display_name')
-    description = i18n.t('components.novita.novita.description')
+    display_name = i18n.t("components.novita.novita.display_name")
+    description = i18n.t("components.novita.novita.description")
     icon = "Novita"
     name = "NovitaModel"
 
@@ -32,30 +33,26 @@ class NovitaModelComponent(LCModelComponent):
         *LCModelComponent.get_base_inputs(),
         IntInput(
             name="max_tokens",
-            display_name=i18n.t(
-                'components.novita.novita.max_tokens.display_name'),
+            display_name=i18n.t("components.novita.novita.max_tokens.display_name"),
             advanced=True,
-            info=i18n.t('components.novita.novita.max_tokens.info'),
+            info=i18n.t("components.novita.novita.max_tokens.info"),
             range_spec=RangeSpec(min=0, max=128000),
         ),
         DictInput(
             name="model_kwargs",
-            display_name=i18n.t(
-                'components.novita.novita.model_kwargs.display_name'),
+            display_name=i18n.t("components.novita.novita.model_kwargs.display_name"),
             advanced=True,
-            info=i18n.t('components.novita.novita.model_kwargs.info'),
+            info=i18n.t("components.novita.novita.model_kwargs.info"),
         ),
         BoolInput(
             name="json_mode",
-            display_name=i18n.t(
-                'components.novita.novita.json_mode.display_name'),
+            display_name=i18n.t("components.novita.novita.json_mode.display_name"),
             advanced=True,
-            info=i18n.t('components.novita.novita.json_mode.info'),
+            info=i18n.t("components.novita.novita.json_mode.info"),
         ),
         DropdownInput(
             name="model_name",
-            display_name=i18n.t(
-                'components.novita.novita.model_name.display_name'),
+            display_name=i18n.t("components.novita.novita.model_name.display_name"),
             advanced=False,
             options=MODEL_NAMES,
             value=MODEL_NAMES[0],
@@ -63,32 +60,29 @@ class NovitaModelComponent(LCModelComponent):
         ),
         SecretStrInput(
             name="api_key",
-            display_name=i18n.t(
-                'components.novita.novita.api_key.display_name'),
-            info=i18n.t('components.novita.novita.api_key.info'),
+            display_name=i18n.t("components.novita.novita.api_key.display_name"),
+            info=i18n.t("components.novita.novita.api_key.info"),
             advanced=False,
             value="NOVITA_API_KEY",
             real_time_refresh=True,
         ),
         SliderInput(
             name="temperature",
-            display_name=i18n.t(
-                'components.novita.novita.temperature.display_name'),
+            display_name=i18n.t("components.novita.novita.temperature.display_name"),
             value=0.1,
-            range_spec=RangeSpec(min=0, max=1)
+            range_spec=RangeSpec(min=0, max=1),
         ),
         IntInput(
             name="seed",
-            display_name=i18n.t('components.novita.novita.seed.display_name'),
-            info=i18n.t('components.novita.novita.seed.info'),
+            display_name=i18n.t("components.novita.novita.seed.display_name"),
+            info=i18n.t("components.novita.novita.seed.info"),
             advanced=True,
             value=1,
         ),
         HandleInput(
             name="output_parser",
-            display_name=i18n.t(
-                'components.novita.novita.output_parser.display_name'),
-            info=i18n.t('components.novita.novita.output_parser.info'),
+            display_name=i18n.t("components.novita.novita.output_parser.display_name"),
+            info=i18n.t("components.novita.novita.output_parser.info"),
             advanced=True,
             input_types=["OutputParser"],
         ),
@@ -128,8 +122,7 @@ class NovitaModelComponent(LCModelComponent):
         try:
             output = ChatOpenAI(
                 model=model_name,
-                api_key=(SecretStr(api_key).get_secret_value()
-                         if api_key else None),
+                api_key=(SecretStr(api_key).get_secret_value() if api_key else None),
                 max_tokens=max_tokens or None,
                 temperature=temperature,
                 model_kwargs=model_kwargs,

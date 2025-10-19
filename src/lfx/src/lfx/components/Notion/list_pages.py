@@ -1,8 +1,8 @@
-import os
-import i18n
 import json
+import os
 from typing import Any
 
+import i18n
 import requests
 from langchain.tools import StructuredTool
 from pydantic import BaseModel, Field
@@ -15,8 +15,8 @@ from lfx.schema.data import Data
 
 
 class NotionListPages(LCToolComponent):
-    display_name: str = i18n.t('components.notion.list_pages.display_name')
-    description: str = i18n.t('components.notion.list_pages.description')
+    display_name: str = i18n.t("components.notion.list_pages.display_name")
+    description: str = i18n.t("components.notion.list_pages.description")
     documentation: str = "https://docs.langflow.org/integrations/notion/list-pages"
     icon = "NotionDirectoryLoader"
 
@@ -25,28 +25,24 @@ class NotionListPages(LCToolComponent):
     inputs = [
         SecretStrInput(
             name="notion_secret",
-            display_name=i18n.t(
-                'components.notion.list_pages.notion_secret.display_name'),
-            info=i18n.t('components.notion.list_pages.notion_secret.info'),
+            display_name=i18n.t("components.notion.list_pages.notion_secret.display_name"),
+            info=i18n.t("components.notion.list_pages.notion_secret.info"),
             required=True,
         ),
         StrInput(
             name="database_id",
-            display_name=i18n.t(
-                'components.notion.list_pages.database_id.display_name'),
-            info=i18n.t('components.notion.list_pages.database_id.info'),
+            display_name=i18n.t("components.notion.list_pages.database_id.display_name"),
+            info=i18n.t("components.notion.list_pages.database_id.info"),
         ),
         MultilineInput(
             name="query_json",
-            display_name=i18n.t(
-                'components.notion.list_pages.query_json.display_name'),
-            info=i18n.t('components.notion.list_pages.query_json.info'),
+            display_name=i18n.t("components.notion.list_pages.query_json.display_name"),
+            info=i18n.t("components.notion.list_pages.query_json.info"),
         ),
     ]
 
     class NotionListPagesSchema(BaseModel):
-        database_id: str = Field(...,
-                                 description="The ID of the Notion database to query.")
+        database_id: str = Field(..., description="The ID of the Notion database to query.")
         query_json: str | None = Field(
             default="",
             description="A JSON string containing the filters and sorts for querying the database. "
@@ -110,8 +106,7 @@ class NotionListPages(LCToolComponent):
                 return f"Invalid JSON format for query: {e}"
 
         try:
-            response = requests.post(
-                url, headers=headers, json=query_payload, timeout=10)
+            response = requests.post(url, headers=headers, json=query_payload, timeout=10)
             response.raise_for_status()
             results = response.json()
             return results["results"]

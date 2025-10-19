@@ -10,6 +10,7 @@ import {
   type SidebarSection,
   useSidebar,
 } from "@/components/ui/sidebar";
+import { useIsEmbedded } from "@/hooks/use-iframe-params";
 import { cn } from "@/utils/utils";
 import { useSearchContext } from "../index";
 
@@ -95,6 +96,9 @@ const SidebarSegmentedNav = () => {
   const { focusSearch, setSearch } = useSearchContext();
   const [isAddNoteActive, setIsAddNoteActive] = useState(false);
   const navItems = getNavItems(t);
+
+  const isEmbedded = useIsEmbedded();
+
   const handleAddNote = () => {
     window.dispatchEvent(new Event("lf:start-add-note"));
     setIsAddNoteActive(true);
@@ -109,60 +113,67 @@ const SidebarSegmentedNav = () => {
   return (
     <div className="flex h-full flex-col border-r border-border bg-background">
       <SidebarMenu className="gap-2 py-1">
-        {navItems.map((item) => (
-          <div key={item.id}>
-            {item.id === "add_note" && <Separator className="w-full" />}
-            <SidebarMenuItem className="px-1">
-              <ShadTooltip content={item.tooltip} side="right">
-                <SidebarMenuButton
-                  size="md"
-                  onClick={(e) => {
-                    if (item.id === "add_note") {
-                      e.stopPropagation();
-                      handleAddNote();
-                      return;
-                    }
+        {navItems
+          .filter((item) => {
+            if (item.id === "mcp" || item.id === "bundles") {
+              return !isEmbedded;
+            }
+            return true;
+          })
+          .map((item) => (
+            <div key={item.id}>
+              {item.id === "add_note" && <Separator className="w-full" />}
+              <SidebarMenuItem className="px-1">
+                <ShadTooltip content={item.tooltip} side="right">
+                  <SidebarMenuButton
+                    size="md"
+                    onClick={(e) => {
+                      if (item.id === "add_note") {
+                        e.stopPropagation();
+                        handleAddNote();
+                        return;
+                      }
 
-                    setSearch?.("");
-                    if (activeSection === item.id && open) {
-                      toggleSidebar();
-                    } else {
-                      setActiveSection(item.id);
-                      if (!open) {
+                      setSearch?.("");
+                      if (activeSection === item.id && open) {
                         toggleSidebar();
+                      } else {
+                        setActiveSection(item.id);
+                        if (!open) {
+                          toggleSidebar();
+                        }
+                        if (item.id === "search") {
+                          setTimeout(() => focusSearch(), 100);
+                        }
                       }
-                      if (item.id === "search") {
-                        setTimeout(() => focusSearch(), 100);
-                      }
-                    }
-                  }}
-                  isActive={
-                    item.id === "add_note"
-                      ? isAddNoteActive
-                      : activeSection === item.id
-                  }
-                  className={cn(
-                    "flex h-8 w-8 items-center justify-center rounded-md p-0 transition-all duration-200",
-                    (
+                    }}
+                    isActive={
                       item.id === "add_note"
                         ? isAddNoteActive
                         : activeSection === item.id
-                    )
-                      ? "bg-accent text-accent-foreground"
-                      : "text-muted-foreground hover:bg-accent hover:text-accent-foreground",
-                  )}
-                  data-testid={`sidebar-nav-${item.id}`}
-                >
-                  <ForwardedIconComponent
-                    name={item.icon}
-                    className="h-5 w-5"
-                  />
-                  <span className="sr-only">{item.label}</span>
-                </SidebarMenuButton>
-              </ShadTooltip>
-            </SidebarMenuItem>
-          </div>
-        ))}
+                    }
+                    className={cn(
+                      "flex h-8 w-8 items-center justify-center rounded-md p-0 transition-all duration-200",
+                      (
+                        item.id === "add_note"
+                          ? isAddNoteActive
+                          : activeSection === item.id
+                      )
+                        ? "bg-accent text-accent-foreground"
+                        : "text-muted-foreground hover:bg-accent hover:text-accent-foreground",
+                    )}
+                    data-testid={`sidebar-nav-${item.id}`}
+                  >
+                    <ForwardedIconComponent
+                      name={item.icon}
+                      className="h-5 w-5"
+                    />
+                    <span className="sr-only">{item.label}</span>
+                  </SidebarMenuButton>
+                </ShadTooltip>
+              </SidebarMenuItem>
+            </div>
+          ))}
       </SidebarMenu>
     </div>
   );

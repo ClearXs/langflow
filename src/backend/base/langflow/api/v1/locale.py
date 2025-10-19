@@ -1,18 +1,17 @@
 from fastapi import APIRouter
-from lfx.locale import set_lang, get_lang, get as t
+from lfx.locale import get as t
+from lfx.locale import get_lang, set_lang
 
 from langflow.api.v1.schemas import SwitchLocaleRequest
 
 router = APIRouter(prefix="/locale", tags=["Locale"])
 
 
-@router.put('/switch')
+@router.put("/switch")
 def switch(payload: SwitchLocaleRequest):
-
     lang = payload.lang
 
     if lang != get_lang():
-
         set_lang(payload.lang)
 
         # clear component cache

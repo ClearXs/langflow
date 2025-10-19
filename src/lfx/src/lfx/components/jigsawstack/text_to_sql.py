@@ -1,13 +1,15 @@
 import os
+
 import i18n
+
 from lfx.custom.custom_component.component import Component
 from lfx.io import MessageTextInput, Output, QueryInput, SecretStrInput, StrInput
 from lfx.schema.data import Data
 
 
 class JigsawStackTextToSQLComponent(Component):
-    display_name = i18n.t('components.jigsawstack.text_to_sql.display_name')
-    description = i18n.t('components.jigsawstack.text_to_sql.description')
+    display_name = i18n.t("components.jigsawstack.text_to_sql.display_name")
+    description = i18n.t("components.jigsawstack.text_to_sql.description")
     documentation = "https://jigsawstack.com/docs/api-reference/ai/text-to-sql"
     icon = "JigsawStack"
     name = "JigsawStackTextToSQL"
@@ -17,33 +19,28 @@ class JigsawStackTextToSQLComponent(Component):
     inputs = [
         SecretStrInput(
             name="api_key",
-            display_name=i18n.t(
-                'components.jigsawstack.text_to_sql.api_key.display_name'),
-            info=i18n.t('components.jigsawstack.text_to_sql.api_key.info'),
+            display_name=i18n.t("components.jigsawstack.text_to_sql.api_key.display_name"),
+            info=i18n.t("components.jigsawstack.text_to_sql.api_key.info"),
             required=True,
         ),
         QueryInput(
             name="prompt",
-            display_name=i18n.t(
-                'components.jigsawstack.text_to_sql.prompt.display_name'),
-            info=i18n.t('components.jigsawstack.text_to_sql.prompt.info'),
+            display_name=i18n.t("components.jigsawstack.text_to_sql.prompt.display_name"),
+            info=i18n.t("components.jigsawstack.text_to_sql.prompt.info"),
             required=True,
             tool_mode=True,
         ),
         MessageTextInput(
             name="sql_schema",
-            display_name=i18n.t(
-                'components.jigsawstack.text_to_sql.sql_schema.display_name'),
-            info=i18n.t('components.jigsawstack.text_to_sql.sql_schema.info'),
+            display_name=i18n.t("components.jigsawstack.text_to_sql.sql_schema.display_name"),
+            info=i18n.t("components.jigsawstack.text_to_sql.sql_schema.info"),
             required=False,
             tool_mode=True,
         ),
         StrInput(
             name="file_store_key",
-            display_name=i18n.t(
-                'components.jigsawstack.text_to_sql.file_store_key.display_name'),
-            info=i18n.t(
-                'components.jigsawstack.text_to_sql.file_store_key.info'),
+            display_name=i18n.t("components.jigsawstack.text_to_sql.file_store_key.display_name"),
+            info=i18n.t("components.jigsawstack.text_to_sql.file_store_key.info"),
             required=False,
             tool_mode=True,
         ),
@@ -51,10 +48,9 @@ class JigsawStackTextToSQLComponent(Component):
 
     outputs = [
         Output(
-            display_name=i18n.t(
-                'components.jigsawstack.text_to_sql.outputs.sql_query.display_name'),
+            display_name=i18n.t("components.jigsawstack.text_to_sql.outputs.sql_query.display_name"),
             name="sql_query",
-            method="generate_sql"
+            method="generate_sql",
         ),
     ]
 

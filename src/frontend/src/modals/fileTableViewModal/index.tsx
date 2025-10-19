@@ -1,13 +1,12 @@
 import { useQueryClient } from "@tanstack/react-query";
-import { type ReactNode, useEffect, useState, useRef } from "react";
+import { type ReactNode, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { ForwardedIconComponent } from "@/components/common/genericIconComponent";
-import useAlertStore from "@/stores/alertStore";
-import type { FileItem } from "@/components/core/fileTableView/types";
-import BaseModal from "../baseModal";
 import { FileTableView } from "@/components/core/fileTableView";
 import { NavBar } from "@/components/core/fileTableView/components/NavBar";
-import { FileDetails } from "@/components/core/fileTableView/components/FileDetails";
+import type { FileItem } from "@/components/core/fileTableView/types";
+import useAlertStore from "@/stores/alertStore";
+import BaseModal from "../baseModal";
 
 interface FileTableViewModalProps {
   children?: ReactNode;
@@ -31,7 +30,11 @@ interface FileTableViewModalProps {
   fetchDataApi?: (parentId: number) => Promise<any>;
   dataTransformer?: (data: any) => FileItem[];
   createFolderApi?: (parentId: number, name: string) => Promise<any>;
-  renameFolderApi?: (id: number, name: string, parentId: number) => Promise<any>;
+  renameFolderApi?: (
+    id: number,
+    name: string,
+    parentId: number,
+  ) => Promise<any>;
   deleteFolderApi?: (ids: number[]) => Promise<any>;
   deleteFileApi?: (ids: number[]) => Promise<any>;
   // Modal config
@@ -53,7 +56,7 @@ export default function FileTableViewModal({
   // FileTableView props
   showSize = true,
   showUpdateTime = true,
-  showUser = true,
+  showUser = false, // Changed to false to hide creator column
   selectable = true,
   selectableFileTypes,
   defaultViewMode = "list",
@@ -81,21 +84,25 @@ export default function FileTableViewModal({
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPath, setCurrentPath] = useState("/");
   const [currentParentId, setCurrentParentId] = useState(parentId);
-  const [pathHistory, setPathHistory] = useState<Array<{ name: string; id: number }>>([]);
+  const [pathHistory, setPathHistory] = useState<
+    Array<{ name: string; id: number }>
+  >([]);
   const [isSearching, setIsSearching] = useState(false);
   const [searchResults, setSearchResults] = useState<FileItem[]>([]);
-  const [isDetailsVisible, setIsDetailsVisible] = useState(showFileDetails);
+  // Removed isDetailsVisible state as we're not showing file details panel
 
   const setErrorData = useAlertStore((state) => state.setErrorData);
   const queryClient = useQueryClient();
   const fileTableRef = useRef<any>(null);
 
   // Internal state for selected files - FIXED: Remove state duplication to prevent flickering
-  const [internalSelectedFiles, setInternalSelectedFiles] = useState<FileItem[]>(selectedFiles);
+  const [internalSelectedFiles, setInternalSelectedFiles] =
+    useState<FileItem[]>(selectedFiles);
 
   // Use controlled or uncontrolled state
   const isOpen = controlledOpen !== undefined ? controlledOpen : internalOpen;
-  const setIsOpen = controlledSetOpen !== undefined ? controlledSetOpen : internalSetOpen;
+  const setIsOpen =
+    controlledSetOpen !== undefined ? controlledSetOpen : internalSetOpen;
 
   // Refetch files when modal opens
   useEffect(() => {
@@ -150,7 +157,7 @@ export default function FileTableViewModal({
           const allFiles = transformer(response.data.data);
           // Filter files by search query
           const filtered = allFiles.filter((file: FileItem) =>
-            file.name.toLowerCase().includes(query.toLowerCase())
+            file.name.toLowerCase().includes(query.toLowerCase()),
           );
           setSearchResults(filtered);
         }
@@ -206,8 +213,12 @@ export default function FileTableViewModal({
     }
 
     try {
-      const folderIds = internalSelectedFiles.filter((f) => f.type === "folder").map((f) => f.id as number);
-      const fileIds = internalSelectedFiles.filter((f) => f.type === "file").map((f) => f.id as number);
+      const folderIds = internalSelectedFiles
+        .filter((f) => f.type === "folder")
+        .map((f) => f.id as number);
+      const fileIds = internalSelectedFiles
+        .filter((f) => f.type === "file")
+        .map((f) => f.id as number);
 
       if (folderIds.length > 0 && deleteFolderApi) {
         await deleteFolderApi(folderIds);
@@ -247,11 +258,6 @@ export default function FileTableViewModal({
     });
   };
 
-  // Toggle file details panel
-  const toggleDetails = () => {
-    setIsDetailsVisible(!isDetailsVisible);
-  };
-
   // FIXED: Handle modal submit with proper validation
   const onSubmit = () => {
     if (internalSelectedFiles.length === 0) {
@@ -261,18 +267,9 @@ export default function FileTableViewModal({
       return;
     }
 
-    // Filter out folders if only files should be selected
-    const filesToSubmit = internalSelectedFiles.filter(file => file.type === "file");
-
-    if (filesToSubmit.length === 0) {
-      setErrorData({
-        title: t("fileTableModal.pleaseSelectAtLeastOneFile"),
-      });
-      return;
-    }
-
+    // Submit all selected items (including folders)
     if (handleSubmit) {
-      handleSubmit(filesToSubmit);
+      handleSubmit(internalSelectedFiles);
     }
     setIsOpen(false);
   };
@@ -322,7 +319,7 @@ export default function FileTableViewModal({
 
           {/* Main Content */}
           <div className="flex flex-1 overflow-hidden">
-            {/* File Table */}
+            {/* File Table - Full Width */}
             <div className="flex-1 overflow-hidden">
               <FileTableView
                 ref={fileTableRef}
@@ -347,17 +344,6 @@ export default function FileTableViewModal({
                 onNavigation={handleNavigation}
               />
             </div>
-
-            {/* FIXED: File Details Panel - pass correct props */}
-            {showFileDetails && (
-              <FileDetails
-                file={internalSelectedFiles[0] || null}
-                currentPath={currentPath}
-                isVisible={isDetailsVisible}
-                selectList={internalSelectedFiles}
-                onToggle={toggleDetails}
-              />
-            )}
           </div>
         </div>
       </BaseModal.Content>

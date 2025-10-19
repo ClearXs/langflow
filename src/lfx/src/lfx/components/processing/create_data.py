@@ -1,5 +1,6 @@
 import os
 from typing import Any
+
 import i18n
 
 from lfx.custom.custom_component.component import Component
@@ -12,9 +13,8 @@ from lfx.schema.dotdict import dotdict
 
 class CreateDataComponent(Component):
     ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
-    display_name: str = i18n.t(
-        'components.processing.create_data.display_name')
-    description: str = i18n.t('components.processing.create_data.description')
+    display_name: str = i18n.t("components.processing.create_data.display_name")
+    description: str = i18n.t("components.processing.create_data.description")
     name: str = "CreateData"
     MAX_FIELDS = 15  # Define a constant for maximum number of fields
     legacy = True
@@ -24,50 +24,41 @@ class CreateDataComponent(Component):
     inputs = [
         IntInput(
             name="number_of_fields",
-            display_name=i18n.t(
-                'components.processing.create_data.number_of_fields.display_name'),
-            info=i18n.t(
-                'components.processing.create_data.number_of_fields.info'),
+            display_name=i18n.t("components.processing.create_data.number_of_fields.display_name"),
+            info=i18n.t("components.processing.create_data.number_of_fields.info"),
             real_time_refresh=True,
             value=1,
-            range_spec=RangeSpec(min=1, max=MAX_FIELDS,
-                                 step=1, step_type="int"),
+            range_spec=RangeSpec(min=1, max=MAX_FIELDS, step=1, step_type="int"),
         ),
         MessageTextInput(
             name="text_key",
-            display_name=i18n.t(
-                'components.processing.create_data.text_key.display_name'),
-            info=i18n.t('components.processing.create_data.text_key.info'),
+            display_name=i18n.t("components.processing.create_data.text_key.display_name"),
+            info=i18n.t("components.processing.create_data.text_key.info"),
             advanced=True,
         ),
         BoolInput(
             name="text_key_validator",
-            display_name=i18n.t(
-                'components.processing.create_data.text_key_validator.display_name'),
+            display_name=i18n.t("components.processing.create_data.text_key_validator.display_name"),
             advanced=True,
-            info=i18n.t(
-                'components.processing.create_data.text_key_validator.info'),
+            info=i18n.t("components.processing.create_data.text_key_validator.info"),
         ),
     ]
 
     outputs = [
         Output(
-            display_name=i18n.t(
-                'components.processing.create_data.outputs.data.display_name'),
+            display_name=i18n.t("components.processing.create_data.outputs.data.display_name"),
             name="data",
-            method="build_data"
+            method="build_data",
         ),
     ]
 
     def update_build_config(self, build_config: dotdict, field_value: Any, field_name: str | None = None):
         if field_name == "number_of_fields":
-            default_keys = ["code", "_type", "number_of_fields",
-                            "text_key", "text_key_validator"]
+            default_keys = ["code", "_type", "number_of_fields", "text_key", "text_key_validator"]
             try:
                 field_value_int = int(field_value)
             except ValueError:
-                error_msg = i18n.t(
-                    'components.processing.create_data.errors.invalid_field_count')
+                error_msg = i18n.t("components.processing.create_data.errors.invalid_field_count")
                 self.status = error_msg
                 return build_config
 
@@ -75,8 +66,9 @@ class CreateDataComponent(Component):
 
             if field_value_int > self.MAX_FIELDS:
                 build_config["number_of_fields"]["value"] = self.MAX_FIELDS
-                error_msg = i18n.t('components.processing.create_data.errors.max_fields_exceeded',
-                                   max_fields=self.MAX_FIELDS)
+                error_msg = i18n.t(
+                    "components.processing.create_data.errors.max_fields_exceeded", max_fields=self.MAX_FIELDS
+                )
                 raise ValueError(error_msg)
 
             if len(build_config) > len(default_keys):
@@ -91,10 +83,8 @@ class CreateDataComponent(Component):
                     field = existing_fields[key]
                     build_config[key] = field
                 else:
-                    field_display_name = i18n.t(
-                        'components.processing.create_data.field.display_name', number=i)
-                    field_info = i18n.t(
-                        'components.processing.create_data.field.info', number=i)
+                    field_display_name = i18n.t("components.processing.create_data.field.display_name", number=i)
+                    field_info = i18n.t("components.processing.create_data.field.info", number=i)
 
                     field = DictInput(
                         display_name=field_display_name,
@@ -106,8 +96,7 @@ class CreateDataComponent(Component):
 
             build_config["number_of_fields"]["value"] = field_value_int
 
-            success_msg = i18n.t('components.processing.create_data.success.fields_configured',
-                                 count=field_value_int)
+            success_msg = i18n.t("components.processing.create_data.success.fields_configured", count=field_value_int)
             self.status = success_msg
 
         return build_config
@@ -121,8 +110,7 @@ class CreateDataComponent(Component):
                 self.validate_text_key()
 
             field_count = len(data)
-            success_msg = i18n.t('components.processing.create_data.success.data_created',
-                                 count=field_count)
+            success_msg = i18n.t("components.processing.create_data.success.data_created", count=field_count)
             self.status = success_msg
 
             return return_data
@@ -131,8 +119,7 @@ class CreateDataComponent(Component):
             # Re-raise ValueError as is (already has i18n message from validate_text_key)
             raise
         except Exception as e:
-            error_msg = i18n.t('components.processing.create_data.errors.data_creation_failed',
-                               error=str(e))
+            error_msg = i18n.t("components.processing.create_data.errors.data_creation_failed", error=str(e))
             self.status = error_msg
             raise ValueError(error_msg) from e
 
@@ -144,15 +131,13 @@ class CreateDataComponent(Component):
                 if isinstance(value_dict, dict):
                     # Check if the value of the value_dict is a Data
                     value_dict_ = {
-                        key: value.get_text() if isinstance(value, Data) else value
-                        for key, value in value_dict.items()
+                        key: value.get_text() if isinstance(value, Data) else value for key, value in value_dict.items()
                     }
                     data.update(value_dict_)
             return data
 
         except Exception as e:
-            error_msg = i18n.t('components.processing.create_data.errors.data_extraction_failed',
-                               error=str(e))
+            error_msg = i18n.t("components.processing.create_data.errors.data_extraction_failed", error=str(e))
             raise ValueError(error_msg) from e
 
     def validate_text_key(self) -> None:
@@ -162,19 +147,22 @@ class CreateDataComponent(Component):
 
             if self.text_key and self.text_key not in data_keys:
                 formatted_data_keys = ", ".join(data_keys)
-                error_msg = i18n.t('components.processing.create_data.errors.text_key_not_found',
-                                   text_key=self.text_key, data_keys=formatted_data_keys)
+                error_msg = i18n.t(
+                    "components.processing.create_data.errors.text_key_not_found",
+                    text_key=self.text_key,
+                    data_keys=formatted_data_keys,
+                )
                 raise ValueError(error_msg)
 
             if self.text_key:
-                success_msg = i18n.t('components.processing.create_data.success.text_key_validated',
-                                     text_key=self.text_key)
+                success_msg = i18n.t(
+                    "components.processing.create_data.success.text_key_validated", text_key=self.text_key
+                )
                 self.log(success_msg)
 
         except ValueError:
             # Re-raise ValueError as is (already has i18n message)
             raise
         except Exception as e:
-            error_msg = i18n.t('components.processing.create_data.errors.text_key_validation_failed',
-                               error=str(e))
+            error_msg = i18n.t("components.processing.create_data.errors.text_key_validation_failed", error=str(e))
             raise ValueError(error_msg) from e

@@ -1,3 +1,4 @@
+import os
 from typing import Any
 
 from lfx.custom import Component
@@ -21,6 +22,8 @@ class DynamicCreateDataComponent(Component):
     name: str = "DynamicCreateData"
     MAX_FIELDS = 15  # Define a constant for maximum number of fields
     icon = "ListFilter"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)

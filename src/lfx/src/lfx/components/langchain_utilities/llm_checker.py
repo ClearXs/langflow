@@ -1,4 +1,5 @@
 import os
+
 import i18n
 from langchain.chains import LLMCheckerChain
 
@@ -9,10 +10,8 @@ from lfx.schema import Message
 
 class LLMCheckerChainComponent(LCChainComponent):
     ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
-    display_name = i18n.t(
-        'components.langchain_utilities.llm_checker.display_name')
-    description = i18n.t(
-        'components.langchain_utilities.llm_checker.description')
+    display_name = i18n.t("components.langchain_utilities.llm_checker.display_name")
+    description = i18n.t("components.langchain_utilities.llm_checker.description")
     documentation = "https://python.langchain.com/docs/modules/chains/additional/llm_checker"
     name = "LLMCheckerChain"
     legacy: bool = True
@@ -20,16 +19,13 @@ class LLMCheckerChainComponent(LCChainComponent):
     inputs = [
         MultilineInput(
             name="input_value",
-            display_name=i18n.t(
-                'components.langchain_utilities.llm_checker.input_value.display_name'),
-            info=i18n.t(
-                'components.langchain_utilities.llm_checker.input_value.info'),
+            display_name=i18n.t("components.langchain_utilities.llm_checker.input_value.display_name"),
+            info=i18n.t("components.langchain_utilities.llm_checker.input_value.info"),
             required=True,
         ),
         HandleInput(
             name="llm",
-            display_name=i18n.t(
-                'components.langchain_utilities.llm_checker.llm.display_name'),
+            display_name=i18n.t("components.langchain_utilities.llm_checker.llm.display_name"),
             input_types=["LanguageModel"],
             required=True,
         ),

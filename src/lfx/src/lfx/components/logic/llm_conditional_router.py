@@ -1,4 +1,3 @@
-import os
 from typing import Any
 
 import i18n
@@ -6,6 +5,7 @@ from langflow.custom import Component
 from langflow.io import BoolInput, HandleInput, MessageInput, MessageTextInput, MultilineInput, Output, TableInput
 from langflow.log.logger import logger
 from langflow.schema.message import Message
+
 from lfx.custom import Component
 from lfx.io import BoolInput, HandleInput, MessageInput, MessageTextInput, MultilineInput, Output, TableInput
 from lfx.schema.message import Message
@@ -13,9 +13,8 @@ from lfx.schema.table import EditMode
 
 
 class SmartRouterComponent(Component):
-    display_name = i18n.t(
-        'components.logic.llm_conditional_router.display_name')
-    description = i18n.t('components.logic.llm_conditional_router.description')
+    display_name = i18n.t("components.logic.llm_conditional_router.display_name")
+    description = i18n.t("components.logic.llm_conditional_router.description")
     icon = "equal"
     name = "SmartRouter"
 
@@ -26,31 +25,28 @@ class SmartRouterComponent(Component):
     inputs = [
         HandleInput(
             name="llm",
-            display_name=i18n.t(
-                'components.logic.llm_conditional_router.llm.display_name'),
-            info=i18n.t('components.logic.llm_conditional_router.llm.info'),
+            display_name=i18n.t("components.logic.llm_conditional_router.llm.display_name"),
+            info=i18n.t("components.logic.llm_conditional_router.llm.info"),
             input_types=["LanguageModel"],
             required=True,
         ),
         MessageTextInput(
             name="input_text",
-            display_name=i18n.t(
-                'components.logic.llm_conditional_router.input_text.display_name'),
-            info=i18n.t(
-                'components.logic.llm_conditional_router.input_text.info'),
+            display_name=i18n.t("components.logic.llm_conditional_router.input_text.display_name"),
+            info=i18n.t("components.logic.llm_conditional_router.input_text.info"),
             required=True,
         ),
         TableInput(
-            trigger_text=i18n.t(
-                'components.inputs.input_mixin.open_table'),
+            trigger_text=i18n.t("components.inputs.input_mixin.open_table"),
             name="routes",
-            display_name=i18n.t(
-                'components.logic.llm_conditional_router.routes.display_name'),
-            info=i18n.t('components.logic.llm_conditional_router.routes.info'),
+            display_name=i18n.t("components.logic.llm_conditional_router.routes.display_name"),
+            info=i18n.t("components.logic.llm_conditional_router.routes.info"),
             table_schema=[
                 {
                     "name": "route_category",
-                    "display_name": i18n.t('components.logic.llm_conditional_router.routes.schema.route_category.display_name'),
+                    "display_name": i18n.t(
+                        "components.logic.llm_conditional_router.routes.schema.route_category.display_name"
+                    ),
                     "type": "str",
                     "description": "Name for the route (used for both output name and category matching)",
                     "edit_mode": EditMode.INLINE,
@@ -62,18 +58,24 @@ class SmartRouterComponent(Component):
                     "description": "Description of when this route should be used (helps LLM understand the category)",
                     "default": "",
                     "edit_mode": EditMode.POPOVER,
-                    "description": i18n.t('components.logic.llm_conditional_router.routes.schema.route_category.description'),
+                    "description": i18n.t(
+                        "components.logic.llm_conditional_router.routes.schema.route_category.description"
+                    ),
                 },
                 {
                     "name": "output_value",
                     "display_name": "Route Message (Optional)",
-                    "display_name": i18n.t('components.logic.llm_conditional_router.routes.schema.output_value.display_name'),
+                    "display_name": i18n.t(
+                        "components.logic.llm_conditional_router.routes.schema.output_value.display_name"
+                    ),
                     "type": "str",
                     "description": (
                         "Optional message to send when this route is matched."
                         "Leave empty to pass through the original input text."
                     ),
-                    "description": i18n.t('components.logic.llm_conditional_router.routes.schema.output_value.description'),
+                    "description": i18n.t(
+                        "components.logic.llm_conditional_router.routes.schema.output_value.description"
+                    ),
                     "default": "",
                     "edit_mode": EditMode.POPOVER,
                 },
@@ -95,28 +97,22 @@ class SmartRouterComponent(Component):
         ),
         MessageInput(
             name="message",
-            display_name=i18n.t(
-                'components.logic.llm_conditional_router.message.display_name'),
-            info=i18n.t(
-                'components.logic.llm_conditional_router.message.info'),
+            display_name=i18n.t("components.logic.llm_conditional_router.message.display_name"),
+            info=i18n.t("components.logic.llm_conditional_router.message.info"),
             required=False,
             advanced=True,
         ),
         BoolInput(
             name="enable_else_output",
-            display_name=i18n.t(
-                'components.logic.llm_conditional_router.enable_else_output.display_name'),
-            info=i18n.t(
-                'components.logic.llm_conditional_router.enable_else_output.info'),
+            display_name=i18n.t("components.logic.llm_conditional_router.enable_else_output.display_name"),
+            info=i18n.t("components.logic.llm_conditional_router.enable_else_output.info"),
             value=False,
             advanced=True,
         ),
         MultilineInput(
             name="custom_prompt",
-            display_name=i18n.t(
-                'components.logic.llm_conditional_router.custom_prompt.display_name'),
-            info=i18n.t(
-                'components.logic.llm_conditional_router.custom_prompt.info'),
+            display_name=i18n.t("components.logic.llm_conditional_router.custom_prompt.display_name"),
+            info=i18n.t("components.logic.llm_conditional_router.custom_prompt.info"),
             advanced=True,
         ),
     ]
@@ -126,14 +122,12 @@ class SmartRouterComponent(Component):
     def update_outputs(self, frontend_node: dict, field_name: str, field_value: Any) -> dict:
         """Create a dynamic output for each category in the categories table."""
         if field_name in {"routes", "enable_else_output"}:
-            logger.debug(i18n.t('components.logic.llm_conditional_router.logs.updating_outputs',
-                                field_name=field_name))
+            logger.debug(i18n.t("components.logic.llm_conditional_router.logs.updating_outputs", field_name=field_name))
 
             frontend_node["outputs"] = []
 
             # Get the routes data - either from field_value (if routes field) or from component state
-            routes_data = field_value if field_name == "routes" else getattr(
-                self, "routes", [])
+            routes_data = field_value if field_name == "routes" else getattr(self, "routes", [])
 
             # Add a dynamic output for each category - all using the same method
             for i, row in enumerate(routes_data):
@@ -146,9 +140,13 @@ class SmartRouterComponent(Component):
                         group_outputs=True,
                     )
                 )
-                logger.debug(i18n.t('components.logic.llm_conditional_router.logs.output_added',
-                                    index=i + 1,
-                                    category=route_category))
+                logger.debug(
+                    i18n.t(
+                        "components.logic.llm_conditional_router.logs.output_added",
+                        index=i + 1,
+                        category=route_category,
+                    )
+                )
 
             # Add default output only if enabled
             if field_name == "enable_else_output":
@@ -158,14 +156,15 @@ class SmartRouterComponent(Component):
 
             if enable_else:
                 frontend_node["outputs"].append(
-                    Output(display_name="Else", name="default_result",
-                           method="default_response", group_outputs=True)
+                    Output(display_name="Else", name="default_result", method="default_response", group_outputs=True)
                 )
-                logger.debug(
-                    i18n.t('components.logic.llm_conditional_router.logs.else_output_added'))
+                logger.debug(i18n.t("components.logic.llm_conditional_router.logs.else_output_added"))
 
-            logger.info(i18n.t('components.logic.llm_conditional_router.logs.outputs_updated',
-                               count=len(frontend_node["outputs"])))
+            logger.info(
+                i18n.t(
+                    "components.logic.llm_conditional_router.logs.outputs_updated", count=len(frontend_node["outputs"])
+                )
+            )
 
         return frontend_node
 
@@ -173,8 +172,7 @@ class SmartRouterComponent(Component):
         """Process all categories using LLM categorization and return message for matching category."""
         # Clear any previous match state
         self._matched_category = None
-        logger.debug(
-            i18n.t('components.logic.llm_conditional_router.logs.processing_started'))
+        logger.debug(i18n.t("components.logic.llm_conditional_router.logs.processing_started"))
 
         # Get categories and input text
         categories = getattr(self, "routes", [])
@@ -195,8 +193,7 @@ class SmartRouterComponent(Component):
                 else:
                     category_info.append(f'"{cat_name}"')
 
-            categories_text = "\n".join(
-                [f"- {info}" for info in category_info if info])
+            categories_text = "\n".join([f"- {info}" for info in category_info if info])
 
             # Create base prompt
             base_prompt = (
@@ -212,33 +209,27 @@ class SmartRouterComponent(Component):
             # Use custom prompt as additional instructions if provided
             custom_prompt = getattr(self, "custom_prompt", "")
             if custom_prompt and custom_prompt.strip():
-                status_msg = i18n.t(
-                    'components.logic.llm_conditional_router.status.using_custom_prompt')
+                status_msg = i18n.t("components.logic.llm_conditional_router.status.using_custom_prompt")
                 self.status = status_msg
                 logger.info(status_msg)
 
                 # Format custom prompt with variables
                 # For the routes variable, create a simpler format for custom prompt usage
                 simple_routes = ", ".join(
-                    [f'"{cat.get("route_category", f"Category {i + 1}")}"' for i,
-                     cat in enumerate(categories)]
+                    [f'"{cat.get("route_category", f"Category {i + 1}")}"' for i, cat in enumerate(categories)]
                 )
-                formatted_custom = custom_prompt.format(
-                    input_text=input_text, routes=simple_routes)
+                formatted_custom = custom_prompt.format(input_text=input_text, routes=simple_routes)
                 # Combine base prompt with custom instructions
                 prompt = f"{base_prompt}\n\nAdditional Instructions:\n{formatted_custom}"
             else:
-                status_msg = i18n.t(
-                    'components.logic.llm_conditional_router.status.using_default_prompt')
+                status_msg = i18n.t("components.logic.llm_conditional_router.status.using_default_prompt")
                 self.status = status_msg
                 logger.info(status_msg)
                 prompt = base_prompt
 
             # Log the final prompt being sent to LLM
-            logger.debug(i18n.t('components.logic.llm_conditional_router.logs.prompt_sent',
-                                prompt=prompt))
-            self.status = i18n.t(
-                'components.logic.llm_conditional_router.status.prompt_sent', prompt=prompt)
+            logger.debug(i18n.t("components.logic.llm_conditional_router.logs.prompt_sent", prompt=prompt))
+            self.status = i18n.t("components.logic.llm_conditional_router.status.prompt_sent", prompt=prompt)
 
             try:
                 # Use the LLM to categorize
@@ -252,53 +243,72 @@ class SmartRouterComponent(Component):
                     categorization = str(llm(prompt)).strip().strip('"')
 
                 # Log the categorization process
-                logger.info(i18n.t('components.logic.llm_conditional_router.logs.llm_response',
-                                   response=categorization))
-                self.status = i18n.t('components.logic.llm_conditional_router.status.llm_response',
-                                     response=categorization)
+                logger.info(
+                    i18n.t("components.logic.llm_conditional_router.logs.llm_response", response=categorization)
+                )
+                self.status = i18n.t(
+                    "components.logic.llm_conditional_router.status.llm_response", response=categorization
+                )
 
                 # Find matching category based on LLM response
                 for i, category in enumerate(categories):
                     route_category = category.get("route_category", "")
 
                     # Log each comparison attempt
-                    logger.debug(i18n.t('components.logic.llm_conditional_router.logs.comparing_category',
-                                        response=categorization,
-                                        index=i + 1,
-                                        category=route_category))
-                    self.status = i18n.t('components.logic.llm_conditional_router.status.comparing_category',
-                                         response=categorization,
-                                         index=i + 1,
-                                         category=route_category)
+                    logger.debug(
+                        i18n.t(
+                            "components.logic.llm_conditional_router.logs.comparing_category",
+                            response=categorization,
+                            index=i + 1,
+                            category=route_category,
+                        )
+                    )
+                    self.status = i18n.t(
+                        "components.logic.llm_conditional_router.status.comparing_category",
+                        response=categorization,
+                        index=i + 1,
+                        category=route_category,
+                    )
 
                     if categorization.lower() == route_category.lower():
                         matched_category = i
-                        logger.info(i18n.t('components.logic.llm_conditional_router.logs.match_found',
-                                           index=i + 1,
-                                           response=categorization))
-                        self.status = i18n.t('components.logic.llm_conditional_router.status.match_found',
-                                             index=i + 1,
-                                             response=categorization)
+                        logger.info(
+                            i18n.t(
+                                "components.logic.llm_conditional_router.logs.match_found",
+                                index=i + 1,
+                                response=categorization,
+                            )
+                        )
+                        self.status = i18n.t(
+                            "components.logic.llm_conditional_router.status.match_found",
+                            index=i + 1,
+                            response=categorization,
+                        )
                         break
 
                 if matched_category is None:
-                    available_cats = [category.get(
-                        "route_category", "") for category in categories]
-                    logger.warning(i18n.t('components.logic.llm_conditional_router.logs.no_match_found',
-                                          response=categorization,
-                                          categories=available_cats))
-                    self.status = i18n.t('components.logic.llm_conditional_router.status.no_match_found',
-                                         response=categorization,
-                                         categories=available_cats)
+                    available_cats = [category.get("route_category", "") for category in categories]
+                    logger.warning(
+                        i18n.t(
+                            "components.logic.llm_conditional_router.logs.no_match_found",
+                            response=categorization,
+                            categories=available_cats,
+                        )
+                    )
+                    self.status = i18n.t(
+                        "components.logic.llm_conditional_router.status.no_match_found",
+                        response=categorization,
+                        categories=available_cats,
+                    )
 
             except RuntimeError as e:
-                error_msg = i18n.t('components.logic.llm_conditional_router.errors.llm_categorization_failed',
-                                   error=str(e))
+                error_msg = i18n.t(
+                    "components.logic.llm_conditional_router.errors.llm_categorization_failed", error=str(e)
+                )
                 logger.exception(error_msg)
                 self.status = error_msg
         else:
-            warning_msg = i18n.t(
-                'components.logic.llm_conditional_router.warnings.no_llm_provided')
+            warning_msg = i18n.t("components.logic.llm_conditional_router.warnings.no_llm_provided")
             logger.warning(warning_msg)
             self.status = warning_msg
 
@@ -316,10 +326,10 @@ class SmartRouterComponent(Component):
             if enable_else:
                 self.stop("default_result")
 
-            route_category = categories[matched_category].get(
-                "route_category", f"Category {matched_category + 1}")
-            success_msg = i18n.t('components.logic.llm_conditional_router.status.categorized_as',
-                                 category=route_category)
+            route_category = categories[matched_category].get("route_category", f"Category {matched_category + 1}")
+            success_msg = i18n.t(
+                "components.logic.llm_conditional_router.status.categorized_as", category=route_category
+            )
             logger.info(success_msg)
             self.status = success_msg
 
@@ -331,27 +341,22 @@ class SmartRouterComponent(Component):
                 and override_output.text
                 and str(override_output.text).strip()
             ):
-                logger.debug(
-                    i18n.t('components.logic.llm_conditional_router.logs.using_override_output'))
+                logger.debug(i18n.t("components.logic.llm_conditional_router.logs.using_override_output"))
                 return Message(text=str(override_output.text))
             if override_output and isinstance(override_output, str) and override_output.strip():
-                logger.debug(
-                    i18n.t('components.logic.llm_conditional_router.logs.using_override_output'))
+                logger.debug(i18n.t("components.logic.llm_conditional_router.logs.using_override_output"))
                 return Message(text=str(override_output))
 
             # Check if there's a custom output value for this category
-            custom_output = categories[matched_category].get(
-                "output_value", "")
+            custom_output = categories[matched_category].get("output_value", "")
             # Treat None, empty string, or whitespace as blank
             if custom_output and str(custom_output).strip() and str(custom_output).strip().lower() != "none":
                 # Use custom output value
-                logger.debug(
-                    i18n.t('components.logic.llm_conditional_router.logs.using_custom_output'))
+                logger.debug(i18n.t("components.logic.llm_conditional_router.logs.using_custom_output"))
                 return Message(text=str(custom_output))
 
             # Use input as default output
-            logger.debug(
-                i18n.t('components.logic.llm_conditional_router.logs.using_input_as_output'))
+            logger.debug(i18n.t("components.logic.llm_conditional_router.logs.using_input_as_output"))
             return Message(text=input_text)
 
         # No match found, stop all category outputs
@@ -362,14 +367,12 @@ class SmartRouterComponent(Component):
         enable_else = getattr(self, "enable_else_output", False)
         if enable_else:
             # The default_response will handle the else case
-            logger.debug(
-                i18n.t('components.logic.llm_conditional_router.logs.routing_to_else'))
+            logger.debug(i18n.t("components.logic.llm_conditional_router.logs.routing_to_else"))
             self.stop("process_case")
             return Message(text="")
 
         # No else output, so no output at all
-        warning_msg = i18n.t(
-            'components.logic.llm_conditional_router.warnings.no_match_no_else')
+        warning_msg = i18n.t("components.logic.llm_conditional_router.warnings.no_match_no_else")
         logger.warning(warning_msg)
         self.status = warning_msg
         return Message(text="")
@@ -379,8 +382,7 @@ class SmartRouterComponent(Component):
         # Check if else output is enabled
         enable_else = getattr(self, "enable_else_output", False)
         if not enable_else:
-            warning_msg = i18n.t(
-                'components.logic.llm_conditional_router.warnings.else_output_disabled')
+            warning_msg = i18n.t("components.logic.llm_conditional_router.warnings.else_output_disabled")
             logger.warning(warning_msg)
             self.status = warning_msg
             return Message(text="")
@@ -394,8 +396,9 @@ class SmartRouterComponent(Component):
 
         # Check if a match was already found in process_case
         if hasattr(self, "_matched_category") and self._matched_category is not None:
-            status_msg = i18n.t('components.logic.llm_conditional_router.status.match_already_found',
-                                index=self._matched_category + 1)
+            status_msg = i18n.t(
+                "components.logic.llm_conditional_router.status.match_already_found", index=self._matched_category + 1
+            )
             logger.info(status_msg)
             self.status = status_msg
             self.stop("default_result")
@@ -410,16 +413,14 @@ class SmartRouterComponent(Component):
                 # Create prompt for categorization
                 category_info = []
                 for i, category in enumerate(categories):
-                    cat_name = category.get(
-                        "route_category", f"Category {i + 1}")
+                    cat_name = category.get("route_category", f"Category {i + 1}")
                     cat_desc = category.get("route_description", "")
                     if cat_desc and cat_desc.strip():
                         category_info.append(f'"{cat_name}": {cat_desc}')
                     else:
                         category_info.append(f'"{cat_name}"')
 
-                categories_text = "\n".join(
-                    [f"- {info}" for info in category_info if info])
+                categories_text = "\n".join([f"- {info}" for info in category_info if info])
 
                 # Create base prompt
                 base_prompt = (
@@ -435,33 +436,29 @@ class SmartRouterComponent(Component):
                 # Use custom prompt as additional instructions if provided
                 custom_prompt = getattr(self, "custom_prompt", "")
                 if custom_prompt and custom_prompt.strip():
-                    status_msg = i18n.t(
-                        'components.logic.llm_conditional_router.status.using_custom_prompt_default')
+                    status_msg = i18n.t("components.logic.llm_conditional_router.status.using_custom_prompt_default")
                     logger.info(status_msg)
                     self.status = status_msg
 
                     # Format custom prompt with variables
                     # For the routes variable, create a simpler format for custom prompt usage
                     simple_routes = ", ".join(
-                        [f'"{cat.get("route_category", f"Category {i + 1}")}"' for i,
-                         cat in enumerate(categories)]
+                        [f'"{cat.get("route_category", f"Category {i + 1}")}"' for i, cat in enumerate(categories)]
                     )
-                    formatted_custom = custom_prompt.format(
-                        input_text=input_text, routes=simple_routes)
+                    formatted_custom = custom_prompt.format(input_text=input_text, routes=simple_routes)
                     # Combine base prompt with custom instructions
                     prompt = f"{base_prompt}\n\nAdditional Instructions:\n{formatted_custom}"
                 else:
-                    status_msg = i18n.t(
-                        'components.logic.llm_conditional_router.status.using_default_prompt_default')
+                    status_msg = i18n.t("components.logic.llm_conditional_router.status.using_default_prompt_default")
                     logger.info(status_msg)
                     self.status = status_msg
                     prompt = base_prompt
 
                 # Log the final prompt being sent to LLM for default check
-                logger.debug(i18n.t('components.logic.llm_conditional_router.logs.default_check_prompt',
-                                    prompt=prompt))
-                self.status = i18n.t('components.logic.llm_conditional_router.status.default_check_prompt',
-                                     prompt=prompt)
+                logger.debug(i18n.t("components.logic.llm_conditional_router.logs.default_check_prompt", prompt=prompt))
+                self.status = i18n.t(
+                    "components.logic.llm_conditional_router.status.default_check_prompt", prompt=prompt
+                )
 
                 # Use the LLM to categorize
                 if hasattr(llm, "invoke"):
@@ -474,54 +471,73 @@ class SmartRouterComponent(Component):
                     categorization = str(llm(prompt)).strip().strip('"')
 
                 # Log the categorization process for default check
-                logger.info(i18n.t('components.logic.llm_conditional_router.logs.default_check_response',
-                                   response=categorization))
-                self.status = i18n.t('components.logic.llm_conditional_router.status.default_check_response',
-                                     response=categorization)
+                logger.info(
+                    i18n.t(
+                        "components.logic.llm_conditional_router.logs.default_check_response", response=categorization
+                    )
+                )
+                self.status = i18n.t(
+                    "components.logic.llm_conditional_router.status.default_check_response", response=categorization
+                )
 
                 # Check if LLM response matches any category
                 for i, category in enumerate(categories):
                     route_category = category.get("route_category", "")
 
                     # Log each comparison attempt
-                    logger.debug(i18n.t('components.logic.llm_conditional_router.logs.default_check_comparing',
-                                        response=categorization,
-                                        index=i + 1,
-                                        category=route_category))
-                    self.status = i18n.t('components.logic.llm_conditional_router.status.default_check_comparing',
-                                         response=categorization,
-                                         index=i + 1,
-                                         category=route_category)
+                    logger.debug(
+                        i18n.t(
+                            "components.logic.llm_conditional_router.logs.default_check_comparing",
+                            response=categorization,
+                            index=i + 1,
+                            category=route_category,
+                        )
+                    )
+                    self.status = i18n.t(
+                        "components.logic.llm_conditional_router.status.default_check_comparing",
+                        response=categorization,
+                        index=i + 1,
+                        category=route_category,
+                    )
 
                     if categorization.lower() == route_category.lower():
                         has_match = True
-                        logger.info(i18n.t('components.logic.llm_conditional_router.logs.default_check_match_found',
-                                           index=i + 1,
-                                           response=categorization))
-                        self.status = i18n.t('components.logic.llm_conditional_router.status.default_check_match_found',
-                                             index=i + 1,
-                                             response=categorization)
+                        logger.info(
+                            i18n.t(
+                                "components.logic.llm_conditional_router.logs.default_check_match_found",
+                                index=i + 1,
+                                response=categorization,
+                            )
+                        )
+                        self.status = i18n.t(
+                            "components.logic.llm_conditional_router.status.default_check_match_found",
+                            index=i + 1,
+                            response=categorization,
+                        )
                         break
 
                 if not has_match:
-                    available_cats = [category.get(
-                        "route_category", "") for category in categories]
-                    logger.info(i18n.t('components.logic.llm_conditional_router.logs.default_check_no_match',
-                                       response=categorization,
-                                       categories=available_cats))
-                    self.status = i18n.t('components.logic.llm_conditional_router.status.default_check_no_match',
-                                         response=categorization,
-                                         categories=available_cats)
+                    available_cats = [category.get("route_category", "") for category in categories]
+                    logger.info(
+                        i18n.t(
+                            "components.logic.llm_conditional_router.logs.default_check_no_match",
+                            response=categorization,
+                            categories=available_cats,
+                        )
+                    )
+                    self.status = i18n.t(
+                        "components.logic.llm_conditional_router.status.default_check_no_match",
+                        response=categorization,
+                        categories=available_cats,
+                    )
 
             except RuntimeError:
-                logger.debug(i18n.t('components.logic.llm_conditional_router.logs.default_check_error'),
-                             exc_info=True)
-                pass  # If there's an error, treat as no match
+                logger.debug(i18n.t("components.logic.llm_conditional_router.logs.default_check_error"), exc_info=True)
+                # If there's an error, treat as no match
 
         if has_match:
             # A case matches, stop this output
-            logger.debug(
-                i18n.t('components.logic.llm_conditional_router.logs.stopping_default_output'))
+            logger.debug(i18n.t("components.logic.llm_conditional_router.logs.stopping_default_output"))
             self.stop("default_result")
             return Message(text="")
 
@@ -533,20 +549,17 @@ class SmartRouterComponent(Component):
             and override_output.text
             and str(override_output.text).strip()
         ):
-            status_msg = i18n.t(
-                'components.logic.llm_conditional_router.status.else_using_override')
+            status_msg = i18n.t("components.logic.llm_conditional_router.status.else_using_override")
             logger.info(status_msg)
             self.status = status_msg
             return Message(text=str(override_output.text))
         if override_output and isinstance(override_output, str) and override_output.strip():
-            status_msg = i18n.t(
-                'components.logic.llm_conditional_router.status.else_using_override')
+            status_msg = i18n.t("components.logic.llm_conditional_router.status.else_using_override")
             logger.info(status_msg)
             self.status = status_msg
             return Message(text=str(override_output))
 
-        status_msg = i18n.t(
-            'components.logic.llm_conditional_router.status.else_using_input')
+        status_msg = i18n.t("components.logic.llm_conditional_router.status.else_using_input")
         logger.info(status_msg)
         self.status = status_msg
         return Message(text=input_text)

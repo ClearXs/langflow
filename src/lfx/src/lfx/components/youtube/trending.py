@@ -1,7 +1,7 @@
 import os
-import i18n
 from contextlib import contextmanager
 
+import i18n
 import pandas as pd
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
@@ -20,8 +20,8 @@ MAX_API_RESULTS = 50
 class YouTubeTrendingComponent(Component):
     """A component that retrieves trending videos from YouTube."""
 
-    display_name: str = i18n.t('components.youtube.trending.display_name')
-    description: str = i18n.t('components.youtube.trending.description')
+    display_name: str = i18n.t("components.youtube.trending.display_name")
+    description: str = i18n.t("components.youtube.trending.description")
     icon: str = "YouTube"
 
     ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
@@ -70,56 +70,48 @@ class YouTubeTrendingComponent(Component):
     inputs = [
         SecretStrInput(
             name="api_key",
-            display_name=i18n.t(
-                'components.youtube.trending.api_key.display_name'),
-            info=i18n.t('components.youtube.trending.api_key.info'),
+            display_name=i18n.t("components.youtube.trending.api_key.display_name"),
+            info=i18n.t("components.youtube.trending.api_key.info"),
             required=True,
         ),
         DropdownInput(
             name="region",
-            display_name=i18n.t(
-                'components.youtube.trending.region.display_name'),
+            display_name=i18n.t("components.youtube.trending.region.display_name"),
             options=list(COUNTRY_CODES.keys()),
             value="Global",
-            info=i18n.t('components.youtube.trending.region.info'),
+            info=i18n.t("components.youtube.trending.region.info"),
         ),
         DropdownInput(
             name="category",
-            display_name=i18n.t(
-                'components.youtube.trending.category.display_name'),
+            display_name=i18n.t("components.youtube.trending.category.display_name"),
             options=list(VIDEO_CATEGORIES.keys()),
             value="All",
-            info=i18n.t('components.youtube.trending.category.info'),
+            info=i18n.t("components.youtube.trending.category.info"),
         ),
         IntInput(
             name="max_results",
-            display_name=i18n.t(
-                'components.youtube.trending.max_results.display_name'),
+            display_name=i18n.t("components.youtube.trending.max_results.display_name"),
             value=10,
-            info=i18n.t('components.youtube.trending.max_results.info'),
+            info=i18n.t("components.youtube.trending.max_results.info"),
         ),
         BoolInput(
             name="include_statistics",
-            display_name=i18n.t(
-                'components.youtube.trending.include_statistics.display_name'),
+            display_name=i18n.t("components.youtube.trending.include_statistics.display_name"),
             value=True,
-            info=i18n.t('components.youtube.trending.include_statistics.info'),
+            info=i18n.t("components.youtube.trending.include_statistics.info"),
         ),
         BoolInput(
             name="include_content_details",
-            display_name=i18n.t(
-                'components.youtube.trending.include_content_details.display_name'),
+            display_name=i18n.t("components.youtube.trending.include_content_details.display_name"),
             value=True,
-            info=i18n.t(
-                'components.youtube.trending.include_content_details.info'),
+            info=i18n.t("components.youtube.trending.include_content_details.info"),
             advanced=True,
         ),
         BoolInput(
             name="include_thumbnails",
-            display_name=i18n.t(
-                'components.youtube.trending.include_thumbnails.display_name'),
+            display_name=i18n.t("components.youtube.trending.include_thumbnails.display_name"),
             value=True,
-            info=i18n.t('components.youtube.trending.include_thumbnails.info'),
+            info=i18n.t("components.youtube.trending.include_thumbnails.info"),
             advanced=True,
         ),
     ]
@@ -127,9 +119,8 @@ class YouTubeTrendingComponent(Component):
     outputs = [
         Output(
             name="trending_videos",
-            display_name=i18n.t(
-                'components.youtube.trending.outputs.trending_videos'),
-            method="get_trending_videos"
+            display_name=i18n.t("components.youtube.trending.outputs.trending_videos"),
+            method="get_trending_videos",
         ),
     ]
 
@@ -179,8 +170,7 @@ class YouTubeTrendingComponent(Component):
         try:
             # Validate max_results
             if not 1 <= self.max_results <= MAX_API_RESULTS:
-                self.max_results = min(
-                    max(1, self.max_results), MAX_API_RESULTS)
+                self.max_results = min(max(1, self.max_results), MAX_API_RESULTS)
 
             # Use context manager for YouTube API client
             with self.youtube_client() as youtube:
@@ -228,10 +218,8 @@ class YouTubeTrendingComponent(Component):
                     if self.include_thumbnails:
                         for size, thumb in item["snippet"]["thumbnails"].items():
                             video_data[f"thumbnail_{size}_url"] = thumb["url"]
-                            video_data[f"thumbnail_{size}_width"] = thumb.get(
-                                "width", 0)
-                            video_data[f"thumbnail_{size}_height"] = thumb.get(
-                                "height", 0)
+                            video_data[f"thumbnail_{size}_width"] = thumb.get("width", 0)
+                            video_data[f"thumbnail_{size}_height"] = thumb.get("height", 0)
 
                     # Add statistics if requested
                     if self.include_statistics and "statistics" in item:
@@ -275,22 +263,18 @@ class YouTubeTrendingComponent(Component):
                 ]
 
                 if self.include_statistics:
-                    column_order.extend(
-                        ["view_count", "like_count", "comment_count"])
+                    column_order.extend(["view_count", "like_count", "comment_count"])
 
                 if self.include_content_details:
-                    column_order.extend(
-                        ["duration", "definition", "has_captions", "licensed_content", "projection"])
+                    column_order.extend(["duration", "definition", "has_captions", "licensed_content", "projection"])
 
                 # Add thumbnail columns at the end if included
                 if self.include_thumbnails:
-                    thumbnail_cols = [
-                        col for col in videos_df.columns if col.startswith("thumbnail_")]
+                    thumbnail_cols = [col for col in videos_df.columns if col.startswith("thumbnail_")]
                     column_order.extend(sorted(thumbnail_cols))
 
                 # Reorder columns, including any that might not be in column_order
-                remaining_cols = [
-                    col for col in videos_df.columns if col not in column_order]
+                remaining_cols = [col for col in videos_df.columns if col not in column_order]
                 videos_df = videos_df[column_order + remaining_cols]
 
                 return DataFrame(videos_df)

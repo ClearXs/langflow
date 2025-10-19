@@ -1,4 +1,3 @@
-import os
 import i18n
 
 from lfx.custom.custom_component.component import Component

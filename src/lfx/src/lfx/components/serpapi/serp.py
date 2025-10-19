@@ -1,7 +1,7 @@
 import os
-import i18n
 from typing import Any
 
+import i18n
 from langchain_community.utilities.serpapi import SerpAPIWrapper
 from langchain_core.tools import ToolException
 from pydantic import BaseModel, Field
@@ -27,15 +27,13 @@ class SerpAPISchema(BaseModel):
         },
         description="Additional search parameters",
     )
-    max_results: int = Field(
-        5, description="Maximum number of results to return")
-    max_snippet_length: int = Field(
-        100, description="Maximum length of each result snippet")
+    max_results: int = Field(5, description="Maximum number of results to return")
+    max_snippet_length: int = Field(100, description="Maximum length of each result snippet")
 
 
 class SerpComponent(Component):
-    display_name = i18n.t('components.serpapi.serp.display_name')
-    description = i18n.t('components.serpapi.serp.description')
+    display_name = i18n.t("components.serpapi.serp.display_name")
+    description = i18n.t("components.serpapi.serp.description")
     name = "Serp"
     icon = "SerpSearch"
 
@@ -44,51 +42,44 @@ class SerpComponent(Component):
     inputs = [
         SecretStrInput(
             name="serpapi_api_key",
-            display_name=i18n.t(
-                'components.serpapi.serp.serpapi_api_key.display_name'),
-            required=True
+            display_name=i18n.t("components.serpapi.serp.serpapi_api_key.display_name"),
+            required=True,
         ),
         MultilineInput(
             name="input_value",
-            display_name=i18n.t(
-                'components.serpapi.serp.input_value.display_name'),
+            display_name=i18n.t("components.serpapi.serp.input_value.display_name"),
             tool_mode=True,
         ),
         DictInput(
             name="search_params",
-            display_name=i18n.t(
-                'components.serpapi.serp.search_params.display_name'),
+            display_name=i18n.t("components.serpapi.serp.search_params.display_name"),
             advanced=True,
-            is_list=True
+            is_list=True,
         ),
         IntInput(
             name="max_results",
-            display_name=i18n.t(
-                'components.serpapi.serp.max_results.display_name'),
+            display_name=i18n.t("components.serpapi.serp.max_results.display_name"),
             value=5,
-            advanced=True
+            advanced=True,
         ),
         IntInput(
             name="max_snippet_length",
-            display_name=i18n.t(
-                'components.serpapi.serp.max_snippet_length.display_name'),
+            display_name=i18n.t("components.serpapi.serp.max_snippet_length.display_name"),
             value=100,
-            advanced=True
+            advanced=True,
         ),
     ]
 
     outputs = [
         Output(
-            display_name=i18n.t(
-                'components.serpapi.serp.outputs.data.display_name'),
+            display_name=i18n.t("components.serpapi.serp.outputs.data.display_name"),
             name="data",
-            method="fetch_content"
+            method="fetch_content",
         ),
         Output(
-            display_name=i18n.t(
-                'components.serpapi.serp.outputs.text.display_name'),
+            display_name=i18n.t("components.serpapi.serp.outputs.text.display_name"),
             name="text",
-            method="fetch_content_text"
+            method="fetch_content_text",
         ),
     ]
 
@@ -117,8 +108,7 @@ class SerpComponent(Component):
                     local_wrapper = self._build_wrapper(params)
 
                 full_results = local_wrapper.results(query)
-                organic_results = full_results.get(
-                    "organic_results", [])[:max_results]
+                organic_results = full_results.get("organic_results", [])[:max_results]
 
                 limited_results = [
                     Data(

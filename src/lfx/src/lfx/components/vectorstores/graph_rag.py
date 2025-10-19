@@ -1,9 +1,9 @@
-import os
-import i18n
 import inspect
+import os
 from abc import ABC
 
 import graph_retriever.strategies as strategies_module
+import i18n
 from langchain_graph_retriever import GraphRetriever
 
 from lfx.base.vectorstores.model import LCVectorStoreComponent
@@ -44,9 +44,8 @@ class GraphRAGComponent(LCVectorStoreComponent):
             Processes the edge definition input and returns it as a tuple.
     """
 
-    display_name: str = i18n.t(
-        'components.vectorstores.graph_rag.display_name')
-    description: str = i18n.t('components.vectorstores.graph_rag.description')
+    display_name: str = i18n.t("components.vectorstores.graph_rag.display_name")
+    description: str = i18n.t("components.vectorstores.graph_rag.description")
     name = "Graph RAG"
     icon: str = "AstraDB"
 
@@ -55,45 +54,36 @@ class GraphRAGComponent(LCVectorStoreComponent):
     inputs = [
         HandleInput(
             name="embedding_model",
-            display_name=i18n.t(
-                'components.vectorstores.graph_rag.embedding_model.display_name'),
+            display_name=i18n.t("components.vectorstores.graph_rag.embedding_model.display_name"),
             input_types=["Embeddings"],
-            info=i18n.t(
-                'components.vectorstores.graph_rag.embedding_model.info'),
+            info=i18n.t("components.vectorstores.graph_rag.embedding_model.info"),
             required=False,
         ),
         HandleInput(
             name="vector_store",
-            display_name=i18n.t(
-                'components.vectorstores.graph_rag.vector_store.display_name'),
+            display_name=i18n.t("components.vectorstores.graph_rag.vector_store.display_name"),
             input_types=["VectorStore"],
-            info=i18n.t('components.vectorstores.graph_rag.vector_store.info'),
+            info=i18n.t("components.vectorstores.graph_rag.vector_store.info"),
         ),
         StrInput(
             name="edge_definition",
-            display_name=i18n.t(
-                'components.vectorstores.graph_rag.edge_definition.display_name'),
-            info=i18n.t(
-                'components.vectorstores.graph_rag.edge_definition.info'),
+            display_name=i18n.t("components.vectorstores.graph_rag.edge_definition.display_name"),
+            info=i18n.t("components.vectorstores.graph_rag.edge_definition.info"),
         ),
         DropdownInput(
             name="strategy",
-            display_name=i18n.t(
-                'components.vectorstores.graph_rag.strategy.display_name'),
+            display_name=i18n.t("components.vectorstores.graph_rag.strategy.display_name"),
             options=traversal_strategies(),
         ),
         MultilineInput(
             name="search_query",
-            display_name=i18n.t(
-                'components.vectorstores.graph_rag.search_query.display_name'),
+            display_name=i18n.t("components.vectorstores.graph_rag.search_query.display_name"),
             tool_mode=True,
         ),
         NestedDictInput(
             name="graphrag_strategy_kwargs",
-            display_name=i18n.t(
-                'components.vectorstores.graph_rag.graphrag_strategy_kwargs.display_name'),
-            info=i18n.t(
-                'components.vectorstores.graph_rag.graphrag_strategy_kwargs.info'),
+            display_name=i18n.t("components.vectorstores.graph_rag.graphrag_strategy_kwargs.display_name"),
+            info=i18n.t("components.vectorstores.graph_rag.graphrag_strategy_kwargs.info"),
             advanced=True,
         ),
     ]

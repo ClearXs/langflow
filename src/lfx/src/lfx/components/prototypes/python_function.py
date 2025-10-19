@@ -1,6 +1,7 @@
 import os
-import i18n
 from collections.abc import Callable
+
+import i18n
 
 from lfx.custom.custom_component.component import Component
 from lfx.custom.utils import get_function
@@ -12,8 +13,8 @@ from lfx.schema.message import Message
 
 
 class PythonFunctionComponent(Component):
-    display_name = i18n.t('components.prototypes.python_function.display_name')
-    description = i18n.t('components.prototypes.python_function.description')
+    display_name = i18n.t("components.prototypes.python_function.display_name")
+    description = i18n.t("components.prototypes.python_function.description")
     icon = "Python"
     name = "PythonFunction"
     legacy = True
@@ -23,30 +24,25 @@ class PythonFunctionComponent(Component):
     inputs = [
         CodeInput(
             name="function_code",
-            display_name=i18n.t(
-                'components.prototypes.python_function.function_code.display_name'),
-            info=i18n.t(
-                'components.prototypes.python_function.function_code.info'),
+            display_name=i18n.t("components.prototypes.python_function.function_code.display_name"),
+            info=i18n.t("components.prototypes.python_function.function_code.info"),
         ),
     ]
 
     outputs = [
         Output(
             name="function_output",
-            display_name=i18n.t(
-                'components.prototypes.python_function.outputs.function_output.display_name'),
+            display_name=i18n.t("components.prototypes.python_function.outputs.function_output.display_name"),
             method="get_function_callable",
         ),
         Output(
             name="function_output_data",
-            display_name=i18n.t(
-                'components.prototypes.python_function.outputs.function_output_data.display_name'),
+            display_name=i18n.t("components.prototypes.python_function.outputs.function_output_data.display_name"),
             method="execute_function_data",
         ),
         Output(
             name="function_output_str",
-            display_name=i18n.t(
-                'components.prototypes.python_function.outputs.function_output_str.display_name'),
+            display_name=i18n.t("components.prototypes.python_function.outputs.function_output_str.display_name"),
             method="execute_function_message",
         ),
     ]

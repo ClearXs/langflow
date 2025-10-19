@@ -1,8 +1,9 @@
-import { useState, useEffect, useMemo } from "react";
-import { ArrowUp, ArrowDown, Grid3x3, List } from "lucide-react";
+import { ArrowDown, ArrowUp, Grid3x3, List } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/utils/utils";
-import type { FileItem, TableColumn, SortConfig } from "../types";
+import type { FileItem, SortConfig, TableColumn } from "../types";
 
 interface CustomTableProps {
   data: FileItem[];
@@ -41,6 +42,7 @@ export function CustomTable({
   renderCell,
   renderGridItem,
 }: CustomTableProps) {
+  const { t } = useTranslation();
   // FIXED: Remove internal state to prevent flickering - use props directly
   const [currentSort, setCurrentSort] = useState<SortConfig>(sortConfig);
 
@@ -74,14 +76,14 @@ export function CustomTable({
   const isAllSelected = useMemo(() => {
     if (selectableFiles.length === 0) return false;
     return selectableFiles.every((file) =>
-      selectedItems.some((item) => item.id === file.id)
+      selectedItems.some((item) => item.id === file.id),
     );
   }, [selectableFiles, selectedItems]);
 
   const isIndeterminate = useMemo(() => {
     if (selectableFiles.length === 0) return false;
     const selectedCount = selectableFiles.filter((file) =>
-      selectedItems.some((item) => item.id === file.id)
+      selectedItems.some((item) => item.id === file.id),
     ).length;
     return selectedCount > 0 && selectedCount < selectableFiles.length;
   }, [selectableFiles, selectedItems]);
@@ -106,7 +108,9 @@ export function CustomTable({
       onSelectionChange?.(newSelected);
     } else {
       const selectableIds = new Set(selectableFiles.map((f) => f.id));
-      const newSelected = selectedItems.filter((item) => !selectableIds.has(item.id));
+      const newSelected = selectedItems.filter(
+        (item) => !selectableIds.has(item.id),
+      );
       onSelectionChange?.(newSelected);
     }
   };
@@ -150,7 +154,9 @@ export function CustomTable({
                 checked={isAllSelected}
                 onCheckedChange={handleSelectAll}
                 disabled={selectableFiles.length === 0}
-                className={cn(isIndeterminate && "data-[state=checked]:bg-primary/50")}
+                className={cn(
+                  isIndeterminate && "data-[state=checked]:bg-primary/50",
+                )}
               />
             </div>
           )}
@@ -159,7 +165,7 @@ export function CustomTable({
               key={column.prop}
               className={cn(
                 "flex flex-1 items-center gap-2 px-3 py-3 text-sm font-medium cursor-pointer hover:bg-muted/50",
-                column.className
+                column.className,
               )}
               style={column.style}
               onClick={() => handleSort(column)}
@@ -180,46 +186,56 @@ export function CustomTable({
 
         {/* Body */}
         <div className="flex-1 overflow-auto">
-          {sortedData.map((row) => (
-            <div
-              key={row.id}
-              className={cn(
-                "flex items-center border-b px-2 hover:bg-muted/50 cursor-pointer min-h-[50px]",
-                isSelected(row) && "bg-accent"
-              )}
-              onClick={(e) => handleRowClick(row, e)}
-              onDoubleClick={() => handleRowDblClick(row)}
-              onContextMenu={(e) => {
-                e.preventDefault();
-                onContextMenu?.(e, row);
-              }}
-              onMouseEnter={() => onRowMouseEnter?.(row)}
-              onMouseLeave={() => onRowMouseLeave?.(row)}
-            >
-              {selectable && (
-                <div className="flex w-12 items-center justify-center">
-                  <Checkbox
-                    checked={isSelected(row)}
-                    onCheckedChange={(checked) => handleCheckboxChange(Boolean(checked), row)}
-                    disabled={!isFileSelectable(row)}
-                    onClick={(e) => e.stopPropagation()}
-                  />
-                </div>
-              )}
-              {columns.map((column) => (
-                <div
-                  key={column.prop}
-                  className={cn(
-                    "flex flex-1 items-center px-3 py-2 text-sm overflow-hidden text-ellipsis whitespace-nowrap",
-                    column.className
-                  )}
-                  style={column.style}
-                >
-                  {renderCell ? renderCell(column.prop, row) : String(row[column.prop as keyof FileItem] || "-")}
-                </div>
-              ))}
-            </div>
-          ))}
+          {sortedData.map((row) => {
+            const isDisabled = !isFileSelectable(row);
+            return (
+              <div
+                key={row.id}
+                className={cn(
+                  "flex items-center border-b px-2 min-h-[50px]",
+                  !isDisabled && "hover:bg-muted/50 cursor-pointer",
+                  isDisabled && "opacity-50 cursor-not-allowed",
+                  isSelected(row) && !isDisabled && "bg-accent",
+                )}
+                onClick={(e) => !isDisabled && handleRowClick(row, e)}
+                onDoubleClick={() => !isDisabled && handleRowDblClick(row)}
+                onContextMenu={(e) => {
+                  if (isDisabled) return;
+                  e.preventDefault();
+                  onContextMenu?.(e, row);
+                }}
+                onMouseEnter={() => !isDisabled && onRowMouseEnter?.(row)}
+                onMouseLeave={() => !isDisabled && onRowMouseLeave?.(row)}
+              >
+                {selectable && (
+                  <div className="flex w-12 items-center justify-center">
+                    <Checkbox
+                      checked={isSelected(row)}
+                      onCheckedChange={(checked) =>
+                        handleCheckboxChange(Boolean(checked), row)
+                      }
+                      disabled={!isFileSelectable(row)}
+                      onClick={(e) => e.stopPropagation()}
+                    />
+                  </div>
+                )}
+                {columns.map((column) => (
+                  <div
+                    key={column.prop}
+                    className={cn(
+                      "flex flex-1 items-center px-3 py-2 text-sm overflow-hidden text-ellipsis whitespace-nowrap",
+                      column.className,
+                    )}
+                    style={column.style}
+                  >
+                    {renderCell
+                      ? renderCell(column.prop, row)
+                      : String(row[column.prop as keyof FileItem] || "-")}
+                  </div>
+                ))}
+              </div>
+            );
+          })}
         </div>
       </div>
     );
@@ -235,51 +251,65 @@ export function CustomTable({
             checked={isAllSelected}
             onCheckedChange={handleSelectAll}
             disabled={selectableFiles.length === 0}
-            className={cn(isIndeterminate && "data-[state=checked]:bg-primary/50")}
+            className={cn(
+              isIndeterminate && "data-[state=checked]:bg-primary/50",
+            )}
           />
-          <span className="text-sm">全选</span>
+          <span className="text-sm">{t("fileTableModal.selectAll")}</span>
         </div>
       )}
 
       {/* Grid container */}
       <div className="flex-1 overflow-auto p-4">
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
-          {sortedData.map((row) => (
-            <div
-              key={row.id}
-              className={cn(
-                "relative flex flex-col items-center gap-2 rounded-lg border p-4 hover:bg-muted/50 cursor-pointer transition-colors",
-                isSelected(row) && "bg-accent border-primary"
-              )}
-              onClick={(e) => handleRowClick(row, e)}
-              onDoubleClick={() => handleRowDblClick(row)}
-              onContextMenu={(e) => {
-                e.preventDefault();
-                onContextMenu?.(e, row);
-              }}
-              onMouseEnter={() => onRowMouseEnter?.(row)}
-              onMouseLeave={() => onRowMouseLeave?.(row)}
-            >
-              {selectable && (
-                <div className="absolute left-2 top-2">
-                  <Checkbox
-                    checked={isSelected(row)}
-                    onCheckedChange={(checked) => handleCheckboxChange(Boolean(checked), row)}
-                    disabled={!isFileSelectable(row)}
-                    onClick={(e) => e.stopPropagation()}
-                  />
-                </div>
-              )}
-              {renderGridItem ? (
-                renderGridItem(row)
-              ) : (
-                <>
-                  <div className="text-4xl">{row.type === "folder" ? "📁" : "📄"}</div>
-                  <div className="w-full truncate text-center text-sm">{row.name}</div>
-                </>
-              )}
-            </div>
-          ))}
+          {sortedData.map((row) => {
+            const isDisabled = !isFileSelectable(row);
+            return (
+              <div
+                key={row.id}
+                className={cn(
+                  "relative flex flex-col items-center gap-2 rounded-lg border p-4 transition-colors",
+                  !isDisabled && "hover:bg-muted/50 cursor-pointer",
+                  isDisabled && "opacity-50 cursor-not-allowed",
+                  isSelected(row) && !isDisabled && "bg-accent border-primary",
+                )}
+                onClick={(e) => !isDisabled && handleRowClick(row, e)}
+                onDoubleClick={() => !isDisabled && handleRowDblClick(row)}
+                onContextMenu={(e) => {
+                  if (isDisabled) return;
+                  e.preventDefault();
+                  onContextMenu?.(e, row);
+                }}
+                onMouseEnter={() => !isDisabled && onRowMouseEnter?.(row)}
+                onMouseLeave={() => !isDisabled && onRowMouseLeave?.(row)}
+              >
+                {selectable && (
+                  <div className="absolute left-2 top-2">
+                    <Checkbox
+                      checked={isSelected(row)}
+                      onCheckedChange={(checked) =>
+                        handleCheckboxChange(Boolean(checked), row)
+                      }
+                      disabled={!isFileSelectable(row)}
+                      onClick={(e) => e.stopPropagation()}
+                    />
+                  </div>
+                )}
+                {renderGridItem ? (
+                  renderGridItem(row)
+                ) : (
+                  <>
+                    <div className="text-4xl">
+                      {row.type === "folder" ? "📁" : "📄"}
+                    </div>
+                    <div className="w-full truncate text-center text-sm">
+                      {row.name}
+                    </div>
+                  </>
+                )}
+              </div>
+            );
+          })}
         </div>
       </div>
     </div>

@@ -1,13 +1,15 @@
 import os
+
 import i18n
+
 from lfx.base.memory.model import LCChatMemoryComponent
 from lfx.field_typing.constants import Memory
 from lfx.inputs.inputs import DropdownInput, MessageTextInput, SecretStrInput
 
 
 class ZepChatMemory(LCChatMemoryComponent):
-    display_name = i18n.t('components.zep.zep.display_name')
-    description = i18n.t('components.zep.zep.description')
+    display_name = i18n.t("components.zep.zep.display_name")
+    description = i18n.t("components.zep.zep.description")
     name = "ZepChatMemory"
     icon = "ZepMemory"
     legacy = True
@@ -18,27 +20,26 @@ class ZepChatMemory(LCChatMemoryComponent):
     inputs = [
         MessageTextInput(
             name="url",
-            display_name=i18n.t('components.zep.zep.url.display_name'),
-            info=i18n.t('components.zep.zep.url.info')
+            display_name=i18n.t("components.zep.zep.url.display_name"),
+            info=i18n.t("components.zep.zep.url.info"),
         ),
         SecretStrInput(
             name="api_key",
-            display_name=i18n.t('components.zep.zep.api_key.display_name'),
-            info=i18n.t('components.zep.zep.api_key.info')
+            display_name=i18n.t("components.zep.zep.api_key.display_name"),
+            info=i18n.t("components.zep.zep.api_key.info"),
         ),
         DropdownInput(
             name="api_base_path",
-            display_name=i18n.t(
-                'components.zep.zep.api_base_path.display_name'),
+            display_name=i18n.t("components.zep.zep.api_base_path.display_name"),
             options=["api/v1", "api/v2"],
             value="api/v1",
             advanced=True,
         ),
         MessageTextInput(
             name="session_id",
-            display_name=i18n.t('components.zep.zep.session_id.display_name'),
-            info=i18n.t('components.zep.zep.session_id.info'),
-            advanced=True
+            display_name=i18n.t("components.zep.zep.session_id.display_name"),
+            info=i18n.t("components.zep.zep.session_id.info"),
+            advanced=True,
         ),
     ]
 

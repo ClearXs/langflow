@@ -1,7 +1,7 @@
-import os
-import i18n
 import json
+import os
 
+import i18n
 from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build
 
@@ -15,7 +15,7 @@ from lfx.template.field.base import Output
 
 class GoogleDriveSearchComponent(Component):
     display_name = "Google Drive Search"
-    description = i18n.t('components.google.google_drive_search.description')
+    description = i18n.t("components.google.google_drive_search.description")
     icon = "Google"
     legacy: bool = True
     replacement = ["composio.ComposioGoogleDriveAPIComponent"]
@@ -25,16 +25,13 @@ class GoogleDriveSearchComponent(Component):
     inputs = [
         SecretStrInput(
             name="token_string",
-            display_name=i18n.t(
-                'components.google.google_drive_search.token_string.display_name'),
-            info=i18n.t(
-                'components.google.google_drive_search.token_string.info'),
+            display_name=i18n.t("components.google.google_drive_search.token_string.display_name"),
+            info=i18n.t("components.google.google_drive_search.token_string.info"),
             required=True,
         ),
         DropdownInput(
             name="query_item",
-            display_name=i18n.t(
-                'components.google.google_drive_search.query_item.display_name'),
+            display_name=i18n.t("components.google.google_drive_search.query_item.display_name"),
             options=[
                 "name",
                 "fullText",
@@ -54,61 +51,50 @@ class GoogleDriveSearchComponent(Component):
                 "visibility",
                 "shortcutDetails.targetId",
             ],
-            info=i18n.t(
-                'components.google.google_drive_search.query_item.info'),
+            info=i18n.t("components.google.google_drive_search.query_item.info"),
             required=True,
         ),
         DropdownInput(
             name="valid_operator",
-            display_name=i18n.t(
-                'components.google.google_drive_search.valid_operator.display_name'),
+            display_name=i18n.t("components.google.google_drive_search.valid_operator.display_name"),
             options=["contains", "=", "!=", "<=", "<", ">", ">=", "in", "has"],
-            info=i18n.t(
-                'components.google.google_drive_search.valid_operator.info'),
+            info=i18n.t("components.google.google_drive_search.valid_operator.info"),
             required=True,
         ),
         MessageTextInput(
             name="search_term",
-            display_name=i18n.t(
-                'components.google.google_drive_search.search_term.display_name'),
-            info=i18n.t(
-                'components.google.google_drive_search.search_term.info'),
+            display_name=i18n.t("components.google.google_drive_search.search_term.display_name"),
+            info=i18n.t("components.google.google_drive_search.search_term.info"),
             required=True,
         ),
         MessageTextInput(
             name="query_string",
-            display_name=i18n.t(
-                'components.google.google_drive_search.query_string.display_name'),
-            info=i18n.t(
-                'components.google.google_drive_search.query_string.info'),
+            display_name=i18n.t("components.google.google_drive_search.query_string.display_name"),
+            info=i18n.t("components.google.google_drive_search.query_string.info"),
             value="",  # This will be updated with the generated query string
         ),
     ]
 
     outputs = [
         Output(
-            display_name=i18n.t(
-                'components.google.google_drive_search.outputs.doc_urls.display_name'),
+            display_name=i18n.t("components.google.google_drive_search.outputs.doc_urls.display_name"),
             name="doc_urls",
-            method="search_doc_urls"
+            method="search_doc_urls",
         ),
         Output(
-            display_name=i18n.t(
-                'components.google.google_drive_search.outputs.doc_ids.display_name'),
+            display_name=i18n.t("components.google.google_drive_search.outputs.doc_ids.display_name"),
             name="doc_ids",
-            method="search_doc_ids"
+            method="search_doc_ids",
         ),
         Output(
-            display_name=i18n.t(
-                'components.google.google_drive_search.outputs.doc_titles.display_name'),
+            display_name=i18n.t("components.google.google_drive_search.outputs.doc_titles.display_name"),
             name="doc_titles",
-            method="search_doc_titles"
+            method="search_doc_titles",
         ),
         Output(
-            display_name=i18n.t(
-                'components.google.google_drive_search.outputs.data.display_name'),
+            display_name=i18n.t("components.google.google_drive_search.outputs.data.display_name"),
             name="Data",
-            method="search_data"
+            method="search_data",
         ),
     ]
 
@@ -128,15 +114,13 @@ class GoogleDriveSearchComponent(Component):
         # Update the editable query string input with the generated query
         self.query_string = query
 
-        logger.debug(i18n.t('components.google.google_drive_search.logs.query_generated',
-                            query=query))
+        logger.debug(i18n.t("components.google.google_drive_search.logs.query_generated", query=query))
 
         return query
 
     def on_inputs_changed(self) -> None:
         """Automatically regenerate the query string when inputs change."""
-        logger.debug(
-            i18n.t('components.google.google_drive_search.logs.inputs_changed'))
+        logger.debug(i18n.t("components.google.google_drive_search.logs.inputs_changed"))
         self.generate_query_string()
 
     def generate_file_url(self, file_id: str, mime_type: str) -> str:
@@ -157,12 +141,11 @@ class GoogleDriveSearchComponent(Component):
             "application/pdf": f"https://drive.google.com/file/d/{file_id}/view?usp=drivesdk",
         }
 
-        url = url_map.get(
-            mime_type, f"https://drive.google.com/file/d/{file_id}/view?usp=drivesdk")
+        url = url_map.get(mime_type, f"https://drive.google.com/file/d/{file_id}/view?usp=drivesdk")
 
-        logger.debug(i18n.t('components.google.google_drive_search.logs.url_generated',
-                            file_id=file_id,
-                            mime_type=mime_type))
+        logger.debug(
+            i18n.t("components.google.google_drive_search.logs.url_generated", file_id=file_id, mime_type=mime_type)
+        )
 
         return url
 
@@ -176,39 +159,30 @@ class GoogleDriveSearchComponent(Component):
             ValueError: If token parsing or API call fails.
         """
         try:
-            logger.info(
-                i18n.t('components.google.google_drive_search.logs.starting_search'))
+            logger.info(i18n.t("components.google.google_drive_search.logs.starting_search"))
 
             # Load the token information from the JSON string
-            logger.debug(
-                i18n.t('components.google.google_drive_search.logs.parsing_token'))
+            logger.debug(i18n.t("components.google.google_drive_search.logs.parsing_token"))
             token_info = json.loads(self.token_string)
             creds = Credentials.from_authorized_user_info(token_info)
-            logger.debug(
-                i18n.t('components.google.google_drive_search.logs.credentials_created'))
+            logger.debug(i18n.t("components.google.google_drive_search.logs.credentials_created"))
 
             # Use the query string from the input (which might have been edited by the user)
             query = self.query_string or self.generate_query_string()
-            logger.info(i18n.t('components.google.google_drive_search.logs.using_query',
-                               query=query))
+            logger.info(i18n.t("components.google.google_drive_search.logs.using_query", query=query))
 
             # Initialize the Google Drive API service
-            logger.debug(
-                i18n.t('components.google.google_drive_search.logs.building_service'))
+            logger.debug(i18n.t("components.google.google_drive_search.logs.building_service"))
             service = build("drive", "v3", credentials=creds)
 
             # Perform the search
-            logger.debug(
-                i18n.t('components.google.google_drive_search.logs.executing_search'))
-            results = service.files().list(
-                q=query,
-                pageSize=5,
-                fields="nextPageToken, files(id, name, mimeType)"
-            ).execute()
+            logger.debug(i18n.t("components.google.google_drive_search.logs.executing_search"))
+            results = (
+                service.files().list(q=query, pageSize=5, fields="nextPageToken, files(id, name, mimeType)").execute()
+            )
 
             items = results.get("files", [])
-            logger.info(i18n.t('components.google.google_drive_search.logs.search_completed',
-                               count=len(items)))
+            logger.info(i18n.t("components.google.google_drive_search.logs.search_completed", count=len(items)))
 
             doc_urls = []
             doc_ids = []
@@ -216,8 +190,7 @@ class GoogleDriveSearchComponent(Component):
             doc_titles = []
 
             if items:
-                logger.debug(
-                    i18n.t('components.google.google_drive_search.logs.processing_results'))
+                logger.debug(i18n.t("components.google.google_drive_search.logs.processing_results"))
 
                 for idx, item in enumerate(items, 1):
                     # Directly use the file ID, title, and MIME type to generate the URL
@@ -230,35 +203,35 @@ class GoogleDriveSearchComponent(Component):
                     doc_urls.append(file_url)
                     doc_ids.append(file_id)
                     doc_titles.append(file_title)
-                    doc_titles_urls.append(
-                        {"title": file_title, "url": file_url})
+                    doc_titles_urls.append({"title": file_title, "url": file_url})
 
-                    logger.debug(i18n.t('components.google.google_drive_search.logs.file_processed',
-                                        index=idx,
-                                        title=file_title,
-                                        id=file_id))
+                    logger.debug(
+                        i18n.t(
+                            "components.google.google_drive_search.logs.file_processed",
+                            index=idx,
+                            title=file_title,
+                            id=file_id,
+                        )
+                    )
             else:
-                logger.warning(
-                    i18n.t('components.google.google_drive_search.logs.no_files_found'))
+                logger.warning(i18n.t("components.google.google_drive_search.logs.no_files_found"))
 
             result = {
                 "doc_urls": doc_urls,
                 "doc_ids": doc_ids,
                 "doc_titles_urls": doc_titles_urls,
-                "doc_titles": doc_titles
+                "doc_titles": doc_titles,
             }
 
             self.status = result
             return result
 
         except json.JSONDecodeError as e:
-            error_msg = i18n.t(
-                'components.google.google_drive_search.errors.invalid_token_json')
+            error_msg = i18n.t("components.google.google_drive_search.errors.invalid_token_json")
             logger.error(error_msg)
             raise ValueError(error_msg) from e
         except Exception as e:
-            error_msg = i18n.t('components.google.google_drive_search.errors.search_failed',
-                               error=str(e))
+            error_msg = i18n.t("components.google.google_drive_search.errors.search_failed", error=str(e))
             logger.exception(error_msg)
             raise ValueError(error_msg) from e
 
@@ -268,8 +241,7 @@ class GoogleDriveSearchComponent(Component):
         Returns:
             list[str]: List of document IDs.
         """
-        logger.info(
-            i18n.t('components.google.google_drive_search.logs.returning_doc_ids'))
+        logger.info(i18n.t("components.google.google_drive_search.logs.returning_doc_ids"))
         return self.search_files()["doc_ids"]
 
     def search_doc_urls(self) -> list[str]:
@@ -278,8 +250,7 @@ class GoogleDriveSearchComponent(Component):
         Returns:
             list[str]: List of document URLs.
         """
-        logger.info(
-            i18n.t('components.google.google_drive_search.logs.returning_doc_urls'))
+        logger.info(i18n.t("components.google.google_drive_search.logs.returning_doc_urls"))
         return self.search_files()["doc_urls"]
 
     def search_doc_titles(self) -> list[str]:
@@ -288,8 +259,7 @@ class GoogleDriveSearchComponent(Component):
         Returns:
             list[str]: List of document titles.
         """
-        logger.info(
-            i18n.t('components.google.google_drive_search.logs.returning_doc_titles'))
+        logger.info(i18n.t("components.google.google_drive_search.logs.returning_doc_titles"))
         return self.search_files()["doc_titles"]
 
     def search_data(self) -> Data:
@@ -298,6 +268,5 @@ class GoogleDriveSearchComponent(Component):
         Returns:
             Data: Data object containing titles and URLs.
         """
-        logger.info(
-            i18n.t('components.google.google_drive_search.logs.returning_data'))
+        logger.info(i18n.t("components.google.google_drive_search.logs.returning_data"))
         return Data(data={"text": self.search_files()["doc_titles_urls"]})

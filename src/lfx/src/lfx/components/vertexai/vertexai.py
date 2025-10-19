@@ -1,6 +1,7 @@
 import os
-import i18n
 from typing import cast
+
+import i18n
 
 from lfx.base.models.model import LCModelComponent
 from lfx.field_typing import LanguageModel
@@ -9,8 +10,8 @@ from lfx.io import BoolInput, FileInput, FloatInput, IntInput, StrInput
 
 
 class ChatVertexAIComponent(LCModelComponent):
-    display_name = i18n.t('components.vertexai.vertexai.display_name')
-    description = i18n.t('components.vertexai.vertexai.description')
+    display_name = i18n.t("components.vertexai.vertexai.display_name")
+    description = i18n.t("components.vertexai.vertexai.description")
     icon = "VertexAI"
     name = "VertexAiModel"
 
@@ -20,69 +21,53 @@ class ChatVertexAIComponent(LCModelComponent):
         *LCModelComponent.get_base_inputs(),
         FileInput(
             name="credentials",
-            display_name=i18n.t(
-                'components.vertexai.vertexai.credentials.display_name'),
-            info=i18n.t('components.vertexai.vertexai.credentials.info'),
+            display_name=i18n.t("components.vertexai.vertexai.credentials.display_name"),
+            info=i18n.t("components.vertexai.vertexai.credentials.info"),
             file_types=["json"],
         ),
         MessageTextInput(
             name="model_name",
-            display_name=i18n.t(
-                'components.vertexai.vertexai.model_name.display_name'),
-            value="gemini-1.5-pro"
+            display_name=i18n.t("components.vertexai.vertexai.model_name.display_name"),
+            value="gemini-1.5-pro",
         ),
         StrInput(
             name="project",
-            display_name=i18n.t(
-                'components.vertexai.vertexai.project.display_name'),
-            info=i18n.t('components.vertexai.vertexai.project.info'),
-            advanced=True
+            display_name=i18n.t("components.vertexai.vertexai.project.display_name"),
+            info=i18n.t("components.vertexai.vertexai.project.info"),
+            advanced=True,
         ),
         StrInput(
             name="location",
-            display_name=i18n.t(
-                'components.vertexai.vertexai.location.display_name'),
+            display_name=i18n.t("components.vertexai.vertexai.location.display_name"),
             value="us-central1",
-            advanced=True
+            advanced=True,
         ),
         IntInput(
             name="max_output_tokens",
-            display_name=i18n.t(
-                'components.vertexai.vertexai.max_output_tokens.display_name'),
-            advanced=True
+            display_name=i18n.t("components.vertexai.vertexai.max_output_tokens.display_name"),
+            advanced=True,
         ),
         IntInput(
             name="max_retries",
-            display_name=i18n.t(
-                'components.vertexai.vertexai.max_retries.display_name'),
+            display_name=i18n.t("components.vertexai.vertexai.max_retries.display_name"),
             value=1,
-            advanced=True
+            advanced=True,
         ),
         FloatInput(
-            name="temperature",
-            value=0.0,
-            display_name=i18n.t(
-                'components.vertexai.vertexai.temperature.display_name')
+            name="temperature", value=0.0, display_name=i18n.t("components.vertexai.vertexai.temperature.display_name")
         ),
-        IntInput(
-            name="top_k",
-            display_name=i18n.t(
-                'components.vertexai.vertexai.top_k.display_name'),
-            advanced=True
-        ),
+        IntInput(name="top_k", display_name=i18n.t("components.vertexai.vertexai.top_k.display_name"), advanced=True),
         FloatInput(
             name="top_p",
-            display_name=i18n.t(
-                'components.vertexai.vertexai.top_p.display_name'),
+            display_name=i18n.t("components.vertexai.vertexai.top_p.display_name"),
             value=0.95,
-            advanced=True
+            advanced=True,
         ),
         BoolInput(
             name="verbose",
-            display_name=i18n.t(
-                'components.vertexai.vertexai.verbose.display_name'),
+            display_name=i18n.t("components.vertexai.vertexai.verbose.display_name"),
             value=False,
-            advanced=True
+            advanced=True,
         ),
     ]
 
@@ -97,8 +82,7 @@ class ChatVertexAIComponent(LCModelComponent):
             from google.cloud import aiplatform
             from google.oauth2 import service_account
 
-            credentials = service_account.Credentials.from_service_account_file(
-                self.credentials)
+            credentials = service_account.Credentials.from_service_account_file(self.credentials)
             project = self.project or credentials.project_id
             # ChatVertexAI sometimes skip manual credentials initialization
             aiplatform.init(
