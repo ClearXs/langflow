@@ -21,6 +21,14 @@
     "display_name": "Stream 5",
     "info": "Fifth data stream"
   },
+  "union_field_config": {
+    "display_name": "Field Configuration",
+    "info": "Configure fields to keep after union",
+    "field_name": "Field Name",
+    "source_stream": "Source Stream",
+    "keep_field": "Keep Field",
+    "load_fields_button": "Load Fields List"
+  },
   "drop_duplicates": {
     "display_name": "Drop Duplicates",
     "info": "Remove duplicate rows"
@@ -39,10 +47,15 @@
   },
   "status": {
     "merging": "Merging streams...",
-    "success": "Successfully merged {records} records"
+    "success": "Successfully merged {records} records",
+    "fields_loaded": "Loaded {count} fields",
+    "load_fields_failed": "Failed to load fields: {error}",
+    "no_fields_found": "No fields found from upstream nodes"
   },
   "errors": {
     "no_streams": "At least one stream is required",
-    "union_failed": "Union operation failed: {error}"
+    "union_failed": "Union operation failed: {error}",
+    "no_streams_for_preview": "No streams available for preview",
+    "no_graph_data": "No graph data available, please connect upstream nodes first"
   }
 }

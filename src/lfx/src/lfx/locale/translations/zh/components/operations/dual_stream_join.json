@@ -1,14 +1,25 @@
 {
   "display_name": "双流连接",
-  "description": "使用内连接/左连接/右连接/全连接合并两个数据流",
+  "description": "使用内连接/左连接/右连接/全连接合并两个数据流，支持多条件和多种操作符",
   "status": {
     "joining": "正在连接数据流...",
-    "success": "成功连接 {records} 条记录"
+    "success": "成功连接 {records} 条记录",
+    "fields_loaded": "已加载字段：左表 {left_count} 个，右表 {right_count} 个",
+    "preview_success": "已生成 {count} 个输出字段预览",
+    "no_fields_found": "未找到字段"
   },
   "errors": {
     "join_failed": "连接操作失败: {error}",
     "missing_conditions": "连接条件是必需的",
-    "missing_streams": "两个数据流都是必需的"
+    "missing_streams": "两个数据流都是必需的",
+    "field_not_found": "字段 {field} 不存在",
+    "left_field_not_found": "左表字段 '{field}' 不存在",
+    "right_field_not_found": "右表字段 '{field}' 不存在",
+    "merge_failed": "数据合并失败: {error}",
+    "load_fields_failed": "加载字段列表失败: {error}",
+    "no_streams_for_preview": "请先连接左右数据流",
+    "no_graph_data": "无法获取图数据，请确保组件已正确连接",
+    "preview_failed": "预览字段失败: {error}"
   },
   "drop_duplicates": {
     "display_name": "删除重复",
@@ -16,26 +27,47 @@
   },
   "join_conditions": {
     "display_name": "连接条件",
-    "info": "用于连接的字段"
+    "info": "配置两个数据流的连接条件（支持多条件）",
+    "left_key": "左表字段",
+    "operator": "操作符",
+    "right_key": "右表字段",
+    "load_fields_button": "加载字段列表"
   },
   "join_type": {
     "display_name": "连接类型",
-    "info": "连接操作类型"
+    "info": "选择Join连接方式：inner(内连接)、left(左连接)、right(右连接)、outer(全连接)"
   },
   "left_prefix": {
-    "display_name": "左侧前缀",
-    "info": "左侧数据流列的前缀"
+    "display_name": "左表前缀",
+    "info": "左表字段冲突时的前缀"
   },
   "left_stream": {
     "display_name": "左侧数据流",
-    "info": "第一个数据流"
+    "info": "第一个表输入组件的数据流"
   },
   "right_prefix": {
-    "display_name": "右侧前缀",
-    "info": "右侧数据流列的前缀"
+    "display_name": "右表前缀",
+    "info": "右表字段冲突时的前缀"
   },
   "right_stream": {
     "display_name": "右侧数据流",
-    "info": "第二个数据流"
+    "info": "第二个表输入组件的数据流"
+  },
+  "output_fields": {
+    "display_name": "输出字段",
+    "info": "查看Join后的输出字段列表",
+    "field_name": "字段名",
+    "source": "来源",
+    "data_type": "数据类型",
+    "left_table": "左表",
+    "right_table": "右表",
+    "preview_button": "预览输出字段"
+  },
+  "field_preview": {
+    "common_field": "公共字段（左右表都有）",
+    "left_table": "左表",
+    "right_table": "右表",
+    "no_conflict": "无冲突",
+    "use_prefix": "使用前缀：{left_prefix}{field}, {right_prefix}{field}"
   }
 }

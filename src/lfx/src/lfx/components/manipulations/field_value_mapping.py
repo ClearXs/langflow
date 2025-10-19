@@ -161,14 +161,18 @@ class ETLFieldValueMappingComponent(Component):
         )
     ]
 
-    def update_build_config(
-        self, build_config: dict, field_value: Any, field_name: str | None = None, action: str | None = None
+    async def update_build_config(
+        self,
+        build_config: dict,
+        field_value: Any,  # noqa: ARG002
+        field_name: str | None = None,
+        action: str | None = None,
     ):
         """Dynamic configuration updates based on action button clicks.
 
         Args:
             build_config: Current build configuration
-            field_value: Value of the field that changed (contains field info from preview API)
+            field_value: Value of the field that changed (unused in this implementation)
             field_name: Name of the field that changed
             action: Name of the action button that was clicked (if any)
         """
@@ -179,60 +183,108 @@ class ETLFieldValueMappingComponent(Component):
             logger.info("[FieldValueMapping] Field analysis triggered by action button")
 
             try:
-                # field_value contains the field info from preview API
-                # We need to extract unique field names to populate input_field options
+                # Try to get graph_data and node_id from build_config first (passed from frontend)
+                graph_data = build_config.get("_graph_data", {})
+                node_id = build_config.get("_node_id")
 
-                if not field_value or not isinstance(field_value, list):
-                    logger.warning("[FieldValueMapping] Invalid field data received")
-                    self.status = i18n.t("components.manipulations.field_value_mapping.errors.no_data_input")
+                # If not in build_config, try to get from self.graph (runtime context)
+                if not graph_data and hasattr(self, "graph") and self.graph is not None:
+                    if hasattr(self.graph, "data"):
+                        graph_data = self.graph.data
+                    else:
+                        # PlaceholderGraph - no data available
+                        logger.warning("[FieldValueMapping] PlaceholderGraph detected - no graph data available")
+
+                if not graph_data:
+                    logger.warning("[FieldValueMapping] No graph data available")
+                    self.status = i18n.t("components.manipulations.field_value_mapping.errors.no_graph_data")
                     return build_config
 
-                # Extract unique field names from the data
-                # field_value should be a list of field mappings with source_field
-                unique_fields = set()
-                for item in field_value:
-                    if isinstance(item, dict) and "source_field" in item:
-                        unique_fields.add(item["source_field"])
+                # Use the generic get_upstream_data method to fetch actual data
+                upstream_data = await self.get_upstream_data(
+                    input_name="data_input", graph_data=graph_data, sample_size=10, vertex_id=node_id
+                )
 
-                if not unique_fields:
-                    logger.warning("[FieldValueMapping] No fields found in data")
-                    self.status = i18n.t("components.manipulations.field_value_mapping.errors.no_fields_found")
+                if not upstream_data:
+                    logger.warning("[FieldValueMapping] No data returned from upstream node")
+                    self.status = i18n.t("components.manipulations.field_value_mapping.status.no_fields_found")
                     return build_config
 
-                # Generate empty mapping rules with discovered fields
-                # User will fill in operator, compare_value, replacement_value, output_field
-                generated_rules = []
-                for field_name_str in sorted(unique_fields):
-                    generated_rules.append(
-                        {
-                            "input_field": field_name_str,
-                            "operator": "=",  # Default operator
-                            "compare_value": "",
-                            "replacement_value": "",
-                            "output_field": field_name_str,  # Default to same name
-                        }
+                # Extract field names from upstream data
+                mapping_rules = self._extract_mapping_rules(upstream_data)
+
+                if mapping_rules:
+                    # Update build_config with mapping rules
+                    build_config["mapping_rules"]["value"] = mapping_rules
+                    logger.info(f"[FieldValueMapping] Generated {len(mapping_rules)} mapping rules")
+                    self.status = i18n.t(
+                        "components.manipulations.field_value_mapping.status.analysis_success", count=len(mapping_rules)
                     )
+                else:
+                    logger.warning("[FieldValueMapping] No fields extracted from upstream data")
+                    self.status = i18n.t("components.manipulations.field_value_mapping.status.no_fields_found")
 
-                # Update mapping_rules with generated data
-                build_config["mapping_rules"]["value"] = generated_rules
-
-                logger.info(
-                    f"[FieldValueMapping] Field analysis completed, generated {len(generated_rules)} mapping templates"
-                )
-                self.status = i18n.t(
-                    "components.manipulations.field_value_mapping.status.analysis_success", count=len(generated_rules)
-                )
-
-            except Exception as e:
+            except ValueError as e:
+                # Handle expected errors (no upstream node, etc.)
                 error_msg = str(e)
-                logger.error(f"[FieldValueMapping] Field analysis failed: {error_msg}")
+                logger.warning(f"[FieldValueMapping] Field analysis warning: {error_msg}")
                 self.status = i18n.t(
                     "components.manipulations.field_value_mapping.errors.analysis_failed", error=error_msg
                 )
-                # Don't throw exception, let user continue to operate
+            except Exception:  # noqa: BLE001
+                # Handle unexpected errors - broad exception needed for production stability
+                logger.exception("[FieldValueMapping] Field analysis failed with unexpected error")
+                self.status = i18n.t("components.manipulations.field_value_mapping.errors.graph_not_available")
 
         logger.debug(f"[FieldValueMapping] Returning build_config with keys: {list(build_config.keys())}")
         return build_config
+
+    def _extract_mapping_rules(self, data_list: list[Data]) -> list[dict]:
+        """Extract mapping rules from upstream data.
+
+        Args:
+            data_list: List of Data objects from upstream node
+
+        Returns:
+            List of mapping rule dictionaries with input_field, operator, compare_value, replacement_value, output_field
+        """
+        try:
+            if not data_list:
+                return []
+
+            # Get first record to extract field names
+            first_record = data_list[0]
+            if hasattr(first_record, "data"):
+                data_dict = first_record.data
+            elif isinstance(first_record, dict):
+                data_dict = first_record
+            else:
+                logger.warning(f"[FieldValueMapping] Unexpected data type: {type(first_record)}")
+                return []
+
+            if not isinstance(data_dict, dict):
+                logger.warning(f"[FieldValueMapping] Expected dict, got {type(data_dict)}")
+                return []
+
+            # Generate mapping rules from field names
+            mapping_rules = [
+                {
+                    "input_field": field_name,
+                    "operator": "=",  # Default operator
+                    "compare_value": "",
+                    "replacement_value": "",
+                    "output_field": field_name,  # Default: same as input
+                }
+                for field_name in data_dict
+            ]
+
+            logger.debug(f"[FieldValueMapping] Extracted {len(mapping_rules)} mapping rules")
+            return mapping_rules
+
+        except Exception:  # noqa: BLE001
+            # Broad exception needed to handle various data format issues
+            logger.exception("[FieldValueMapping] Failed to extract mapping rules")
+            return []
 
     def _get_operator_value(self, operator_display: str) -> str:
         """Convert display label to operator value using metadata mapping."""

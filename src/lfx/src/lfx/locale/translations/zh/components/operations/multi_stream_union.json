@@ -1,30 +1,6 @@
 {
   "display_name": "多流合并",
   "description": "合并多个数据流",
-  "status": {
-    "merging": "正在合并数据流...",
-    "success": "成功合并 {records} 条记录"
-  },
-  "errors": {
-    "union_failed": "合并操作失败: {error}",
-    "no_streams": "至少需要一个数据流"
-  },
-  "align_schemas": {
-    "display_name": "对齐模式",
-    "info": "对齐各数据流的列模式"
-  },
-  "drop_duplicates": {
-    "display_name": "删除重复",
-    "info": "删除重复的行"
-  },
-  "include_source_info": {
-    "display_name": "包含来源信息",
-    "info": "添加来源数据流标识"
-  },
-  "source_column": {
-    "display_name": "来源列名",
-    "info": "数据流来源的列名"
-  },
   "stream_1": {
     "display_name": "数据流1",
     "info": "第一个数据流"
@@ -44,5 +20,42 @@
   "stream_5": {
     "display_name": "数据流5",
     "info": "第五个数据流"
+  },
+  "union_field_config": {
+    "display_name": "字段配置",
+    "info": "配置合并后需要保留的字段",
+    "field_name": "字段名",
+    "source_stream": "来源数据流",
+    "keep_field": "保留字段",
+    "load_fields_button": "加载字段列表"
+  },
+  "drop_duplicates": {
+    "display_name": "删除重复",
+    "info": "删除重复的行"
+  },
+  "align_schemas": {
+    "display_name": "对齐模式",
+    "info": "对齐各数据流的列模式"
+  },
+  "source_column": {
+    "display_name": "来源列名",
+    "info": "数据流来源的列名"
+  },
+  "include_source_info": {
+    "display_name": "包含来源信息",
+    "info": "添加来源数据流标识"
+  },
+  "status": {
+    "merging": "正在合并数据流...",
+    "success": "成功合并 {records} 条记录",
+    "fields_loaded": "已加载 {count} 个字段",
+    "load_fields_failed": "加载字段失败: {error}",
+    "no_fields_found": "未从上游节点找到任何字段"
+  },
+  "errors": {
+    "no_streams": "至少需要一个数据流",
+    "union_failed": "合并操作失败: {error}",
+    "no_streams_for_preview": "没有可用的数据流进行预览",
+    "no_graph_data": "没有可用的图数据，请先连接上游节点"
   }
 }

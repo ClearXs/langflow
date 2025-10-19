@@ -40,7 +40,8 @@
   "status": {
     "success": "Successfully mapped {count} records using {rules} rules",
     "processing": "Processing field value mappings...",
-    "analysis_success": "Field analysis completed, generated {count} mapping templates"
+    "analysis_success": "Field analysis completed, generated {count} mapping templates",
+    "no_fields_found": "No fields found in upstream data"
   },
   "errors": {
     "missing_config": "Mapping rules are required",
@@ -49,7 +50,9 @@
     "mapping_failed": "Field value mapping failed: {error}",
     "no_data_input": "No data input available for field analysis",
     "no_fields_found": "No fields found in the data",
-    "analysis_failed": "Field analysis failed: {error}"
+    "analysis_failed": "Field analysis failed: {error}",
+    "no_graph_data": "No graph data available for field analysis",
+    "graph_not_available": "Graph context not available for field analysis"
   },
   "warnings": {
     "field_not_found": "Input field '{field}' not found in data",

@@ -43,6 +43,8 @@ from lfx.utils.util import find_closest_match
 
 from .custom_component import CustomComponent
 
+from lfx.log.logger import logger
+
 if TYPE_CHECKING:
     from collections.abc import Callable
 
@@ -1883,24 +1885,119 @@ class Component(CustomComponent):
             msg = f"No upstream node connected to input '{input_name}'"
             raise ValueError(msg)
 
-        # Check if we have a graph instance
-        if hasattr(self, "graph") and self.graph is not None:
+        # Check if we have a real graph instance (not PlaceholderGraph)
+        from lfx.custom.custom_component.component import PlaceholderGraph
+
+        has_real_graph = (
+            hasattr(self, "graph")
+            and self.graph is not None
+            and not isinstance(self.graph, PlaceholderGraph)
+            and hasattr(self.graph, "get_vertex")  # Ensure it has the required method
+        )
+
+        if has_real_graph:
             # Runtime context - use existing graph
+            logger.debug(f"[Component] Using existing graph instance")
             return await execute_node_and_get_result(self.graph, upstream_node_id, sample_size)
 
         # Design-time context - need to build a temporary graph
         from lfx.graph.graph.base import Graph
 
+        logger.debug(f"[Component] Building temporary graph from graph_data (design-time context)")
+        logger.debug(f"[Component] graph_data keys: {list(graph_data.keys())}")
+        logger.debug(f"[Component] Number of nodes: {len(graph_data.get('nodes', []))}")
+        logger.debug(f"[Component] Number of edges: {len(graph_data.get('edges', []))}")
+
         # Build a temporary graph from graph_data
         try:
-            # Create a minimal flow data structure that Graph can parse
-            flow_data = {"data": graph_data}
-            temp_graph = Graph.from_payload(flow_data)
+            # Graph.from_payload expects edges to have a specific format with nested 'data' field
+            # But frontend sends edges without this structure, so we need to transform them
+            logger.debug(f"[Component] Creating Graph.from_payload...")
+
+            # Transform graph_data to match Graph's expected format
+            transformed_graph_data = self._transform_graph_data_for_execution(graph_data)
+
+            temp_graph = Graph.from_payload(transformed_graph_data)
+            logger.debug(f"[Component] Temporary graph created successfully")
+            logger.debug(f"[Component] Temporary graph has {len(temp_graph.vertices) if hasattr(temp_graph, 'vertices') else 0} vertices")
 
             return await execute_node_and_get_result(temp_graph, upstream_node_id, sample_size)
         except Exception as e:
+            logger.exception(f"[Component] Failed to build or execute temporary graph")
+            logger.error(f"[Component] Exception type: {type(e).__name__}")
+            logger.error(f"[Component] Exception message: {str(e)}")
             msg = f"Failed to build temporary graph for execution: {e}"
             raise ValueError(msg) from e
+
+    def _transform_graph_data_for_execution(self, graph_data: dict) -> dict:
+        """Transform frontend graph_data to the format expected by Graph.from_payload.
+
+        Frontend sends edges in React Flow format without nested 'data' field.
+        Graph expects edges with data.sourceHandle and data.targetHandle.
+
+        Args:
+            graph_data: Graph data from frontend
+
+        Returns:
+            Transformed graph data ready for Graph.from_payload
+        """
+        import json
+
+        transformed_edges = []
+        for edge in graph_data.get("edges", []):
+            # If edge already has the correct format, use it as-is
+            if "data" in edge and isinstance(edge["data"], dict):
+                if "sourceHandle" in edge["data"] and "targetHandle" in edge["data"]:
+                    transformed_edges.append(edge)
+                    continue
+
+            # Transform edge to expected format
+            transformed_edge = {
+                "source": edge.get("source"),
+                "target": edge.get("target"),
+                "data": {}
+            }
+
+            # Parse sourceHandle (might be JSON string or dict)
+            source_handle = edge.get("sourceHandle", "")
+            if isinstance(source_handle, str) and source_handle.startswith("{"):
+                try:
+                    cleaned = source_handle.replace("œ", '"')
+                    source_handle_data = json.loads(cleaned)
+                except Exception:
+                    source_handle_data = {}
+            elif isinstance(source_handle, dict):
+                source_handle_data = source_handle
+            else:
+                source_handle_data = {}
+
+            # Parse targetHandle (might be JSON string or dict)
+            target_handle = edge.get("targetHandle", "")
+            if isinstance(target_handle, str) and target_handle.startswith("{"):
+                try:
+                    cleaned = target_handle.replace("œ", '"')
+                    target_handle_data = json.loads(cleaned)
+                except Exception:
+                    target_handle_data = {}
+            elif isinstance(target_handle, dict):
+                target_handle_data = target_handle
+            else:
+                target_handle_data = {}
+
+            transformed_edge["data"]["sourceHandle"] = source_handle_data
+            transformed_edge["data"]["targetHandle"] = target_handle_data
+
+            # Copy other edge properties
+            for key in edge:
+                if key not in ["source", "target", "sourceHandle", "targetHandle", "data"]:
+                    transformed_edge[key] = edge[key]
+
+            transformed_edges.append(transformed_edge)
+
+        return {
+            "nodes": graph_data.get("nodes", []),
+            "edges": transformed_edges
+        }
 
 
 def _get_component_toolkit():

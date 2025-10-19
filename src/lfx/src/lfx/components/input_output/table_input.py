@@ -156,6 +156,7 @@ class ETLTableInputComponent(Component):
     outputs = [
         Output(name="data", display_name="Data", method="load_data"),
         Output(name="row_count", display_name="Row Count", method="get_row_count"),
+        Output(name="fields_schema", display_name="Fields Schema", method="get_fields_schema"),
     ]
 
     def update_build_config(
@@ -571,13 +572,23 @@ class ETLTableInputComponent(Component):
     def load_data(self) -> list[Data]:
         """Extract data from database table with SQL support, pagination, and transaction handling."""
         try:
+            logger.info("[TableInput] load_data called")
             self.status = i18n.t("components.input_output.table_input.status.connecting")
 
             # Validate inputs
             if not self.datasource_selector or not self.sql_query:
+                logger.warning("[TableInput] Missing datasource or SQL query")
+                # In design-time context (e.g., field analysis), return empty sample with schema
+                if self.field_mappings:
+                    # Use field_mappings to create a sample record
+                    sample_data = {mapping.get("source_field"): None for mapping in self.field_mappings if mapping.get("source_field")}
+                    if sample_data:
+                        logger.info(f"[TableInput] Returning sample record with {len(sample_data)} fields from mappings")
+                        return [Data(data=sample_data)]
+
                 raise ValueError(i18n.t("components.input_output.table_input.errors.missing_config"))
 
-            # 获取实际的数据源ID（从显示名称转换）
+            # 获取实际的数据源ID(从显示名称转换)
             datasource_id = self._get_datasource_id()
             logger.debug(f"[TableInput] Using datasource ID: {datasource_id}")
 
@@ -587,17 +598,31 @@ class ETLTableInputComponent(Component):
             import httpx
 
             api_url = os.getenv("LANGFLOW_API_URL", "http://localhost:7860")
-            with httpx.Client(timeout=10.0) as client:
-                response = client.get(f"{api_url}/api/v1/datasources/{datasource_id}/connection-string")
 
-                if response.status_code != 200:
-                    raise ValueError(i18n.t("components.input_output.table_input.errors.invalid_datasource"))
+            try:
+                with httpx.Client(timeout=10.0) as client:
+                    response = client.get(f"{api_url}/api/v1/datasources/{datasource_id}/connection-string")
 
-                connection_data = response.json()
-                connection_string = connection_data.get("connection_string")
+                    if response.status_code != 200:
+                        logger.error(f"[TableInput] Failed to get connection string, status: {response.status_code}")
+                        raise ValueError(i18n.t("components.input_output.table_input.errors.invalid_datasource"))
 
-                if not connection_string:
-                    raise ValueError(i18n.t("components.input_output.table_input.errors.invalid_datasource"))
+                    connection_data = response.json()
+                    connection_string = connection_data.get("connection_string")
+
+                    if not connection_string:
+                        logger.error("[TableInput] Connection string is empty")
+                        raise ValueError(i18n.t("components.input_output.table_input.errors.invalid_datasource"))
+
+            except httpx.RequestError as e:
+                logger.error(f"[TableInput] HTTP request failed: {e}")
+                # In design-time, if API is not available, use field_mappings as fallback
+                if self.field_mappings:
+                    sample_data = {mapping.get("source_field"): None for mapping in self.field_mappings if mapping.get("source_field")}
+                    if sample_data:
+                        logger.info(f"[TableInput] API unavailable, returning sample record with {len(sample_data)} fields from mappings")
+                        return [Data(data=sample_data)]
+                raise ValueError(f"Failed to connect to datasource API: {e}") from e
 
             # Build SQL query - use as provided by user
             sql_query = self.sql_query.strip()
@@ -626,14 +651,38 @@ class ETLTableInputComponent(Component):
                     result_data = self._fetch_data(connection, sql_query)
 
             total_records = len(result_data)
+
+            # IMPORTANT: Ensure we return at least one sample record for field inference
+            # If no data was returned but query succeeded, create a sample record with NULL values
+            if not result_data:
+                logger.warning("[TableInput] No data returned from query, creating sample record for field inference")
+                # Get schema from LIMIT 1 to create empty sample
+                with engine.connect() as connection:
+                    df_sample = pd.read_sql_query(text(f"{sql_query} LIMIT 0"), connection)
+                    if not df_sample.empty or len(df_sample.columns) > 0:
+                        # Create a sample record with None values for all fields
+                        sample_data = {col: None for col in df_sample.columns}
+                        result_data = [Data(data=sample_data)]
+                        logger.info(f"[TableInput] Created sample record with {len(sample_data)} fields")
+
             self.status = i18n.t("components.input_output.table_input.status.success", records=total_records)
+            logger.info(f"[TableInput] Returning {len(result_data)} data records")
 
             return result_data
 
         except Exception as e:
-            error_msg = i18n.t("components.input_output.table_input.errors.extraction_failed", error=str(e))
-            self.status = error_msg
-            raise ValueError(error_msg) from e
+            # Improved error logging
+            logger.exception(f"[TableInput] load_data failed with error: {e}")
+            error_msg = str(e)
+
+            # Try to use i18n, but fallback to plain error if i18n fails
+            try:
+                status_msg = i18n.t("components.input_output.table_input.errors.extraction_failed", error=error_msg)
+            except Exception:
+                status_msg = f"Data extraction failed: {error_msg}"
+
+            self.status = status_msg
+            raise ValueError(status_msg) from e
 
     def _fetch_data(self, connection, sql_query: str) -> list[Data]:
         """Fetch data with pagination support and transformation."""
@@ -697,3 +746,77 @@ class ETLTableInputComponent(Component):
         data = self.load_data()
         count = len(data)
         return Data(data={"row_count": count, "datasource": self.datasource_selector})
+
+    def get_fields_schema(self) -> Data:
+        """Get the schema (field names and types) from the SQL query result.
+
+        This method is designed to be lightweight - it only fetches 1 row to infer schema.
+        This is useful for downstream components that need to know field structure
+        without loading all data.
+
+        Returns:
+            Data: A Data object containing fields metadata with structure:
+                  {
+                      "fields": [
+                          {"name": "field1", "type": "string"},
+                          {"name": "field2", "type": "integer"},
+                          ...
+                      ],
+                      "field_names": ["field1", "field2", ...]  # For quick access
+                  }
+        """
+        try:
+            logger.info("[TableInput] get_fields_schema called")
+
+            # Reuse existing field_mappings if available (from SQL analysis)
+            if self.field_mappings:
+                logger.debug(f"[TableInput] Using existing field_mappings: {len(self.field_mappings)} fields")
+
+                fields = [
+                    {
+                        "name": mapping.get("source_field"),
+                        "type": mapping.get("data_type", "string"),
+                    }
+                    for mapping in self.field_mappings
+                    if mapping.get("source_field")
+                ]
+
+                field_names = [f["name"] for f in fields]
+
+                logger.info(f"[TableInput] Returning schema with {len(fields)} fields from mappings")
+                return Data(data={"fields": fields, "field_names": field_names})
+
+            # If no field_mappings, infer from actual data (fetch LIMIT 1)
+            logger.debug("[TableInput] No field_mappings available, inferring from data")
+
+            # Get datasource ID
+            datasource_id = self._get_datasource_id()
+
+            # Get connection string
+            connection_string = self._get_connection_string(datasource_id)
+            engine = create_engine(connection_string, poolclass=NullPool)
+
+            try:
+                with engine.connect() as connection:
+                    # Execute LIMIT 1 to get schema
+                    sql_query = self.sql_query.strip()
+                    df_sample = pd.read_sql_query(text(f"{sql_query} LIMIT 1"), connection)
+
+                    fields = []
+                    for col in df_sample.columns:
+                        dtype = df_sample[col].dtype
+                        data_type = self._map_dtype(dtype)
+                        fields.append({"name": col, "type": data_type})
+
+                    field_names = [f["name"] for f in fields]
+
+                    logger.info(f"[TableInput] Inferred schema with {len(fields)} fields from data")
+                    return Data(data={"fields": fields, "field_names": field_names})
+
+            finally:
+                engine.dispose()
+
+        except Exception as e:
+            logger.error(f"[TableInput] Failed to get fields schema: {e}")
+            # Return empty schema rather than failing
+            return Data(data={"fields": [], "field_names": []})

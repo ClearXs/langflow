@@ -40,7 +40,8 @@
   "status": {
     "success": "成功使用 {rules} 条规则映射了 {count} 条记录",
     "processing": "正在处理字段值映射...",
-    "analysis_success": "字段分析完成，已生成 {count} 个映射模板"
+    "analysis_success": "字段分析完成，已生成 {count} 个映射模板",
+    "no_fields_found": "在上游数据中未找到字段"
   },
   "errors": {
     "missing_config": "映射规则是必需的",
@@ -49,7 +50,9 @@
     "mapping_failed": "字段值映射失败: {error}",
     "no_data_input": "没有可用于字段分析的数据输入",
     "no_fields_found": "在数据中未找到字段",
-    "analysis_failed": "字段分析失败: {error}"
+    "analysis_failed": "字段分析失败: {error}",
+    "no_graph_data": "没有可用于字段分析的图数据",
+    "graph_not_available": "图上下文不可用于字段分析"
   },
   "warnings": {
     "field_not_found": "在数据中未找到输入字段 '{field}'",
