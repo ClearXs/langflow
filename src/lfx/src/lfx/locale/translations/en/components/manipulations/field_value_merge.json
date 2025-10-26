@@ -7,17 +7,45 @@
   },
   "merge_configs": {
     "display_name": "Merge Configurations",
-    "info": "Fields to merge and separators"
+    "info": "Fields to merge and separators",
+    "new_field": "New Field Name",
+    "new_field_desc": "Name of the new field after merging",
+    "operation": "Operation Type",
+    "operation_desc": "Merge operation: concatenation (LINK), arithmetic (plus, minus, multiply, divide), or modulo",
+    "field_a": "Field A",
+    "field_a_desc": "First field for the operation",
+    "field_b": "Field B",
+    "field_b_desc": "Second field for the operation",
+    "separator": "Separator",
+    "separator_desc": "Separator to use when concatenating strings",
+    "value_type": "Value Type",
+    "value_type_desc": "Data type of the merged field",
+    "load_fields_button": "Load Fields List"
+  },
+  "decimal_precision": {
+    "display_name": "Decimal Precision",
+    "info": "Number of decimal places for float values (0-10)"
   },
   "drop_source_fields": {
     "display_name": "Drop Source Fields",
     "info": "Remove source fields after merge"
   },
+  "outputs": {
+    "data": "Merged Data",
+    "field_preview": "Field Preview"
+  },
   "status": {
-    "success": "Merged {count} records"
+    "success": "Merged %{count} records",
+    "fields_loaded": "Successfully loaded %{count} fields",
+    "no_fields_found": "No fields found",
+    "merging": "Executing field merge..."
   },
   "errors": {
     "missing_config": "Merge configurations are required",
-    "merge_failed": "Field merge failed: {error}"
+    "merge_failed": "Field merge failed: %{error}",
+    "no_graph_data": "Unable to retrieve graph data",
+    "load_fields_failed": "Failed to load fields: %{error}",
+    "field_not_found": "Field %{field} not found",
+    "no_input_data": "No input data available"
   }
 }

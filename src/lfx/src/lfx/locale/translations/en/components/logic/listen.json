@@ -11,17 +11,17 @@
     }
   },
   "status": {
-    "data_retrieved": "Data retrieved from context key: {key}"
+    "data_retrieved": "Data retrieved from context key: %{key}"
   },
   "warnings": {
-    "key_not_found": "Context key '{key}' not found, returning empty data"
+    "key_not_found": "Context key '%{key}' not found, returning empty data"
   },
   "errors": {
-    "retrieval_failed": "Failed to retrieve data for context key '{key}': {error}"
+    "retrieval_failed": "Failed to retrieve data for context key '%{key}': %{error}"
   },
   "logs": {
-    "listening": "Listening for data with context key: {key}",
-    "converting_to_data": "Converting {data_type} to Data object",
-    "data_retrieved": "Successfully retrieved data from context key: {key}"
+    "listening": "Listening for data with context key: %{key}",
+    "converting_to_data": "Converting %{data_type} to Data object",
+    "data_retrieved": "Successfully retrieved data from context key: %{key}"
   }
 }

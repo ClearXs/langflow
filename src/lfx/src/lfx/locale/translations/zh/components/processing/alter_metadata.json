@@ -28,11 +28,11 @@
     }
   },
   "success": {
-    "metadata_processed": "成功为{count}个数据对象处理了元数据",
-    "dataframe_created": "创建了包含{rows}行的数据框"
+    "metadata_processed": "成功为%{count}个数据对象处理了元数据",
+    "dataframe_created": "创建了包含%{rows}行的数据框"
   },
   "info": {
-    "fields_removed": "删除了{count}个字段出现次数：{fields}"
+    "fields_removed": "删除了%{count}个字段出现次数：%{fields}"
   },
   "warnings": {
     "empty_metadata": "未提供元数据。对象将在不更改元数据的情况下处理。",
@@ -40,9 +40,9 @@
     "empty_dataframe": "没有可用数据来创建数据框"
   },
   "errors": {
-    "invalid_object_type": "期望Data对象或字典，但得到{obj_type}",
-    "dict_conversion_failed": "将对象转换为字典失败：{error}",
-    "processing_failed": "处理元数据失败：{error}",
-    "dataframe_creation_failed": "创建数据框失败：{error}"
+    "invalid_object_type": "期望Data对象或字典，但得到%{obj_type}",
+    "dict_conversion_failed": "将对象转换为字典失败：%{error}",
+    "processing_failed": "处理元数据失败：%{error}",
+    "dataframe_creation_failed": "创建数据框失败：%{error}"
   }
 }

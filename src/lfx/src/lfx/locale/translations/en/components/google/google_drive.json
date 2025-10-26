@@ -17,22 +17,22 @@
     "no_credentials": "No credentials provided.",
     "single_document_expected": "Expected a single document ID",
     "invalid_json": "Invalid JSON string",
-    "credentials_creation_failed": "Failed to create credentials: {error}",
+    "credentials_creation_failed": "Failed to create credentials: %{error}",
     "auth_refresh_failed": "Authentication error: Unable to refresh authentication token. Please try to reauthenticate.",
-    "loading_failed": "Error loading documents: {error}",
-    "single_document_load_expected": "Expected a single document to be loaded, but got {count} document(s)."
+    "loading_failed": "Error loading documents: %{error}",
+    "single_document_load_expected": "Expected a single document to be loaded, but got %{count} document(s)."
   },
   "logs": {
     "credentials_loaded": "Credentials loaded from provided creds attribute",
     "loading_document": "Loading document from Google Drive",
-    "document_id_validated": "Document ID validated: {document_id}",
+    "document_id_validated": "Document ID validated: %{document_id}",
     "parsing_json": "Parsing JSON credentials string",
     "json_parsed": "JSON credentials parsed successfully",
     "creating_credentials": "Creating OAuth credentials from token info",
     "credentials_created": "OAuth credentials created successfully",
     "initializing_loader": "Initializing Google Drive loader",
-    "loading_from_drive": "Loading document from Google Drive - ID: {document_id}",
-    "documents_loaded": "Successfully loaded {count} document(s) from Google Drive",
+    "loading_from_drive": "Loading document from Google Drive - ID: %{document_id}",
+    "documents_loaded": "Successfully loaded %{count} document(s) from Google Drive",
     "converting_to_data": "Converting documents to Data format",
     "load_successful": "Document loaded successfully"
   }

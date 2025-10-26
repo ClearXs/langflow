@@ -60,33 +60,33 @@
   },
   "status": {
     "configuring_evals": "正在配置选定的评估...",
-    "running_evals": "正在运行评估：{evals}",
+    "running_evals": "正在运行评估：%{evals}",
     "passing_response": "正在传递响应。",
     "trust_score": "可信度分数：{score:.3f}",
     "explanation_extracted": "已提取可信度解释。",
-    "other_evals_returned": "返回了{count}个其他评估。",
+    "other_evals_returned": "返回了%{count}个其他评估。",
     "summary_built": "评估摘要已构建。"
   },
   "success": {
     "evaluation_complete": "评估完成。"
   },
   "errors": {
-    "evaluation_failed": "评估失败：{error}"
+    "evaluation_failed": "评估失败：%{error}"
   },
   "logs": {
     "configuring_evals": "正在配置评估指标",
-    "selected_evals": "已选择的评估：{evals}",
-    "running_evals": "正在运行{count}个评估",
+    "selected_evals": "已选择的评估：%{evals}",
+    "running_evals": "正在运行%{count}个评估",
     "passing_response": "正在传递原始响应",
     "trust_score_retrieved": "已检索可信度分数：{score:.3f}",
     "explanation_extracted": "已从结果中提取可信度解释",
-    "other_evals_retrieved": "已检索{count}个额外的评估指标",
+    "other_evals_retrieved": "已检索%{count}个额外的评估指标",
     "summary_built": "评估摘要已成功构建"
   },
   "summary": {
     "trustworthiness": "可信度：{score:.3f}",
-    "explanation": "解释：{explanation}",
-    "metric": "{name}：{score:.3f}",
-    "full": "查询：\n{query}\n-----\n上下文：\n{context}\n-----\n响应：\n{response}\n------------------------------\n{metrics}"
+    "explanation": "解释：%{explanation}",
+    "metric": "%{name}：{score:.3f}",
+    "full": "查询：\n%{query}\n-----\n上下文：\n%{context}\n-----\n响应：\n%{response}\n------------------------------\n%{metrics}"
   }
 }

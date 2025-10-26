@@ -31,12 +31,12 @@
     "converted_to_message": "成功将输入转换为Message类型",
     "converted_to_data": "成功将输入转换为Data类型",
     "converted_to_data_with_parsing": "成功将输入转换为Data类型并进行自动解析",
-    "converted_to_dataframe": "成功将输入转换为DataFrame类型（{rows}行）",
-    "converted_to_dataframe_with_parsing": "成功将输入转换为DataFrame类型并进行自动解析（{rows}行）"
+    "converted_to_dataframe": "成功将输入转换为DataFrame类型（%{rows}行）",
+    "converted_to_dataframe_with_parsing": "成功将输入转换为DataFrame类型并进行自动解析（%{rows}行）"
   },
   "errors": {
-    "message_conversion_failed": "转换输入为Message类型失败：{error}",
-    "data_conversion_failed": "转换输入为Data类型失败：{error}",
-    "dataframe_conversion_failed": "转换输入为DataFrame类型失败：{error}"
+    "message_conversion_failed": "转换输入为Message类型失败：%{error}",
+    "data_conversion_failed": "转换输入为Data类型失败：%{error}",
+    "dataframe_conversion_failed": "转换输入为DataFrame类型失败：%{error}"
   }
 }

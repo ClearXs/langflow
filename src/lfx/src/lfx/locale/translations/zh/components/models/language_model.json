@@ -33,18 +33,18 @@
     "info": "控制响应的随机性"
   },
   "success": {
-    "openai_model_created": "OpenAI模型'{model}'创建成功",
-    "anthropic_model_created": "Anthropic模型'{model}'创建成功",
-    "google_model_created": "Google模型'{model}'创建成功"
+    "openai_model_created": "OpenAI模型'%{model}'创建成功",
+    "anthropic_model_created": "Anthropic模型'%{model}'创建成功",
+    "google_model_created": "Google模型'%{model}'创建成功"
   },
   "info": {
-    "reasoning_model_no_temperature": "推理模型'{model}'不支持温度参数"
+    "reasoning_model_no_temperature": "推理模型'%{model}'不支持温度参数"
   },
   "errors": {
     "openai_api_key_required": "使用OpenAI提供商时需要OpenAI API密钥",
     "anthropic_api_key_required": "使用Anthropic提供商时需要Anthropic API密钥",
     "google_api_key_required": "使用Google提供商时需要Google API密钥",
-    "unknown_provider": "未知提供商：{provider}",
-    "model_creation_failed": "创建{provider}模型失败：{error}"
+    "unknown_provider": "未知提供商：%{provider}",
+    "model_creation_failed": "创建%{provider}模型失败：%{error}"
   }
 }

@@ -1,5 +1,6 @@
 import type { Edge, Node } from "@xyflow/react";
 import type { AxiosError } from "axios";
+import i18next from "i18next";
 import { flushSync } from "react-dom";
 import { MISSED_ERROR_ALERT } from "@/constants/alerts_constants";
 import {
@@ -354,8 +355,8 @@ export async function buildFlowVertices({
             onBuildStopped && onBuildStopped();
             return;
           }
-          onBuildError!("Error Building Component", [
-            "Network error. Please check the connection to the server.",
+          onBuildError!(i18next.t("error.buildComponent"), [
+            i18next.t("error.networkError"),
           ]);
         },
         buildController,
@@ -434,8 +435,8 @@ export async function buildFlowVertices({
             onBuildStopped && onBuildStopped();
             return;
           }
-          onBuildError!("Error Building Component", [
-            "Network error. Please check the connection to the server.",
+          onBuildError!(i18next.t("error.buildComponent"), [
+            i18next.t("error.networkError"),
           ]);
         },
         buildController,
@@ -463,7 +464,7 @@ export async function buildFlowVertices({
       onBuildStopped && onBuildStopped();
       return;
     }
-    onBuildError!("Error Building Flow", [
+    onBuildError!(i18next.t("error.buildFlow"), [
       (error as Error).message ||
         "Langflow was not able to connect to the server. Please make sure your connection is working properly.",
     ]);
@@ -582,7 +583,7 @@ async function onEvent(
             },
           );
           onBuildError &&
-            onBuildError("Error Building Component", errorMessages, [
+            onBuildError(i18next.t("error.buildComponent"), errorMessages, [
               { id: buildData.id },
             ]);
           onBuildUpdate(buildData, BuildStatus.ERROR, "");
@@ -638,7 +639,8 @@ async function onEvent(
         useMessagesStore.getState().addMessage(data);
         // Use a falsy check to correctly determine if the source ID is missing.
         if (!data?.properties?.source?.id) {
-          onBuildError && onBuildError("Error Building Flow", [data.text]);
+          onBuildError &&
+            onBuildError(i18next.t("error.buildFlow"), [data.text]);
         }
       }
       buildResults.push(false);
@@ -835,7 +837,7 @@ async function buildVertex({
           return [outputs.message.errorMessage];
         });
         onBuildError!(
-          "Error Building Component",
+          i18next.t("error.buildComponent"),
           errorMessages,
           verticesIds.map((id) => ({ id })),
         );
@@ -857,7 +859,7 @@ async function buildVertex({
       errorMessage = [errorMessage];
     }
     onBuildError!(
-      "Error Building Component",
+      i18next.t("error.buildComponent"),
       errorMessage,
       verticesIds.map((id) => ({ id })),
     );

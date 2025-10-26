@@ -1,24 +1,26 @@
 {
   "display_name": "Python Script",
-  "description": "Execute Python code with data input",
+  "description": "Execute Python code to process data",
   "data_input": {
     "display_name": "Data Input",
-    "info": "Available as 'data_input' variable"
+    "info": "Upstream data, accessible via data_input variable in script"
   },
   "script": {
-    "display_name": "Python Script",
-    "info": "Python code to execute"
+    "display_name": "Python Code",
+    "info": "Write Python code to process data\n\n[Available Variables]\n• data_input - List of Data objects from upstream\n• result - Set this variable as output (required)\n\n[Output Methods]\nAssign processed result to result variable:\n• Dict: result = {'key': 'value'}\n• List: result = [item1, item2]\n• String: result = 'output text'\n• Data object: result = Data(data={...})\n\n[Debug Output]\nUse print() for debug messages. After execution, view complete logs in node status including:\n• Start time and duration\n• Standard output (print content)\n• Error output (if any)\n• Execution status\n\n[Example Code]\nif data_input:\n    # data_input is a list of Data objects\n    items = [item.data for item in data_input]\n    result = {'count': len(items), 'data': items}\nelse:\n    result = {'message': 'No input data'}",
+    "default_code": "# Access upstream data\nif data_input:\n    # data_input is a list of Data objects\n    print(f'Received {len(data_input)} items')\n    \n    # Extract data content\n    items = [item.data for item in data_input]\n    \n    # Process data\n    processed_count = len(items)\n    print(f'Processing complete, {processed_count} items')\n    \n    # Set output result\n    result = {\n        'count': processed_count,\n        'data': items\n    }\nelse:\n    print('No input data received')\n    result = {'message': 'No input data'}"
   },
   "capture_output": {
     "display_name": "Capture Output",
-    "info": "Capture print output"
+    "info": "Capture print() and standard output, shown in node status log"
   },
-  "status": {
-    "executing": "Executing Python script...",
-    "success": "Script executed successfully"
+  "outputs": {
+    "result": {
+      "display_name": "Execution Result"
+    }
   },
   "errors": {
-    "no_script": "Script is required",
+    "no_script": "Script code is required",
     "execution_failed": "Script execution failed: {error}"
   }
 }

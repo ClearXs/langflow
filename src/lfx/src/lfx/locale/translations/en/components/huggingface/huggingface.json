@@ -51,21 +51,21 @@
   },
   "errors": {
     "custom_model_required": "Custom model ID is required when 'custom' is selected",
-    "config_update_failed": "Error updating build config: {error}",
-    "connection_failed": "Could not connect to Hugging Face Endpoints API: {error}"
+    "config_update_failed": "Error updating build config: %{error}",
+    "connection_failed": "Could not connect to Hugging Face Endpoints API: %{error}"
   },
   "logs": {
     "getting_api_url": "Getting API URL",
-    "using_custom_model": "Using custom model: {model} - URL: {url}",
-    "using_standard_model": "Using standard model: {model} - URL: {url}",
-    "using_custom_endpoint": "Using custom endpoint: {endpoint}",
-    "updating_config": "Updating build config - Field: {field}, Value: {value}",
+    "using_custom_model": "Using custom model: %{model} - URL: %{url}",
+    "using_standard_model": "Using standard model: %{model} - URL: %{url}",
+    "using_custom_endpoint": "Using custom endpoint: %{endpoint}",
+    "updating_config": "Updating build config - Field: %{field}, Value: %{value}",
     "showing_custom_field": "Showing custom model field",
     "hiding_custom_field": "Hiding custom model field",
-    "creating_endpoint": "Creating HuggingFace endpoint - URL: {url}, Task: {task}, Retry attempts: {retry_attempts}",
+    "creating_endpoint": "Creating HuggingFace endpoint - URL: %{url}, Task: %{task}, Retry attempts: %{retry_attempts}",
     "attempting_connection": "Attempting to connect to HuggingFace endpoint",
     "building_model": "Building HuggingFace language model",
-    "model_parameters": "Model parameters - Task: {task}, Max tokens: {max_tokens}, Temperature: {temperature}, Top K: {top_k}, Top P: {top_p}, Typical P: {typical_p}, Repetition penalty: {repetition_penalty}",
+    "model_parameters": "Model parameters - Task: %{task}, Max tokens: %{max_tokens}, Temperature: %{temperature}, Top K: %{top_k}, Top P: %{top_p}, Typical P: %{typical_p}, Repetition penalty: %{repetition_penalty}",
     "model_built": "HuggingFace model built successfully"
   }
 }

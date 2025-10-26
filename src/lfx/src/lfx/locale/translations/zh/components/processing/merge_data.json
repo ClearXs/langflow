@@ -21,19 +21,19 @@
     }
   },
   "success": {
-    "data_combined": "成功使用'{operation}'操作合并了{inputs}个数据输入。结果包含{rows}行。"
+    "data_combined": "成功使用'%{operation}'操作合并了%{inputs}个数据输入。结果包含%{rows}行。"
   },
   "warnings": {
     "no_data_inputs": "未提供数据输入。",
-    "insufficient_inputs": "数据输入不足。需要：{required}，提供：{provided}。"
+    "insufficient_inputs": "数据输入不足。需要：%{required}，提供：%{provided}。"
   },
   "errors": {
-    "combination_failed": "使用'{operation}'操作合并数据失败：{error}",
-    "unsupported_operation": "不支持的操作：{operation}",
-    "operation_processing_failed": "处理'{operation}'操作失败：{error}",
-    "concatenate_failed": "连接操作失败：{error}",
-    "append_failed": "追加操作失败：{error}",
-    "merge_failed": "合并操作失败：{error}",
-    "join_failed": "联接操作失败：{error}"
+    "combination_failed": "使用'%{operation}'操作合并数据失败：%{error}",
+    "unsupported_operation": "不支持的操作：%{operation}",
+    "operation_processing_failed": "处理'%{operation}'操作失败：%{error}",
+    "concatenate_failed": "连接操作失败：%{error}",
+    "append_failed": "追加操作失败：%{error}",
+    "merge_failed": "合并操作失败：%{error}",
+    "join_failed": "联接操作失败：%{error}"
   }
 }

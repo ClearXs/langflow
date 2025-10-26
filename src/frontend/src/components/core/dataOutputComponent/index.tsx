@@ -4,6 +4,7 @@ import { useUtilityStore } from "@/stores/utilityStore";
 import "ag-grid-community/styles/ag-grid.css"; // Mandatory CSS required by the grid
 import "ag-grid-community/styles/ag-theme-balham.css"; // Optional Theme applied to the grid
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { extractColumnsFromRows } from "../../../utils/utils";
 
 function DataOutputComponent({
@@ -15,6 +16,7 @@ function DataOutputComponent({
   rows: any[];
   columnMode?: "intersection" | "union";
 }) {
+  const { t } = useTranslation();
   const maxItemsLength = useUtilityStore(
     (state) => state.serializationMaxItemsLength,
   );
@@ -45,7 +47,7 @@ function DataOutputComponent({
         defaultMinWidth: maxItemsLength,
       }}
       key={"dataOutputComponent"}
-      overlayNoRowsTemplate="No data available"
+      overlayNoRowsTemplate={t("table.noRowsToShow")}
       paginationInfo={
         rows.length > maxItemsLength ? rows[maxItemsLength] : undefined
       }

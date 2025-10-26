@@ -1,0 +1,66 @@
+{
+  "display_name": "Rows Merge",
+  "description": "Merge multiple rows into a single row",
+  "data_input": {
+    "display_name": "Data Input",
+    "info": "Input data stream to merge"
+  },
+  "merge_strategy": {
+    "display_name": "Merge Strategy",
+    "info": "Select how to process data after merging",
+    "keep_first": "Keep First",
+    "keep_last": "Keep Last",
+    "merge_all": "Merge All",
+    "sum": "Sum",
+    "mean": "Mean",
+    "max": "Max",
+    "min": "Min",
+    "concat": "Concat"
+  },
+  "group_by": {
+    "display_name": "Group By",
+    "info": "Fields to group by for merging (comma-separated)"
+  },
+  "concat_separator": {
+    "display_name": "Concat Separator",
+    "info": "Separator for merging text fields",
+    "comma": ", (Comma)",
+    "semicolon": "; (Semicolon)",
+    "tab": "\\t (Tab)",
+    "pipe": "| (Pipe)",
+    "space": "Space",
+    "newline": "\\n (Newline)",
+    "custom": "Custom"
+  },
+  "custom_separator": {
+    "display_name": "Custom Separator",
+    "info": "Custom separator when 'Custom' is selected"
+  },
+  "numeric_fields": {
+    "display_name": "Numeric Fields",
+    "info": "Specify numeric fields (comma-separated)"
+  },
+  "exclude_fields": {
+    "display_name": "Exclude Fields",
+    "info": "Fields to exclude from merging (comma-separated)"
+  },
+  "chunk_size": {
+    "display_name": "Chunk Size",
+    "info": "Chunk size for processing large datasets"
+  },
+  "outputs": {
+    "data": "Merged Data",
+    "fields_schema": "Fields Schema",
+    "preview": "Field Preview",
+    "statistics": "Statistics"
+  },
+  "status": {
+    "merging": "Merging data...",
+    "success": "Merge completed: %{original} rows -> %{result} rows"
+  },
+  "errors": {
+    "no_input_data": "No input data",
+    "field_not_found": "Field %{field} not found",
+    "merge_failed": "Merge failed: %{error}"
+  }
+}

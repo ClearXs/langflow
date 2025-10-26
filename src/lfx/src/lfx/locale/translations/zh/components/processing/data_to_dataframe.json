@@ -12,13 +12,13 @@
     }
   },
   "success": {
-    "dataframe_created": "成功从{objects}个Data对象创建了包含{rows}行的DataFrame"
+    "dataframe_created": "成功从%{objects}个Data对象创建了包含%{rows}行的DataFrame"
   },
   "warnings": {
     "empty_data_list": "未提供Data对象。返回空DataFrame。"
   },
   "errors": {
-    "invalid_data_type": "期望Data对象，但在索引{index}处得到{actual_type}",
-    "dataframe_creation_failed": "创建DataFrame失败：{error}"
+    "invalid_data_type": "期望Data对象，但在索引%{index}处得到%{actual_type}",
+    "dataframe_creation_failed": "创建DataFrame失败：%{error}"
   }
 }

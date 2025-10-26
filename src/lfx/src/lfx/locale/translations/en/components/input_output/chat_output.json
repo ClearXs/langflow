@@ -36,7 +36,7 @@
   },
   "errors": {
     "input_cannot_be_none": "Input data cannot be None",
-    "invalid_list_types": "Expected Data or DataFrame or Message or str, got {types}",
-    "invalid_input_type": "Expected Data or DataFrame or Message or str, Generator or None, got {type}"
+    "invalid_list_types": "Expected Data or DataFrame or Message or str, got %{types}",
+    "invalid_input_type": "Expected Data or DataFrame or Message or str, Generator or None, got %{type}"
   }
 }

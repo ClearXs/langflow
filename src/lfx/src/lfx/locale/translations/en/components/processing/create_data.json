@@ -14,8 +14,8 @@
     "info": "If enabled, checks if the given 'Text Key' is present in the given 'Data'."
   },
   "field": {
-    "display_name": "Field {number}",
-    "info": "Key for field {number}."
+    "display_name": "Field %{number}",
+    "info": "Key for field %{number}."
   },
   "outputs": {
     "data": {
@@ -23,16 +23,16 @@
     }
   },
   "success": {
-    "fields_configured": "Successfully configured {count} fields",
-    "data_created": "Data object created successfully with {count} fields",
-    "text_key_validated": "Text key '{text_key}' validated successfully"
+    "fields_configured": "Successfully configured %{count} fields",
+    "data_created": "Data object created successfully with %{count} fields",
+    "text_key_validated": "Text key '%{text_key}' validated successfully"
   },
   "errors": {
     "invalid_field_count": "Invalid field count value. Please enter a valid number.",
-    "max_fields_exceeded": "Number of fields cannot exceed {max_fields}. Please adjust the number of fields to be within the allowed limit.",
-    "data_creation_failed": "Failed to create data object: {error}",
-    "data_extraction_failed": "Failed to extract data from attributes: {error}",
-    "text_key_not_found": "Text Key: '{text_key}' not found in the Data keys: '{data_keys}'",
-    "text_key_validation_failed": "Failed to validate text key: {error}"
+    "max_fields_exceeded": "Number of fields cannot exceed %{max_fields}. Please adjust the number of fields to be within the allowed limit.",
+    "data_creation_failed": "Failed to create data object: %{error}",
+    "data_extraction_failed": "Failed to extract data from attributes: %{error}",
+    "text_key_not_found": "Text Key: '%{text_key}' not found in the Data keys: '%{data_keys}'",
+    "text_key_validation_failed": "Failed to validate text key: %{error}"
   }
 }

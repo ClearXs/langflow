@@ -31,15 +31,15 @@
     }
   },
   "status": {
-    "initializing": "正在使用模型'{model}'初始化Azure OpenAI嵌入..."
+    "initializing": "正在使用模型'%{model}'初始化Azure OpenAI嵌入..."
   },
   "success": {
-    "embeddings_initialized": "Azure OpenAI嵌入已成功初始化，使用模型'{model}'"
+    "embeddings_initialized": "Azure OpenAI嵌入已成功初始化，使用模型'%{model}'"
   },
   "errors": {
-    "connection_failed": "无法连接到Azure OpenAI嵌入API：{error}"
+    "connection_failed": "无法连接到Azure OpenAI嵌入API：%{error}"
   },
   "logs": {
-    "building_embeddings": "正在构建嵌入 - 模型：{model}，端点：{endpoint}，部署：{deployment}，API版本：{api_version}"
+    "building_embeddings": "正在构建嵌入 - 模型：%{model}，端点：%{endpoint}，部署：%{deployment}，API版本：%{api_version}"
   }
 }

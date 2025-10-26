@@ -31,18 +31,18 @@
   },
   "errors": {
     "import_failed": "无法导入firecrawl集成包。请使用`pip install firecrawl-py`安装。",
-    "crawl_failed": "爬取URL '{url}'失败：{error}"
+    "crawl_failed": "爬取URL '%{url}'失败：%{error}"
   },
   "logs": {
     "firecrawl_imported": "Firecrawl包导入成功",
-    "starting_crawl": "开始爬取URL：{url}",
+    "starting_crawl": "开始爬取URL：%{url}",
     "scrape_options_added": "抓取选项已添加到参数",
-    "default_params_set": "已设置默认参数 - 最大深度：{max_depth}，限制：{limit}",
-    "main_content_only": "仅主要内容提取已启用：{enabled}",
-    "idempotency_key_generated": "已生成幂等键：{key}",
-    "idempotency_key_provided": "使用提供的幂等键：{key}",
+    "default_params_set": "已设置默认参数 - 最大深度：%{max_depth}，限制：%{limit}",
+    "main_content_only": "仅主要内容提取已启用：%{enabled}",
+    "idempotency_key_generated": "已生成幂等键：%{key}",
+    "idempotency_key_provided": "使用提供的幂等键：%{key}",
     "firecrawl_app_initialized": "Firecrawl应用已使用API密钥初始化",
     "executing_crawl": "正在执行爬取操作",
-    "crawl_completed": "爬取成功完成 - 已爬取{count}个页面"
+    "crawl_completed": "爬取成功完成 - 已爬取%{count}个页面"
   }
 }

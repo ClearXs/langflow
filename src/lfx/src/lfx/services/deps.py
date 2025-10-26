@@ -127,3 +127,15 @@ def get_session():
     msg = "get_session is deprecated, use session_scope instead"
     logger.warning(msg)
     raise NotImplementedError(msg)
+
+
+def get_feign_service():
+    """Retrieves the FeignService instance from the service manager.
+
+    Returns:
+        The FeignService instance or None if not available.
+    """
+    from lfx.services.feign.factory import FeignServiceFactory
+    from lfx.services.schema import ServiceType
+
+    return get_service(ServiceType.FEIGN_SERVICE, FeignServiceFactory())

@@ -31,25 +31,25 @@
   "errors": {
     "langchain_not_installed": "未安装langchain_groq。请使用`pip install langchain_groq`安装。",
     "package_not_installed": "未安装langchain-groq。请使用`pip install langchain-groq`安装。",
-    "config_update_failed": "获取模型名称时出错：{error}"
+    "config_update_failed": "获取模型名称时出错：%{error}"
   },
   "logs": {
-    "fetching_models": "正在获取可用的Groq模型 - 工具启用：{tool_enabled}",
-    "requesting_models": "正在从以下地址请求模型：{url}",
-    "models_fetched": "成功获取{count}个模型",
-    "model_fetch_error": "获取模型名称时出错：{error}",
+    "fetching_models": "正在获取可用的Groq模型 - 工具启用：%{tool_enabled}",
+    "requesting_models": "正在从以下地址请求模型：%{url}",
+    "models_fetched": "成功获取%{count}个模型",
+    "model_fetch_error": "获取模型名称时出错：%{error}",
     "filtering_tool_models": "正在过滤支持工具调用的模型",
-    "model_unsupported": "模型{model}在不支持列表中，跳过",
-    "tool_support_confirmed": "模型{model}支持工具调用",
-    "tool_support_not_found": "模型{model}不支持工具调用",
-    "tool_check_failed": "检查模型{model}的工具支持失败：{error}",
-    "tool_models_filtered": "过滤到{count}个支持工具的模型",
-    "updating_config": "正在更新字段的构建配置：{field}",
+    "model_unsupported": "模型%{model}在不支持列表中，跳过",
+    "tool_support_confirmed": "模型%{model}支持工具调用",
+    "tool_support_not_found": "模型%{model}不支持工具调用",
+    "tool_check_failed": "检查模型%{model}的工具支持失败：%{error}",
+    "tool_models_filtered": "过滤到%{count}个支持工具的模型",
+    "updating_config": "正在更新字段的构建配置：%{field}",
     "fetching_available_models": "正在从API获取可用模型",
-    "model_fetch_fallback": "获取模型名称时出错：{error}。回退到默认列表。",
-    "config_updated": "配置已更新 - {model_count}个可用模型，默认：{default_model}",
-    "building_model": "正在构建Groq模型：{model}",
-    "model_parameters": "模型参数 - 最大令牌数：{max_tokens}，温度：{temperature}，N：{n}，流式传输：{streaming}",
+    "model_fetch_fallback": "获取模型名称时出错：%{error}。回退到默认列表。",
+    "config_updated": "配置已更新 - %{model_count}个可用模型，默认：%{default_model}",
+    "building_model": "正在构建Groq模型：%{model}",
+    "model_parameters": "模型参数 - 最大令牌数：%{max_tokens}，温度：%{temperature}，N：%{n}，流式传输：%{streaming}",
     "model_built": "Groq模型构建成功"
   }
 }

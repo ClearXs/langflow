@@ -51,7 +51,7 @@
     "submitting_job": "Submitting transcription job..."
   },
   "success": {
-    "job_created": "Transcription job created successfully with ID: {id}"
+    "job_created": "Transcription job created successfully with ID: %{id}"
   },
   "warnings": {
     "url_ignored": "Both an audio file and audio URL were specified. The audio URL was ignored."
@@ -60,18 +60,18 @@
     "invalid_speakers_count": "Error: Expected Number of Speakers must be a valid integer",
     "file_not_found": "Error: Audio file not found",
     "no_audio_source": "Error: Either an audio file or an audio URL must be specified",
-    "submission_failed": "An error occurred: {error}",
-    "create_job_failed": "Failed to create transcription job: {error}"
+    "submission_failed": "An error occurred: %{error}",
+    "create_job_failed": "Failed to create transcription job: %{error}"
   },
   "logs": {
-    "speakers_expected_set": "Expected number of speakers set to {count}",
-    "language_code_set": "Language code set to '{code}'",
-    "config_built": "Configuration built - Model: {model}, Language Detection: {language_detection}, Speaker Labels: {speaker_labels}",
-    "file_not_found": "Audio file not found at path: {path}",
-    "using_audio_file": "Using audio file: {path}",
-    "using_audio_url": "Using audio URL: {url}",
-    "job_submitted": "Transcription job submitted with ID: {id}",
+    "speakers_expected_set": "Expected number of speakers set to %{count}",
+    "language_code_set": "Language code set to '%{code}'",
+    "config_built": "Configuration built - Model: %{model}, Language Detection: %{language_detection}, Speaker Labels: %{speaker_labels}",
+    "file_not_found": "Audio file not found at path: %{path}",
+    "using_audio_file": "Using audio file: %{path}",
+    "using_audio_url": "Using audio URL: %{url}",
+    "job_submitted": "Transcription job submitted with ID: %{id}",
     "submission_error": "Error submitting transcription job",
-    "transcript_error": "Transcript error: {error}"
+    "transcript_error": "Transcript error: %{error}"
   }
 }

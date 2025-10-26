@@ -42,32 +42,32 @@
     "processing_files": "Processing files..."
   },
   "success": {
-    "files_processed_by_data": "Successfully uploaded {uploaded} files by data, skipped {skipped}",
-    "files_processed_by_name": "Successfully uploaded {uploaded} files by name, skipped {skipped}"
+    "files_processed_by_data": "Successfully uploaded %{uploaded} files by data, skipped %{skipped}",
+    "files_processed_by_name": "Successfully uploaded %{uploaded} files by name, skipped %{skipped}"
   },
   "warnings": {
     "no_data_inputs": "No data inputs provided",
-    "missing_data": "Missing file path or text content for file: {path}",
-    "file_not_found": "File not found: {path}",
+    "missing_data": "Missing file path or text content for file: %{path}",
+    "file_not_found": "File not found: %{path}",
     "no_file_path": "No file path provided in data item"
   },
   "errors": {
-    "invalid_strategy": "Invalid strategy: {strategy}",
-    "process_files_failed": "Failed to process files: {error}",
-    "upload_data_failed": "Failed to upload data for file {path}: {error}",
-    "process_by_data_failed": "Failed to process files by data: {error}",
-    "upload_file_failed": "Failed to upload file {path}: {error}",
-    "process_by_name_failed": "Failed to process files by name: {error}",
+    "invalid_strategy": "Invalid strategy: %{strategy}",
+    "process_files_failed": "Failed to process files: %{error}",
+    "upload_data_failed": "Failed to upload data for file %{path}: %{error}",
+    "process_by_data_failed": "Failed to process files by data: %{error}",
+    "upload_file_failed": "Failed to upload file %{path}: %{error}",
+    "process_by_name_failed": "Failed to process files by name: %{error}",
     "boto3_not_installed": "boto3 is not installed. Please install it using `uv pip install boto3`.",
-    "s3_client_creation_failed": "Failed to create S3 client: {error}",
-    "path_normalization_failed": "Failed to normalize path {path}: {error}"
+    "s3_client_creation_failed": "Failed to create S3 client: %{error}",
+    "path_normalization_failed": "Failed to normalize path %{path}: %{error}"
   },
   "logs": {
-    "uploading_data": "Uploading data from {path} to S3 key: {key}",
-    "data_uploaded": "Data uploaded successfully to S3 key: {key}",
-    "uploading_file": "Uploading file {path} to S3 key: {key}",
-    "file_uploaded": "File uploaded successfully to S3 key: {key}",
-    "path_stripped": "Path stripped: {original} -> {stripped}",
-    "prefix_added": "Prefix '{prefix}' added: {result}"
+    "uploading_data": "Uploading data from %{path} to S3 key: %{key}",
+    "data_uploaded": "Data uploaded successfully to S3 key: %{key}",
+    "uploading_file": "Uploading file %{path} to S3 key: %{key}",
+    "file_uploaded": "File uploaded successfully to S3 key: %{key}",
+    "path_stripped": "Path stripped: %{original} -> %{stripped}",
+    "prefix_added": "Prefix '%{prefix}' added: %{result}"
   }
 }

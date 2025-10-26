@@ -26,15 +26,15 @@
     "info": "The maximum number of tokens to generate. Set to 0 for unlimited tokens."
   },
   "status": {
-    "initializing": "Initializing Azure OpenAI model with deployment '{deployment}'..."
+    "initializing": "Initializing Azure OpenAI model with deployment '%{deployment}'..."
   },
   "success": {
-    "model_initialized": "Azure OpenAI model initialized successfully with deployment '{deployment}'"
+    "model_initialized": "Azure OpenAI model initialized successfully with deployment '%{deployment}'"
   },
   "errors": {
-    "connection_failed": "Could not connect to AzureOpenAI API: {error}"
+    "connection_failed": "Could not connect to AzureOpenAI API: %{error}"
   },
   "logs": {
-    "building_model": "Building model - Endpoint: {endpoint}, Deployment: {deployment}, API Version: {api_version}, Temperature: {temperature}, Max Tokens: {max_tokens}, Stream: {stream}"
+    "building_model": "Building model - Endpoint: %{endpoint}, Deployment: %{deployment}, API Version: %{api_version}, Temperature: %{temperature}, Max Tokens: %{max_tokens}, Stream: %{stream}"
   }
 }

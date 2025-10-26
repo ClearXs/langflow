@@ -31,10 +31,15 @@
   },
   "status": {
     "sending": "Sending to API...",
-    "success": "Sent {success} records, {errors} errors"
+    "success": "Sent %{success} records, %{errors} errors"
   },
   "errors": {
     "no_data": "No data to send",
-    "send_failed": "API send failed: {error}"
+    "send_failed": "API send failed: %{error}"
+  },
+  "outputs": {
+    "result": {
+      "display_name": "Send Result"
+    }
   }
 }

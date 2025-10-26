@@ -11,14 +11,14 @@ export function useFileTable(props: FileTableViewProps) {
   const { t } = useTranslation();
   const [fileList, setFileList] = useState<FileItem[]>(props.files || []);
   const [selectedItems, setSelectedItems] = useState<FileItem[]>([]);
-  const [currentParentId, setCurrentParentId] = useState<number>(
+  const [currentParentId, setCurrentParentId] = useState<number | string>(
     props.parentId || 0,
   );
   const [currentPath, setCurrentPath] = useState<string>(
     props.currentPath || "/",
   );
   const [pathHistory, setPathHistory] = useState<
-    Array<{ name: string; id: number }>
+    Array<{ name: string; id: number | string }>
   >(props.pathHistory || []);
   const [hoveredRow, setHoveredRow] = useState<FileItem | null>(null);
   const [contextMenuVisible, setContextMenuVisible] = useState(false);
@@ -83,11 +83,8 @@ export function useFileTable(props: FileTableViewProps) {
   const navigateToFolder = useCallback(
     (folder: FileItem) => {
       setCurrentPath(`${currentPath}${folder.name}/`);
-      setCurrentParentId(folder.id as number);
-      setPathHistory([
-        ...pathHistory,
-        { name: folder.name, id: folder.id as number },
-      ]);
+      setCurrentParentId(folder.id);
+      setPathHistory([...pathHistory, { name: folder.name, id: folder.id }]);
 
       if (!props.keepSelection) {
         setSelectedItems([]);
@@ -156,7 +153,10 @@ export function useFileTable(props: FileTableViewProps) {
   // Confirm create folder
   const confirmCreateFolder = useCallback(
     async (
-      createFolderApi?: (parentId: number, name: string) => Promise<any>,
+      createFolderApi?: (
+        parentId: number | string,
+        name: string,
+      ) => Promise<any>,
     ) => {
       if (!newFolderName.trim()) {
         console.warn("Folder name cannot be empty");
@@ -219,7 +219,11 @@ export function useFileTable(props: FileTableViewProps) {
   // Confirm rename
   const confirmRename = useCallback(
     async (
-      renameApi?: (id: number, name: string, parentId: number) => Promise<any>,
+      renameApi?: (
+        id: number | string,
+        name: string,
+        parentId: number | string,
+      ) => Promise<any>,
     ) => {
       if (!newFolderName.trim()) {
         console.warn("Folder name cannot be empty");
@@ -231,7 +235,7 @@ export function useFileTable(props: FileTableViewProps) {
       try {
         if (renameApi) {
           const response = await renameApi(
-            fileToRename.id as number,
+            fileToRename.id,
             newFolderName.trim(),
             currentParentId,
           );
@@ -276,15 +280,10 @@ export function useFileTable(props: FileTableViewProps) {
     return (size / Math.pow(1024, i)).toFixed(2) + " " + units[i];
   };
 
-  // Check if file is selectable
+  // Check if file is selectable (for checkbox selection)
   const isFileSelectable = useCallback(
     (file: FileItem): boolean => {
-      // Folders are always selectable
-      if (file.type === "folder") {
-        return true;
-      }
-
-      // If no file type restrictions, all files are selectable
+      // If no file type restrictions, all files and folders are selectable
       if (
         !props.selectableFileTypes ||
         props.selectableFileTypes.length === 0
@@ -292,9 +291,20 @@ export function useFileTable(props: FileTableViewProps) {
         return true;
       }
 
-      // Check if file matches any allowed type
+      // Special case: folders are always "selectable" for navigation purposes
+      // But they can only be checkbox-selected if "folder" is in selectableFileTypes
+      if (file.type === "folder") {
+        return props.selectableFileTypes.includes("folder");
+      }
+
+      // For files: check if file type matches any allowed type
       return props.selectableFileTypes.some((allowedType) => {
-        // Match type field
+        // Skip "folder" type when checking files
+        if (allowedType.toLowerCase() === "folder") {
+          return false;
+        }
+
+        // Match file type field
         if (
           file.type &&
           file.type.toLowerCase() === allowedType.toLowerCase()
@@ -302,7 +312,7 @@ export function useFileTable(props: FileTableViewProps) {
           return true;
         }
 
-        // Match extension
+        // Match extension (e.g., ".csv", ".xlsx")
         if (allowedType.startsWith(".")) {
           const extension = allowedType.toLowerCase();
           if (file.name) {
@@ -323,7 +333,7 @@ export function useFileTable(props: FileTableViewProps) {
           }
         }
 
-        // Match suffix
+        // Match suffix without dot (e.g., "csv", "xlsx")
         if (
           file.suffix &&
           file.suffix.toLowerCase() === allowedType.toLowerCase()

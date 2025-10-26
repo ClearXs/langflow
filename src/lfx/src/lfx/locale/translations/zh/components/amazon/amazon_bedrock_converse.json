@@ -54,28 +54,28 @@
     "info": "用于微调行为的附加模型特定参数。"
   },
   "status": {
-    "initializing_model": "正在初始化Amazon Bedrock对话模型'{model}'..."
+    "initializing_model": "正在初始化Amazon Bedrock对话模型'%{model}'..."
   },
   "success": {
-    "model_initialized": "Amazon Bedrock对话模型'{model}'在区域'{region}'初始化成功"
+    "model_initialized": "Amazon Bedrock对话模型'%{model}'在区域'%{region}'初始化成功"
   },
   "errors": {
     "langchain_aws_not_installed": "langchain_aws未安装。请使用`pip install langchain_aws`安装。",
-    "validation_error": "ChatBedrockConverse验证错误：{error}。这可能是由于模型'{model}'的参数不兼容。考虑调整模型参数或尝试使用传统的Amazon Bedrock组件。",
-    "converse_api_error": "Converse API错误：{error}。模型'{model}'可能不支持Converse API。请尝试使用传统的Amazon Bedrock组件。",
-    "initialization_failed": "无法初始化ChatBedrockConverse：{error}",
-    "model_build_failed": "构建Amazon Bedrock对话模型失败：{error}"
+    "validation_error": "ChatBedrockConverse验证错误：%{error}。这可能是由于模型'%{model}'的参数不兼容。考虑调整模型参数或尝试使用传统的Amazon Bedrock组件。",
+    "converse_api_error": "Converse API错误：%{error}。模型'%{model}'可能不支持Converse API。请尝试使用传统的Amazon Bedrock组件。",
+    "initialization_failed": "无法初始化ChatBedrockConverse：%{error}",
+    "model_build_failed": "构建Amazon Bedrock对话模型失败：%{error}"
   },
   "logs": {
     "access_key_added": "AWS访问密钥ID已添加到配置",
     "secret_key_added": "AWS密钥访问密钥已添加到配置",
     "session_token_added": "AWS会话令牌已添加到配置",
-    "profile_name_added": "凭证配置文件名称'{profile}'已添加到配置",
-    "endpoint_url_added": "端点URL'{url}'已添加到配置",
-    "temperature_set": "温度设置为{value}",
-    "max_tokens_set": "最大令牌数设置为{value}",
-    "top_p_set": "Top P设置为{value}",
+    "profile_name_added": "凭证配置文件名称'%{profile}'已添加到配置",
+    "endpoint_url_added": "端点URL'%{url}'已添加到配置",
+    "temperature_set": "温度设置为%{value}",
+    "max_tokens_set": "最大令牌数设置为%{value}",
+    "top_p_set": "Top P设置为%{value}",
     "streaming_disabled": "流式响应已禁用",
-    "additional_fields_added": "已添加附加模型字段：{fields}"
+    "additional_fields_added": "已添加附加模型字段：%{fields}"
   }
 }

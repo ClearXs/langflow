@@ -21,15 +21,14 @@ class DataSourceBase(SQLModel):
     username: str = Field(nullable=False)
     password: str = Field(nullable=False)  # Store plain password (or you can encrypt it at application level)
     status: str | None = Field(default="inactive", nullable=True)  # active, inactive, error
-    last_tested_at: datetime | None = Field(default=None, nullable=True)
-
+    last_tested_at: datetime | None = Field(default=None, sa_column=Column(DateTime(timezone=True), nullable=True))
 
 class DataSource(DataSourceBase, table=True):  # type: ignore[call-arg]
     """Data source model."""
 
     __tablename__ = "datasource"
 
-    id: UUIDstr = Field(default_factory=uuid4, primary_key=True, unique=True)
+    id: UUIDstr = Field(default_factory=uuid4, primary_key=True)
     created_at: datetime | None = Field(
         default=None, sa_column=Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     )

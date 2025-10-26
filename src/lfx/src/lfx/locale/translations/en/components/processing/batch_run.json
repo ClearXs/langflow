@@ -32,19 +32,19 @@
     }
   },
   "success": {
-    "batch_completed": "Batch processing completed successfully. Processed {total} rows."
+    "batch_completed": "Batch processing completed successfully. Processed %{total} rows."
   },
   "info": {
-    "processing_column": "Processing column '{column}' with {count} rows",
-    "processing_all_columns": "Processing all columns as TOML format with {count} rows",
-    "starting_batch": "Starting batch processing for {total} rows",
-    "processing_progress": "Processed {current}/{total} rows"
+    "processing_column": "Processing column '%{column}' with %{count} rows",
+    "processing_all_columns": "Processing all columns as TOML format with %{count} rows",
+    "starting_batch": "Starting batch processing for %{total} rows",
+    "processing_progress": "Processed %{current}/%{total} rows"
   },
   "errors": {
-    "invalid_dataframe_type": "Expected DataFrame input, got {actual_type}",
-    "column_not_found": "Column '{column}' not found in the DataFrame. Available columns: {available}",
-    "toml_formatting_failed": "Failed to format row as TOML: {error}",
-    "data_processing_error": "Data processing error: {error}",
-    "unexpected_error": "Unexpected error during batch processing: {error}"
+    "invalid_dataframe_type": "Expected DataFrame input, got %{actual_type}",
+    "column_not_found": "Column '%{column}' not found in the DataFrame. Available columns: %{available}",
+    "toml_formatting_failed": "Failed to format row as TOML: %{error}",
+    "data_processing_error": "Data processing error: %{error}",
+    "unexpected_error": "Unexpected error during batch processing: %{error}"
   }
 }

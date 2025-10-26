@@ -6,12 +6,15 @@ through the file management UI and outputs file information for downstream proce
 
 from __future__ import annotations
 
+import os
+from pathlib import Path
 from typing import Any
 
 import i18n
 
 from lfx.base.data.base_file import BaseFileComponent
 from lfx.io import FileInput, Output
+from lfx.log.logger import logger
 from lfx.schema.data import Data
 from lfx.schema.message import Message
 
@@ -30,6 +33,8 @@ class ETLFileInputComponent(BaseFileComponent):
     documentation: str = "https://docs.langflow.org/components-input-output#file-input"
     icon = "file-input"
     name = "ETLFileInput"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     # Define supported file extensions - only structured data files
     VALID_EXTENSIONS = [
@@ -234,3 +239,115 @@ class ETLFileInputComponent(BaseFileComponent):
         text = files_selected_msg + "\n" + "\n".join(file_info)
 
         return Message(text=text)
+
+    async def _download_file_if_needed(self, path_str: str) -> tuple[str, bool]:
+        """Download file from remote service if path is a file_id.
+
+        Args:
+            path_str: Path string or file_id
+
+        Returns:
+            Tuple of (resolved_path, should_delete_after_processing)
+        """
+        # Check if path_str is a file_id (pure numeric string)
+        if path_str.isdigit():
+            try:
+                from lfx.services.feign.clients.data_construction import download_file_by_id
+
+                logger.info(f"[FileInput] Downloading file with ID: {path_str}")
+                temp_path = await download_file_by_id(path_str)
+                logger.info(f"[FileInput] Downloaded file to: {temp_path}")
+            except Exception as e:
+                error_msg = i18n.t(
+                    "components.input_output.file_input.errors.download_failed",
+                    file_id=path_str,
+                    error=str(e),
+                )
+                logger.exception(f"[FileInput] {error_msg}")
+                if not self.silent_errors:
+                    raise ValueError(error_msg) from e
+                return path_str, False
+            else:
+                return temp_path, True  # Mark for deletion after processing
+
+        # Not a file_id, treat as regular path
+        return path_str, False
+
+    def _validate_and_resolve_paths(self) -> list[BaseFileComponent.BaseFile]:
+        """Validate and resolve paths, downloading files from remote service if needed.
+
+        Overrides the base class method to support file_id-based downloads.
+
+        Returns:
+            list[BaseFile]: A list of valid BaseFile instances.
+
+        Raises:
+            ValueError: If any path does not exist or download fails.
+        """
+        resolved_files = []
+
+        async def add_file_async(data: Data, path: str | Path, *, delete_after_processing: bool):
+            """Add a file, downloading if necessary."""
+            path_str = str(path)
+
+            # Download file if path is a file_id
+            resolved_path_str, should_delete = await self._download_file_if_needed(path_str)
+
+            # Override delete_after_processing if file was downloaded
+            if should_delete:
+                delete_after_processing = True
+
+            # Resolve the final path
+            resolved_path = Path(self.resolve_path(resolved_path_str))
+
+            if not resolved_path.exists():
+                msg = f"File or directory not found: {path}"
+                self.log(msg)
+                if not self.silent_errors:
+                    raise ValueError(msg)
+
+            resolved_files.append(
+                BaseFileComponent.BaseFile(data, resolved_path, delete_after_processing=delete_after_processing)
+            )
+
+        import asyncio
+
+        file_path = self._file_path_as_list()
+
+        # Collect all async tasks
+        tasks = []
+
+        if self.path and not file_path:
+            # Wrap self.path into a Data object
+            if isinstance(self.path, list):
+                for path in self.path:
+                    data_obj = Data(data={self.SERVER_FILE_PATH_FIELDNAME: path})
+                    tasks.append(add_file_async(data=data_obj, path=path, delete_after_processing=False))
+            else:
+                data_obj = Data(data={self.SERVER_FILE_PATH_FIELDNAME: self.path})
+                tasks.append(add_file_async(data=data_obj, path=self.path, delete_after_processing=False))
+        elif file_path:
+            for obj in file_path:
+                server_file_path = obj.data.get(self.SERVER_FILE_PATH_FIELDNAME)
+                if server_file_path:
+                    tasks.append(
+                        add_file_async(
+                            data=obj,
+                            path=server_file_path,
+                            delete_after_processing=self.delete_server_file_after_processing,
+                        )
+                    )
+                elif not self.ignore_unspecified_files:
+                    msg = f"Data object missing '{self.SERVER_FILE_PATH_FIELDNAME}' property."
+                    self.log(msg)
+                    if not self.silent_errors:
+                        raise ValueError(msg)
+                else:
+                    msg = f"Ignoring Data object missing '{self.SERVER_FILE_PATH_FIELDNAME}' property:\n{obj}"
+                    self.log(msg)
+
+        # Run all download tasks concurrently
+        if tasks:
+            asyncio.run(asyncio.gather(*tasks))
+
+        return resolved_files

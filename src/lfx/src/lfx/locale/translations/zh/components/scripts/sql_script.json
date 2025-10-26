@@ -1,0 +1,54 @@
+{
+  "display_name": "SQL脚本",
+  "description": "在选定的数据源上执行SQL脚本,支持事务控制",
+  "datasource_selector": {
+    "display_name": "数据源",
+    "info": "选择要执行SQL脚本的数据源"
+  },
+  "sql_script": {
+    "display_name": "SQL脚本",
+    "info": "输入SQL语句(DDL、DML或DQL)。多条语句可用分号分隔。"
+  },
+  "enable_transaction": {
+    "display_name": "启用事务",
+    "info": "在单个事务中执行所有语句。遇到错误时自动回滚。"
+  },
+  "statement_separator": {
+    "display_name": "语句分隔符",
+    "info": "用于分隔多条SQL语句的字符(默认:分号)"
+  },
+  "continue_on_error": {
+    "display_name": "遇错继续",
+    "info": "即使某条语句失败也继续执行剩余语句(仅在禁用事务时有效)"
+  },
+  "execution_results": {
+    "display_name": "执行结果",
+    "info": "脚本执行结果预览",
+    "statement_index": "序号",
+    "statement_type": "类型",
+    "rows_affected": "影响行数",
+    "status": "状态",
+    "error": "错误信息",
+    "execute_button": "执行脚本"
+  },
+  "outputs": {
+    "execution_summary": "执行摘要",
+    "query_results": "查询结果",
+    "total_rows_affected": "总影响行数"
+  },
+  "status": {
+    "connecting": "正在连接数据源...",
+    "parsing": "正在解析SQL脚本...",
+    "executing": "正在执行第%{index}/%{total}条语句...",
+    "committing": "正在提交事务...",
+    "success": "脚本执行成功:%{success}/%{total}条语句"
+  },
+  "errors": {
+    "no_datasource": "未选择数据源",
+    "no_script": "SQL脚本为空",
+    "parse_failed": "解析SQL脚本失败:%{error}",
+    "execution_failed": "脚本执行失败:%{error}",
+    "transaction_failed": "事务失败并已回滚:%{error}",
+    "invalid_datasource": "无效或不可用的数据源"
+  }
+}

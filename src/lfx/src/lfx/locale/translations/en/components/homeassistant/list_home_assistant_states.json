@@ -13,26 +13,26 @@
     "info": "light, switch, sensor, etc. (Leave empty to fetch all)"
   },
   "errors": {
-    "timeout": "Request timeout: {error}",
-    "connection_failed": "Failed to connect to Home Assistant at {base_url}: {error}",
-    "http_error": "HTTP error {status}: {error}",
-    "request_failed": "Failed to fetch states: {error}",
-    "processing_failed": "Error processing response: {error}",
+    "timeout": "Request timeout: %{error}",
+    "connection_failed": "Failed to connect to Home Assistant at %{base_url}: %{error}",
+    "http_error": "HTTP error %{status}: %{error}",
+    "request_failed": "Failed to fetch states: %{error}",
+    "processing_failed": "Error processing response: %{error}",
     "unexpected_format": "Error: Unexpected response format.",
-    "formatting_failed": "Error: Failed to process response. Details: {error}"
+    "formatting_failed": "Error: Failed to process response. Details: %{error}"
   },
   "logs": {
-    "running_with_filter": "Running with filter domain: {filter_domain}",
+    "running_with_filter": "Running with filter domain: %{filter_domain}",
     "building_tool": "Building List Home Assistant States tool",
-    "tool_invoked": "Tool invoked by agent with filter domain: {filter_domain}",
-    "fetching_states": "Fetching states from {base_url} with filter: {filter_domain}",
-    "requesting_url": "Requesting URL: {url}",
-    "states_retrieved": "Retrieved {count} state(s) from Home Assistant",
-    "applying_filter": "Applying domain filter: {domain}",
-    "filtered_states": "Filtered {filtered_count} of {total_count} states for domain: {domain}",
-    "returning_all_states": "Returning all {count} states",
-    "formatting_response": "Formatting response of type: {result_type}",
-    "formatted_list": "Formatted list with {count} item(s)",
+    "tool_invoked": "Tool invoked by agent with filter domain: %{filter_domain}",
+    "fetching_states": "Fetching states from %{base_url} with filter: %{filter_domain}",
+    "requesting_url": "Requesting URL: %{url}",
+    "states_retrieved": "Retrieved %{count} state(s) from Home Assistant",
+    "applying_filter": "Applying domain filter: %{domain}",
+    "filtered_states": "Filtered %{filtered_count} of %{total_count} states for domain: %{domain}",
+    "returning_all_states": "Returning all %{count} states",
+    "formatting_response": "Formatting response of type: %{result_type}",
+    "formatted_list": "Formatted list with %{count} item(s)",
     "formatted_dict": "Formatted dictionary response",
     "formatted_string": "Formatted string response"
   }

@@ -47,14 +47,14 @@
     "history_cleared": "聊天历史记录清理成功"
   },
   "warnings": {
-    "history_error": "检索消息历史记录失败：{error}"
+    "history_error": "检索消息历史记录失败：%{error}"
   },
   "errors": {
     "message_required": "启用'使用消息输入'时需要消息输入。",
     "text_required": "文本输入不能为空。",
     "invalid_message_type": "期望消息对象，得到不同类型。",
-    "build_message_error": "构建消息时出错：{error}",
-    "get_text_error": "获取文本内容时出错：{error}",
-    "clear_history_error": "清理聊天历史记录时出错：{error}"
+    "build_message_error": "构建消息时出错：%{error}",
+    "get_text_error": "获取文本内容时出错：%{error}",
+    "clear_history_error": "清理聊天历史记录时出错：%{error}"
   }
 }

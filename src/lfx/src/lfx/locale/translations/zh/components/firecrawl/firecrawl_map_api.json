@@ -29,18 +29,18 @@
     "import_failed": "无法导入firecrawl集成包。请使用`pip install firecrawl-py`安装。",
     "urls_required": "需要URL",
     "no_valid_urls": "未提供有效的URL",
-    "mapping_failed": "映射过程中出错：{error}"
+    "mapping_failed": "映射过程中出错：%{error}"
   },
   "logs": {
     "firecrawl_imported": "Firecrawl包导入成功",
     "parsing_urls": "正在解析输入的URL",
-    "urls_parsed": "已解析{count}个有效URL",
-    "params_configured": "参数已配置 - 忽略站点地图：{ignore_sitemap}，仅站点地图：{sitemap_only}，包含子域：{include_subdomains}",
+    "urls_parsed": "已解析%{count}个有效URL",
+    "params_configured": "参数已配置 - 忽略站点地图：%{ignore_sitemap}，仅站点地图：%{sitemap_only}，包含子域：%{include_subdomains}",
     "app_initialized": "Firecrawl应用已使用API密钥初始化",
-    "starting_mapping": "开始为{count}个URL进行映射",
-    "mapping_url": "正在映射URL {index}/{total}：{url}",
-    "url_mapped": "URL映射成功：{url} - 找到{count}个链接",
-    "no_links_found": "未找到URL的链接：{url}",
-    "mapping_completed": "映射完成 - 从{urls_processed}个URL共找到{total_links}个链接"
+    "starting_mapping": "开始为%{count}个URL进行映射",
+    "mapping_url": "正在映射URL %{index}/%{total}：%{url}",
+    "url_mapped": "URL映射成功：%{url} - 找到%{count}个链接",
+    "no_links_found": "未找到URL的链接：%{url}",
+    "mapping_completed": "映射完成 - 从%{urls_processed}个URL共找到%{total_links}个链接"
   }
 }

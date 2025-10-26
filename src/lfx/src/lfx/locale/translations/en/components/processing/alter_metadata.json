@@ -28,11 +28,11 @@
     }
   },
   "success": {
-    "metadata_processed": "Successfully processed metadata for {count} data objects",
-    "dataframe_created": "DataFrame created with {rows} rows"
+    "metadata_processed": "Successfully processed metadata for %{count} data objects",
+    "dataframe_created": "DataFrame created with %{rows} rows"
   },
   "info": {
-    "fields_removed": "Removed {count} field occurrences: {fields}"
+    "fields_removed": "Removed %{count} field occurrences: %{fields}"
   },
   "warnings": {
     "empty_metadata": "No metadata provided. Objects will be processed without metadata changes.",
@@ -40,9 +40,9 @@
     "empty_dataframe": "No data available to create DataFrame"
   },
   "errors": {
-    "invalid_object_type": "Expected a Data object or a dictionary but got {obj_type}",
-    "dict_conversion_failed": "Failed to convert object to dictionary: {error}",
-    "processing_failed": "Failed to process metadata: {error}",
-    "dataframe_creation_failed": "Failed to create DataFrame: {error}"
+    "invalid_object_type": "Expected a Data object or a dictionary but got %{obj_type}",
+    "dict_conversion_failed": "Failed to convert object to dictionary: %{error}",
+    "processing_failed": "Failed to process metadata: %{error}",
+    "dataframe_creation_failed": "Failed to create DataFrame: %{error}"
   }
 }

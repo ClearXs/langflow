@@ -27,23 +27,23 @@
   },
   "tool_description": "使用searchapi.io搜索最新结果并限制结果数量",
   "success": {
-    "tool_created": "搜索API工具已创建，使用引擎：{engine}",
-    "search_completed": "搜索成功完成。为'{query}'找到{count}个结果"
+    "tool_created": "搜索API工具已创建，使用引擎：%{engine}",
+    "search_completed": "搜索成功完成。为'%{query}'找到%{count}个结果"
   },
   "info": {
-    "executing_search": "正在使用{engine}引擎搜索'{query}'..."
+    "executing_search": "正在使用%{engine}引擎搜索'%{query}'..."
   },
   "warnings": {
     "empty_query": "搜索查询为空。请提供搜索词。",
     "empty_input": "搜索输入为空。请提供搜索查询。",
-    "no_results": "未找到查询'{query}'的搜索结果",
+    "no_results": "未找到查询'%{query}'的搜索结果",
     "no_results_returned": "搜索API未返回结果"
   },
   "errors": {
     "api_key_required": "需要SearchAPI API密钥。请提供您从searchapi.io获取的API密钥。",
-    "wrapper_creation_failed": "创建SearchAPI包装器失败：{error}",
-    "search_execution_failed": "搜索执行失败：{error}",
-    "tool_creation_failed": "创建搜索API工具失败：{error}",
-    "execution_failed": "搜索API执行失败：{error}"
+    "wrapper_creation_failed": "创建SearchAPI包装器失败：%{error}",
+    "search_execution_failed": "搜索执行失败：%{error}",
+    "tool_creation_failed": "创建搜索API工具失败：%{error}",
+    "execution_failed": "搜索API执行失败：%{error}"
   }
 }

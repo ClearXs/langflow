@@ -2,16 +2,19 @@ from importlib import import_module
 
 _dynamic_imports = {
     # Input components
-    "ETLTableInputComponent": "table_input",
-    "ETLFileInputComponent": "file_input",
     "ETLAPIInputComponent": "api_input",
-    "ETLKafkaInputComponent": "kafka_input",
     "ETLCDCInputComponent": "cdc_input",
+    "ETLCSVInputComponent": "csv_input",
+    "ETLCustomInputComponent": "custom_input",
+    "ETLExcelInputComponent": "excel_input",
+    "ETLFileInputComponent": "file_input",
+    "ETLKafkaInputComponent": "kafka_input",
+    "ETLTableInputComponent": "table_input",
     # Output components
-    "ETLTableOutputComponent": "table_output",
-    "ETLExcelOutputComponent": "excel_output",
-    "ETLCSVOutputComponent": "csv_output",
     "ETLAPIOutputComponent": "api_output",
+    "ETLCSVOutputComponent": "csv_output",
+    "ETLExcelOutputComponent": "excel_output",
+    "ETLTableOutputComponent": "table_output",
 }
 
 

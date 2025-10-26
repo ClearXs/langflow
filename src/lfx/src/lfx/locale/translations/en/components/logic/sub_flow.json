@@ -11,24 +11,24 @@
     }
   },
   "success": {
-    "build_config_updated": "Build configuration updated for flow '{flow}' with {count} inputs",
-    "sub_flow_executed": "Sub flow '{flow}' executed successfully with {outputs} outputs"
+    "build_config_updated": "Build configuration updated for flow '%{flow}' with %{count} inputs",
+    "sub_flow_executed": "Sub flow '%{flow}' executed successfully with %{outputs} outputs"
   },
   "info": {
-    "using_tweaks": "Using {count} parameter tweaks for sub flow '{flow}'",
-    "executing_sub_flow": "Executing sub flow: {flow}"
+    "using_tweaks": "Using %{count} parameter tweaks for sub flow '%{flow}'",
+    "executing_sub_flow": "Executing sub flow: %{flow}"
   },
   "warnings": {
-    "flow_not_found": "Flow '{flow}' not found in available flows",
+    "flow_not_found": "Flow '%{flow}' not found in available flows",
     "no_outputs": "Sub flow execution completed but no outputs were generated"
   },
   "errors": {
-    "failed_to_get_flow_names": "Failed to retrieve available flow names: {error}",
-    "failed_to_get_flow": "Failed to retrieve flow '{flow}': {error}",
-    "failed_to_update_flow_options": "Failed to update flow options: {error}",
-    "flow_not_found": "Flow '{flow}' not found",
-    "failed_to_build_graph": "Error building graph for flow '{flow}': {error}",
+    "failed_to_get_flow_names": "Failed to retrieve available flow names: %{error}",
+    "failed_to_get_flow": "Failed to retrieve flow '%{flow}': %{error}",
+    "failed_to_update_flow_options": "Failed to update flow options: %{error}",
+    "flow_not_found": "Flow '%{flow}' not found",
+    "failed_to_build_graph": "Error building graph for flow '%{flow}': %{error}",
     "no_flow_selected": "No flow selected for execution",
-    "execution_failed": "Sub flow execution failed: {error}"
+    "execution_failed": "Sub flow execution failed: %{error}"
   }
 }

@@ -1,73 +1,80 @@
 {
-  "display_name": "双流连接",
-  "description": "使用内连接/左连接/右连接/全连接合并两个数据流，支持多条件和多种操作符",
-  "status": {
-    "joining": "正在连接数据流...",
-    "success": "成功连接 {records} 条记录",
-    "fields_loaded": "已加载字段：左表 {left_count} 个，右表 {right_count} 个",
-    "preview_success": "已生成 {count} 个输出字段预览",
-    "no_fields_found": "未找到字段"
-  },
-  "errors": {
-    "join_failed": "连接操作失败: {error}",
-    "missing_conditions": "连接条件是必需的",
-    "missing_streams": "两个数据流都是必需的",
-    "field_not_found": "字段 {field} 不存在",
-    "left_field_not_found": "左表字段 '{field}' 不存在",
-    "right_field_not_found": "右表字段 '{field}' 不存在",
-    "merge_failed": "数据合并失败: {error}",
-    "load_fields_failed": "加载字段列表失败: {error}",
-    "no_streams_for_preview": "请先连接左右数据流",
-    "no_graph_data": "无法获取图数据，请确保组件已正确连接",
-    "preview_failed": "预览字段失败: {error}"
-  },
-  "drop_duplicates": {
-    "display_name": "删除重复",
-    "info": "连接后删除重复行"
-  },
-  "join_conditions": {
-    "display_name": "连接条件",
-    "info": "配置两个数据流的连接条件（支持多条件）",
-    "left_key": "左表字段",
-    "operator": "操作符",
-    "right_key": "右表字段",
-    "load_fields_button": "加载字段列表"
-  },
-  "join_type": {
-    "display_name": "连接类型",
-    "info": "选择Join连接方式：inner(内连接)、left(左连接)、right(右连接)、outer(全连接)"
-  },
-  "left_prefix": {
-    "display_name": "左表前缀",
-    "info": "左表字段冲突时的前缀"
-  },
-  "left_stream": {
-    "display_name": "左侧数据流",
-    "info": "第一个表输入组件的数据流"
-  },
-  "right_prefix": {
-    "display_name": "右表前缀",
-    "info": "右表字段冲突时的前缀"
-  },
-  "right_stream": {
-    "display_name": "右侧数据流",
-    "info": "第二个表输入组件的数据流"
-  },
-  "output_fields": {
-    "display_name": "输出字段",
-    "info": "查看Join后的输出字段列表",
-    "field_name": "字段名",
-    "source": "来源",
-    "data_type": "数据类型",
-    "left_table": "左表",
-    "right_table": "右表",
-    "preview_button": "预览输出字段"
-  },
-  "field_preview": {
-    "common_field": "公共字段（左右表都有）",
-    "left_table": "左表",
-    "right_table": "右表",
-    "no_conflict": "无冲突",
-    "use_prefix": "使用前缀：{left_prefix}{field}, {right_prefix}{field}"
-  }
+    "display_name": "\u53cc\u6d41\u8fde\u63a5",
+    "description": "\u4f7f\u7528\u5185\u8fde\u63a5/\u5de6\u8fde\u63a5/\u53f3\u8fde\u63a5/\u5168\u8fde\u63a5\u5408\u5e76\u4e24\u4e2a\u6570\u636e\u6d41\uff0c\u652f\u6301\u591a\u6761\u4ef6\u548c\u591a\u79cd\u64cd\u4f5c\u7b26",
+    "status": {
+        "joining": "\u6b63\u5728\u8fde\u63a5\u6570\u636e\u6d41...",
+        "success": "\u6210\u529f\u8fde\u63a5 %{records} \u6761\u8bb0\u5f55",
+        "fields_loaded": "\u5df2\u52a0\u8f7d\u5b57\u6bb5\uff1a\u5de6\u8868 %{left_count} \u4e2a\uff0c\u53f3\u8868 %{right_count} \u4e2a",
+        "fields_loaded_fallback": "\u4ece\u914d\u7f6e\u52a0\u8f7d\u5b57\u6bb5\uff1a\u5de6\u8868 %{left_count} \u4e2a\uff0c\u53f3\u8868 %{right_count} \u4e2a",
+        "preview_success": "\u5df2\u751f\u6210 %{count} \u4e2a\u8f93\u51fa\u5b57\u6bb5\u9884\u89c8",
+        "no_fields_found": "\u672a\u627e\u5230\u5b57\u6bb5"
+    },
+    "errors": {
+        "join_failed": "\u8fde\u63a5\u64cd\u4f5c\u5931\u8d25: %{error}",
+        "missing_conditions": "\u8fde\u63a5\u6761\u4ef6\u662f\u5fc5\u9700\u7684",
+        "missing_streams": "\u4e24\u4e2a\u6570\u636e\u6d41\u90fd\u662f\u5fc5\u9700\u7684",
+        "field_not_found": "\u5b57\u6bb5 %{field} \u4e0d\u5b58\u5728",
+        "left_field_not_found": "\u5de6\u8868\u5b57\u6bb5 '%{field}' \u4e0d\u5b58\u5728",
+        "right_field_not_found": "\u53f3\u8868\u5b57\u6bb5 '%{field}' \u4e0d\u5b58\u5728",
+        "merge_failed": "\u6570\u636e\u5408\u5e76\u5931\u8d25: %{error}",
+        "load_fields_failed": "\u52a0\u8f7d\u5b57\u6bb5\u5217\u8868\u5931\u8d25: %{error}",
+        "no_fields_in_config": "\u5728\u4e0a\u6e38\u8282\u70b9\u914d\u7f6e\u4e2d\u672a\u627e\u5230\u5b57\u6bb5",
+        "no_streams_for_preview": "\u8bf7\u5148\u8fde\u63a5\u5de6\u53f3\u6570\u636e\u6d41",
+        "no_graph_data": "\u65e0\u6cd5\u83b7\u53d6\u56fe\u6570\u636e\uff0c\u8bf7\u786e\u4fdd\u7ec4\u4ef6\u5df2\u6b63\u786e\u8fde\u63a5",
+        "preview_failed": "\u9884\u89c8\u5b57\u6bb5\u5931\u8d25: %{error}"
+    },
+    "drop_duplicates": {
+        "display_name": "\u5220\u9664\u91cd\u590d",
+        "info": "\u8fde\u63a5\u540e\u5220\u9664\u91cd\u590d\u884c"
+    },
+    "join_conditions": {
+        "display_name": "\u8fde\u63a5\u6761\u4ef6",
+        "info": "\u914d\u7f6e\u4e24\u4e2a\u6570\u636e\u6d41\u7684\u8fde\u63a5\u6761\u4ef6\uff08\u652f\u6301\u591a\u6761\u4ef6\uff09",
+        "left_key": "\u5de6\u8868\u5b57\u6bb5",
+        "operator": "\u64cd\u4f5c\u7b26",
+        "right_key": "\u53f3\u8868\u5b57\u6bb5",
+        "load_fields_button": "\u52a0\u8f7d\u5b57\u6bb5\u5217\u8868"
+    },
+    "join_type": {
+        "display_name": "\u8fde\u63a5\u7c7b\u578b",
+        "info": "\u9009\u62e9Join\u8fde\u63a5\u65b9\u5f0f\uff1ainner(\u5185\u8fde\u63a5)\u3001left(\u5de6\u8fde\u63a5)\u3001right(\u53f3\u8fde\u63a5)\u3001outer(\u5168\u8fde\u63a5)"
+    },
+    "left_prefix": {
+        "display_name": "\u5de6\u8868\u524d\u7f00",
+        "info": "\u5de6\u8868\u5b57\u6bb5\u51b2\u7a81\u65f6\u7684\u524d\u7f00"
+    },
+    "left_stream": {
+        "display_name": "\u5de6\u4fa7\u6570\u636e\u6d41",
+        "info": "\u7b2c\u4e00\u4e2a\u8868\u8f93\u5165\u7ec4\u4ef6\u7684\u6570\u636e\u6d41"
+    },
+    "right_prefix": {
+        "display_name": "\u53f3\u8868\u524d\u7f00",
+        "info": "\u53f3\u8868\u5b57\u6bb5\u51b2\u7a81\u65f6\u7684\u524d\u7f00"
+    },
+    "right_stream": {
+        "display_name": "\u53f3\u4fa7\u6570\u636e\u6d41",
+        "info": "\u7b2c\u4e8c\u4e2a\u8868\u8f93\u5165\u7ec4\u4ef6\u7684\u6570\u636e\u6d41"
+    },
+    "output_fields": {
+        "display_name": "\u8f93\u51fa\u5b57\u6bb5",
+        "info": "\u67e5\u770bJoin\u540e\u7684\u8f93\u51fa\u5b57\u6bb5\u5217\u8868",
+        "field_name": "\u5b57\u6bb5\u540d",
+        "source": "\u6765\u6e90",
+        "data_type": "\u6570\u636e\u7c7b\u578b",
+        "left_table": "\u5de6\u8868",
+        "right_table": "\u53f3\u8868",
+        "preview_button": "\u9884\u89c8\u8f93\u51fa\u5b57\u6bb5"
+    },
+    "field_preview": {
+        "common_field": "\u516c\u5171\u5b57\u6bb5\uff08\u5de6\u53f3\u8868\u90fd\u6709\uff09",
+        "left_table": "\u5de6\u8868",
+        "right_table": "\u53f3\u8868",
+        "no_conflict": "\u65e0\u51b2\u7a81",
+        "use_prefix": "\u4f7f\u7528\u524d\u7f00\uff1a%{left_prefix}%{field}, %{right_prefix}%{field}"
+    },
+    "outputs": {
+        "data": "\u8fde\u63a5\u540e\u6570\u636e",
+        "join_stats": "\u8fde\u63a5\u7edf\u8ba1",
+        "field_preview": "\u5b57\u6bb5\u9884\u89c8"
+    }
 }

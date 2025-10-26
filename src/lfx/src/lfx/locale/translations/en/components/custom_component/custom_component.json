@@ -15,10 +15,10 @@
     "output_created": "Output created successfully"
   },
   "errors": {
-    "build_failed": "Failed to build output: {error}"
+    "build_failed": "Failed to build output: %{error}"
   },
   "logs": {
     "building_output": "Building output from input value",
-    "creating_data": "Creating Data object - Value length: {value_length}"
+    "creating_data": "Creating Data object - Value length: %{value_length}"
   }
 }

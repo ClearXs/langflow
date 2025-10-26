@@ -17,7 +17,7 @@
   },
   "prompt": {
     "display_name": "Prompt",
-    "info": "The prompt must contain `{question}`."
+    "info": "The prompt must contain `%{question}`."
   },
   "outputs": {
     "text": {

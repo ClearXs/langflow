@@ -1,0 +1,50 @@
+{
+  "display_name": "Excel读取",
+  "description": "读取Excel文件数据 (.xlsx, .xls)",
+  "file_path": {
+    "display_name": "Excel文件",
+    "info": "选择要读取的Excel文件"
+  },
+  "sheet_index": {
+    "display_name": "工作表序号",
+    "info": "选择要读取的工作表序号（0表示第一个工作表，1表示第二个，依此类推）"
+  },
+  "header_mode": {
+    "display_name": "标题行配置",
+    "info": "选择如何识别字段名",
+    "first_row": "第一行作为字段名",
+    "custom_row": "指定行作为字段名",
+    "no_header": "使用列标识(A,B,C...)"
+  },
+  "header_row": {
+    "display_name": "标题所在行数",
+    "info": "指定哪一行作为字段名（1表示第一行，2表示第二行，依此类推）"
+  },
+  "data_start_row": {
+    "display_name": "数据开始行数",
+    "info": "数据从第几行开始读取（默认：2，表示从第2行开始读取数据）"
+  },
+  "max_rows": {
+    "display_name": "最大读取行数",
+    "info": "最多读取多少行数据（0表示读取全部行）"
+  },
+  "preview_table": {
+    "display_name": "数据预览",
+    "info": "预览前100行数据",
+    "preview_button": "预览数据(前100行)"
+  },
+  "output_data": {
+    "display_name": "数据"
+  },
+  "errors": {
+    "no_file_selected": "请先选择Excel文件",
+    "no_file_path": "文件路径不能为空",
+    "preview_failed": "预览失败：%{error}",
+    "read_excel_failed": "读取Excel文件失败：%{error}",
+    "load_data_failed": "加载数据失败：%{error}"
+  },
+  "status": {
+    "preview_success": "成功预览%{count}行数据",
+    "loaded_rows": "已从Excel文件加载%{count}行数据"
+  }
+}

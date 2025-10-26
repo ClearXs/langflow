@@ -33,21 +33,21 @@
     "info": "The seed controls the reproducibility of the job."
   },
   "errors": {
-    "fetch_models_failed": "Error fetching models: {error}",
+    "fetch_models_failed": "Error fetching models: %{error}",
     "langchain_import_failed": "langchain-openai not installed. Please install with `pip install langchain-openai`",
-    "build_model_failed": "Failed to build DeepSeek model: {error}"
+    "build_model_failed": "Failed to build DeepSeek model: %{error}"
   },
   "logs": {
     "no_api_key": "No API key provided, using default models list",
-    "fetching_models": "Fetching models from: {url}",
-    "models_fetched": "Successfully fetched {count} models",
+    "fetching_models": "Fetching models from: %{url}",
+    "models_fetched": "Successfully fetched %{count} models",
     "updating_models_list": "Updating models list",
-    "models_list_updated": "Models list updated with {count} models",
+    "models_list_updated": "Models list updated with %{count} models",
     "langchain_import_successful": "Langchain OpenAI package imported successfully",
-    "building_model": "Building DeepSeek model - Model: {model}, Temperature: {temperature}, Max Tokens: {max_tokens}",
+    "building_model": "Building DeepSeek model - Model: %{model}, Temperature: %{temperature}, Max Tokens: %{max_tokens}",
     "json_mode_enabled": "JSON mode enabled",
     "model_built": "DeepSeek model built successfully",
-    "extracted_error_message": "Extracted error message: {message}",
+    "extracted_error_message": "Extracted error message: %{message}",
     "openai_not_available": "OpenAI package not available for error message extraction"
   }
 }

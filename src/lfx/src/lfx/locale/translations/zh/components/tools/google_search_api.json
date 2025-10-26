@@ -19,20 +19,20 @@
   },
   "tool_description": "在Google中搜索最新结果。",
   "success": {
-    "search_completed": "搜索成功完成。为'{query}'找到{count}个结果"
+    "search_completed": "搜索成功完成。为'%{query}'找到%{count}个结果"
   },
   "info": {
-    "searching": "正在Google中搜索'{query}'（返回{count}个结果）..."
+    "searching": "正在Google中搜索'%{query}'（返回%{count}个结果）..."
   },
   "warnings": {
     "empty_query": "搜索查询为空。请提供搜索词。",
-    "no_results": "未找到查询'{query}'的搜索结果"
+    "no_results": "未找到查询'%{query}'的搜索结果"
   },
   "errors": {
     "import_error": "缺少必需的依赖项。请安装langchain-google-community以使用Google搜索API。",
     "langchain_google_missing": "请安装langchain-google-community以使用GoogleSearchAPIWrapper。",
-    "search_failed": "Google搜索失败：{error}",
-    "tool_creation_failed": "创建Google搜索工具失败：{error}",
-    "wrapper_creation_failed": "创建Google搜索包装器失败：{error}"
+    "search_failed": "Google搜索失败：%{error}",
+    "tool_creation_failed": "创建Google搜索工具失败：%{error}",
+    "wrapper_creation_failed": "创建Google搜索包装器失败：%{error}"
   }
 }

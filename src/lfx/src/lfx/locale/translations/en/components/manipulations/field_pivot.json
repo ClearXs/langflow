@@ -1,0 +1,65 @@
+{
+  "display_name": "Rows to Columns Pivot",
+  "description": "Convert rows to columns (pivot operation)",
+  "data_input": {
+    "display_name": "Data Input",
+    "info": "Input data stream to transform"
+  },
+  "group_fields": {
+    "display_name": "Group Fields",
+    "info": "Fields to group by (comma-separated)"
+  },
+  "key_field": {
+    "display_name": "Key Field",
+    "info": "Field values will become new column names"
+  },
+  "value_field": {
+    "display_name": "Value Field",
+    "info": "Field to convert to new column values"
+  },
+  "agg_function": {
+    "display_name": "Aggregation Function",
+    "info": "Aggregation function for duplicate values",
+    "first": "First",
+    "last": "Last",
+    "sum": "Sum",
+    "mean": "Mean",
+    "max": "Max",
+    "min": "Min",
+    "count": "Count",
+    "concat": "Concat"
+  },
+  "concat_separator": {
+    "display_name": "Concat Separator",
+    "info": "Separator when using concat aggregation"
+  },
+  "target_field_mapping": {
+    "display_name": "Target Field Mapping",
+    "info": "Map key values to target field names",
+    "key_value": "Key Value",
+    "target_field": "Target Field Name"
+  },
+  "fill_value": {
+    "display_name": "Fill Value",
+    "info": "Fill value for nulls"
+  },
+  "chunk_size": {
+    "display_name": "Chunk Size",
+    "info": "Chunk size for processing large datasets"
+  },
+  "outputs": {
+    "data": "Pivoted Data",
+    "fields_schema": "Fields Schema",
+    "preview": "Field Preview",
+    "statistics": "Statistics"
+  },
+  "status": {
+    "pivoting": "Pivoting data...",
+    "success": "Pivot completed: %{original} rows -> %{result} rows"
+  },
+  "errors": {
+    "no_input_data": "No input data",
+    "field_not_found": "Field %{field} not found",
+    "pivot_failed": "Pivot failed: %{error}"
+  }
+}

@@ -30,16 +30,16 @@
     "info": "Endpoint of the Qianfan LLM, required if custom model is used."
   },
   "status": {
-    "initializing": "Initializing Baidu Qianfan model '{model}'..."
+    "initializing": "Initializing Baidu Qianfan model '%{model}'..."
   },
   "success": {
-    "model_initialized": "Baidu Qianfan model '{model}' initialized successfully"
+    "model_initialized": "Baidu Qianfan model '%{model}' initialized successfully"
   },
   "errors": {
-    "connection_failed": "Could not connect to Baidu Qianfan API: {error}"
+    "connection_failed": "Could not connect to Baidu Qianfan API: %{error}"
   },
   "logs": {
-    "building_model": "Building model - Model: {model}, Temperature: {temperature}, Top P: {top_p}, Penalty Score: {penalty_score}, Has Custom Endpoint: {has_endpoint}",
-    "custom_endpoint_set": "Custom endpoint set to: {endpoint}"
+    "building_model": "Building model - Model: %{model}, Temperature: %{temperature}, Top P: %{top_p}, Penalty Score: %{penalty_score}, Has Custom Endpoint: %{has_endpoint}",
+    "custom_endpoint_set": "Custom endpoint set to: %{endpoint}"
   }
 }

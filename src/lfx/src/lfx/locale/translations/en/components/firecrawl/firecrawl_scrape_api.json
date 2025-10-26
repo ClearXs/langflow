@@ -28,15 +28,15 @@
   "errors": {
     "import_failed": "Could not import firecrawl integration package. Please install it with `pip install firecrawl-py`.",
     "url_required": "URL is required",
-    "scrape_failed": "Failed to scrape URL '{url}': {error}"
+    "scrape_failed": "Failed to scrape URL '%{url}': %{error}"
   },
   "logs": {
     "firecrawl_imported": "Firecrawl package imported successfully",
-    "starting_scrape": "Starting scrape for URL: {url}",
+    "starting_scrape": "Starting scrape for URL: %{url}",
     "extractor_options_added": "Extractor options added to parameters",
-    "params_configured": "Parameters configured - Formats: {formats}, Only main content: {only_main}",
+    "params_configured": "Parameters configured - Formats: %{formats}, Only main content: %{only_main}",
     "app_initialized": "Firecrawl app initialized with API key",
     "executing_scrape": "Executing scrape operation",
-    "scrape_completed": "Scrape completed successfully - Content length: {length} characters"
+    "scrape_completed": "Scrape completed successfully - Content length: %{length} characters"
   }
 }

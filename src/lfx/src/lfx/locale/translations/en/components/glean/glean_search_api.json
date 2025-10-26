@@ -28,27 +28,27 @@
   "tool_description": "Search Glean for relevant results.",
   "errors": {
     "no_results": "No good Glean Search Result was found",
-    "search_failed": "Error in Glean Search API: {error}",
-    "http_error": "HTTP error {status}: {error}",
-    "request_failed": "Request failed: {error}",
-    "fetch_failed": "Failed to fetch content: {error}"
+    "search_failed": "Error in Glean Search API: %{error}",
+    "http_error": "HTTP error %{status}: %{error}",
+    "request_failed": "Request failed: %{error}",
+    "fetch_failed": "Failed to fetch content: %{error}"
   },
   "logs": {
-    "preparing_request": "Preparing request to {url} with query: {query}",
+    "preparing_request": "Preparing request to %{url} with query: %{query}",
     "fetching_results": "Fetching results from Glean API",
-    "results_fetched": "Fetched {count} result(s) from Glean",
-    "executing_search": "Executing search with query: {query}",
-    "results_processed": "Processed {count} result(s)",
-    "sending_request": "Sending POST request to: {url}",
-    "request_successful": "Request successful - Status: {status}",
-    "response_parsed": "Response parsed - {count} result(s) found",
+    "results_fetched": "Fetched %{count} result(s) from Glean",
+    "executing_search": "Executing search with query: %{query}",
+    "results_processed": "Processed %{count} result(s)",
+    "sending_request": "Sending POST request to: %{url}",
+    "request_successful": "Request successful - Status: %{status}",
+    "response_parsed": "Response parsed - %{count} result(s) found",
     "building_tool": "Building Glean Search tool",
     "tool_built": "Glean Search API Tool for Langchain",
     "running_model": "Running Glean Search model",
     "fetching_content": "Fetching content from Glean Search API",
-    "content_fetched": "Content fetched successfully - {count} item(s)",
+    "content_fetched": "Content fetched successfully - %{count} item(s)",
     "building_wrapper": "Building Glean API wrapper",
     "converting_to_dataframe": "Converting search results to DataFrame",
-    "dataframe_created": "DataFrame created with {rows} row(s)"
+    "dataframe_created": "DataFrame created with %{rows} row(s)"
   }
 }

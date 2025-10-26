@@ -34,32 +34,32 @@
     }
   },
   "errors": {
-    "gitloader_creation_failed": "Failed to create Git loader: {error}",
-    "loading_failed": "Failed to load documents: {error}"
+    "gitloader_creation_failed": "Failed to create Git loader: %{error}",
+    "loading_failed": "Failed to load documents: %{error}"
   },
   "logs": {
-    "binary_file_detected": "Binary file detected: {path}",
-    "binary_check_failed": "Binary check failed for {path}: {error}",
-    "file_excluded": "File excluded by pattern '{pattern}': {path}",
-    "file_included": "File included: {path}",
-    "content_check_skipped_binary": "Content check skipped (binary file): {path}",
-    "invalid_regex": "Invalid regex pattern '{pattern}': {error}",
-    "content_matched": "Content matched: {path}",
-    "content_check_failed": "Content check failed for {path}: {error}",
-    "building_filter": "Building combined filter - File patterns: {file_patterns}, Content pattern: {content_pattern}",
-    "file_not_exists": "File does not exist: {path}",
-    "filter_error": "Filter error for {path}: {error}",
-    "temp_dir_created": "Temporary directory created: {path}",
-    "temp_dir_removed": "Temporary directory removed: {path}",
-    "temp_dir_remove_failed": "Failed to remove temporary directory {path}: {error}",
+    "binary_file_detected": "Binary file detected: %{path}",
+    "binary_check_failed": "Binary check failed for %{path}: %{error}",
+    "file_excluded": "File excluded by pattern '%{pattern}': %{path}",
+    "file_included": "File included: %{path}",
+    "content_check_skipped_binary": "Content check skipped (binary file): %{path}",
+    "invalid_regex": "Invalid regex pattern '%{pattern}': %{error}",
+    "content_matched": "Content matched: %{path}",
+    "content_check_failed": "Content check failed for %{path}: %{error}",
+    "building_filter": "Building combined filter - File patterns: %{file_patterns}, Content pattern: %{content_pattern}",
+    "file_not_exists": "File does not exist: %{path}",
+    "filter_error": "Filter error for %{path}: %{error}",
+    "temp_dir_created": "Temporary directory created: %{path}",
+    "temp_dir_removed": "Temporary directory removed: %{path}",
+    "temp_dir_remove_failed": "Failed to remove temporary directory %{path}: %{error}",
     "config_updated_local": "Configuration updated for local repository",
     "config_updated_remote": "Configuration updated for remote repository",
     "building_gitloader": "Building Git loader",
-    "using_local_repo": "Using local repository: {path}",
-    "using_remote_repo": "Using remote repository: {url}",
-    "using_branch": "Using branch: {branch}",
+    "using_local_repo": "Using local repository: %{path}",
+    "using_remote_repo": "Using remote repository: %{url}",
+    "using_branch": "Using branch: %{branch}",
     "gitloader_created": "Git loader created successfully",
     "loading_documents": "Loading documents from Git repository",
-    "documents_loaded": "Successfully loaded {count} document(s)"
+    "documents_loaded": "Successfully loaded %{count} document(s)"
   }
 }

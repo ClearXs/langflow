@@ -11,11 +11,11 @@
     }
   },
   "success": {
-    "id_generated": "Generated ID: {id}",
-    "id_refreshed": "Refreshed ID: {id}"
+    "id_generated": "Generated ID: %{id}",
+    "id_refreshed": "Refreshed ID: %{id}"
   },
   "errors": {
-    "generation_failed": "Failed to generate ID: {error}",
-    "refresh_failed": "Failed to refresh ID: {error}"
+    "generation_failed": "Failed to generate ID: %{error}",
+    "refresh_failed": "Failed to refresh ID: %{error}"
   }
 }

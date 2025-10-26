@@ -19,20 +19,20 @@
   },
   "status": {
     "building": "Building hierarchical crew...",
-    "crew_created": "Hierarchical crew created successfully with {agent_count} agents and {task_count} tasks"
+    "crew_created": "Hierarchical crew created successfully with %{agent_count} agents and %{task_count} tasks"
   },
   "errors": {
     "import_failed": "CrewAI is not installed. Please install it with `uv pip install crewai`.",
-    "build_failed": "Failed to build hierarchical crew: {error}"
+    "build_failed": "Failed to build hierarchical crew: %{error}"
   },
   "logs": {
     "imports_successful": "CrewAI dependencies imported successfully",
     "building_crew": "Building hierarchical crew",
     "getting_tasks_agents": "Retrieving tasks and agents",
-    "retrieved_items": "Retrieved {task_count} tasks and {agent_count} agents",
+    "retrieved_items": "Retrieved %{task_count} tasks and %{agent_count} agents",
     "getting_manager_llm": "Getting manager language model",
     "manager_llm_set": "Manager LLM configured",
     "manager_agent_set": "Custom manager agent configured",
-    "creating_hierarchical_crew": "Creating hierarchical crew with {agent_count} agents and {task_count} tasks"
+    "creating_hierarchical_crew": "Creating hierarchical crew with %{agent_count} agents and %{task_count} tasks"
   }
 }

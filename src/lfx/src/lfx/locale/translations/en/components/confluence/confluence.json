@@ -35,20 +35,20 @@
     }
   },
   "status": {
-    "connecting": "Connecting to Confluence space: {space_key}",
+    "connecting": "Connecting to Confluence space: %{space_key}",
     "loading": "Loading documents from Confluence...",
-    "converting": "Converting {count} documents to Data objects",
-    "completed": "Successfully loaded {count} documents from space: {space_key}"
+    "converting": "Converting %{count} documents to Data objects",
+    "completed": "Successfully loaded %{count} documents from space: %{space_key}"
   },
   "errors": {
-    "loader_build_failed": "Failed to build Confluence loader: {error}",
-    "load_failed": "Failed to load documents from Confluence space '{space_key}': {error}"
+    "loader_build_failed": "Failed to build Confluence loader: %{error}",
+    "load_failed": "Failed to load documents from Confluence space '%{space_key}': %{error}"
   },
   "logs": {
     "building_loader": "Building Confluence loader",
-    "loader_built": "Confluence loader built - Space: {space_key}, Max Pages: {max_pages}",
-    "loading_documents": "Starting to load documents from Confluence space: {space_key}",
+    "loader_built": "Confluence loader built - Space: %{space_key}, Max Pages: %{max_pages}",
+    "loading_documents": "Starting to load documents from Confluence space: %{space_key}",
     "fetching_pages": "Fetching pages from Confluence",
-    "pages_loaded": "Loaded {count} pages from Confluence"
+    "pages_loaded": "Loaded %{count} pages from Confluence"
   }
 }

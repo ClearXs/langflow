@@ -33,16 +33,16 @@
     "initializing": "正在初始化Cohere嵌入..."
   },
   "success": {
-    "embeddings_created": "Cohere嵌入已成功创建，模型：{model}"
+    "embeddings_created": "Cohere嵌入已成功创建，模型：%{model}"
   },
   "errors": {
-    "creation_failed": "无法创建Cohere嵌入。请验证API密钥和模型参数，然后重试。错误：{error}",
-    "fetch_models_failed": "获取Cohere模型失败。错误：{error}"
+    "creation_failed": "无法创建Cohere嵌入。请验证API密钥和模型参数，然后重试。错误：%{error}",
+    "fetch_models_failed": "获取Cohere模型失败。错误：%{error}"
   },
   "logs": {
-    "initializing": "正在使用模型初始化Cohere嵌入：{model}",
+    "initializing": "正在使用模型初始化Cohere嵌入：%{model}",
     "fetching_models": "正在获取可用的Cohere模型",
-    "models_fetched": "成功获取{count}个Cohere模型",
+    "models_fetched": "成功获取%{count}个Cohere模型",
     "updating_model_list": "正在使用可用的Cohere模型更新模型列表"
   }
 }

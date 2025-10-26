@@ -21,6 +21,6 @@
     "empty_message": "传递了空消息"
   },
   "errors": {
-    "pass_error": "传递消息时出错：{error}"
+    "pass_error": "传递消息时出错：%{error}"
   }
 }

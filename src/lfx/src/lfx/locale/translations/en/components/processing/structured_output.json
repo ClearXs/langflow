@@ -58,14 +58,14 @@
     "processing_result": "Processing extraction result..."
   },
   "success": {
-    "objects_extracted": "Successfully extracted {count} structured objects",
+    "objects_extracted": "Successfully extracted %{count} structured objects",
     "single_data_created": "Successfully created single Data object",
-    "multiple_data_created": "Successfully created Data object with {count} results",
+    "multiple_data_created": "Successfully created Data object with %{count} results",
     "single_row_dataframe_created": "Successfully created DataFrame with single row",
-    "multi_row_dataframe_created": "Successfully created DataFrame with {rows} rows"
+    "multi_row_dataframe_created": "Successfully created DataFrame with %{rows} rows"
   },
   "warnings": {
-    "unexpected_result_type": "Unexpected result type: {result_type}",
+    "unexpected_result_type": "Unexpected result type: %{result_type}",
     "no_responses": "No responses found in result",
     "empty_output_list": "Output list is empty"
   },
@@ -73,13 +73,13 @@
     "llm_no_structured_support": "Language model does not support structured output.",
     "empty_output_schema": "Output schema cannot be empty",
     "empty_input_value": "Input message cannot be empty",
-    "model_build_failed": "Failed to build model from schema: {error}",
-    "llm_not_supported": "{llm_name} does not support structured output.",
-    "extractor_creation_failed": "Failed to create structured output extractor: {error}",
-    "chat_result_failed": "Failed to generate chat result: {error}",
-    "base_processing_failed": "Structured output processing failed: {error}",
+    "model_build_failed": "Failed to build model from schema: %{error}",
+    "llm_not_supported": "%{llm_name} does not support structured output.",
+    "extractor_creation_failed": "Failed to create structured output extractor: %{error}",
+    "chat_result_failed": "Failed to generate chat result: %{error}",
+    "base_processing_failed": "Structured output processing failed: %{error}",
     "no_structured_output": "No structured output returned",
-    "data_creation_failed": "Failed to create Data object: {error}",
-    "dataframe_creation_failed": "Failed to create DataFrame: {error}"
+    "data_creation_failed": "Failed to create Data object: %{error}",
+    "dataframe_creation_failed": "Failed to create DataFrame: %{error}"
   }
 }

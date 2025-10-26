@@ -44,37 +44,37 @@
   },
   "status": {
     "waiting_for_transcripts": "正在等待转录完成...",
-    "performing_lemur_action": "正在执行LeMUR操作：{endpoint}..."
+    "performing_lemur_action": "正在执行LeMUR操作：%{endpoint}..."
   },
   "success": {
-    "lemur_completed": "LeMUR {endpoint}操作成功完成"
+    "lemur_completed": "LeMUR %{endpoint}操作成功完成"
   },
   "warnings": {
-    "previous_step_error": "来自上一步的错误：{error}"
+    "previous_step_error": "来自上一步的错误：%{error}"
   },
   "errors": {
     "no_input_provided": "必须提供转录结果或转录ID",
     "no_prompt_for_task": "未为任务端点指定提示",
     "no_questions_for_qa": "未为问答端点提供问题",
     "no_valid_transcript_ids": "必须提供有效的转录结果或有效的转录ID",
-    "transcription_failed": "获取转录失败：{error}",
-    "lemur_action_failed": "发生错误：{error}",
-    "run_lemur_failed": "运行LeMUR失败：{error}",
-    "unsupported_endpoint": "不支持的端点：{endpoint}",
-    "action_execution_failed": "执行{endpoint}操作失败：{error}",
-    "unsupported_model": "不支持的模型名称：{model}",
-    "model_selection_failed": "选择模型失败：{error}"
+    "transcription_failed": "获取转录失败：%{error}",
+    "lemur_action_failed": "发生错误：%{error}",
+    "run_lemur_failed": "运行LeMUR失败：%{error}",
+    "unsupported_endpoint": "不支持的端点：%{endpoint}",
+    "action_execution_failed": "执行%{endpoint}操作失败：%{error}",
+    "unsupported_model": "不支持的模型名称：%{model}",
+    "model_selection_failed": "选择模型失败：%{error}"
   },
   "logs": {
-    "transcript_id_from_result": "使用结果中的转录ID：{id}",
-    "transcript_ids_provided": "使用{count}个转录ID",
-    "transcript_error": "转录{id}有错误：{error}",
+    "transcript_id_from_result": "使用结果中的转录ID：%{id}",
+    "transcript_ids_provided": "使用%{count}个转录ID",
+    "transcript_error": "转录%{id}有错误：%{error}",
     "lemur_error": "运行LeMUR时出错",
-    "performing_action": "正在执行LeMUR操作：{endpoint}",
+    "performing_action": "正在执行LeMUR操作：%{endpoint}",
     "task_completed": "任务操作已完成",
     "summary_completed": "摘要操作已完成",
-    "processing_questions": "正在处理{count}个问题",
+    "processing_questions": "正在处理%{count}个问题",
     "qa_completed": "问答操作已完成",
-    "model_selected": "已选择模型：{model}"
+    "model_selected": "已选择模型：%{model}"
   }
 }

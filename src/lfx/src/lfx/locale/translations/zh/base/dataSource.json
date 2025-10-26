@@ -1,0 +1,11 @@
+{
+  "addDataSource": "添加数据源",
+  "editDataSource": "编辑数据源",
+  "deleteDataSource": "删除数据源",
+  "selectDataSource": "选择数据源",
+  "noDataSource": "暂无数据源",
+  "testConnection": "测试连接",
+  "connectionSuccess": "连接成功",
+  "connectionFailed": "连接失败：%{error}",
+  "deleteConfirm": "确定要删除数据源 %{name} 吗？"
+}

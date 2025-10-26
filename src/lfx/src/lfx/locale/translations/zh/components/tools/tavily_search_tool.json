@@ -56,25 +56,25 @@
   "tool_description": "使用Tavily API执行网络搜索。",
   "success": {
     "tool_created": "Tavily搜索工具创建成功",
-    "search_completed": "搜索成功完成。为'{query}'找到{count}个结果"
+    "search_completed": "搜索成功完成。为'%{query}'找到%{count}个结果"
   },
   "info": {
-    "executing_search": "正在为'{query}'执行Tavily搜索（深度：{depth}，主题：{topic}）..."
+    "executing_search": "正在为'%{query}'执行Tavily搜索（深度：%{depth}，主题：%{topic}）..."
   },
   "warnings": {
     "empty_query": "搜索查询为空。请提供搜索词。",
-    "no_results": "未找到查询'{query}'的搜索结果"
+    "no_results": "未找到查询'%{query}'的搜索结果"
   },
   "errors": {
-    "invalid_search_depth": "无效的搜索深度值：{error}",
-    "invalid_topic": "无效的主题值：{error}",
-    "invalid_time_range": "无效的时间范围值：{error}",
-    "invalid_search_depth_type": "无效的搜索深度值：{value}",
-    "invalid_topic_type": "无效的主题值：{value}",
-    "invalid_chunks_per_source": "每来源块数必须在{min}和{max}之间，得到{value}",
-    "invalid_days": "天数必须大于等于1，得到{value}",
+    "invalid_search_depth": "无效的搜索深度值：%{error}",
+    "invalid_topic": "无效的主题值：%{error}",
+    "invalid_time_range": "无效的时间范围值：%{error}",
+    "invalid_search_depth_type": "无效的搜索深度值：%{value}",
+    "invalid_topic_type": "无效的主题值：%{value}",
+    "invalid_chunks_per_source": "每来源块数必须在%{min}和%{max}之间，得到%{value}",
+    "invalid_days": "天数必须大于等于1，得到%{value}",
     "timeout": "请求超时（90秒）。请重试或调整参数。",
-    "http_error": "HTTP错误：{status} - {text}",
-    "unexpected_error": "意外错误：{error}"
+    "http_error": "HTTP错误：%{status} - %{text}",
+    "unexpected_error": "意外错误：%{error}"
   }
 }

@@ -6,7 +6,7 @@
     "info": "The message to be passed forward."
   },
   "ignored_message": {
-    "display_name": "Ignored Message", 
+    "display_name": "Ignored Message",
     "info": "A second message to be ignored. Used as a workaround for continuity."
   },
   "outputs": {
@@ -21,6 +21,6 @@
     "empty_message": "Empty message passed through"
   },
   "errors": {
-    "pass_error": "Error passing message: {error}"
+    "pass_error": "Error passing message: %{error}"
   }
 }

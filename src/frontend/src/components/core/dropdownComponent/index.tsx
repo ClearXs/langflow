@@ -280,6 +280,10 @@ export default function Dropdown({
       handleNodeClass,
       postTemplateValue,
       setErrorData,
+      name, // Pass parameter name
+      undefined, // callback
+      undefined, // toolMode
+      "refresh", // action - this will trigger graph_data and node_id to be sent
     )?.then(() => {
       setTimeout(() => {
         setRefreshOptions(false);

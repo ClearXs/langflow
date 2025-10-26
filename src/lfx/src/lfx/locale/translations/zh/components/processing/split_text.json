@@ -37,32 +37,32 @@
     }
   },
   "success": {
-    "text_split": "成功将{original_docs}个文档分割为{split_docs}个块",
-    "dataframe_created": "成功创建包含{chunks}个块的DataFrame"
+    "text_split": "成功将%{original_docs}个文档分割为%{split_docs}个块",
+    "dataframe_created": "成功创建包含%{chunks}个块的DataFrame"
   },
   "warnings": {
-    "invalid_list_item": "索引{index}处的项目不是Data对象（类型：{type}），跳过"
+    "invalid_list_item": "索引%{index}处的项目不是Data对象（类型：%{type}），跳过"
   },
   "errors": {
-    "docs_to_data_failed": "将文档转换为Data对象失败：{error}",
-    "separator_fix_failed": "修复分隔符失败：{error}",
-    "option_mapping_failed": "映射保留分隔符选项失败：{error}",
+    "docs_to_data_failed": "将文档转换为Data对象失败：%{error}",
+    "separator_fix_failed": "修复分隔符失败：%{error}",
+    "option_mapping_failed": "映射保留分隔符选项失败：%{error}",
     "no_data_inputs": "未提供数据输入",
     "empty_dataframe": "DataFrame为空",
-    "dataframe_conversion_failed": "将DataFrame转换为文档时出错：{error}",
-    "data_conversion_failed": "将Data转换为文档时出错：{error}",
+    "dataframe_conversion_failed": "将DataFrame转换为文档时出错：%{error}",
+    "data_conversion_failed": "将Data转换为文档时出错：%{error}",
     "no_valid_data_in_list": "列表中未找到有效的Data输入",
-    "list_conversion_failed": "集合中的输入类型无效：{error}",
-    "unsupported_input_type": "不支持的输入类型：{type}",
-    "splitter_configuration_failed": "配置文本分割器失败：{error}",
-    "text_splitting_failed": "分割文本时出错：{error}",
-    "split_base_failed": "文本分割操作失败：{error}",
-    "final_processing_failed": "创建最终DataFrame失败：{error}"
+    "list_conversion_failed": "集合中的输入类型无效：%{error}",
+    "unsupported_input_type": "不支持的输入类型：%{type}",
+    "splitter_configuration_failed": "配置文本分割器失败：%{error}",
+    "text_splitting_failed": "分割文本时出错：%{error}",
+    "split_base_failed": "文本分割操作失败：%{error}",
+    "final_processing_failed": "创建最终DataFrame失败：%{error}"
   },
   "logs": {
-    "dataframe_converted": "将DataFrame转换为{count}个文档",
+    "dataframe_converted": "将DataFrame转换为%{count}个文档",
     "single_data_converted": "将单个Data对象转换为文档",
-    "list_converted": "从{total}项列表中转换了{count}个有效的Data对象",
-    "splitter_configured": "文本分割器已配置 - 分隔符：{separator}，块大小：{chunk_size}，块重叠：{chunk_overlap}，保留分隔符：{keep_separator}"
+    "list_converted": "从%{total}项列表中转换了%{count}个有效的Data对象",
+    "splitter_configured": "文本分割器已配置 - 分隔符：%{separator}，块大小：%{chunk_size}，块重叠：%{chunk_overlap}，保留分隔符：%{keep_separator}"
   }
 }

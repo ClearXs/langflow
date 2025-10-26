@@ -30,16 +30,16 @@
     }
   },
   "success": {
-    "filtered_data": "成功从{total}个项目中过滤出{filtered}个项目"
+    "filtered_data": "成功从%{total}个项目中过滤出%{filtered}个项目"
   },
   "warnings": {
     "empty_input_data": "输入数据为空。",
     "missing_filter_params": "过滤键或值缺失。",
-    "invalid_items": "警告：{count}个项目不是Data对象，已跳过。",
-    "items_missing_key": "警告：{count}个项目没有键'{key}'或不是字典。",
-    "no_matches": "没有项目匹配过滤条件（运算符：{operator}，键：{key}，值：{value}）"
+    "invalid_items": "警告：%{count}个项目不是Data对象，已跳过。",
+    "items_missing_key": "警告：%{count}个项目没有键'%{key}'或不是字典。",
+    "no_matches": "没有项目匹配过滤条件（运算符：%{operator}，键：%{key}，值：%{value}）"
   },
   "errors": {
-    "filter_failed": "数据过滤失败：{error}"
+    "filter_failed": "数据过滤失败：%{error}"
   }
 }

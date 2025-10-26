@@ -68,14 +68,14 @@
     "file_name_required": "File name must be provided.",
     "input_type_not_set": "Input type is not set.",
     "storage_location_required": "Storage location must be selected.",
-    "unsupported_storage_location": "Unsupported storage location: {location}",
-    "unsupported_input_type": "Unsupported input type: {type}",
-    "file_not_found": "File not found: {path}",
+    "unsupported_storage_location": "Unsupported storage location: %{location}",
+    "unsupported_input_type": "Unsupported input type: %{type}",
+    "file_not_found": "File not found: %{path}",
     "user_id_required": "User ID is required for file saving.",
-    "unsupported_dataframe_format": "Unsupported DataFrame format: {format}",
-    "unsupported_data_format": "Unsupported Data format: {format}",
-    "unsupported_message_format": "Unsupported Message format: {format}",
-    "invalid_file_format": "Invalid file format '{format}' for {type}. Allowed: {allowed}",
+    "unsupported_dataframe_format": "Unsupported DataFrame format: %{format}",
+    "unsupported_data_format": "Unsupported Data format: %{format}",
+    "unsupported_message_format": "Unsupported Message format: %{format}",
+    "invalid_file_format": "Invalid file format '%{format}' for %{type}. Allowed: %{allowed}",
     "aws_access_key_required": "AWS Access Key ID is required for S3 storage",
     "aws_secret_key_required": "AWS Secret Key is required for S3 storage",
     "bucket_name_required": "S3 Bucket Name is required for S3 storage",
@@ -83,14 +83,14 @@
     "service_account_key_required": "GCP Credentials Secret Key is required for Google Drive storage",
     "folder_id_required": "Google Drive Folder ID is required for Google Drive storage",
     "google_api_not_installed": "Google API client libraries are not installed. Please install them.",
-    "invalid_service_account_json": "Invalid JSON in service account key: {error}"
+    "invalid_service_account_json": "Invalid JSON in service account key: %{error}"
   },
   "success": {
-    "dataframe_saved": "DataFrame saved successfully as '{path}'",
-    "data_saved": "Data saved successfully as '{path}'",
-    "message_saved": "Message saved successfully as '{path}'",
-    "uploaded_to_s3": "File successfully uploaded to {url}",
-    "uploaded_to_drive": "File successfully uploaded to Google Drive: {url}",
-    "created_in_google_apps": "File successfully created in Google {app_type}: {url}"
+    "dataframe_saved": "DataFrame saved successfully as '%{path}'",
+    "data_saved": "Data saved successfully as '%{path}'",
+    "message_saved": "Message saved successfully as '%{path}'",
+    "uploaded_to_s3": "File successfully uploaded to %{url}",
+    "uploaded_to_drive": "File successfully uploaded to Google Drive: %{url}",
+    "created_in_google_apps": "File successfully created in Google %{app_type}: %{url}"
   }
 }

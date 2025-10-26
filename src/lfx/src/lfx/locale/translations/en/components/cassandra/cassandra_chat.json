@@ -35,21 +35,21 @@
     "creating_history": "Creating message history..."
   },
   "success": {
-    "history_created": "Message history created successfully for session '{session_id}' in table '{table_name}'"
+    "history_created": "Message history created successfully for session '%{session_id}' in table '%{table_name}'"
   },
   "errors": {
     "cassio_not_installed": "Could not import cassio integration package. Please install it with `pip install cassio`.",
-    "initialization_failed": "Failed to initialize Cassandra chat memory: {error}"
+    "initialization_failed": "Failed to initialize Cassandra chat memory: %{error}"
   },
   "logs": {
     "cassio_imported": "cassio package imported successfully",
-    "detected_astra": "Detected Astra DB with database ID: {database_id}",
-    "detected_cassandra_multiple": "Detected regular Cassandra with {count} contact points",
-    "detected_cassandra_single": "Detected regular Cassandra with contact point: {contact_point}",
-    "connecting_astra": "Connecting to Astra DB with database ID: {database_id}",
+    "detected_astra": "Detected Astra DB with database ID: %{database_id}",
+    "detected_cassandra_multiple": "Detected regular Cassandra with %{count} contact points",
+    "detected_cassandra_single": "Detected regular Cassandra with contact point: %{contact_point}",
+    "connecting_astra": "Connecting to Astra DB with database ID: %{database_id}",
     "astra_connected": "Successfully connected to Astra DB",
-    "connecting_cassandra": "Connecting to Cassandra - Contact Points: {contact_points}, Username: {username}",
+    "connecting_cassandra": "Connecting to Cassandra - Contact Points: %{contact_points}, Username: %{username}",
     "cassandra_connected": "Successfully connected to Cassandra",
-    "creating_history": "Creating message history - Session ID: {session_id}, Table: {table_name}, Keyspace: {keyspace}"
+    "creating_history": "Creating message history - Session ID: %{session_id}, Table: %{table_name}, Keyspace: %{keyspace}"
   }
 }

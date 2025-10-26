@@ -56,23 +56,23 @@
     "info": "要偏向或抑制的令牌ID的JSON字符串（例如：{\"1003\": -100, \"1004\": 100}）。"
   },
   "errors": {
-    "fetch_failed": "获取模型时出错：{error}。使用默认模型。",
-    "config_update_failed": "更新模型选项时出错：{error}",
-    "invalid_logit_bias": "logit_bias JSON格式无效：{error}。使用默认值。"
+    "fetch_failed": "获取模型时出错：%{error}。使用默认模型。",
+    "config_update_failed": "更新模型选项时出错：%{error}",
+    "invalid_logit_bias": "logit_bias JSON格式无效：%{error}。使用默认值。"
   },
   "logs": {
-    "fetching_models": "正在从watsonx.ai获取可用模型 - 基础URL：{base_url}",
-    "requesting_models": "正在从端点请求模型：{endpoint}",
-    "models_fetched": "成功获取{count}个模型",
-    "using_default_models": "正在使用默认模型：{count}个模型",
-    "updating_config": "正在更新构建配置 - 字段：{field}，值：{value}",
-    "fetching_models_for_url": "正在为URL获取模型：{url}",
-    "models_updated": "已更新模型选项：在{url}中找到{count}个模型",
-    "building_model": "正在构建watsonx.ai模型 - 模型：{model}，URL：{url}",
+    "fetching_models": "正在从watsonx.ai获取可用模型 - 基础URL：%{base_url}",
+    "requesting_models": "正在从端点请求模型：%{endpoint}",
+    "models_fetched": "成功获取%{count}个模型",
+    "using_default_models": "正在使用默认模型：%{count}个模型",
+    "updating_config": "正在更新构建配置 - 字段：%{field}，值：%{value}",
+    "fetching_models_for_url": "正在为URL获取模型：%{url}",
+    "models_updated": "已更新模型选项：在%{url}中找到%{count}个模型",
+    "building_model": "正在构建watsonx.ai模型 - 模型：%{model}，URL：%{url}",
     "parsing_logit_bias": "正在解析logit_bias JSON",
-    "logit_bias_parsed": "Logit偏差解析成功：{bias}",
+    "logit_bias_parsed": "Logit偏差解析成功：%{bias}",
     "using_default_logit_bias": "正在使用默认logit_bias",
-    "configuring_parameters": "正在配置聊天参数 - 最大令牌数：{max_tokens}，温度：{temperature}，Top P：{top_p}，流式传输：{streaming}",
+    "configuring_parameters": "正在配置聊天参数 - 最大令牌数：%{max_tokens}，温度：%{temperature}，Top P：%{top_p}，流式传输：%{streaming}",
     "creating_chat_instance": "正在创建ChatWatsonx实例",
     "model_built": "watsonx.ai模型构建成功"
   }

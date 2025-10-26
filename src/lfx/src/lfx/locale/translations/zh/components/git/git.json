@@ -34,32 +34,32 @@
     }
   },
   "errors": {
-    "gitloader_creation_failed": "创建Git加载器失败：{error}",
-    "loading_failed": "加载文档失败：{error}"
+    "gitloader_creation_failed": "创建Git加载器失败：%{error}",
+    "loading_failed": "加载文档失败：%{error}"
   },
   "logs": {
-    "binary_file_detected": "检测到二进制文件：{path}",
-    "binary_check_failed": "{path}的二进制检查失败：{error}",
-    "file_excluded": "文件被模式'{pattern}'排除：{path}",
-    "file_included": "文件已包含：{path}",
-    "content_check_skipped_binary": "内容检查已跳过（二进制文件）：{path}",
-    "invalid_regex": "无效的正则表达式模式'{pattern}'：{error}",
-    "content_matched": "内容匹配：{path}",
-    "content_check_failed": "{path}的内容检查失败：{error}",
-    "building_filter": "正在构建组合过滤器 - 文件模式：{file_patterns}，内容模式：{content_pattern}",
-    "file_not_exists": "文件不存在：{path}",
-    "filter_error": "{path}的过滤错误：{error}",
-    "temp_dir_created": "临时目录已创建：{path}",
-    "temp_dir_removed": "临时目录已删除：{path}",
-    "temp_dir_remove_failed": "删除临时目录{path}失败：{error}",
+    "binary_file_detected": "检测到二进制文件：%{path}",
+    "binary_check_failed": "%{path}的二进制检查失败：%{error}",
+    "file_excluded": "文件被模式'%{pattern}'排除：%{path}",
+    "file_included": "文件已包含：%{path}",
+    "content_check_skipped_binary": "内容检查已跳过（二进制文件）：%{path}",
+    "invalid_regex": "无效的正则表达式模式'%{pattern}'：%{error}",
+    "content_matched": "内容匹配：%{path}",
+    "content_check_failed": "%{path}的内容检查失败：%{error}",
+    "building_filter": "正在构建组合过滤器 - 文件模式：%{file_patterns}，内容模式：%{content_pattern}",
+    "file_not_exists": "文件不存在：%{path}",
+    "filter_error": "%{path}的过滤错误：%{error}",
+    "temp_dir_created": "临时目录已创建：%{path}",
+    "temp_dir_removed": "临时目录已删除：%{path}",
+    "temp_dir_remove_failed": "删除临时目录%{path}失败：%{error}",
     "config_updated_local": "已更新本地仓库的配置",
     "config_updated_remote": "已更新远程仓库的配置",
     "building_gitloader": "正在构建Git加载器",
-    "using_local_repo": "使用本地仓库：{path}",
-    "using_remote_repo": "使用远程仓库：{url}",
-    "using_branch": "使用分支：{branch}",
+    "using_local_repo": "使用本地仓库：%{path}",
+    "using_remote_repo": "使用远程仓库：%{url}",
+    "using_branch": "使用分支：%{branch}",
     "gitloader_created": "Git加载器创建成功",
     "loading_documents": "正在从Git仓库加载文档",
-    "documents_loaded": "成功加载{count}个文档"
+    "documents_loaded": "成功加载%{count}个文档"
   }
 }

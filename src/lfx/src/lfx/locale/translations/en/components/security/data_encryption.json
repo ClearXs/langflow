@@ -7,7 +7,11 @@
   },
   "operation": {
     "display_name": "Operation",
-    "info": "Encrypt or decrypt"
+    "info": "Encrypt or decrypt",
+    "types": {
+      "encrypt": "Encrypt",
+      "decrypt": "Decrypt"
+    }
   },
   "encryption_key": {
     "display_name": "Encryption Key",
@@ -15,17 +19,33 @@
   },
   "field_configs": {
     "display_name": "Fields to Process",
-    "info": "Fields to encrypt/decrypt"
+    "info": "Fields to encrypt/decrypt (each row represents a field to process)",
+    "field": "Field Name",
+    "field_desc": "Field to encrypt/decrypt",
+    "load_fields_button": "Load Fields List"
   },
   "use_base64": {
     "display_name": "Use Base64",
     "info": "Encode result with Base64"
   },
+  "outputs": {
+    "data": {
+      "display_name": "Processed Data"
+    },
+    "encryption_stats": {
+      "display_name": "Encryption Statistics"
+    }
+  },
   "status": {
-    "success": "Successfully {operation}ed {count} records"
+    "success": "Successfully %{operation}ed %{count} records (%{fields} fields processed)",
+    "load_success": "Loaded %{count} fields from upstream data",
+    "no_fields_found": "No fields found in upstream data"
   },
   "errors": {
     "missing_config": "Encryption configuration is required",
-    "process_failed": "Encryption/decryption failed: {error}"
+    "process_failed": "Encryption/decryption failed: %{error}",
+    "no_graph_data": "No graph data available for field analysis",
+    "load_failed": "Field loading failed: %{error}",
+    "graph_not_available": "Cannot analyze fields - graph context not available"
   }
 }

@@ -33,43 +33,43 @@
     "parsing_input": "正在解析输入JSON...",
     "flattening_dataset": "正在展平数据集...",
     "building_tool": "正在构建Apify执行器工具...",
-    "calling_actor": "正在调用执行器'{actor}'...",
-    "streaming_logs": "正在流式传输运行'{run}'的日志...",
+    "calling_actor": "正在调用执行器'%{actor}'...",
+    "streaming_logs": "正在流式传输运行'%{run}'的日志...",
     "waiting_for_finish": "正在等待执行器完成...",
     "loading_dataset": "正在加载数据集..."
   },
   "success": {
-    "actor_run_completed": "执行器运行成功完成，包含{count}个项目",
-    "tool_built": "为执行器'{actor}'成功构建工具"
+    "actor_run_completed": "执行器运行成功完成，包含%{count}个项目",
+    "tool_built": "为执行器'%{actor}'成功构建工具"
   },
   "errors": {
-    "invalid_json": "无效的JSON输入：{error}",
-    "run_model_failed": "运行执行器失败：{error}",
+    "invalid_json": "无效的JSON输入：%{error}",
+    "run_model_failed": "运行执行器失败：%{error}",
     "input_schema_not_found": "未找到输入模式",
-    "build_tool_failed": "构建工具失败：{error}",
-    "tool_run_failed": "运行工具失败：{error}",
+    "build_tool_failed": "构建工具失败：%{error}",
+    "tool_run_failed": "运行工具失败：%{error}",
     "api_token_required": "需要API令牌",
-    "client_creation_failed": "创建Apify客户端失败：{error}",
-    "actor_not_found": "未找到执行器'{actor}'",
-    "build_not_found": "未找到构建'{build}'",
-    "get_build_failed": "获取执行器'{actor}'的构建失败：{error}",
+    "client_creation_failed": "创建Apify客户端失败：%{error}",
+    "actor_not_found": "未找到执行器'%{actor}'",
+    "build_not_found": "未找到构建'%{build}'",
+    "get_build_failed": "获取执行器'%{actor}'的构建失败：%{error}",
     "dataset_not_found": "未找到数据集",
     "dataset_id_not_found": "未找到数据集ID",
-    "get_dataset_id_failed": "获取运行'{run}'的数据集ID失败：{error}",
+    "get_dataset_id_failed": "获取运行'%{run}'的数据集ID失败：%{error}",
     "actor_run_details_not_found": "未找到执行器运行详情",
     "run_id_not_found": "未找到运行ID",
     "run_client_not_found": "未找到运行客户端",
-    "run_actor_failed": "运行执行器'{actor}'失败：{error}"
+    "run_actor_failed": "运行执行器'%{actor}'失败：%{error}"
   },
   "logs": {
-    "running_actor": "正在运行执行器'{actor}'，包含{fields}个字段",
+    "running_actor": "正在运行执行器'%{actor}'，包含%{fields}个字段",
     "dataset_flattened": "数据集展平成功",
-    "fetching_build": "正在获取执行器'{actor}'的构建",
+    "fetching_build": "正在获取执行器'%{actor}'的构建",
     "client_created": "Apify客户端创建成功",
-    "build_retrieved": "已检索执行器'{actor}'的构建（构建ID：{build}）",
-    "dataset_id_retrieved": "已检索运行'{run}'的数据集ID（数据集ID：{dataset}）",
-    "actor_run_finished": "执行器运行'{run}'已完成",
-    "dataset_loaded": "数据集'{dataset}'已加载，包含{items}个项目"
+    "build_retrieved": "已检索执行器'%{actor}'的构建（构建ID：%{build}）",
+    "dataset_id_retrieved": "已检索运行'%{run}'的数据集ID（数据集ID：%{dataset}）",
+    "actor_run_finished": "执行器运行'%{run}'已完成",
+    "dataset_loaded": "数据集'%{dataset}'已加载，包含%{items}个项目"
   },
   "tool": {
     "input_schema_prefix": "作为字符串编码的JSON，带有输入模式（严格遵循JSON格式和模式）：",

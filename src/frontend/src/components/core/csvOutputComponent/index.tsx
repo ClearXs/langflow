@@ -2,6 +2,7 @@ import type { AllNodeType } from "@/types/flow";
 import "ag-grid-community/styles/ag-grid.css"; // Mandatory CSS required by the grid
 import "ag-grid-community/styles/ag-theme-balham.css"; // Optional Theme applied to the grid
 import { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useMessageLocale } from "@/i18n/locale";
 import { useDarkStore } from "../../../stores/darkStore";
 import type { VertexBuildTypeAPI } from "../../../types/api";
@@ -17,6 +18,7 @@ function CsvOutputComponent({
   csvNode: AllNodeType;
   flowPool: VertexBuildTypeAPI;
 }) {
+  const { t } = useTranslation();
   const csvNodeArtifacts = flowPool?.data?.artifacts?.repr;
   const jsonString = csvNodeArtifacts?.replace(/'/g, '"');
   let file = null;
@@ -124,7 +126,7 @@ function CsvOutputComponent({
             columnDefs={colDefs}
             defaultColDef={defaultColDef}
             scrollbarWidth={8}
-            overlayNoRowsTemplate="No data available"
+            overlayNoRowsTemplate={t("table.noRowsToShow")}
           />
         </div>
       )}

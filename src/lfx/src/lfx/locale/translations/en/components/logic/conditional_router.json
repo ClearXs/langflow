@@ -44,27 +44,27 @@
   "status": {
     "condition_true": "Condition evaluated to True",
     "condition_false": "Condition evaluated to False",
-    "forced_true": "Max iterations ({iteration}) reached - forcing True output",
-    "forced_false": "Max iterations ({iteration}) reached - forcing False output"
+    "forced_true": "Max iterations (%{iteration}) reached - forcing True output",
+    "forced_false": "Max iterations (%{iteration}) reached - forcing False output"
   },
   "warnings": {
-    "invalid_regex": "Invalid regex pattern '{pattern}': {error}",
-    "invalid_number": "Invalid number format for comparison - Input: '{input_text}', Match: '{match_text}', Error: {error}"
+    "invalid_regex": "Invalid regex pattern '%{pattern}': %{error}",
+    "invalid_number": "Invalid number format for comparison - Input: '%{input_text}', Match: '%{match_text}', Error: %{error}"
   },
   "logs": {
     "pre_run_setup": "Pre-run setup completed - iteration counter reset",
-    "evaluating": "Evaluating condition - Operator: {operator}, Case Sensitive: {case_sensitive}",
-    "evaluation_result": "Condition evaluation result: {result}",
-    "iteration_updated": "Iteration updated - Current: {iteration}, Max: {max_iterations}",
-    "max_iterations_reached": "Max iterations reached ({iteration}) - Default route: {default_route}",
-    "cleared_exclusions": "Cleared {count} conditional exclusions",
-    "switched_route": "Switched route to stop: {new_route}",
-    "stopping_route": "Stopping route: {route}",
+    "evaluating": "Evaluating condition - Operator: %{operator}, Case Sensitive: %{case_sensitive}",
+    "evaluation_result": "Condition evaluation result: %{result}",
+    "iteration_updated": "Iteration updated - Current: %{iteration}, Max: %{max_iterations}",
+    "max_iterations_reached": "Max iterations reached (%{iteration}) - Default route: %{default_route}",
+    "cleared_exclusions": "Cleared %{count} conditional exclusions",
+    "switched_route": "Switched route to stop: %{new_route}",
+    "stopping_route": "Stopping route: %{route}",
     "condition_true": "Condition evaluated to True - routing to true branch",
     "condition_false": "Condition evaluated to False - routing to false branch",
-    "forced_true_output": "Forced True output due to max iterations: {iteration}",
-    "forced_false_output": "Forced False output due to max iterations: {iteration}",
-    "updating_config": "Updating build config for operator: {operator}",
+    "forced_true_output": "Forced True output due to max iterations: %{iteration}",
+    "forced_false_output": "Forced False output due to max iterations: %{iteration}",
+    "updating_config": "Updating build config for operator: %{operator}",
     "removed_case_sensitive": "Removed case_sensitive field for regex operator",
     "added_case_sensitive": "Added case_sensitive field to build config"
   }

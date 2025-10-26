@@ -1,5 +1,6 @@
 import type { SelectionChangedEvent } from "ag-grid-community";
 import { useContext, useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   DEL_KEY_ERROR_ALERT,
   DEL_KEY_ERROR_ALERT_PLURAL,
@@ -18,6 +19,7 @@ import ApiKeyHeaderComponent from "./components/ApiKeyHeader";
 import { getColumnDefs } from "./helpers/column-defs";
 
 export default function ApiKeysPage() {
+  const { t } = useTranslation();
   const [selectedRows, setSelectedRows] = useState<string[]>([]);
   const setSuccessData = useAlertStore((state) => state.setSuccessData);
   const setErrorData = useAlertStore((state) => state.setErrorData);
@@ -93,7 +95,7 @@ export default function ApiKeysPage() {
         <TableComponent
           key={"apiKeys"}
           onDelete={handleDeleteApi}
-          overlayNoRowsTemplate="No data available"
+          overlayNoRowsTemplate={t("table.noRowsToShow")}
           onSelectionChanged={(event: SelectionChangedEvent) => {
             setSelectedRows(event.api.getSelectedRows().map((row) => row.id));
           }}

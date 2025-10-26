@@ -1,0 +1,44 @@
+{
+  "display_name": "多列转换为多行",
+  "description": "将多个列转换为行数据(unpivot操作)",
+  "data_input": {
+    "display_name": "数据输入",
+    "info": "输入要进行转换的数据流"
+  },
+  "key_field": {
+    "display_name": "Key字段",
+    "info": "用来存储转换前字段名称的字段"
+  },
+  "value_field": {
+    "display_name": "Value字段",
+    "info": "用来存储转换后字段值的字段"
+  },
+  "field_mapping": {
+    "display_name": "字段映射配置",
+    "info": "配置要转换的源字段和对应的Key值",
+    "source_field": "源字段",
+    "key_value": "Key值",
+    "load_fields_button": "加载字段列表"
+  },
+  "chunk_size": {
+    "display_name": "分块大小",
+    "info": "处理大数据量时的分块大小"
+  },
+  "outputs": {
+    "data": "转换后数据",
+    "fields_schema": "字段模式",
+    "preview": "字段预览",
+    "statistics": "统计信息"
+  },
+  "status": {
+    "unpivoting": "正在执行unpivot转换...",
+    "success": "转换完成: %{original}行 -> %{result}行",
+    "fields_loaded": "已加载%{count}个字段"
+  },
+  "errors": {
+    "no_input_data": "没有输入数据",
+    "no_fields_to_unpivot": "没有要转换的字段",
+    "unpivot_failed": "unpivot转换失败: %{error}",
+    "load_fields_failed": "加载字段失败: %{error}"
+  }
+}

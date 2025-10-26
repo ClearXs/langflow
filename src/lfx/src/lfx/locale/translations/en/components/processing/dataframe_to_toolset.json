@@ -22,17 +22,17 @@
     }
   },
   "errors": {
-    "column_not_found": "Tool column '{column}' not found in DataFrame columns: {columns}"
+    "column_not_found": "Tool column '%{column}' not found in DataFrame columns: %{columns}"
   },
-  "action_function_doc": "Execute {action_name} action and return the associated content.",
-  "tool_description": "Execute {action_name} action. Returns: {content}{ellipsis}",
-  "action_metadata": "Action: {action_name}",
+  "action_function_doc": "Execute %{action_name} action and return the associated content.",
+  "tool_description": "Execute %{action_name} action. Returns: %{content}%{ellipsis}",
+  "action_metadata": "Action: %{action_name}",
   "placeholder_message": "No tools available. Please connect a DataFrame with appropriate columns.",
   "placeholder_description": "Placeholder tool - waiting for DataFrame input",
   "messages": {
     "waiting_input": "Waiting for DataFrame input...",
     "no_tools": "No tools were created. Please check your DataFrame and column selections.",
-    "toolset_created": "Created toolset with {count} tools:"
+    "toolset_created": "Created toolset with %{count} tools:"
   },
   "status": {
     "waiting_input": "Waiting for DataFrame input",

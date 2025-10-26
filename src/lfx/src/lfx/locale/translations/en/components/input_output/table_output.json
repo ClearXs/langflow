@@ -1,45 +1,112 @@
 {
   "display_name": "Table Output",
-  "description": "Write data to database tables with upsert support",
+  "description": "Write data to database tables with multiple write modes and field mapping",
   "data_input": {
     "display_name": "Data Input",
-    "info": "Data to write"
+    "info": "Data to write to the target table"
   },
-  "connection_string": {
-    "display_name": "Connection String",
-    "info": "Database connection string"
+  "datasource_selector": {
+    "display_name": "Data Source",
+    "info": "Select the target database connection"
   },
-  "table_name": {
-    "display_name": "Table Name",
-    "info": "Target table name"
+  "table_selector": {
+    "display_name": "Target Table",
+    "info": "Select the table to write data to"
+  },
+  "field_mappings": {
+    "display_name": "Field Mappings",
+    "info": "Map source fields to target table columns with update options",
+    "source_field": "Source Field",
+    "target_field": "Target Field",
+    "data_type": "Data Type",
+    "update_option": "Update Option",
+    "is_key_field": "Key Field",
+    "is_key_field_desc": "Check if this field is a key field for upsert mode",
+    "null_value": "Default Value",
+    "null_value_desc": "Default value when source field is null or empty",
+    "analyze_schema_button": "Analyze Schema",
+    "auto_map_button": "Auto Map Fields",
+    "update_options": {
+      "sync_update": "Sync Update",
+      "insert_only": "Insert Only",
+      "update_when_has_value": "Update When Has Value",
+      "update_when_not_empty": "Update When Not Empty",
+      "cumulative_update": "Cumulative Update",
+      "prohibit_update": "Prohibit Update"
+    }
+  },
+  "preview_table": {
+    "display_name": "Output Preview",
+    "info": "Preview existing data in the target table (first 100 rows)",
+    "preview_button": "Preview Data"
   },
   "write_mode": {
     "display_name": "Write Mode",
-    "info": "How to write data"
+    "info": "How to write data: batch_insert (fast, no duplicate check), upsert (insert/update based on keys), replace (truncate + insert), append (simple insert)"
   },
-  "key_columns": {
-    "display_name": "Key Columns",
-    "info": "Columns for upsert matching"
+  "clear_table_first": {
+    "display_name": "Clear Table First",
+    "info": "Truncate the target table before writing data"
   },
   "auto_create_table": {
     "display_name": "Auto Create Table",
-    "info": "Create table if not exists"
+    "info": "Automatically create the table if it does not exist"
   },
   "batch_size": {
     "display_name": "Batch Size",
-    "info": "Records per batch"
+    "info": "Number of records to write per batch (1-100000)"
   },
-  "truncate_first": {
-    "display_name": "Truncate First",
-    "info": "Clear table before writing"
+  "enable_transaction": {
+    "display_name": "Enable Transaction",
+    "info": "Wrap write operations in a database transaction (commit on success, rollback on error)"
+  },
+  "isolation_level": {
+    "display_name": "Transaction Isolation Level",
+    "info": "Database transaction isolation level (only applies when transaction is enabled)"
+  },
+  "escape_char": {
+    "display_name": "Escape Character",
+    "info": "Character to escape table/column names (e.g., ` for MySQL, \" for PostgreSQL). Leave empty for no escaping."
   },
   "status": {
-    "writing": "Writing to table...",
-    "success": "Successfully wrote {rows} rows"
+    "loading_datasources": "Loading datasources...",
+    "loading_tables": "Loading tables...",
+    "loading_columns": "Loading table columns...",
+    "analyzing_schema": "Analyzing input data schema...",
+    "analysis_success": "Schema analysis completed: %{count} fields generated",
+    "no_input_data": "No input data available for schema analysis",
+    "mapping_fields": "Auto-mapping fields...",
+    "mapping_success": "Auto-mapping completed: %{count} fields mapped",
+    "no_fields_to_map": "No field mappings available to auto-map",
+    "no_target_fields": "No target fields available. Please select a table first.",
+    "previewing_data": "Loading target table data preview...",
+    "preview_success": "Preview loaded: %{count} rows",
+    "no_data_found": "Target table is empty (no data)",
+    "writing": "Writing data to table...",
+    "success": "Successfully wrote %{rows} rows to table '%{table}'",
+    "tables_loaded": "Successfully loaded %{count} tables"
   },
   "errors": {
-    "no_data": "No data to write",
-    "no_keys_for_upsert": "Key columns required for upsert",
-    "write_failed": "Table write failed: {error}"
+    "no_data": "No data to write. Please provide input data.",
+    "no_datasource": "No datasource selected. Please select a datasource.",
+    "no_table": "No table selected. Please select a target table.",
+    "no_datasource_or_table": "Please select both datasource and table before preview",
+    "no_field_mappings": "No field mappings configured. Please use 'Analyze Schema' button.",
+    "no_key_fields": "No key fields selected. Upsert mode requires at least one key field.",
+    "empty_dataframe": "Data conversion resulted in empty DataFrame",
+    "analysis_failed": "Schema analysis failed: %{error}",
+    "mapping_failed": "Auto field mapping failed: %{error}",
+    "preview_failed": "Target data preview failed: %{error}",
+    "write_failed": "%{error_type}: %{error}",
+    "load_tables_failed": "Failed to load tables list",
+    "no_graph_data": "Cannot retrieve flow graph data. Please ensure the component is connected to upstream nodes"
+  },
+  "outputs": {
+    "result": {
+      "display_name": "Write Result"
+    },
+    "row_count": {
+      "display_name": "Row Count"
+    }
   }
 }

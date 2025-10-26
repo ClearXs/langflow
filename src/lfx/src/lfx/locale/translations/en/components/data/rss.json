@@ -50,15 +50,15 @@
     }
   },
   "success": {
-    "fetched_entries": "Successfully fetched {count} entries out of {total} total entries"
+    "fetched_entries": "Successfully fetched %{count} entries out of %{total} total entries"
   },
   "warnings": {
-    "feed_parsing_issues": "Feed parsing encountered issues: {error}"
+    "feed_parsing_issues": "Feed parsing encountered issues: %{error}"
   },
   "errors": {
     "empty_url": "RSS URL cannot be empty.",
     "no_entries": "No entries found in the RSS feed.",
-    "fetch_error": "Error fetching RSS feed: {error}",
-    "feed_info_error": "Error getting feed information: {error}"
+    "fetch_error": "Error fetching RSS feed: %{error}",
+    "feed_info_error": "Error getting feed information: %{error}"
   }
 }

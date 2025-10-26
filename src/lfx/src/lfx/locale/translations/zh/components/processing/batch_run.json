@@ -32,19 +32,19 @@
     }
   },
   "success": {
-    "batch_completed": "批量处理成功完成。处理了{total}行。"
+    "batch_completed": "批量处理成功完成。处理了%{total}行。"
   },
   "info": {
-    "processing_column": "正在处理列'{column}'，共{count}行",
-    "processing_all_columns": "正在以TOML格式处理所有列，共{count}行",
-    "starting_batch": "开始批量处理{total}行",
-    "processing_progress": "已处理{current}/{total}行"
+    "processing_column": "正在处理列'%{column}'，共%{count}行",
+    "processing_all_columns": "正在以TOML格式处理所有列，共%{count}行",
+    "starting_batch": "开始批量处理%{total}行",
+    "processing_progress": "已处理%{current}/%{total}行"
   },
   "errors": {
-    "invalid_dataframe_type": "期望DataFrame输入，但得到{actual_type}",
-    "column_not_found": "在DataFrame中未找到列'{column}'。可用列：{available}",
-    "toml_formatting_failed": "将行格式化为TOML失败：{error}",
-    "data_processing_error": "数据处理错误：{error}",
-    "unexpected_error": "批量处理期间发生意外错误：{error}"
+    "invalid_dataframe_type": "期望DataFrame输入，但得到%{actual_type}",
+    "column_not_found": "在DataFrame中未找到列'%{column}'。可用列：%{available}",
+    "toml_formatting_failed": "将行格式化为TOML失败：%{error}",
+    "data_processing_error": "数据处理错误：%{error}",
+    "unexpected_error": "批量处理期间发生意外错误：%{error}"
   }
 }

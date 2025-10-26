@@ -29,7 +29,7 @@ def upgrade() -> None:
     if "datasource" not in table_names:
         op.create_table(
             "datasource",
-            sa.Column("id", sa.String(), nullable=False),
+            sa.Column("id", sa.UUID(), nullable=False),
             sa.Column("name", sa.String(), nullable=False),
             sa.Column("type", sa.String(), nullable=False),
             sa.Column("host", sa.String(), nullable=False),
@@ -42,7 +42,6 @@ def upgrade() -> None:
             sa.Column("created_at", sa.DateTime(timezone=True), server_default=sa.text("now()"), nullable=False),
             sa.Column("updated_at", sa.DateTime(timezone=True), nullable=True),
             sa.PrimaryKeyConstraint("id", name="pk_datasource"),
-            sa.UniqueConstraint("id", name="uq_datasource_id"),
         )
 
         # Create indexes

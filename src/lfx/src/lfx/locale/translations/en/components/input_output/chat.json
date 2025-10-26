@@ -47,14 +47,14 @@
     "history_cleared": "Chat history cleared successfully"
   },
   "warnings": {
-    "history_error": "Failed to retrieve message history: {error}"
+    "history_error": "Failed to retrieve message history: %{error}"
   },
   "errors": {
     "message_required": "Message input is required when 'Use Message Input' is enabled.",
     "text_required": "Text input cannot be empty.",
     "invalid_message_type": "Expected Message object, got different type.",
-    "build_message_error": "Error building message: {error}",
-    "get_text_error": "Error getting text content: {error}",
-    "clear_history_error": "Error clearing chat history: {error}"
+    "build_message_error": "Error building message: %{error}",
+    "get_text_error": "Error getting text content: %{error}",
+    "clear_history_error": "Error clearing chat history: %{error}"
   }
 }

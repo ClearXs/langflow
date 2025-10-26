@@ -1,7 +1,5 @@
 """Unit tests for graph_utils module."""
 
-import pytest
-
 from lfx.custom.graph_utils import find_upstream_node_id
 
 

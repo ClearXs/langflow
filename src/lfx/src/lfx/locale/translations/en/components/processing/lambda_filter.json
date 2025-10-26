@@ -27,22 +27,22 @@
       "display_name": "Filtered Data"
     }
   },
-  "data_sample_large": "Data structure sample (first {head} and last {tail} characters):\n{head}\n...\n{tail}",
-  "llm_prompt": "You are a Python expert. Given the following data structure and sample:\n\nData Structure:\n{data_structure}\n\nData Sample:\n{data_sample}\n\nCreate a Python lambda function that: {instruction}\n\nThe lambda function should:\n1. Take a single parameter representing the data structure shown above\n2. Return the filtered/transformed result\n3. Be a single line starting with 'lambda'\n\nRespond with ONLY the lambda function, no explanation or additional text.",
+  "data_sample_large": "Data structure sample (first %{head} and last %{tail} characters):\n%{head}\n...\n%{tail}",
+  "llm_prompt": "You are a Python expert. Given the following data structure and sample:\n\nData Structure:\n%{data_structure}\n\nData Sample:\n%{data_sample}\n\nCreate a Python lambda function that: %{instruction}\n\nThe lambda function should:\n1. Take a single parameter representing the data structure shown above\n2. Return the filtered/transformed result\n3. Be a single line starting with 'lambda'\n\nRespond with ONLY the lambda function, no explanation or additional text.",
   "warnings": {
     "empty_data": "No data provided for filtering"
   },
   "errors": {
     "empty_instruction": "Filter instruction cannot be empty",
-    "llm_invocation_failed": "Failed to invoke language model: {error}",
-    "lambda_not_found": "Could not extract a valid lambda function from LLM response: {response}",
-    "invalid_lambda_format": "Invalid lambda function format: {lambda_text}",
-    "lambda_evaluation_failed": "Failed to evaluate lambda function '{lambda_text}': {error}",
-    "lambda_execution_failed": "Failed to execute lambda function: {error}",
-    "processing_failed": "Data processing failed: {error}",
-    "data_conversion_failed": "Failed to convert processed data to Data objects: {error}"
+    "llm_invocation_failed": "Failed to invoke language model: %{error}",
+    "lambda_not_found": "Could not extract a valid lambda function from LLM response: %{response}",
+    "invalid_lambda_format": "Invalid lambda function format: %{lambda_text}",
+    "lambda_evaluation_failed": "Failed to evaluate lambda function '%{lambda_text}': %{error}",
+    "lambda_execution_failed": "Failed to execute lambda function: %{error}",
+    "processing_failed": "Data processing failed: %{error}",
+    "data_conversion_failed": "Failed to convert processed data to Data objects: %{error}"
   },
   "success": {
-    "data_processed": "Successfully processed {count} data items"
+    "data_processed": "Successfully processed %{count} data items"
   }
 }

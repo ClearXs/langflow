@@ -67,9 +67,10 @@
     "download": "Download",
     "thisWillPermanentlyDeleteThe": "This will permanently delete the",
     "thisCantBeUndone": "This can't be undone.",
-    "folder": "Folder",
     "andAllAssociatedFlowsAndComponents": "and all associated flows and components",
     "dot": ".",
+    "their": "their",
+    "its": "its",
     "emptyProject": "Empty project",
     "startBuilding": "Start building",
     "beginWithATemplateOrStartFromScratch": "Begin with a template, or start from scratch.",
@@ -101,7 +102,6 @@
     "searchFiles": "Search files...",
     "name": "Name",
     "type": "Type",
-    "size": "Size",
     "modified": "Modified",
     "uploadFailed": "Upload failed,",
     "tryAgain": "try again?",
@@ -142,7 +142,8 @@
     "controls": "Controls",
     "freeze": "Freeze",
     "toolMode": "Tool Mode",
-    "ungroup": "Ungroup"
+    "ungroup": "Ungroup",
+    "empty": "Empty"
   },
   "navigation": {
     "home": "Home",
@@ -175,6 +176,8 @@
     "runFlow": "Run Flow",
     "stopFlow": "Stop Flow",
     "buildFlow": "Build Flow",
+    "running": "Running",
+    "runningFlow": "Running flow",
     "playground": "Playground",
     "duplicate": "Duplicate",
     "rename": "Rename",
@@ -244,6 +247,7 @@
         "toolkits": "Toolkits",
         "tools": "Tools",
         "manipulations": "Manipulations",
+        "quality": "Quality",
         "operations": "Operations",
         "scripts": "Scripts",
         "security": "Security"
@@ -343,7 +347,15 @@
         "displayName": "playground",
         "tooltip": "Add a Chat Input or Chat Output to use the playground"
       }
-    }
+    },
+    "name": "Name",
+    "namePlaceholder": "Flow name",
+    "nameAlreadyExists": "Flow name already exists",
+    "description": "Description",
+    "descriptionPlaceholder": "Flow description",
+    "noDescription": "No description",
+    "lockFlow": "Lock Flow",
+    "lockFlowDescription": "Lock your flow to prevent edits or accidental changes."
   },
   "codeAreaModal": {
     "title": "Caution",
@@ -610,7 +622,8 @@
     "defaultToolsetPlaceholder": "Used as a tool",
     "editTextPlaceholder": "Type message here.",
     "editTextModalTitle": "Edit Text",
-    "textDialogTitle": "Edit text content"
+    "textDialogTitle": "Edit text content",
+    "passwordKeyPlaceholder": "Key"
   },
   "time": {
     "now": "Now",
@@ -845,7 +858,10 @@
       "noapi": "You don't have an API Key. Please add one to use the Langflow Store.",
       "invalidApi": "Your API Key is not valid. Please add a valid API Key to use the Langflow Store.",
       "components": "Error getting components.",
-      "invalidFileSize": "The file size is too large. Please select a file smaller than {{maxSizeMB}}."
+      "invalidFileSize": "The file size is too large. Please select a file smaller than {{maxSizeMB}}.",
+      "buildComponent": "Error Building Component",
+      "buildFlow": "Error Building Flow",
+      "networkError": "Network error. Please check the connection to the server."
     },
     "notice": {
       "noChatOutput": "There is no ChatOutput Component in the flow.",
@@ -1018,6 +1034,10 @@
     }
   },
   "table": {
+    "noRowsToShow": "No Rows To Show",
+    "page": "Page",
+    "of": "of",
+    "to": "to",
     "options": {
       "addRow": "Add a new row",
       "selectToDuplicate": "Select items to duplicate",
@@ -1076,17 +1096,34 @@
   "fileInput": {
     "selectFile": "Select File",
     "addMore": "Add More",
-    "changeFile": "Change File",
+    "changeFile": "Replace",
     "filesSelected": "{{count}} file(s) selected",
     "modalTitle": "Select Files",
     "modalDescription": "Choose files from the file management system.",
     "modalDescriptionWithTypes": "Only {{types}} files are allowed.",
-    "selectFiles": "Select Files"
+    "selectFiles": "Select Files",
+    "selectFolder": "Select Folder",
+    "selectFolderTitle": "Select Folder",
+    "selectFolderDescription": "Choose a folder from the file management system.",
+    "dropFilesHere": "Drop files here to upload",
+    "dragDropHint": "Or drag and drop files here",
+    "uploading": "Uploading...",
+    "uploadSuccess": "Upload Successful",
+    "filesUploaded": "{{count}} file(s) uploaded successfully",
+    "uploadFailed": "Upload Failed",
+    "downloadFailed": "Download Failed",
+    "invalidFileType": "Invalid File Type",
+    "allowedTypes": "Allowed types: {{types}}",
+    "noValidFiles": "No valid files found",
+    "singleFileOnly": "Single File Only",
+    "removeExistingFile": "Please remove the existing file first"
   },
   "fileTableModal": {
     "fileManager": "File Manager",
     "selectFiles": "Select Files",
+    "selectCurrentFolder": "Select Current Folder",
     "pleaseSelectAtLeastOneFile": "Please select at least one file",
+    "pleaseSelectFilesNotFolders": "Please select files, not folders",
     "pleaseSelectFilesToDelete": "Please select files to delete",
     "pleaseSelectFilesToDownload": "Please select files to download",
     "deleteFailed": "Failed to delete files",
@@ -1145,6 +1182,121 @@
     "unitPlaceholder": "Optional unit",
     "addMapping": "Add Field Mapping",
     "mappingsCount": "{{count}} mapping(s) configured"
+  },
+  "dataSource": {
+    "management": "Data Source Management",
+    "description": "Manage system data source connections, including enterprise and custom data sources",
+    "enterprise": "Enterprise Data Sources",
+    "custom": "Custom Data Sources",
+    "addDataSource": "Add Data Source",
+    "editDataSource": "Edit Data Source",
+    "testConnection": "Test Connection",
+    "connectionSuccess": "Connection successful",
+    "connectionFailed": "Connection failed: {{error}}",
+    "deleteConfirm": "Are you sure you want to delete data source {{name}}?",
+    "host": "Host",
+    "port": "Port",
+    "database": "Database",
+    "username": "Username",
+    "password": "Password",
+    "type": "Type",
+    "name": "Name",
+    "status": "Status",
+    "lastUsed": "Last Used",
+    "created": "Created",
+    "actions": "Actions",
+    "noDataSources": "No data sources",
+    "active": "Active",
+    "inactive": "Inactive",
+    "testing": "Testing...",
+    "createSuccess": "Data source created successfully",
+    "updateSuccess": "Data source updated successfully",
+    "deleteSuccess": "Data source deleted successfully",
+    "saveFailed": "Save failed: {{error}}",
+    "loadFailed": "Failed to load data sources",
+    "namePlaceholder": "Enter data source name",
+    "hostPlaceholder": "e.g., localhost or 192.168.1.1",
+    "portPlaceholder": "e.g., 3306",
+    "databasePlaceholder": "Database name",
+    "usernamePlaceholder": "Database username",
+    "passwordPlaceholder": "Database password",
+    "selectType": "Select database type",
+    "mysql": "MySQL",
+    "postgresql": "PostgreSQL",
+    "oracle": "Oracle",
+    "mssql": "SQL Server",
+    "loadingTables": "Loading tables...",
+    "loadingColumns": "Loading columns...",
+    "selectDataSource": "Select data source",
+    "selectTable": "Select table",
+    "refreshTables": "Refresh tables",
+    "refreshColumns": "Refresh columns",
+    "noTablesFound": "No tables found",
+    "noColumnsFound": "No columns found",
+    "all": "All",
+    "searchPlaceholder": "Search data sources...",
+    "source": "Source",
+    "lastTested": "Last Tested",
+    "statusActive": "Active",
+    "statusError": "Error",
+    "statusInactive": "Inactive",
+    "addDescription": "Configure a new data source connection",
+    "editDescription": "Modify data source connection configuration",
+    "passwordUnchanged": "Keep current password unchanged",
+    "errors": {
+      "loadFailed": "Failed to load data sources",
+      "createFailed": "Failed to create data source",
+      "updateFailed": "Failed to update data source",
+      "deleteFailed": "Failed to delete data source",
+      "nameRequired": "Data source name is required",
+      "hostRequired": "Host address is required",
+      "portRequired": "Port number is required",
+      "portInvalid": "Port number must be between 1-65535",
+      "databaseRequired": "Database name is required",
+      "usernameRequired": "Username is required",
+      "passwordRequired": "Password is required"
+    }
+  },
+  "dataTypes": {
+    "string": "String",
+    "integer": "Integer",
+    "float": "Float",
+    "decimal": "Decimal",
+    "boolean": "Boolean",
+    "date": "Date",
+    "datetime": "DateTime",
+    "timestamp": "Timestamp",
+    "json": "JSON",
+    "text": "Text",
+    "binary": "Binary"
+  },
+  "transformation": {
+    "rules": {
+      "none": "No transformation",
+      "upper": "To uppercase",
+      "lower": "To lowercase",
+      "trim": "Trim whitespace",
+      "mask_phone": "Mask phone number",
+      "mask_idcard": "Mask ID card",
+      "mask_email": "Mask email",
+      "mask_name": "Mask name",
+      "md5": "MD5 encryption",
+      "sha256": "SHA256 encryption",
+      "to_int": "To integer",
+      "to_float": "To float",
+      "to_str": "To string",
+      "to_bool": "To boolean",
+      "expression": "Expression",
+      "javascript": "JavaScript script",
+      "python": "Python script"
+    },
+    "editor": {
+      "expression": "Edit expression",
+      "javascript": "Edit JavaScript script",
+      "python": "Edit Python script",
+      "expressionHelp": "Use expressions for simple data transformation:",
+      "scriptHelp": "Write scripts for complex data transformation:"
+    }
   },
   "api": {
     "modal": {
@@ -1234,6 +1386,32 @@
     "searchOptions": "Search options...",
     "noOptionsFound": "No options found",
     "refreshList": "Refresh list",
-    "loading": "Loading..."
+    "loading": "Loading...",
+    "selectOption": "Select an option"
+  },
+  "validation": {
+    "characterLimitReached": "Character limit reached",
+    "minimumCharactersRequired": "Minimum {{count}} character(s) required",
+    "pleaseEnterName": "Please enter a name",
+    "pleaseEnterDescription": "Please enter a description"
+  },
+  "output": {
+    "truncatedMessage": "This output has been truncated due to its size."
+  },
+  "flows": {
+    "flows": "Flows",
+    "components": "Components",
+    "flow": "Flow",
+    "component": "Component",
+    "mcpServer": "MCP Server",
+    "newFlow": "New Flow",
+    "editDetails": "Edit details",
+    "export": "Export",
+    "duplicate": "Duplicate",
+    "searchPlaceholder": "Search {{type}}...",
+    "downloadedSuccessfully": "Flows downloaded successfully",
+    "deletedSuccessfully": "Flows deleted successfully",
+    "duplicatedSuccessfully": "{{type}} duplicated successfully",
+    "andMessageHistory": "and {{possessive}} message history"
   }
 }

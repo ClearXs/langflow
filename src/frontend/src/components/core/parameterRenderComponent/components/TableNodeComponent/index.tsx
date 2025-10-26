@@ -392,7 +392,7 @@ export default function TableNodeComponent({
           }}
           rowSelection={table_options?.block_select ? undefined : "multiple"}
           editable={editable}
-          pagination={!table_options?.hide_options}
+          pagination={table_options?.pagination ?? !table_options?.hide_options}
           addRow={addRow}
           onDelete={deleteRow}
           onActionButton={handleActionButton}

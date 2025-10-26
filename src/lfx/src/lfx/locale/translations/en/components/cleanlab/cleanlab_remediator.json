@@ -41,9 +41,9 @@
     "flagged": "Score {score:.2f} < threshold {threshold:.2f} → flagged"
   },
   "messages": {
-    "trusted_response": "{response}\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n**Trust Score:** {score:.2f}",
+    "trusted_response": "%{response}\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n**Trust Score:** {score:.2f}",
     "trust_score_label": "**Trust Score:** {score:.2f}",
-    "explanation_label": "**Explanation:** {explanation}"
+    "explanation_label": "**Explanation:** %{explanation}"
   },
   "logs": {
     "response_accepted": "Response accepted - Score: {score:.2f}, Threshold: {threshold:.2f}",
@@ -53,6 +53,6 @@
     "using_fallback": "Using fallback response"
   },
   "errors": {
-    "remediation_failed": "Remediation failed: {error}"
+    "remediation_failed": "Remediation failed: %{error}"
   }
 }

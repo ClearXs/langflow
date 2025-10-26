@@ -19,7 +19,7 @@
     "info": "要执行的Python代码。"
   },
   "success": {
-    "tool_created": "Python REPL工具已创建，全局导入：{imports}",
+    "tool_created": "Python REPL工具已创建，全局导入：%{imports}",
     "code_executed": "Python代码执行成功"
   },
   "info": {
@@ -30,9 +30,9 @@
   },
   "errors": {
     "invalid_global_imports_type": "global_imports必须是字符串或列表",
-    "module_import_failed": "无法导入模块{module}",
-    "code_execution_failed": "执行Python代码时出错：{error}",
-    "tool_creation_failed": "创建Python REPL工具失败：{error}",
-    "execution_failed": "Python REPL执行失败：{error}"
+    "module_import_failed": "无法导入模块%{module}",
+    "code_execution_failed": "执行Python代码时出错：%{error}",
+    "tool_creation_failed": "创建Python REPL工具失败：%{error}",
+    "execution_failed": "Python REPL执行失败：%{error}"
   }
 }

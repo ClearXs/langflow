@@ -6,7 +6,7 @@
   },
   "model_name": {
     "display_name": "Model Name",
-    "info": "The embedding model to use for the selected provider. Each provider has a different set of models available (full list at https://docs.datastax.com/en/astra-db-serverless/databases/embedding-generation.html):\n\n{models_list}"
+    "info": "The embedding model to use for the selected provider. Each provider has a different set of models available (full list at https://docs.datastax.com/en/astra-db-serverless/databases/embedding-generation.html):\n\n%{models_list}"
   },
   "api_key_name": {
     "display_name": "API Key Name",
@@ -29,14 +29,14 @@
   },
   "status": {
     "building": "Building Astra Vectorize configuration...",
-    "config_created": "Configuration created successfully - Provider: {provider}, Model: {model}"
+    "config_created": "Configuration created successfully - Provider: %{provider}, Model: %{model}"
   },
   "errors": {
-    "build_failed": "Failed to build Astra Vectorize configuration: {error}"
+    "build_failed": "Failed to build Astra Vectorize configuration: %{error}"
   },
   "logs": {
-    "building_config": "Building Astra Vectorize config - Provider: {provider}, Model: {model}",
-    "provider_mapped": "Provider '{provider}' mapped to '{provider_value}'",
-    "api_key_name_set": "API key name set to: {key_name}"
+    "building_config": "Building Astra Vectorize config - Provider: %{provider}, Model: %{model}",
+    "provider_mapped": "Provider '%{provider}' mapped to '%{provider_value}'",
+    "api_key_name_set": "API key name set to: %{key_name}"
   }
 }

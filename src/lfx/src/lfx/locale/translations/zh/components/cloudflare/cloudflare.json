@@ -38,12 +38,12 @@
     "initializing": "正在初始化Cloudflare Workers AI嵌入..."
   },
   "success": {
-    "embeddings_created": "Cloudflare Workers AI嵌入已成功创建，模型：{model}"
+    "embeddings_created": "Cloudflare Workers AI嵌入已成功创建，模型：%{model}"
   },
   "errors": {
-    "connection_failed": "无法连接到Cloudflare Workers AI嵌入API：{error}"
+    "connection_failed": "无法连接到Cloudflare Workers AI嵌入API：%{error}"
   },
   "logs": {
-    "initializing": "正在初始化Cloudflare Workers AI嵌入 - 模型：{model}，账户ID：{account_id}"
+    "initializing": "正在初始化Cloudflare Workers AI嵌入 - 模型：%{model}，账户ID：%{account_id}"
   }
 }

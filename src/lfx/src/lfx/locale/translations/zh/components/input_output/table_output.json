@@ -1,45 +1,112 @@
 {
   "display_name": "库表输出",
-  "description": "写入数据到数据库表",
-  "status": {
-    "writing": "正在写入表...",
-    "success": "成功写入 {rows} 行"
-  },
-  "errors": {
-    "write_failed": "表写入失败: {error}",
-    "no_data": "没有要写入的数据",
-    "no_keys_for_upsert": "Upsert操作需要键列"
-  },
-  "auto_create_table": {
-    "display_name": "自动创建表",
-    "info": "如果表不存在则创建"
-  },
-  "batch_size": {
-    "display_name": "批次大小",
-    "info": "每批记录数"
-  },
-  "connection_string": {
-    "display_name": "连接字符串",
-    "info": "数据库连接字符串"
-  },
+  "description": "将数据写入数据库表,支持多种写入模式和字段映射",
   "data_input": {
     "display_name": "数据输入",
-    "info": "要写入的数据"
+    "info": "要写入目标表的数据"
   },
-  "key_columns": {
-    "display_name": "关键列",
-    "info": "用于upsert匹配的列"
+  "datasource_selector": {
+    "display_name": "数据源",
+    "info": "选择目标数据库连接"
   },
-  "table_name": {
-    "display_name": "表名",
-    "info": "目标表名"
+  "table_selector": {
+    "display_name": "目标表",
+    "info": "选择要写入数据的表"
   },
-  "truncate_first": {
-    "display_name": "先清空表",
-    "info": "写入前清空表"
+  "field_mappings": {
+    "display_name": "字段映射",
+    "info": "将源字段映射到目标表列,并配置更新选项",
+    "source_field": "源字段",
+    "target_field": "目标字段",
+    "data_type": "数据类型",
+    "update_option": "更新选项",
+    "is_key_field": "关键字段",
+    "is_key_field_desc": "勾选此字段作为upsert模式的关键字段",
+    "null_value": "缺省值",
+    "null_value_desc": "当源字段为空时使用的默认值",
+    "analyze_schema_button": "分析字段",
+    "auto_map_button": "自动映射",
+    "update_options": {
+      "sync_update": "同步更新",
+      "insert_only": "仅插入时更新",
+      "update_when_has_value": "流有值时更新",
+      "update_when_not_empty": "流非空时更新",
+      "cumulative_update": "字段值累加更新",
+      "prohibit_update": "禁止更新"
+    }
+  },
+  "preview_table": {
+    "display_name": "输出预览",
+    "info": "预览目标表中的现有数据(前100行)",
+    "preview_button": "预览数据"
   },
   "write_mode": {
     "display_name": "写入模式",
-    "info": "如何写入数据"
+    "info": "数据写入方式: batch_insert(批量插入,不检查重复), upsert(根据键插入/更新), replace(清空后插入), append(简单追加)"
+  },
+  "clear_table_first": {
+    "display_name": "先清空表",
+    "info": "写入数据前先清空目标表"
+  },
+  "auto_create_table": {
+    "display_name": "自动创建表",
+    "info": "如果表不存在则自动创建"
+  },
+  "batch_size": {
+    "display_name": "批次大小",
+    "info": "每批写入的记录数(1-100000)"
+  },
+  "enable_transaction": {
+    "display_name": "启用事务",
+    "info": "将写入操作包装在数据库事务中(成功时提交,失败时回滚)"
+  },
+  "isolation_level": {
+    "display_name": "事务隔离级别",
+    "info": "数据库事务隔离级别(仅在启用事务时生效)"
+  },
+  "escape_char": {
+    "display_name": "转义符号",
+    "info": "用于转义表名/列名的字符(如MySQL用`,PostgreSQL用\"). 留空表示不转义。"
+  },
+  "status": {
+    "loading_datasources": "正在加载数据源...",
+    "loading_tables": "正在加载表列表...",
+    "loading_columns": "正在加载表字段...",
+    "analyzing_schema": "正在分析输入数据结构...",
+    "analysis_success": "字段分析完成: 已生成%{count}个字段",
+    "no_input_data": "没有可用的输入数据进行字段分析",
+    "mapping_fields": "正在自动映射字段...",
+    "mapping_success": "自动映射完成: 已映射%{count}个字段",
+    "no_fields_to_map": "没有可用的字段映射进行自动匹配",
+    "no_target_fields": "没有可用的目标字段。请先选择表。",
+    "previewing_data": "正在加载目标表数据预览...",
+    "preview_success": "预览加载完成: %{count}行",
+    "no_data_found": "目标表为空(无数据)",
+    "writing": "正在写入数据到表...",
+    "success": "成功写入%{rows}行数据到表'%{table}'",
+    "tables_loaded": "成功加载%{count}个表"
+  },
+  "errors": {
+    "no_data": "没有要写入的数据。请提供输入数据。",
+    "no_datasource": "未选择数据源。请选择一个数据源。",
+    "no_table": "未选择表。请选择目标表。",
+    "no_datasource_or_table": "预览前请先选择数据源和表",
+    "no_field_mappings": "未配置字段映射。请使用'分析字段'按钮。",
+    "no_key_fields": "未选择关键字段。Upsert模式至少需要一个关键字段。",
+    "empty_dataframe": "数据转换后为空",
+    "analysis_failed": "字段分析失败: %{error}",
+    "mapping_failed": "自动字段映射失败: %{error}",
+    "preview_failed": "目标数据预览失败: %{error}",
+    "write_failed": "%{error_type}: %{error}",
+    "load_tables_failed": "加载表列表失败",
+    "no_graph_data": "无法获取流程图数据,请确保组件已连接到上游节点"
+  },
+  "outputs": {
+    "result": {
+      "display_name": "写入结果"
+    },
+    "row_count": {
+      "display_name": "行数"
+    }
   }
 }

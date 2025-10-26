@@ -188,24 +188,28 @@ export function CustomTable({
         <div className="flex-1 overflow-auto">
           {sortedData.map((row) => {
             const isDisabled = !isFileSelectable(row);
+            const isFolder = row.type === "folder";
+            // Folders should always be clickable for navigation, even if checkbox is disabled
+            const isClickable = !isDisabled || isFolder;
+
             return (
               <div
                 key={row.id}
                 className={cn(
                   "flex items-center border-b px-2 min-h-[50px]",
-                  !isDisabled && "hover:bg-muted/50 cursor-pointer",
-                  isDisabled && "opacity-50 cursor-not-allowed",
+                  isClickable && "hover:bg-muted/50 cursor-pointer",
+                  isDisabled && !isFolder && "opacity-50 cursor-not-allowed",
                   isSelected(row) && !isDisabled && "bg-accent",
                 )}
-                onClick={(e) => !isDisabled && handleRowClick(row, e)}
-                onDoubleClick={() => !isDisabled && handleRowDblClick(row)}
+                onClick={(e) => isClickable && handleRowClick(row, e)}
+                onDoubleClick={() => handleRowDblClick(row)}
                 onContextMenu={(e) => {
-                  if (isDisabled) return;
+                  if (isDisabled && !isFolder) return;
                   e.preventDefault();
                   onContextMenu?.(e, row);
                 }}
-                onMouseEnter={() => !isDisabled && onRowMouseEnter?.(row)}
-                onMouseLeave={() => !isDisabled && onRowMouseLeave?.(row)}
+                onMouseEnter={() => isClickable && onRowMouseEnter?.(row)}
+                onMouseLeave={() => isClickable && onRowMouseLeave?.(row)}
               >
                 {selectable && (
                   <div className="flex w-12 items-center justify-center">
@@ -264,24 +268,28 @@ export function CustomTable({
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
           {sortedData.map((row) => {
             const isDisabled = !isFileSelectable(row);
+            const isFolder = row.type === "folder";
+            // Folders should always be clickable for navigation, even if checkbox is disabled
+            const isClickable = !isDisabled || isFolder;
+
             return (
               <div
                 key={row.id}
                 className={cn(
                   "relative flex flex-col items-center gap-2 rounded-lg border p-4 transition-colors",
-                  !isDisabled && "hover:bg-muted/50 cursor-pointer",
-                  isDisabled && "opacity-50 cursor-not-allowed",
+                  isClickable && "hover:bg-muted/50 cursor-pointer",
+                  isDisabled && !isFolder && "opacity-50 cursor-not-allowed",
                   isSelected(row) && !isDisabled && "bg-accent border-primary",
                 )}
-                onClick={(e) => !isDisabled && handleRowClick(row, e)}
-                onDoubleClick={() => !isDisabled && handleRowDblClick(row)}
+                onClick={(e) => isClickable && handleRowClick(row, e)}
+                onDoubleClick={() => handleRowDblClick(row)}
                 onContextMenu={(e) => {
-                  if (isDisabled) return;
+                  if (isDisabled && !isFolder) return;
                   e.preventDefault();
                   onContextMenu?.(e, row);
                 }}
-                onMouseEnter={() => !isDisabled && onRowMouseEnter?.(row)}
-                onMouseLeave={() => !isDisabled && onRowMouseLeave?.(row)}
+                onMouseEnter={() => isClickable && onRowMouseEnter?.(row)}
+                onMouseLeave={() => isClickable && onRowMouseLeave?.(row)}
               >
                 {selectable && (
                   <div className="absolute left-2 top-2">

@@ -2,6 +2,7 @@ import { useIsFetching } from "@tanstack/react-query";
 import type { NewValueParams, SelectionChangedEvent } from "ag-grid-community";
 import cloneDeep from "lodash/cloneDeep";
 import { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import Loading from "@/components/ui/loading";
 import {
   useDeleteMessages,
@@ -20,6 +21,7 @@ export default function SessionView({
   session?: string;
   id?: string;
 }) {
+  const { t } = useTranslation();
   const messages = useMessagesStore((state) => state.messages);
   const setErrorData = useAlertStore((state) => state.setErrorData);
   const setSuccessData = useAlertStore((state) => state.setSuccessData);
@@ -109,7 +111,7 @@ export default function SessionView({
       onDelete={playgroundPage ? undefined : handleRemoveMessages}
       readOnlyEdit
       editable={editable}
-      overlayNoRowsTemplate="No data available"
+      overlayNoRowsTemplate={t("table.noRowsToShow")}
       onSelectionChanged={(event: SelectionChangedEvent) => {
         setSelectedRows(event.api.getSelectedRows().map((row) => row.id));
       }}

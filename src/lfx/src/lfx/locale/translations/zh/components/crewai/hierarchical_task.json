@@ -23,10 +23,10 @@
     "task_created": "层级任务创建成功"
   },
   "errors": {
-    "build_failed": "构建层级任务失败：{error}"
+    "build_failed": "构建层级任务失败：%{error}"
   },
   "logs": {
     "building_task": "正在构建层级任务",
-    "task_details": "任务详情 - 描述长度：{description_length}，工具：{tool_count}"
+    "task_details": "任务详情 - 描述长度：%{description_length}，工具：%{tool_count}"
   }
 }

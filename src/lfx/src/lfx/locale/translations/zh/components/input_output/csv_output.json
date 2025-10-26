@@ -1,32 +1,47 @@
 {
   "display_name": "CSV输出",
-  "description": "导出数据到CSV",
-  "status": {
-    "exporting": "正在导出CSV...",
-    "success": "成功导出 {rows} 行"
-  },
-  "errors": {
-    "export_failed": "CSV导出失败: {error}",
-    "no_data": "没有要导出的数据"
-  },
+  "description": "将数据导出为CSV文件并上传到资源管理系统",
   "data_input": {
-    "display_name": "数据输入",
-    "info": "要导出的数据"
+    "display_name": "输入数据",
+    "info": "要导出的数据(Data对象列表)"
+  },
+  "output_folder": {
+    "display_name": "输出文件夹",
+    "info": "选择保存CSV文件的目标文件夹"
+  },
+  "filename": {
+    "display_name": "文件名",
+    "info": "输出文件的名称(包含.csv扩展名)"
   },
   "delimiter": {
     "display_name": "分隔符",
-    "info": "字段分隔符"
+    "info": "用于分隔字段的字符"
   },
   "encoding": {
     "display_name": "编码",
-    "info": "文件编码"
-  },
-  "file_path": {
-    "display_name": "文件路径",
-    "info": "输出CSV文件路径"
+    "info": "文件的字符编码"
   },
   "include_header": {
-    "display_name": "包含标题",
-    "info": "包含列标题"
+    "display_name": "包含表头",
+    "info": "将列名作为第一行包含"
+  },
+  "status": {
+    "validating": "正在验证输入数据...",
+    "converting": "正在转换数据为CSV格式...",
+    "saving_temp": "正在保存到临时文件...",
+    "uploading": "正在上传文件到资源管理系统...",
+    "success": "成功导出 %{rows} 行数据到 %{filename}"
+  },
+  "errors": {
+    "no_data": "没有提供要导出的数据",
+    "no_folder_selected": "请选择目标文件夹",
+    "empty_dataframe": "数据转换后为空",
+    "invalid_folder_id": "无效的文件夹ID：%{folder_id}。请重新选择文件夹。",
+    "export_failed": "%{error_type}: %{error}"
+  },
+  "outputs": {
+    "result": {
+      "display_name": "导出结果"
+    }
   }
 }

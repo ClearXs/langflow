@@ -44,11 +44,11 @@
     "info": "Additional keyword arguments to pass to the model."
   },
   "success": {
-    "openai_embeddings_created": "OpenAI embeddings model '{model}' created successfully"
+    "openai_embeddings_created": "OpenAI embeddings model '%{model}' created successfully"
   },
   "errors": {
     "openai_api_key_required": "OpenAI API key is required when using OpenAI provider",
-    "failed_to_create_embeddings": "Failed to create embeddings for provider '{provider}': {error}",
-    "unknown_provider": "Unknown provider: {provider}"
+    "failed_to_create_embeddings": "Failed to create embeddings for provider '%{provider}': %{error}",
+    "unknown_provider": "Unknown provider: %{provider}"
   }
 }

@@ -26,31 +26,31 @@
     }
   },
   "status": {
-    "condition_met": "Condition met: {description}",
-    "condition_not_met": "Condition not met: {description}"
+    "condition_met": "Condition met: %{description}",
+    "condition_not_met": "Condition not met: %{description}"
   },
   "conditions": {
-    "boolean_validation": "Boolean validation of '{key}'",
-    "comparison": "{key} {operator} {value}"
+    "boolean_validation": "Boolean validation of '%{key}'",
+    "comparison": "%{key} %{operator} %{value}"
   },
   "errors": {
     "not_data_object": "Input is not a Data object",
-    "key_not_found": "Key '{key}' not found in Data",
-    "processing_failed": "Data processing failed: {error}"
+    "key_not_found": "Key '%{key}' not found in Data",
+    "processing_failed": "Data processing failed: %{error}"
   },
   "logs": {
-    "comparing": "Comparing values - Operator: {operator}, Item: '{item_value}', Compare: '{compare_value}'",
-    "comparison_result": "Comparison result: {result}",
-    "parsing_boolean": "Parsing boolean value: {value} (type: {value_type})",
-    "boolean_result": "Boolean parsing result: {result}",
+    "comparing": "Comparing values - Operator: %{operator}, Item: '%{item_value}', Compare: '%{compare_value}'",
+    "comparison_result": "Comparison result: %{result}",
+    "parsing_boolean": "Parsing boolean value: %{value} (type: %{value_type})",
+    "boolean_result": "Boolean parsing result: %{result}",
     "validating_input": "Validating input data",
     "validation_passed": "Input validation passed",
-    "processing_list": "Processing list of {count} data items",
-    "list_results": "List processing complete - True: {true_count}, False: {false_count}",
+    "processing_list": "Processing list of %{count} data items",
+    "list_results": "List processing complete - True: %{true_count}, False: %{false_count}",
     "processing_single": "Processing single data item",
-    "validation_failed": "Validation failed: {error}",
-    "processing_item": "Processing item - Key: '{key}', Value: '{value}', Operator: {operator}",
-    "updating_config": "Updating build config for operator: {operator}",
+    "validation_failed": "Validation failed: %{error}",
+    "processing_item": "Processing item - Key: '%{key}', Value: '%{value}', Operator: %{operator}",
+    "updating_config": "Updating build config for operator: %{operator}",
     "hidden_compare_value": "Hidden compare_value field for boolean validator",
     "shown_compare_value": "Shown compare_value field"
   }

@@ -36,34 +36,34 @@
   },
   "status": {
     "initializing": "Initializing AgentQL...",
-    "connecting": "Connecting to {url}...",
-    "waiting_for_page": "Waiting for page to load ({milliseconds}ms)...",
+    "connecting": "Connecting to %{url}...",
+    "waiting_for_page": "Waiting for page to load (%{milliseconds}ms)...",
     "scrolling_to_bottom": "Scrolling to bottom of page...",
     "extracting_data": "Extracting data with AgentQL query...",
     "getting_markdown": "Getting page markdown content..."
   },
   "success": {
-    "data_extracted": "Successfully extracted data with {fields} fields"
+    "data_extracted": "Successfully extracted data with %{fields} fields"
   },
   "warnings": {
-    "api_key_config_failed": "Failed to configure API key: {error}",
-    "scroll_failed": "Failed to scroll to bottom: {error}",
+    "api_key_config_failed": "Failed to configure API key: %{error}",
+    "scroll_failed": "Failed to scroll to bottom: %{error}",
     "no_data_extracted": "No data was extracted from the page",
-    "response_conversion_failed": "Failed to convert response to dictionary: {error}",
-    "markdown_extraction_failed": "Failed to extract markdown content: {error}",
-    "browser_close_failed": "Failed to close browser: {error}"
+    "response_conversion_failed": "Failed to convert response to dictionary: %{error}",
+    "markdown_extraction_failed": "Failed to extract markdown content: %{error}",
+    "browser_close_failed": "Failed to close browser: %{error}"
   },
   "errors": {
     "url_required": "URL is required",
     "query_required": "AgentQL query is required",
     "agentql_not_installed": "AgentQL is not installed. Please install it using: pip install agentql",
-    "browser_init_failed": "Failed to initialize browser: {error}",
-    "query_execution_failed": "Failed to execute AgentQL query: {error}",
-    "extraction_failed": "Data extraction failed: {error}"
+    "browser_init_failed": "Failed to initialize browser: %{error}",
+    "query_execution_failed": "Failed to execute AgentQL query: %{error}",
+    "extraction_failed": "Data extraction failed: %{error}"
   },
   "logs": {
     "api_key_configured": "AgentQL API key configured",
-    "page_loaded": "Page loaded: {url}",
+    "page_loaded": "Page loaded: %{url}",
     "scrolled_to_bottom": "Scrolled to bottom of page",
     "data_extracted": "Data extracted successfully",
     "response_converted": "Response converted to dictionary",

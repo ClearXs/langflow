@@ -31,18 +31,18 @@
   },
   "errors": {
     "import_failed": "Could not import firecrawl integration package. Please install it with `pip install firecrawl-py`.",
-    "crawl_failed": "Failed to crawl URL '{url}': {error}"
+    "crawl_failed": "Failed to crawl URL '%{url}': %{error}"
   },
   "logs": {
     "firecrawl_imported": "Firecrawl package imported successfully",
-    "starting_crawl": "Starting crawl for URL: {url}",
+    "starting_crawl": "Starting crawl for URL: %{url}",
     "scrape_options_added": "Scrape options added to parameters",
-    "default_params_set": "Default parameters set - Max depth: {max_depth}, Limit: {limit}",
-    "main_content_only": "Only main content extraction enabled: {enabled}",
-    "idempotency_key_generated": "Idempotency key generated: {key}",
-    "idempotency_key_provided": "Using provided idempotency key: {key}",
+    "default_params_set": "Default parameters set - Max depth: %{max_depth}, Limit: %{limit}",
+    "main_content_only": "Only main content extraction enabled: %{enabled}",
+    "idempotency_key_generated": "Idempotency key generated: %{key}",
+    "idempotency_key_provided": "Using provided idempotency key: %{key}",
     "firecrawl_app_initialized": "Firecrawl app initialized with API key",
     "executing_crawl": "Executing crawl operation",
-    "crawl_completed": "Crawl completed successfully - {count} page(s) crawled"
+    "crawl_completed": "Crawl completed successfully - %{count} page(s) crawled"
   }
 }

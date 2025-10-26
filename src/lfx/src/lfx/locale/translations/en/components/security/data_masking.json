@@ -7,13 +7,41 @@
   },
   "masking_rules": {
     "display_name": "Masking Rules",
-    "info": "Fields and masking types"
+    "info": "Configure masking rules for each field (each row represents a field to mask)",
+    "field": "Field Name",
+    "field_desc": "Field to apply masking",
+    "masking_type": "Masking Type",
+    "masking_type_desc": "Type of masking to apply",
+    "mask_char": "Mask Character",
+    "mask_char_desc": "Character used for masking (default: *)",
+    "load_fields_button": "Load Fields List",
+    "masking_types": {
+      "phone": "Phone Number",
+      "email": "Email Address",
+      "id": "ID Number",
+      "credit_card": "Credit Card",
+      "full": "Full Masking",
+      "hash": "Hash"
+    }
+  },
+  "outputs": {
+    "data": {
+      "display_name": "Masked Data"
+    },
+    "masking_stats": {
+      "display_name": "Masking Statistics"
+    }
   },
   "status": {
-    "success": "Masked {count} records"
+    "success": "Masked %{count} records (%{fields} fields processed)",
+    "load_success": "Loaded %{count} fields from upstream data",
+    "no_fields_found": "No fields found in upstream data"
   },
   "errors": {
     "missing_config": "Masking rules are required",
-    "masking_failed": "Data masking failed: {error}"
+    "masking_failed": "Data masking failed: %{error}",
+    "no_graph_data": "No graph data available for field analysis",
+    "load_failed": "Field loading failed: %{error}",
+    "graph_not_available": "Cannot analyze fields - graph context not available"
   }
 }

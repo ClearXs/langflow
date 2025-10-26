@@ -13,12 +13,12 @@
     "initializing": "正在初始化Cohere语言模型..."
   },
   "success": {
-    "model_created": "Cohere语言模型已成功创建，温度：{temperature}"
+    "model_created": "Cohere语言模型已成功创建，温度：%{temperature}"
   },
   "errors": {
-    "creation_failed": "创建Cohere语言模型失败。请验证您的API密钥并重试。错误：{error}"
+    "creation_failed": "创建Cohere语言模型失败。请验证您的API密钥并重试。错误：%{error}"
   },
   "logs": {
-    "initializing": "正在初始化Cohere语言模型，温度：{temperature}"
+    "initializing": "正在初始化Cohere语言模型，温度：%{temperature}"
   }
 }

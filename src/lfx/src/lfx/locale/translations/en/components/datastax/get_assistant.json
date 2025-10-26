@@ -16,13 +16,13 @@
   },
   "status": {
     "retrieving": "Retrieving assistant...",
-    "retrieved": "Assistant retrieved successfully - ID: {assistant_id}, Name: {assistant_name}"
+    "retrieved": "Assistant retrieved successfully - ID: %{assistant_id}, Name: %{assistant_name}"
   },
   "errors": {
-    "retrieval_failed": "Failed to retrieve assistant '{assistant_id}': {error}"
+    "retrieval_failed": "Failed to retrieve assistant '%{assistant_id}': %{error}"
   },
   "logs": {
     "client_initialized": "OpenAI client initialized successfully",
-    "retrieving_assistant": "Retrieving assistant with ID: {assistant_id}"
+    "retrieving_assistant": "Retrieving assistant with ID: %{assistant_id}"
   }
 }

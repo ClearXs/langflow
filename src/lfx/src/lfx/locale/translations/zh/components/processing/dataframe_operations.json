@@ -79,29 +79,29 @@
     }
   },
   "success": {
-    "operation_completed": "操作'{operation}'成功完成。结果包含{rows}行。"
+    "operation_completed": "操作'%{operation}'成功完成。结果包含%{rows}行。"
   },
   "warnings": {
     "no_operation_selected": "未选择操作。返回原始数据框。"
   },
   "errors": {
-    "unsupported_operation": "不支持的操作：{operation}",
-    "operation_failed": "操作失败：{error}",
-    "column_not_found": "列'{column}'未找到。可用列：{available}",
-    "filter_failed": "过滤操作失败：{error}",
-    "sort_failed": "排序操作失败：{error}",
-    "drop_column_failed": "删除列操作失败：{error}",
-    "rename_column_failed": "重命名列操作失败：{error}",
-    "add_column_failed": "添加列操作失败：{error}",
-    "select_columns_failed": "选择列操作失败：{error}",
-    "head_failed": "头部操作失败：{error}",
-    "tail_failed": "尾部操作失败：{error}",
-    "replace_values_failed": "替换值操作失败：{error}",
-    "drop_duplicates_failed": "删除重复项操作失败：{error}",
+    "unsupported_operation": "不支持的操作：%{operation}",
+    "operation_failed": "操作失败：%{error}",
+    "column_not_found": "列'%{column}'未找到。可用列：%{available}",
+    "filter_failed": "过滤操作失败：%{error}",
+    "sort_failed": "排序操作失败：%{error}",
+    "drop_column_failed": "删除列操作失败：%{error}",
+    "rename_column_failed": "重命名列操作失败：%{error}",
+    "add_column_failed": "添加列操作失败：%{error}",
+    "select_columns_failed": "选择列操作失败：%{error}",
+    "head_failed": "头部操作失败：%{error}",
+    "tail_failed": "尾部操作失败：%{error}",
+    "replace_values_failed": "替换值操作失败：%{error}",
+    "drop_duplicates_failed": "删除重复项操作失败：%{error}",
     "new_column_name_required": "新列名是必需的，不能为空。",
     "columns_to_select_required": "需要指定要选择的列。",
     "no_valid_columns": "未指定有效列。",
-    "columns_not_found": "列未找到：{columns}。可用列：{available}",
+    "columns_not_found": "列未找到：%{columns}。可用列：%{available}",
     "invalid_num_rows": "行数必须大于0。"
   }
 }

@@ -1,0 +1,68 @@
+{
+  "display_name": "Column to Columns Split",
+  "description": "Split single column data into multiple new columns by delimiter",
+  "data_input": {
+    "display_name": "Data Input",
+    "info": "Input data stream to split"
+  },
+  "source_field": {
+    "display_name": "Source Field",
+    "info": "Field to split"
+  },
+  "delimiter": {
+    "display_name": "Delimiter",
+    "info": "Split delimiter",
+    "comma": ", (Comma)",
+    "semicolon": "; (Semicolon)",
+    "tab": "\\t (Tab)",
+    "pipe": "| (Pipe)",
+    "space": "Space",
+    "newline": "\\n (Newline)",
+    "custom": "Custom"
+  },
+  "custom_delimiter": {
+    "display_name": "Custom Delimiter",
+    "info": "Custom delimiter when 'Custom' is selected"
+  },
+  "is_regex": {
+    "display_name": "Is Regex",
+    "info": "Whether delimiter is a regular expression"
+  },
+  "new_fields_config": {
+    "display_name": "New Fields Configuration",
+    "info": "Configure new field names and order after splitting",
+    "field_name": "Field Name",
+    "field_order": "Field Order"
+  },
+  "max_splits": {
+    "display_name": "Max Splits",
+    "info": "Maximum number of splits (-1 = unlimited)"
+  },
+  "drop_source_field": {
+    "display_name": "Drop Source Field",
+    "info": "Remove source field after split"
+  },
+  "default_value": {
+    "display_name": "Default Value",
+    "info": "Default value for empty values after split"
+  },
+  "chunk_size": {
+    "display_name": "Chunk Size",
+    "info": "Chunk size for processing large datasets"
+  },
+  "outputs": {
+    "data": "Split Data",
+    "fields_schema": "Fields Schema",
+    "preview": "Field Preview",
+    "statistics": "Statistics"
+  },
+  "status": {
+    "splitting": "Splitting data...",
+    "success": "Split completed: %{count} records, %{fields} fields"
+  },
+  "errors": {
+    "no_input_data": "No input data",
+    "field_not_found": "Field %{field} not found",
+    "split_failed": "Split failed: %{error}"
+  }
+}

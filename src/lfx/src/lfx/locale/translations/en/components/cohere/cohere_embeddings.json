@@ -33,16 +33,16 @@
     "initializing": "Initializing Cohere embeddings..."
   },
   "success": {
-    "embeddings_created": "Cohere embeddings created successfully with model: {model}"
+    "embeddings_created": "Cohere embeddings created successfully with model: %{model}"
   },
   "errors": {
-    "creation_failed": "Unable to create Cohere Embeddings. Please verify the API key and model parameters, and try again. Error: {error}",
-    "fetch_models_failed": "Failed to fetch Cohere models. Error: {error}"
+    "creation_failed": "Unable to create Cohere Embeddings. Please verify the API key and model parameters, and try again. Error: %{error}",
+    "fetch_models_failed": "Failed to fetch Cohere models. Error: %{error}"
   },
   "logs": {
-    "initializing": "Initializing Cohere embeddings with model: {model}",
+    "initializing": "Initializing Cohere embeddings with model: %{model}",
     "fetching_models": "Fetching available Cohere models",
-    "models_fetched": "Successfully fetched {count} Cohere models",
+    "models_fetched": "Successfully fetched %{count} Cohere models",
     "updating_model_list": "Updating model list with available Cohere models"
   }
 }

@@ -19,7 +19,7 @@
   },
   "template_variables": {
     "display_name": "Template Variables",
-    "info": "JSON object containing variables to replace in template text. Use {key} or {{key}} in text."
+    "info": "JSON object containing variables to replace in template text. Use %{key} or {%{key}} in text."
   },
   "max_length": {
     "display_name": "Max Length",
@@ -53,23 +53,23 @@
     }
   },
   "success": {
-    "text_processed": "Text processed successfully ({length} characters)",
-    "processed_text_created": "Processed text created successfully ({length} characters)"
+    "text_processed": "Text processed successfully (%{length} characters)",
+    "processed_text_created": "Processed text created successfully (%{length} characters)"
   },
   "warnings": {
-    "invalid_template_variables": "Invalid JSON format in template variables: {error}",
-    "template_processing_error": "Error processing template: {error}",
-    "encoding_error": "Encoding error with {encoding}: {error}"
+    "invalid_template_variables": "Invalid JSON format in template variables: %{error}",
+    "template_processing_error": "Error processing template: %{error}",
+    "encoding_error": "Encoding error with %{encoding}: %{error}"
   },
   "errors": {
-    "text_too_short": "Text is too short ({length} characters). Minimum required: {min_length}",
-    "text_too_long": "Text is too long ({length} characters). Maximum allowed: {max_length}",
-    "regex_validation_failed": "Text does not match the required pattern: {pattern}",
-    "invalid_regex_pattern": "Invalid regex pattern '{pattern}': {error}",
-    "format_validation_failed": "Text does not match the expected {format} format",
-    "text_processing_error": "Error processing text: {error}",
-    "data_creation_error": "Error creating data object: {error}",
-    "processed_text_error": "Error creating processed text: {error}",
-    "text_info_error": "Error getting text information: {error}"
+    "text_too_short": "Text is too short (%{length} characters). Minimum required: %{min_length}",
+    "text_too_long": "Text is too long (%{length} characters). Maximum allowed: %{max_length}",
+    "regex_validation_failed": "Text does not match the required pattern: %{pattern}",
+    "invalid_regex_pattern": "Invalid regex pattern '%{pattern}': %{error}",
+    "format_validation_failed": "Text does not match the expected %{format} format",
+    "text_processing_error": "Error processing text: %{error}",
+    "data_creation_error": "Error creating data object: %{error}",
+    "processed_text_error": "Error creating processed text: %{error}",
+    "text_info_error": "Error getting text information: %{error}"
   }
 }

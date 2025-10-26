@@ -42,32 +42,32 @@
     "processing_files": "正在处理文件..."
   },
   "success": {
-    "files_processed_by_data": "成功按数据上传{uploaded}个文件，跳过{skipped}个",
-    "files_processed_by_name": "成功按文件名上传{uploaded}个文件，跳过{skipped}个"
+    "files_processed_by_data": "成功按数据上传%{uploaded}个文件，跳过%{skipped}个",
+    "files_processed_by_name": "成功按文件名上传%{uploaded}个文件，跳过%{skipped}个"
   },
   "warnings": {
     "no_data_inputs": "未提供数据输入",
-    "missing_data": "文件缺少文件路径或文本内容：{path}",
-    "file_not_found": "文件未找到：{path}",
+    "missing_data": "文件缺少文件路径或文本内容：%{path}",
+    "file_not_found": "文件未找到：%{path}",
     "no_file_path": "数据项中未提供文件路径"
   },
   "errors": {
-    "invalid_strategy": "无效的策略：{strategy}",
-    "process_files_failed": "处理文件失败：{error}",
-    "upload_data_failed": "上传文件{path}的数据失败：{error}",
-    "process_by_data_failed": "按数据处理文件失败：{error}",
-    "upload_file_failed": "上传文件{path}失败：{error}",
-    "process_by_name_failed": "按文件名处理文件失败：{error}",
+    "invalid_strategy": "无效的策略：%{strategy}",
+    "process_files_failed": "处理文件失败：%{error}",
+    "upload_data_failed": "上传文件%{path}的数据失败：%{error}",
+    "process_by_data_failed": "按数据处理文件失败：%{error}",
+    "upload_file_failed": "上传文件%{path}失败：%{error}",
+    "process_by_name_failed": "按文件名处理文件失败：%{error}",
     "boto3_not_installed": "boto3未安装。请使用`uv pip install boto3`安装。",
-    "s3_client_creation_failed": "创建S3客户端失败：{error}",
-    "path_normalization_failed": "规范化路径{path}失败：{error}"
+    "s3_client_creation_failed": "创建S3客户端失败：%{error}",
+    "path_normalization_failed": "规范化路径%{path}失败：%{error}"
   },
   "logs": {
-    "uploading_data": "正在将数据从{path}上传到S3键：{key}",
-    "data_uploaded": "数据成功上传到S3键：{key}",
-    "uploading_file": "正在上传文件{path}到S3键：{key}",
-    "file_uploaded": "文件成功上传到S3键：{key}",
-    "path_stripped": "路径已去除：{original} -> {stripped}",
-    "prefix_added": "已添加前缀'{prefix}'：{result}"
+    "uploading_data": "正在将数据从%{path}上传到S3键：%{key}",
+    "data_uploaded": "数据成功上传到S3键：%{key}",
+    "uploading_file": "正在上传文件%{path}到S3键：%{key}",
+    "file_uploaded": "文件成功上传到S3键：%{key}",
+    "path_stripped": "路径已去除：%{original} -> %{stripped}",
+    "prefix_added": "已添加前缀'%{prefix}'：%{result}"
   }
 }

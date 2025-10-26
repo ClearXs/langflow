@@ -12,14 +12,14 @@
   },
   "status": {
     "getting": "Getting environment variable...",
-    "retrieved": "Environment variable '{var_name}' retrieved successfully"
+    "retrieved": "Environment variable '%{var_name}' retrieved successfully"
   },
   "errors": {
-    "env_var_not_set": "Environment variable '{var_name}' not set",
-    "retrieval_failed": "Failed to retrieve environment variable '{var_name}': {error}"
+    "env_var_not_set": "Environment variable '%{var_name}' not set",
+    "retrieval_failed": "Failed to retrieve environment variable '%{var_name}': %{error}"
   },
   "logs": {
-    "getting_env_var": "Getting environment variable: {var_name}",
-    "value_length": "Environment variable value length: {length} characters"
+    "getting_env_var": "Getting environment variable: %{var_name}",
+    "value_length": "Environment variable value length: %{length} characters"
   }
 }

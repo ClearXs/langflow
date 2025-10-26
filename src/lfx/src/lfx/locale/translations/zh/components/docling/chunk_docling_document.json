@@ -20,24 +20,24 @@
   },
   "status": {
     "processing": "正在处理文档以进行分块...",
-    "completed": "分块完成 - 从{total_docs}个文档创建了{total_chunks}个块"
+    "completed": "分块完成 - 从%{total_docs}个文档创建了%{total_chunks}个块"
   },
   "errors": {
     "docling_import_failed": "无法导入docling包。请使用`pip install docling docling-core`安装",
-    "validation_failed": "验证文档{index}失败：{error}",
-    "chunking_failed": "分块文档{index}失败：{error}",
-    "invalid_max_tokens": "无效的max_tokens值：{error}",
-    "chunking_process_failed": "分块过程失败：{error}"
+    "validation_failed": "验证文档%{index}失败：%{error}",
+    "chunking_failed": "分块文档%{index}失败：%{error}",
+    "invalid_max_tokens": "无效的max_tokens值：%{error}",
+    "chunking_process_failed": "分块过程失败：%{error}"
   },
   "logs": {
     "docling_import_successful": "Docling包导入成功",
     "no_data": "未提供文档进行分块",
-    "processing_documents": "正在处理{count}个文档进行分块",
-    "chunker_config": "分块器配置 - 分词器：{tokenizer}，最大令牌数：{max_tokens}",
-    "processing_document": "正在处理文档{index}/{total}",
-    "no_json": "文档{index}没有JSON数据，跳过",
-    "document_validated": "文档{index}验证成功",
-    "chunks_created": "文档{index}已分块为{chunk_count}个片段",
-    "chunk_added": "已添加块{chunk_index} - 文本长度：{text_length}个字符"
+    "processing_documents": "正在处理%{count}个文档进行分块",
+    "chunker_config": "分块器配置 - 分词器：%{tokenizer}，最大令牌数：%{max_tokens}",
+    "processing_document": "正在处理文档%{index}/%{total}",
+    "no_json": "文档%{index}没有JSON数据，跳过",
+    "document_validated": "文档%{index}验证成功",
+    "chunks_created": "文档%{index}已分块为%{chunk_count}个片段",
+    "chunk_added": "已添加块%{chunk_index} - 文本长度：%{text_length}个字符"
   }
 }

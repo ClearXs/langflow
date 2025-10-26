@@ -53,33 +53,33 @@
     "preparing_documents": "Preparing documents for ingestion..."
   },
   "success": {
-    "store_created": "Chroma vector store created successfully for collection '{collection}'"
+    "store_created": "Chroma vector store created successfully for collection '%{collection}'"
   },
   "warnings": {
     "filter_not_available": "Warning: Could not import filter_complex_metadata. Adding documents without filtering."
   },
   "errors": {
     "chroma_not_installed": "Could not import Chroma integration package. Please install it with `pip install langchain-chroma`.",
-    "store_creation_failed": "Failed to create Chroma vector store: {error}",
+    "store_creation_failed": "Failed to create Chroma vector store: %{error}",
     "invalid_input_type": "Vector Store Inputs must be Data objects."
   },
   "logs": {
     "chroma_imported": "Chroma packages imported successfully",
-    "configuring_server": "Configuring Chroma server at host: {host}",
-    "server_client_created": "Chroma server client created - HTTP Port: {http_port}, gRPC Port: {grpc_port}, SSL: {ssl}",
-    "using_persist_directory": "Using persist directory: {path}",
+    "configuring_server": "Configuring Chroma server at host: %{host}",
+    "server_client_created": "Chroma server client created - HTTP Port: %{http_port}, gRPC Port: %{grpc_port}, SSL: %{ssl}",
+    "using_persist_directory": "Using persist directory: %{path}",
     "in_memory_mode": "Using in-memory mode (no persist directory)",
-    "creating_chroma": "Creating Chroma instance with collection: {collection}",
-    "chroma_created": "Chroma instance created for collection: {collection}",
+    "creating_chroma": "Creating Chroma instance with collection: %{collection}",
+    "chroma_created": "Chroma instance created for collection: %{collection}",
     "no_ingest_data": "No ingest data provided",
-    "ingest_data_count": "Ingest data count: {count}",
+    "ingest_data_count": "Ingest data count: %{count}",
     "duplicates_allowed": "Duplicates allowed - will add all documents",
-    "checking_duplicates": "Checking for duplicates with limit: {limit}",
-    "existing_documents": "Found {count} existing documents in collection",
-    "adding_documents": "Adding {count} documents to the Vector Store.",
-    "adding_documents_to_store": "Adding {count} documents to Chroma vector store",
-    "documents_added_successfully": "Successfully added {count} documents with metadata filtering",
-    "documents_added_without_filter": "Successfully added {count} documents without metadata filtering",
+    "checking_duplicates": "Checking for duplicates with limit: %{limit}",
+    "existing_documents": "Found %{count} existing documents in collection",
+    "adding_documents": "Adding %{count} documents to the Vector Store.",
+    "adding_documents_to_store": "Adding %{count} documents to Chroma vector store",
+    "documents_added_successfully": "Successfully added %{count} documents with metadata filtering",
+    "documents_added_without_filter": "Successfully added %{count} documents without metadata filtering",
     "no_documents": "No documents to add to the Vector Store.",
     "no_documents_to_add": "No documents to add after duplicate check"
   }

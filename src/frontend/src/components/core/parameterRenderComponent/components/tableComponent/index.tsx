@@ -11,6 +11,7 @@ import "ag-grid-community/styles/ag-theme-quartz.css"; // Optional Theme applied
 import { AgGridReact, type AgGridReactProps } from "ag-grid-react";
 import cloneDeep from "lodash";
 import { type ElementRef, forwardRef, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useMessageLocale } from "@/i18n/locale";
 import TableOptions from "./components/TableOptions";
 import resetGrid from "./utils/reset-grid-columns";
@@ -42,6 +43,7 @@ const TableComponent = forwardRef<
   ElementRef<typeof AgGridReact>,
   TableComponentProps
 >(({ displayEmptyAlert = true, ...props }, ref) => {
+  const { t } = useTranslation();
   const messageLocale = useMessageLocale();
 
   const {
@@ -343,6 +345,60 @@ const TableComponent = forwardRef<
   }
 
   if (colDef.length === 0) {
+    // If there are action buttons, show them even when columns are empty
+    // This allows users to click buttons (like "Preview") to load data
+    const hasActionButtons =
+      props.tableOptions?.action_buttons &&
+      props.tableOptions.action_buttons.length > 0;
+
+    if (hasActionButtons) {
+      return (
+        <div
+          className={cn(
+            dark ? "ag-theme-quartz-dark" : "ag-theme-quartz",
+            "ag-theme-shadcn flex h-full flex-col",
+            "relative",
+          )}
+        >
+          {/* Render top action buttons */}
+          {props.tableOptions?.action_buttons
+            ?.filter((btn) => btn.position === "top")
+            .map((button) => (
+              <div key={button.name} className="mb-3 px-1">
+                <Button
+                  variant="primary"
+                  size="sm"
+                  onClick={() => props.onActionButton?.(button.name)}
+                >
+                  <ForwardedIconComponent
+                    name={button.icon}
+                    className="h-4 w-4"
+                  />
+                  <span className="ml-2">{button.label}</span>
+                </Button>
+              </div>
+            ))}
+
+          {/* Show empty state message */}
+          <div className="flex h-full w-full items-center justify-center rounded-md border">
+            <Alert variant={"default"} className="w-fit">
+              <ForwardedIconComponent
+                name="AlertCircle"
+                className="h-5 w-5 text-primary"
+              />
+              <AlertTitle>
+                {messageLocale.NO_COLUMN_DEFINITION_ALERT_TITLE}
+              </AlertTitle>
+              <AlertDescription>
+                {messageLocale.NO_COLUMN_DEFINITION_ALERT_DESCRIPTION}
+              </AlertDescription>
+            </Alert>
+          </div>
+        </div>
+      );
+    }
+
+    // No action buttons, show regular empty state
     return (
       <div className="flex h-full w-full items-center justify-center rounded-md border">
         <Alert variant={"default"} className="w-fit">
@@ -390,6 +446,12 @@ const TableComponent = forwardRef<
         ))}
       <AgGridReact
         {...props}
+        overlayNoRowsTemplate={t("table.noRowsToShow")}
+        localeText={{
+          page: t("table.page"),
+          of: t("table.of"),
+          to: t("table.to"),
+        }}
         defaultColDef={{
           minWidth: 100,
           suppressColumnsToolPanel: true, // Don't show hidden columns in tool panel
@@ -493,6 +555,7 @@ const TableComponent = forwardRef<
           duplicateRow={props.onDuplicate ? props.onDuplicate : undefined}
           deleteRow={props.onDelete ? props.onDelete : undefined}
           addRow={props.addRow ? props.addRow : undefined}
+          onActionButton={props.onActionButton}
           resetGrid={() => {
             resetGrid(realRef, initialColumnDefs);
             setTimeout(() => {

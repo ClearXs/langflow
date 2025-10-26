@@ -22,20 +22,20 @@
     "info": "从每个Wikipedia页面提取的最大字符数。"
   },
   "success": {
-    "search_completed": "Wikipedia搜索成功完成。为'{query}'找到{count}个结果",
-    "tool_created": "已为语言'{lang}'创建Wikipedia API工具，最多返回{results}个结果"
+    "search_completed": "Wikipedia搜索成功完成。为'%{query}'找到%{count}个结果",
+    "tool_created": "已为语言'%{lang}'创建Wikipedia API工具，最多返回%{results}个结果"
   },
   "info": {
-    "searching": "正在Wikipedia中搜索'{query}'（语言：'{lang}'）..."
+    "searching": "正在Wikipedia中搜索'%{query}'（语言：'%{lang}'）..."
   },
   "warnings": {
     "empty_input": "搜索输入为空。请提供搜索查询。",
-    "no_results": "未找到查询'{query}'的Wikipedia文章"
+    "no_results": "未找到查询'%{query}'的Wikipedia文章"
   },
   "errors": {
     "import_error": "缺少必需的依赖项。请安装wikipedia包以使用Wikipedia API。",
-    "search_failed": "Wikipedia搜索失败：{error}",
-    "tool_creation_failed": "创建Wikipedia API工具失败：{error}",
-    "wrapper_creation_failed": "创建Wikipedia API包装器失败：{error}"
+    "search_failed": "Wikipedia搜索失败：%{error}",
+    "tool_creation_failed": "创建Wikipedia API工具失败：%{error}",
+    "wrapper_creation_failed": "创建Wikipedia API包装器失败：%{error}"
   }
 }

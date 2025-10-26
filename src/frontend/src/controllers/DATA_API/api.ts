@@ -162,10 +162,17 @@ export function useDataAPI(options: UseDataAPIOptions = {}): AxiosInstance {
         }
         config.headers["Blade-Requested-With"] = "BladeHttpRequest";
 
-        config.headers["Authorization"] = "Basic c2FiZXIzOnNhYmVyM19zZWNyZXQ=";
-        config.headers[DEFAULT_CONFIG.tokenHeader] =
-          token ||
-          "bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJibGFkZXguY24iLCJhdWQiOlsiYmxhZGV4Il0sInRva2VuX3R5cGUiOiJhY2Nlc3NfdG9rZW4iLCJjbGllbnRfaWQiOiJzYWJlcjMiLCJ0ZW5hbnRfaWQiOiIwMDAwMDAiLCJ1c2VyX2lkIjoiMTEyMzU5ODgyMTczODY3NTIwMSIsImRlcHRfaWQiOiIxMTIzNTk4ODEzNzM4Njc1MjAxIiwicG9zdF9pZCI6IjExMjM1OTg4MTc3Mzg2NzUyMDEiLCJyb2xlX2lkIjoiMTEyMzU5ODgxNjczODY3NTIwMSwxOTEyMzk2MDkzMzk1MTQ0NzA2Iiwib2F1dGhfaWQiOiIiLCJhY2NvdW50IjoiYWRtaW4iLCJ1c2VyX25hbWUiOiJhZG1pbiIsIm5pY2tfbmFtZSI6IueuoeeQhuWRmCIsInJlYWxfbmFtZSI6IueuoeeQhuWRmCIsInJvbGVfbmFtZSI6ImFkbWluaXN0cmF0b3Is5pWw5o2u566h55CG5Yaz562W6ICFIiwiZGV0YWlsIjp7InR5cGUiOiJ3ZWIiLCJleHQiOiI0NueUqOaIt-W5s-WPsOafpeivoue7k-aenCJ9LCJleHAiOjE3NjQwMjM4MzIsIm5iZiI6MTc2MDQyMzgzMn0.I9sKs0DKTiB9gLO21AOOEsiQ2ofDMGQVowxgdI8_JZk";
+        // Add Authorization header from environment variable or use default
+        const authHeader = import.meta.env.VITE_DATA_API_AUTHORIZATION;
+        config.headers["Authorization"] = authHeader;
+
+        // Get default token from environment variable
+        const defaultToken = import.meta.env.VITE_DATA_API_DEFAULT_TOKEN;
+        // Use token from URL param or default token
+        const tokenHeader = DEFAULT_CONFIG.tokenHeader;
+        if (tokenHeader && config.headers) {
+          config.headers[tokenHeader] = token || defaultToken;
+        }
 
         // Get metadata
         const meta = config.meta || {};
@@ -265,6 +272,96 @@ export function createDataAPI(
     validateStatus: (status) => status >= 200 && status <= 500,
     withCredentials: true,
   });
+
+  // Add request interceptor to include auth headers
+  instance.interceptors.request.use(
+    (config) => {
+      const isMinioFile = config.url && config.url.startsWith("/minio-file");
+      if (isMinioFile) {
+        return config;
+      }
+
+      // Initialize headers if not present
+      if (!config.headers) {
+        config.headers = {} as any;
+      }
+
+      // Add security headers
+      config.headers["Blade-Requested-With"] = "BladeHttpRequest";
+
+      // Add Authorization header from environment variable or use default
+      const authHeader =
+        import.meta.env.VITE_DATA_API_AUTHORIZATION ||
+        "Basic c2FiZXIzOnNhYmVyM19zZWNyZXQ=";
+      config.headers["Authorization"] = authHeader;
+
+      // Get token from localStorage (same as main API)
+      const token = window.localStorage.getItem("access_token_lf");
+      const defaultToken = import.meta.env.VITE_DATA_API_DEFAULT_TOKEN;
+
+      if (token) {
+        // Remove quotes if present and use user's token
+        const cleanToken = token.replace(/^"(.*)"$/, "$1");
+        config.headers[finalConfig.tokenHeader || "Blade-Auth"] =
+          `bearer ${cleanToken}`;
+      } else if (defaultToken) {
+        // Use default token from environment variable
+        config.headers[finalConfig.tokenHeader || "Blade-Auth"] = defaultToken;
+      } else {
+        // Fallback to hardcoded token if no environment variable is set
+        config.headers[finalConfig.tokenHeader || "Blade-Auth"] =
+          "bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJibGFkZXguY24iLCJhdWQiOlsiYmxhZGV4Il0sInRva2VuX3R5cGUiOiJhY2Nlc3NfdG9rZW4iLCJjbGllbnRfaWQiOiJzYWJlcjMiLCJ0ZW5hbnRfaWQiOiIwMDAwMDAiLCJ1c2VyX2lkIjoiMTEyMzU5ODgyMTczODY3NTIwMSIsImRlcHRfaWQiOiIxMTIzNTk4ODEzNzM4Njc1MjAxIiwicG9zdF9pZCI6IjExMjM1OTg4MTc3Mzg2NzUyMDEiLCJyb2xlX2lkIjoiMTEyMzU5ODgxNjczODY3NTIwMSwxOTEyMzk2MDkzMzk1MTQ0NzA2Iiwib2F1dGhfaWQiOiIiLCJhY2NvdW50IjoiYWRtaW4iLCJ1c2VyX25hbWUiOiJhZG1pbiIsIm5pY2tfbmFtZSI6IueuoeeQhuWRmCIsInJlYWxfbmFtZSI6IueuoeeQhuWRmCIsInJvbGVfbmFtZSI6ImFkbWluaXN0cmF0b3Is5pWw5o2u566h55CG5Yaz562W6ICFIiwiZGV0YWlsIjp7InR5cGUiOiJ3ZWIiLCJleHQiOiJodHRwOi8vMTkyLjE2OC4xMTAuMTgwOjMyMTAyL3N5c3RlbS91c2VyIn0sImV4cCI6MTc2NDc5MDE2MSwibmJmIjoxNzYxMTkwMTYxfQ.zlm4tTlGXGo8Trh8AFPpEMk0ifUp0QJ6RetXFLEQo3A";
+      }
+
+      // Get metadata from extended config
+      const extendedConfig = config as DataRequestConfig;
+      const meta = extendedConfig.meta || {};
+
+      // Add content-type headers
+      if (extendedConfig.text === true) {
+        config.headers["Content-Type"] = "text/plain";
+      }
+      if (extendedConfig.isFormData || meta.isFormData) {
+        config.headers["Content-Type"] = "multipart/form-data";
+      }
+
+      // Serialize form data
+      if (config.method === "post" && meta.isSerialize === true) {
+        config.data = serialize(config.data);
+      }
+
+      return config;
+    },
+    (error) => {
+      return Promise.reject(error);
+    },
+  );
+
+  // Add response interceptor for error handling
+  instance.interceptors.response.use(
+    (res: AxiosResponse) => {
+      const status = res.data?.error_code || res.data?.code || res.status;
+      const message =
+        res.data?.msg || res.data?.error_description || "System error";
+
+      // Handle 401 unauthorized
+      if (status === 401) {
+        handleAuthenticationError(message);
+        return Promise.reject(new Error(message));
+      }
+
+      // Handle non-200 status
+      if (status !== 200 && status < 2000) {
+        showError(message);
+        return Promise.reject(new Error(message));
+      }
+
+      return res;
+    },
+    (error: AxiosError) => {
+      return Promise.reject(error);
+    },
+  );
 
   return instance;
 }

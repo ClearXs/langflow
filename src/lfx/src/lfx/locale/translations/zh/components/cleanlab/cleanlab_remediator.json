@@ -41,9 +41,9 @@
     "flagged": "分数 {score:.2f} < 阈值 {threshold:.2f} → 已标记"
   },
   "messages": {
-    "trusted_response": "{response}\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n**可信度分数：** {score:.2f}",
+    "trusted_response": "%{response}\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n**可信度分数：** {score:.2f}",
     "trust_score_label": "**可信度分数：** {score:.2f}",
-    "explanation_label": "**解释：** {explanation}"
+    "explanation_label": "**解释：** %{explanation}"
   },
   "logs": {
     "response_accepted": "响应已接受 - 分数：{score:.2f}，阈值：{threshold:.2f}",
@@ -53,6 +53,6 @@
     "using_fallback": "使用后备响应"
   },
   "errors": {
-    "remediation_failed": "修复失败：{error}"
+    "remediation_failed": "修复失败：%{error}"
   }
 }

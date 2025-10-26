@@ -47,16 +47,16 @@
   },
   "status": {
     "creating_agent": "Creating CrewAI agent...",
-    "agent_created": "CrewAI agent created successfully - Role: {role}"
+    "agent_created": "CrewAI agent created successfully - Role: %{role}"
   },
   "errors": {
     "import_failed": "CrewAI is not installed. Please install it with `uv pip install crewai`.",
-    "creation_failed": "Failed to create CrewAI agent: {error}"
+    "creation_failed": "Failed to create CrewAI agent: %{error}"
   },
   "logs": {
     "imports_successful": "CrewAI dependencies imported successfully",
-    "creating_agent": "Creating CrewAI agent with role: {role}",
+    "creating_agent": "Creating CrewAI agent with role: %{role}",
     "converting_llm": "Converting language model for CrewAI",
-    "converting_tools": "Converting {count} tools for CrewAI agent"
+    "converting_tools": "Converting %{count} tools for CrewAI agent"
   }
 }

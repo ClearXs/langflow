@@ -1,13 +1,13 @@
 {
   "display_name": "Data to Message",
-  "description": "Convert Data objects into Messages using any {field_name} from input data.",
+  "description": "Convert Data objects into Messages using any %{field_name} from input data.",
   "data": {
     "display_name": "Data",
     "info": "The data to convert to text."
   },
   "template": {
     "display_name": "Template",
-    "info": "The template to use for formatting the data. It can contain the keys {text}, {data} or any other key in the Data."
+    "info": "The template to use for formatting the data. It can contain the keys %{text}, %{data} or any other key in the Data."
   },
   "sep": {
     "display_name": "Separator",
@@ -24,8 +24,8 @@
     }
   },
   "success": {
-    "data_parsed_to_message": "Successfully parsed {count} data items to message (length: {length} characters)",
-    "data_parsed_to_list": "Successfully parsed {count} data items to list"
+    "data_parsed_to_message": "Successfully parsed %{count} data items to message (length: %{length} characters)",
+    "data_parsed_to_list": "Successfully parsed %{count} data items to list"
   },
   "warnings": {
     "no_valid_data": "No valid data items to parse.",
@@ -33,8 +33,8 @@
   },
   "errors": {
     "empty_data": "No data provided for parsing.",
-    "argument_validation_failed": "Failed to validate input arguments: {error}",
-    "parse_to_message_failed": "Failed to parse data to message: {error}",
-    "parse_to_list_failed": "Failed to parse data to list: {error}"
+    "argument_validation_failed": "Failed to validate input arguments: %{error}",
+    "parse_to_message_failed": "Failed to parse data to message: %{error}",
+    "parse_to_list_failed": "Failed to parse data to list: %{error}"
   }
 }

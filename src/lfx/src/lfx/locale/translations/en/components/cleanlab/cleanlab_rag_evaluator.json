@@ -60,33 +60,33 @@
   },
   "status": {
     "configuring_evals": "Configuring selected evals...",
-    "running_evals": "Running evals: {evals}",
+    "running_evals": "Running evals: %{evals}",
     "passing_response": "Passing through response.",
     "trust_score": "Trust Score: {score:.3f}",
     "explanation_extracted": "Trust explanation extracted.",
-    "other_evals_returned": "{count} other evals returned.",
+    "other_evals_returned": "%{count} other evals returned.",
     "summary_built": "Evaluation summary built."
   },
   "success": {
     "evaluation_complete": "Evaluation complete."
   },
   "errors": {
-    "evaluation_failed": "Evaluation failed: {error}"
+    "evaluation_failed": "Evaluation failed: %{error}"
   },
   "logs": {
     "configuring_evals": "Configuring evaluation metrics",
-    "selected_evals": "Selected evaluations: {evals}",
-    "running_evals": "Running {count} evaluation(s)",
+    "selected_evals": "Selected evaluations: %{evals}",
+    "running_evals": "Running %{count} evaluation(s)",
     "passing_response": "Passing through original response",
     "trust_score_retrieved": "Trust score retrieved: {score:.3f}",
     "explanation_extracted": "Trust explanation extracted from results",
-    "other_evals_retrieved": "Retrieved {count} additional evaluation metric(s)",
+    "other_evals_retrieved": "Retrieved %{count} additional evaluation metric(s)",
     "summary_built": "Evaluation summary built successfully"
   },
   "summary": {
     "trustworthiness": "Trustworthiness: {score:.3f}",
-    "explanation": "Explanation: {explanation}",
-    "metric": "{name}: {score:.3f}",
-    "full": "Query:\n{query}\n-----\nContext:\n{context}\n-----\nResponse:\n{response}\n------------------------------\n{metrics}"
+    "explanation": "Explanation: %{explanation}",
+    "metric": "%{name}: {score:.3f}",
+    "full": "Query:\n%{query}\n-----\nContext:\n%{context}\n-----\nResponse:\n%{response}\n------------------------------\n%{metrics}"
   }
 }

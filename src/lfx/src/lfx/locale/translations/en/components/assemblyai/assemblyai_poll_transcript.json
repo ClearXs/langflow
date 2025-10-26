@@ -19,26 +19,26 @@
     }
   },
   "status": {
-    "polling_transcript": "Polling transcript {id}...",
+    "polling_transcript": "Polling transcript %{id}...",
     "processing_result": "Processing transcription result..."
   },
   "success": {
-    "transcription_completed": "Transcription {id} completed successfully ({length} characters)"
+    "transcription_completed": "Transcription %{id} completed successfully (%{length} characters)"
   },
   "warnings": {
-    "previous_step_error": "Error from previous step: {error}"
+    "previous_step_error": "Error from previous step: %{error}"
   },
   "errors": {
     "transcript_id_not_found": "Transcript ID not found in input data",
-    "get_transcript_failed": "Getting transcription failed: {error}",
-    "process_result_failed": "Failed to process transcription result: {error}",
-    "transcript_not_completed": "Transcript is not completed. Status: {status}",
-    "poll_failed": "Failed to poll transcription job: {error}"
+    "get_transcript_failed": "Getting transcription failed: %{error}",
+    "process_result_failed": "Failed to process transcription result: %{error}",
+    "transcript_not_completed": "Transcript is not completed. Status: %{status}",
+    "poll_failed": "Failed to poll transcription job: %{error}"
   },
   "logs": {
-    "polling_interval_set": "Polling interval set to {interval} seconds",
-    "polling_started": "Started polling for transcript {id}",
-    "transcript_completed": "Transcript {id} completed",
-    "transcript_error": "Transcript {id} error - Status: {status}, Error: {error}"
+    "polling_interval_set": "Polling interval set to %{interval} seconds",
+    "polling_started": "Started polling for transcript %{id}",
+    "transcript_completed": "Transcript %{id} completed",
+    "transcript_error": "Transcript %{id} error - Status: %{status}, Error: %{error}"
   }
 }

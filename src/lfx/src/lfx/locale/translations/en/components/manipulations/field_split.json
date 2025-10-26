@@ -1,36 +1,64 @@
 {
-  "display_name": "Field Split",
-  "description": "Split field into multiple columns",
+  "display_name": "Column to Rows Split",
+  "description": "Split single column data into multiple rows by delimiter",
   "data_input": {
     "display_name": "Data Input",
-    "info": "Input data to transform"
+    "info": "Input data stream to split"
   },
-  "source_field": {
-    "display_name": "Source Field",
-    "info": "Field to split"
+  "split_field": {
+    "display_name": "Field to Split",
+    "info": "Select the field ID to split"
   },
-  "delimiter": {
-    "display_name": "Delimiter",
-    "info": "Split delimiter"
+  "separator": {
+    "display_name": "Separator",
+    "info": "Delimiter in field values",
+    "comma": ", (Comma)",
+    "semicolon": "; (Semicolon)",
+    "tab": "\\t (Tab)",
+    "pipe": "| (Pipe)",
+    "space": "Space",
+    "newline": "\\n (Newline)",
+    "custom": "Custom"
   },
-  "new_field_names": {
-    "display_name": "New Field Names",
-    "info": "Names for new fields (comma-separated)"
+  "custom_separator": {
+    "display_name": "Custom Separator",
+    "info": "Custom delimiter when 'Custom' is selected"
   },
-  "max_splits": {
-    "display_name": "Max Splits",
-    "info": "Maximum number of splits (-1 = unlimited)"
+  "separator_type": {
+    "display_name": "Separator Type",
+    "info": "Select separator expression type (fixed string, regex, custom rule)"
   },
-  "drop_source_field": {
-    "display_name": "Drop Source Field",
-    "info": "Remove source field after split"
+  "custom_rule_id": {
+    "display_name": "Custom Rule ID",
+    "info": "Custom rule ID that returns comma-separated string"
+  },
+  "reset_index": {
+    "display_name": "Reset Index",
+    "info": "Reset row number starting from 1 for each split group"
+  },
+  "keep_empty": {
+    "display_name": "Keep Empty",
+    "info": "Keep empty values after splitting"
+  },
+  "chunk_size": {
+    "display_name": "Chunk Size",
+    "info": "Chunk size for processing large datasets"
+  },
+  "outputs": {
+    "data": "Split Data",
+    "fields_schema": "Fields Schema",
+    "preview": "Field Preview",
+    "statistics": "Statistics"
   },
   "status": {
-    "success": "Split {count} records"
+    "splitting": "Splitting data...",
+    "success": "Split completed: %{original} rows -> %{result} rows",
+    "fields_loaded": "Loaded %{count} fields"
   },
   "errors": {
-    "missing_config": "Source field is required",
-    "field_not_found": "Field not found: {field}",
-    "split_failed": "Field split failed: {error}"
+    "no_input_data": "No input data",
+    "field_not_found": "Field %{field} not found",
+    "split_failed": "Split failed: %{error}",
+    "load_fields_failed": "Failed to load fields: %{error}"
   }
 }

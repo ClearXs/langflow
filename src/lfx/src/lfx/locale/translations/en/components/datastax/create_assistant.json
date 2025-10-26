@@ -24,14 +24,14 @@
   },
   "status": {
     "creating": "Creating assistant...",
-    "created": "Assistant '{name}' created successfully - ID: {assistant_id}"
+    "created": "Assistant '%{name}' created successfully - ID: %{assistant_id}"
   },
   "errors": {
-    "creation_failed": "Failed to create assistant: {error}"
+    "creation_failed": "Failed to create assistant: %{error}"
   },
   "logs": {
     "client_initialized": "OpenAI client initialized successfully",
-    "processing_inputs": "Processing inputs - env_set: {env_set}",
-    "creating_assistant": "Creating assistant '{name}' with model '{model}'"
+    "processing_inputs": "Processing inputs - env_set: %{env_set}",
+    "creating_assistant": "Creating assistant '%{name}' with model '%{model}'"
   }
 }

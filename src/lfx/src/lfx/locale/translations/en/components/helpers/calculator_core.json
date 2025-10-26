@@ -11,20 +11,20 @@
     }
   },
   "info": {
-    "calculation_result": "Calculation result: {result}"
+    "calculation_result": "Calculation result: %{result}"
   },
   "warnings": {
     "empty_expression": "Expression is empty. Please provide a mathematical expression to evaluate."
   },
   "errors": {
-    "unsupported_constant_type": "Unsupported constant type: {type_name}",
-    "unsupported_number_type": "Unsupported number type: {type_name}",
-    "unsupported_binary_operator": "Unsupported binary operator: {operator_name}",
-    "unsupported_operation": "Unsupported operation or expression type: {node_type}",
+    "unsupported_constant_type": "Unsupported constant type: %{type_name}",
+    "unsupported_number_type": "Unsupported number type: %{type_name}",
+    "unsupported_binary_operator": "Unsupported binary operator: %{operator_name}",
+    "unsupported_operation": "Unsupported operation or expression type: %{node_type}",
     "division_by_zero": "Error: Division by zero",
-    "syntax_error": "Syntax error in expression: {error}",
-    "invalid_expression": "Invalid expression: {error}",
-    "overflow_error": "Calculation overflow: {error}",
-    "unexpected_error": "Unexpected error during calculation: {error}"
+    "syntax_error": "Syntax error in expression: %{error}",
+    "invalid_expression": "Invalid expression: %{error}",
+    "overflow_error": "Calculation overflow: %{error}",
+    "unexpected_error": "Unexpected error during calculation: %{error}"
   }
 }

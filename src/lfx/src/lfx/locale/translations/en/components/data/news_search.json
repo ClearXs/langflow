@@ -47,13 +47,13 @@
     }
   },
   "success": {
-    "found_articles": "Found {count} news articles"
+    "found_articles": "Found %{count} news articles"
   },
   "errors": {
     "empty_query": "Search query cannot be empty.",
     "missing_api_key": "API key is required for news search.",
-    "invalid_source": "Invalid news source specified: {source}",
+    "invalid_source": "Invalid news source specified: %{source}",
     "no_results": "No news articles found for the given query.",
-    "search_error": "Error searching for news: {error}"
+    "search_error": "Error searching for news: %{error}"
   }
 }

@@ -24,14 +24,14 @@
   },
   "status": {
     "creating": "正在创建助手...",
-    "created": "助手'{name}'创建成功 - ID：{assistant_id}"
+    "created": "助手'%{name}'创建成功 - ID：%{assistant_id}"
   },
   "errors": {
-    "creation_failed": "创建助手失败：{error}"
+    "creation_failed": "创建助手失败：%{error}"
   },
   "logs": {
     "client_initialized": "OpenAI客户端初始化成功",
-    "processing_inputs": "正在处理输入 - env_set：{env_set}",
-    "creating_assistant": "正在使用模型'{model}'创建助手'{name}'"
+    "processing_inputs": "正在处理输入 - env_set：%{env_set}",
+    "creating_assistant": "正在使用模型'%{model}'创建助手'%{name}'"
   }
 }

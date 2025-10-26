@@ -1,0 +1,54 @@
+{
+  "display_name": "SQL Script",
+  "description": "Execute SQL scripts on selected datasource with transaction support",
+  "datasource_selector": {
+    "display_name": "Data Source",
+    "info": "Select the datasource where the SQL script will be executed"
+  },
+  "sql_script": {
+    "display_name": "SQL Script",
+    "info": "Enter SQL statements (DDL, DML, or DQL). Multiple statements can be separated by semicolons."
+  },
+  "enable_transaction": {
+    "display_name": "Enable Transaction",
+    "info": "Execute all statements within a single transaction. Rollback on any error."
+  },
+  "statement_separator": {
+    "display_name": "Statement Separator",
+    "info": "Character used to separate multiple SQL statements (default: semicolon)"
+  },
+  "continue_on_error": {
+    "display_name": "Continue on Error",
+    "info": "Continue executing remaining statements even if one fails (only when transaction is disabled)"
+  },
+  "execution_results": {
+    "display_name": "Execution Results",
+    "info": "Preview of script execution results",
+    "statement_index": "Index",
+    "statement_type": "Type",
+    "rows_affected": "Rows Affected",
+    "status": "Status",
+    "error": "Error Message",
+    "execute_button": "Execute Script"
+  },
+  "outputs": {
+    "execution_summary": "Execution Summary",
+    "query_results": "Query Results",
+    "total_rows_affected": "Total Rows Affected"
+  },
+  "status": {
+    "connecting": "Connecting to datasource...",
+    "parsing": "Parsing SQL script...",
+    "executing": "Executing statement %{index}/%{total}...",
+    "committing": "Committing transaction...",
+    "success": "Script executed successfully: %{success}/%{total} statements"
+  },
+  "errors": {
+    "no_datasource": "No datasource selected",
+    "no_script": "SQL script is empty",
+    "parse_failed": "Failed to parse SQL script: %{error}",
+    "execution_failed": "Script execution failed: %{error}",
+    "transaction_failed": "Transaction failed and rolled back: %{error}",
+    "invalid_datasource": "Invalid or unavailable datasource"
+  }
+}

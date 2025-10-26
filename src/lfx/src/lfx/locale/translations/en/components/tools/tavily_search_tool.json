@@ -56,25 +56,25 @@
   "tool_description": "Perform a web search using the Tavily API.",
   "success": {
     "tool_created": "Tavily search tool created successfully",
-    "search_completed": "Search completed successfully. Found {count} results for '{query}'"
+    "search_completed": "Search completed successfully. Found %{count} results for '%{query}'"
   },
   "info": {
-    "executing_search": "Executing Tavily search for '{query}' (depth: {depth}, topic: {topic})..."
+    "executing_search": "Executing Tavily search for '%{query}' (depth: %{depth}, topic: %{topic})..."
   },
   "warnings": {
     "empty_query": "Search query is empty. Please provide a search term.",
-    "no_results": "No search results found for query: '{query}'"
+    "no_results": "No search results found for query: '%{query}'"
   },
   "errors": {
-    "invalid_search_depth": "Invalid search depth value: {error}",
-    "invalid_topic": "Invalid topic value: {error}",
-    "invalid_time_range": "Invalid time range value: {error}",
-    "invalid_search_depth_type": "Invalid search_depth value: {value}",
-    "invalid_topic_type": "Invalid topic value: {value}",
-    "invalid_chunks_per_source": "chunks_per_source must be between {min} and {max}, got {value}",
-    "invalid_days": "days must be greater than or equal to 1, got {value}",
+    "invalid_search_depth": "Invalid search depth value: %{error}",
+    "invalid_topic": "Invalid topic value: %{error}",
+    "invalid_time_range": "Invalid time range value: %{error}",
+    "invalid_search_depth_type": "Invalid search_depth value: %{value}",
+    "invalid_topic_type": "Invalid topic value: %{value}",
+    "invalid_chunks_per_source": "chunks_per_source must be between %{min} and %{max}, got %{value}",
+    "invalid_days": "days must be greater than or equal to 1, got %{value}",
     "timeout": "Request timed out (90s). Please try again or adjust parameters.",
-    "http_error": "HTTP error: {status} - {text}",
-    "unexpected_error": "Unexpected error: {error}"
+    "http_error": "HTTP error: %{status} - %{text}",
+    "unexpected_error": "Unexpected error: %{error}"
   }
 }

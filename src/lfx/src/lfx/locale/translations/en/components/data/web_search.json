@@ -44,18 +44,18 @@
   "errors": {
     "empty_query": "Empty search query",
     "no_results": "No results found",
-    "failed_request": "Failed request: {error}",
-    "invalid_url": "Invalid URL: {url}",
-    "failed_fetch": "Failed to fetch: {error}",
-    "failed_fetch_news": "Failed to fetch news: {error}",
+    "failed_request": "Failed request: %{error}",
+    "invalid_url": "Invalid URL: %{url}",
+    "failed_fetch": "Failed to fetch: %{error}",
+    "failed_fetch_news": "Failed to fetch news: %{error}",
     "no_articles": "No news articles found.",
     "no_rss_url": "No RSS URL provided",
-    "failed_fetch_rss": "Failed to fetch RSS: {error}",
+    "failed_fetch_rss": "Failed to fetch RSS: %{error}",
     "empty_response": "Empty response received",
-    "invalid_xml": "Invalid XML response: {error}",
-    "parse_article_error": "Error parsing article: {error}"
+    "invalid_xml": "Invalid XML response: %{error}",
+    "parse_article_error": "Error parsing article: %{error}"
   },
   "success": {
-    "fetched_articles": "Fetched {count} articles."
+    "fetched_articles": "Fetched %{count} articles."
   }
 }

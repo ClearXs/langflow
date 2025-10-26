@@ -27,23 +27,23 @@
   },
   "tool_description": "Search for recent results using searchapi.io with result limiting",
   "success": {
-    "tool_created": "Search API Tool created with engine: {engine}",
-    "search_completed": "Search completed successfully. Found {count} results for '{query}'"
+    "tool_created": "Search API Tool created with engine: %{engine}",
+    "search_completed": "Search completed successfully. Found %{count} results for '%{query}'"
   },
   "info": {
-    "executing_search": "Executing search for '{query}' using {engine} engine..."
+    "executing_search": "Executing search for '%{query}' using %{engine} engine..."
   },
   "warnings": {
     "empty_query": "Search query is empty. Please provide a search term.",
     "empty_input": "Search input is empty. Please provide a search query.",
-    "no_results": "No search results found for query: '{query}'",
+    "no_results": "No search results found for query: '%{query}'",
     "no_results_returned": "Search API returned no results"
   },
   "errors": {
     "api_key_required": "SearchAPI API key is required. Please provide your API key from searchapi.io.",
-    "wrapper_creation_failed": "Failed to create SearchAPI wrapper: {error}",
-    "search_execution_failed": "Search execution failed: {error}",
-    "tool_creation_failed": "Failed to create Search API tool: {error}",
-    "execution_failed": "Search API execution failed: {error}"
+    "wrapper_creation_failed": "Failed to create SearchAPI wrapper: %{error}",
+    "search_execution_failed": "Search execution failed: %{error}",
+    "tool_creation_failed": "Failed to create Search API tool: %{error}",
+    "execution_failed": "Search API execution failed: %{error}"
   }
 }

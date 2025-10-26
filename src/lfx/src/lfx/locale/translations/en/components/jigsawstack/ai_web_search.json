@@ -33,15 +33,15 @@
     "import_error": "JigsawStack package not found. Please install it using: pip install jigsawstack>=0.2.7",
     "empty_query": "Search query cannot be empty",
     "api_request_failed": "JigsawStack API request failed",
-    "jigsawstack_error": "JigsawStack error: {error}",
-    "unexpected_error": "An unexpected error occurred: {error}"
+    "jigsawstack_error": "JigsawStack error: %{error}",
+    "unexpected_error": "An unexpected error occurred: %{error}"
   },
   "logs": {
-    "starting_search": "Starting AI web search - Query: '{query}'",
+    "starting_search": "Starting AI web search - Query: '%{query}'",
     "creating_client": "Creating JigsawStack client",
-    "search_parameters": "Search parameters - Query: '{query}', AI Overview: {ai_overview}, Safe Mode: {safe_mode}, Spell Check: {spell_check}, Max Results: {max_results}",
+    "search_parameters": "Search parameters - Query: '%{query}', AI Overview: %{ai_overview}, Safe Mode: %{safe_mode}, Spell Check: %{spell_check}, Max Results: %{max_results}",
     "calling_api": "Calling JigsawStack AI search API",
-    "search_complete": "AI search complete - {results_count} result(s) found, AI Overview: {has_overview}",
-    "search_complete_status": "AI search completed successfully with {count} result(s)."
+    "search_complete": "AI search complete - %{results_count} result(s) found, AI Overview: %{has_overview}",
+    "search_complete_status": "AI search completed successfully with %{count} result(s)."
   }
 }

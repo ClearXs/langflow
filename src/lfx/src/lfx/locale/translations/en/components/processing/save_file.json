@@ -20,34 +20,34 @@
   },
   "status": {
     "preparing_file_path": "Preparing file path...",
-    "saving_file": "Saving file as {format}...",
+    "saving_file": "Saving file as %{format}...",
     "uploading_file": "Uploading file..."
   },
   "success": {
-    "file_saved_and_uploaded": "{confirmation} and uploaded to {path}",
-    "dataframe_saved": "DataFrame saved successfully as '{path}'",
-    "data_saved": "Data saved successfully as '{path}'",
-    "message_saved": "Message saved successfully as '{path}'"
+    "file_saved_and_uploaded": "%{confirmation} and uploaded to %{path}",
+    "dataframe_saved": "DataFrame saved successfully as '%{path}'",
+    "data_saved": "Data saved successfully as '%{path}'",
+    "message_saved": "Message saved successfully as '%{path}'"
   },
   "errors": {
     "empty_file_name": "File name must be provided.",
     "input_type_not_set": "Input type is not set.",
-    "invalid_file_format": "Invalid file format '{format}' for {input_type}. Allowed: {allowed}",
-    "unsupported_input_type": "Unsupported input type: {input_type}",
-    "unsupported_input_type_detection": "Unsupported input type: {actual_type}",
-    "input_type_detection_failed": "Failed to detect input type: {error}",
-    "file_path_adjustment_failed": "Failed to adjust file path with format: {error}",
+    "invalid_file_format": "Invalid file format '%{format}' for %{input_type}. Allowed: %{allowed}",
+    "unsupported_input_type": "Unsupported input type: %{input_type}",
+    "unsupported_input_type_detection": "Unsupported input type: %{actual_type}",
+    "input_type_detection_failed": "Failed to detect input type: %{error}",
+    "file_path_adjustment_failed": "Failed to adjust file path with format: %{error}",
     "langflow_import_failed": "Langflow file upload functionality is not available. This feature requires the full Langflow installation.",
     "langflow_mcp_import_failed": "Langflow MCP server functionality is not available. This feature requires the full Langflow installation.",
-    "file_not_found": "File not found: {path}",
+    "file_not_found": "File not found: %{path}",
     "user_id_required": "User ID is required for file saving.",
-    "file_upload_failed": "Failed to upload file '{path}': {error}",
-    "unsupported_dataframe_format": "Unsupported DataFrame format: {format}",
-    "dataframe_save_failed": "Failed to save DataFrame as {format}: {error}",
-    "unsupported_data_format": "Unsupported Data format: {format}",
-    "data_save_failed": "Failed to save Data as {format}: {error}",
-    "unsupported_message_format": "Unsupported Message format: {format}",
-    "message_save_failed": "Failed to save Message as {format}: {error}",
-    "save_operation_failed": "Save operation failed: {error}"
+    "file_upload_failed": "Failed to upload file '%{path}': %{error}",
+    "unsupported_dataframe_format": "Unsupported DataFrame format: %{format}",
+    "dataframe_save_failed": "Failed to save DataFrame as %{format}: %{error}",
+    "unsupported_data_format": "Unsupported Data format: %{format}",
+    "data_save_failed": "Failed to save Data as %{format}: %{error}",
+    "unsupported_message_format": "Unsupported Message format: %{format}",
+    "message_save_failed": "Failed to save Message as %{format}: %{error}",
+    "save_operation_failed": "Save operation failed: %{error}"
   }
 }

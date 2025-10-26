@@ -1,0 +1,65 @@
+{
+  "display_name": "CSV Input",
+  "description": "Read data from CSV files",
+  "file_path": {
+    "display_name": "CSV File",
+    "info": "Select the CSV file to read"
+  },
+  "delimiter": {
+    "display_name": "Delimiter",
+    "info": "Field separator character",
+    "custom": "Custom"
+  },
+  "custom_delimiter": {
+    "display_name": "Custom Delimiter",
+    "info": "Enter custom delimiter character"
+  },
+  "encoding": {
+    "display_name": "Encoding",
+    "info": "File character encoding",
+    "auto": "Auto Detect"
+  },
+  "header_mode": {
+    "display_name": "Header Configuration",
+    "info": "How to identify field names",
+    "first_row": "First row as field names",
+    "custom_row": "Custom row as field names",
+    "no_header": "No header (use Column_1, Column_2...)"
+  },
+  "header_row": {
+    "display_name": "Header Row Number",
+    "info": "Which row to use as field names (1 for first row, 2 for second, etc.)"
+  },
+  "data_start_row": {
+    "display_name": "Data Start Row",
+    "info": "Starting row number for data (default: 2, meaning data starts from second row)"
+  },
+  "max_rows": {
+    "display_name": "Max Rows",
+    "info": "Maximum number of rows to read (0 = read all rows)"
+  },
+  "skip_blank_lines": {
+    "display_name": "Skip Blank Lines",
+    "info": "Automatically skip empty lines in the file"
+  },
+  "preview_table": {
+    "display_name": "Data Preview",
+    "info": "Preview the first 100 rows of data",
+    "preview_button": "Preview Data (first 100 rows)"
+  },
+  "output_data": {
+    "display_name": "Data"
+  },
+  "errors": {
+    "no_file_selected": "Please select a CSV file first",
+    "no_file_path": "File path is required",
+    "preview_failed": "Preview failed: %{error}",
+    "read_csv_failed": "Failed to read CSV file: %{error}",
+    "load_data_failed": "Failed to load data: %{error}",
+    "encoding_error": "Encoding error with %{encoding}: %{error}"
+  },
+  "status": {
+    "preview_success": "Successfully previewed %{count} rows",
+    "loaded_rows": "Loaded %{count} rows from CSV file"
+  }
+}

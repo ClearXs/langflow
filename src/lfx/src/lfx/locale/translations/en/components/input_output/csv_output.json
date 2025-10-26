@@ -1,32 +1,47 @@
 {
   "display_name": "CSV Output",
-  "description": "Export data to CSV files",
+  "description": "Export data to CSV file and upload to resource management system",
   "data_input": {
-    "display_name": "Data Input",
-    "info": "Data to export"
+    "display_name": "Input Data",
+    "info": "Data to export (list of Data objects)"
   },
-  "file_path": {
-    "display_name": "File Path",
-    "info": "Output CSV file path"
+  "output_folder": {
+    "display_name": "Output Folder",
+    "info": "Select the target folder for saving the CSV file"
+  },
+  "filename": {
+    "display_name": "File Name",
+    "info": "Name of the output file (including .csv extension)"
   },
   "delimiter": {
     "display_name": "Delimiter",
-    "info": "Field delimiter"
+    "info": "Character used to separate fields"
   },
   "encoding": {
     "display_name": "Encoding",
-    "info": "File encoding"
+    "info": "Character encoding for the file"
   },
   "include_header": {
     "display_name": "Include Header",
-    "info": "Include column headers"
+    "info": "Include column names as the first row"
   },
   "status": {
-    "exporting": "Exporting to CSV...",
-    "success": "Successfully exported {rows} rows"
+    "validating": "Validating input data...",
+    "converting": "Converting data to CSV format...",
+    "saving_temp": "Saving to temporary file...",
+    "uploading": "Uploading file to resource management system...",
+    "success": "Successfully exported %{rows} rows to %{filename}"
   },
   "errors": {
-    "no_data": "No data to export",
-    "export_failed": "CSV export failed: {error}"
+    "no_data": "No data provided for export",
+    "no_folder_selected": "Please select a target folder",
+    "empty_dataframe": "Data conversion resulted in empty dataset",
+    "invalid_folder_id": "Invalid folder ID: %{folder_id}. Please reselect the folder.",
+    "export_failed": "%{error_type}: %{error}"
+  },
+  "outputs": {
+    "result": {
+      "display_name": "Export Result"
+    }
   }
 }

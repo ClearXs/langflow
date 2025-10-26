@@ -11,11 +11,11 @@
     }
   },
   "success": {
-    "id_generated": "生成的ID：{id}",
-    "id_refreshed": "刷新的ID：{id}"
+    "id_generated": "生成的ID：%{id}",
+    "id_refreshed": "刷新的ID：%{id}"
   },
   "errors": {
-    "generation_failed": "生成ID失败：{error}",
-    "refresh_failed": "刷新ID失败：{error}"
+    "generation_failed": "生成ID失败：%{error}",
+    "refresh_failed": "刷新ID失败：%{error}"
   }
 }

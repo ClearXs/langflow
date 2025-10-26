@@ -1,0 +1,11 @@
+{
+  "addDataSource": "Add Data Source",
+  "editDataSource": "Edit Data Source",
+  "deleteDataSource": "Delete Data Source",
+  "selectDataSource": "Select Data Source",
+  "noDataSource": "No data sources available",
+  "testConnection": "Test Connection",
+  "connectionSuccess": "Connection successful",
+  "connectionFailed": "Connection failed: %{error}",
+  "deleteConfirm": "Are you sure you want to delete data source %{name}?"
+}

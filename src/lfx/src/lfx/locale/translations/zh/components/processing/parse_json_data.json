@@ -15,20 +15,20 @@
     }
   },
   "success": {
-    "data_filtered": "成功使用查询'{query}'过滤JSON数据。生成了{results}个结果。"
+    "data_filtered": "成功使用查询'%{query}'过滤JSON数据。生成了%{results}个结果。"
   },
   "warnings": {
     "empty_input": "未提供用于过滤的输入数据。",
-    "no_results": "JQ查询'{query}'没有返回结果。"
+    "no_results": "JQ查询'%{query}'没有返回结果。"
   },
   "errors": {
-    "data_parsing_failed": "解析输入数据失败：{error}",
-    "invalid_json": "无效的JSON格式：{error}",
-    "list_item_parsing_failed": "解析索引{index}处的列表项失败：{error}",
-    "list_json_parsing_failed": "解析列表索引{index}处的JSON失败：{error}",
+    "data_parsing_failed": "解析输入数据失败：%{error}",
+    "invalid_json": "无效的JSON格式：%{error}",
+    "list_item_parsing_failed": "解析索引%{index}处的列表项失败：%{error}",
+    "list_json_parsing_failed": "解析列表索引%{index}处的JSON失败：%{error}",
     "empty_query": "JQ查询不能为空。",
-    "jq_filter_failed": "JQ过滤器'{query}'失败：{error}",
-    "result_conversion_failed": "将索引{index}处的结果转换为Data对象失败：{error}",
-    "filtering_failed": "JSON数据过滤失败：{error}"
+    "jq_filter_failed": "JQ过滤器'%{query}'失败：%{error}",
+    "result_conversion_failed": "将索引%{index}处的结果转换为Data对象失败：%{error}",
+    "filtering_failed": "JSON数据过滤失败：%{error}"
   }
 }

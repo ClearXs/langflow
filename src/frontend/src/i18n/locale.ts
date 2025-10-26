@@ -127,6 +127,11 @@ export const useSidebarCategories = () => {
         icon: "Shuffle",
       },
       {
+        display_name: t("flow.sidebar.components.quality"),
+        name: "quality",
+        icon: "ShieldCheck",
+      },
+      {
         display_name: t("flow.sidebar.components.operations"),
         name: "operations",
         icon: "Calculator",

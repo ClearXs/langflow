@@ -344,6 +344,7 @@ export type TableOptionsTypeAPI = {
   block_hide?: boolean | string[];
   block_select?: boolean;
   hide_options?: boolean;
+  pagination?: boolean;
   field_validators?: Array<
     FieldValidatorType | { [key: string]: FieldValidatorType }
   >;

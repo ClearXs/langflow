@@ -1,5 +1,11 @@
 import { useQueryClient } from "@tanstack/react-query";
-import { type ReactNode, useEffect, useRef, useState } from "react";
+import {
+  type ReactNode,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { useTranslation } from "react-i18next";
 import { ForwardedIconComponent } from "@/components/common/genericIconComponent";
 import { FileTableView } from "@/components/core/fileTableView";
@@ -44,6 +50,7 @@ interface FileTableViewModalProps {
   allowMultiple?: boolean;
   showNavBar?: boolean;
   showFileDetails?: boolean;
+  readOnly?: boolean; // When true, hides create/upload/delete operations (for file selection mode)
 }
 
 export default function FileTableViewModal({
@@ -78,6 +85,7 @@ export default function FileTableViewModal({
   allowMultiple = true,
   showNavBar = true,
   showFileDetails = true,
+  readOnly = false, // Default to false for backward compatibility
 }: FileTableViewModalProps): JSX.Element {
   const { t } = useTranslation();
   const [internalOpen, internalSetOpen] = useState(false);
@@ -104,71 +112,93 @@ export default function FileTableViewModal({
   const setIsOpen =
     controlledSetOpen !== undefined ? controlledSetOpen : internalSetOpen;
 
-  // Refetch files when modal opens
+  // Refetch files and reset selection when modal opens
   useEffect(() => {
     if (isOpen) {
       queryClient.refetchQueries({
         queryKey: ["useGetFilesV2"],
       });
+      // Only reset selection when modal first opens, not on every render
+      setInternalSelectedFiles(selectedFiles || []);
     }
   }, [isOpen, queryClient]);
+  // Note: selectedFiles is intentionally NOT in dependencies to avoid resetting during selection
 
-  // Reset selected files when modal opens
-  useEffect(() => {
-    if (isOpen) {
-      setInternalSelectedFiles(selectedFiles);
-    }
-  }, [isOpen, selectedFiles]);
+  // Handle single file selection (from row click)
+  const handleFileSelect = useCallback(
+    (file: FileItem) => {
+      if (!allowMultiple) {
+        setInternalSelectedFiles([file]);
+      } else {
+        // In multi-select mode, toggle the file
+        setInternalSelectedFiles((prevFiles) => {
+          const isAlreadySelected = prevFiles.some((f) => f.id === file.id);
+          if (isAlreadySelected) {
+            return prevFiles.filter((f) => f.id !== file.id);
+          } else {
+            return [...prevFiles, file];
+          }
+        });
+      }
+    },
+    [allowMultiple],
+  );
 
-  // FIXED: Handle file selection change without duplication
-  const handleSelectionChange = (files: FileItem[]) => {
-    if (!allowMultiple && files.length > 1) {
-      setInternalSelectedFiles([files[files.length - 1]]);
-    } else {
-      setInternalSelectedFiles(files);
-    }
-  };
+  // Handle multiple file selection change (from checkboxes)
+  const handleSelectionChange = useCallback(
+    (files: FileItem[]) => {
+      if (!allowMultiple && files.length > 1) {
+        setInternalSelectedFiles([files[files.length - 1]]);
+      } else {
+        setInternalSelectedFiles(files);
+      }
+    },
+    [allowMultiple],
+  );
 
   // Handle navigation
-  const handleNavigation = (folderId: number, path: string) => {
+  const handleNavigation = useCallback((folderId: number, path: string) => {
     setCurrentParentId(folderId);
     setCurrentPath(path);
-  };
+  }, []);
 
   // Handle search
-  const handleSearch = async (query: string) => {
-    setSearchQuery(query);
+  const handleSearch = useCallback(
+    async (query: string) => {
+      setSearchQuery(query);
 
-    if (!query.trim()) {
-      setIsSearching(false);
-      setSearchResults([]);
-      if (fileTableRef.current) {
-        fileTableRef.current.refresh?.();
-      }
-      return;
-    }
-
-    if (fetchDataApi) {
-      setIsSearching(true);
-      try {
-        const response = await fetchDataApi(currentParentId);
-        if (response && response.data && response.data.data) {
-          const transformer = dataTransformer || defaultDataTransformer;
-          const allFiles = transformer(response.data.data);
-          // Filter files by search query
-          const filtered = allFiles.filter((file: FileItem) =>
-            file.name.toLowerCase().includes(query.toLowerCase()),
-          );
-          setSearchResults(filtered);
+      if (!query.trim()) {
+        setIsSearching(false);
+        setSearchResults([]);
+        if (fileTableRef.current) {
+          fileTableRef.current.refresh?.();
         }
-      } catch (error) {
-        console.error("Search failed:", error);
+        return;
       }
-    }
-  };
+
+      if (fetchDataApi) {
+        setIsSearching(true);
+        try {
+          const response = await fetchDataApi(currentParentId);
+          if (response && response.data && response.data.data) {
+            const transformer = dataTransformer || defaultDataTransformer;
+            const allFiles = transformer(response.data.data);
+            // Filter files by search query
+            const filtered = allFiles.filter((file: FileItem) =>
+              file.name.toLowerCase().includes(query.toLowerCase()),
+            );
+            setSearchResults(filtered);
+          }
+        } catch (error) {
+          console.error("Search failed:", error);
+        }
+      }
+    },
+    [fetchDataApi, currentParentId, dataTransformer],
+  );
 
   // Default data transformer
-  const defaultDataTransformer = (data: any): FileItem[] => {
+  const defaultDataTransformer = useCallback((data: any): FileItem[] => {
     return data.map((item: any) => ({
       id: item.id,
       name: item.name,
@@ -182,97 +212,139 @@ export default function FileTableViewModal({
       file: item.file,
       tags: item.tags,
     }));
-  };
+  }, []);
 
   // Handle create folder
-  const handleCreate = () => {
+  const handleCreate = useCallback(() => {
     if (fileTableRef.current) {
       fileTableRef.current.startCreateFolder?.();
     }
-  };
+  }, []);
 
   // Handle upload
-  const handleUpload = () => {
+  const handleUpload = useCallback(() => {
     console.log("Upload file");
     // Implement file upload logic
-  };
+  }, []);
 
   // Handle upload folder
-  const handleUploadFolder = () => {
+  const handleUploadFolder = useCallback(() => {
     console.log("Upload folder");
     // Implement folder upload logic
-  };
+  }, []);
 
   // Handle batch delete
-  const handleBatchDelete = async () => {
-    if (internalSelectedFiles.length === 0) {
-      setErrorData({
-        title: t("fileTableModal.pleaseSelectFilesToDelete"),
-      });
-      return;
-    }
+  const handleBatchDelete = useCallback(async () => {
+    setInternalSelectedFiles((currentFiles) => {
+      if (currentFiles.length === 0) {
+        setErrorData({
+          title: t("fileTableModal.pleaseSelectFilesToDelete"),
+        });
+        return currentFiles;
+      }
 
-    try {
-      const folderIds = internalSelectedFiles
+      const folderIds = currentFiles
         .filter((f) => f.type === "folder")
         .map((f) => f.id as number);
-      const fileIds = internalSelectedFiles
+      const fileIds = currentFiles
         .filter((f) => f.type === "file")
         .map((f) => f.id as number);
 
-      if (folderIds.length > 0 && deleteFolderApi) {
-        await deleteFolderApi(folderIds);
-      }
-      if (fileIds.length > 0 && deleteFileApi) {
-        await deleteFileApi(fileIds);
-      }
+      (async () => {
+        try {
+          if (folderIds.length > 0 && deleteFolderApi) {
+            await deleteFolderApi(folderIds);
+          }
+          if (fileIds.length > 0 && deleteFileApi) {
+            await deleteFileApi(fileIds);
+          }
 
-      // Refresh list
-      if (fileTableRef.current) {
-        fileTableRef.current.refresh?.();
-      }
+          // Refresh list
+          if (fileTableRef.current) {
+            fileTableRef.current.refresh?.();
+          }
+        } catch (error) {
+          console.error("Delete failed:", error);
+          setErrorData({
+            title: t("fileTableModal.deleteFailed"),
+          });
+        }
+      })();
 
       // Clear selection
-      setInternalSelectedFiles([]);
-    } catch (error) {
-      console.error("Delete failed:", error);
-      setErrorData({
-        title: t("fileTableModal.deleteFailed"),
-      });
-    }
-  };
+      return [];
+    });
+  }, [deleteFolderApi, deleteFileApi, setErrorData, t]);
 
   // Handle batch download
-  const handleBatchDownload = () => {
-    if (internalSelectedFiles.length === 0) {
-      setErrorData({
-        title: t("fileTableModal.pleaseSelectFilesToDownload"),
-      });
-      return;
-    }
-
-    internalSelectedFiles.forEach((file) => {
-      if (file.type === "file" && file.file?.link) {
-        window.open(file.file.link, "_blank");
+  const handleBatchDownload = useCallback(() => {
+    setInternalSelectedFiles((currentFiles) => {
+      if (currentFiles.length === 0) {
+        setErrorData({
+          title: t("fileTableModal.pleaseSelectFilesToDownload"),
+        });
+        return currentFiles;
       }
-    });
-  };
 
-  // FIXED: Handle modal submit with proper validation
-  const onSubmit = () => {
-    if (internalSelectedFiles.length === 0) {
-      setErrorData({
-        title: t("fileTableModal.pleaseSelectAtLeastOneFile"),
+      currentFiles.forEach((file) => {
+        if (file.type === "file" && file.file?.link) {
+          window.open(file.file.link, "_blank");
+        }
       });
-      return;
-    }
 
-    // Submit all selected items (including folders)
-    if (handleSubmit) {
-      handleSubmit(internalSelectedFiles);
-    }
+      return currentFiles;
+    });
+  }, [setErrorData, t]);
+
+  // Handle modal submit with proper validation
+  const onSubmit = useCallback(() => {
+    setInternalSelectedFiles((currentFiles) => {
+      // Check if nothing is selected
+      if (currentFiles.length === 0) {
+        // If no files selected but we're in folder selection mode,
+        // select the current folder
+        if (selectableFileTypes?.includes("folder")) {
+          const currentFolderItem: FileItem = {
+            id: currentParentId,
+            name:
+              pathHistory[pathHistory.length - 1]?.name ||
+              t("fileTableModal.allFiles"),
+            type: "folder",
+            path: currentPath,
+          };
+
+          if (handleSubmit) {
+            handleSubmit([currentFolderItem]);
+          }
+          return currentFiles;
+        }
+
+        // Otherwise show error
+        setErrorData({
+          title: t("fileTableModal.pleaseSelectAtLeastOneFile"),
+        });
+        return currentFiles;
+      }
+
+      // Submit all selected files (including folders if selected)
+      if (handleSubmit) {
+        handleSubmit(currentFiles);
+      }
+
+      return currentFiles;
+    });
+
     setIsOpen(false);
-  };
+  }, [
+    handleSubmit,
+    setErrorData,
+    setIsOpen,
+    t,
+    selectableFileTypes,
+    currentParentId,
+    currentPath,
+    pathHistory,
+  ]);
 
   // Get display title and submitLabel with defaults
   const displayTitle = title || t("fileTableModal.fileManager");
@@ -300,26 +372,7 @@ export default function FileTableViewModal({
 
       <BaseModal.Content overflowHidden>
         <div className="flex h-full flex-col overflow-hidden">
-          {/* Navigation Bar */}
-          {showNavBar && (
-            <div className="shrink-0">
-              <NavBar
-                searchQuery={searchQuery}
-                selectedFile={internalSelectedFiles[0] || null}
-                selectList={internalSelectedFiles}
-                onCreate={handleCreate}
-                onUpload={handleUpload}
-                onUploadFolder={handleUploadFolder}
-                onSearch={handleSearch}
-                onDownload={handleBatchDownload}
-                onBatchDelete={handleBatchDelete}
-              />
-            </div>
-          )}
-
-          {/* Main Content */}
           <div className="flex flex-1 overflow-hidden">
-            {/* File Table - Full Width */}
             <div className="flex-1 overflow-hidden">
               <FileTableView
                 ref={fileTableRef}
@@ -339,7 +392,7 @@ export default function FileTableViewModal({
                 customRootId={customRootId}
                 fetchDataApi={isSearching ? undefined : fetchDataApi}
                 dataTransformer={dataTransformer}
-                onFileSelect={handleSelectionChange}
+                onFileSelect={handleFileSelect}
                 onSelectionChange={handleSelectionChange}
                 onNavigation={handleNavigation}
               />

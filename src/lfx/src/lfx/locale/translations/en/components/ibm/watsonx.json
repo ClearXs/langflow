@@ -56,23 +56,23 @@
     "info": "JSON string of token IDs to bias or suppress (e.g., {\"1003\": -100, \"1004\": 100})."
   },
   "errors": {
-    "fetch_failed": "Error fetching models: {error}. Using default models.",
-    "config_update_failed": "Error updating model options: {error}",
-    "invalid_logit_bias": "Invalid logit_bias JSON format: {error}. Using default instead."
+    "fetch_failed": "Error fetching models: %{error}. Using default models.",
+    "config_update_failed": "Error updating model options: %{error}",
+    "invalid_logit_bias": "Invalid logit_bias JSON format: %{error}. Using default instead."
   },
   "logs": {
-    "fetching_models": "Fetching available models from watsonx.ai - Base URL: {base_url}",
-    "requesting_models": "Requesting models from endpoint: {endpoint}",
-    "models_fetched": "Successfully fetched {count} model(s)",
-    "using_default_models": "Using default models: {count} model(s)",
-    "updating_config": "Updating build config - Field: {field}, Value: {value}",
-    "fetching_models_for_url": "Fetching models for URL: {url}",
-    "models_updated": "Updated model options: {count} model(s) found in {url}",
-    "building_model": "Building watsonx.ai model - Model: {model}, URL: {url}",
+    "fetching_models": "Fetching available models from watsonx.ai - Base URL: %{base_url}",
+    "requesting_models": "Requesting models from endpoint: %{endpoint}",
+    "models_fetched": "Successfully fetched %{count} model(s)",
+    "using_default_models": "Using default models: %{count} model(s)",
+    "updating_config": "Updating build config - Field: %{field}, Value: %{value}",
+    "fetching_models_for_url": "Fetching models for URL: %{url}",
+    "models_updated": "Updated model options: %{count} model(s) found in %{url}",
+    "building_model": "Building watsonx.ai model - Model: %{model}, URL: %{url}",
     "parsing_logit_bias": "Parsing logit_bias JSON",
-    "logit_bias_parsed": "Logit bias parsed successfully: {bias}",
+    "logit_bias_parsed": "Logit bias parsed successfully: %{bias}",
     "using_default_logit_bias": "Using default logit_bias",
-    "configuring_parameters": "Configuring chat parameters - Max tokens: {max_tokens}, Temperature: {temperature}, Top P: {top_p}, Streaming: {streaming}",
+    "configuring_parameters": "Configuring chat parameters - Max tokens: %{max_tokens}, Temperature: %{temperature}, Top P: %{top_p}, Streaming: %{streaming}",
     "creating_chat_instance": "Creating ChatWatsonx instance",
     "model_built": "watsonx.ai model built successfully"
   }

@@ -71,42 +71,42 @@
     "searching": "正在搜索文档..."
   },
   "success": {
-    "store_created": "向量存储已在表'{table}'中成功创建"
+    "store_created": "向量存储已在表'%{table}'中成功创建"
   },
   "warnings": {
     "empty_query": "提供了空的搜索查询"
   },
   "errors": {
     "cassio_not_installed": "无法导入cassio集成包。请使用`pip install cassio`安装。",
-    "connection_failed": "连接到数据库失败：{error}",
-    "store_creation_failed": "创建向量存储失败：{error}",
+    "connection_failed": "连接到数据库失败：%{error}",
+    "store_creation_failed": "创建向量存储失败：%{error}",
     "content_field_missing": "您应该通过Langflow（或LangChain）摄取数据才能在Langflow中查询。您的集合不包含名为'content'的字段。",
-    "search_failed": "搜索失败：{error}",
+    "search_failed": "搜索失败：%{error}",
     "body_search_not_enabled": "您应该在创建表时启用正文搜索才能搜索正文字段。"
   },
   "logs": {
     "cassio_imported": "cassio包导入成功",
-    "detected_astra": "检测到Astra DB，数据库ID：{database_id}",
-    "detected_cassandra_multiple": "检测到常规Cassandra，有{count}个联系点",
-    "detected_cassandra_single": "检测到常规Cassandra，联系点：{contact_point}",
-    "connecting_astra": "正在连接到Astra DB，数据库ID：{database_id}",
+    "detected_astra": "检测到Astra DB，数据库ID：%{database_id}",
+    "detected_cassandra_multiple": "检测到常规Cassandra，有%{count}个联系点",
+    "detected_cassandra_single": "检测到常规Cassandra，联系点：%{contact_point}",
+    "connecting_astra": "正在连接到Astra DB，数据库ID：%{database_id}",
     "astra_connected": "成功连接到Astra DB",
-    "connecting_cassandra": "正在连接到Cassandra - 联系点：{contact_points}，用户名：{username}",
+    "connecting_cassandra": "正在连接到Cassandra - 联系点：%{contact_points}，用户名：%{username}",
     "cassandra_connected": "成功连接到Cassandra",
     "body_search_enabled": "正文搜索已启用",
-    "setup_mode_set": "设置模式设为：{mode}",
-    "adding_documents": "正在向向量存储添加{count}个文档。",
-    "creating_from_documents": "正在从{count}个文档创建向量存储 - 表：{table}，键空间：{keyspace}",
+    "setup_mode_set": "设置模式设为：%{mode}",
+    "adding_documents": "正在向向量存储添加%{count}个文档。",
+    "creating_from_documents": "正在从%{count}个文档创建向量存储 - 表：%{table}，键空间：%{keyspace}",
     "no_documents": "没有要添加到向量存储的文档。",
-    "creating_empty_store": "正在创建空向量存储 - 表：{table}，键空间：{keyspace}",
-    "search_input": "搜索输入：{query}",
-    "search_type": "搜索类型：{type}",
-    "number_of_results": "结果数量：{count}",
-    "search_args": "搜索参数：{args}",
-    "executing_search": "正在执行搜索 - 查询：'{query}'，类型：{search_type}",
-    "retrieved_documents": "检索到的文档：{count}",
-    "search_completed": "搜索完成，共{count}个结果",
-    "filter_applied": "已应用过滤器：{filter}",
-    "body_search_applied": "已应用正文搜索，搜索词：{terms}"
+    "creating_empty_store": "正在创建空向量存储 - 表：%{table}，键空间：%{keyspace}",
+    "search_input": "搜索输入：%{query}",
+    "search_type": "搜索类型：%{type}",
+    "number_of_results": "结果数量：%{count}",
+    "search_args": "搜索参数：%{args}",
+    "executing_search": "正在执行搜索 - 查询：'%{query}'，类型：%{search_type}",
+    "retrieved_documents": "检索到的文档：%{count}",
+    "search_completed": "搜索完成，共%{count}个结果",
+    "filter_applied": "已应用过滤器：%{filter}",
+    "body_search_applied": "已应用正文搜索，搜索词：%{terms}"
   }
 }

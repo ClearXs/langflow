@@ -44,27 +44,27 @@
   "status": {
     "condition_true": "条件评估为True",
     "condition_false": "条件评估为False",
-    "forced_true": "已达到最大迭代次数（{iteration}）- 强制True输出",
-    "forced_false": "已达到最大迭代次数（{iteration}）- 强制False输出"
+    "forced_true": "已达到最大迭代次数（%{iteration}）- 强制True输出",
+    "forced_false": "已达到最大迭代次数（%{iteration}）- 强制False输出"
   },
   "warnings": {
-    "invalid_regex": "无效的正则表达式模式'{pattern}'：{error}",
-    "invalid_number": "比较的数字格式无效 - 输入：'{input_text}'，匹配：'{match_text}'，错误：{error}"
+    "invalid_regex": "无效的正则表达式模式'%{pattern}'：%{error}",
+    "invalid_number": "比较的数字格式无效 - 输入：'%{input_text}'，匹配：'%{match_text}'，错误：%{error}"
   },
   "logs": {
     "pre_run_setup": "预运行设置已完成 - 迭代计数器已重置",
-    "evaluating": "正在评估条件 - 运算符：{operator}，区分大小写：{case_sensitive}",
-    "evaluation_result": "条件评估结果：{result}",
-    "iteration_updated": "迭代已更新 - 当前：{iteration}，最大：{max_iterations}",
-    "max_iterations_reached": "已达到最大迭代次数（{iteration}）- 默认路由：{default_route}",
-    "cleared_exclusions": "已清除{count}个条件排除",
-    "switched_route": "已切换要停止的路由：{new_route}",
-    "stopping_route": "正在停止路由：{route}",
+    "evaluating": "正在评估条件 - 运算符：%{operator}，区分大小写：%{case_sensitive}",
+    "evaluation_result": "条件评估结果：%{result}",
+    "iteration_updated": "迭代已更新 - 当前：%{iteration}，最大：%{max_iterations}",
+    "max_iterations_reached": "已达到最大迭代次数（%{iteration}）- 默认路由：%{default_route}",
+    "cleared_exclusions": "已清除%{count}个条件排除",
+    "switched_route": "已切换要停止的路由：%{new_route}",
+    "stopping_route": "正在停止路由：%{route}",
     "condition_true": "条件评估为True - 路由到true分支",
     "condition_false": "条件评估为False - 路由到false分支",
-    "forced_true_output": "由于达到最大迭代次数而强制True输出：{iteration}",
-    "forced_false_output": "由于达到最大迭代次数而强制False输出：{iteration}",
-    "updating_config": "正在更新运算符的构建配置：{operator}",
+    "forced_true_output": "由于达到最大迭代次数而强制True输出：%{iteration}",
+    "forced_false_output": "由于达到最大迭代次数而强制False输出：%{iteration}",
+    "updating_config": "正在更新运算符的构建配置：%{operator}",
     "removed_case_sensitive": "已为正则表达式运算符移除case_sensitive字段",
     "added_case_sensitive": "已将case_sensitive字段添加到构建配置"
   }

@@ -67,9 +67,10 @@
     "download": "下载",
     "thisWillPermanentlyDeleteThe": "这将永久删除",
     "thisCantBeUndone": "此操作无法撤销。",
-    "folder": "文件夹",
     "andAllAssociatedFlowsAndComponents": "以及所有关联的流程和组件",
     "dot": "。",
+    "their": "它们的",
+    "its": "它的",
     "emptyProject": "空项目",
     "startBuilding": "开始构建",
     "beginWithATemplateOrStartFromScratch": "从模板开始，或从头开始创建。",
@@ -101,7 +102,6 @@
     "searchFiles": "搜索文件...",
     "name": "名称",
     "type": "类型",
-    "size": "大小",
     "modified": "修改时间",
     "uploadFailed": "上传失败，",
     "tryAgain": "重新尝试？",
@@ -142,7 +142,8 @@
     "controls": "控制",
     "freeze": "冻结",
     "toolMode": "工具模式",
-    "ungroup": "取消分组"
+    "ungroup": "取消分组",
+    "empty": "空"
   },
   "navigation": {
     "home": "首页",
@@ -175,6 +176,8 @@
     "runFlow": "运行流程",
     "stopFlow": "停止流程",
     "buildFlow": "构建流程",
+    "running": "运行中",
+    "runningFlow": "运行流程中",
     "playground": "演练场",
     "duplicate": "复制",
     "rename": "重命名",
@@ -244,6 +247,7 @@
         "toolkits": "工具包",
         "tools": "工具",
         "manipulations": "数据操作",
+        "quality": "数据质量",
         "operations": "运算",
         "scripts": "脚本",
         "security": "安全"
@@ -343,7 +347,15 @@
         "displayName": "Playground",
         "tooltip": "添加聊天输入或聊天输出以使用沙盒功能"
       }
-    }
+    },
+    "name": "名称",
+    "namePlaceholder": "流程名称",
+    "nameAlreadyExists": "流程名称已存在",
+    "description": "描述",
+    "descriptionPlaceholder": "流程描述",
+    "noDescription": "无描述",
+    "lockFlow": "锁定流程",
+    "lockFlowDescription": "锁定流程以防止编辑或意外更改。"
   },
   "codeAreaModal": {
     "title": "注意",
@@ -612,6 +624,7 @@
     "editTextPlaceholder": "在此输入消息。",
     "editTextModalTitle": "编辑文本",
     "textDialogTitle": "编辑文本内容",
+    "passwordKeyPlaceholder": "密钥",
     "flowBuildFailed": "流程构建失败",
     "flowBuiltSuccessfully": "流程构建成功"
   },
@@ -848,7 +861,10 @@
       "noapi": "您没有 API 密钥。请添加一个以使用 Langflow 商店。",
       "invalidApi": "您的 API 密钥无效。请添加有效的 API 密钥以使用 Langflow 商店。",
       "components": "获取组件时出错。",
-      "invalidFileSize": "文件大小过大。请选择小于 {{maxSizeMB}} 的文件。"
+      "invalidFileSize": "文件大小过大。请选择小于 {{maxSizeMB}} 的文件。",
+      "buildComponent": "构建组件时出错",
+      "buildFlow": "构建流程时出错",
+      "networkError": "网络错误。请检查与服务器的连接。"
     },
     "notice": {
       "noChatOutput": "流程中没有聊天输出组件。",
@@ -1021,6 +1037,10 @@
     }
   },
   "table": {
+    "noRowsToShow": "无数据显示",
+    "page": "第",
+    "of": "页，共",
+    "to": "至",
     "options": {
       "addRow": "添加新行",
       "selectToDuplicate": "选择要复制的项",
@@ -1079,17 +1099,34 @@
   "fileInput": {
     "selectFile": "选择文件",
     "addMore": "添加更多",
-    "changeFile": "更改文件",
+    "changeFile": "替换",
     "filesSelected": "已选择 {{count}} 个文件",
     "modalTitle": "选择文件",
     "modalDescription": "从文件管理系统中选择文件。",
     "modalDescriptionWithTypes": "只允许 {{types}} 文件。",
-    "selectFiles": "选择文件"
+    "selectFiles": "选择文件",
+    "selectFolder": "选择文件夹",
+    "selectFolderTitle": "选择文件夹",
+    "selectFolderDescription": "从文件管理系统中选择一个文件夹。",
+    "dropFilesHere": "拖放文件到此处上传",
+    "dragDropHint": "或拖放文件到此处",
+    "uploading": "上传中...",
+    "uploadSuccess": "上传成功",
+    "filesUploaded": "成功上传 {{count}} 个文件",
+    "uploadFailed": "上传失败",
+    "downloadFailed": "下载失败",
+    "invalidFileType": "无效的文件类型",
+    "allowedTypes": "允许的类型：{{types}}",
+    "noValidFiles": "未找到有效文件",
+    "singleFileOnly": "仅允许单个文件",
+    "removeExistingFile": "请先移除现有文件"
   },
   "fileTableModal": {
     "fileManager": "文件管理器",
     "selectFiles": "选择文件",
+    "selectCurrentFolder": "选择当前文件夹",
     "pleaseSelectAtLeastOneFile": "请至少选择一个文件",
+    "pleaseSelectFilesNotFolders": "请选择文件，而不是文件夹",
     "pleaseSelectFilesToDelete": "请选择要删除的文件",
     "pleaseSelectFilesToDownload": "请选择要下载的文件",
     "deleteFailed": "删除文件失败",
@@ -1354,6 +1391,32 @@
     "searchOptions": "搜索选项...",
     "noOptionsFound": "未找到选项",
     "refreshList": "刷新列表",
-    "loading": "加载中..."
+    "loading": "加载中...",
+    "selectOption": "选择一个选项"
+  },
+  "validation": {
+    "characterLimitReached": "已达到字符限制",
+    "minimumCharactersRequired": "最少需要 {{count}} 个字符",
+    "pleaseEnterName": "请输入名称",
+    "pleaseEnterDescription": "请输入描述"
+  },
+  "output": {
+    "truncatedMessage": "由于输出内容过大，已被截断。"
+  },
+  "flows": {
+    "flows": "流程",
+    "components": "组件",
+    "flow": "流程",
+    "component": "组件",
+    "mcpServer": "MCP 服务器",
+    "newFlow": "新建流程",
+    "editDetails": "编辑详情",
+    "export": "导出",
+    "duplicate": "复制",
+    "searchPlaceholder": "搜索 {{type}}...",
+    "downloadedSuccessfully": "流程下载成功",
+    "deletedSuccessfully": "流程删除成功",
+    "duplicatedSuccessfully": "{{type}}复制成功",
+    "andMessageHistory": "和{{possessive}}消息历史"
   }
 }

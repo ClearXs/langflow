@@ -33,18 +33,18 @@
     "info": "Controls randomness in responses"
   },
   "success": {
-    "openai_model_created": "OpenAI model '{model}' created successfully",
-    "anthropic_model_created": "Anthropic model '{model}' created successfully",
-    "google_model_created": "Google model '{model}' created successfully"
+    "openai_model_created": "OpenAI model '%{model}' created successfully",
+    "anthropic_model_created": "Anthropic model '%{model}' created successfully",
+    "google_model_created": "Google model '%{model}' created successfully"
   },
   "info": {
-    "reasoning_model_no_temperature": "Reasoning model '{model}' does not support temperature parameter"
+    "reasoning_model_no_temperature": "Reasoning model '%{model}' does not support temperature parameter"
   },
   "errors": {
     "openai_api_key_required": "OpenAI API key is required when using OpenAI provider",
     "anthropic_api_key_required": "Anthropic API key is required when using Anthropic provider",
     "google_api_key_required": "Google API key is required when using Google provider",
-    "unknown_provider": "Unknown provider: {provider}",
-    "model_creation_failed": "Failed to create {provider} model: {error}"
+    "unknown_provider": "Unknown provider: %{provider}",
+    "model_creation_failed": "Failed to create %{provider} model: %{error}"
   }
 }

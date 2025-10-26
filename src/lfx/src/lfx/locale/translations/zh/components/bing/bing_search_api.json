@@ -26,25 +26,25 @@
     }
   },
   "status": {
-    "searching": "正在必应搜索'{query}'...",
+    "searching": "正在必应搜索'%{query}'...",
     "converting_to_dataframe": "正在将结果转换为数据框...",
     "building_tool": "正在构建必应搜索工具..."
   },
   "success": {
-    "results_found": "找到{count}个搜索结果",
+    "results_found": "找到%{count}个搜索结果",
     "tool_built": "必应搜索工具构建成功"
   },
   "errors": {
-    "search_failed": "必应搜索失败：{error}",
-    "dataframe_creation_failed": "创建数据框失败：{error}",
-    "tool_build_failed": "构建工具失败：{error}"
+    "search_failed": "必应搜索失败：%{error}",
+    "dataframe_creation_failed": "创建数据框失败：%{error}",
+    "tool_build_failed": "构建工具失败：%{error}"
   },
   "logs": {
-    "initializing_wrapper": "正在初始化必应搜索包装器 - 有自定义URL：{has_custom_url}，结果数量：{num_results}",
-    "custom_url_set": "使用自定义必应搜索URL：{url}",
+    "initializing_wrapper": "正在初始化必应搜索包装器 - 有自定义URL：%{has_custom_url}，结果数量：%{num_results}",
+    "custom_url_set": "使用自定义必应搜索URL：%{url}",
     "default_url_used": "使用默认必应搜索URL",
-    "executing_search": "正在执行搜索 - 查询：'{query}'，结果数量：{num_results}",
-    "dataframe_created": "已创建包含{rows}行的数据框",
-    "building_tool": "正在构建必应搜索工具 - 有自定义URL：{has_custom_url}，结果数量：{num_results}"
+    "executing_search": "正在执行搜索 - 查询：'%{query}'，结果数量：%{num_results}",
+    "dataframe_created": "已创建包含%{rows}行的数据框",
+    "building_tool": "正在构建必应搜索工具 - 有自定义URL：%{has_custom_url}，结果数量：%{num_results}"
   }
 }

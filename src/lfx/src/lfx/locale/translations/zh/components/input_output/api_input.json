@@ -7,10 +7,10 @@
   },
   "status": {
     "fetching": "正在从API获取数据...",
-    "success": "成功获取 {records} 条记录"
+    "success": "成功获取 %{records} 条记录"
   },
   "errors": {
-    "fetch_failed": "API请求失败: {error}"
+    "fetch_failed": "API请求失败: %{error}"
   },
   "api_key_header": {
     "display_name": "API密钥请求头",
@@ -59,5 +59,13 @@
   "timeout": {
     "display_name": "超时时间(秒)",
     "info": "请求超时时间(秒)"
+  },
+  "outputs": {
+    "data": {
+      "display_name": "数据"
+    },
+    "response_info": {
+      "display_name": "响应信息"
+    }
   }
 }

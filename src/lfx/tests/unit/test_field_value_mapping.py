@@ -1,4 +1,4 @@
-"""Unit tests for ETLFieldValueMappingComponent."""
+"""Unit tests for ETLFieldValueMappingComponent with enhanced features."""
 
 import pytest
 
@@ -91,6 +91,209 @@ class TestETLFieldValueMappingComponent:
         # Second record
         assert result[1].data["gender_text"] == "Female"
         assert result[1].data["status_text"] == "Pending"
+
+    def test_regex_operator(self):
+        """Test regex operator for pattern matching."""
+        component = ETLFieldValueMappingComponent(
+            data_input=[
+                Data(data={"email": "john@gmail.com"}),
+                Data(data={"email": "alice@yahoo.com"}),
+                Data(data={"email": "bob@company.org"}),
+                Data(data={"email": "invalid-email"}),
+            ],
+            mapping_rules=[
+                {
+                    "input_field": "email",
+                    "operator": "regex",
+                    "compare_value": r".*@gmail\.com$",
+                    "replacement_value": "Gmail User",
+                    "output_field": "email_provider",
+                },
+                {
+                    "input_field": "email",
+                    "operator": "regex",
+                    "compare_value": r".*@yahoo\.com$",
+                    "replacement_value": "Yahoo User",
+                    "output_field": "email_provider",
+                },
+                {
+                    "input_field": "email",
+                    "operator": "regex",
+                    "compare_value": r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$",
+                    "replacement_value": "Valid Email",
+                    "output_field": "email_status",
+                },
+            ],
+        )
+
+        result = component.map_field_values()
+
+        assert len(result) == 4
+        assert result[0].data.get("email_provider") == "Gmail User"
+        assert result[1].data.get("email_provider") == "Yahoo User"
+        assert result[2].data.get("email_provider") is None  # No matching provider rule
+        assert result[3].data.get("email_status") is None  # Invalid email format
+
+    def test_javascript_script_mapping(self):
+        """Test JavaScript script-based mapping."""
+        component = ETLFieldValueMappingComponent(
+            data_input=[
+                Data(data={"age": 25, "name": "John", "score": 85}),
+                Data(data={"age": 17, "name": "Alice", "score": 92}),
+                Data(data={"age": 70, "name": "Bob", "score": 78}),
+            ],
+            mapping_rules=[],  # No rules, using script only
+            enable_script=True,
+            script_type="javascript",
+            script_content="""
+// Age category mapping
+if (row.age < 18) {
+    row.age_category = 'Minor';
+} else if (row.age >= 65) {
+    row.age_category = 'Senior';
+} else {
+    row.age_category = 'Adult';
+}
+
+// Grade mapping based on score
+row.grade = row.score >= 90 ? 'A' : row.score >= 80 ? 'B' : 'C';
+
+// Name length category
+row.name_length = row.name.length > 4 ? 'Long' : 'Short';
+""",
+        )
+
+        result = component.map_field_values()
+
+        assert len(result) == 3
+
+        # First record (age 25)
+        assert result[0].data.get("age_category") == "Adult"
+        assert result[0].data.get("grade") == "B"
+        assert result[0].data.get("name_length") == "Short"
+
+        # Second record (age 17)
+        assert result[1].data.get("age_category") == "Minor"
+        assert result[1].data.get("grade") == "A"
+        assert result[1].data.get("name_length") == "Long"
+
+        # Third record (age 70)
+        assert result[2].data.get("age_category") == "Senior"
+        assert result[2].data.get("grade") == "C"
+        assert result[2].data.get("name_length") == "Short"
+
+    def test_python_script_mapping(self):
+        """Test Python script-based mapping."""
+        component = ETLFieldValueMappingComponent(
+            data_input=[
+                Data(data={"product": "iPhone", "price": 999, "quantity": 2}),
+                Data(data={"product": "Laptop", "price": 1500, "quantity": 1}),
+                Data(data={"product": "Mouse", "price": 25, "quantity": 5}),
+            ],
+            mapping_rules=[],  # No rules, using script only
+            enable_script=True,
+            script_type="python",
+            script_content="""
+# Calculate total price
+result['total'] = row.get('price', 0) * row.get('quantity', 1)
+
+# Determine price category
+if row.get('price', 0) >= 1000:
+    result['price_category'] = 'Expensive'
+elif row.get('price', 0) >= 100:
+    result['price_category'] = 'Moderate'
+else:
+    result['price_category'] = 'Cheap'
+
+# Add discount based on quantity
+if row.get('quantity', 0) >= 5:
+    result['discount'] = '20%'
+elif row.get('quantity', 0) >= 2:
+    result['discount'] = '10%'
+else:
+    result['discount'] = '0%'
+""",
+        )
+
+        result = component.map_field_values()
+
+        assert len(result) == 3
+
+        # First record
+        assert result[0].data.get("total") == 1998
+        assert result[0].data.get("price_category") == "Moderate"
+        assert result[0].data.get("discount") == "10%"
+
+        # Second record
+        assert result[1].data.get("total") == 1500
+        assert result[1].data.get("price_category") == "Expensive"
+        assert result[1].data.get("discount") == "0%"
+
+        # Third record
+        assert result[2].data.get("total") == 125
+        assert result[2].data.get("price_category") == "Cheap"
+        assert result[2].data.get("discount") == "20%"
+
+    def test_combined_rules_and_script(self):
+        """Test combination of mapping rules and script."""
+        component = ETLFieldValueMappingComponent(
+            data_input=[
+                Data(data={"status": "1", "priority": "high", "count": 10}),
+                Data(data={"status": "2", "priority": "low", "count": 5}),
+                Data(data={"status": "3", "priority": "medium", "count": 15}),
+            ],
+            mapping_rules=[
+                {
+                    "input_field": "status",
+                    "operator": "=",
+                    "compare_value": "1",
+                    "replacement_value": "Active",
+                    "output_field": "status_text",
+                },
+                {
+                    "input_field": "status",
+                    "operator": "=",
+                    "compare_value": "2",
+                    "replacement_value": "Inactive",
+                    "output_field": "status_text",
+                },
+                {
+                    "input_field": "status",
+                    "operator": "=",
+                    "compare_value": "3",
+                    "replacement_value": "Pending",
+                    "output_field": "status_text",
+                },
+            ],
+            enable_script=True,
+            script_type="javascript",
+            script_content="""
+// Add urgency based on priority and count
+if (row.priority === 'high' && row.count > 5) {
+    row.urgency = 'Critical';
+} else if (row.priority === 'high' || row.count > 10) {
+    row.urgency = 'High';
+} else {
+    row.urgency = 'Normal';
+}
+""",
+        )
+
+        result = component.map_field_values()
+
+        assert len(result) == 3
+
+        # First record: Rules map status, script adds urgency
+        assert result[0].data["status_text"] == "Active"
+        assert result[0].data["urgency"] == "Critical"
+
+        # Second record
+        assert result[1].data["status_text"] == "Inactive"
+        assert result[1].data["urgency"] == "Normal"
+
+        # Third record
+        assert result[2].data["status_text"] == "Pending"
+        assert result[2].data["urgency"] == "High"
 
     def test_contains_operator(self):
         """Test contains operator for string matching."""
@@ -404,14 +607,30 @@ class TestETLFieldValueMappingComponent:
         assert len(result) == 0  # Empty input returns empty output
 
     def test_missing_mapping_rules_error(self):
-        """Test error when mapping rules are missing."""
+        """Test error when mapping rules are missing and script is disabled."""
         component = ETLFieldValueMappingComponent(
             data_input=[Data(data={"field1": "value1"})],
             mapping_rules=[],
+            enable_script=False,
         )
 
         with pytest.raises(ValueError):
             component.map_field_values()
+
+    def test_script_only_mode(self):
+        """Test that script can work without mapping rules."""
+        component = ETLFieldValueMappingComponent(
+            data_input=[Data(data={"value": 10})],
+            mapping_rules=[],  # No mapping rules
+            enable_script=True,
+            script_type="python",
+            script_content="result['doubled'] = row.get('value', 0) * 2",
+        )
+
+        result = component.map_field_values()
+
+        assert len(result) == 1
+        assert result[0].data["doubled"] == 20
 
     def test_missing_required_fields_error(self):
         """Test error when rule is missing required fields."""
@@ -547,3 +766,54 @@ class TestETLFieldValueMappingComponent:
         assert result[0].data["grade"] == "B"  # 85: >= 90 false, >= 80 true (first match)
         assert result[1].data["grade"] == "A"  # 92: >= 90 true (first match)
         assert result[2].data["grade"] == "C"  # 78: >= 90 false, >= 80 false, >= 70 true
+
+    def test_invalid_regex_pattern(self):
+        """Test handling of invalid regex pattern."""
+        component = ETLFieldValueMappingComponent(
+            data_input=[
+                Data(data={"text": "test"}),
+            ],
+            mapping_rules=[
+                {
+                    "input_field": "text",
+                    "operator": "regex",
+                    "compare_value": "[invalid(regex",  # Invalid regex
+                    "replacement_value": "matched",
+                    "output_field": "result",
+                },
+            ],
+        )
+
+        result = component.map_field_values()
+
+        assert len(result) == 1
+        assert result[0].data.get("result") is None  # No match due to invalid regex
+        assert result[0].data["text"] == "test"  # Original preserved
+
+    def test_complex_regex_patterns(self):
+        """Test complex regex patterns for advanced matching."""
+        component = ETLFieldValueMappingComponent(
+            data_input=[
+                Data(data={"phone": "+1-555-123-4567"}),
+                Data(data={"phone": "555.123.4567"}),
+                Data(data={"phone": "(555) 123-4567"}),
+                Data(data={"phone": "invalid"}),
+            ],
+            mapping_rules=[
+                {
+                    "input_field": "phone",
+                    "operator": "regex",
+                    "compare_value": r"^\+?1?[-.\s]?\(?[0-9]{3}\)?[-.\s]?[0-9]{3}[-.\s]?[0-9]{4}$",
+                    "replacement_value": "Valid US Phone",
+                    "output_field": "phone_status",
+                },
+            ],
+        )
+
+        result = component.map_field_values()
+
+        assert len(result) == 4
+        assert result[0].data.get("phone_status") == "Valid US Phone"
+        assert result[1].data.get("phone_status") == "Valid US Phone"
+        assert result[2].data.get("phone_status") == "Valid US Phone"
+        assert result[3].data.get("phone_status") is None  # Invalid format

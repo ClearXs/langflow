@@ -51,15 +51,15 @@
   },
   "content_block_title": "Assistant Steps",
   "errors": {
-    "no_text_in_result": "No text in result, {result}",
-    "processing_failed": "Failed to process assistant interaction: {error}"
+    "no_text_in_result": "No text in result, %{result}",
+    "processing_failed": "Failed to process assistant interaction: %{error}"
   },
   "logs": {
-    "env_set_value": "env_set is {value}",
-    "wrapping_tools": "Wrapping {count} tools",
-    "using_assistant_id": "Using assistant ID: {id}",
-    "using_thread_id": "Using thread ID: {id}",
-    "creating_assistant_manager": "Creating assistant manager with model: {model}",
+    "env_set_value": "env_set is %{value}",
+    "wrapping_tools": "Wrapping %{count} tools",
+    "using_assistant_id": "Using assistant ID: %{id}",
+    "using_thread_id": "Using thread ID: %{id}",
+    "creating_assistant_manager": "Creating assistant manager with model: %{model}",
     "uploading_file": "Uploading file for retrieval",
     "creating_vector_store": "Creating vector store",
     "updating_assistant_tools": "Updating assistant with file search tool",
@@ -70,6 +70,6 @@
     "response_received": "Assistant response received",
     "processing_events": "Processing agent events",
     "processing_complete": "Event processing complete",
-    "exception_with_message": "Exception occurred, deleting message: {msg_id}"
+    "exception_with_message": "Exception occurred, deleting message: %{msg_id}"
   }
 }

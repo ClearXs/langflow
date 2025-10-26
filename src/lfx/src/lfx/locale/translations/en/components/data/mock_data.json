@@ -29,8 +29,8 @@
   "errors": {
     "invalid_row_count": "Number of rows must be greater than 0.",
     "missing_custom_schema": "Custom schema is required when data type is set to 'custom'.",
-    "invalid_data_type": "Invalid data type specified: {data_type}",
-    "generation_error": "Error generating mock data: {error}",
-    "invalid_schema": "Invalid JSON schema format: {error}"
+    "invalid_data_type": "Invalid data type specified: %{data_type}",
+    "generation_error": "Error generating mock data: %{error}",
+    "invalid_schema": "Invalid JSON schema format: %{error}"
   }
 }

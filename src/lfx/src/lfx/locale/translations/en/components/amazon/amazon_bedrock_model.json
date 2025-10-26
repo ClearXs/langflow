@@ -36,25 +36,25 @@
   "status": {
     "creating_session": "Creating AWS session...",
     "creating_client": "Creating Bedrock client...",
-    "initializing_model": "Initializing model '{model}'..."
+    "initializing_model": "Initializing model '%{model}'..."
   },
   "success": {
-    "model_initialized": "Amazon Bedrock model '{model}' initialized successfully in region '{region}'"
+    "model_initialized": "Amazon Bedrock model '%{model}' initialized successfully in region '%{region}'"
   },
   "errors": {
     "langchain_aws_not_installed": "langchain_aws is not installed. Please install it with `pip install langchain_aws`.",
     "boto3_not_installed": "boto3 is not installed. Please install it with `pip install boto3`.",
-    "session_creation_failed": "Could not create a boto3 session: {error}",
-    "client_creation_failed": "Failed to create Bedrock client: {error}",
-    "model_connection_failed": "Could not connect to Amazon Bedrock API: {error}",
-    "model_build_failed": "Failed to build Amazon Bedrock model: {error}"
+    "session_creation_failed": "Could not create a boto3 session: %{error}",
+    "client_creation_failed": "Failed to create Bedrock client: %{error}",
+    "model_connection_failed": "Could not connect to Amazon Bedrock API: %{error}",
+    "model_build_failed": "Failed to build Amazon Bedrock model: %{error}"
   },
   "logs": {
     "session_created_with_keys": "AWS session created with access keys",
-    "session_created_with_profile": "AWS session created with profile '{profile}'",
+    "session_created_with_profile": "AWS session created with profile '%{profile}'",
     "session_created_default": "AWS session created with default credentials",
-    "endpoint_url_set": "Endpoint URL set to '{url}'",
-    "region_set": "Region set to '{region}'",
+    "endpoint_url_set": "Endpoint URL set to '%{url}'",
+    "region_set": "Region set to '%{region}'",
     "client_created": "Bedrock client created successfully"
   }
 }

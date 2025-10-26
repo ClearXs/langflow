@@ -53,11 +53,19 @@
     "display_name": "Data Path",
     "info": "JSONPath to extract data from response"
   },
+  "outputs": {
+    "data": {
+      "display_name": "Data"
+    },
+    "response_info": {
+      "display_name": "Response Info"
+    }
+  },
   "status": {
     "fetching": "Fetching data from API...",
-    "success": "Successfully fetched {records} records"
+    "success": "Successfully fetched %{records} records"
   },
   "errors": {
-    "fetch_failed": "API request failed: {error}"
+    "fetch_failed": "API request failed: %{error}"
   }
 }

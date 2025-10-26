@@ -1,24 +1,26 @@
 {
   "display_name": "Python脚本",
-  "description": "执行Python代码",
-  "status": {
-    "executing": "正在执行Python脚本...",
-    "success": "脚本执行成功"
+  "description": "执行Python代码处理数据",
+  "data_input": {
+    "display_name": "数据输入",
+    "info": "上游传入的数据，在脚本中通过 data_input 变量访问"
   },
-  "errors": {
-    "execution_failed": "脚本执行失败: {error}",
-    "no_script": "脚本是必需的"
+  "script": {
+    "display_name": "Python代码",
+    "info": "编写Python代码来处理数据\n\n【可用变量】\n• data_input - 上游输入的数据列表（Data对象列表）\n• result - 设置此变量作为输出（必须）\n\n【输出方式】\n将处理结果赋值给 result 变量：\n• 字典: result = {'key': 'value'}\n• 列表: result = [item1, item2]\n• 字符串: result = 'output text'\n• Data对象: result = Data(data={...})\n\n【调试输出】\n使用 print() 输出调试信息，执行完成后可在节点状态中查看完整日志，包括：\n• 开始时间和执行耗时\n• 标准输出（print内容）\n• 错误输出（如有）\n• 执行状态\n\n【示例代码】\nif data_input:\n    # data_input 是 Data 对象列表\n    items = [item.data for item in data_input]\n    result = {'count': len(items), 'data': items}\nelse:\n    result = {'message': '无输入数据'}",
+    "default_code": "# 访问上游数据\nif data_input:\n    # data_input 是 Data 对象列表\n    print(f'收到 {len(data_input)} 条数据')\n    \n    # 提取数据内容\n    items = [item.data for item in data_input]\n    \n    # 处理数据\n    processed_count = len(items)\n    print(f'处理完成，共 {processed_count} 条')\n    \n    # 设置输出结果\n    result = {\n        'count': processed_count,\n        'data': items\n    }\nelse:\n    print('未接收到输入数据')\n    result = {'message': '无输入数据'}"
   },
   "capture_output": {
     "display_name": "捕获输出",
-    "info": "捕获打印输出"
+    "info": "捕获 print() 等标准输出，在节点状态日志中显示"
   },
-  "data_input": {
-    "display_name": "数据输入",
-    "info": "作为'data_input'变量可用"
+  "outputs": {
+    "result": {
+      "display_name": "执行结果"
+    }
   },
-  "script": {
-    "display_name": "Python脚本",
-    "info": "Python代码执行"
+  "errors": {
+    "no_script": "脚本代码不能为空",
+    "execution_failed": "脚本执行失败: {error}"
   }
 }

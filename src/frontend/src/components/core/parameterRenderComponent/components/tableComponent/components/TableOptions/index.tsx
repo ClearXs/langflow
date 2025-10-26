@@ -14,6 +14,7 @@ export default function TableOptions({
   paginationInfo,
   addRow,
   tableOptions,
+  onActionButton,
 }: {
   resetGrid: () => void;
   duplicateRow?: () => void;
@@ -23,12 +24,34 @@ export default function TableOptions({
   stateChange: boolean;
   tableOptions?: TableOptionsTypeAPI;
   paginationInfo?: string;
+  onActionButton?: (actionName: string) => void;
 }): JSX.Element {
   const { t } = useTranslation();
+
+  // Filter action buttons by position
+  const topButtons =
+    tableOptions?.action_buttons?.filter((btn) => btn.position === "top") || [];
 
   return (
     <div className={cn("absolute bottom-3 left-6")}>
       <div className="flex items-center gap-3">
+        {/* Top Action Buttons */}
+        {topButtons.map((button) => (
+          <div key={button.name}>
+            <ShadTooltip content={button.label}>
+              <Button
+                data-testid={`action-button-${button.name}`}
+                unstyled
+                onClick={() => onActionButton?.(button.name)}
+              >
+                <IconComponent
+                  name={button.icon}
+                  className={cn("h-5 w-5 text-primary transition-all")}
+                />
+              </Button>
+            </ShadTooltip>
+          </div>
+        ))}
         {addRow && !tableOptions?.block_add && (
           <div>
             <ShadTooltip content={t("table.options.addRow")}>

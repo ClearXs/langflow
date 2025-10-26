@@ -55,7 +55,7 @@ class ETLTableInputComponent(Component):
             options=[],  # Will be loaded dynamically
             real_time_refresh=True,
             action_button={
-                "label": i18n.t("dataSource.addDataSource"),
+                "label": i18n.t("base.dataSource.addDataSource"),
                 "icon": "plus",
                 "action": "open_datasource_dialog",
             },
@@ -114,6 +114,28 @@ class ETLTableInputComponent(Component):
             },
             advanced=False,
         ),
+        TableInput(
+            name="preview_table",
+            display_name=i18n.t("components.input_output.table_input.preview_table.display_name"),
+            info=i18n.t("components.input_output.table_input.preview_table.info"),
+            table_schema=[],
+            value=[],
+            table_options={
+                "block_add": True,
+                "block_delete": True,
+                "block_edit": True,
+                "pagination": True,
+                "action_buttons": [
+                    {
+                        "name": "preview_data",
+                        "label": i18n.t("components.input_output.table_input.preview_table.preview_button"),
+                        "icon": "Eye",
+                        "position": "top",
+                    }
+                ],
+            },
+            advanced=False,
+        ),
         BoolInput(
             name="use_pagination",
             display_name=i18n.t("components.input_output.table_input.use_pagination.display_name"),
@@ -154,9 +176,21 @@ class ETLTableInputComponent(Component):
     ]
 
     outputs = [
-        Output(name="data", display_name="Data", method="load_data"),
-        Output(name="row_count", display_name="Row Count", method="get_row_count"),
-        Output(name="fields_schema", display_name="Fields Schema", method="get_fields_schema"),
+        Output(
+            name="data",
+            display_name=i18n.t("components.input_output.table_input.outputs.data"),
+            method="load_data",
+        ),
+        Output(
+            name="row_count",
+            display_name=i18n.t("components.input_output.table_input.outputs.row_count"),
+            method="get_row_count",
+        ),
+        Output(
+            name="fields_schema",
+            display_name=i18n.t("components.input_output.table_input.outputs.fields_schema"),
+            method="get_fields_schema",
+        ),
     ]
 
     def update_build_config(
@@ -171,7 +205,8 @@ class ETLTableInputComponent(Component):
             action: Name of the action button that was clicked (if any)
         """
         logger.info(
-            f"[TableInput] update_build_config called - field_name: {field_name}, field_value: {field_value}, action: {action}"
+            f"[TableInput] update_build_config called - field_name: {field_name}, "
+            f"field_value: {field_value}, action: {action}"
         )
 
         import os
@@ -268,7 +303,92 @@ class ETLTableInputComponent(Component):
                 error_msg = str(e)
                 logger.error(f"[TableInput] SQL analysis failed: {error_msg}")
                 self.status = i18n.t("components.input_output.table_input.errors.analysis_failed", error=error_msg)
-                # 不抛出异常，让用户可以继续操作
+                # Don't throw exception, let user continue
+
+        # Handle preview button clicks (from preview_table)
+        if field_name == "preview_table" and action == "preview_data":
+            logger.info("[TableInput] Data preview triggered by action button")
+
+            try:
+                # 获取当前SQL和数据源
+                current_sql = build_config.get("sql_query", {}).get("value")
+                current_datasource = build_config.get("datasource_selector", {}).get("value")
+
+                if not current_sql:
+                    logger.warning("[TableInput] No SQL query provided for preview")
+                    self.status = i18n.t("components.input_output.table_input.errors.no_sql")
+                    return build_config
+
+                if not current_datasource:
+                    logger.warning("[TableInput] No datasource selected for preview")
+                    self.status = i18n.t("components.input_output.table_input.errors.no_datasource")
+                    return build_config
+
+                # 从 options_metadata 中获取数据源ID
+                datasource_id = self._get_datasource_id_from_metadata(
+                    current_datasource, build_config.get("datasource_selector", {}).get("options_metadata", [])
+                )
+
+                if not datasource_id:
+                    logger.error(f"[TableInput] Cannot find datasource ID for preview: {current_datasource}")
+                    self.status = i18n.t("components.input_output.table_input.errors.no_datasource")
+                    return build_config
+
+                # Execute preview query (max 100 rows)
+                logger.info("[TableInput] Starting data preview (first 100 rows)...")
+                self.status = i18n.t("components.input_output.table_input.status.previewing_data")
+
+                # Get database connection string
+                connection_string = self._get_connection_string(datasource_id)
+                engine = create_engine(connection_string, poolclass=NullPool)
+
+                try:
+                    with engine.connect() as conn:
+                        # Execute SQL query, limit to 100 rows
+                        preview_sql = f"{current_sql} LIMIT 100"
+                        df = pd.read_sql_query(text(preview_sql), conn)
+
+                        if df.empty:
+                            logger.warning("[TableInput] No data returned from preview query")
+                            self.status = i18n.t("components.input_output.table_input.status.no_data_found")
+                            # Clear preview table
+                            build_config["preview_table"]["table_schema"] = []
+                            build_config["preview_table"]["value"] = []
+                            return build_config
+
+                        # Generate table schema
+                        table_schema = [
+                            {
+                                "name": str(col),
+                                "display_name": str(col),
+                                "type": "str",
+                                "disable_edit": True,
+                            }
+                            for col in df.columns
+                        ]
+
+                        # Convert DataFrame to list of dicts
+                        preview_data = df.fillna("").to_dict("records")
+
+                        # Update preview table config
+                        build_config["preview_table"]["table_schema"] = table_schema
+                        build_config["preview_table"]["value"] = preview_data
+
+                        logger.info(f"[TableInput] Preview completed, showing {len(preview_data)} rows")
+                        self.status = self._format_i18n(
+                            "components.input_output.table_input.status.preview_success", count=len(preview_data)
+                        )
+
+                finally:
+                    engine.dispose()
+
+            except Exception as e:
+                error_msg = f"{type(e).__name__}: {e!s}"
+                logger.error(f"[TableInput] Data preview failed: {error_msg}")
+                self.status = self._format_i18n(
+                    "components.input_output.table_input.errors.preview_failed", error=error_msg
+                )
+                # Don't throw exception, let user continue
 
         logger.debug(f"[TableInput] Returning build_config with keys: {list(build_config.keys())}")
         return build_config
@@ -285,6 +405,17 @@ class ETLTableInputComponent(Component):
 
         logger.warning(f"[TableInput] No metadata found for display name: {display_name}")
         return None
+
+    def _format_i18n(self, key: str, **kwargs) -> str:
+        """Format i18n text with parameter substitution.
+
+        The i18n library's built-in parameter substitution doesn't work properly,
+        so we do manual string replacement.
+        """
+        text = i18n.t(key)
+        for param_key, param_value in kwargs.items():
+            text = text.replace(f"{{{param_key}}}", str(param_value))
+        return text
 
     def _parse_sql_fields(self, sql: str) -> list[str]:
         """从SQL中解析字段名"""
@@ -581,9 +712,15 @@ class ETLTableInputComponent(Component):
                 # In design-time context (e.g., field analysis), return empty sample with schema
                 if self.field_mappings:
                     # Use field_mappings to create a sample record
-                    sample_data = {mapping.get("source_field"): None for mapping in self.field_mappings if mapping.get("source_field")}
+                    sample_data = {
+                        mapping.get("source_field"): None
+                        for mapping in self.field_mappings
+                        if mapping.get("source_field")
+                    }
                     if sample_data:
-                        logger.info(f"[TableInput] Returning sample record with {len(sample_data)} fields from mappings")
+                        logger.info(
+                            f"[TableInput] Returning sample record with {len(sample_data)} fields from mappings"
+                        )
                         return [Data(data=sample_data)]
 
                 raise ValueError(i18n.t("components.input_output.table_input.errors.missing_config"))
@@ -618,9 +755,15 @@ class ETLTableInputComponent(Component):
                 logger.error(f"[TableInput] HTTP request failed: {e}")
                 # In design-time, if API is not available, use field_mappings as fallback
                 if self.field_mappings:
-                    sample_data = {mapping.get("source_field"): None for mapping in self.field_mappings if mapping.get("source_field")}
+                    sample_data = {
+                        mapping.get("source_field"): None
+                        for mapping in self.field_mappings
+                        if mapping.get("source_field")
+                    }
                     if sample_data:
-                        logger.info(f"[TableInput] API unavailable, returning sample record with {len(sample_data)} fields from mappings")
+                        logger.info(
+                            f"[TableInput] API unavailable, returning sample record with {len(sample_data)} fields from mappings"
+                        )
                         return [Data(data=sample_data)]
                 raise ValueError(f"Failed to connect to datasource API: {e}") from e
 
@@ -661,7 +804,7 @@ class ETLTableInputComponent(Component):
                     df_sample = pd.read_sql_query(text(f"{sql_query} LIMIT 0"), connection)
                     if not df_sample.empty or len(df_sample.columns) > 0:
                         # Create a sample record with None values for all fields
-                        sample_data = {col: None for col in df_sample.columns}
+                        sample_data = dict.fromkeys(df_sample.columns)
                         result_data = [Data(data=sample_data)]
                         logger.info(f"[TableInput] Created sample record with {len(sample_data)} fields")
 

@@ -68,14 +68,14 @@
     "file_name_required": "必须提供文件名。",
     "input_type_not_set": "输入类型未设置。",
     "storage_location_required": "必须选择存储位置。",
-    "unsupported_storage_location": "不支持的存储位置：{location}",
-    "unsupported_input_type": "不支持的输入类型：{type}",
-    "file_not_found": "未找到文件：{path}",
+    "unsupported_storage_location": "不支持的存储位置：%{location}",
+    "unsupported_input_type": "不支持的输入类型：%{type}",
+    "file_not_found": "未找到文件：%{path}",
     "user_id_required": "保存文件需要用户ID。",
-    "unsupported_dataframe_format": "不支持的DataFrame格式：{format}",
-    "unsupported_data_format": "不支持的Data格式：{format}",
-    "unsupported_message_format": "不支持的Message格式：{format}",
-    "invalid_file_format": "无效的文件格式'{format}'用于{type}。允许的格式：{allowed}",
+    "unsupported_dataframe_format": "不支持的DataFrame格式：%{format}",
+    "unsupported_data_format": "不支持的Data格式：%{format}",
+    "unsupported_message_format": "不支持的Message格式：%{format}",
+    "invalid_file_format": "无效的文件格式'%{format}'用于%{type}。允许的格式：%{allowed}",
     "aws_access_key_required": "S3存储需要AWS访问密钥ID",
     "aws_secret_key_required": "S3存储需要AWS密钥",
     "bucket_name_required": "S3存储需要存储桶名称",
@@ -83,14 +83,14 @@
     "service_account_key_required": "Google Drive存储需要GCP凭据密钥",
     "folder_id_required": "Google Drive存储需要文件夹ID",
     "google_api_not_installed": "未安装Google API客户端库。请安装它们。",
-    "invalid_service_account_json": "服务账户密钥中的JSON无效：{error}"
+    "invalid_service_account_json": "服务账户密钥中的JSON无效：%{error}"
   },
   "success": {
-    "dataframe_saved": "DataFrame已成功保存为'{path}'",
-    "data_saved": "Data已成功保存为'{path}'",
-    "message_saved": "Message已成功保存为'{path}'",
-    "uploaded_to_s3": "文件已成功上传到{url}",
-    "uploaded_to_drive": "文件已成功上传到Google Drive：{url}",
-    "created_in_google_apps": "文件已成功在Google {app_type}中创建：{url}"
+    "dataframe_saved": "DataFrame已成功保存为'%{path}'",
+    "data_saved": "Data已成功保存为'%{path}'",
+    "message_saved": "Message已成功保存为'%{path}'",
+    "uploaded_to_s3": "文件已成功上传到%{url}",
+    "uploaded_to_drive": "文件已成功上传到Google Drive：%{url}",
+    "created_in_google_apps": "文件已成功在Google %{app_type}中创建：%{url}"
   }
 }

@@ -30,6 +30,7 @@ from lfx.field_typing import Tool  # noqa: TC001
 # Lazy import to avoid circular dependency
 # from lfx.graph.utils import has_chat_output
 from lfx.helpers.custom import format_type
+from lfx.log.logger import logger
 from lfx.memory import astore_message, aupdate_messages, delete_message
 from lfx.schema.artifact import get_artifact_type, post_process_raw
 from lfx.schema.data import Data
@@ -42,8 +43,6 @@ from lfx.utils.async_helpers import run_until_complete
 from lfx.utils.util import find_closest_match
 
 from .custom_component import CustomComponent
-
-from lfx.log.logger import logger
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -1897,13 +1896,13 @@ class Component(CustomComponent):
 
         if has_real_graph:
             # Runtime context - use existing graph
-            logger.debug(f"[Component] Using existing graph instance")
+            logger.debug("[Component] Using existing graph instance")
             return await execute_node_and_get_result(self.graph, upstream_node_id, sample_size)
 
         # Design-time context - need to build a temporary graph
         from lfx.graph.graph.base import Graph
 
-        logger.debug(f"[Component] Building temporary graph from graph_data (design-time context)")
+        logger.debug("[Component] Building temporary graph from graph_data (design-time context)")
         logger.debug(f"[Component] graph_data keys: {list(graph_data.keys())}")
         logger.debug(f"[Component] Number of nodes: {len(graph_data.get('nodes', []))}")
         logger.debug(f"[Component] Number of edges: {len(graph_data.get('edges', []))}")
@@ -1912,20 +1911,22 @@ class Component(CustomComponent):
         try:
             # Graph.from_payload expects edges to have a specific format with nested 'data' field
             # But frontend sends edges without this structure, so we need to transform them
-            logger.debug(f"[Component] Creating Graph.from_payload...")
+            logger.debug("[Component] Creating Graph.from_payload...")
 
             # Transform graph_data to match Graph's expected format
             transformed_graph_data = self._transform_graph_data_for_execution(graph_data)
 
             temp_graph = Graph.from_payload(transformed_graph_data)
-            logger.debug(f"[Component] Temporary graph created successfully")
-            logger.debug(f"[Component] Temporary graph has {len(temp_graph.vertices) if hasattr(temp_graph, 'vertices') else 0} vertices")
+            logger.debug("[Component] Temporary graph created successfully")
+            logger.debug(
+                f"[Component] Temporary graph has {len(temp_graph.vertices) if hasattr(temp_graph, 'vertices') else 0} vertices"
+            )
 
             return await execute_node_and_get_result(temp_graph, upstream_node_id, sample_size)
         except Exception as e:
-            logger.exception(f"[Component] Failed to build or execute temporary graph")
+            logger.exception("[Component] Failed to build or execute temporary graph")
             logger.error(f"[Component] Exception type: {type(e).__name__}")
-            logger.error(f"[Component] Exception message: {str(e)}")
+            logger.error(f"[Component] Exception message: {e!s}")
             msg = f"Failed to build temporary graph for execution: {e}"
             raise ValueError(msg) from e
 
@@ -1952,11 +1953,7 @@ class Component(CustomComponent):
                     continue
 
             # Transform edge to expected format
-            transformed_edge = {
-                "source": edge.get("source"),
-                "target": edge.get("target"),
-                "data": {}
-            }
+            transformed_edge = {"source": edge.get("source"), "target": edge.get("target"), "data": {}}
 
             # Parse sourceHandle (might be JSON string or dict)
             source_handle = edge.get("sourceHandle", "")
@@ -1994,10 +1991,7 @@ class Component(CustomComponent):
 
             transformed_edges.append(transformed_edge)
 
-        return {
-            "nodes": graph_data.get("nodes", []),
-            "edges": transformed_edges
-        }
+        return {"nodes": graph_data.get("nodes", []), "edges": transformed_edges}
 
 
 def _get_component_toolkit():

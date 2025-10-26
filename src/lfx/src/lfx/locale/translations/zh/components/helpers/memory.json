@@ -44,7 +44,7 @@
   },
   "template": {
     "display_name": "模板",
-    "info": "用于格式化数据的模板。它可以包含键{text}、{sender}或消息数据中的任何其他键。"
+    "info": "用于格式化数据的模板。它可以包含键%{text}、%{sender}或消息数据中的任何其他键。"
   },
   "outputs": {
     "message": {
@@ -61,17 +61,17 @@
     }
   },
   "success": {
-    "message_stored": "为发送者'{sender}'在会话'{session_id}'中成功存储消息",
-    "messages_retrieved": "为会话'{session_id}'检索到{count}条消息",
+    "message_stored": "为发送者'%{sender}'在会话'%{session_id}'中成功存储消息",
+    "messages_retrieved": "为会话'%{session_id}'检索到%{count}条消息",
     "text_formatted": "消息成功格式化为文本",
-    "dataframe_created": "成功创建包含{rows}行的数据框"
+    "dataframe_created": "成功创建包含%{rows}行的数据框"
   },
   "errors": {
     "no_messages_stored": "未存储任何消息。请确保会话ID和发送者设置正确。",
-    "store_failed": "存储消息失败：{error}",
-    "invalid_external_memory": "外部内存对象({memory_name})必须有'aget_messages'方法。",
-    "retrieve_failed": "检索消息失败：{error}",
-    "text_formatting_failed": "将消息格式化为文本失败：{error}",
-    "dataframe_creation_failed": "创建数据框失败：{error}"
+    "store_failed": "存储消息失败：%{error}",
+    "invalid_external_memory": "外部内存对象(%{memory_name})必须有'aget_messages'方法。",
+    "retrieve_failed": "检索消息失败：%{error}",
+    "text_formatting_failed": "将消息格式化为文本失败：%{error}",
+    "dataframe_creation_failed": "创建数据框失败：%{error}"
   }
 }

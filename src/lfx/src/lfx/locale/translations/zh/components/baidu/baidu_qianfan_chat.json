@@ -30,16 +30,16 @@
     "info": "千帆大型语言模型的端点，使用自定义模型时必需。"
   },
   "status": {
-    "initializing": "正在初始化百度千帆模型'{model}'..."
+    "initializing": "正在初始化百度千帆模型'%{model}'..."
   },
   "success": {
-    "model_initialized": "百度千帆模型'{model}'初始化成功"
+    "model_initialized": "百度千帆模型'%{model}'初始化成功"
   },
   "errors": {
-    "connection_failed": "无法连接到百度千帆API：{error}"
+    "connection_failed": "无法连接到百度千帆API：%{error}"
   },
   "logs": {
-    "building_model": "正在构建模型 - 模型：{model}，温度：{temperature}，Top P：{top_p}，惩罚分数：{penalty_score}，有自定义端点：{has_endpoint}",
-    "custom_endpoint_set": "自定义端点设置为：{endpoint}"
+    "building_model": "正在构建模型 - 模型：%{model}，温度：%{temperature}，Top P：%{top_p}，惩罚分数：%{penalty_score}，有自定义端点：%{has_endpoint}",
+    "custom_endpoint_set": "自定义端点设置为：%{endpoint}"
   }
 }

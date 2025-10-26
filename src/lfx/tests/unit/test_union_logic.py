@@ -1,10 +1,10 @@
 #!/usr/bin/env python
-"""
-Direct unit test for multi_stream_union component logic
+"""Direct unit test for multi_stream_union component logic
 Tests the core methods directly without full component framework
 """
 
 import sys
+
 sys.path.insert(0, "/Users/jiangwei/Development/AI/langflow/src/lfx/src")
 
 import pandas as pd
@@ -12,6 +12,7 @@ import pandas as pd
 
 class Data:
     """Simple Data class for testing"""
+
     def __init__(self, data):
         self.data = data
 
@@ -34,7 +35,7 @@ def extract_field_names(data_list):
     first_record = data_list[0]
     if hasattr(first_record, "data") and isinstance(first_record.data, dict):
         return list(first_record.data.keys())
-    elif isinstance(first_record, dict):
+    if isinstance(first_record, dict):
         return list(first_record.keys())
     return []
 
@@ -179,10 +180,7 @@ def test_five_streams():
     """Test union of 5 streams"""
     print("\nTest 7: Union of 5 streams...")
 
-    streams = [
-        [Data(data={"id": i, "value": i * 10})]
-        for i in range(1, 6)
-    ]
+    streams = [[Data(data={"id": i, "value": i * 10})] for i in range(1, 6)]
 
     result = union_streams_logic(streams)
 
@@ -239,5 +237,6 @@ if __name__ == "__main__":
     except Exception as e:
         print(f"\n✗ Test failed with error: {e}")
         import traceback
+
         traceback.print_exc()
         sys.exit(1)

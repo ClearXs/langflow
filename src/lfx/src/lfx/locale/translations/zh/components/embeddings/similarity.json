@@ -21,16 +21,16 @@
   },
   "errors": {
     "two_vectors_required": "需要恰好两个嵌入向量。",
-    "missing_embeddings_key": "数据中缺少'embeddings'键：{error}",
-    "dimension_mismatch": "嵌入必须具有相同的维度。得到{dim1}和{dim2}。",
-    "unknown_metric": "未知的相似度度量：{metric}",
-    "computation_failed": "计算相似度失败：{error}",
-    "data_creation_failed": "创建相似度数据对象失败：{error}"
+    "missing_embeddings_key": "数据中缺少'embeddings'键：%{error}",
+    "dimension_mismatch": "嵌入必须具有相同的维度。得到%{dim1}和%{dim2}。",
+    "unknown_metric": "未知的相似度度量：%{metric}",
+    "computation_failed": "计算相似度失败：%{error}",
+    "data_creation_failed": "创建相似度数据对象失败：%{error}"
   },
   "logs": {
-    "computing_similarity": "正在计算{count}个嵌入向量之间的相似度",
-    "embeddings_extracted": "已提取嵌入 - 维度1：{dim1}，维度2：{dim2}",
-    "using_metric": "使用相似度度量：{metric}",
+    "computing_similarity": "正在计算%{count}个嵌入向量之间的相似度",
+    "embeddings_extracted": "已提取嵌入 - 维度1：%{dim1}，维度2：%{dim2}",
+    "using_metric": "使用相似度度量：%{metric}",
     "cosine_computed": "余弦相似度已计算：{score:.6f}",
     "euclidean_computed": "欧几里得距离已计算：{score:.6f}",
     "manhattan_computed": "曼哈顿距离已计算：{score:.6f}",

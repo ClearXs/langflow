@@ -124,7 +124,9 @@ async def execute_node_and_get_result(graph: "Graph", node_id: str, sample_size:
         if not vertex:
             msg = f"Node {node_id} not found in graph"
             logger.error(f"[GraphUtils] {msg}")
-            logger.debug(f"[GraphUtils] Available vertices: {list(graph.vertices.keys()) if hasattr(graph, 'vertices') else 'N/A'}")
+            logger.debug(
+                f"[GraphUtils] Available vertices: {list(graph.vertices.keys()) if hasattr(graph, 'vertices') else 'N/A'}"
+            )
             raise ValueError(msg)
 
         logger.debug(f"[GraphUtils] Executing vertex '{node_id}' of type '{vertex.vertex_type}'")
@@ -158,7 +160,9 @@ async def execute_node_and_get_result(graph: "Graph", node_id: str, sample_size:
                 # Multiple outputs and no "data" key - take first value
                 output_key = list(result.keys())[0]
                 result = result[output_key]
-                logger.debug(f"[GraphUtils] Unwrapped first output '{output_key}' from multi-output dict, new type: {type(result)}")
+                logger.debug(
+                    f"[GraphUtils] Unwrapped first output '{output_key}' from multi-output dict, new type: {type(result)}"
+                )
 
         # Extract data from result
         # Check if result is already a list of Data objects
@@ -169,15 +173,15 @@ async def execute_node_and_get_result(graph: "Graph", node_id: str, sample_size:
         elif isinstance(result, Data):
             # Single Data object
             data_list = [result]
-            logger.debug(f"[GraphUtils] Result is a single Data object")
+            logger.debug("[GraphUtils] Result is a single Data object")
         elif hasattr(result, "data"):
             # Output object with .data attribute (e.g., Message with .data)
             data_list = result.data if isinstance(result.data, list) else [result.data]
-            logger.debug(f"[GraphUtils] Extracted data from result.data attribute")
+            logger.debug("[GraphUtils] Extracted data from result.data attribute")
         else:
             # Single non-Data result
             data_list = [result]
-            logger.debug(f"[GraphUtils] Wrapped single result in list")
+            logger.debug("[GraphUtils] Wrapped single result in list")
 
         logger.debug(f"[GraphUtils] Extracted {len(data_list)} data records from vertex execution")
 
@@ -186,7 +190,9 @@ async def execute_node_and_get_result(graph: "Graph", node_id: str, sample_size:
         for i, item in enumerate(data_list):
             if isinstance(item, Data):
                 result_data.append(item)
-                logger.debug(f"[GraphUtils] Item {i} is Data, keys: {list(item.data.keys()) if isinstance(item.data, dict) else 'NOT A DICT'}")
+                logger.debug(
+                    f"[GraphUtils] Item {i} is Data, keys: {list(item.data.keys()) if isinstance(item.data, dict) else 'NOT A DICT'}"
+                )
             elif isinstance(item, dict):
                 result_data.append(Data(data=item))
                 logger.debug(f"[GraphUtils] Item {i} is dict, keys: {list(item.keys())}")

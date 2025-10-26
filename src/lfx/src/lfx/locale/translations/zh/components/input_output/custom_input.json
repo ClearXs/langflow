@@ -1,0 +1,43 @@
+{
+  "display_name": "自定义输入",
+  "description": "自定义数据输入组件,用户可定义字段结构,便于测试",
+  "field_schema": {
+    "display_name": "字段结构",
+    "info": "定义自定义字段(字段名称、数据类型、默认值)。编辑后自动同步到数据录入表格。",
+    "field_name": "字段名称",
+    "data_type": "数据类型",
+    "default_value": "默认值"
+  },
+  "data_table": {
+    "display_name": "数据录入",
+    "info": "输入自定义数据行。提示：先定义字段结构,再使用下方按钮生成测试数据或手动录入。",
+    "generate_button": "生成测试数据",
+    "validate_button": "验证数据类型"
+  },
+  "test_rows_count": {
+    "display_name": "测试数据行数",
+    "info": "要生成的测试数据行数(1-1000)"
+  },
+  "strict_validation": {
+    "display_name": "严格类型验证",
+    "info": "启用严格的数据类型检查"
+  },
+  "output_data": {
+    "display_name": "数据"
+  },
+  "status": {
+    "schema_applied": "字段结构已应用,包含%{count}个字段",
+    "schema_cleared": "字段结构已清空",
+    "test_data_generated": "已生成%{count}行测试数据",
+    "validation_passed": "全部%{count}行数据验证通过,类型正确",
+    "data_loaded": "已加载%{count}行数据"
+  },
+  "errors": {
+    "no_schema": "请先定义字段结构",
+    "no_data": "没有可验证的数据,请先生成测试数据或手动录入",
+    "invalid_field_name": "无效的字段名称:%{name}",
+    "type_conversion_failed": "无法将值'%{value}'转换为类型%{type}",
+    "validation_failed": "数据验证失败:%{error}",
+    "duplicate_field": "字段名称重复:%{name}"
+  }
+}

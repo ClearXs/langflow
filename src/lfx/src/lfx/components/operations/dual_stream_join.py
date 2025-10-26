@@ -139,9 +139,21 @@ class ETLDualStreamJoinComponent(Component):
     ]
 
     outputs = [
-        Output(name="data", display_name="Joined Data", method="join_streams"),
-        Output(name="join_stats", display_name="Join Statistics", method="get_join_stats"),
-        Output(name="field_preview", display_name="Field Preview", method="preview_fields"),
+        Output(
+            name="data",
+            display_name=i18n.t("components.operations.dual_stream_join.outputs.data"),
+            method="join_streams",
+        ),
+        Output(
+            name="join_stats",
+            display_name=i18n.t("components.operations.dual_stream_join.outputs.join_stats"),
+            method="get_join_stats",
+        ),
+        Output(
+            name="field_preview",
+            display_name=i18n.t("components.operations.dual_stream_join.outputs.field_preview"),
+            method="preview_fields",
+        ),
     ]
 
     async def update_build_config(
@@ -182,21 +194,39 @@ class ETLDualStreamJoinComponent(Component):
                 left_fields = self._extract_field_names(left_data) if left_data else []
                 right_fields = self._extract_field_names(right_data) if right_data else []
 
-                # 更新 table_schema 的 options
-                build_config["join_conditions"]["table_schema"][0]["options"] = left_fields  # left_key
-                build_config["join_conditions"]["table_schema"][2]["options"] = right_fields  # right_key
+                if left_fields and right_fields:
+                    # 1. 更新 table_schema 的 options
+                    build_config["join_conditions"]["table_schema"][0]["options"] = left_fields  # left_key
+                    build_config["join_conditions"]["table_schema"][2]["options"] = right_fields  # right_key
 
-                self.status = i18n.t(
-                    "components.operations.dual_stream_join.status.fields_loaded",
-                    left_count=len(left_fields),
-                    right_count=len(right_fields),
-                )
-                logger.info(f"[DualStreamJoin] Loaded fields - left: {left_fields}, right: {right_fields}")
+                    # 2. 自动填充表格数据（如果当前为空）
+                    if not build_config["join_conditions"].get("value"):
+                        # 创建一个示例行，让用户知道如何配置
+                        default_row = {
+                            "left_key": left_fields[0],
+                            "operator": "=",
+                            "right_key": right_fields[0],
+                        }
+                        build_config["join_conditions"]["value"] = [default_row]
+
+                    self.status = i18n.t(
+                        "components.operations.dual_stream_join.status.fields_loaded",
+                        left_count=len(left_fields),
+                        right_count=len(right_fields),
+                    )
+                    logger.info(f"[DualStreamJoin] Loaded fields - left: {left_fields}, right: {right_fields}")
+                else:
+                    # 仍然更新选项，即使没有字段
+                    build_config["join_conditions"]["table_schema"][0]["options"] = left_fields
+                    build_config["join_conditions"]["table_schema"][2]["options"] = right_fields
+                    self.status = i18n.t("components.operations.dual_stream_join.status.no_fields_found")
 
             except ValueError as e:
                 error_msg = str(e)
                 logger.warning(f"[DualStreamJoin] Field loading warning: {error_msg}")
-                self.status = i18n.t("components.operations.dual_stream_join.errors.load_fields_failed", error=error_msg)
+                self.status = i18n.t(
+                    "components.operations.dual_stream_join.errors.load_fields_failed", error=error_msg
+                )
             except Exception as e:  # noqa: BLE001
                 logger.exception("[DualStreamJoin] Failed to load fields")
                 self.status = i18n.t("components.operations.dual_stream_join.errors.load_fields_failed", error=str(e))
@@ -249,12 +279,14 @@ class ETLDualStreamJoinComponent(Component):
         first_record = data_list[0]
         if hasattr(first_record, "data") and isinstance(first_record.data, dict):
             return list(first_record.data.keys())
-        elif isinstance(first_record, dict):
+        if isinstance(first_record, dict):
             return list(first_record.keys())
 
         return []
 
-    def _generate_output_fields_preview(self, left_data: list[Data] | None, right_data: list[Data] | None) -> list[dict]:
+    def _generate_output_fields_preview(
+        self, left_data: list[Data] | None, right_data: list[Data] | None
+    ) -> list[dict]:
         """生成输出字段预览列表
 
         Args:
@@ -281,39 +313,47 @@ class ETLDualStreamJoinComponent(Component):
             common_fields = set(left_fields) & set(right_fields)
             for field in common_fields:
                 # 左表版本
-                output_fields.append({
-                    "field_name": f"{field}_{self.left_prefix}" if self.left_prefix else f"{field}_left",
-                    "source": i18n.t("components.operations.dual_stream_join.output_fields.left_table"),
-                    "data_type": self._infer_data_type(left_sample.get(field)),
-                })
+                output_fields.append(
+                    {
+                        "field_name": f"{field}_{self.left_prefix}" if self.left_prefix else f"{field}_left",
+                        "source": i18n.t("components.operations.dual_stream_join.output_fields.left_table"),
+                        "data_type": self._infer_data_type(left_sample.get(field)),
+                    }
+                )
                 # 右表版本
-                output_fields.append({
-                    "field_name": f"{field}_{self.right_prefix}" if self.right_prefix else f"{field}_right",
-                    "source": i18n.t("components.operations.dual_stream_join.output_fields.right_table"),
-                    "data_type": self._infer_data_type(right_sample.get(field)),
-                })
+                output_fields.append(
+                    {
+                        "field_name": f"{field}_{self.right_prefix}" if self.right_prefix else f"{field}_right",
+                        "source": i18n.t("components.operations.dual_stream_join.output_fields.right_table"),
+                        "data_type": self._infer_data_type(right_sample.get(field)),
+                    }
+                )
 
             # 左表独有字段
             left_only = set(left_fields) - common_fields
             for field in left_only:
-                output_fields.append({
-                    "field_name": field,
-                    "source": i18n.t("components.operations.dual_stream_join.output_fields.left_table"),
-                    "data_type": self._infer_data_type(left_sample.get(field)),
-                })
+                output_fields.append(
+                    {
+                        "field_name": field,
+                        "source": i18n.t("components.operations.dual_stream_join.output_fields.left_table"),
+                        "data_type": self._infer_data_type(left_sample.get(field)),
+                    }
+                )
 
             # 右表独有字段
             right_only = set(right_fields) - common_fields
             for field in right_only:
-                output_fields.append({
-                    "field_name": field,
-                    "source": i18n.t("components.operations.dual_stream_join.output_fields.right_table"),
-                    "data_type": self._infer_data_type(right_sample.get(field)),
-                })
+                output_fields.append(
+                    {
+                        "field_name": field,
+                        "source": i18n.t("components.operations.dual_stream_join.output_fields.right_table"),
+                        "data_type": self._infer_data_type(right_sample.get(field)),
+                    }
+                )
 
             return output_fields
 
-        except Exception as e:  # noqa: BLE001
+        except Exception:  # noqa: BLE001
             logger.exception("[DualStreamJoin] Failed to generate output fields preview")
             return []
 
@@ -331,14 +371,13 @@ class ETLDualStreamJoinComponent(Component):
 
         if isinstance(value, bool):
             return "boolean"
-        elif isinstance(value, int):
+        if isinstance(value, int):
             return "integer"
-        elif isinstance(value, float):
+        if isinstance(value, float):
             return "float"
-        elif isinstance(value, (pd.Timestamp, pd.DatetimeTZDtype)):
+        if isinstance(value, (pd.Timestamp, pd.DatetimeTZDtype)):
             return "datetime"
-        else:
-            return "string"
+        return "string"
 
     def join_streams(self) -> list[Data]:
         """使用多条件、多操作符进行Join合并"""
@@ -373,6 +412,9 @@ class ETLDualStreamJoinComponent(Component):
             if eq_conditions:
                 left_keys = [c["left_key"] for c in eq_conditions]
                 right_keys = [c["right_key"] for c in eq_conditions]
+
+                # 对齐连接键的数据类型
+                left_df, right_df = self._align_join_key_types(left_df, right_df, left_keys, right_keys)
 
                 joined_df = pd.merge(
                     left_df,
@@ -464,6 +506,50 @@ class ETLDualStreamJoinComponent(Component):
                     i18n.t("components.operations.dual_stream_join.errors.right_field_not_found", field=right_key)
                 )
 
+    def _align_join_key_types(
+        self, left_df: pd.DataFrame, right_df: pd.DataFrame, left_keys: list[str], right_keys: list[str]
+    ) -> tuple[pd.DataFrame, pd.DataFrame]:
+        """对齐左右表连接键的数据类型，确保类型兼容"""
+        left_df = left_df.copy()
+        right_df = right_df.copy()
+
+        for left_key, right_key in zip(left_keys, right_keys):
+            left_dtype = left_df[left_key].dtype
+            right_dtype = right_df[right_key].dtype
+
+            # 如果类型已经相同，跳过
+            if left_dtype == right_dtype:
+                continue
+
+            logger.debug(
+                f"[DualStreamJoin] Type mismatch detected - {left_key}:{left_dtype} vs {right_key}:{right_dtype}"
+            )
+
+            # 优先尝试转换为数值类型
+            left_numeric = pd.to_numeric(left_df[left_key], errors="coerce")
+            right_numeric = pd.to_numeric(right_df[right_key], errors="coerce")
+
+            # 如果两者都能成功转换为数值（没有全部变成NaN），则使用数值类型
+            if not left_numeric.isna().all() and not right_numeric.isna().all():
+                # 检查是否可以转换为整数（没有小数部分）
+                if (left_numeric.dropna() % 1 == 0).all() and (right_numeric.dropna() % 1 == 0).all():
+                    # 转换为int64（处理NaN）
+                    left_df[left_key] = left_numeric.fillna(-999999).astype("int64")
+                    right_df[right_key] = right_numeric.fillna(-999999).astype("int64")
+                    logger.info(f"[DualStreamJoin] Converted {left_key} and {right_key} to int64")
+                else:
+                    # 转换为float64
+                    left_df[left_key] = left_numeric
+                    right_df[right_key] = right_numeric
+                    logger.info(f"[DualStreamJoin] Converted {left_key} and {right_key} to float64")
+            else:
+                # 无法转换为数值，统一转换为字符串
+                left_df[left_key] = left_df[left_key].astype(str)
+                right_df[right_key] = right_df[right_key].astype(str)
+                logger.info(f"[DualStreamJoin] Converted {left_key} and {right_key} to string")
+
+        return left_df, right_df
+
     def _convert_to_dataframe(self, data_list: list[Data]) -> pd.DataFrame:
         """Convert list of Data objects to pandas DataFrame."""
         records = []
@@ -496,7 +582,12 @@ class ETLDualStreamJoinComponent(Component):
         """预览合并后的字段信息"""
         try:
             if not self.left_stream or not self.right_stream:
-                return Data(data={"fields": [], "message": i18n.t("components.operations.dual_stream_join.errors.no_streams_for_preview")})
+                return Data(
+                    data={
+                        "fields": [],
+                        "message": i18n.t("components.operations.dual_stream_join.errors.no_streams_for_preview"),
+                    }
+                )
 
             left_fields = self._extract_field_names(self.left_stream)
             right_fields = self._extract_field_names(self.right_stream)
@@ -527,7 +618,9 @@ class ETLDualStreamJoinComponent(Component):
                     {
                         "field_name": field,
                         "source": i18n.t("components.operations.dual_stream_join.field_preview.left_table"),
-                        "conflict_resolution": i18n.t("components.operations.dual_stream_join.field_preview.no_conflict"),
+                        "conflict_resolution": i18n.t(
+                            "components.operations.dual_stream_join.field_preview.no_conflict"
+                        ),
                     }
                 )
 
@@ -538,7 +631,9 @@ class ETLDualStreamJoinComponent(Component):
                     {
                         "field_name": field,
                         "source": i18n.t("components.operations.dual_stream_join.field_preview.right_table"),
-                        "conflict_resolution": i18n.t("components.operations.dual_stream_join.field_preview.no_conflict"),
+                        "conflict_resolution": i18n.t(
+                            "components.operations.dual_stream_join.field_preview.no_conflict"
+                        ),
                     }
                 )
 

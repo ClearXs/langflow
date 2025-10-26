@@ -38,24 +38,24 @@
     "invalid_prompt": "提示词必须是字符串列表或单个字符串",
     "missing_image_source": "必须提供URL或文件存储密钥来执行对象检测",
     "api_request_failed": "JigsawStack API返回失败响应",
-    "jigsawstack_error": "JigsawStack错误：{error}",
-    "unexpected_error": "发生意外错误：{error}"
+    "jigsawstack_error": "JigsawStack错误：%{error}",
+    "unexpected_error": "发生意外错误：%{error}"
   },
   "logs": {
     "starting_detection": "正在开始对象检测",
     "creating_client": "正在创建JigsawStack客户端",
     "processing_prompts": "正在处理检测提示词",
-    "prompts_list": "正在使用列表中的{count}个提示词",
-    "prompts_split": "已将提示词拆分为{count}项",
+    "prompts_list": "正在使用列表中的%{count}个提示词",
+    "prompts_split": "已将提示词拆分为%{count}项",
     "prompts_single": "正在使用单个提示词",
-    "prompts_parsed": "已解析提示词：{prompts}",
-    "using_url": "正在使用图像URL：{url}",
-    "using_file_store_key": "正在使用文件存储密钥：{key}",
-    "annotated_image_setting": "标注图像返回：{enabled}",
-    "features_enabled": "已启用功能：{features}",
-    "return_type_setting": "返回类型：{type}",
+    "prompts_parsed": "已解析提示词：%{prompts}",
+    "using_url": "正在使用图像URL：%{url}",
+    "using_file_store_key": "正在使用文件存储密钥：%{key}",
+    "annotated_image_setting": "标注图像返回：%{enabled}",
+    "features_enabled": "已启用功能：%{features}",
+    "return_type_setting": "返回类型：%{type}",
     "calling_api": "正在调用JigsawStack对象检测API",
-    "detection_complete": "对象检测完成 - 检测到{count}个对象，标注图像：{has_annotated}",
-    "detection_success": "对象检测成功完成 - 找到{count}个对象。"
+    "detection_complete": "对象检测完成 - 检测到%{count}个对象，标注图像：%{has_annotated}",
+    "detection_success": "对象检测成功完成 - 找到%{count}个对象。"
   }
 }

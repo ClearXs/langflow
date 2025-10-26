@@ -28,20 +28,20 @@
   "errors": {
     "import_error": "JigsawStack package not found. Please install it using: pip install jigsawstack>=0.2.7",
     "url_or_html_required": "Either 'url' or 'html' must be provided for scraping",
-    "max_elements_exceeded": "Maximum of {max} element prompts allowed",
+    "max_elements_exceeded": "Maximum of %{max} element prompts allowed",
     "empty_element_prompts": "Element prompts cannot be empty",
     "api_request_failed": "JigsawStack API request failed",
-    "jigsawstack_error": "JigsawStack error: {error}",
-    "unexpected_error": "An unexpected error occurred: {error}"
+    "jigsawstack_error": "JigsawStack error: %{error}",
+    "unexpected_error": "An unexpected error occurred: %{error}"
   },
   "logs": {
     "starting_scrape": "Starting AI scrape process",
     "creating_client": "Creating JigsawStack client",
-    "using_url": "Using URL for scraping: {url}",
-    "using_html": "Using HTML content for scraping (length: {length} characters)",
+    "using_url": "Using URL for scraping: %{url}",
+    "using_html": "Using HTML content for scraping (length: %{length} characters)",
     "processing_element_prompts": "Processing element prompts",
-    "element_prompts_parsed": "Parsed {count} element prompt(s): {prompts}",
-    "using_root_selector": "Using root element selector: {selector}",
+    "element_prompts_parsed": "Parsed %{count} element prompt(s): %{prompts}",
+    "using_root_selector": "Using root element selector: %{selector}",
     "calling_api": "Calling JigsawStack AI scrape API",
     "scrape_complete": "AI scrape process is now complete."
   }

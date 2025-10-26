@@ -3,10 +3,10 @@
   "description": "发送数据到REST API",
   "status": {
     "sending": "正在发送到API...",
-    "success": "发送了 {success} 条记录，{errors} 个错误"
+    "success": "发送了 %{success} 条记录，%{errors} 个错误"
   },
   "errors": {
-    "send_failed": "API发送失败: {error}",
+    "send_failed": "API发送失败: %{error}",
     "no_data": "没有要发送的数据"
   },
   "api_url": {
@@ -36,5 +36,10 @@
   "timeout": {
     "display_name": "超时时间(秒)",
     "info": "请求超时"
+  },
+  "outputs": {
+    "result": {
+      "display_name": "发送结果"
+    }
   }
 }

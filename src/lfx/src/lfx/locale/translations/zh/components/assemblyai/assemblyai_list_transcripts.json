@@ -29,24 +29,24 @@
   "status": {
     "building_parameters": "正在构建查询参数...",
     "fetching_all_transcripts": "正在获取所有转录（分页）...",
-    "fetching_transcripts": "正在获取最多{limit}个转录..."
+    "fetching_transcripts": "正在获取最多%{limit}个转录..."
   },
   "success": {
-    "transcripts_retrieved": "成功检索{count}个转录"
+    "transcripts_retrieved": "成功检索%{count}个转录"
   },
   "errors": {
-    "list_failed": "发生错误：{error}"
+    "list_failed": "发生错误：%{error}"
   },
   "logs": {
-    "limit_set": "限制设置为{limit}",
-    "status_filter_set": "状态筛选设置为'{status}'",
-    "created_on_set": "创建日期筛选设置为'{date}'",
+    "limit_set": "限制设置为%{limit}",
+    "status_filter_set": "状态筛选设置为'%{status}'",
+    "created_on_set": "创建日期筛选设置为'%{date}'",
     "throttled_only_enabled": "仅限速筛选已启用",
     "fetching_all_pages": "正在获取所有转录页面",
-    "page_fetched": "第{page}页已获取，包含{count}个转录",
-    "all_pages_fetched": "所有{pages}页已获取，共{total}个转录",
-    "fetching_single_page": "正在获取限制为{limit}的单个页面",
-    "single_page_fetched": "页面已获取，包含{count}个转录",
+    "page_fetched": "第%{page}页已获取，包含%{count}个转录",
+    "all_pages_fetched": "所有%{pages}页已获取，共%{total}个转录",
+    "fetching_single_page": "正在获取限制为%{limit}的单个页面",
+    "single_page_fetched": "页面已获取，包含%{count}个转录",
     "list_error": "列出转录时出错"
   }
 }

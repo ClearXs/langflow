@@ -32,17 +32,17 @@
   },
   "status": {
     "building": "正在构建顺序任务...",
-    "task_created": "顺序任务创建成功 - 总任务数：{total_count}"
+    "task_created": "顺序任务创建成功 - 总任务数：%{total_count}"
   },
   "errors": {
-    "build_failed": "构建顺序任务失败：{error}"
+    "build_failed": "构建顺序任务失败：%{error}"
   },
   "logs": {
     "building_task": "正在构建顺序任务",
     "creating_task": "正在使用代理创建任务",
     "task_created": "任务创建成功",
     "chaining_tasks": "正在与上一个任务链接",
-    "chained_with_list": "已与{count}个上一个任务链接",
+    "chained_with_list": "已与%{count}个上一个任务链接",
     "chained_with_single": "已与单个上一个任务链接",
     "single_task": "正在创建单个任务，无链接"
   }

@@ -1,53 +1,61 @@
 {
   "display_name": "Kafka输入",
-  "description": "消费Kafka主题消息",
+  "description": "从Kafka主题消费消息并支持认证",
   "bootstrap_servers": {
     "display_name": "Kafka服务器",
-    "info": "Kafka引导服务器"
+    "info": "Kafka引导服务器（逗号分隔）"
+  },
+  "topics": {
+    "display_name": "主题",
+    "info": "要订阅的Kafka主题（逗号分隔）"
+  },
+  "group_id": {
+    "display_name": "消费者组ID",
+    "info": "消费者组标识"
+  },
+  "value_deserializer": {
+    "display_name": "值反序列化器",
+    "info": "消息值的反序列化方式"
+  },
+  "max_messages": {
+    "display_name": "最大消息数",
+    "info": "要消费的最大消息数量"
+  },
+  "timeout_ms": {
+    "display_name": "超时时间（毫秒）",
+    "info": "消费者超时时间（毫秒）"
+  },
+  "auto_commit": {
+    "display_name": "自动提交",
+    "info": "自动提交偏移量"
+  },
+  "json_path": {
+    "display_name": "JSON路径",
+    "info": "从JSON消息中提取数据的路径"
+  },
+  "sasl_username": {
+    "display_name": "SASL用户名",
+    "info": "SASL认证用户名"
+  },
+  "sasl_password": {
+    "display_name": "SASL密码",
+    "info": "SASL认证密码"
   },
   "status": {
     "connecting": "正在连接Kafka...",
-    "success": "成功消费 {messages} 条消息",
-    "consuming": "Consuming messages..."
+    "consuming": "正在消费消息...",
+    "success": "成功消费了 %{messages} 条消息"
   },
   "errors": {
-    "consume_failed": "消费消息失败: {error}",
-    "kafka_not_installed": "kafka-python library not installed"
+    "kafka_not_installed": "未安装kafka-python库",
+    "consume_failed": "消费消息失败：%{error}"
   },
-  "auto_commit": {
-    "display_name": "Auto Commit",
-    "info": "Automatically commit offsets"
-  },
-  "group_id": {
-    "display_name": "Group ID",
-    "info": "Consumer group ID"
-  },
-  "json_path": {
-    "display_name": "JSON Path",
-    "info": "Extract data from JSON messages"
-  },
-  "max_messages": {
-    "display_name": "Max Messages",
-    "info": "Maximum messages to consume"
-  },
-  "sasl_password": {
-    "display_name": "SASL Password",
-    "info": "SASL authentication password"
-  },
-  "sasl_username": {
-    "display_name": "SASL Username",
-    "info": "SASL authentication username"
-  },
-  "timeout_ms": {
-    "display_name": "Timeout (ms)",
-    "info": "Consumer timeout in milliseconds"
-  },
-  "topics": {
-    "display_name": "Topics",
-    "info": "Kafka topics to subscribe (comma-separated)"
-  },
-  "value_deserializer": {
-    "display_name": "Value Deserializer",
-    "info": "Message value deserializer"
+  "outputs": {
+    "data": {
+      "display_name": "数据"
+    },
+    "consumer_info": {
+      "display_name": "消费者信息"
+    }
   }
 }

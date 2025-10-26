@@ -27,15 +27,15 @@
     }
   },
   "success": {
-    "external_memory_stored": "为发送者'{sender}'在会话'{session_id}'的外部内存中存储了消息",
-    "langflow_table_stored": "为发送者'{sender}'在会话'{session_id}'的Langflow表中存储了消息",
-    "message_stored": "为发送者'{sender}'在会话'{session_id}'中成功存储消息（总消息数：{total_messages}）"
+    "external_memory_stored": "为发送者'%{sender}'在会话'%{session_id}'的外部内存中存储了消息",
+    "langflow_table_stored": "为发送者'%{sender}'在会话'%{session_id}'的Langflow表中存储了消息",
+    "message_stored": "为发送者'%{sender}'在会话'%{session_id}'中成功存储消息（总消息数：%{total_messages}）"
   },
   "errors": {
     "empty_message": "消息为空。请提供要存储的消息。",
-    "external_memory_failed": "在外部内存中存储消息失败：{error}",
-    "langflow_table_failed": "在Langflow表中存储消息失败：{error}",
+    "external_memory_failed": "在外部内存中存储消息失败：%{error}",
+    "langflow_table_failed": "在Langflow表中存储消息失败：%{error}",
     "no_messages_stored": "未存储任何消息。请确保会话ID和发送者设置正确。",
-    "unexpected_error": "存储消息时发生意外错误：{error}"
+    "unexpected_error": "存储消息时发生意外错误：%{error}"
   }
 }

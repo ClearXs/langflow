@@ -63,21 +63,21 @@
   },
   "status": {
     "building": "正在构建代理和任务...",
-    "created": "代理和任务创建成功 - 角色：{role}，总任务数：{task_count}"
+    "created": "代理和任务创建成功 - 角色：%{role}，总任务数：%{task_count}"
   },
   "errors": {
     "import_failed": "CrewAI未安装。请使用`uv pip install crewai`安装。",
-    "build_failed": "构建代理和任务失败：{error}"
+    "build_failed": "构建代理和任务失败：%{error}"
   },
   "logs": {
     "imports_successful": "CrewAI依赖导入成功",
-    "building_agent_task": "正在构建代理和任务 - 角色：{role}",
-    "creating_agent": "正在创建角色为{role}的代理",
-    "agent_created": "代理创建成功 - 角色：{role}",
+    "building_agent_task": "正在构建代理和任务 - 角色：%{role}",
+    "creating_agent": "正在创建角色为%{role}的代理",
+    "agent_created": "代理创建成功 - 角色：%{role}",
     "creating_task": "正在为代理创建任务",
     "task_created": "任务创建成功",
     "chaining_tasks": "正在与上一个任务链接",
-    "tasks_chained": "任务链接成功 - 总任务数：{total_count}",
+    "tasks_chained": "任务链接成功 - 总任务数：%{total_count}",
     "single_task": "正在创建单个任务，无链接"
   }
 }

@@ -1,6 +1,5 @@
 #!/usr/bin/env python
-"""
-Standalone test script for multi_stream_union component
+"""Standalone test script for multi_stream_union component
 Run with: python test_multi_stream_union_standalone.py
 """
 
@@ -23,7 +22,6 @@ sys.modules["lfx.schema"] = MagicMock()
 # Now add actual path and import
 sys.path.insert(0, "/Users/jiangwei/Development/AI/langflow/src/lfx/src")
 
-import pandas as pd
 
 # Minimal Data class for testing
 class Data:
@@ -60,9 +58,9 @@ def test_basic_union():
     print(f"  Debug: stream_2 = {getattr(component, 'stream_2', 'NOT SET')}")
 
     # Manually set if not working through constructor
-    if not hasattr(component, 'stream_1') or component.stream_1 is None:
+    if not hasattr(component, "stream_1") or component.stream_1 is None:
         component.stream_1 = stream1
-    if not hasattr(component, 'stream_2') or component.stream_2 is None:
+    if not hasattr(component, "stream_2") or component.stream_2 is None:
         component.stream_2 = stream2
 
     result = component.union_streams()
@@ -209,5 +207,6 @@ if __name__ == "__main__":
     except Exception as e:
         print(f"\n✗ Test failed with error: {e}")
         import traceback
+
         traceback.print_exc()
         sys.exit(1)

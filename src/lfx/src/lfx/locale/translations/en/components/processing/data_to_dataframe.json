@@ -12,13 +12,13 @@
     }
   },
   "success": {
-    "dataframe_created": "DataFrame created successfully with {rows} rows from {objects} Data objects"
+    "dataframe_created": "DataFrame created successfully with %{rows} rows from %{objects} Data objects"
   },
   "warnings": {
     "empty_data_list": "No Data objects provided. Returning empty DataFrame."
   },
   "errors": {
-    "invalid_data_type": "Expected Data objects, got {actual_type} at index {index}",
-    "dataframe_creation_failed": "Failed to create DataFrame: {error}"
+    "invalid_data_type": "Expected Data objects, got %{actual_type} at index %{index}",
+    "dataframe_creation_failed": "Failed to create DataFrame: %{error}"
   }
 }

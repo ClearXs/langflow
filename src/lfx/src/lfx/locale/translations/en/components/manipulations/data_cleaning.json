@@ -1,39 +1,99 @@
 {
   "display_name": "Data Cleaning",
-  "description": "Clean and normalize data with various operations",
+  "description": "Clean data through rules and conditions",
   "data_input": {
     "display_name": "Data Input",
     "info": "Input data to clean"
   },
-  "trim_whitespace": {
-    "display_name": "Trim Whitespace",
-    "info": "Remove leading/trailing spaces"
+  "filter_conditions": {
+    "display_name": "Filter Conditions",
+    "info": "Only clean records matching conditions (empty = clean all)",
+    "field_name": "Field Name",
+    "field_name_desc": "Field name to use as comparison condition",
+    "operator": "Operator",
+    "operator_desc": "Comparison operator",
+    "compare_value": "Compare Value",
+    "compare_value_desc": "Value to compare against",
+    "logic_operator": "Logic Operator",
+    "logic_operator_desc": "Logic operator for multiple conditions (AND/OR)",
+    "analyze_button": "Analyze Fields"
   },
-  "remove_duplicates": {
-    "display_name": "Remove Duplicates",
-    "info": "Remove duplicate rows"
+  "cleaning_rules": {
+    "display_name": "Cleaning Rules",
+    "info": "Bind cleaning rules to fields",
+    "field_name": "Field Name",
+    "field_name_desc": "Field name to apply cleaning rule",
+    "transformation_rule": "Transformation Rule",
+    "transformation_rule_desc": "Data transformation/masking/generation rule",
+    "custom_expression": "Custom Expression",
+    "custom_expression_desc": "Custom expression/script for expression/javascript/python rules",
+    "analyze_button": "Analyze Fields"
   },
-  "remove_null_rows": {
-    "display_name": "Remove Null Rows",
-    "info": "Remove rows with null values"
+  "max_records": {
+    "display_name": "Max Records",
+    "info": "Max records to transform (0 = unlimited)"
   },
-  "remove_special_chars": {
-    "display_name": "Remove Special Characters",
-    "info": "Remove special characters"
+  "operators": {
+    "equal": "Equal (=)",
+    "not_equal": "Not Equal (!=)",
+    "greater_than": "Greater Than (>)",
+    "less_than": "Less Than (<)",
+    "greater_equal": "Greater or Equal (>=)",
+    "less_equal": "Less or Equal (<=)",
+    "contains": "Contains",
+    "not_contains": "Not Contains",
+    "starts_with": "Starts With",
+    "ends_with": "Ends With",
+    "in": "In List",
+    "not_in": "Not In List",
+    "regex": "Regex Match"
   },
-  "normalize_case": {
-    "display_name": "Normalize Case",
-    "info": "Convert text case"
+  "logic_operators": {
+    "and": "AND",
+    "or": "OR"
   },
-  "case_type": {
-    "display_name": "Case Type",
-    "info": "Type of case conversion"
+  "transformation_rules": {
+    "none": "None",
+    "to_number": "String to Number",
+    "trim": "Trim Whitespace",
+    "trim_all": "Remove All Spaces",
+    "substring_after": "Substring After",
+    "substring_before": "Substring Before",
+    "replace_string": "Replace String",
+    "timestamp_to_string": "Timestamp to String",
+    "upper": "Uppercase",
+    "lower": "Lowercase",
+    "amount_to_chinese": "Amount to Chinese",
+    "substring": "Substring",
+    "date_format": "Date Format",
+    "mask_phone": "Mask Phone",
+    "mask_idcard": "Mask ID Card",
+    "mask_email": "Mask Email",
+    "mask_name": "Mask Name",
+    "md5": "MD5 Hash",
+    "sha256": "SHA256 Hash",
+    "to_int": "To Integer",
+    "to_float": "To Float",
+    "to_str": "To String",
+    "to_bool": "To Boolean",
+    "expression": "Expression",
+    "javascript": "JavaScript",
+    "python": "Python"
   },
   "status": {
-    "success": "Cleaned {count} records"
+    "processing": "Processing data cleaning...",
+    "analyzing": "Analyzing upstream fields...",
+    "analysis_success": "Generated %{count} cleaning rules",
+    "filter_analysis_success": "Generated %{count} filter conditions",
+    "no_fields_found": "No fields found",
+    "success": "Cleaned %{count} records"
   },
   "errors": {
     "no_data": "No input data provided",
-    "cleaning_failed": "Data cleaning failed: {error}"
+    "no_rules": "No cleaning rules configured",
+    "cleaning_failed": "Data cleaning failed: %{error}",
+    "no_graph_data": "No graph data available",
+    "graph_not_available": "Cannot access graph data",
+    "analysis_failed": "Field analysis failed: %{error}"
   }
 }

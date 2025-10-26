@@ -22,17 +22,17 @@
     }
   },
   "errors": {
-    "column_not_found": "在 DataFrame 列中未找到工具列 '{column}'：{columns}"
+    "column_not_found": "在 DataFrame 列中未找到工具列 '%{column}'：%{columns}"
   },
-  "action_function_doc": "执行 {action_name} 操作并返回关联的内容。",
-  "tool_description": "执行 {action_name} 操作。返回：{content}{ellipsis}",
-  "action_metadata": "操作：{action_name}",
+  "action_function_doc": "执行 %{action_name} 操作并返回关联的内容。",
+  "tool_description": "执行 %{action_name} 操作。返回：%{content}%{ellipsis}",
+  "action_metadata": "操作：%{action_name}",
   "placeholder_message": "没有可用的工具。请连接具有适当列的 DataFrame。",
   "placeholder_description": "占位工具 - 等待 DataFrame 输入",
   "messages": {
     "waiting_input": "等待 DataFrame 输入...",
     "no_tools": "未创建工具。请检查您的 DataFrame 和列选择。",
-    "toolset_created": "已创建包含 {count} 个工具的工具集："
+    "toolset_created": "已创建包含 %{count} 个工具的工具集："
   },
   "status": {
     "waiting_input": "等待 DataFrame 输入",

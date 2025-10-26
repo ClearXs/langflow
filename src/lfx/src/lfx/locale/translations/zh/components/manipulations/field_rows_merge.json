@@ -1,0 +1,66 @@
+{
+  "display_name": "多行合并为一行",
+  "description": "将多行数据合并为一行",
+  "data_input": {
+    "display_name": "数据输入",
+    "info": "输入要合并的数据流"
+  },
+  "merge_strategy": {
+    "display_name": "合并策略",
+    "info": "选择合并后原有数据的处理方式",
+    "keep_first": "保留第一行",
+    "keep_last": "保留最后一行",
+    "merge_all": "合并所有行",
+    "sum": "求和",
+    "mean": "平均值",
+    "max": "最大值",
+    "min": "最小值",
+    "concat": "拼接"
+  },
+  "group_by": {
+    "display_name": "分组字段",
+    "info": "按这些字段分组合并(逗号分隔)"
+  },
+  "concat_separator": {
+    "display_name": "连接分隔符",
+    "info": "合并文本字段时使用的分隔符",
+    "comma": ", (逗号)",
+    "semicolon": "; (分号)",
+    "tab": "\\t (制表符)",
+    "pipe": "| (管道符)",
+    "space": "空格",
+    "newline": "\\n (换行符)",
+    "custom": "自定义"
+  },
+  "custom_separator": {
+    "display_name": "自定义分隔符",
+    "info": "当选择'自定义'时的自定义分隔符"
+  },
+  "numeric_fields": {
+    "display_name": "数值字段",
+    "info": "指定为数值字段(逗号分隔)"
+  },
+  "exclude_fields": {
+    "display_name": "排除字段",
+    "info": "不参与合并的字段(逗号分隔)"
+  },
+  "chunk_size": {
+    "display_name": "分块大小",
+    "info": "处理大数据量时的分块大小"
+  },
+  "outputs": {
+    "data": "合并后数据",
+    "fields_schema": "字段模式",
+    "preview": "字段预览",
+    "statistics": "统计信息"
+  },
+  "status": {
+    "merging": "正在合并数据...",
+    "success": "合并完成: %{original}行 -> %{result}行"
+  },
+  "errors": {
+    "no_input_data": "没有输入数据",
+    "field_not_found": "字段%{field}不存在",
+    "merge_failed": "合并失败: %{error}"
+  }
+}

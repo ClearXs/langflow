@@ -44,11 +44,11 @@
     "info": "传递给模型的额外关键字参数。"
   },
   "success": {
-    "openai_embeddings_created": "OpenAI嵌入模型'{model}'创建成功"
+    "openai_embeddings_created": "OpenAI嵌入模型'%{model}'创建成功"
   },
   "errors": {
     "openai_api_key_required": "使用OpenAI提供商时需要OpenAI API密钥",
-    "failed_to_create_embeddings": "为提供商'{provider}'创建嵌入失败：{error}",
-    "unknown_provider": "未知提供商：{provider}"
+    "failed_to_create_embeddings": "为提供商'%{provider}'创建嵌入失败：%{error}",
+    "unknown_provider": "未知提供商：%{provider}"
   }
 }

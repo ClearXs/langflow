@@ -1,0 +1,44 @@
+{
+  "display_name": "Columns to Rows Unpivot",
+  "description": "Convert multiple columns to rows (unpivot operation)",
+  "data_input": {
+    "display_name": "Data Input",
+    "info": "Input data stream to transform"
+  },
+  "key_field": {
+    "display_name": "Key Field",
+    "info": "Field to store original column names"
+  },
+  "value_field": {
+    "display_name": "Value Field",
+    "info": "Field to store column values"
+  },
+  "field_mapping": {
+    "display_name": "Field Mapping",
+    "info": "Configure source fields and their corresponding key values",
+    "source_field": "Source Field",
+    "key_value": "Key Value",
+    "load_fields_button": "Load Field List"
+  },
+  "chunk_size": {
+    "display_name": "Chunk Size",
+    "info": "Chunk size for processing large datasets"
+  },
+  "outputs": {
+    "data": "Unpivoted Data",
+    "fields_schema": "Fields Schema",
+    "preview": "Field Preview",
+    "statistics": "Statistics"
+  },
+  "status": {
+    "unpivoting": "Unpivoting data...",
+    "success": "Unpivot completed: %{original} rows -> %{result} rows",
+    "fields_loaded": "Loaded %{count} fields"
+  },
+  "errors": {
+    "no_input_data": "No input data",
+    "no_fields_to_unpivot": "No fields to unpivot",
+    "unpivot_failed": "Unpivot failed: %{error}",
+    "load_fields_failed": "Failed to load fields: %{error}"
+  }
+}

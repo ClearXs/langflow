@@ -27,22 +27,22 @@
       "display_name": "过滤后的数据"
     }
   },
-  "data_sample_large": "数据结构示例（前 {head} 和后 {tail} 个字符）：\n{head}\n...\n{tail}",
-  "llm_prompt": "你是一个 Python 专家。给定以下数据结构和示例：\n\n数据结构：\n{data_structure}\n\n数据示例：\n{data_sample}\n\n创建一个 Python lambda 函数来：{instruction}\n\nlambda 函数应该：\n1. 接受一个参数，表示上面显示的数据结构\n2. 返回过滤/转换后的结果\n3. 是以 'lambda' 开头的单行代码\n\n只回复 lambda 函数本身，不要解释或添加其他文本。",
+  "data_sample_large": "数据结构示例（前 %{head} 和后 %{tail} 个字符）：\n%{head}\n...\n%{tail}",
+  "llm_prompt": "你是一个 Python 专家。给定以下数据结构和示例：\n\n数据结构：\n%{data_structure}\n\n数据示例：\n%{data_sample}\n\n创建一个 Python lambda 函数来：%{instruction}\n\nlambda 函数应该：\n1. 接受一个参数，表示上面显示的数据结构\n2. 返回过滤/转换后的结果\n3. 是以 'lambda' 开头的单行代码\n\n只回复 lambda 函数本身，不要解释或添加其他文本。",
   "warnings": {
     "empty_data": "未提供要过滤的数据"
   },
   "errors": {
     "empty_instruction": "过滤指令不能为空",
-    "llm_invocation_failed": "调用语言模型失败：{error}",
-    "lambda_not_found": "无法从 LLM 响应中提取有效的 lambda 函数：{response}",
-    "invalid_lambda_format": "无效的 lambda 函数格式：{lambda_text}",
-    "lambda_evaluation_failed": "评估 lambda 函数 '{lambda_text}' 失败：{error}",
-    "lambda_execution_failed": "执行 lambda 函数失败：{error}",
-    "processing_failed": "数据处理失败：{error}",
-    "data_conversion_failed": "将处理后的数据转换为 Data 对象失败：{error}"
+    "llm_invocation_failed": "调用语言模型失败：%{error}",
+    "lambda_not_found": "无法从 LLM 响应中提取有效的 lambda 函数：%{response}",
+    "invalid_lambda_format": "无效的 lambda 函数格式：%{lambda_text}",
+    "lambda_evaluation_failed": "评估 lambda 函数 '%{lambda_text}' 失败：%{error}",
+    "lambda_execution_failed": "执行 lambda 函数失败：%{error}",
+    "processing_failed": "数据处理失败：%{error}",
+    "data_conversion_failed": "将处理后的数据转换为 Data 对象失败：%{error}"
   },
   "success": {
-    "data_processed": "成功处理了 {count} 个数据项"
+    "data_processed": "成功处理了 %{count} 个数据项"
   }
 }

@@ -11,7 +11,7 @@
   },
   "persist_directory": {
     "display_name": "持久化目录",
-    "info": "保存向量存储的自定义基本目录。集合将存储在 '{directory}/vector_stores/{collection_name}' 下。如果未指定，将使用系统的缓存文件夹。"
+    "info": "保存向量存储的自定义基本目录。集合将存储在 '%{directory}/vector_stores/%{collection_name}' 下。如果未指定，将使用系统的缓存文件夹。"
   },
   "existing_collections": {
     "display_name": "现有集合",

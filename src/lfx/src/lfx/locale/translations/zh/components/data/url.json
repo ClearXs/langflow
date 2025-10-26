@@ -58,19 +58,19 @@
     }
   },
   "success": {
-    "fetched_data": "成功从{total}个URL中的{successful}个获取了数据"
+    "fetched_data": "成功从%{total}个URL中的%{successful}个获取了数据"
   },
   "warnings": {
-    "invalid_url": "无效的URL格式：{url}",
-    "request_failed": "URL请求失败 {url}：{error}",
-    "invalid_headers": "请求头中的JSON格式无效：{error}",
-    "content_too_large": "响应内容（{size}字节）超过了允许的最大大小（{max_size}字节）"
+    "invalid_url": "无效的URL格式：%{url}",
+    "request_failed": "URL请求失败 %{url}：%{error}",
+    "invalid_headers": "请求头中的JSON格式无效：%{error}",
+    "content_too_large": "响应内容（%{size}字节）超过了允许的最大大小（%{max_size}字节）"
   },
   "errors": {
     "empty_urls": "URL不能为空。",
     "no_valid_urls": "未提供有效的URL。",
     "no_successful_requests": "对任何提供的URL都未成功发出请求。",
-    "fetch_error": "获取URL数据时出错：{error}",
-    "response_info_error": "获取响应信息时出错：{error}"
+    "fetch_error": "获取URL数据时出错：%{error}",
+    "response_info_error": "获取响应信息时出错：%{error}"
   }
 }

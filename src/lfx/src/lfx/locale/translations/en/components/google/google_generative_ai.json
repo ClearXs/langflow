@@ -35,26 +35,26 @@
   "errors": {
     "package_not_installed": "The 'langchain_google_genai' package is required to use the Google Generative AI model.",
     "langchain_not_installed": "langchain_google_genai is not installed.",
-    "config_update_failed": "Error getting model names: {error}"
+    "config_update_failed": "Error getting model names: %{error}"
   },
   "logs": {
-    "building_model": "Building Google Generative AI model: {model}",
-    "model_parameters": "Model parameters - Max tokens: {max_tokens}, Temperature: {temperature}, Top K: {top_k}, Top P: {top_p}, N: {n}",
+    "building_model": "Building Google Generative AI model: %{model}",
+    "model_parameters": "Model parameters - Max tokens: %{max_tokens}, Temperature: %{temperature}, Top K: %{top_k}, Top P: %{top_p}, N: %{n}",
     "model_built": "Google Generative AI model built successfully",
-    "fetching_models": "Fetching available models - Tool enabled: {tool_enabled}",
+    "fetching_models": "Fetching available models - Tool enabled: %{tool_enabled}",
     "configuring_api": "Configuring Google Generative AI API",
     "listing_models": "Listing available models from API",
-    "models_fetched": "Successfully fetched {count} model(s)",
-    "model_fetch_error": "Error getting model names: {error}",
+    "models_fetched": "Successfully fetched %{count} model(s)",
+    "model_fetch_error": "Error getting model names: %{error}",
     "filtering_tool_models": "Filtering models that support tool calling",
-    "tool_support_confirmed": "Model {model} supports tool calling",
-    "tool_support_not_found": "Model {model} does not support tool calling",
-    "tool_check_failed": "Failed to check tool support for model {model}: {error}",
-    "tool_models_filtered": "Filtered to {count} model(s) with tool support",
-    "updating_config": "Updating build configuration for field: {field}",
+    "tool_support_confirmed": "Model %{model} supports tool calling",
+    "tool_support_not_found": "Model %{model} does not support tool calling",
+    "tool_check_failed": "Failed to check tool support for model %{model}: %{error}",
+    "tool_models_filtered": "Filtered to %{count} model(s) with tool support",
+    "updating_config": "Updating build configuration for field: %{field}",
     "no_api_key": "No API key provided, using default model list",
     "fetching_available_models": "Fetching available models from API",
-    "model_fetch_fallback": "Error getting model names: {error}. Falling back to default list.",
-    "config_updated": "Configuration updated - {model_count} model(s) available, default: {default_model}"
+    "model_fetch_fallback": "Error getting model names: %{error}. Falling back to default list.",
+    "config_updated": "Configuration updated - %{model_count} model(s) available, default: %{default_model}"
   }
 }

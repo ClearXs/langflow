@@ -1,5 +1,6 @@
 import * as Form from "@radix-ui/react-form";
 import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import ForwardedIconComponent from "@/components/common/genericIconComponent";
 import { Input } from "@/components/ui/input";
 import { ICON_STROKE_WIDTH } from "@/constants/constants";
@@ -30,7 +31,7 @@ export default function InputComponent({
   selectedOptions = [],
   setSelectedOptions,
   options = [],
-  optionsPlaceholder = "Search options...",
+  optionsPlaceholder,
   optionsButton,
   optionButton,
   objectOptions,
@@ -45,10 +46,15 @@ export default function InputComponent({
   hasRefreshButton = false,
   allowCustomValue = true,
 }: InputComponentType): JSX.Element {
+  const { t } = useTranslation();
   const [pwdVisible, setPwdVisible] = useState(false);
   const [cursor, setCursor] = useState<number | null>(null);
   const refInput = useRef<HTMLInputElement>(null);
   const [showOptions, setShowOptions] = useState<boolean>(false);
+
+  // Use translated placeholder if not provided
+  const finalOptionsPlaceholder =
+    optionsPlaceholder || t("dropdown.searchOptions");
 
   useEffect(() => {
     if (disabled && value && onChange && value !== "") {
@@ -90,7 +96,11 @@ export default function InputComponent({
               password && !editNode ? "pr-10" : "",
               className!,
             )}
-            placeholder={password && editNode ? "Key" : placeholder}
+            placeholder={
+              password && editNode
+                ? t("validation.passwordKeyPlaceholder")
+                : placeholder
+            }
             onChange={(e) => {
               setCursor(e.target.selectionStart);
               if (onChangeFolderName) {
@@ -133,7 +143,7 @@ export default function InputComponent({
               required={required}
               placeholder={placeholder}
               blurOnEnter={blurOnEnter}
-              optionsPlaceholder={optionsPlaceholder}
+              optionsPlaceholder={finalOptionsPlaceholder}
               className={className}
             />
           ) : (
@@ -161,7 +171,7 @@ export default function InputComponent({
               placeholder={placeholder}
               blurOnEnter={blurOnEnter}
               options={options}
-              optionsPlaceholder={optionsPlaceholder}
+              optionsPlaceholder={finalOptionsPlaceholder}
               nodeStyle={nodeStyle}
               popoverWidth={popoverWidth}
               commandWidth={commandWidth}

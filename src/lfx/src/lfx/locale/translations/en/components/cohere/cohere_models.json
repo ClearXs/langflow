@@ -13,12 +13,12 @@
     "initializing": "Initializing Cohere language model..."
   },
   "success": {
-    "model_created": "Cohere language model created successfully with temperature: {temperature}"
+    "model_created": "Cohere language model created successfully with temperature: %{temperature}"
   },
   "errors": {
-    "creation_failed": "Failed to create Cohere language model. Please verify your API key and try again. Error: {error}"
+    "creation_failed": "Failed to create Cohere language model. Please verify your API key and try again. Error: %{error}"
   },
   "logs": {
-    "initializing": "Initializing Cohere language model with temperature: {temperature}"
+    "initializing": "Initializing Cohere language model with temperature: %{temperature}"
   }
 }

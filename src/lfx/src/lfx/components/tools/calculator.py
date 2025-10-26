@@ -1,6 +1,5 @@
 import ast
 import operator
-import os
 
 import i18n
 import pytest
@@ -15,7 +14,6 @@ from lfx.schema.data import Data
 
 
 class CalculatorToolComponent(LCToolComponent):
-    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
     display_name = i18n.t("components.tools.calculator.display_name")
     description = i18n.t("components.tools.calculator.description")
     icon = "calculator"

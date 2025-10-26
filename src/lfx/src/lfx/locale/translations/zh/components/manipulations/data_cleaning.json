@@ -1,39 +1,99 @@
 {
   "display_name": "数据清洗",
-  "description": "清洗和标准化数据",
-  "status": {
-    "success": "清洗了 {count} 条记录"
-  },
-  "errors": {
-    "cleaning_failed": "数据清洗失败: {error}",
-    "no_data": "未提供输入数据"
-  },
-  "case_type": {
-    "display_name": "大小写类型",
-    "info": "大小写转换类型"
-  },
+  "description": "通过规则对数据进行清洗",
   "data_input": {
     "display_name": "数据输入",
     "info": "要清洗的输入数据"
   },
-  "normalize_case": {
-    "display_name": "标准化大小写",
-    "info": "转换文本大小写"
+  "filter_conditions": {
+    "display_name": "过滤条件",
+    "info": "只清洗符合条件的记录(不配置则清洗所有记录)",
+    "field_name": "字段名称",
+    "field_name_desc": "作为比较条件的字段名称",
+    "operator": "运算符",
+    "operator_desc": "比较运算符",
+    "compare_value": "比较值",
+    "compare_value_desc": "作为比较条件的参数",
+    "logic_operator": "逻辑运算符",
+    "logic_operator_desc": "多条件组合逻辑(AND/OR)",
+    "analyze_button": "分析字段"
   },
-  "remove_duplicates": {
-    "display_name": "删除重复",
-    "info": "删除重复的行"
+  "cleaning_rules": {
+    "display_name": "清洗规则",
+    "info": "为字段绑定清洗规则",
+    "field_name": "字段名称",
+    "field_name_desc": "要应用清洗规则的字段名称",
+    "transformation_rule": "转换规则",
+    "transformation_rule_desc": "数据转换/脱敏/生成规则",
+    "custom_expression": "自定义表达式",
+    "custom_expression_desc": "expression/javascript/python规则的自定义表达式/脚本",
+    "analyze_button": "分析字段"
   },
-  "remove_null_rows": {
-    "display_name": "删除空值行",
-    "info": "删除包含空值的行"
+  "max_records": {
+    "display_name": "最大转换记录",
+    "info": "最多转换记录数(0表示不限定)"
   },
-  "remove_special_chars": {
-    "display_name": "删除特殊字符",
-    "info": "删除特殊字符"
+  "operators": {
+    "equal": "等于(=)",
+    "not_equal": "不等于(!=)",
+    "greater_than": "大于(>)",
+    "less_than": "小于(<)",
+    "greater_equal": "大于等于(>=)",
+    "less_equal": "小于等于(<=)",
+    "contains": "包含",
+    "not_contains": "不包含",
+    "starts_with": "开头是",
+    "ends_with": "结尾是",
+    "in": "在列表中",
+    "not_in": "不在列表中",
+    "regex": "正则匹配"
   },
-  "trim_whitespace": {
-    "display_name": "去除空白",
-    "info": "Remove leading/trailing spaces"
+  "logic_operators": {
+    "and": "并且",
+    "or": "或者"
+  },
+  "transformation_rules": {
+    "none": "无转换",
+    "to_number": "字符串转为数字",
+    "trim": "清除两端空格",
+    "trim_all": "清除空格符",
+    "substring_after": "截取符号之后字符",
+    "substring_before": "截取符号之前字符",
+    "replace_string": "替换字符串",
+    "timestamp_to_string": "时间整数转为字符串",
+    "upper": "字母大小写转换(大写)",
+    "lower": "字母大小写转换(小写)",
+    "amount_to_chinese": "金额转大写",
+    "substring": "字符串截取",
+    "date_format": "日期格式化",
+    "mask_phone": "手机号脱敏",
+    "mask_idcard": "身份证脱敏",
+    "mask_email": "邮箱脱敏",
+    "mask_name": "姓名脱敏",
+    "md5": "MD5加密",
+    "sha256": "SHA256加密",
+    "to_int": "转整数",
+    "to_float": "转浮点数",
+    "to_str": "转字符串",
+    "to_bool": "转布尔值",
+    "expression": "表达式",
+    "javascript": "JavaScript脚本",
+    "python": "Python脚本"
+  },
+  "status": {
+    "processing": "正在处理数据清洗...",
+    "analyzing": "正在分析上游字段...",
+    "analysis_success": "生成了 %{count} 个清洗规则",
+    "filter_analysis_success": "生成了 %{count} 个过滤条件",
+    "no_fields_found": "未找到字段",
+    "success": "清洗了 %{count} 条记录"
+  },
+  "errors": {
+    "no_data": "未提供输入数据",
+    "no_rules": "未配置清洗规则",
+    "cleaning_failed": "数据清洗失败: %{error}",
+    "no_graph_data": "无图数据",
+    "graph_not_available": "无法访问图数据",
+    "analysis_failed": "字段分析失败: %{error}"
   }
 }

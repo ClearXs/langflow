@@ -10,15 +10,15 @@
     "info": "The AI/ML API Key to use for generating embeddings."
   },
   "status": {
-    "initializing_embeddings": "Initializing embeddings model '{model}'..."
+    "initializing_embeddings": "Initializing embeddings model '%{model}'..."
   },
   "success": {
-    "embeddings_initialized": "Embeddings model '{model}' initialized successfully"
+    "embeddings_initialized": "Embeddings model '%{model}' initialized successfully"
   },
   "errors": {
     "api_key_required": "AI/ML API key is required",
     "model_name_required": "Model name is required",
-    "embeddings_initialization_failed": "Failed to initialize embeddings model '{model}': {error}",
-    "embeddings_build_failed": "Failed to build embeddings: {error}"
+    "embeddings_initialization_failed": "Failed to initialize embeddings model '%{model}': %{error}",
+    "embeddings_build_failed": "Failed to build embeddings: %{error}"
   }
 }

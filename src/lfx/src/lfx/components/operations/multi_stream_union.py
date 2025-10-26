@@ -80,7 +80,9 @@ class ETLMultiStreamUnionComponent(Component):
                 "action_buttons": [
                     {
                         "name": "load_fields",
-                        "label": i18n.t("components.operations.multi_stream_union.union_field_config.load_fields_button"),
+                        "label": i18n.t(
+                            "components.operations.multi_stream_union.union_field_config.load_fields_button"
+                        ),
                         "icon": "Download",
                         "position": "top",
                     }
@@ -119,9 +121,21 @@ class ETLMultiStreamUnionComponent(Component):
     ]
 
     outputs = [
-        Output(name="data", display_name="Merged Data", method="union_streams"),
-        Output(name="union_stats", display_name="Union Statistics", method="get_union_stats"),
-        Output(name="field_preview", display_name="Field Preview", method="preview_fields"),
+        Output(
+            name="data",
+            display_name=i18n.t("components.operations.multi_stream_union.outputs.data"),
+            method="union_streams",
+        ),
+        Output(
+            name="union_stats",
+            display_name=i18n.t("components.operations.multi_stream_union.outputs.union_stats"),
+            method="get_union_stats",
+        ),
+        Output(
+            name="field_preview",
+            display_name=i18n.t("components.operations.multi_stream_union.outputs.field_preview"),
+            method="preview_fields",
+        ),
     ]
 
     async def update_build_config(
@@ -220,7 +234,7 @@ class ETLMultiStreamUnionComponent(Component):
         first_record = data_list[0]
         if hasattr(first_record, "data") and isinstance(first_record.data, dict):
             return list(first_record.data.keys())
-        elif isinstance(first_record, dict):
+        if isinstance(first_record, dict):
             return list(first_record.keys())
 
         return []
@@ -255,7 +269,9 @@ class ETLMultiStreamUnionComponent(Component):
                     df[self.source_column] = stream_names[idx]
 
                 dataframes.append(df)
-                logger.debug(f"[MultiStreamUnion] Stream {stream_names[idx]}: {len(df)} records, {len(df.columns)} fields")
+                logger.debug(
+                    f"[MultiStreamUnion] Stream {stream_names[idx]}: {len(df)} records, {len(df.columns)} fields"
+                )
 
             # Merge all DataFrames (Union ALL)
             if self.align_schemas:

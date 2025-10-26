@@ -35,21 +35,21 @@
     "creating_history": "正在创建消息历史..."
   },
   "success": {
-    "history_created": "成功为会话'{session_id}'在表'{table_name}'中创建消息历史"
+    "history_created": "成功为会话'%{session_id}'在表'%{table_name}'中创建消息历史"
   },
   "errors": {
     "cassio_not_installed": "无法导入cassio集成包。请使用`pip install cassio`安装。",
-    "initialization_failed": "初始化Cassandra聊天记忆失败：{error}"
+    "initialization_failed": "初始化Cassandra聊天记忆失败：%{error}"
   },
   "logs": {
     "cassio_imported": "cassio包导入成功",
-    "detected_astra": "检测到Astra DB，数据库ID：{database_id}",
-    "detected_cassandra_multiple": "检测到常规Cassandra，有{count}个联系点",
-    "detected_cassandra_single": "检测到常规Cassandra，联系点：{contact_point}",
-    "connecting_astra": "正在连接到Astra DB，数据库ID：{database_id}",
+    "detected_astra": "检测到Astra DB，数据库ID：%{database_id}",
+    "detected_cassandra_multiple": "检测到常规Cassandra，有%{count}个联系点",
+    "detected_cassandra_single": "检测到常规Cassandra，联系点：%{contact_point}",
+    "connecting_astra": "正在连接到Astra DB，数据库ID：%{database_id}",
     "astra_connected": "成功连接到Astra DB",
-    "connecting_cassandra": "正在连接到Cassandra - 联系点：{contact_points}，用户名：{username}",
+    "connecting_cassandra": "正在连接到Cassandra - 联系点：%{contact_points}，用户名：%{username}",
     "cassandra_connected": "成功连接到Cassandra",
-    "creating_history": "正在创建消息历史 - 会话ID：{session_id}，表：{table_name}，键空间：{keyspace}"
+    "creating_history": "正在创建消息历史 - 会话ID：%{session_id}，表：%{table_name}，键空间：%{keyspace}"
   }
 }

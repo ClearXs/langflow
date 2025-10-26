@@ -39,6 +39,6 @@
     }
   },
   "errors": {
-    "invalid_file_types": "Invalid file types specified: {invalid_types}. Valid types are: {valid_types}"
+    "invalid_file_types": "Invalid file types specified: %{invalid_types}. Valid types are: %{valid_types}"
   }
 }

@@ -38,12 +38,12 @@
     "initializing": "Initializing Cloudflare Workers AI embeddings..."
   },
   "success": {
-    "embeddings_created": "Cloudflare Workers AI embeddings created successfully with model: {model}"
+    "embeddings_created": "Cloudflare Workers AI embeddings created successfully with model: %{model}"
   },
   "errors": {
-    "connection_failed": "Could not connect to CloudflareWorkersAI Embeddings API: {error}"
+    "connection_failed": "Could not connect to CloudflareWorkersAI Embeddings API: %{error}"
   },
   "logs": {
-    "initializing": "Initializing Cloudflare Workers AI embeddings - Model: {model}, Account ID: {account_id}"
+    "initializing": "Initializing Cloudflare Workers AI embeddings - Model: %{model}, Account ID: %{account_id}"
   }
 }

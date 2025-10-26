@@ -86,8 +86,16 @@ class ETLCDCStreamInputComponent(Component):
     ]
 
     outputs = [
-        Output(name="data", display_name="Data", method="capture_changes"),
-        Output(name="change_summary", display_name="Change Summary", method="get_change_summary"),
+        Output(
+            name="data",
+            display_name=i18n.t("components.input_output.cdc_input.outputs.data.display_name"),
+            method="capture_changes",
+        ),
+        Output(
+            name="change_summary",
+            display_name=i18n.t("components.input_output.cdc_input.outputs.change_summary.display_name"),
+            method="get_change_summary",
+        ),
     ]
 
     def capture_changes(self) -> list[Data]:

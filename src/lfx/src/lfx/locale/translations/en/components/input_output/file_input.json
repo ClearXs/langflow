@@ -17,20 +17,21 @@
     }
   },
   "success": {
-    "file_selected": "Selected file: {name}",
-    "file_selected_with_metadata": "Selected file: {name} ({size} MB)"
+    "file_selected": "Selected file: %{name}",
+    "file_selected_with_metadata": "Selected file: %{name} (%{size} MB)"
   },
   "status": {
-    "files_processed": "Processed {count} file(s)"
+    "files_processed": "Processed %{count} file(s)"
   },
   "errors": {
     "no_files_selected": "No files selected. Please select at least one file.",
     "no_valid_files": "No valid files selected. Please check the allowed extensions.",
-    "file_not_found": "File not found: {path}",
-    "invalid_extension": "File extension not allowed: {extension}"
+    "file_not_found": "File not found: %{path}",
+    "invalid_extension": "File extension not allowed: %{extension}",
+    "download_failed": "Failed to download file with ID %{file_id}: %{error}"
   },
   "message": {
     "no_files": "No files selected",
-    "files_selected": "Selected {count} file(s):"
+    "files_selected": "Selected %{count} file(s):"
   }
 }

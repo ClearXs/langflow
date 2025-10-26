@@ -47,13 +47,13 @@
     }
   },
   "success": {
-    "found_articles": "找到{count}篇新闻文章"
+    "found_articles": "找到%{count}篇新闻文章"
   },
   "errors": {
     "empty_query": "搜索查询不能为空。",
     "missing_api_key": "新闻搜索需要API密钥。",
-    "invalid_source": "指定了无效的新闻源：{source}",
+    "invalid_source": "指定了无效的新闻源：%{source}",
     "no_results": "未找到符合查询条件的新闻文章。",
-    "search_error": "搜索新闻时出错：{error}"
+    "search_error": "搜索新闻时出错：%{error}"
   }
 }

@@ -84,11 +84,11 @@ export default function FlowBuildingComponent() {
     return (
       <TextShimmer duration={1}>
         {statusBuilding.length > 0
-          ? `Running ${statusBuilding[0]?.id}`
-          : "Running flow"}
+          ? `${t("flow.running")} ${statusBuilding[0]?.id}`
+          : t("flow.runningFlow")}
       </TextShimmer>
     );
-  }, [isBuilding, statusBuilding]);
+  }, [isBuilding, statusBuilding, t]);
 
   useEffect(() => {
     if (buildInfo?.success) {

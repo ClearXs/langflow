@@ -1,34 +1,87 @@
 {
   "display_name": "分组聚合",
-  "description": "对数据进行分组和聚合",
-  "status": {
-    "grouping": "正在分组...",
-    "success": "创建了 {groups} 个分组"
-  },
-  "errors": {
-    "group_failed": "分组失败: {error}",
-    "no_aggregations": "聚合是必需的",
-    "no_data": "未提供输入数据",
-    "no_group_columns": "分组列是必需的"
-  },
-  "aggregations": {
-    "display_name": "聚合",
-    "info": "要应用的聚合函数"
-  },
+  "description": "按指定列分组并应用聚合函数",
   "data_input": {
     "display_name": "数据输入",
     "info": "要分组的输入数据"
   },
+  "group_by_columns": {
+    "display_name": "分组字段",
+    "info": "表格中的每一行代表一个分组字段（添加/删除行来管理分组字段）",
+    "field_name": "字段名",
+    "field_name_desc": "用于分组的列名",
+    "load_fields_button": "加载字段列表"
+  },
+  "aggregations": {
+    "display_name": "聚合配置",
+    "info": "为每个字段定义聚合函数",
+    "field_name": "字段名",
+    "field_name_desc": "要聚合的列名",
+    "agg_function": "聚合函数",
+    "agg_function_desc": "要应用的聚合函数",
+    "alias": "别名",
+    "alias_desc": "聚合结果的输出列名（可选）",
+    "analyze_button": "分析字段",
+    "load_fields_button": "加载字段列表",
+    "functions": {
+      "sum": "求和",
+      "count": "计数",
+      "count_distinct": "去重计数",
+      "avg": "平均值",
+      "min": "最小值",
+      "max": "最大值",
+      "median": "中位数",
+      "std": "标准差",
+      "first": "首个值",
+      "last": "末个值"
+    }
+  },
   "drop_na": {
     "display_name": "删除空值",
-    "info": "排除包含空值的行"
-  },
-  "group_by_columns": {
-    "display_name": "分组列",
-    "info": "用于分组的列"
+    "info": "排除分组列中包含空值的行"
   },
   "sort_results": {
     "display_name": "排序结果",
-    "info": "按分组列排序"
+    "info": "按分组列排序结果"
+  },
+  "outputs": {
+    "data": {
+      "display_name": "分组数据"
+    },
+    "preview_data": {
+      "display_name": "预览数据（前100行）"
+    },
+    "group_stats": {
+      "display_name": "分组统计"
+    },
+    "output_fields": {
+      "display_name": "输出字段",
+      "info": "查看分组后可用的输出字段"
+    }
+  },
+  "status": {
+    "grouping": "正在分组...",
+    "success": "创建了 %{groups} 个分组",
+    "analyzing_fields": "正在分析上游字段...",
+    "analysis_success": "找到 %{count} 个字段",
+    "fields_loaded_fallback": "从配置加载字段：找到 %{count} 个字段",
+    "preview_output_fields": "正在预览输出字段...",
+    "preview_success": "生成了 %{count} 个输出字段预览",
+    "no_fields_found": "未在上游数据中找到字段",
+    "output_fields_loaded": "为下游组件加载了 %{count} 个输出字段"
+  },
+  "errors": {
+    "no_data": "未提供输入数据",
+    "no_group_columns": "分组列是必需的",
+    "no_group_columns_in_table": "未在表格中添加分组字段。请至少添加一个字段。",
+    "no_aggregations": "聚合配置是必需的",
+    "no_valid_aggregations": "未配置有效的聚合函数",
+    "missing_columns": "数据中未找到以下列：%{columns}",
+    "group_failed": "分组失败：%{error}",
+    "no_graph_data": "没有可用的图数据进行字段分析",
+    "analysis_failed": "字段分析失败：%{error}",
+    "graph_not_available": "无法分析字段 - 图上下文不可用",
+    "no_fields_in_config": "在上游节点配置中未找到字段",
+    "preview_failed": "预览输出字段失败：%{error}"
   }
 }

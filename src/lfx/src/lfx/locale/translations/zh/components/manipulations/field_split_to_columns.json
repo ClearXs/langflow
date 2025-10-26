@@ -1,0 +1,68 @@
+{
+  "display_name": "单列拆分多列",
+  "description": "将单列数据按分隔符拆分为多个新列",
+  "data_input": {
+    "display_name": "数据输入",
+    "info": "输入要进行拆分的数据流"
+  },
+  "source_field": {
+    "display_name": "源字段",
+    "info": "要拆分的字段"
+  },
+  "delimiter": {
+    "display_name": "分隔符",
+    "info": "拆分分隔符",
+    "comma": ", (逗号)",
+    "semicolon": "; (分号)",
+    "tab": "\\t (制表符)",
+    "pipe": "| (管道符)",
+    "space": "空格",
+    "newline": "\\n (换行符)",
+    "custom": "自定义"
+  },
+  "custom_delimiter": {
+    "display_name": "自定义分隔符",
+    "info": "当选择'自定义'时的自定义分隔符"
+  },
+  "is_regex": {
+    "display_name": "正则表达式",
+    "info": "分隔符是否为正则表达式"
+  },
+  "new_fields_config": {
+    "display_name": "新字段配置",
+    "info": "配置拆分后的新字段名称和顺序",
+    "field_name": "新字段名",
+    "field_order": "字段顺序"
+  },
+  "max_splits": {
+    "display_name": "最大拆分数",
+    "info": "最大拆分数(-1表示不限制)"
+  },
+  "drop_source_field": {
+    "display_name": "删除源字段",
+    "info": "拆分后删除源字段"
+  },
+  "default_value": {
+    "display_name": "默认值",
+    "info": "拆分后空值的默认值"
+  },
+  "chunk_size": {
+    "display_name": "分块大小",
+    "info": "处理大数据量时的分块大小"
+  },
+  "outputs": {
+    "data": "拆分后数据",
+    "fields_schema": "字段模式",
+    "preview": "字段预览",
+    "statistics": "统计信息"
+  },
+  "status": {
+    "splitting": "正在拆分数据...",
+    "success": "拆分完成: %{count}条记录, %{fields}个字段"
+  },
+  "errors": {
+    "no_input_data": "没有输入数据",
+    "field_not_found": "字段%{field}不存在",
+    "split_failed": "拆分失败: %{error}"
+  }
+}

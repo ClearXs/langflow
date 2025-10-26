@@ -1,36 +1,64 @@
 {
-  "display_name": "字段拆分",
-  "description": "将字段拆分为多列",
-  "status": {
-    "success": "拆分了 {count} 条记录"
-  },
-  "errors": {
-    "split_failed": "字段拆分失败: {error}",
-    "field_not_found": "字段未找到: {field}",
-    "missing_config": "源字段是必需的"
-  },
+  "display_name": "单列拆分多行",
+  "description": "将单列数据按分隔符拆分为多行数据",
   "data_input": {
     "display_name": "数据输入",
-    "info": "要转换的输入数据"
+    "info": "输入要进行拆分的数据流"
   },
-  "delimiter": {
+  "split_field": {
+    "display_name": "要拆分的字段",
+    "info": "选择要进行拆分的字段ID"
+  },
+  "separator": {
     "display_name": "分隔符",
-    "info": "拆分分隔符"
+    "info": "字段值中的分隔符",
+    "comma": ", (逗号)",
+    "semicolon": "; (分号)",
+    "tab": "\\t (制表符)",
+    "pipe": "| (管道符)",
+    "space": "空格",
+    "newline": "\\n (换行符)",
+    "custom": "自定义"
   },
-  "drop_source_field": {
-    "display_name": "删除源字段",
-    "info": "拆分后删除源字段"
+  "custom_separator": {
+    "display_name": "自定义分隔符",
+    "info": "当选择'自定义'时的自定义分隔符"
   },
-  "max_splits": {
-    "display_name": "最大拆分数",
-    "info": "最大拆分数(-1表示不限制)"
+  "separator_type": {
+    "display_name": "分隔符类型",
+    "info": "选择分隔表达式类型(固定字符串、正则表达式、自定义规则)"
   },
-  "new_field_names": {
-    "display_name": "新字段名",
-    "info": "新字段的名称(逗号分隔)"
+  "custom_rule_id": {
+    "display_name": "自定义规则ID",
+    "info": "自定义规则编号，返回逗号分隔的字符串"
   },
-  "source_field": {
-    "display_name": "源字段",
-    "info": "要拆分的字段"
+  "reset_index": {
+    "display_name": "重置序号",
+    "info": "是否对拆分的每一行从1开始重置序号"
+  },
+  "keep_empty": {
+    "display_name": "保留空值",
+    "info": "是否保留拆分后的空值"
+  },
+  "chunk_size": {
+    "display_name": "分块大小",
+    "info": "处理大数据量时的分块大小"
+  },
+  "outputs": {
+    "data": "拆分后数据",
+    "fields_schema": "字段模式",
+    "preview": "字段预览",
+    "statistics": "统计信息"
+  },
+  "status": {
+    "splitting": "正在拆分数据...",
+    "success": "拆分完成: %{original}行 -> %{result}行",
+    "fields_loaded": "已加载%{count}个字段"
+  },
+  "errors": {
+    "no_input_data": "没有输入数据",
+    "field_not_found": "字段%{field}不存在",
+    "split_failed": "拆分失败: %{error}",
+    "load_fields_failed": "加载字段失败: %{error}"
   }
 }

@@ -1,9 +1,11 @@
 from typing import Any
 
 import i18n
+import re
 
+from lfx.base.transformation.script import ScriptTransformation
 from lfx.custom.custom_component.component import Component
-from lfx.io import DataInput, Output, TableInput
+from lfx.io import BoolInput, DataInput, DropdownInput, MultilineInput, Output, TableInput
 from lfx.log.logger import logger
 from lfx.schema import Data
 
@@ -21,6 +23,7 @@ OPERATOR_OPTIONS = [
     "ends_with",
     "in",
     "not_in",
+    "regex",  # New: Regular expression matching
 ]
 
 
@@ -68,6 +71,7 @@ class ETLFieldValueMappingComponent(Component):
                         i18n.t("components.manipulations.field_value_mapping.operators.ends_with"),
                         i18n.t("components.manipulations.field_value_mapping.operators.in"),
                         i18n.t("components.manipulations.field_value_mapping.operators.not_in"),
+                        i18n.t("components.manipulations.field_value_mapping.operators.regex"),
                     ],
                     "options_metadata": [
                         {"value": "=", "label": i18n.t("components.manipulations.field_value_mapping.operators.equal")},
@@ -112,6 +116,10 @@ class ETLFieldValueMappingComponent(Component):
                             "value": "not_in",
                             "label": i18n.t("components.manipulations.field_value_mapping.operators.not_in"),
                         },
+                        {
+                            "value": "regex",
+                            "label": i18n.t("components.manipulations.field_value_mapping.operators.regex"),
+                        },
                     ],
                     "required": True,
                     "description": i18n.t("components.manipulations.field_value_mapping.operator_desc"),
@@ -151,6 +159,28 @@ class ETLFieldValueMappingComponent(Component):
                 ],
             },
         ),
+        BoolInput(
+            name="enable_script",
+            display_name=i18n.t("components.manipulations.field_value_mapping.enable_script.display_name"),
+            info=i18n.t("components.manipulations.field_value_mapping.enable_script.info"),
+            value=False,
+            advanced=True,
+        ),
+        DropdownInput(
+            name="script_type",
+            display_name=i18n.t("components.manipulations.field_value_mapping.script_type.display_name"),
+            info=i18n.t("components.manipulations.field_value_mapping.script_type.info"),
+            options=["javascript", "python"],
+            value="javascript",
+            advanced=True,
+        ),
+        MultilineInput(
+            name="script_content",
+            display_name=i18n.t("components.manipulations.field_value_mapping.script_content.display_name"),
+            info=i18n.t("components.manipulations.field_value_mapping.script_content.info"),
+            placeholder=i18n.t("components.manipulations.field_value_mapping.script_content.placeholder"),
+            advanced=True,
+        ),
     ]
 
     outputs = [
@@ -160,6 +190,11 @@ class ETLFieldValueMappingComponent(Component):
             method="map_field_values",
         )
     ]
+
+    def __init__(self, **kwargs):
+        """Initialize component with script transformation support."""
+        super().__init__(**kwargs)
+        self.script_engine = ScriptTransformation()
 
     async def update_build_config(
         self,
@@ -201,6 +236,7 @@ class ETLFieldValueMappingComponent(Component):
                     return build_config
 
                 # Use the generic get_upstream_data method to fetch actual data
+                # This is the key improvement: fetching actual runtime data from upstream nodes
                 upstream_data = await self.get_upstream_data(
                     input_name="data_input", graph_data=graph_data, sample_size=10, vertex_id=node_id
                 )
@@ -210,8 +246,8 @@ class ETLFieldValueMappingComponent(Component):
                     self.status = i18n.t("components.manipulations.field_value_mapping.status.no_fields_found")
                     return build_config
 
-                # Extract field names from upstream data
-                mapping_rules = self._extract_mapping_rules(upstream_data)
+                # Extract field names and sample values from upstream data
+                mapping_rules = self._extract_mapping_rules_with_samples(upstream_data)
 
                 if mapping_rules:
                     # Update build_config with mapping rules
@@ -236,24 +272,37 @@ class ETLFieldValueMappingComponent(Component):
                 logger.exception("[FieldValueMapping] Field analysis failed with unexpected error")
                 self.status = i18n.t("components.manipulations.field_value_mapping.errors.graph_not_available")
 
+        # Show/hide script fields based on enable_script
+        if field_name == "enable_script":
+            if field_value:
+                build_config["script_type"]["advanced"] = False
+                build_config["script_content"]["advanced"] = False
+            else:
+                build_config["script_type"]["advanced"] = True
+                build_config["script_content"]["advanced"] = True
+
         logger.debug(f"[FieldValueMapping] Returning build_config with keys: {list(build_config.keys())}")
         return build_config
 
-    def _extract_mapping_rules(self, data_list: list[Data]) -> list[dict]:
-        """Extract mapping rules from upstream data.
+    def _extract_mapping_rules_with_samples(self, data_list: list[Data]) -> list[dict]:
+        """Extract mapping rules from upstream data with sample values.
 
         Args:
             data_list: List of Data objects from upstream node
 
         Returns:
-            List of mapping rule dictionaries with input_field, operator, compare_value, replacement_value, output_field
+            List of mapping rule dictionaries with sample values for reference
         """
         try:
             if not data_list:
                 return []
 
-            # Get first record to extract field names
-            first_record = data_list[0]
+            # Get first few records to extract field names and sample values
+            sample_size = min(3, len(data_list))
+            sample_records = data_list[:sample_size]
+
+            # Extract field names from first record
+            first_record = sample_records[0]
             if hasattr(first_record, "data"):
                 data_dict = first_record.data
             elif isinstance(first_record, dict):
@@ -266,19 +315,33 @@ class ETLFieldValueMappingComponent(Component):
                 logger.warning(f"[FieldValueMapping] Expected dict, got {type(data_dict)}")
                 return []
 
-            # Generate mapping rules from field names
-            mapping_rules = [
-                {
-                    "input_field": field_name,
-                    "operator": "=",  # Default operator
-                    "compare_value": "",
-                    "replacement_value": "",
-                    "output_field": field_name,  # Default: same as input
-                }
-                for field_name in data_dict
-            ]
+            # Generate mapping rules with sample values
+            mapping_rules = []
+            for field_name in data_dict:
+                # Collect sample values from multiple records
+                sample_values = []
+                for record in sample_records:
+                    if hasattr(record, "data"):
+                        value = record.data.get(field_name)
+                    else:
+                        value = record.get(field_name) if isinstance(record, dict) else None
+                    if value is not None and value not in sample_values:
+                        sample_values.append(str(value))
 
-            logger.debug(f"[FieldValueMapping] Extracted {len(mapping_rules)} mapping rules")
+                # Create a comment with sample values for user reference
+                sample_comment = f"Samples: {', '.join(sample_values[:3])}" if sample_values else ""
+
+                mapping_rules.append(
+                    {
+                        "input_field": field_name,
+                        "operator": "=",  # Default operator
+                        "compare_value": sample_values[0] if sample_values else "",  # Pre-fill with first sample
+                        "replacement_value": "",
+                        "output_field": field_name,  # Default: same as input
+                    }
+                )
+
+            logger.debug(f"[FieldValueMapping] Extracted {len(mapping_rules)} mapping rules with samples")
             return mapping_rules
 
         except Exception:  # noqa: BLE001
@@ -310,7 +373,7 @@ class ETLFieldValueMappingComponent(Component):
 
         Args:
             field_value: The field value from data
-            operator: Comparison operator (=, !=, >, <, etc.)
+            operator: Comparison operator (=, !=, >, <, regex, etc.)
             compare_value: Value to compare against
 
         Returns:
@@ -368,6 +431,15 @@ class ETLFieldValueMappingComponent(Component):
                 compare_list = [v.strip() for v in compare_str.split(",")]
                 return field_str not in compare_list
 
+            # Regular expression operator
+            if operator_value == "regex":
+                try:
+                    pattern = re.compile(compare_str)
+                    return bool(pattern.match(field_str))
+                except re.error as e:
+                    logger.error(f"Invalid regex pattern '{compare_str}': {e}")
+                    return False
+
             logger.warning(f"Unknown operator: {operator_value}")
             return False
 
@@ -375,8 +447,61 @@ class ETLFieldValueMappingComponent(Component):
             logger.error(f"Error evaluating condition: {e}")
             return False
 
+    def _apply_script_mapping(self, row_dict: dict) -> dict:
+        """Apply script-based mapping to a row of data.
+
+        Args:
+            row_dict: The row data dictionary
+
+        Returns:
+            Modified row dictionary after script execution
+        """
+        if not self.enable_script or not self.script_content:
+            return row_dict
+
+        try:
+            # Make a copy to avoid modifying original
+            result_dict = row_dict.copy()
+
+            if self.script_type == "javascript":
+                # Execute JavaScript with full row context
+                # The script can access 'row' object and modify it
+                # Example script:
+                # if (row.gender == '1') row.gender_text = 'Male';
+                # if (row.age > 65) row.category = 'Senior';
+                script_result = self.script_engine.execute_javascript(
+                    value=result_dict,
+                    script=self.script_content,
+                    row_data=result_dict
+                )
+                if isinstance(script_result, dict):
+                    result_dict = script_result
+
+            elif self.script_type == "python":
+                # Execute Python script with full row context
+                # The script can access 'row' dict and modify 'result'
+                # Example script:
+                # if row.get('gender') == '1':
+                #     result['gender_text'] = 'Male'
+                # if row.get('age', 0) > 65:
+                #     result['category'] = 'Senior'
+                script_result = self.script_engine.execute_python(
+                    value=result_dict,
+                    script=self.script_content,
+                    row_data=result_dict
+                )
+                if isinstance(script_result, dict):
+                    result_dict = script_result
+
+            return result_dict
+
+        except Exception as e:
+            logger.error(f"Script execution error: {e}")
+            # Return original data on error
+            return row_dict
+
     def map_field_values(self) -> list[Data]:
-        """Apply field value mapping rules to multiple fields.
+        """Apply field value mapping rules to multiple fields with optional script support.
 
         Returns:
             list[Data]: Transformed data with mapped values
@@ -385,14 +510,15 @@ class ETLFieldValueMappingComponent(Component):
             ValueError: If configuration is invalid or mapping fails
         """
         try:
-            # Validate mapping rules exist
-            if not self.mapping_rules:
+            # Allow script-only mode (no mapping rules required if script is enabled)
+            if not self.mapping_rules and not self.enable_script:
                 raise ValueError(i18n.t("components.manipulations.field_value_mapping.errors.missing_config"))
 
-            # Validate each rule has required fields
-            for rule in self.mapping_rules:
-                if not rule.get("input_field") or not rule.get("output_field"):
-                    raise ValueError(i18n.t("components.manipulations.field_value_mapping.errors.missing_fields"))
+            # Validate each rule has required fields (if rules exist)
+            if self.mapping_rules:
+                for rule in self.mapping_rules:
+                    if not rule.get("input_field") or not rule.get("output_field"):
+                        raise ValueError(i18n.t("components.manipulations.field_value_mapping.errors.missing_fields"))
 
             # Allow empty data input - just return empty list
             if not self.data_input:
@@ -413,42 +539,54 @@ class ETLFieldValueMappingComponent(Component):
                 output_fields_set = set()
 
                 # Apply all mapping rules
-                for rule in self.mapping_rules:
-                    input_field = rule.get("input_field")
-                    operator = rule.get("operator", "=")
-                    compare_value = rule.get("compare_value", "")
-                    replacement_value = rule.get("replacement_value", "")
-                    output_field = rule.get("output_field")
+                if self.mapping_rules:
+                    for rule in self.mapping_rules:
+                        input_field = rule.get("input_field")
+                        operator = rule.get("operator", "=")
+                        compare_value = rule.get("compare_value", "")
+                        replacement_value = rule.get("replacement_value", "")
+                        output_field = rule.get("output_field")
 
-                    # Check if input field exists
-                    if input_field not in row_dict:
-                        logger.debug(
-                            i18n.t(
-                                "components.manipulations.field_value_mapping.warnings.field_not_found",
-                                field=input_field,
+                        # Check if input field exists
+                        if input_field not in row_dict:
+                            logger.debug(
+                                i18n.t(
+                                    "components.manipulations.field_value_mapping.warnings.field_not_found",
+                                    field=input_field,
+                                )
                             )
-                        )
-                        continue
+                            continue
 
-                    field_value = row_dict[input_field]
+                        field_value = row_dict[input_field]
 
-                    # Skip if output field already mapped (first match wins)
-                    if output_field in output_fields_set:
-                        continue
+                        # Skip if output field already mapped (first match wins)
+                        if output_field in output_fields_set:
+                            continue
 
-                    # Evaluate condition
-                    if self._evaluate_condition(field_value, operator, compare_value):
-                        # Condition satisfied, write replacement value to output field
-                        result_dict[output_field] = replacement_value
-                        output_fields_set.add(output_field)
-                        logger.debug(f"Mapped {input_field}={field_value} -> {output_field}={replacement_value}")
+                        # Evaluate condition
+                        if self._evaluate_condition(field_value, operator, compare_value):
+                            # Condition satisfied, write replacement value to output field
+                            result_dict[output_field] = replacement_value
+                            output_fields_set.add(output_field)
+                            logger.debug(f"Mapped {input_field}={field_value} -> {output_field}={replacement_value}")
+
+                # Apply script-based mapping if enabled
+                if self.enable_script:
+                    result_dict = self._apply_script_mapping(result_dict)
 
                 result_data.append(Data(data=result_dict))
+
+            # Build success message
+            success_parts = []
+            if self.mapping_rules:
+                success_parts.append(f"{len(self.mapping_rules)} rules")
+            if self.enable_script:
+                success_parts.append(f"{self.script_type} script")
 
             self.status = i18n.t(
                 "components.manipulations.field_value_mapping.status.success",
                 count=len(result_data),
-                rules=len(self.mapping_rules),
+                rules=", ".join(success_parts) if success_parts else "0 rules",
             )
 
             return result_data

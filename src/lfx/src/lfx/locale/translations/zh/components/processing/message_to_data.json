@@ -16,6 +16,6 @@
   "errors": {
     "empty_message": "未提供要转换的消息",
     "invalid_message_type": "Message转Data转换错误：输入必须是Message对象",
-    "conversion_failed": "Message转Data转换失败：{error}"
+    "conversion_failed": "Message转Data转换失败：%{error}"
   }
 }

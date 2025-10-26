@@ -11,13 +11,13 @@
     }
   },
   "success": {
-    "current_datetime": "Current date and time in {timezone}: {datetime}"
+    "current_datetime": "Current date and time in %{timezone}: %{datetime}"
   },
   "info": {
-    "datetime_retrieved": "Successfully retrieved current date and time for timezone: {timezone}"
+    "datetime_retrieved": "Successfully retrieved current date and time for timezone: %{timezone}"
   },
   "errors": {
     "no_timezone": "Timezone is required. Please select a timezone.",
-    "retrieval_failed": "Error getting current date for timezone '{timezone}': {error}"
+    "retrieval_failed": "Error getting current date for timezone '%{timezone}': %{error}"
   }
 }

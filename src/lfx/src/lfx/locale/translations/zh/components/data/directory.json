@@ -39,6 +39,6 @@
     }
   },
   "errors": {
-    "invalid_file_types": "指定了无效的文件类型：{invalid_types}。有效类型为：{valid_types}"
+    "invalid_file_types": "指定了无效的文件类型：%{invalid_types}。有效类型为：%{valid_types}"
   }
 }

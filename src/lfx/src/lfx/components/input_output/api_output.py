@@ -67,7 +67,13 @@ class ETLAPIOutputComponent(Component):
         ),
     ]
 
-    outputs = [Output(name="result", display_name="Send Result", method="send_to_api")]
+    outputs = [
+        Output(
+            name="result",
+            display_name=i18n.t("components.input_output.api_output.outputs.result.display_name"),
+            method="send_to_api",
+        )
+    ]
 
     async def send_to_api(self) -> Data:
         try:

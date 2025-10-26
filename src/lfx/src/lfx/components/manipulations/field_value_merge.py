@@ -32,24 +32,28 @@ class ETLFieldValueMergeComponent(Component):
                     "name": "new_field",
                     "display_name": i18n.t("components.manipulations.field_value_merge.merge_configs.new_field"),
                     "type": "str",
+                    "description": i18n.t("components.manipulations.field_value_merge.merge_configs.new_field_desc"),
                 },
                 {
                     "name": "operation",
                     "display_name": i18n.t("components.manipulations.field_value_merge.merge_configs.operation"),
                     "type": "str",
                     "options": ["A LINK B", "A + B", "A - B", "A * B", "A / B", "A % B"],
+                    "description": i18n.t("components.manipulations.field_value_merge.merge_configs.operation_desc"),
                 },
                 {
                     "name": "field_a",
                     "display_name": i18n.t("components.manipulations.field_value_merge.merge_configs.field_a"),
                     "type": "str",
                     "options": [],  # 动态加载
+                    "description": i18n.t("components.manipulations.field_value_merge.merge_configs.field_a_desc"),
                 },
                 {
                     "name": "field_b",
                     "display_name": i18n.t("components.manipulations.field_value_merge.merge_configs.field_b"),
                     "type": "str",
                     "options": [],  # 动态加载
+                    "description": i18n.t("components.manipulations.field_value_merge.merge_configs.field_b_desc"),
                 },
                 {
                     "name": "separator",
@@ -62,6 +66,7 @@ class ETLFieldValueMergeComponent(Component):
                     "display_name": i18n.t("components.manipulations.field_value_merge.merge_configs.value_type"),
                     "type": "str",
                     "options": ["string", "integer", "float", "boolean"],
+                    "description": i18n.t("components.manipulations.field_value_merge.merge_configs.value_type_desc"),
                 },
             ],
             value=[],
@@ -97,8 +102,16 @@ class ETLFieldValueMergeComponent(Component):
     ]
 
     outputs = [
-        Output(name="data", display_name="Merged Data", method="merge_field_values"),
-        Output(name="field_preview", display_name="Field Preview", method="preview_fields"),
+        Output(
+            name="data",
+            display_name=i18n.t("components.manipulations.field_value_merge.outputs.data"),
+            method="merge_field_values",
+        ),
+        Output(
+            name="field_preview",
+            display_name=i18n.t("components.manipulations.field_value_merge.outputs.field_preview"),
+            method="preview_fields",
+        ),
     ]
 
     async def update_build_config(
@@ -136,23 +149,43 @@ class ETLFieldValueMergeComponent(Component):
                     # 提取字段列表
                     fields = self._extract_field_names(upstream_data)
 
-                    # 更新字段A和字段B的选项
-                    build_config["merge_configs"]["table_schema"][2]["options"] = fields  # field_a
-                    build_config["merge_configs"]["table_schema"][3]["options"] = fields  # field_b
+                    if fields:
+                        # 1. 更新字段A和字段B的下拉选项
+                        build_config["merge_configs"]["table_schema"][2]["options"] = fields  # field_a
+                        build_config["merge_configs"]["table_schema"][3]["options"] = fields  # field_b
 
-                    self.status = i18n.t(
-                        "components.manipulations.field_value_merge.status.fields_loaded", count=len(fields)
-                    )
-                    logger.info(f"[FieldValueMerge] Loaded {len(fields)} fields: {fields}")
+                        # 2. 自动填充表格数据（如果当前为空）
+                        if not build_config["merge_configs"].get("value"):
+                            # 创建一个示例行，让用户知道如何配置
+                            default_row = {
+                                "new_field": "merged_field",
+                                "operation": "A LINK B",
+                                "field_a": fields[0] if fields else "",
+                                "field_b": fields[1] if len(fields) > 1 else fields[0] if fields else "",
+                                "separator": "-",
+                                "value_type": "string",
+                            }
+                            build_config["merge_configs"]["value"] = [default_row]
+
+                        self.status = i18n.t(
+                            "components.manipulations.field_value_merge.status.fields_loaded", count=len(fields)
+                        )
+                        logger.info(f"[FieldValueMerge] Loaded {len(fields)} fields: {fields}")
+                    else:
+                        self.status = i18n.t("components.manipulations.field_value_merge.status.no_fields_found")
                 else:
                     self.status = i18n.t("components.manipulations.field_value_merge.status.no_fields_found")
 
             except ValueError as e:
                 logger.warning(f"[FieldValueMerge] Field loading warning: {e}")
-                self.status = i18n.t("components.manipulations.field_value_merge.errors.load_fields_failed", error=str(e))
+                self.status = i18n.t(
+                    "components.manipulations.field_value_merge.errors.load_fields_failed", error=str(e)
+                )
             except Exception as e:
                 logger.error(f"[FieldValueMerge] Failed to load fields: {e}", exc_info=True)
-                self.status = i18n.t("components.manipulations.field_value_merge.errors.load_fields_failed", error=str(e))
+                self.status = i18n.t(
+                    "components.manipulations.field_value_merge.errors.load_fields_failed", error=str(e)
+                )
 
         return build_config
 
@@ -165,7 +198,7 @@ class ETLFieldValueMergeComponent(Component):
         first_record = data_list[0]
         if hasattr(first_record, "data") and isinstance(first_record.data, dict):
             return list(first_record.data.keys())
-        elif isinstance(first_record, dict):
+        if isinstance(first_record, dict):
             return list(first_record.keys())
 
         return []
@@ -261,16 +294,15 @@ class ETLFieldValueMergeComponent(Component):
         try:
             if value_type == "string":
                 return series.astype(str)
-            elif value_type == "integer":
+            if value_type == "integer":
                 # 先转 float 再转 int，避免 NaN 报错
                 return series.fillna(0).astype(float).astype(int)
-            elif value_type == "float":
+            if value_type == "float":
                 return series.astype(float).round(decimal_precision)
-            elif value_type == "boolean":
+            if value_type == "boolean":
                 return series.astype(bool)
-            else:
-                logger.warning(f"[FieldValueMerge] Unknown value type: {value_type}, keeping as is")
-                return series
+            logger.warning(f"[FieldValueMerge] Unknown value type: {value_type}, keeping as is")
+            return series
         except Exception as e:
             logger.warning(f"[FieldValueMerge] Type conversion failed: {e}, keeping as is")
             return series

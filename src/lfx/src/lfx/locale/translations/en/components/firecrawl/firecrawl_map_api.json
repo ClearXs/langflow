@@ -29,18 +29,18 @@
     "import_failed": "Could not import firecrawl integration package. Please install it with `pip install firecrawl-py`.",
     "urls_required": "URLs are required",
     "no_valid_urls": "No valid URLs provided",
-    "mapping_failed": "Error during mapping: {error}"
+    "mapping_failed": "Error during mapping: %{error}"
   },
   "logs": {
     "firecrawl_imported": "Firecrawl package imported successfully",
     "parsing_urls": "Parsing URLs from input",
-    "urls_parsed": "Parsed {count} valid URL(s)",
-    "params_configured": "Parameters configured - Ignore sitemap: {ignore_sitemap}, Sitemap only: {sitemap_only}, Include subdomains: {include_subdomains}",
+    "urls_parsed": "Parsed %{count} valid URL(s)",
+    "params_configured": "Parameters configured - Ignore sitemap: %{ignore_sitemap}, Sitemap only: %{sitemap_only}, Include subdomains: %{include_subdomains}",
     "app_initialized": "Firecrawl app initialized with API key",
-    "starting_mapping": "Starting mapping for {count} URL(s)",
-    "mapping_url": "Mapping URL {index}/{total}: {url}",
-    "url_mapped": "URL mapped successfully: {url} - Found {count} link(s)",
-    "no_links_found": "No links found for URL: {url}",
-    "mapping_completed": "Mapping completed - Total: {total_links} link(s) from {urls_processed} URL(s)"
+    "starting_mapping": "Starting mapping for %{count} URL(s)",
+    "mapping_url": "Mapping URL %{index}/%{total}: %{url}",
+    "url_mapped": "URL mapped successfully: %{url} - Found %{count} link(s)",
+    "no_links_found": "No links found for URL: %{url}",
+    "mapping_completed": "Mapping completed - Total: %{total_links} link(s) from %{urls_processed} URL(s)"
   }
 }

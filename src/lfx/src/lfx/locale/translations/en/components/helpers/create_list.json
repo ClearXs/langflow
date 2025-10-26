@@ -14,8 +14,8 @@
     }
   },
   "success": {
-    "list_created": "Successfully created list with {count} items",
-    "dataframe_created": "Successfully created DataFrame with {rows} rows"
+    "list_created": "Successfully created list with %{count} items",
+    "dataframe_created": "Successfully created DataFrame with %{rows} rows"
   },
   "warnings": {
     "empty_texts": "No texts provided. Please add texts to create a list.",
@@ -23,8 +23,8 @@
     "dataframe_creation_with_warning": "DataFrame creation completed with warnings"
   },
   "errors": {
-    "creation_failed": "Failed to create list: {error}",
+    "creation_failed": "Failed to create list: %{error}",
     "dataframe_creation_failed_with_error": "Cannot create DataFrame due to list creation errors",
-    "dataframe_conversion_failed": "Failed to convert list to DataFrame: {error}"
+    "dataframe_conversion_failed": "Failed to convert list to DataFrame: %{error}"
   }
 }

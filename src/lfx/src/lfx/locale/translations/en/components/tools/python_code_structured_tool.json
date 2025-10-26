@@ -37,20 +37,20 @@
     }
   },
   "dynamic_field": {
-    "display_name": "{arg_name}: Description",
-    "info": "Enter the description for {arg_name}"
+    "display_name": "%{arg_name}: Description",
+    "info": "Enter the description for %{arg_name}"
   },
   "success": {
-    "tool_created": "Structured tool '{name}' created successfully"
+    "tool_created": "Structured tool '%{name}' created successfully"
   },
   "errors": {
-    "failed_to_extract_names": "Failed to extract function names: {error}",
+    "failed_to_extract_names": "Failed to extract function names: %{error}",
     "failed_to_parse": "Failed to parse",
-    "failed_to_find_arg": "Failed to find argument: {field_name}",
-    "tool_creation_failed": "Failed to create structured tool: {error}",
-    "frontend_update_failed": "Failed to update frontend node: {error}",
+    "failed_to_find_arg": "Failed to find argument: %{field_name}",
+    "tool_creation_failed": "Failed to create structured tool: %{error}",
+    "frontend_update_failed": "Failed to update frontend node: %{error}",
     "multiline_args_not_supported": "Multiline arguments are not supported",
-    "code_parsing_failed": "Failed to parse code: {error}",
-    "import_parsing_failed": "Failed to parse imports: {error}"
+    "code_parsing_failed": "Failed to parse code: %{error}",
+    "import_parsing_failed": "Failed to parse imports: %{error}"
   }
 }

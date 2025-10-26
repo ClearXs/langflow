@@ -31,15 +31,15 @@
     }
   },
   "status": {
-    "initializing": "Initializing Azure OpenAI Embeddings with model '{model}'..."
+    "initializing": "Initializing Azure OpenAI Embeddings with model '%{model}'..."
   },
   "success": {
-    "embeddings_initialized": "Azure OpenAI Embeddings initialized successfully with model '{model}'"
+    "embeddings_initialized": "Azure OpenAI Embeddings initialized successfully with model '%{model}'"
   },
   "errors": {
-    "connection_failed": "Could not connect to Azure OpenAI Embeddings API: {error}"
+    "connection_failed": "Could not connect to Azure OpenAI Embeddings API: %{error}"
   },
   "logs": {
-    "building_embeddings": "Building embeddings - Model: {model}, Endpoint: {endpoint}, Deployment: {deployment}, API Version: {api_version}"
+    "building_embeddings": "Building embeddings - Model: %{model}, Endpoint: %{endpoint}, Deployment: %{deployment}, API Version: %{api_version}"
   }
 }

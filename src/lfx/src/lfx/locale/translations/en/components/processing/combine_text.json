@@ -19,12 +19,12 @@
     }
   },
   "success": {
-    "texts_combined": "Successfully combined texts (length: {length} characters)"
+    "texts_combined": "Successfully combined texts (length: %{length} characters)"
   },
   "warnings": {
     "both_texts_empty": "Both text inputs are empty. Returning empty result."
   },
   "errors": {
-    "combination_failed": "Failed to combine texts: {error}"
+    "combination_failed": "Failed to combine texts: %{error}"
   }
 }

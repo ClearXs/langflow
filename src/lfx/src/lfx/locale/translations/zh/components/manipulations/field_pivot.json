@@ -1,0 +1,65 @@
+{
+  "display_name": "多行转换为多列",
+  "description": "将行数据转换为列(pivot操作)",
+  "data_input": {
+    "display_name": "数据输入",
+    "info": "输入要进行转换的数据流"
+  },
+  "group_fields": {
+    "display_name": "分组字段",
+    "info": "要进行分组的字段(逗号分隔)"
+  },
+  "key_field": {
+    "display_name": "关键字段",
+    "info": "此字段的值会作为新的列字段名"
+  },
+  "value_field": {
+    "display_name": "值字段",
+    "info": "要转换为新列值的字段"
+  },
+  "agg_function": {
+    "display_name": "聚合函数",
+    "info": "当有重复值时使用的聚合函数",
+    "first": "保留第一个",
+    "last": "保留最后一个",
+    "sum": "求和",
+    "mean": "平均值",
+    "max": "最大值",
+    "min": "最小值",
+    "count": "计数",
+    "concat": "拼接"
+  },
+  "concat_separator": {
+    "display_name": "连接分隔符",
+    "info": "使用concat聚合时的分隔符"
+  },
+  "target_field_mapping": {
+    "display_name": "目标字段映射",
+    "info": "配置关键字段值到目标字段名的映射",
+    "key_value": "关键字段值",
+    "target_field": "目标字段名"
+  },
+  "fill_value": {
+    "display_name": "填充值",
+    "info": "空值的填充值"
+  },
+  "chunk_size": {
+    "display_name": "分块大小",
+    "info": "处理大数据量时的分块大小"
+  },
+  "outputs": {
+    "data": "转换后数据",
+    "fields_schema": "字段模式",
+    "preview": "字段预览",
+    "statistics": "统计信息"
+  },
+  "status": {
+    "pivoting": "正在执行pivot转换...",
+    "success": "转换完成: %{original}行 -> %{result}行"
+  },
+  "errors": {
+    "no_input_data": "没有输入数据",
+    "field_not_found": "字段%{field}不存在",
+    "pivot_failed": "pivot转换失败: %{error}"
+  }
+}

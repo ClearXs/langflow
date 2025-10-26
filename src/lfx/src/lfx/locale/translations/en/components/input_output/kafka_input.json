@@ -44,10 +44,18 @@
   "status": {
     "connecting": "Connecting to Kafka...",
     "consuming": "Consuming messages...",
-    "success": "Successfully consumed {messages} messages"
+    "success": "Successfully consumed %{messages} messages"
   },
   "errors": {
     "kafka_not_installed": "kafka-python library not installed",
-    "consume_failed": "Failed to consume messages: {error}"
+    "consume_failed": "Failed to consume messages: %{error}"
+  },
+  "outputs": {
+    "data": {
+      "display_name": "Data"
+    },
+    "consumer_info": {
+      "display_name": "Consumer Info"
+    }
   }
 }

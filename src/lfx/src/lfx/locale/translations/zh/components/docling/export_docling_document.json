@@ -34,24 +34,24 @@
     }
   },
   "errors": {
-    "extraction_failed": "提取文档失败：{error}",
-    "export_failed": "导出文档时出错：{error}",
-    "dataframe_creation_failed": "创建数据框失败：{error}"
+    "extraction_failed": "提取文档失败：%{error}",
+    "export_failed": "导出文档时出错：%{error}",
+    "dataframe_creation_failed": "创建数据框失败：%{error}"
   },
   "logs": {
     "markdown_options_enabled": "已启用Markdown特定选项",
     "html_options_enabled": "已启用HTML特定选项",
-    "text_options_enabled": "已启用{format}选项",
-    "extracting_documents": "正在使用键提取文档：{doc_key}",
-    "documents_extracted": "已提取{count}个文档",
-    "exporting_documents": "正在将{count}个文档导出为{format}格式（图片模式：{image_mode}）",
-    "exporting_document": "正在导出文档{index}/{total}",
-    "markdown_exported": "Markdown导出完成 - 长度：{length}个字符",
-    "html_exported": "HTML导出完成 - 长度：{length}个字符",
-    "text_exported": "文本导出完成 - 长度：{length}个字符",
-    "doctags_exported": "DocTags导出完成 - 长度：{length}个字符",
-    "export_completed": "导出完成 - 已导出{count}个文档",
+    "text_options_enabled": "已启用%{format}选项",
+    "extracting_documents": "正在使用键提取文档：%{doc_key}",
+    "documents_extracted": "已提取%{count}个文档",
+    "exporting_documents": "正在将%{count}个文档导出为%{format}格式（图片模式：%{image_mode}）",
+    "exporting_document": "正在导出文档%{index}/%{total}",
+    "markdown_exported": "Markdown导出完成 - 长度：%{length}个字符",
+    "html_exported": "HTML导出完成 - 长度：%{length}个字符",
+    "text_exported": "文本导出完成 - 长度：%{length}个字符",
+    "doctags_exported": "DocTags导出完成 - 长度：%{length}个字符",
+    "export_completed": "导出完成 - 已导出%{count}个文档",
     "creating_dataframe": "正在从导出的文档创建数据框",
-    "dataframe_created": "已创建包含{rows}行的数据框"
+    "dataframe_created": "已创建包含%{rows}行的数据框"
   }
 }

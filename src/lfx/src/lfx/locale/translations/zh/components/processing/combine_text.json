@@ -19,12 +19,12 @@
     }
   },
   "success": {
-    "texts_combined": "成功合并文本（长度：{length}个字符）"
+    "texts_combined": "成功合并文本（长度：%{length}个字符）"
   },
   "warnings": {
     "both_texts_empty": "两个文本输入都为空。返回空结果。"
   },
   "errors": {
-    "combination_failed": "合并文本失败：{error}"
+    "combination_failed": "合并文本失败：%{error}"
   }
 }

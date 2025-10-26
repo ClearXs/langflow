@@ -20,30 +20,30 @@
     "info": "从搜索中返回的相似文档数量。"
   },
   "errors": {
-    "directory_creation_failed": "创建持久化目录'{path}'失败：{error}",
-    "index_creation_failed": "创建FAISS索引失败：{error}",
-    "index_save_failed": "保存FAISS索引失败：{error}",
-    "index_load_failed": "加载FAISS索引失败：{error}",
+    "directory_creation_failed": "创建持久化目录'%{path}'失败：%{error}",
+    "index_creation_failed": "创建FAISS索引失败：%{error}",
+    "index_save_failed": "保存FAISS索引失败：%{error}",
+    "index_load_failed": "加载FAISS索引失败：%{error}",
     "failed_to_load": "加载FAISS索引失败。",
-    "search_failed": "搜索操作失败：{error}"
+    "search_failed": "搜索操作失败：%{error}"
   },
   "logs": {
-    "path_resolved": "路径已解析 - 原始：{original}，解析后：{resolved}",
-    "using_persist_directory": "使用持久化目录：{path}",
+    "path_resolved": "路径已解析 - 原始：%{original}，解析后：%{resolved}",
+    "using_persist_directory": "使用持久化目录：%{path}",
     "using_current_directory": "使用当前目录作为持久化目录",
     "building_vector_store": "正在构建FAISS向量存储",
-    "directory_created": "持久化目录已创建或已存在：{path}",
+    "directory_created": "持久化目录已创建或已存在：%{path}",
     "preparing_data": "正在准备数据以供摄入",
     "no_documents": "没有文档需要索引",
-    "creating_index": "正在从{count}个文档创建FAISS索引",
+    "creating_index": "正在从%{count}个文档创建FAISS索引",
     "index_created": "FAISS索引创建成功",
-    "index_saved": "FAISS索引已保存到'{path}'，名称为'{name}'",
+    "index_saved": "FAISS索引已保存到'%{path}'，名称为'%{name}'",
     "starting_search": "开始在FAISS中搜索文档",
-    "index_not_found": "在{path}未找到索引，正在构建新索引",
-    "loading_index": "正在从{path}加载FAISS索引",
+    "index_not_found": "在%{path}未找到索引，正在构建新索引",
+    "loading_index": "正在从%{path}加载FAISS索引",
     "index_loaded": "FAISS索引加载成功",
-    "searching_with_query": "正在使用查询搜索：{query}",
-    "search_completed": "搜索完成 - 找到{count}个文档",
+    "searching_with_query": "正在使用查询搜索：%{query}",
+    "search_completed": "搜索完成 - 找到%{count}个文档",
     "no_query": "未提供搜索查询，返回空结果"
   }
 }

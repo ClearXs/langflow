@@ -43,22 +43,22 @@
     "urls_required": "需要URL",
     "no_valid_urls": "未提供有效的URL",
     "prompt_required": "需要提示",
-    "extraction_failed": "提取过程中出错：{error}"
+    "extraction_failed": "提取过程中出错：%{error}"
   },
   "logs": {
     "firecrawl_imported": "Firecrawl包导入成功",
     "parsing_urls": "正在解析输入的URL",
-    "urls_parsed": "已解析{count}个有效URL",
-    "prompt_received": "已接收提示 - 长度：{length}个字符",
-    "enhanced_prompt": "{prompt}。请以全面、结构化的格式提取所有实例。",
+    "urls_parsed": "已解析%{count}个有效URL",
+    "prompt_received": "已接收提示 - 长度：%{length}个字符",
+    "enhanced_prompt": "%{prompt}。请以全面、结构化的格式提取所有实例。",
     "prompt_enhanced": "提示已增强以进行全面提取",
-    "params_configured": "参数已配置 - 网络搜索：{web_search}，超时：{timeout}秒",
+    "params_configured": "参数已配置 - 网络搜索：%{web_search}，超时：%{timeout}秒",
     "schema_added_dict": "模式已添加到参数（字典格式）",
     "schema_added_object": "模式已添加到参数（对象格式）",
     "schema_invalid": "提供的模式没有有效结构，跳过",
-    "schema_error": "无效的模式：{error}",
-    "starting_extraction": "开始从{count}个URL提取",
+    "schema_error": "无效的模式：%{error}",
+    "starting_extraction": "开始从%{count}个URL提取",
     "app_initialized": "Firecrawl应用已使用API密钥初始化",
-    "extraction_completed": "提取成功完成 - 已提取{items}项"
+    "extraction_completed": "提取成功完成 - 已提取%{items}项"
   }
 }

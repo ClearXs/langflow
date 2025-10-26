@@ -19,8 +19,8 @@
     }
   },
   "success": {
-    "appended_to_context": "Data appended to context key '{key}'",
-    "stored_in_context": "Data stored in context key '{key}'"
+    "appended_to_context": "Data appended to context key '%{key}'",
+    "stored_in_context": "Data stored in context key '%{key}'"
   },
   "warnings": {
     "no_record_provided": "No record provided."

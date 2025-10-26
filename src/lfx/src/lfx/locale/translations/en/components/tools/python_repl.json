@@ -19,7 +19,7 @@
     "info": "The Python code to execute."
   },
   "success": {
-    "tool_created": "Python REPL Tool created with global imports: {imports}",
+    "tool_created": "Python REPL Tool created with global imports: %{imports}",
     "code_executed": "Python code executed successfully"
   },
   "info": {
@@ -30,9 +30,9 @@
   },
   "errors": {
     "invalid_global_imports_type": "global_imports must be either a string or a list",
-    "module_import_failed": "Could not import module {module}",
-    "code_execution_failed": "Error executing Python code: {error}",
-    "tool_creation_failed": "Failed to create Python REPL tool: {error}",
-    "execution_failed": "Python REPL execution failed: {error}"
+    "module_import_failed": "Could not import module %{module}",
+    "code_execution_failed": "Error executing Python code: %{error}",
+    "tool_creation_failed": "Failed to create Python REPL tool: %{error}",
+    "execution_failed": "Python REPL execution failed: %{error}"
   }
 }

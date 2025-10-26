@@ -14,8 +14,8 @@
     }
   },
   "success": {
-    "list_created": "成功创建包含{count}项的列表",
-    "dataframe_created": "成功创建包含{rows}行的数据框"
+    "list_created": "成功创建包含%{count}项的列表",
+    "dataframe_created": "成功创建包含%{rows}行的数据框"
   },
   "warnings": {
     "empty_texts": "未提供文本。请添加文本来创建列表。",
@@ -23,8 +23,8 @@
     "dataframe_creation_with_warning": "数据框创建完成，但有警告"
   },
   "errors": {
-    "creation_failed": "创建列表失败：{error}",
+    "creation_failed": "创建列表失败：%{error}",
     "dataframe_creation_failed_with_error": "由于列表创建错误，无法创建数据框",
-    "dataframe_conversion_failed": "将列表转换为数据框失败：{error}"
+    "dataframe_conversion_failed": "将列表转换为数据框失败：%{error}"
   }
 }

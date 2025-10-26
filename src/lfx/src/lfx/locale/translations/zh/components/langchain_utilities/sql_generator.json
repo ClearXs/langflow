@@ -17,7 +17,7 @@
   },
   "prompt": {
     "display_name": "提示词",
-    "info": "提示词必须包含`{question}`。"
+    "info": "提示词必须包含`%{question}`。"
   },
   "outputs": {
     "text": {

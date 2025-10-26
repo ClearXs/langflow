@@ -30,16 +30,16 @@
     }
   },
   "success": {
-    "filtered_data": "Successfully filtered {filtered} items out of {total} total items"
+    "filtered_data": "Successfully filtered %{filtered} items out of %{total} total items"
   },
   "warnings": {
     "empty_input_data": "Input data is empty.",
     "missing_filter_params": "Filter key or value is missing.",
-    "invalid_items": "Warning: {count} items are not Data objects and were skipped.",
-    "items_missing_key": "Warning: {count} items don't have the key '{key}' or are not dictionaries.",
-    "no_matches": "No items matched the filter criteria (operator: {operator}, key: {key}, value: {value})"
+    "invalid_items": "Warning: %{count} items are not Data objects and were skipped.",
+    "items_missing_key": "Warning: %{count} items don't have the key '%{key}' or are not dictionaries.",
+    "no_matches": "No items matched the filter criteria (operator: %{operator}, key: %{key}, value: %{value})"
   },
   "errors": {
-    "filter_failed": "Data filtering failed: {error}"
+    "filter_failed": "Data filtering failed: %{error}"
   }
 }

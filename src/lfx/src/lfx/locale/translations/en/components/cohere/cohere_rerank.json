@@ -18,14 +18,14 @@
     "initializing": "Initializing Cohere reranker..."
   },
   "success": {
-    "compressor_created": "Cohere reranker created successfully with model: {model}, top_n: {top_n}"
+    "compressor_created": "Cohere reranker created successfully with model: %{model}, top_n: %{top_n}"
   },
   "errors": {
     "cohere_not_installed": "Please install langchain-cohere to use the Cohere model.",
-    "creation_failed": "Failed to create Cohere reranker. Please verify your API key and try again. Error: {error}"
+    "creation_failed": "Failed to create Cohere reranker. Please verify your API key and try again. Error: %{error}"
   },
   "logs": {
     "cohere_imported": "langchain-cohere package imported successfully",
-    "initializing": "Initializing Cohere reranker with model: {model}, top_n: {top_n}"
+    "initializing": "Initializing Cohere reranker with model: %{model}, top_n: %{top_n}"
   }
 }

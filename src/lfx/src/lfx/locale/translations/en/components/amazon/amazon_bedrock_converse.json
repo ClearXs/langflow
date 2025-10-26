@@ -54,28 +54,28 @@
     "info": "Additional model-specific parameters for fine-tuning behavior."
   },
   "status": {
-    "initializing_model": "Initializing Amazon Bedrock Converse model '{model}'..."
+    "initializing_model": "Initializing Amazon Bedrock Converse model '%{model}'..."
   },
   "success": {
-    "model_initialized": "Amazon Bedrock Converse model '{model}' initialized successfully in region '{region}'"
+    "model_initialized": "Amazon Bedrock Converse model '%{model}' initialized successfully in region '%{region}'"
   },
   "errors": {
     "langchain_aws_not_installed": "langchain_aws is not installed. Please install it with `pip install langchain_aws`.",
-    "validation_error": "ChatBedrockConverse validation error: {error}. This may be due to incompatible parameters for model '{model}'. Consider adjusting the model parameters or trying the legacy Amazon Bedrock component.",
-    "converse_api_error": "Converse API error: {error}. The model '{model}' may not support the Converse API. Try using the legacy Amazon Bedrock component instead.",
-    "initialization_failed": "Could not initialize ChatBedrockConverse: {error}",
-    "model_build_failed": "Failed to build Amazon Bedrock Converse model: {error}"
+    "validation_error": "ChatBedrockConverse validation error: %{error}. This may be due to incompatible parameters for model '%{model}'. Consider adjusting the model parameters or trying the legacy Amazon Bedrock component.",
+    "converse_api_error": "Converse API error: %{error}. The model '%{model}' may not support the Converse API. Try using the legacy Amazon Bedrock component instead.",
+    "initialization_failed": "Could not initialize ChatBedrockConverse: %{error}",
+    "model_build_failed": "Failed to build Amazon Bedrock Converse model: %{error}"
   },
   "logs": {
     "access_key_added": "AWS Access Key ID added to configuration",
     "secret_key_added": "AWS Secret Access Key added to configuration",
     "session_token_added": "AWS Session Token added to configuration",
-    "profile_name_added": "Credentials profile name '{profile}' added to configuration",
-    "endpoint_url_added": "Endpoint URL '{url}' added to configuration",
-    "temperature_set": "Temperature set to {value}",
-    "max_tokens_set": "Max tokens set to {value}",
-    "top_p_set": "Top P set to {value}",
+    "profile_name_added": "Credentials profile name '%{profile}' added to configuration",
+    "endpoint_url_added": "Endpoint URL '%{url}' added to configuration",
+    "temperature_set": "Temperature set to %{value}",
+    "max_tokens_set": "Max tokens set to %{value}",
+    "top_p_set": "Top P set to %{value}",
     "streaming_disabled": "Streaming responses disabled",
-    "additional_fields_added": "Additional model fields added: {fields}"
+    "additional_fields_added": "Additional model fields added: %{fields}"
   }
 }

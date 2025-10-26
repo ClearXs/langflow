@@ -1,8 +1,9 @@
 """Unit tests for ETLFieldValueMergeComponent"""
 
-import pytest
+from unittest.mock import AsyncMock
+
 import pandas as pd
-from unittest.mock import AsyncMock, MagicMock
+import pytest
 
 from lfx.components.manipulations.field_value_merge import ETLFieldValueMergeComponent
 from lfx.schema import Data

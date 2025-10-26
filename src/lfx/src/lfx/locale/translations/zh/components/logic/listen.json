@@ -11,17 +11,17 @@
     }
   },
   "status": {
-    "data_retrieved": "已从上下文键检索数据：{key}"
+    "data_retrieved": "已从上下文键检索数据：%{key}"
   },
   "warnings": {
-    "key_not_found": "未找到上下文键'{key}'，返回空数据"
+    "key_not_found": "未找到上下文键'%{key}'，返回空数据"
   },
   "errors": {
-    "retrieval_failed": "检索上下文键'{key}'的数据失败：{error}"
+    "retrieval_failed": "检索上下文键'%{key}'的数据失败：%{error}"
   },
   "logs": {
-    "listening": "正在使用上下文键监听数据：{key}",
-    "converting_to_data": "正在将{data_type}转换为Data对象",
-    "data_retrieved": "成功从上下文键检索数据：{key}"
+    "listening": "正在使用上下文键监听数据：%{key}",
+    "converting_to_data": "正在将%{data_type}转换为Data对象",
+    "data_retrieved": "成功从上下文键检索数据：%{key}"
   }
 }

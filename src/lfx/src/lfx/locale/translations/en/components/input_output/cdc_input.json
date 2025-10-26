@@ -43,11 +43,19 @@
   },
   "status": {
     "capturing": "Capturing changes...",
-    "success": "Captured {changes} changes"
+    "success": "Captured %{changes} changes"
   },
   "errors": {
     "invalid_mode": "Invalid CDC mode",
-    "capture_failed": "Failed to capture changes: {error}",
+    "capture_failed": "Failed to capture changes: %{error}",
     "audit_table_missing": "Audit table not found"
+  },
+  "outputs": {
+    "data": {
+      "display_name": "Data"
+    },
+    "change_summary": {
+      "display_name": "Change Summary"
+    }
   }
 }

@@ -1,23 +1,51 @@
 {
   "display_name": "字段值合并",
   "description": "合并多个字段值",
-  "status": {
-    "success": "合并了 {count} 条记录"
-  },
-  "errors": {
-    "merge_failed": "字段合并失败: {error}",
-    "missing_config": "合并配置是必需的"
-  },
   "data_input": {
     "display_name": "数据输入",
     "info": "要转换的输入数据"
+  },
+  "merge_configs": {
+    "display_name": "合并配置",
+    "info": "要合并的字段和分隔符",
+    "new_field": "新字段名",
+    "new_field_desc": "合并后生成的新字段名称",
+    "operation": "运算类型",
+    "operation_desc": "字段合并方式：连接(LINK)、加减乘除运算、取余",
+    "field_a": "字段 A",
+    "field_a_desc": "参与运算的第一个字段",
+    "field_b": "字段 B",
+    "field_b_desc": "参与运算的第二个字段",
+    "separator": "分隔符",
+    "separator_desc": "字符串连接时使用的分隔符",
+    "value_type": "值类型",
+    "value_type_desc": "合并后字段的数据类型",
+    "load_fields_button": "加载字段列表"
+  },
+  "decimal_precision": {
+    "display_name": "小数精度",
+    "info": "浮点数的小数位数（0-10）"
   },
   "drop_source_fields": {
     "display_name": "删除源字段",
     "info": "合并后删除源字段"
   },
-  "merge_configs": {
-    "display_name": "合并配置",
-    "info": "要合并的字段和分隔符"
+  "outputs": {
+    "data": "合并后数据",
+    "field_preview": "字段预览"
+  },
+  "status": {
+    "success": "合并了 %{count} 条记录",
+    "fields_loaded": "成功加载 %{count} 个字段",
+    "no_fields_found": "未找到可用字段",
+    "merging": "正在执行字段合并..."
+  },
+  "errors": {
+    "merge_failed": "字段合并失败: %{error}",
+    "missing_config": "合并配置是必需的",
+    "no_graph_data": "无法获取流程图数据",
+    "load_fields_failed": "加载字段失败: %{error}",
+    "field_not_found": "字段 %{field} 不存在",
+    "no_input_data": "没有输入数据"
   }
 }

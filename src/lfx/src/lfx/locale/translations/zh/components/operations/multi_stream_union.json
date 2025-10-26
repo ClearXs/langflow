@@ -47,15 +47,20 @@
   },
   "status": {
     "merging": "正在合并数据流...",
-    "success": "成功合并 {records} 条记录",
-    "fields_loaded": "已加载 {count} 个字段",
-    "load_fields_failed": "加载字段失败: {error}",
+    "success": "成功合并 %{records} 条记录",
+    "fields_loaded": "已加载 %{count} 个字段",
+    "load_fields_failed": "加载字段失败: %{error}",
     "no_fields_found": "未从上游节点找到任何字段"
   },
   "errors": {
     "no_streams": "至少需要一个数据流",
-    "union_failed": "合并操作失败: {error}",
+    "union_failed": "合并操作失败: %{error}",
     "no_streams_for_preview": "没有可用的数据流进行预览",
     "no_graph_data": "没有可用的图数据，请先连接上游节点"
+  },
+  "outputs": {
+    "data": "合并后数据",
+    "union_stats": "合并统计",
+    "field_preview": "字段预览"
   }
 }

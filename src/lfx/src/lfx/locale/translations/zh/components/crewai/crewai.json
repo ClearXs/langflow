@@ -47,16 +47,16 @@
   },
   "status": {
     "creating_agent": "正在创建CrewAI代理...",
-    "agent_created": "CrewAI代理创建成功 - 角色：{role}"
+    "agent_created": "CrewAI代理创建成功 - 角色：%{role}"
   },
   "errors": {
     "import_failed": "CrewAI未安装。请使用`uv pip install crewai`安装。",
-    "creation_failed": "创建CrewAI代理失败：{error}"
+    "creation_failed": "创建CrewAI代理失败：%{error}"
   },
   "logs": {
     "imports_successful": "CrewAI依赖导入成功",
-    "creating_agent": "正在创建角色为{role}的CrewAI代理",
+    "creating_agent": "正在创建角色为%{role}的CrewAI代理",
     "converting_llm": "正在为CrewAI转换语言模型",
-    "converting_tools": "正在为CrewAI代理转换{count}个工具"
+    "converting_tools": "正在为CrewAI代理转换%{count}个工具"
   }
 }

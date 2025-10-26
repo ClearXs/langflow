@@ -23,20 +23,20 @@
   },
   "errors": {
     "api_key_required": "Exa Search API key is required",
-    "client_creation_failed": "Failed to create Exa Search client: {error}",
-    "search_failed": "Search operation failed: {error}",
-    "get_contents_failed": "Failed to retrieve contents: {error}",
-    "find_similar_failed": "Failed to find similar results: {error}"
+    "client_creation_failed": "Failed to create Exa Search client: %{error}",
+    "search_failed": "Search operation failed: %{error}",
+    "get_contents_failed": "Failed to retrieve contents: %{error}",
+    "find_similar_failed": "Failed to find similar results: %{error}"
   },
   "logs": {
     "building_toolkit": "Building Exa Search toolkit",
     "client_created": "Exa Search client created successfully",
-    "searching": "Searching with query: {query}",
-    "search_completed": "Search completed - Retrieved {count} result(s)",
-    "getting_contents": "Getting contents for {count} ID(s)",
-    "contents_retrieved": "Contents retrieved successfully for {count} ID(s)",
-    "finding_similar": "Finding similar results for URL: {url}",
-    "similar_found": "Found {count} similar result(s)",
+    "searching": "Searching with query: %{query}",
+    "search_completed": "Search completed - Retrieved %{count} result(s)",
+    "getting_contents": "Getting contents for %{count} ID(s)",
+    "contents_retrieved": "Contents retrieved successfully for %{count} ID(s)",
+    "finding_similar": "Finding similar results for URL: %{url}",
+    "similar_found": "Found %{count} similar result(s)",
     "toolkit_built": "Exa Search toolkit built successfully with 3 tools"
   }
 }

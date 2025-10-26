@@ -63,21 +63,21 @@
   },
   "status": {
     "building": "Building agent and task...",
-    "created": "Agent and task created successfully - Role: {role}, Total tasks: {task_count}"
+    "created": "Agent and task created successfully - Role: %{role}, Total tasks: %{task_count}"
   },
   "errors": {
     "import_failed": "CrewAI is not installed. Please install it with `uv pip install crewai`.",
-    "build_failed": "Failed to build agent and task: {error}"
+    "build_failed": "Failed to build agent and task: %{error}"
   },
   "logs": {
     "imports_successful": "CrewAI dependencies imported successfully",
-    "building_agent_task": "Building agent and task - Role: {role}",
-    "creating_agent": "Creating agent with role: {role}",
-    "agent_created": "Agent created successfully - Role: {role}",
+    "building_agent_task": "Building agent and task - Role: %{role}",
+    "creating_agent": "Creating agent with role: %{role}",
+    "agent_created": "Agent created successfully - Role: %{role}",
     "creating_task": "Creating task for agent",
     "task_created": "Task created successfully",
     "chaining_tasks": "Chaining with previous task(s)",
-    "tasks_chained": "Tasks chained successfully - Total tasks: {total_count}",
+    "tasks_chained": "Tasks chained successfully - Total tasks: %{total_count}",
     "single_task": "Creating single task without chaining"
   }
 }

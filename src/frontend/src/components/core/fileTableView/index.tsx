@@ -7,7 +7,13 @@ import {
   Trash2,
   Upload,
 } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import {
+  forwardRef,
+  useEffect,
+  useImperativeHandle,
+  useMemo,
+  useState,
+} from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -17,13 +23,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import {
-  createFolder,
-  deleteFiles,
-  deleteFolders,
-  getFileDownloadUrl,
-  uploadFile,
-} from "@/controllers/API/datasources";
+import { useFileManagement } from "@/controllers/DATA_API/useFileManagement";
 import DeleteConfirmationModal from "@/modals/deleteConfirmationModal";
 import useAlertStore from "@/stores/alertStore";
 import { cn } from "@/utils/utils";
@@ -33,10 +33,22 @@ import { NavBar } from "./components/NavBar";
 import { useFileTable } from "./hooks/useFileTable";
 import type { FileItem, FileTableViewProps } from "./types";
 
-export function FileTableView(props: FileTableViewProps) {
+export interface FileTableViewHandle {
+  refresh: () => Promise<void>;
+  startCreateFolder: () => void;
+}
+
+export const FileTableView = forwardRef<
+  FileTableViewHandle,
+  FileTableViewProps
+>((props, ref) => {
   const { t } = useTranslation();
   const setSuccessData = useAlertStore((state) => state.setSuccessData);
   const setErrorData = useAlertStore((state) => state.setErrorData);
+
+  // Use file management hook for API operations
+  const fileOps = useFileManagement();
+
   const {
     showSize = true,
     showUpdateTime = true,
@@ -64,6 +76,7 @@ export function FileTableView(props: FileTableViewProps) {
     fileList,
     setFileList,
     selectedItems,
+    currentParentId,
     currentPath,
     pathHistory,
     hoveredRow,
@@ -88,6 +101,12 @@ export function FileTableView(props: FileTableViewProps) {
     handleMouseLeave,
     clearSelection,
   } = useFileTable(props);
+
+  // Expose methods to parent via ref
+  useImperativeHandle(ref, () => ({
+    refresh: fetchFiles,
+    startCreateFolder: handleCreateFolder,
+  }));
 
   // Initialize and fetch files - FIXED: Remove fetchFiles from dependencies
   useEffect(() => {
@@ -124,7 +143,7 @@ export function FileTableView(props: FileTableViewProps) {
     } else if (file.id) {
       // Generate download URL using API
       const token = localStorage.getItem("token") || "";
-      const downloadUrl = getFileDownloadUrl(Number(file.id), token);
+      const downloadUrl = fileOps.getFileDownloadUrl(file.id, token);
       window.location.href = downloadUrl;
     } else {
       setErrorData({
@@ -144,12 +163,12 @@ export function FileTableView(props: FileTableViewProps) {
     if (!fileToDelete) return;
 
     try {
-      const fileId = Number(fileToDelete.id);
+      const fileId = fileToDelete.id;
 
       if (fileToDelete.type === "folder") {
-        await deleteFolders([fileId]);
+        await fileOps.deleteFolders([fileId]);
       } else {
-        await deleteFiles([fileId]);
+        await fileOps.deleteFiles([fileId]);
       }
 
       setSuccessData({
@@ -202,10 +221,8 @@ export function FileTableView(props: FileTableViewProps) {
     }
 
     try {
-      // Get current parent ID from useFileTable hook
-      const parentId = pathHistory[pathHistory.length - 1]?.id || 0;
-
-      await createFolder(parentId, newFolderName.trim());
+      // Use currentParentId from useFileTable hook (current folder ID)
+      await fileOps.createFolder(currentParentId, newFolderName.trim());
 
       setSuccessData({
         title: t("fileTableModal.folderCreated"),
@@ -251,10 +268,9 @@ export function FileTableView(props: FileTableViewProps) {
   const uploadFiles = async (files: File[]) => {
     setIsUploading(true);
     try {
-      const parentId = pathHistory[pathHistory.length - 1]?.id || 0;
-
+      // Use currentParentId from useFileTable hook (current folder ID)
       for (const file of files) {
-        await uploadFile(parentId, file, (progressEvent) => {
+        await fileOps.uploadFile(currentParentId, file, (progressEvent) => {
           const percentCompleted = Math.round(
             (progressEvent.loaded * 100) / progressEvent.total,
           );
@@ -297,23 +313,23 @@ export function FileTableView(props: FileTableViewProps) {
     }
 
     // Separate files and folders
-    const folderIds: number[] = [];
-    const fileIds: number[] = [];
+    const folderIds: (number | string)[] = [];
+    const fileIds: (number | string)[] = [];
 
     selectedItems.forEach((item) => {
       if (item.type === "folder") {
-        folderIds.push(Number(item.id));
+        folderIds.push(item.id);
       } else {
-        fileIds.push(Number(item.id));
+        fileIds.push(item.id);
       }
     });
 
     try {
       if (folderIds.length > 0) {
-        await deleteFolders(folderIds);
+        await fileOps.deleteFolders(folderIds);
       }
       if (fileIds.length > 0) {
-        await deleteFiles(fileIds);
+        await fileOps.deleteFiles(fileIds);
       }
 
       setSuccessData({
@@ -368,7 +384,7 @@ export function FileTableView(props: FileTableViewProps) {
             window.open(file.file.link, "_blank");
           } else if (file.id) {
             const token = localStorage.getItem("token") || "";
-            const downloadUrl = getFileDownloadUrl(Number(file.id), token);
+            const downloadUrl = fileOps.getFileDownloadUrl(file.id, token);
             window.location.href = downloadUrl;
           }
         } catch (error) {
@@ -589,28 +605,30 @@ export function FileTableView(props: FileTableViewProps) {
       {/* Breadcrumb navigation */}
       {showBreadcrumb && (
         <div className="flex items-center justify-between border-b px-4 py-2">
-          <div className="flex items-center gap-1 text-sm">
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-7 px-2"
-              onClick={navigateToRoot}
-            >
-              {t("fileTableModal.allFiles")}
-            </Button>
-            {pathSegments.map((segment, index) => (
-              <div key={index} className="flex items-center gap-1">
-                <ChevronRight className="h-4 w-4 text-muted-foreground" />
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-7 px-2"
-                  onClick={() => navigateToPath(index, pathSegments)}
-                >
-                  {segment}
-                </Button>
-              </div>
-            ))}
+          <div className="flex items-center gap-2 text-sm">
+            <div className="flex items-center gap-1">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-7 px-2"
+                onClick={navigateToRoot}
+              >
+                {t("fileTableModal.allFiles")}
+              </Button>
+              {pathSegments.map((segment, index) => (
+                <div key={index} className="flex items-center gap-1">
+                  <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-7 px-2"
+                    onClick={() => navigateToPath(index, pathSegments)}
+                  >
+                    {segment}
+                  </Button>
+                </div>
+              ))}
+            </div>
           </div>
 
           {/* View mode toggle */}
@@ -695,7 +713,9 @@ export function FileTableView(props: FileTableViewProps) {
       </DeleteConfirmationModal>
     </div>
   );
-}
+});
+
+FileTableView.displayName = "FileTableView";
 
 // Re-export types
 export type { FileItem, FileTableViewProps } from "./types";

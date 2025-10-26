@@ -15,7 +15,7 @@
   },
   "sql_query": {
     "display_name": "SQL Query",
-    "info": "Enter your SQL query to execute, use {table_name} as placeholder"
+    "info": "Enter your SQL query to execute, use %{table_name} as placeholder"
   },
   "use_pagination": {
     "display_name": "Use Pagination",
@@ -57,10 +57,15 @@
       "targetFieldPlaceholder": "Enter target field name",
       "defaultValuePlaceholder": "Default value (optional)",
       "addMapping": "Add Field Mapping",
-      "mappingsCount": "{{count}} mappings configured",
+      "mappingsCount": "{%{count}} mappings configured",
       "noMappings": "No field mappings",
       "clickToAdd": "Click button above to add field mappings"
     }
+  },
+  "preview_table": {
+    "display_name": "Data Preview",
+    "info": "Preview the first 100 rows of query results",
+    "preview_button": "Preview Data (first 100 rows)"
   },
   "safe_mode": {
     "display_name": "Safe Mode",
@@ -79,24 +84,24 @@
     "info": "Initial timestamp for incremental data extraction (e.g., 2024-01-01 00:00:00)"
   },
   "outputs": {
-    "data": {
-      "display_name": "Data"
-    },
-    "dataframe": {
-      "display_name": "DataFrame"
-    }
+    "data": "Data",
+    "row_count": "Row Count",
+    "fields_schema": "Fields Schema"
   },
   "status": {
     "connecting": "Connecting to database...",
-    "success": "Successfully extracted {records} records",
+    "success": "Successfully extracted %{records} records",
     "extracting": "Extracting data...",
     "processing": "Processing data...",
     "analyzing_sql": "Analyzing SQL fields...",
-    "analysis_success": "Successfully analyzed {count} fields",
-    "no_fields_found": "No fields found from SQL"
+    "analysis_success": "Successfully analyzed %{count} fields",
+    "no_fields_found": "No fields found from SQL",
+    "previewing_data": "Previewing data...",
+    "preview_success": "Successfully previewed %{count} rows",
+    "no_data_found": "No data found from query"
   },
   "success": {
-    "loaded": "Successfully loaded {rows} rows"
+    "loaded": "Successfully loaded %{rows} rows"
   },
   "warnings": {
     "no_results": "Query executed successfully but returned no results"
@@ -106,16 +111,17 @@
     "missing_connection": "Database connection is required",
     "missing_config": "Missing configuration",
     "invalid_datasource": "Invalid datasource",
-    "connection_not_found": "Database connection '{name}' not found in configuration",
-    "connection_failed": "Failed to connect to database: {error}",
+    "connection_not_found": "Database connection '%{name}' not found in configuration",
+    "connection_failed": "Failed to connect to database: %{error}",
     "sqlalchemy_required": "SQLAlchemy is required. Please install it with: pip install sqlalchemy",
-    "dangerous_operation": "Query blocked by safe mode: contains '{keyword}' operation",
-    "execution_error": "Error executing SQL query: {error}",
-    "dataframe_error": "Error loading dataframe: {error}",
-    "extraction_failed": "Extraction failed: {error}",
-    "transformation_failed": "Field transformation failed: {error}",
+    "dangerous_operation": "Query blocked by safe mode: contains '%{keyword}' operation",
+    "execution_error": "Error executing SQL query: %{error}",
+    "dataframe_error": "Error loading dataframe: %{error}",
+    "extraction_failed": "Extraction failed: %{error}",
+    "transformation_failed": "Field transformation failed: %{error}",
     "no_sql": "Please enter SQL query first",
     "no_datasource": "Please select datasource first",
-    "analysis_failed": "SQL analysis failed: {error}"
+    "analysis_failed": "SQL analysis failed: %{error}",
+    "preview_failed": "Preview failed: %{error}"
   }
 }

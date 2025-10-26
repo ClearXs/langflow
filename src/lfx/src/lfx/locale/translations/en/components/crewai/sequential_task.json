@@ -32,17 +32,17 @@
   },
   "status": {
     "building": "Building sequential task...",
-    "task_created": "Sequential task created successfully - Total tasks: {total_count}"
+    "task_created": "Sequential task created successfully - Total tasks: %{total_count}"
   },
   "errors": {
-    "build_failed": "Failed to build sequential task: {error}"
+    "build_failed": "Failed to build sequential task: %{error}"
   },
   "logs": {
     "building_task": "Building sequential task",
     "creating_task": "Creating task with agent",
     "task_created": "Task created successfully",
     "chaining_tasks": "Chaining with previous task(s)",
-    "chained_with_list": "Chained with {count} previous tasks",
+    "chained_with_list": "Chained with %{count} previous tasks",
     "chained_with_single": "Chained with single previous task",
     "single_task": "Creating single task without chaining"
   }

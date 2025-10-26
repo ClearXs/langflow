@@ -28,20 +28,20 @@
   "errors": {
     "import_error": "未找到JigsawStack包。请使用以下命令安装：pip install jigsawstack>=0.2.7",
     "url_or_html_required": "必须提供'url'或'html'之一用于抓取",
-    "max_elements_exceeded": "最多允许{max}个元素提示",
+    "max_elements_exceeded": "最多允许%{max}个元素提示",
     "empty_element_prompts": "元素提示不能为空",
     "api_request_failed": "JigsawStack API请求失败",
-    "jigsawstack_error": "JigsawStack错误：{error}",
-    "unexpected_error": "发生意外错误：{error}"
+    "jigsawstack_error": "JigsawStack错误：%{error}",
+    "unexpected_error": "发生意外错误：%{error}"
   },
   "logs": {
     "starting_scrape": "正在开始AI抓取过程",
     "creating_client": "正在创建JigsawStack客户端",
-    "using_url": "正在使用URL进行抓取：{url}",
-    "using_html": "正在使用HTML内容进行抓取（长度：{length}字符）",
+    "using_url": "正在使用URL进行抓取：%{url}",
+    "using_html": "正在使用HTML内容进行抓取（长度：%{length}字符）",
     "processing_element_prompts": "正在处理元素提示",
-    "element_prompts_parsed": "已解析{count}个元素提示：{prompts}",
-    "using_root_selector": "正在使用根元素选择器：{selector}",
+    "element_prompts_parsed": "已解析%{count}个元素提示：%{prompts}",
+    "using_root_selector": "正在使用根元素选择器：%{selector}",
     "calling_api": "正在调用JigsawStack AI抓取API",
     "scrape_complete": "AI抓取过程已完成。"
   }

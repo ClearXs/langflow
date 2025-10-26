@@ -1,37 +1,62 @@
 {
-  "display_name": "数据去重",
-  "description": "根据关键字段删除重复记录",
-  "status": {
-    "deduplicating": "正在去重...",
-    "success": "保留 {unique} 条唯一记录，删除 {duplicates} 条重复"
-  },
-  "errors": {
-    "dedup_failed": "去重失败: {error}",
-    "no_data": "未提供输入数据"
-  },
-  "case_sensitive": {
-    "display_name": "区分大小写",
-    "info": "比较时区分大小写"
-  },
+  "display_name": "数据去重合并",
+  "description": "根据指定的分组字段删除或合并重复记录,支持排序控制保留记录",
   "data_input": {
     "display_name": "数据输入",
-    "info": "要去重的输入数据"
+    "info": "来自上游组件的输入数据(table_input/csv_input/excel_input)"
   },
-  "ignore_null": {
-    "display_name": "忽略空值",
-    "info": "比较时忽略空值"
+  "group_by_fields": {
+    "display_name": "比较字段",
+    "info": "用于识别重复数据的字段 - 所有指定字段都匹配才视为重复",
+    "field_name": "字段名称",
+    "field_name_desc": "用于分组的字段名称",
+    "load_button": "从上游加载字段"
   },
-  "keep_strategy": {
-    "display_name": "保留策略",
-    "info": "保留哪条重复记录"
+  "dedup_mode": {
+    "display_name": "去重模式",
+    "info": "删除: 仅保留第一条记录; 合并: 用分隔符合并非分组字段",
+    "delete": "删除重复",
+    "merge": "合并重复"
   },
-  "key_columns": {
-    "display_name": "关键列",
-    "info": "用于识别重复的列"
+  "sort_field": {
+    "display_name": "排序字段(可选)",
+    "info": "去重前按此字段排序,控制保留哪条记录"
   },
-  "trim_whitespace": {
-    "display_name": "去除空白",
-    "info": "比较前去除首尾空白字符"
+  "sort_order": {
+    "display_name": "排序方向",
+    "info": "指定排序字段时的排序方式",
+    "asc": "升序",
+    "desc": "降序"
+  },
+  "merge_separator": {
+    "display_name": "合并分隔符",
+    "info": "合并非分组字段值时使用的分隔符(仅合并模式使用)"
+  },
+  "outputs": {
+    "data": {
+      "display_name": "去重后数据"
+    },
+    "preview": {
+      "display_name": "预览(前100行)"
+    },
+    "stats": {
+      "display_name": "去重统计信息"
+    }
+  },
+  "status": {
+    "deduplicating": "正在删除/合并重复数据...",
+    "fields_loaded": "从上游组件加载了 %{count} 个字段",
+    "success": "保留 %{unique} 条唯一记录,删除/合并 %{duplicates} 条重复",
+    "preview_ready": "预览显示 %{shown}/%{total} 条去重后记录"
+  },
+  "errors": {
+    "no_data": "未提供输入数据",
+    "no_upstream_data": "无上游数据。请连接数据源组件。",
+    "no_group_fields": "未指定分组字段",
+    "empty_group_fields": "分组字段表格为空。请至少添加一个字段。",
+    "field_not_found": "字段 '%{field}' 在输入数据中不存在",
+    "load_failed": "字段加载失败: %{error}",
+    "dedup_failed": "去重失败: %{error}",
+    "preview_failed": "预览生成失败: %{error}"
   }
 }
-

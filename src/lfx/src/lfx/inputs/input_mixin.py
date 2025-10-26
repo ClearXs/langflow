@@ -1,6 +1,7 @@
 from enum import Enum
 from typing import Annotated, Any
 
+import i18n
 from pydantic import (
     BaseModel,
     ConfigDict,
@@ -133,7 +134,7 @@ class MetadataTraceMixin(BaseModel):
 # Mixin for input fields that can be listable
 class ListableInputMixin(BaseModel):
     is_list: bool = Field(default=False, alias="list")
-    list_add_label: str | None = Field(default="Add More")
+    list_add_label: str | None = Field(default_factory=lambda: i18n.t("base.input_mixin.list_add_label"))
 
 
 # Specific mixin for fields needing database interaction
@@ -312,7 +313,7 @@ class SliderMixin(BaseModel):
 class TableMixin(BaseModel):
     # For now we'll use simple types - in a full implementation these would be proper schema classes
     table_schema: dict | list | None = None
-    trigger_text: str = Field(default="Open Table")
+    trigger_text: str = Field(default_factory=lambda: i18n.t("base.input_mixin.table_trigger_text"))
     trigger_icon: str = Field(default="Table")
     table_icon: str = Field(default="Table")
     table_options: dict | None = None

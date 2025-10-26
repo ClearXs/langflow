@@ -21,19 +21,19 @@
     }
   },
   "success": {
-    "data_combined": "Successfully combined {inputs} data inputs using '{operation}' operation. Result has {rows} rows."
+    "data_combined": "Successfully combined %{inputs} data inputs using '%{operation}' operation. Result has %{rows} rows."
   },
   "warnings": {
     "no_data_inputs": "No data inputs provided.",
-    "insufficient_inputs": "Insufficient data inputs. Required: {required}, provided: {provided}."
+    "insufficient_inputs": "Insufficient data inputs. Required: %{required}, provided: %{provided}."
   },
   "errors": {
-    "combination_failed": "Data combination failed using '{operation}' operation: {error}",
-    "unsupported_operation": "Unsupported operation: {operation}",
-    "operation_processing_failed": "Failed to process '{operation}' operation: {error}",
-    "concatenate_failed": "Concatenate operation failed: {error}",
-    "append_failed": "Append operation failed: {error}",
-    "merge_failed": "Merge operation failed: {error}",
-    "join_failed": "Join operation failed: {error}"
+    "combination_failed": "Data combination failed using '%{operation}' operation: %{error}",
+    "unsupported_operation": "Unsupported operation: %{operation}",
+    "operation_processing_failed": "Failed to process '%{operation}' operation: %{error}",
+    "concatenate_failed": "Concatenate operation failed: %{error}",
+    "append_failed": "Append operation failed: %{error}",
+    "merge_failed": "Merge operation failed: %{error}",
+    "join_failed": "Join operation failed: %{error}"
   }
 }

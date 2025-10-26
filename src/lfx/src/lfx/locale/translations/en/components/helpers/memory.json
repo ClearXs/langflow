@@ -44,7 +44,7 @@
   },
   "template": {
     "display_name": "Template",
-    "info": "The template to use for formatting the data. It can contain the keys {text}, {sender} or any other key in the message data."
+    "info": "The template to use for formatting the data. It can contain the keys %{text}, %{sender} or any other key in the message data."
   },
   "outputs": {
     "message": {
@@ -61,17 +61,17 @@
     }
   },
   "success": {
-    "message_stored": "Message stored successfully for sender '{sender}' in session '{session_id}'",
-    "messages_retrieved": "Retrieved {count} messages for session '{session_id}'",
+    "message_stored": "Message stored successfully for sender '%{sender}' in session '%{session_id}'",
+    "messages_retrieved": "Retrieved %{count} messages for session '%{session_id}'",
     "text_formatted": "Messages formatted as text successfully",
-    "dataframe_created": "DataFrame created with {rows} rows"
+    "dataframe_created": "DataFrame created with %{rows} rows"
   },
   "errors": {
     "no_messages_stored": "No messages were stored. Please ensure that the session ID and sender are properly set.",
-    "store_failed": "Failed to store message: {error}",
-    "invalid_external_memory": "External Memory object ({memory_name}) must have 'aget_messages' method.",
-    "retrieve_failed": "Failed to retrieve messages: {error}",
-    "text_formatting_failed": "Failed to format messages as text: {error}",
-    "dataframe_creation_failed": "Failed to create DataFrame: {error}"
+    "store_failed": "Failed to store message: %{error}",
+    "invalid_external_memory": "External Memory object (%{memory_name}) must have 'aget_messages' method.",
+    "retrieve_failed": "Failed to retrieve messages: %{error}",
+    "text_formatting_failed": "Failed to format messages as text: %{error}",
+    "dataframe_creation_failed": "Failed to create DataFrame: %{error}"
   }
 }

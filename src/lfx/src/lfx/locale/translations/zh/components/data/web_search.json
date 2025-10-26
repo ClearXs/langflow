@@ -44,18 +44,18 @@
   "errors": {
     "empty_query": "搜索查询为空",
     "no_results": "未找到结果",
-    "failed_request": "请求失败：{error}",
-    "invalid_url": "无效的URL：{url}",
-    "failed_fetch": "获取失败：{error}",
-    "failed_fetch_news": "获取新闻失败：{error}",
+    "failed_request": "请求失败：%{error}",
+    "invalid_url": "无效的URL：%{url}",
+    "failed_fetch": "获取失败：%{error}",
+    "failed_fetch_news": "获取新闻失败：%{error}",
     "no_articles": "未找到新闻文章。",
     "no_rss_url": "未提供RSS URL",
-    "failed_fetch_rss": "获取RSS失败：{error}",
+    "failed_fetch_rss": "获取RSS失败：%{error}",
     "empty_response": "收到空响应",
-    "invalid_xml": "无效的XML响应：{error}",
-    "parse_article_error": "解析文章错误：{error}"
+    "invalid_xml": "无效的XML响应：%{error}",
+    "parse_article_error": "解析文章错误：%{error}"
   },
   "success": {
-    "fetched_articles": "获取了 {count} 篇文章。"
+    "fetched_articles": "获取了 %{count} 篇文章。"
   }
 }

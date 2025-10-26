@@ -26,7 +26,7 @@
     "exactly_one_input": "Please provide exactly one input: either a JSON file, JSON path, or JSON string.",
     "must_be_json": "The file must have a .json extension.",
     "empty_json": "The JSON file is empty or contains no valid data.",
-    "json_parsing_error": "Error parsing JSON data: {error}",
-    "generic_error": "An error occurred while processing the JSON: {error}"
+    "json_parsing_error": "Error parsing JSON data: %{error}",
+    "generic_error": "An error occurred while processing the JSON: %{error}"
   }
 }

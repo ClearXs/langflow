@@ -50,15 +50,15 @@
     }
   },
   "success": {
-    "fetched_entries": "成功获取了{count}个条目，总共{total}个条目"
+    "fetched_entries": "成功获取了%{count}个条目，总共%{total}个条目"
   },
   "warnings": {
-    "feed_parsing_issues": "订阅源解析遇到问题：{error}"
+    "feed_parsing_issues": "订阅源解析遇到问题：%{error}"
   },
   "errors": {
     "empty_url": "RSS链接不能为空。",
     "no_entries": "在RSS订阅源中未找到条目。",
-    "fetch_error": "获取RSS订阅源时出错：{error}",
-    "feed_info_error": "获取订阅源信息时出错：{error}"
+    "fetch_error": "获取RSS订阅源时出错：%{error}",
+    "feed_info_error": "获取订阅源信息时出错：%{error}"
   }
 }

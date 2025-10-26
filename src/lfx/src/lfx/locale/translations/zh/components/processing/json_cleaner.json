@@ -29,16 +29,16 @@
   },
   "success": {
     "json_cleaned": "JSON字符串清理成功",
-    "json_cleaned_with_operations": "JSON字符串清理成功，执行了以下操作：{operations}"
+    "json_cleaned_with_operations": "JSON字符串清理成功，执行了以下操作：%{operations}"
   },
   "errors": {
     "import_error": "无法导入json_repair包。请使用`pip install json_repair`安装。",
     "empty_input": "JSON字符串不能为空。",
     "invalid_json_format": "无效的JSON字符串：缺少'{'或'}'",
-    "cleaning_failed": "清理JSON字符串时出错：{error}",
-    "control_char_removal_failed": "删除控制字符失败：{error}",
-    "unicode_normalization_failed": "规范化Unicode字符失败：{error}",
-    "json_validation_failed": "无效的JSON字符串：{error}",
-    "json_validation_error": "JSON验证错误：{error}"
+    "cleaning_failed": "清理JSON字符串时出错：%{error}",
+    "control_char_removal_failed": "删除控制字符失败：%{error}",
+    "unicode_normalization_failed": "规范化Unicode字符失败：%{error}",
+    "json_validation_failed": "无效的JSON字符串：%{error}",
+    "json_validation_error": "JSON验证错误：%{error}"
   }
 }

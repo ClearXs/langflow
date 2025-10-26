@@ -19,8 +19,8 @@
     }
   },
   "success": {
-    "appended_to_context": "数据已追加到上下文键'{key}'",
-    "stored_in_context": "数据已存储到上下文键'{key}'"
+    "appended_to_context": "数据已追加到上下文键'%{key}'",
+    "stored_in_context": "数据已存储到上下文键'%{key}'"
   },
   "warnings": {
     "no_record_provided": "未提供记录。"

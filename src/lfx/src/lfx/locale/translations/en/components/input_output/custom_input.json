@@ -1,0 +1,43 @@
+{
+  "display_name": "Custom Input",
+  "description": "Custom data input with user-defined schema for testing",
+  "field_schema": {
+    "display_name": "Field Schema",
+    "info": "Define your custom fields (field name, data type, default value). Changes automatically sync to Data Entry table.",
+    "field_name": "Field Name",
+    "data_type": "Data Type",
+    "default_value": "Default Value"
+  },
+  "data_table": {
+    "display_name": "Data Entry",
+    "info": "Enter your custom data rows. Tip: Define field schema first, then use buttons below to generate test data or enter manually.",
+    "generate_button": "Generate Test Data",
+    "validate_button": "Validate Data Types"
+  },
+  "test_rows_count": {
+    "display_name": "Test Rows Count",
+    "info": "Number of test data rows to generate (1-1000)"
+  },
+  "strict_validation": {
+    "display_name": "Strict Type Validation",
+    "info": "Enable strict type checking for data values"
+  },
+  "output_data": {
+    "display_name": "Data"
+  },
+  "status": {
+    "schema_applied": "Schema applied successfully with %{count} fields",
+    "schema_cleared": "Schema cleared",
+    "test_data_generated": "Generated %{count} test data rows",
+    "validation_passed": "All %{count} rows validated successfully with correct types",
+    "data_loaded": "Loaded %{count} data rows"
+  },
+  "errors": {
+    "no_schema": "Please define field schema first",
+    "no_data": "No data to validate. Please generate test data or enter manually.",
+    "invalid_field_name": "Invalid field name: %{name}",
+    "type_conversion_failed": "Failed to convert value '%{value}' to type %{type}",
+    "validation_failed": "Data validation failed: %{error}",
+    "duplicate_field": "Duplicate field name: %{name}"
+  }
+}

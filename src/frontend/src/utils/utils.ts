@@ -599,7 +599,19 @@ export function FormatColumns(columns: ColumnField[]): ColDef<any>[] {
           newCol.cellEditorPopup = true;
           newCol.cellEditorParams = {
             values: col.options,
+            optionsMetadata: col.options_metadata, // Pass metadata for i18n support
           };
+          // Add value formatter to display i18n labels
+          if (col.options_metadata && col.options_metadata.length > 0) {
+            const valueToLabelMap: Record<string, string> = {};
+            col.options_metadata.forEach((meta: any) => {
+              valueToLabelMap[meta.value] = meta.label;
+            });
+            newCol.valueFormatter = (params) => {
+              const cellValue = params.value;
+              return valueToLabelMap[cellValue] || cellValue;
+            };
+          }
           newCol.autoHeight = false;
           newCol.cellClass = "no-border !py-2";
         } else if (
@@ -615,7 +627,7 @@ export function FormatColumns(columns: ColumnField[]): ColDef<any>[] {
           };
         } else if (col.formatter === FormatterType.boolean) {
           newCol.cellRenderer = TableAutoCellRender;
-          newCol.editable = false;
+          newCol.editable = !col.disable_edit; // Allow editing unless explicitly disabled
           newCol.autoHeight = false;
           newCol.cellClass = "no-border !py-2";
           newCol.type = "boolean";

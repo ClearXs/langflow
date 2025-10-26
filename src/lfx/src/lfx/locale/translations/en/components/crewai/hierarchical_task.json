@@ -23,10 +23,10 @@
     "task_created": "Hierarchical task created successfully"
   },
   "errors": {
-    "build_failed": "Failed to build hierarchical task: {error}"
+    "build_failed": "Failed to build hierarchical task: %{error}"
   },
   "logs": {
     "building_task": "Building hierarchical task",
-    "task_details": "Task details - Description length: {description_length}, Tools: {tool_count}"
+    "task_details": "Task details - Description length: %{description_length}, Tools: %{tool_count}"
   }
 }

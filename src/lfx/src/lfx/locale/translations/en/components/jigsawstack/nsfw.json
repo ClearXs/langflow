@@ -17,16 +17,16 @@
     "import_error": "JigsawStack package not found. Please install it using: pip install jigsawstack>=0.2.7",
     "empty_url": "URL is required for NSFW detection",
     "api_request_failed": "JigsawStack API returned unsuccessful response",
-    "jigsawstack_error": "JigsawStack error: {error}",
-    "unexpected_error": "An unexpected error occurred: {error}"
+    "jigsawstack_error": "JigsawStack error: %{error}",
+    "unexpected_error": "An unexpected error occurred: %{error}"
   },
   "logs": {
-    "starting_detection": "Starting NSFW detection - URL: {url}",
+    "starting_detection": "Starting NSFW detection - URL: %{url}",
     "creating_client": "Creating JigsawStack client",
-    "analyzing_url": "Analyzing content from URL: {url}",
+    "analyzing_url": "Analyzing content from URL: %{url}",
     "calling_api": "Calling JigsawStack NSFW detection API",
-    "detection_complete": "NSFW detection complete - Is NSFW: {is_nsfw}, Confidence: {confidence}%",
-    "nsfw_detected": "⚠️ NSFW content detected (Confidence: {confidence}%)",
-    "safe_content": "✓ Safe content (Confidence: {confidence}%)"
+    "detection_complete": "NSFW detection complete - Is NSFW: %{is_nsfw}, Confidence: %{confidence}%",
+    "nsfw_detected": "⚠️ NSFW content detected (Confidence: %{confidence}%)",
+    "safe_content": "✓ Safe content (Confidence: %{confidence}%)"
   }
 }

@@ -7,10 +7,10 @@
   },
   "status": {
     "capturing": "正在捕获变更...",
-    "success": "捕获 {changes} 条变更"
+    "success": "捕获 %{changes} 条变更"
   },
   "errors": {
-    "capture_failed": "捕获变更失败: {error}",
+    "capture_failed": "捕获变更失败: %{error}",
     "audit_table_missing": "审计表未找到",
     "invalid_mode": "无效的CDC模式"
   },
@@ -49,5 +49,13 @@
   "timestamp_column": {
     "display_name": "时间戳列",
     "info": "跟踪变更的列"
+  },
+  "outputs": {
+    "data": {
+      "display_name": "数据"
+    },
+    "change_summary": {
+      "display_name": "变更汇总"
+    }
   }
 }

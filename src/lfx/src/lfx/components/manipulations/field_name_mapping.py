@@ -88,7 +88,7 @@ class ETLFieldNameMappingComponent(Component):
         build_config: dict,
         field_value: Any,
         field_name: str | None = None,
-        action: str | None = None,  # noqa: ARG002
+        action: str | None = None,
     ):
         """Dynamic configuration updates based on action button clicks.
 
@@ -215,6 +215,13 @@ class ETLFieldNameMappingComponent(Component):
             # Convert to DataFrame
             df = pd.DataFrame([d.data if hasattr(d, "data") else d for d in self.data_input])
 
+            # Strip whitespace from column names to normalize field names
+            df.columns = df.columns.str.strip()
+
+            # Log available fields for debugging
+            logger.info(f"[FieldNameMapping] Available fields in input data: {list(df.columns)}")
+            logger.info(f"[FieldNameMapping] Field mappings to apply: {self.field_mappings}")
+
             # Build mapping dictionary and validate
             mapping_dict = {}
             target_fields_seen = set()
@@ -224,26 +231,31 @@ class ETLFieldNameMappingComponent(Component):
                 target = mapping.get("target_field", "").strip()
 
                 if not source or not target:
+                    logger.warning(f"[FieldNameMapping] Skipping empty mapping: {mapping}")
                     continue
 
                 # Validate source field exists
                 if source not in df.columns:
-                    raise ValueError(
-                        i18n.t(
-                            "components.manipulations.field_name_mapping.errors.source_field_not_found", field=source
-                        )
+                    available_fields = ", ".join(df.columns)
+                    error_msg = i18n.t(
+                        "components.manipulations.field_name_mapping.errors.source_field_not_found", field=source
                     )
+                    detailed_error = f"{error_msg}. Available fields: {available_fields}"
+                    logger.error(f"[FieldNameMapping] {detailed_error}")
+                    raise ValueError(detailed_error)
 
                 # Check for duplicate target fields
                 if target in target_fields_seen:
-                    raise ValueError(
-                        i18n.t(
-                            "components.manipulations.field_name_mapping.errors.duplicate_target_field", field=target
-                        )
+                    error_msg = i18n.t(
+                        "components.manipulations.field_name_mapping.errors.duplicate_target_field", field=target
                     )
+                    logger.error(f"[FieldNameMapping] {error_msg}")
+                    raise ValueError(error_msg)
 
                 target_fields_seen.add(target)
                 mapping_dict[source] = target
+
+            logger.info(f"[FieldNameMapping] Applying field mappings: {mapping_dict}")
 
             # Apply field name mapping
             df = df.rename(columns=mapping_dict)
@@ -252,6 +264,7 @@ class ETLFieldNameMappingComponent(Component):
             if self.drop_unmapped:
                 mapped_fields = list(mapping_dict.values())
                 df = df[mapped_fields]
+                logger.info(f"[FieldNameMapping] Dropped unmapped fields, remaining: {list(df.columns)}")
 
             # Convert back to Data objects
             result = [Data(data=row.to_dict()) for _, row in df.iterrows()]
@@ -263,9 +276,15 @@ class ETLFieldNameMappingComponent(Component):
                 fields=len(mapping_dict),
             )
 
+            logger.info(f"[FieldNameMapping] Successfully mapped {len(result)} records with {len(mapping_dict)} field transformations")
+
             return result
 
+        except ValueError:
+            # Re-raise ValueError directly without wrapping
+            raise
         except Exception as e:
             error_msg = i18n.t("components.manipulations.field_name_mapping.errors.mapping_failed", error=str(e))
+            logger.exception(f"[FieldNameMapping] {error_msg}")
             self.status = error_msg
             raise ValueError(error_msg) from e

@@ -1,5 +1,6 @@
 import { debounce } from "lodash";
 import { useCallback, useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import ForwardedIconComponent from "@/components/common/genericIconComponent";
 import ShadTooltip from "@/components/common/shadTooltipComponent";
 import { Button } from "@/components/ui/button";
@@ -35,6 +36,7 @@ const HeaderComponent = ({
   isEmptyFolder,
   selectedFlows,
 }: HeaderComponentProps) => {
+  const { t } = useTranslation();
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const isMCPEnabled = ENABLE_MCP;
   const setSuccessData = useAlertStore((state) => state.setSuccessData);
@@ -77,7 +79,7 @@ const HeaderComponent = ({
 
   const handleDownload = () => {
     downloadFlows({ ids: selectedFlows });
-    setSuccessData({ title: "Flows downloaded successfully" });
+    setSuccessData({ title: t("flows.downloadedSuccessfully") });
   };
 
   const handleDelete = () => {
@@ -85,7 +87,7 @@ const HeaderComponent = ({
       { flow_ids: selectedFlows },
       {
         onSuccess: () => {
-          setSuccessData({ title: "Flows deleted successfully" });
+          setSuccessData({ title: t("flows.deletedSuccessfully") });
         },
       },
     );
@@ -131,8 +133,10 @@ const HeaderComponent = ({
               >
                 <div className={flowType === type ? "-mb-px" : ""}>
                   {type === "mcp"
-                    ? "MCP Server"
-                    : type.charAt(0).toUpperCase() + type.slice(1)}
+                    ? t("flows.mcpServer")
+                    : type === "flows"
+                      ? t("flows.flows")
+                      : t("flows.components")}
                 </div>
               </Button>
             ))}
@@ -145,7 +149,12 @@ const HeaderComponent = ({
                   icon="Search"
                   data-testid="search-store-input"
                   type="text"
-                  placeholder={`Search ${flowType}...`}
+                  placeholder={t("flows.searchPlaceholder", {
+                    type:
+                      flowType === "flows"
+                        ? t("flows.flows")
+                        : t("flows.components"),
+                  })}
                   className="mr-2 !text-mmd"
                   inputClassName="!text-mmd"
                   value={debouncedSearch}
@@ -203,12 +212,17 @@ const HeaderComponent = ({
 
                   <DeleteConfirmationModal
                     onConfirm={handleDelete}
-                    description={"flow" + (selectedFlows.length > 1 ? "s" : "")}
-                    note={
-                      "and " +
-                      (selectedFlows.length > 1 ? "their" : "its") +
-                      " message history"
+                    description={
+                      selectedFlows.length > 1
+                        ? t("flows.flows")
+                        : t("flows.flow")
                     }
+                    note={t("flows.andMessageHistory", {
+                      possessive:
+                        selectedFlows.length > 1
+                          ? t("common.their")
+                          : t("common.its"),
+                    })}
                   >
                     <Button
                       variant="destructive"
@@ -218,11 +232,11 @@ const HeaderComponent = ({
                       loading={isDeleting}
                     >
                       <ForwardedIconComponent name="Trash2" />
-                      Delete
+                      {t("common.delete")}
                     </Button>
                   </DeleteConfirmationModal>
                 </div>
-                <ShadTooltip content="New Flow" side="bottom">
+                <ShadTooltip content={t("flows.newFlow")} side="bottom">
                   <Button
                     variant="default"
                     size="iconMd"
@@ -237,7 +251,7 @@ const HeaderComponent = ({
                       className="h-4 w-4"
                     />
                     <span className="hidden whitespace-nowrap font-semibold md:inline">
-                      New Flow
+                      {t("flows.newFlow")}
                     </span>
                   </Button>
                 </ShadTooltip>

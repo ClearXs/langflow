@@ -29,8 +29,8 @@
   "errors": {
     "invalid_row_count": "行数必须大于0。",
     "missing_custom_schema": "当数据类型设置为'自定义'时，需要提供自定义模式。",
-    "invalid_data_type": "指定了无效的数据类型：{data_type}",
-    "generation_error": "生成模拟数据时出错：{error}",
-    "invalid_schema": "无效的JSON模式格式：{error}"
+    "invalid_data_type": "指定了无效的数据类型：%{data_type}",
+    "generation_error": "生成模拟数据时出错：%{error}",
+    "invalid_schema": "无效的JSON模式格式：%{error}"
   }
 }

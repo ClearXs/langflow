@@ -24,25 +24,25 @@
   },
   "status": {
     "retrieving_transcript": "Retrieving transcript...",
-    "exporting_subtitles": "Exporting subtitles in {format} format..."
+    "exporting_subtitles": "Exporting subtitles in %{format} format..."
   },
   "success": {
-    "subtitles_exported": "Subtitles exported successfully in {format} format"
+    "subtitles_exported": "Subtitles exported successfully in %{format} format"
   },
   "warnings": {
-    "previous_step_error": "Error from previous step: {error}"
+    "previous_step_error": "Error from previous step: %{error}"
   },
   "errors": {
     "transcript_id_not_found": "Transcript ID not found in transcription result",
-    "get_transcript_failed": "Getting transcription failed: {error}",
-    "export_failed": "Failed to export subtitles in {format} format: {error}",
-    "transcript_not_completed": "Transcript is not completed. Status: {status}",
-    "get_subtitles_failed": "Failed to get subtitles: {error}"
+    "get_transcript_failed": "Getting transcription failed: %{error}",
+    "export_failed": "Failed to export subtitles in %{format} format: %{error}",
+    "transcript_not_completed": "Transcript is not completed. Status: %{status}",
+    "get_subtitles_failed": "Failed to get subtitles: %{error}"
   },
   "logs": {
-    "fetching_transcript": "Fetching transcript with ID: {id}",
+    "fetching_transcript": "Fetching transcript with ID: %{id}",
     "srt_exported": "SRT subtitles exported successfully",
     "vtt_exported": "VTT subtitles exported successfully",
-    "transcript_error": "Transcript status: {status}, error: {error}"
+    "transcript_error": "Transcript status: %{status}, error: %{error}"
   }
 }

@@ -1,0 +1,48 @@
+{
+  "display_name": "Quality Model",
+  "description": "Detect data quality using quality models",
+  "data_input": {
+    "display_name": "Data Input",
+    "info": "Input data to be quality checked"
+  },
+  "quality_model_config": {
+    "display_name": "Quality Model Config",
+    "info": "Select quality models to apply",
+    "model_id": "Model ID",
+    "model_id_desc": "Unique identifier of the quality model",
+    "model_name": "Model Name",
+    "model_name_desc": "Name of the quality model",
+    "enabled": "Enabled",
+    "enabled_desc": "Whether to enable this quality model",
+    "load_button": "Load Quality Models"
+  },
+  "auto_evaluate": {
+    "display_name": "Auto Evaluate",
+    "info": "Automatically execute quality check when enabled (reserved for future)"
+  },
+  "outputs": {
+    "data": {
+      "display_name": "Processed Data"
+    },
+    "quality_result": {
+      "display_name": "Quality Result"
+    }
+  },
+  "status": {
+    "loading_models": "Loading quality model list from data-governance service...",
+    "models_loaded": "Successfully loaded %{count} quality models",
+    "processing_data": "Processing %{count} records...",
+    "data_processed": "Successfully processed %{count} records",
+    "evaluation_complete": "Quality check completed for %{count} records",
+    "no_models_found": "No available quality models found"
+  },
+  "errors": {
+    "no_models_found": "No available quality models found",
+    "api_call_failed": "Quality model API call failed: %{error}",
+    "missing_config": "Missing data input or quality model configuration",
+    "no_data_input": "No data input provided. Please connect a data source first.",
+    "no_graph_data": "No graph data available. Please save the workflow first.",
+    "graph_not_available": "Load quality models feature is only available during flow execution.",
+    "load_failed": "Failed to load quality models: %{error}"
+  }
+}

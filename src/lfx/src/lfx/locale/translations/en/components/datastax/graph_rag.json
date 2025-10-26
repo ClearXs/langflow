@@ -25,30 +25,30 @@
   },
   "status": {
     "searching": "Searching documents using Graph RAG...",
-    "search_completed": "Graph RAG search completed - {count} documents retrieved"
+    "search_completed": "Graph RAG search completed - %{count} documents retrieved"
   },
   "errors": {
-    "strategies_load_failed": "Failed to load traversal strategies: {error}",
-    "strategy_not_found": "Strategy '{strategy}' not found in strategies module",
-    "search_failed": "Graph RAG search failed: {error}",
+    "strategies_load_failed": "Failed to load traversal strategies: %{error}",
+    "strategy_not_found": "Strategy '%{strategy}' not found in strategies module",
+    "search_failed": "Graph RAG search failed: %{error}",
     "edge_definition_empty": "Edge definition cannot be empty",
-    "edge_definition_parse_failed": "Failed to parse edge definition: {error}",
+    "edge_definition_parse_failed": "Failed to parse edge definition: %{error}",
     "id_module_import_failed": "Could not import Id from graph_retriever.edges.metadata",
-    "edge_definition_evaluation_failed": "Failed to evaluate edge definition: {error}"
+    "edge_definition_evaluation_failed": "Failed to evaluate edge definition: %{error}"
   },
   "logs": {
-    "strategies_loaded": "Loaded {count} traversal strategies",
-    "searching_documents": "Searching documents - Strategy: {strategy}, Edge: {edge_definition}",
-    "additional_params": "Additional strategy parameters: {params}",
-    "edge_definition_evaluated": "Edge definition evaluated: {edge_def}",
-    "strategy_class_loaded": "Strategy class loaded: {strategy}",
+    "strategies_loaded": "Loaded %{count} traversal strategies",
+    "searching_documents": "Searching documents - Strategy: %{strategy}, Edge: %{edge_definition}",
+    "additional_params": "Additional strategy parameters: %{params}",
+    "edge_definition_evaluated": "Edge definition evaluated: %{edge_def}",
+    "strategy_class_loaded": "Strategy class loaded: %{strategy}",
     "creating_retriever": "Creating Graph Retriever",
-    "invoking_retriever": "Invoking retriever with query: {query}",
-    "documents_retrieved": "Retrieved {count} documents",
-    "edge_definition_parsed": "Edge definition parsed into values: {values}",
+    "invoking_retriever": "Invoking retriever with query: %{query}",
+    "documents_retrieved": "Retrieved %{count} documents",
+    "edge_definition_parsed": "Edge definition parsed into values: %{values}",
     "id_module_imported": "Id module imported successfully",
     "id_function_evaluated": "Id() function evaluated",
-    "value_added": "Value added to edge definition: {value}",
-    "edge_definition_evaluation_completed": "Edge definition evaluation completed: {result}"
+    "value_added": "Value added to edge definition: %{value}",
+    "edge_definition_evaluation_completed": "Edge definition evaluation completed: %{result}"
   }
 }

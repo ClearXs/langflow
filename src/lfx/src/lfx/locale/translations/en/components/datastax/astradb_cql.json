@@ -76,28 +76,28 @@
     "info": "Number of results to return."
   },
   "errors": {
-    "timestamp_parse_failed": "Could not parse date: {timestamp}",
-    "timestamp_error": "Error parsing timestamp: {error} - Use the prompt to specify the date in the correct format",
-    "request_failed": "Error on Astra DB CQL Tool {tool_name} request: {response}"
+    "timestamp_parse_failed": "Could not parse date: %{timestamp}",
+    "timestamp_error": "Error parsing timestamp: %{error} - Use the prompt to specify the date in the correct format",
+    "request_failed": "Error on Astra DB CQL Tool %{tool_name} request: %{response}"
   },
   "logs": {
-    "parsing_timestamp": "Parsing timestamp: {timestamp}",
-    "timestamp_parsed": "Timestamp parsed successfully: {formatted}",
-    "making_request": "Making request to Astra DB - Table: {table}, Keyspace: {keyspace}",
-    "processing_params": "Processing {count} parameters",
-    "using_static_filter": "Using static filter for field: {field}",
-    "using_arg_value": "Using argument value for parameter: {param}",
-    "request_url": "Request URL: {url}",
-    "request_successful": "Request successful - Retrieved {count} results",
-    "no_json_response": "No JSON response, status code: {status_code}",
+    "parsing_timestamp": "Parsing timestamp: %{timestamp}",
+    "timestamp_parsed": "Timestamp parsed successfully: %{formatted}",
+    "making_request": "Making request to Astra DB - Table: %{table}, Keyspace: %{keyspace}",
+    "processing_params": "Processing %{count} parameters",
+    "using_static_filter": "Using static filter for field: %{field}",
+    "using_arg_value": "Using argument value for parameter: %{param}",
+    "request_url": "Request URL: %{url}",
+    "request_successful": "Request successful - Retrieved %{count} results",
+    "no_json_response": "No JSON response, status code: %{status_code}",
     "creating_args_schema": "Creating arguments schema",
-    "args_schema_created": "Arguments schema created with {field_count} fields",
-    "building_tool": "Building tool: {tool_name}",
-    "tool_built": "Tool built successfully: {tool_name}",
-    "parsing_projection": "Parsing projection fields: {input_str}",
-    "projection_parsed": "Projection parsed - {count} fields",
-    "running_tool": "Running tool: {tool_name}",
-    "tool_completed": "Tool execution completed - {count} results",
+    "args_schema_created": "Arguments schema created with %{field_count} fields",
+    "building_tool": "Building tool: %{tool_name}",
+    "tool_built": "Tool built successfully: %{tool_name}",
+    "parsing_projection": "Parsing projection fields: %{input_str}",
+    "projection_parsed": "Projection parsed - %{count} fields",
+    "running_tool": "Running tool: %{tool_name}",
+    "tool_completed": "Tool execution completed - %{count} results",
     "no_results": "No results returned"
   }
 }

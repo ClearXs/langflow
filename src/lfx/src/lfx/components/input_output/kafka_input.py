@@ -86,8 +86,16 @@ class ETLKafkaInputComponent(Component):
     ]
 
     outputs = [
-        Output(name="data", display_name="Data", method="consume_messages"),
-        Output(name="consumer_info", display_name="Consumer Info", method="get_consumer_info"),
+        Output(
+            name="data",
+            display_name=i18n.t("components.input_output.kafka_input.outputs.data.display_name"),
+            method="consume_messages",
+        ),
+        Output(
+            name="consumer_info",
+            display_name=i18n.t("components.input_output.kafka_input.outputs.consumer_info.display_name"),
+            method="get_consumer_info",
+        ),
     ]
 
     def consume_messages(self) -> list[Data]:

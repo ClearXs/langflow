@@ -17,20 +17,20 @@
     "info": "Default entity ID to control (e.g., switch.unknown_switch_3)"
   },
   "errors": {
-    "timeout": "Request timeout: {error}",
-    "connection_failed": "Failed to connect to Home Assistant at {base_url}: {error}",
-    "http_error": "HTTP error {status}: {error}",
-    "request_failed": "Failed to call service: {error}",
-    "invalid_entity_format": "Invalid entity_id format: {entity_id}. Expected format: domain.entity_name",
-    "unexpected_error": "An unexpected error occurred: {error}"
+    "timeout": "Request timeout: %{error}",
+    "connection_failed": "Failed to connect to Home Assistant at %{base_url}: %{error}",
+    "http_error": "HTTP error %{status}: %{error}",
+    "request_failed": "Failed to call service: %{error}",
+    "invalid_entity_format": "Invalid entity_id format: %{entity_id}. Expected format: domain.entity_name",
+    "unexpected_error": "An unexpected error occurred: %{error}"
   },
   "logs": {
-    "running_with_defaults": "Running control with defaults - Action: {action}, Entity: {entity_id}",
+    "running_with_defaults": "Running control with defaults - Action: %{action}, Entity: %{entity_id}",
     "building_tool": "Building Home Assistant Control tool",
-    "tool_invoked": "Tool invoked by agent - Action: {action}, Entity: {entity_id}",
-    "extracting_domain": "Extracting domain from entity_id: {entity_id}",
-    "calling_service": "Calling Home Assistant service - URL: {url}, Domain: {domain}, Action: {action}",
-    "control_successful": "Successfully controlled {entity_id} with action {action}",
+    "tool_invoked": "Tool invoked by agent - Action: %{action}, Entity: %{entity_id}",
+    "extracting_domain": "Extracting domain from entity_id: %{entity_id}",
+    "calling_service": "Calling Home Assistant service - URL: %{url}, Domain: %{domain}, Action: %{action}",
+    "control_successful": "Successfully controlled %{entity_id} with action %{action}",
     "returning_error_response": "Returning error response",
     "formatting_success_response": "Formatting success response as JSON"
   }

@@ -51,15 +51,15 @@
   },
   "content_block_title": "助手步骤",
   "errors": {
-    "no_text_in_result": "结果中没有文本，{result}",
-    "processing_failed": "处理助手交互失败：{error}"
+    "no_text_in_result": "结果中没有文本，%{result}",
+    "processing_failed": "处理助手交互失败：%{error}"
   },
   "logs": {
-    "env_set_value": "env_set值为 {value}",
-    "wrapping_tools": "正在包装{count}个工具",
-    "using_assistant_id": "正在使用助手ID：{id}",
-    "using_thread_id": "正在使用线程ID：{id}",
-    "creating_assistant_manager": "正在使用模型创建助手管理器：{model}",
+    "env_set_value": "env_set值为 %{value}",
+    "wrapping_tools": "正在包装%{count}个工具",
+    "using_assistant_id": "正在使用助手ID：%{id}",
+    "using_thread_id": "正在使用线程ID：%{id}",
+    "creating_assistant_manager": "正在使用模型创建助手管理器：%{model}",
     "uploading_file": "正在上传文件以进行检索",
     "creating_vector_store": "正在创建向量存储",
     "updating_assistant_tools": "正在使用文件搜索工具更新助手",
@@ -70,6 +70,6 @@
     "response_received": "已接收助手响应",
     "processing_events": "正在处理代理事件",
     "processing_complete": "事件处理完成",
-    "exception_with_message": "发生异常，正在删除消息：{msg_id}"
+    "exception_with_message": "发生异常，正在删除消息：%{msg_id}"
   }
 }

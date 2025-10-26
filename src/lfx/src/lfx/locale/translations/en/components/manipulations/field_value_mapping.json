@@ -32,30 +32,44 @@
     "starts_with": "Starts With",
     "ends_with": "Ends With",
     "in": "In (comma-separated)",
-    "not_in": "Not In (comma-separated)"
+    "not_in": "Not In (comma-separated)",
+    "regex": "Regular Expression"
+  },
+  "enable_script": {
+    "display_name": "Enable Script",
+    "info": "Enable custom script for complex mapping logic"
+  },
+  "script_type": {
+    "display_name": "Script Type",
+    "info": "Select the scripting language type"
+  },
+  "script_content": {
+    "display_name": "Script Content",
+    "info": "Write custom script for field value mapping. The script can access 'row' object (containing all fields) and modify it.",
+    "placeholder": "// JavaScript example:\nif (row.gender == '1') row.gender_text = 'Male';\nif (row.age > 65) row.category = 'Senior';\n\n# Python example:\nif row.get('gender') == '1':\n    result['gender_text'] = 'Male'\nif row.get('age', 0) > 65:\n    result['category'] = 'Senior'"
   },
   "outputs": {
     "data": "Mapped Data"
   },
   "status": {
-    "success": "Successfully mapped {count} records using {rules} rules",
+    "success": "Successfully mapped %{count} records using %{rules} rules",
     "processing": "Processing field value mappings...",
-    "analysis_success": "Field analysis completed, generated {count} mapping templates",
+    "analysis_success": "Field analysis completed, generated %{count} mapping templates",
     "no_fields_found": "No fields found in upstream data"
   },
   "errors": {
     "missing_config": "Mapping rules are required",
     "missing_fields": "Input field and output field are required for each rule",
-    "invalid_operator": "Invalid operator: {operator}",
-    "mapping_failed": "Field value mapping failed: {error}",
+    "invalid_operator": "Invalid operator: %{operator}",
+    "mapping_failed": "Field value mapping failed: %{error}",
     "no_data_input": "No data input available for field analysis",
     "no_fields_found": "No fields found in the data",
-    "analysis_failed": "Field analysis failed: {error}",
+    "analysis_failed": "Field analysis failed: %{error}",
     "no_graph_data": "No graph data available for field analysis",
     "graph_not_available": "Graph context not available for field analysis"
   },
   "warnings": {
-    "field_not_found": "Input field '{field}' not found in data",
-    "no_match": "No mapping rule matched for field '{field}' value '{value}'"
+    "field_not_found": "Input field '%{field}' not found in data",
+    "no_match": "No mapping rule matched for field '%{field}' value '%{value}'"
   }
 }

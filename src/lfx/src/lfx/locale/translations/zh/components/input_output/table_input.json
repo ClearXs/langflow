@@ -15,7 +15,7 @@
   },
   "sql_query": {
     "display_name": "SQL查询",
-    "info": "输入要执行的SQL查询语句，可以使用{table_name}作为占位符"
+    "info": "输入要执行的SQL查询语句，可以使用%{table_name}作为占位符"
   },
   "use_pagination": {
     "display_name": "使用分页",
@@ -57,10 +57,15 @@
       "targetFieldPlaceholder": "输入目标字段名",
       "defaultValuePlaceholder": "默认值(可选)",
       "addMapping": "添加字段映射",
-      "mappingsCount": "已配置 {{count}} 个映射",
+      "mappingsCount": "已配置 {%{count}} 个映射",
       "noMappings": "暂无字段映射",
       "clickToAdd": "点击上方按钮添加字段映射"
     }
+  },
+  "preview_table": {
+    "display_name": "数据预览",
+    "info": "预览查询结果的前100行数据",
+    "preview_button": "预览数据(前100行)"
   },
   "safe_mode": {
     "display_name": "安全模式",
@@ -79,24 +84,24 @@
     "info": "增量数据提取的初始时间戳(例如: 2024-01-01 00:00:00)"
   },
   "outputs": {
-    "data": {
-      "display_name": "数据"
-    },
-    "dataframe": {
-      "display_name": "数据框"
-    }
+    "data": "数据",
+    "row_count": "行数统计",
+    "fields_schema": "字段模式"
   },
   "status": {
     "connecting": "正在连接数据库...",
-    "success": "成功提取{records}条记录",
+    "success": "成功提取%{records}条记录",
     "extracting": "正在提取数据...",
     "processing": "正在处理数据...",
     "analyzing_sql": "正在分析SQL字段...",
-    "analysis_success": "成功分析{count}个字段",
-    "no_fields_found": "未从SQL中找到任何字段"
+    "analysis_success": "成功分析%{count}个字段",
+    "no_fields_found": "未从SQL中找到任何字段",
+    "previewing_data": "正在预览数据...",
+    "preview_success": "成功预览%{count}行数据",
+    "no_data_found": "查询未返回任何数据"
   },
   "success": {
-    "loaded": "成功加载 {rows} 行数据"
+    "loaded": "成功加载 %{rows} 行数据"
   },
   "warnings": {
     "no_results": "查询执行成功但未返回结果"
@@ -106,16 +111,17 @@
     "missing_connection": "必须选择数据库连接",
     "missing_config": "缺少配置",
     "invalid_datasource": "无效的数据源",
-    "connection_not_found": "在配置中未找到数据库连接 '{name}'",
-    "connection_failed": "连接数据库失败: {error}",
+    "connection_not_found": "在配置中未找到数据库连接 '%{name}'",
+    "connection_failed": "连接数据库失败: %{error}",
     "sqlalchemy_required": "需要安装SQLAlchemy。请使用以下命令安装: pip install sqlalchemy",
-    "dangerous_operation": "查询被安全模式阻止: 包含 '{keyword}' 操作",
-    "execution_error": "执行SQL查询时出错: {error}",
-    "dataframe_error": "加载数据框时出错: {error}",
-    "extraction_failed": "提取失败: {error}",
-    "transformation_failed": "字段转换失败: {error}",
+    "dangerous_operation": "查询被安全模式阻止: 包含 '%{keyword}' 操作",
+    "execution_error": "执行SQL查询时出错: %{error}",
+    "dataframe_error": "加载数据框时出错: %{error}",
+    "extraction_failed": "提取失败: %{error}",
+    "transformation_failed": "字段转换失败: %{error}",
     "no_sql": "请先输入SQL查询语句",
     "no_datasource": "请先选择数据源",
-    "analysis_failed": "SQL分析失败: {error}"
+    "analysis_failed": "SQL分析失败: %{error}",
+    "preview_failed": "预览失败: %{error}"
   }
 }

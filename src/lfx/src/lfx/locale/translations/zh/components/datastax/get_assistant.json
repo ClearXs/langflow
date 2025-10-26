@@ -16,13 +16,13 @@
   },
   "status": {
     "retrieving": "正在检索助手...",
-    "retrieved": "助手检索成功 - ID：{assistant_id}，名称：{assistant_name}"
+    "retrieved": "助手检索成功 - ID：%{assistant_id}，名称：%{assistant_name}"
   },
   "errors": {
-    "retrieval_failed": "检索助手'{assistant_id}'失败：{error}"
+    "retrieval_failed": "检索助手'%{assistant_id}'失败：%{error}"
   },
   "logs": {
     "client_initialized": "OpenAI客户端初始化成功",
-    "retrieving_assistant": "正在检索ID为 {assistant_id} 的助手"
+    "retrieving_assistant": "正在检索ID为 %{assistant_id} 的助手"
   }
 }

@@ -47,15 +47,20 @@
   },
   "status": {
     "merging": "Merging streams...",
-    "success": "Successfully merged {records} records",
-    "fields_loaded": "Loaded {count} fields",
-    "load_fields_failed": "Failed to load fields: {error}",
+    "success": "Successfully merged %{records} records",
+    "fields_loaded": "Loaded %{count} fields",
+    "load_fields_failed": "Failed to load fields: %{error}",
     "no_fields_found": "No fields found from upstream nodes"
   },
   "errors": {
     "no_streams": "At least one stream is required",
-    "union_failed": "Union operation failed: {error}",
+    "union_failed": "Union operation failed: %{error}",
     "no_streams_for_preview": "No streams available for preview",
     "no_graph_data": "No graph data available, please connect upstream nodes first"
+  },
+  "outputs": {
+    "data": "Merged Data",
+    "union_stats": "Union Statistics",
+    "field_preview": "Field Preview"
   }
 }

@@ -58,14 +58,14 @@
     "processing_result": "正在处理提取结果..."
   },
   "success": {
-    "objects_extracted": "成功提取了{count}个结构化对象",
+    "objects_extracted": "成功提取了%{count}个结构化对象",
     "single_data_created": "成功创建了单个Data对象",
-    "multiple_data_created": "成功创建了包含{count}个结果的Data对象",
+    "multiple_data_created": "成功创建了包含%{count}个结果的Data对象",
     "single_row_dataframe_created": "成功创建了单行DataFrame",
-    "multi_row_dataframe_created": "成功创建了包含{rows}行的DataFrame"
+    "multi_row_dataframe_created": "成功创建了包含%{rows}行的DataFrame"
   },
   "warnings": {
-    "unexpected_result_type": "意外的结果类型：{result_type}",
+    "unexpected_result_type": "意外的结果类型：%{result_type}",
     "no_responses": "结果中未找到响应",
     "empty_output_list": "输出列表为空"
   },
@@ -73,13 +73,13 @@
     "llm_no_structured_support": "语言模型不支持结构化输出。",
     "empty_output_schema": "输出模式不能为空",
     "empty_input_value": "输入消息不能为空",
-    "model_build_failed": "从模式构建模型失败：{error}",
-    "llm_not_supported": "{llm_name}不支持结构化输出。",
-    "extractor_creation_failed": "创建结构化输出提取器失败：{error}",
-    "chat_result_failed": "生成聊天结果失败：{error}",
-    "base_processing_failed": "结构化输出处理失败：{error}",
+    "model_build_failed": "从模式构建模型失败：%{error}",
+    "llm_not_supported": "%{llm_name}不支持结构化输出。",
+    "extractor_creation_failed": "创建结构化输出提取器失败：%{error}",
+    "chat_result_failed": "生成聊天结果失败：%{error}",
+    "base_processing_failed": "结构化输出处理失败：%{error}",
     "no_structured_output": "未返回结构化输出",
-    "data_creation_failed": "创建Data对象失败：{error}",
-    "dataframe_creation_failed": "创建DataFrame失败：{error}"
+    "data_creation_failed": "创建Data对象失败：%{error}",
+    "dataframe_creation_failed": "创建DataFrame失败：%{error}"
   }
 }

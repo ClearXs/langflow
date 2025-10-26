@@ -1,19 +1,47 @@
 {
   "display_name": "数据脱敏",
-  "description": "脱敏敏感数据",
-  "status": {
-    "success": "脱敏了 {count} 条记录"
-  },
-  "errors": {
-    "masking_failed": "数据脱敏失败: {error}",
-    "missing_config": "脱敏规则是必需的"
-  },
+  "description": "脱敏敏感数据（电话/邮箱/身份证/信用卡）",
   "data_input": {
     "display_name": "数据输入",
     "info": "要脱敏的输入数据"
   },
   "masking_rules": {
     "display_name": "脱敏规则",
-    "info": "字段和脱敏类型"
+    "info": "为每个字段配置脱敏规则（表格中的每一行代表一个待脱敏字段）",
+    "field": "字段名",
+    "field_desc": "要应用脱敏的字段",
+    "masking_type": "脱敏类型",
+    "masking_type_desc": "要应用的脱敏类型",
+    "mask_char": "脱敏字符",
+    "mask_char_desc": "用于脱敏的字符（默认：*）",
+    "load_fields_button": "加载字段列表",
+    "masking_types": {
+      "phone": "电话号码",
+      "email": "电子邮箱",
+      "id": "身份证号",
+      "credit_card": "信用卡号",
+      "full": "完全脱敏",
+      "hash": "哈希"
+    }
+  },
+  "outputs": {
+    "data": {
+      "display_name": "脱敏后的数据"
+    },
+    "masking_stats": {
+      "display_name": "脱敏统计信息"
+    }
+  },
+  "status": {
+    "success": "成功脱敏了 %{count} 条记录（处理了 %{fields} 个字段）",
+    "load_success": "从上游数据中加载了 %{count} 个字段",
+    "no_fields_found": "未在上游数据中找到字段"
+  },
+  "errors": {
+    "missing_config": "脱敏规则是必需的",
+    "masking_failed": "数据脱敏失败：%{error}",
+    "no_graph_data": "没有可用的图数据进行字段分析",
+    "load_failed": "字段加载失败：%{error}",
+    "graph_not_available": "无法分析字段 - 图上下文不可用"
   }
 }

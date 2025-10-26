@@ -33,15 +33,15 @@
     "import_error": "未找到JigsawStack包。请使用以下命令安装：pip install jigsawstack>=0.2.7",
     "empty_query": "搜索查询不能为空",
     "api_request_failed": "JigsawStack API请求失败",
-    "jigsawstack_error": "JigsawStack错误：{error}",
-    "unexpected_error": "发生意外错误：{error}"
+    "jigsawstack_error": "JigsawStack错误：%{error}",
+    "unexpected_error": "发生意外错误：%{error}"
   },
   "logs": {
-    "starting_search": "正在开始AI网页搜索 - 查询：'{query}'",
+    "starting_search": "正在开始AI网页搜索 - 查询：'%{query}'",
     "creating_client": "正在创建JigsawStack客户端",
-    "search_parameters": "搜索参数 - 查询：'{query}'，AI概览：{ai_overview}，安全模式：{safe_mode}，拼写检查：{spell_check}，最大结果数：{max_results}",
+    "search_parameters": "搜索参数 - 查询：'%{query}'，AI概览：%{ai_overview}，安全模式：%{safe_mode}，拼写检查：%{spell_check}，最大结果数：%{max_results}",
     "calling_api": "正在调用JigsawStack AI搜索API",
-    "search_complete": "AI搜索完成 - 找到{results_count}个结果，AI概览：{has_overview}",
-    "search_complete_status": "AI搜索成功完成，找到{count}个结果。"
+    "search_complete": "AI搜索完成 - 找到%{results_count}个结果，AI概览：%{has_overview}",
+    "search_complete_status": "AI搜索成功完成，找到%{count}个结果。"
   }
 }

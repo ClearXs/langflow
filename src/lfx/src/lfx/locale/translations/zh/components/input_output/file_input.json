@@ -17,20 +17,21 @@
     }
   },
   "success": {
-    "file_selected": "已选择文件: {name}",
-    "file_selected_with_metadata": "已选择文件: {name} ({size} MB)"
+    "file_selected": "已选择文件: %{name}",
+    "file_selected_with_metadata": "已选择文件: %{name} (%{size} MB)"
   },
   "status": {
-    "files_processed": "已处理 {count} 个文件"
+    "files_processed": "已处理 %{count} 个文件"
   },
   "errors": {
     "no_files_selected": "未选择文件。请至少选择一个文件。",
     "no_valid_files": "未选择有效文件。请检查允许的扩展名。",
-    "file_not_found": "文件未找到: {path}",
-    "invalid_extension": "不允许的文件扩展名: {extension}"
+    "file_not_found": "文件未找到: %{path}",
+    "invalid_extension": "不允许的文件扩展名: %{extension}",
+    "download_failed": "下载文件失败，文件ID %{file_id}: %{error}"
   },
   "message": {
     "no_files": "未选择文件",
-    "files_selected": "已选择 {count} 个文件:"
+    "files_selected": "已选择 %{count} 个文件:"
   }
 }

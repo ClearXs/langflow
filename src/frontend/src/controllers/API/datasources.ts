@@ -445,3 +445,49 @@ export async function uploadFile(
 export function getFileDownloadUrl(fileId: number, token: string): string {
   return `/data-api/data-construction/resource-file/download/${fileId}?Blade-Auth=bearer ${token}`;
 }
+
+/**
+ * Download file by ID and return as Blob
+ */
+export async function downloadFileById(fileId: number): Promise<{
+  blob: Blob;
+  filename: string;
+}> {
+  try {
+    const response = await dataAPI.get(
+      `/data-construction/resource-file/download/${fileId}`,
+      {
+        responseType: "blob",
+      },
+    );
+
+    // Extract filename from Content-Disposition header
+    const contentDisposition = response.headers["content-disposition"];
+    let filename = `file_${fileId}`;
+
+    if (contentDisposition) {
+      const filenameMatch = contentDisposition.match(
+        /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/,
+      );
+      if (filenameMatch && filenameMatch[1]) {
+        filename = filenameMatch[1].replace(/['"]/g, "");
+        // Decode URL-encoded filename
+        try {
+          filename = decodeURIComponent(filename);
+        } catch (e) {
+          // Keep original filename if decode fails
+        }
+      }
+    }
+
+    return {
+      blob: response.data,
+      filename,
+    };
+  } catch (error) {
+    const axiosError = error as AxiosError<ErrorResponse>;
+    throw new Error(
+      axiosError.response?.data?.detail || "Failed to download file",
+    );
+  }
+}

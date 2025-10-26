@@ -17,20 +17,20 @@
     "info": "要控制的默认实体ID（例如：switch.unknown_switch_3）"
   },
   "errors": {
-    "timeout": "请求超时：{error}",
-    "connection_failed": "连接Home Assistant失败，地址：{base_url}：{error}",
-    "http_error": "HTTP错误 {status}：{error}",
-    "request_failed": "调用服务失败：{error}",
-    "invalid_entity_format": "实体ID格式无效：{entity_id}。期望格式：domain.entity_name",
-    "unexpected_error": "发生意外错误：{error}"
+    "timeout": "请求超时：%{error}",
+    "connection_failed": "连接Home Assistant失败，地址：%{base_url}：%{error}",
+    "http_error": "HTTP错误 %{status}：%{error}",
+    "request_failed": "调用服务失败：%{error}",
+    "invalid_entity_format": "实体ID格式无效：%{entity_id}。期望格式：domain.entity_name",
+    "unexpected_error": "发生意外错误：%{error}"
   },
   "logs": {
-    "running_with_defaults": "使用默认值运行控制 - 动作：{action}，实体：{entity_id}",
+    "running_with_defaults": "使用默认值运行控制 - 动作：%{action}，实体：%{entity_id}",
     "building_tool": "正在构建Home Assistant控制工具",
-    "tool_invoked": "Agent调用工具 - 动作：{action}，实体：{entity_id}",
-    "extracting_domain": "正在从实体ID提取域：{entity_id}",
-    "calling_service": "正在调用Home Assistant服务 - URL：{url}，域：{domain}，动作：{action}",
-    "control_successful": "成功使用动作{action}控制{entity_id}",
+    "tool_invoked": "Agent调用工具 - 动作：%{action}，实体：%{entity_id}",
+    "extracting_domain": "正在从实体ID提取域：%{entity_id}",
+    "calling_service": "正在调用Home Assistant服务 - URL：%{url}，域：%{domain}，动作：%{action}",
+    "control_successful": "成功使用动作%{action}控制%{entity_id}",
     "returning_error_response": "正在返回错误响应",
     "formatting_success_response": "正在将成功响应格式化为JSON"
   }

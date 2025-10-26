@@ -17,16 +17,16 @@
     "import_error": "未找到JigsawStack包。请使用以下命令安装：pip install jigsawstack>=0.2.7",
     "empty_url": "NSFW检测需要URL",
     "api_request_failed": "JigsawStack API返回失败响应",
-    "jigsawstack_error": "JigsawStack错误：{error}",
-    "unexpected_error": "发生意外错误：{error}"
+    "jigsawstack_error": "JigsawStack错误：%{error}",
+    "unexpected_error": "发生意外错误：%{error}"
   },
   "logs": {
-    "starting_detection": "正在开始NSFW检测 - URL：{url}",
+    "starting_detection": "正在开始NSFW检测 - URL：%{url}",
     "creating_client": "正在创建JigsawStack客户端",
-    "analyzing_url": "正在分析来自URL的内容：{url}",
+    "analyzing_url": "正在分析来自URL的内容：%{url}",
     "calling_api": "正在调用JigsawStack NSFW检测API",
-    "detection_complete": "NSFW检测完成 - 是否为NSFW：{is_nsfw}，置信度：{confidence}%",
-    "nsfw_detected": "⚠️ 检测到NSFW内容（置信度：{confidence}%）",
-    "safe_content": "✓ 安全内容（置信度：{confidence}%）"
+    "detection_complete": "NSFW检测完成 - 是否为NSFW：%{is_nsfw}，置信度：%{confidence}%",
+    "nsfw_detected": "⚠️ 检测到NSFW内容（置信度：%{confidence}%）",
+    "safe_content": "✓ 安全内容（置信度：%{confidence}%）"
   }
 }

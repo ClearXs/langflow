@@ -6,7 +6,7 @@
   },
   "model_name": {
     "display_name": "模型名称",
-    "info": "用于所选提供商的嵌入模型。每个提供商有不同的可用模型集（完整列表见 https://docs.datastax.com/en/astra-db-serverless/databases/embedding-generation.html）：\n\n{models_list}"
+    "info": "用于所选提供商的嵌入模型。每个提供商有不同的可用模型集（完整列表见 https://docs.datastax.com/en/astra-db-serverless/databases/embedding-generation.html）：\n\n%{models_list}"
   },
   "api_key_name": {
     "display_name": "API密钥名称",
@@ -29,14 +29,14 @@
   },
   "status": {
     "building": "正在构建Astra向量化配置...",
-    "config_created": "配置创建成功 - 提供商：{provider}，模型：{model}"
+    "config_created": "配置创建成功 - 提供商：%{provider}，模型：%{model}"
   },
   "errors": {
-    "build_failed": "构建Astra向量化配置失败：{error}"
+    "build_failed": "构建Astra向量化配置失败：%{error}"
   },
   "logs": {
-    "building_config": "正在构建Astra向量化配置 - 提供商：{provider}，模型：{model}",
-    "provider_mapped": "提供商'{provider}'映射到'{provider_value}'",
-    "api_key_name_set": "API密钥名称设置为：{key_name}"
+    "building_config": "正在构建Astra向量化配置 - 提供商：%{provider}，模型：%{model}",
+    "provider_mapped": "提供商'%{provider}'映射到'%{provider_value}'",
+    "api_key_name_set": "API密钥名称设置为：%{key_name}"
   }
 }

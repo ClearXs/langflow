@@ -1,33 +1,35 @@
 {
   "display_name": "Shell Script",
-  "description": "Execute shell commands with data input",
+  "description": "Execute shell commands to process data or invoke system tools",
   "data_input": {
     "display_name": "Data Input",
-    "info": "Optional data input"
+    "info": "Upstream data (Shell scripts typically used for file operations and system commands, less common for data streams)"
   },
   "script": {
-    "display_name": "Shell Script",
-    "info": "Shell commands to execute"
+    "display_name": "Shell Commands",
+    "info": "Write shell commands to execute system operations\n\n[Use Cases]\n• File operations (copy, move, compress, etc.)\n• System command execution (ls, grep, awk, etc.)\n• External tool invocation (curl, wget, etc.)\n• Environment variable operations\n\n[Output Methods]\nAfter execution, the following information is captured:\n• stdout - Standard output\n• stderr - Error output\n• exit_code - Command exit code (0 = success)\n\n[Debug Output]\nUse echo for debug messages. After execution, view complete logs in node status including:\n• Start time and duration\n• Standard output and error output\n• Exit code and execution status\n\n[Example Commands]\n# List current directory\nls -la\n\n# Process text files\ncat input.txt | grep 'pattern' | wc -l\n\n# Use environment variables\necho \"Working directory: $PWD\"",
+    "default_code": "#!/bin/bash\n\n# Example: List current directory\necho \"List files in current directory:\"\nls -la\n\n# Output system info\necho \"\"\necho \"System information:\"\nuname -a\n\necho \"\"\necho \"Shell script executed successfully\""
   },
   "working_directory": {
     "display_name": "Working Directory",
-    "info": "Script working directory"
+    "info": "Working directory for script execution (defaults to current directory)"
   },
   "timeout": {
     "display_name": "Timeout (seconds)",
-    "info": "Execution timeout"
+    "info": "Script execution timeout, will terminate if exceeded (default 300 seconds)"
   },
   "capture_output": {
     "display_name": "Capture Output",
-    "info": "Capture stdout/stderr"
+    "info": "Capture standard output and error output, shown in node status log"
   },
-  "status": {
-    "executing": "Executing shell script...",
-    "success": "Script completed with code {code}"
+  "outputs": {
+    "result": {
+      "display_name": "Execution Result"
+    }
   },
   "errors": {
-    "no_script": "Script is required",
-    "timeout": "Script execution timed out",
+    "no_script": "Script command is required",
+    "timeout": "Script execution timeout",
     "execution_failed": "Script execution failed: {error}"
   }
 }

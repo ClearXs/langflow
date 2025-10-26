@@ -21,16 +21,16 @@
   },
   "errors": {
     "two_vectors_required": "Exactly two embedding vectors are required.",
-    "missing_embeddings_key": "Missing 'embeddings' key in data: {error}",
-    "dimension_mismatch": "Embeddings must have the same dimensions. Got {dim1} and {dim2}.",
-    "unknown_metric": "Unknown similarity metric: {metric}",
-    "computation_failed": "Failed to compute similarity: {error}",
-    "data_creation_failed": "Failed to create similarity data object: {error}"
+    "missing_embeddings_key": "Missing 'embeddings' key in data: %{error}",
+    "dimension_mismatch": "Embeddings must have the same dimensions. Got %{dim1} and %{dim2}.",
+    "unknown_metric": "Unknown similarity metric: %{metric}",
+    "computation_failed": "Failed to compute similarity: %{error}",
+    "data_creation_failed": "Failed to create similarity data object: %{error}"
   },
   "logs": {
-    "computing_similarity": "Computing similarity between {count} embedding vector(s)",
-    "embeddings_extracted": "Embeddings extracted - Dimension 1: {dim1}, Dimension 2: {dim2}",
-    "using_metric": "Using similarity metric: {metric}",
+    "computing_similarity": "Computing similarity between %{count} embedding vector(s)",
+    "embeddings_extracted": "Embeddings extracted - Dimension 1: %{dim1}, Dimension 2: %{dim2}",
+    "using_metric": "Using similarity metric: %{metric}",
     "cosine_computed": "Cosine similarity computed: {score:.6f}",
     "euclidean_computed": "Euclidean distance computed: {score:.6f}",
     "manhattan_computed": "Manhattan distance computed: {score:.6f}",

@@ -39,35 +39,35 @@
   },
   "status": {
     "connecting": "正在连接到Couchbase集群...",
-    "creating_with_documents": "正在使用{count}个文档创建向量存储...",
+    "creating_with_documents": "正在使用%{count}个文档创建向量存储...",
     "creating_empty": "正在创建空向量存储...",
-    "build_successful": "向量存储构建成功 - 存储桶：{bucket}，集合：{collection}，索引：{index}",
+    "build_successful": "向量存储构建成功 - 存储桶：%{bucket}，集合：%{collection}，索引：%{index}",
     "initializing_search": "正在初始化搜索...",
     "searching": "正在搜索相似文档...",
-    "search_successful": "搜索完成 - 找到{count}个结果"
+    "search_successful": "搜索完成 - 找到%{count}个结果"
   },
   "warnings": {
     "empty_query": "未提供搜索查询或查询为空"
   },
   "errors": {
     "import_failed": "导入Couchbase依赖失败。使用以下命令安装：`uv pip install langflow[couchbase] --pre`",
-    "connection_failed": "连接到Couchbase失败：{error}",
-    "build_failed": "构建Couchbase向量存储失败：{error}",
-    "search_failed": "在Couchbase中搜索文档失败：{error}"
+    "connection_failed": "连接到Couchbase失败：%{error}",
+    "build_failed": "构建Couchbase向量存储失败：%{error}",
+    "search_failed": "在Couchbase中搜索文档失败：%{error}"
   },
   "logs": {
     "imports_successful": "Couchbase依赖导入成功",
-    "connecting": "正在连接到Couchbase集群：{connection_string}",
+    "connecting": "正在连接到Couchbase集群：%{connection_string}",
     "waiting_for_ready": "正在等待集群就绪...",
     "connection_successful": "成功连接到Couchbase集群",
     "preparing_data": "正在准备摄取数据",
-    "documents_prepared": "已准备{count}个文档用于摄取",
-    "creating_from_documents": "正在从{count}个文档创建向量存储 - 存储桶：{bucket}，集合：{collection}",
-    "store_created_with_documents": "向量存储创建成功，包含{count}个文档",
-    "creating_empty_store": "正在创建空向量存储 - 存储桶：{bucket}，集合：{collection}",
+    "documents_prepared": "已准备%{count}个文档用于摄取",
+    "creating_from_documents": "正在从%{count}个文档创建向量存储 - 存储桶：%{bucket}，集合：%{collection}",
+    "store_created_with_documents": "向量存储创建成功，包含%{count}个文档",
+    "creating_empty_store": "正在创建空向量存储 - 存储桶：%{bucket}，集合：%{collection}",
     "empty_store_created": "空向量存储创建成功",
     "building_for_search": "正在构建向量存储以进行搜索",
-    "searching": "正在搜索相似文档 - 查询：'{query}...'，K：{k}",
-    "search_completed": "搜索完成 - 找到{count}个文档"
+    "searching": "正在搜索相似文档 - 查询：'%{query}...'，K：%{k}",
+    "search_completed": "搜索完成 - 找到%{count}个文档"
   }
 }

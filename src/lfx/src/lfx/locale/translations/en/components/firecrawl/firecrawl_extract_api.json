@@ -43,22 +43,22 @@
     "urls_required": "URLs are required",
     "no_valid_urls": "No valid URLs provided",
     "prompt_required": "Prompt is required",
-    "extraction_failed": "Error during extraction: {error}"
+    "extraction_failed": "Error during extraction: %{error}"
   },
   "logs": {
     "firecrawl_imported": "Firecrawl package imported successfully",
     "parsing_urls": "Parsing URLs from input",
-    "urls_parsed": "Parsed {count} valid URL(s)",
-    "prompt_received": "Prompt received - Length: {length} characters",
-    "enhanced_prompt": "{prompt}. Please extract all instances in a comprehensive, structured format.",
+    "urls_parsed": "Parsed %{count} valid URL(s)",
+    "prompt_received": "Prompt received - Length: %{length} characters",
+    "enhanced_prompt": "%{prompt}. Please extract all instances in a comprehensive, structured format.",
     "prompt_enhanced": "Prompt enhanced for comprehensive extraction",
-    "params_configured": "Parameters configured - Web search: {web_search}, Timeout: {timeout}s",
+    "params_configured": "Parameters configured - Web search: %{web_search}, Timeout: %{timeout}s",
     "schema_added_dict": "Schema added to parameters (dict format)",
     "schema_added_object": "Schema added to parameters (object format)",
     "schema_invalid": "Schema provided but does not have valid structure, skipping",
-    "schema_error": "Invalid schema: {error}",
-    "starting_extraction": "Starting extraction from {count} URL(s)",
+    "schema_error": "Invalid schema: %{error}",
+    "starting_extraction": "Starting extraction from %{count} URL(s)",
     "app_initialized": "Firecrawl app initialized with API key",
-    "extraction_completed": "Extraction completed successfully - {items} item(s) extracted"
+    "extraction_completed": "Extraction completed successfully - %{items} item(s) extracted"
   }
 }

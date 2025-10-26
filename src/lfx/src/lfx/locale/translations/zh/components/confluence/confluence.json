@@ -35,20 +35,20 @@
     }
   },
   "status": {
-    "connecting": "正在连接到Confluence空间：{space_key}",
+    "connecting": "正在连接到Confluence空间：%{space_key}",
     "loading": "正在从Confluence加载文档...",
-    "converting": "正在将{count}个文档转换为Data对象",
-    "completed": "成功从空间{space_key}加载了{count}个文档"
+    "converting": "正在将%{count}个文档转换为Data对象",
+    "completed": "成功从空间%{space_key}加载了%{count}个文档"
   },
   "errors": {
-    "loader_build_failed": "构建Confluence加载器失败：{error}",
-    "load_failed": "从Confluence空间'{space_key}'加载文档失败：{error}"
+    "loader_build_failed": "构建Confluence加载器失败：%{error}",
+    "load_failed": "从Confluence空间'%{space_key}'加载文档失败：%{error}"
   },
   "logs": {
     "building_loader": "正在构建Confluence加载器",
-    "loader_built": "Confluence加载器已构建 - 空间：{space_key}，最大页数：{max_pages}",
-    "loading_documents": "开始从Confluence空间加载文档：{space_key}",
+    "loader_built": "Confluence加载器已构建 - 空间：%{space_key}，最大页数：%{max_pages}",
+    "loading_documents": "开始从Confluence空间加载文档：%{space_key}",
     "fetching_pages": "正在从Confluence获取页面",
-    "pages_loaded": "已从Confluence加载{count}个页面"
+    "pages_loaded": "已从Confluence加载%{count}个页面"
   }
 }

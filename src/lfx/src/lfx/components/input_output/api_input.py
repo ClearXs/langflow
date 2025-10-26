@@ -118,8 +118,16 @@ class ETLAPIInputComponent(Component):
     ]
 
     outputs = [
-        Output(name="data", display_name="Data", method="fetch_data"),
-        Output(name="response_info", display_name="Response Info", method="get_response_info"),
+        Output(
+            name="data",
+            display_name=i18n.t("components.input_output.api_input.outputs.data.display_name"),
+            method="fetch_data",
+        ),
+        Output(
+            name="response_info",
+            display_name=i18n.t("components.input_output.api_input.outputs.response_info.display_name"),
+            method="get_response_info",
+        ),
     ]
 
     async def fetch_data(self) -> list[Data]:

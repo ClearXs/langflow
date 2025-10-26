@@ -23,20 +23,20 @@
   },
   "status": {
     "building": "Building Astra DB chat memory...",
-    "message_history_created": "Message history created successfully - Collection: {collection}, Session: {session_id}"
+    "message_history_created": "Message history created successfully - Collection: %{collection}, Session: %{session_id}"
   },
   "errors": {
     "langchain_import_failed": "Could not import langchain Astra DB integration package. Please install it with `pip install langchain-astradb`.",
     "astrapy_import_failed": "Could not import astrapy package. Please install it with `pip install astrapy`.",
-    "build_failed": "Failed to build Astra DB message history: {error}"
+    "build_failed": "Failed to build Astra DB message history: %{error}"
   },
   "logs": {
     "langchain_import_successful": "Langchain Astra DB package imported successfully",
     "astrapy_import_successful": "Astrapy package imported successfully",
-    "building_message_history": "Building message history - Collection: {collection}, Session ID: {session_id}",
+    "building_message_history": "Building message history - Collection: %{collection}, Session ID: %{session_id}",
     "parsing_endpoint": "Parsing API endpoint",
-    "environment_detected": "Environment detected: {environment}",
-    "using_namespace": "Using namespace: {namespace}",
+    "environment_detected": "Environment detected: %{environment}",
+    "using_namespace": "Using namespace: %{namespace}",
     "no_namespace": "No namespace specified, using default",
     "message_history_created": "Message history created successfully"
   }

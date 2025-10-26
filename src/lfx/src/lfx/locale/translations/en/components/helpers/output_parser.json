@@ -19,9 +19,9 @@
     "format_instructions_generated": "Format instructions generated successfully"
   },
   "errors": {
-    "unsupported_parser": "Unsupported or missing parser type: {parser_type}",
-    "parser_creation_failed": "Failed to create output parser: {error}",
-    "unsupported_parser_for_instructions": "Cannot generate format instructions for unsupported parser type: {parser_type}",
-    "instructions_generation_failed": "Failed to generate format instructions: {error}"
+    "unsupported_parser": "Unsupported or missing parser type: %{parser_type}",
+    "parser_creation_failed": "Failed to create output parser: %{error}",
+    "unsupported_parser_for_instructions": "Cannot generate format instructions for unsupported parser type: %{parser_type}",
+    "instructions_generation_failed": "Failed to generate format instructions: %{error}"
   }
 }

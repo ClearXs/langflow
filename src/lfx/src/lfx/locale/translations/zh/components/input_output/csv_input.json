@@ -1,0 +1,65 @@
+{
+  "display_name": "CSV读取",
+  "description": "读取CSV文件数据",
+  "file_path": {
+    "display_name": "CSV文件",
+    "info": "选择要读取的CSV文件"
+  },
+  "delimiter": {
+    "display_name": "分隔符",
+    "info": "字段分隔符",
+    "custom": "自定义"
+  },
+  "custom_delimiter": {
+    "display_name": "自定义分隔符",
+    "info": "输入自定义分隔符字符"
+  },
+  "encoding": {
+    "display_name": "编码格式",
+    "info": "文件字符编码格式",
+    "auto": "自动检测"
+  },
+  "header_mode": {
+    "display_name": "标题行配置",
+    "info": "选择如何识别字段名",
+    "first_row": "第一行作为字段名",
+    "custom_row": "指定行作为字段名",
+    "no_header": "无标题行(使用Column_1, Column_2...)"
+  },
+  "header_row": {
+    "display_name": "标题所在行数",
+    "info": "指定哪一行作为字段名（1表示第一行，2表示第二行，依此类推）"
+  },
+  "data_start_row": {
+    "display_name": "数据开始行数",
+    "info": "数据从第几行开始读取（默认：2，表示从第2行开始读取数据）"
+  },
+  "max_rows": {
+    "display_name": "最大读取行数",
+    "info": "最多读取多少行数据（0表示读取全部行）"
+  },
+  "skip_blank_lines": {
+    "display_name": "跳过空行",
+    "info": "自动跳过文件中的空行"
+  },
+  "preview_table": {
+    "display_name": "数据预览",
+    "info": "预览前100行数据",
+    "preview_button": "预览数据(前100行)"
+  },
+  "output_data": {
+    "display_name": "数据"
+  },
+  "errors": {
+    "no_file_selected": "请先选择CSV文件",
+    "no_file_path": "文件路径不能为空",
+    "preview_failed": "预览失败：%{error}",
+    "read_csv_failed": "读取CSV文件失败：%{error}",
+    "load_data_failed": "加载数据失败：%{error}",
+    "encoding_error": "使用编码%{encoding}时出现错误：%{error}"
+  },
+  "status": {
+    "preview_success": "成功预览%{count}行数据",
+    "loaded_rows": "已从CSV文件加载%{count}行数据"
+  }
+}

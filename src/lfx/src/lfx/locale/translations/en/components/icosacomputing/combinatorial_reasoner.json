@@ -31,20 +31,20 @@
     "authentication_failed": "Authentication failed. Please check your username and password.",
     "access_denied": "Access denied. Your account may not have permission to use this service. Please sign up at https://forms.gle/oWNv2NKjBNaqqvCx6",
     "rate_limit": "Rate limit exceeded. Please wait a moment and try again.",
-    "server_error": "Server error {status}. The Icosa CR API is experiencing issues. Please try again later.",
-    "http_error": "HTTP error {status}: {error}",
+    "server_error": "Server error %{status}. The Icosa CR API is experiencing issues. Please try again later.",
+    "http_error": "HTTP error %{status}: %{error}",
     "connection_failed": "Failed to connect to Icosa CR API. Please check your internet connection.",
-    "request_failed": "Request failed: {error}",
-    "invalid_response": "Invalid response from API: {error}"
+    "request_failed": "Request failed: %{error}",
+    "invalid_response": "Invalid response from API: %{error}"
   },
   "logs": {
-    "building_prompt": "Building optimized prompt - Prompt length: {prompt_length} chars, Model: {model}",
-    "authenticating": "Authenticating with username: {username}",
+    "building_prompt": "Building optimized prompt - Prompt length: %{prompt_length} chars, Model: %{model}",
+    "authenticating": "Authenticating with username: %{username}",
     "sending_request": "Sending request to Icosa CR API",
-    "response_received": "Response received - Status: {status}",
-    "optimization_complete": "Prompt optimization complete - {reasons_count} reason(s) selected, Optimized length: {optimized_length} chars",
+    "response_received": "Response received - Status: %{status}",
+    "optimization_complete": "Prompt optimization complete - %{reasons_count} reason(s) selected, Optimized length: %{optimized_length} chars",
     "extracting_reasons": "Extracting selected reasons",
     "no_reasons": "No reasons available. Please run build_prompt first.",
-    "reasons_extracted": "Extracted {count} reason(s)"
+    "reasons_extracted": "Extracted %{count} reason(s)"
   }
 }

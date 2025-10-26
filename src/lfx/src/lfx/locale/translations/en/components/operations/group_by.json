@@ -1,34 +1,88 @@
 {
   "display_name": "Group By",
-  "description": "Group data with aggregations (sum/count/avg/min/max)",
+  "description": "Group data by specified columns and apply aggregations",
   "data_input": {
     "display_name": "Data Input",
     "info": "Input data to group"
   },
   "group_by_columns": {
     "display_name": "Group By Columns",
-    "info": "Columns to group by"
+    "info": "Each row in the table represents a grouping field (add/remove rows to manage grouping fields)",
+    "field_name": "Field Name",
+    "field_name_desc": "Column name to group by",
+    "load_fields_button": "Load Fields",
+    "load_fields_button": "Load Fields List"
   },
   "aggregations": {
     "display_name": "Aggregations",
-    "info": "Aggregation functions to apply"
+    "info": "Define aggregation functions for each field",
+    "field_name": "Field Name",
+    "field_name_desc": "Column name to aggregate",
+    "agg_function": "Aggregation Function",
+    "agg_function_desc": "Aggregation function to apply",
+    "alias": "Alias",
+    "alias_desc": "Output column name for aggregation result (optional)",
+    "analyze_button": "Analyze Fields",
+    "load_fields_button": "Load Fields List",
+    "functions": {
+      "sum": "Sum",
+      "count": "Count",
+      "count_distinct": "Count Distinct",
+      "avg": "Average",
+      "min": "Minimum",
+      "max": "Maximum",
+      "median": "Median",
+      "std": "Standard Deviation",
+      "first": "First",
+      "last": "Last"
+    }
   },
   "drop_na": {
     "display_name": "Drop NA",
-    "info": "Exclude rows with null values"
+    "info": "Exclude rows with null values in group by columns"
   },
   "sort_results": {
     "display_name": "Sort Results",
-    "info": "Sort by grouping columns"
+    "info": "Sort results by grouping columns"
+  },
+  "outputs": {
+    "data": {
+      "display_name": "Grouped Data"
+    },
+    "preview_data": {
+      "display_name": "Preview Data (100 rows)"
+    },
+    "group_stats": {
+      "display_name": "Group Statistics"
+    },
+    "output_fields": {
+      "display_name": "Output Fields",
+      "info": "View available output fields after grouping"
+    }
   },
   "status": {
     "grouping": "Grouping data...",
-    "success": "Created {groups} groups"
+    "success": "Created %{groups} groups",
+    "analyzing_fields": "Analyzing upstream fields...",
+    "analysis_success": "Found %{count} fields",
+    "fields_loaded_fallback": "Fields loaded from config: %{count} fields found",
+    "preview_output_fields": "Previewing output fields...",
+    "preview_success": "Generated %{count} output field previews",
+    "no_fields_found": "No fields found in upstream data",
+    "output_fields_loaded": "Loaded %{count} output fields for downstream components"
   },
   "errors": {
     "no_data": "No input data provided",
     "no_group_columns": "Group by columns are required",
+    "no_group_columns_in_table": "No grouping fields added to table. Please add at least one field.",
     "no_aggregations": "Aggregations are required",
-    "group_failed": "Grouping failed: {error}"
+    "no_valid_aggregations": "No valid aggregations configured",
+    "missing_columns": "Columns not found in data: %{columns}",
+    "group_failed": "Grouping failed: %{error}",
+    "no_graph_data": "No graph data available for field analysis",
+    "analysis_failed": "Field analysis failed: %{error}",
+    "graph_not_available": "Cannot analyze fields - graph context not available",
+    "no_fields_in_config": "No fields found in upstream node configuration",
+    "preview_failed": "Failed to preview output fields: %{error}"
   }
 }

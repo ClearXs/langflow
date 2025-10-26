@@ -37,20 +37,20 @@
     }
   },
   "dynamic_field": {
-    "display_name": "{arg_name}：描述",
-    "info": "输入{arg_name}的描述"
+    "display_name": "%{arg_name}：描述",
+    "info": "输入%{arg_name}的描述"
   },
   "success": {
-    "tool_created": "结构化工具'{name}'创建成功"
+    "tool_created": "结构化工具'%{name}'创建成功"
   },
   "errors": {
-    "failed_to_extract_names": "提取函数名称失败：{error}",
+    "failed_to_extract_names": "提取函数名称失败：%{error}",
     "failed_to_parse": "解析失败",
-    "failed_to_find_arg": "查找参数失败：{field_name}",
-    "tool_creation_failed": "创建结构化工具失败：{error}",
-    "frontend_update_failed": "更新前端节点失败：{error}",
+    "failed_to_find_arg": "查找参数失败：%{field_name}",
+    "tool_creation_failed": "创建结构化工具失败：%{error}",
+    "frontend_update_failed": "更新前端节点失败：%{error}",
     "multiline_args_not_supported": "不支持多行参数",
-    "code_parsing_failed": "解析代码失败：{error}",
-    "import_parsing_failed": "解析导入失败：{error}"
+    "code_parsing_failed": "解析代码失败：%{error}",
+    "import_parsing_failed": "解析导入失败：%{error}"
   }
 }

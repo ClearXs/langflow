@@ -27,28 +27,28 @@
   },
   "status": {
     "loading_models": "Loading available models...",
-    "initializing_model": "Initializing model '{model}'..."
+    "initializing_model": "Initializing model '%{model}'..."
   },
   "success": {
-    "models_loaded": "Successfully loaded {count} models",
-    "model_initialized": "Model '{model}' initialized successfully with base URL: {base_url}"
+    "models_loaded": "Successfully loaded %{count} models",
+    "model_initialized": "Model '%{model}' initialized successfully with base URL: %{base_url}"
   },
   "warnings": {
     "no_models_available": "No models available from AI/ML API"
   },
   "errors": {
-    "models_loading_failed": "Failed to load models: {error}",
-    "build_config_update_failed": "Failed to update build configuration: {error}",
+    "models_loading_failed": "Failed to load models: %{error}",
+    "build_config_update_failed": "Failed to update build configuration: %{error}",
     "api_key_required": "AI/ML API key is required",
     "model_name_required": "Model name is required",
-    "api_key_extraction_failed": "Failed to extract API key: {error}",
-    "model_initialization_failed": "Failed to initialize model '{model}': {error}",
-    "model_build_failed": "Failed to build model: {error}",
-    "exception_message_extraction_failed": "Failed to extract exception message: {error}"
+    "api_key_extraction_failed": "Failed to extract API key: %{error}",
+    "model_initialization_failed": "Failed to initialize model '%{model}': %{error}",
+    "model_build_failed": "Failed to build model: %{error}",
+    "exception_message_extraction_failed": "Failed to extract exception message: %{error}"
   },
   "logs": {
-    "o1_temperature_override": "Model '{model}' detected as o1 series, overriding temperature to 1",
+    "o1_temperature_override": "Model '%{model}' detected as o1 series, overriding temperature to 1",
     "openai_error_not_available": "OpenAI error module not available for exception handling",
-    "extracted_error_message": "Extracted error message: {message}"
+    "extracted_error_message": "Extracted error message: %{message}"
   }
 }

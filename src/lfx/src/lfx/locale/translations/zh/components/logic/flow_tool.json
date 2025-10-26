@@ -23,31 +23,31 @@
     }
   },
   "status": {
-    "loading_flow": "正在加载工作流：{flow_name}",
+    "loading_flow": "正在加载工作流：%{flow_name}",
     "building_graph": "正在从工作流数据构建图",
     "building_tool": "正在从工作流构建工具",
-    "tool_created": "{description}\n参数：\n{args}"
+    "tool_created": "%{description}\n参数：\n%{args}"
   },
   "errors": {
     "flow_name_required": "工作流名称是必需的",
-    "flow_not_found": "未找到工作流'{flow_name}'",
-    "tool_creation_failed": "从工作流创建工具失败：{error}"
+    "flow_not_found": "未找到工作流'%{flow_name}'",
+    "tool_creation_failed": "从工作流创建工具失败：%{error}"
   },
   "warnings": {
     "run_id_failed": "为工作流图设置run_id失败"
   },
   "logs": {
     "fetching_flow_names": "正在获取可用的工作流名称",
-    "flow_names_fetched": "已获取{count}个工作流名称",
-    "searching_flow": "正在搜索工作流：{flow_name}",
-    "flow_found": "已找到工作流：{flow_name}",
-    "flow_not_found": "未找到工作流：{flow_name}",
+    "flow_names_fetched": "已获取%{count}个工作流名称",
+    "searching_flow": "正在搜索工作流：%{flow_name}",
+    "flow_found": "已找到工作流：%{flow_name}",
+    "flow_not_found": "未找到工作流：%{flow_name}",
     "updating_flow_list": "正在更新工作流名称列表",
-    "loading_flow": "正在加载工作流：{flow_name}",
+    "loading_flow": "正在加载工作流：%{flow_name}",
     "building_graph": "正在从工作流负载构建图",
-    "run_id_set": "Run ID设置成功：{run_id}",
+    "run_id_set": "Run ID设置成功：%{run_id}",
     "getting_inputs": "正在提取工作流输入",
-    "creating_tool": "正在创建工具'{name}'，包含{input_count}个输入",
-    "tool_created": "工具'{name}'已从工作流'{flow_name}'成功创建"
+    "creating_tool": "正在创建工具'%{name}'，包含%{input_count}个输入",
+    "tool_created": "工具'%{name}'已从工作流'%{flow_name}'成功创建"
   }
 }

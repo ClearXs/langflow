@@ -36,7 +36,7 @@
   },
   "errors": {
     "input_cannot_be_none": "输入数据不能为None",
-    "invalid_list_types": "期望Data或DataFrame或Message或str，得到{types}",
-    "invalid_input_type": "期望Data或DataFrame或Message或str、Generator或None，得到{type}"
+    "invalid_list_types": "期望Data或DataFrame或Message或str，得到%{types}",
+    "invalid_input_type": "期望Data或DataFrame或Message或str、Generator或None，得到%{type}"
   }
 }

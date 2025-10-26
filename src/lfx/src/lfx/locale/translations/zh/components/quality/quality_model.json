@@ -1,0 +1,48 @@
+{
+  "display_name": "质量模型",
+  "description": "使用质量模型检测数据质量",
+  "data_input": {
+    "display_name": "数据输入",
+    "info": "需要进行质量检测的输入数据"
+  },
+  "quality_model_config": {
+    "display_name": "质量模型配置",
+    "info": "选择要应用的质量模型",
+    "model_id": "模型ID",
+    "model_id_desc": "质量模型的唯一标识",
+    "model_name": "模型名称",
+    "model_name_desc": "质量模型的名称",
+    "enabled": "启用",
+    "enabled_desc": "是否启用此质量模型",
+    "load_button": "加载质量模型"
+  },
+  "auto_evaluate": {
+    "display_name": "自动执行检测",
+    "info": "启用后自动执行质量检测(当前版本仅预留)"
+  },
+  "outputs": {
+    "data": {
+      "display_name": "处理后数据"
+    },
+    "quality_result": {
+      "display_name": "质量检测结果"
+    }
+  },
+  "status": {
+    "loading_models": "正在从数据治理服务加载质量模型列表...",
+    "models_loaded": "成功加载%{count}个质量模型",
+    "processing_data": "正在处理%{count}条数据...",
+    "data_processed": "成功处理%{count}条数据",
+    "evaluation_complete": "质量检测完成，共检测%{count}条数据",
+    "no_models_found": "未找到可用的质量模型"
+  },
+  "errors": {
+    "no_models_found": "未找到可用的质量模型",
+    "api_call_failed": "调用质量模型API失败: %{error}",
+    "missing_config": "缺少数据输入或质量模型配置",
+    "no_data_input": "未提供数据输入。请先连接数据源。",
+    "no_graph_data": "没有图数据可用。请先保存工作流。",
+    "graph_not_available": "加载质量模型功能仅在流程执行期间可用。",
+    "load_failed": "加载质量模型失败: %{error}"
+  }
+}

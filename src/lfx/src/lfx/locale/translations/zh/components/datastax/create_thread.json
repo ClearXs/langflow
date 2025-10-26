@@ -12,14 +12,14 @@
   },
   "status": {
     "creating": "正在创建线程...",
-    "created": "线程创建成功 - ID：{thread_id}"
+    "created": "线程创建成功 - ID：%{thread_id}"
   },
   "errors": {
-    "creation_failed": "创建线程失败：{error}"
+    "creation_failed": "创建线程失败：%{error}"
   },
   "logs": {
     "client_initialized": "OpenAI客户端初始化成功",
-    "processing_inputs": "正在处理输入 - env_set：{env_set}",
+    "processing_inputs": "正在处理输入 - env_set：%{env_set}",
     "creating_thread": "正在创建新线程"
   }
 }
