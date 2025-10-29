@@ -48,7 +48,7 @@ COPY ./src/lfx/pyproject.toml /app/src/lfx/pyproject.toml
 
 RUN --mount=type=cache,target=/root/.cache/uv \
     RUSTFLAGS='--cfg reqwest_unstable' \
-    uv sync --frozen --no-install-project --no-editable --extra postgresql
+    uv sync --frozen --no-install-project --no-editable --extra postgresql --index-url https://pypi.tuna.tsinghua.edu.cn/simple
 
 COPY ./src /app/src
 
