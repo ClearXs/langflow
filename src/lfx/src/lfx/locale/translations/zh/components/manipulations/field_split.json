@@ -60,5 +60,44 @@
     "field_not_found": "字段%{field}不存在",
     "split_failed": "拆分失败: %{error}",
     "load_fields_failed": "加载字段失败: %{error}"
+  },
+  "custom_delimiter": {
+    "display_name": "显示名称",
+    "info": "custom delimiter的信息"
+  },
+  "default_value": {
+    "display_name": "显示名称",
+    "info": "default value的信息"
+  },
+  "delimiter": {
+    "comma": "Comma",
+    "custom": "Custom",
+    "display_name": "显示名称",
+    "info": "分隔符信息",
+    "newline": "Newline",
+    "pipe": "Pipe",
+    "semicolon": "Semicolon",
+    "space": "Space",
+    "tab": "Tab"
+  },
+  "drop_source_field": {
+    "display_name": "显示名称",
+    "info": "drop source field的信息"
+  },
+  "is_regex": {
+    "display_name": "显示名称",
+    "info": "is regex的信息"
+  },
+  "max_splits": {
+    "display_name": "显示名称",
+    "info": "max splits的信息"
+  },
+  "new_fields_config": {
+    "display_name": "显示名称",
+    "info": "new fields config的信息"
+  },
+  "source_field": {
+    "display_name": "显示名称",
+    "info": "source field的信息"
   }
 }

@@ -29,15 +29,29 @@ const RenderInputParameters = ({
   }, [data.node?.template, data.node?.field_order, isToolMode]);
 
   const shownTemplateFields = useMemo(() => {
+    // Only show code field for custom components (CustomComponent or custom_components)
+    const isCustomComponent =
+      data?.type === "CustomComponent" || data?.type === "custom_components";
+
     return templateFields.filter((templateField) => {
       const template = data.node?.template[templateField];
+
+      // Filter out code field for built-in components to improve performance
+      if (
+        !isCustomComponent &&
+        templateField === "code" &&
+        template?.type === "code"
+      ) {
+        return false;
+      }
+
       return (
         template?.show &&
         !template?.advanced &&
         !(template?.tool_mode && isToolMode)
       );
     });
-  }, [templateFields, data.node?.template, isToolMode]);
+  }, [templateFields, data.node?.template, data?.type, isToolMode]);
 
   const memoizedColors = useMemo(() => {
     const colorMap = new Map();

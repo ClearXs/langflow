@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import i18n
 import inspect
 import traceback
 import types
@@ -387,34 +388,167 @@ class Vertex:
         user_id=None,
         event_manager: EventManager | None = None,
     ) -> None:
-        """Initiate the build process."""
+        """Initiate the build process with component execution logging."""
+        import time
+
+        from lfx.schema.log import Log
+
         await logger.adebug(f"Building {self.display_name}")
-        await self._build_each_vertex_in_params_dict()
 
-        if self.base_type is None:
-            msg = f"Base type for vertex {self.display_name} not found"
-            raise ValueError(msg)
+        # 🕒 记录执行开始时间
+        start_time = time.time()
 
-        if not self.custom_component:
-            custom_component, custom_params = initialize.loading.instantiate_class(
-                user_id=user_id, vertex=self, event_manager=event_manager
+        # 🔵 PRE-HOOK: 组件执行前日志记录（基于队列，非阻塞）
+        execution_logger = None
+        should_log = self._should_log_component_execution()
+        if should_log:
+            try:
+                from langflow.services.component_execution_logger_queue import ComponentExecutionLogger
+
+                execution_logger = ComponentExecutionLogger(vertex=self)
+                # 🔵 队列模式：快速放入队列，由消费者协程处理
+                await execution_logger.log_pre_execution()
+            except Exception as e:
+                # 日志记录失败不应阻断组件执行
+                logger.warning(f"Failed to log pre-execution for {self.display_name}: {e}")
+
+        try:
+            await self._build_each_vertex_in_params_dict()
+
+            if self.base_type is None:
+                msg = f"Base type for vertex {self.display_name} not found"
+                raise ValueError(msg)
+
+            if not self.custom_component:
+                custom_component, custom_params = initialize.loading.instantiate_class(
+                    user_id=user_id, vertex=self, event_manager=event_manager
+                )
+            else:
+                custom_component = self.custom_component
+                if hasattr(self.custom_component, "set_event_manager"):
+                    self.custom_component.set_event_manager(event_manager)
+                custom_params = initialize.loading.get_params(self.params)
+
+            await self._build_results(
+                custom_component=custom_component,
+                custom_params=custom_params,
+                fallback_to_env_vars=fallback_to_env_vars,
+                base_type=self.base_type,
             )
-        else:
-            custom_component = self.custom_component
-            if hasattr(self.custom_component, "set_event_manager"):
-                self.custom_component.set_event_manager(event_manager)
-            custom_params = initialize.loading.get_params(self.params)
 
-        await self._build_results(
-            custom_component=custom_component,
-            custom_params=custom_params,
-            fallback_to_env_vars=fallback_to_env_vars,
-            base_type=self.base_type,
-        )
+            self._validate_built_object()
 
-        self._validate_built_object()
+            self.built = True
 
-        self.built = True
+            # ✅ 记录执行成功日志（自动，所有组件）
+            end_time = time.time()
+            duration_ms = round((end_time - start_time) * 1000, 2)
+
+            # 为每个输出添加执行日志
+            if self.custom_component and hasattr(self.custom_component, "_output_logs"):
+                for output in self.outputs:
+                    output_name = output.get("name", "default")
+                    if output_name not in self.custom_component._output_logs:
+                        self.custom_component._output_logs[output_name] = []
+
+                    # 添加执行成功日志
+                    self.custom_component._output_logs[output_name].append(
+                        Log(
+                            name="执行信息",
+                            message={
+                                "component_name": self.display_name,
+                                "component_type": self.vertex_type,
+                                "status": "success",
+                                "duration_ms": duration_ms,
+                                "timestamp": end_time,
+                            },
+                            type="object",
+                        )
+                    )
+
+            # 🟢 POST-HOOK: 组件执行成功日志记录（基于队列，非阻塞）
+            if execution_logger:
+                try:
+                    # 🔵 队列模式：快速放入队列，由消费者协程处理
+                    await execution_logger.log_post_execution(
+                        status="success",
+                        results=self.results,
+                        artifacts=self.artifacts,
+                    )
+                except Exception as e:
+                    logger.warning(f"Failed to log post-execution for {self.display_name}: {e}")
+
+        except Exception as exc:
+            # ❌ 记录执行失败日志（自动，所有组件）
+            end_time = time.time()
+            duration_ms = round((end_time - start_time) * 1000, 2)
+
+            # 为每个输出添加错误日志
+            if self.custom_component and hasattr(self.custom_component, "_output_logs"):
+                for output in self.outputs:
+                    output_name = output.get("name", "default")
+                    if output_name not in self.custom_component._output_logs:
+                        self.custom_component._output_logs[output_name] = []
+
+                    # 添加执行失败日志
+                    self.custom_component._output_logs[output_name].append(
+                        Log(
+                            name="执行错误",
+                            message={
+                                "component_name": self.display_name,
+                                "component_type": self.vertex_type,
+                                "status": "error",
+                                "error_message": str(exc),
+                                "error_type": type(exc).__name__,
+                                "duration_ms": duration_ms,
+                                "timestamp": end_time,
+                            },
+                            type="error",
+                        )
+                    )
+
+            # 🔴 ERROR-HOOK: 组件执行失败日志记录（基于队列，非阻塞）
+            if execution_logger:
+                try:
+                    # 🔵 队列模式：快速放入队列，由消费者协程处理
+                    await execution_logger.log_post_execution(
+                        status="error",
+                        results=None,
+                        artifacts=None,
+                        error=exc,
+                    )
+                except Exception as e:
+                    logger.warning(f"Failed to log error for {self.display_name}: {e}")
+            raise
+
+    def _should_log_component_execution(self) -> bool:
+        """判断是否应该记录组件执行日志
+
+        Returns:
+            是否应该记录日志
+        """
+        try:
+            from lfx.services.settings import get_settings
+
+            settings = get_settings()
+
+            # 检查全局开关
+            if not getattr(settings, "component_execution_logging_enabled", True):
+                return False
+
+            # 检查是否在排除列表中
+            excluded_components = getattr(settings, "component_execution_logging_exclude", [])
+            if self.vertex_type in excluded_components:
+                return False
+
+            # 检查组件级别的配置
+            if hasattr(self.custom_component, "enable_execution_logging"):
+                return self.custom_component.enable_execution_logging
+
+            return True
+        except Exception:
+            # 配置检查失败时，默认启用日志
+            return True
 
     def extract_messages_from_artifacts(self, artifacts: dict[str, Any]) -> list[dict]:
         """Extracts messages from the artifacts.
@@ -612,7 +746,7 @@ class Vertex:
                     await logger.aexception(e)
                     msg = (
                         f"Params {key} ({self.params[key]}) is not a list and cannot be extended with {result}"
-                        f"Error building Component {self.display_name}: \n\n{e}"
+                        f"{i18n.t('graph.vertex.errors.error_building_component', display_name=self.display_name, error=e)}"
                     )
                     raise ValueError(msg) from e
 
@@ -657,7 +791,7 @@ class Vertex:
         except Exception as exc:
             tb = traceback.format_exc()
             await logger.aexception(exc)
-            msg = f"Error building Component {self.display_name}: \n\n{exc}"
+            msg = i18n.t("graph.vertex.errors.error_building_component", display_name=self.display_name, error=exc)
             raise ComponentBuildError(msg, tb) from exc
 
     def _update_built_object_and_artifacts(self, result: Any | tuple[Any, dict] | tuple[Component, Any, dict]) -> None:
@@ -675,6 +809,10 @@ class Vertex:
                 self.artifacts = {self.outputs[0]["name"]: self.artifacts}
         else:
             self.built_object = result
+
+        # ✅ 确保所有组件都获取日志（包括 len(result) != 3 的情况）
+        if self.custom_component and hasattr(self.custom_component, "get_output_logs"):
+            self.logs = self.custom_component.get_output_logs()
 
     def _validate_built_object(self) -> None:
         """Checks if the built object is None and raises a ValueError if so."""

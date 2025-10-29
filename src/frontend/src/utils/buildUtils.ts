@@ -107,7 +107,7 @@ export async function updateVerticesOrder(
     } catch (error: any) {
       logFlowLoad("Error getting vertices order:", error);
       setErrorData({
-        title: MISSED_ERROR_ALERT,
+        title: i18next.t("constants.error.missedSomething"),
         list: [error.response?.data?.detail ?? "Unknown Error"],
       });
       useFlowStore.getState().setIsBuilding(false);

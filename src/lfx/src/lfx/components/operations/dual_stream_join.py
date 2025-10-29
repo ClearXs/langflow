@@ -181,19 +181,54 @@ class ETLDualStreamJoinComponent(Component):
                     self.status = i18n.t("components.operations.dual_stream_join.errors.no_graph_data")
                     return build_config
 
-                # 从上游节点获取实际数据
-                left_data = await self.get_upstream_data(
-                    input_name="left_stream", graph_data=graph_data, sample_size=10, vertex_id=node_id
-                )
+                left_fields = []
+                right_fields = []
 
-                right_data = await self.get_upstream_data(
-                    input_name="right_stream", graph_data=graph_data, sample_size=10, vertex_id=node_id
-                )
+                # Primary strategy: Try to execute upstream nodes to get actual data
+                try:
+                    left_data = await self.get_upstream_data(
+                        input_name="left_stream", graph_data=graph_data, sample_size=10, vertex_id=node_id
+                    )
+                    right_data = await self.get_upstream_data(
+                        input_name="right_stream", graph_data=graph_data, sample_size=10, vertex_id=node_id
+                    )
 
-                # 提取字段列表
-                left_fields = self._extract_field_names(left_data) if left_data else []
-                right_fields = self._extract_field_names(right_data) if right_data else []
+                    # 提取字段列表
+                    left_fields = self._extract_field_names(left_data) if left_data else []
+                    right_fields = self._extract_field_names(right_data) if right_data else []
 
+                    if left_fields or right_fields:
+                        logger.info(
+                            f"[DualStreamJoin] Extracted fields from upstream data - left: {len(left_fields)}, right: {len(right_fields)}"
+                        )
+
+                except ValueError as e:
+                    # Fallback strategy: Extract from upstream node configurations
+                    logger.warning(f"[DualStreamJoin] Upstream execution failed: {e}. Trying static analysis...")
+
+                    try:
+                        from lfx.components.helpers.field_extraction import find_and_extract_upstream_fields
+
+                        # Extract from both inputs
+                        if not left_fields:
+                            left_fields = find_and_extract_upstream_fields(
+                                graph_data, node_id, "left_stream", "DualStreamJoin"
+                            )
+
+                        if not right_fields:
+                            right_fields = find_and_extract_upstream_fields(
+                                graph_data, node_id, "right_stream", "DualStreamJoin"
+                            )
+
+                        if left_fields or right_fields:
+                            logger.info(
+                                f"[DualStreamJoin] Extracted fields from static config - left: {len(left_fields)}, right: {len(right_fields)}"
+                            )
+
+                    except Exception:  # noqa: BLE001
+                        logger.exception("[DualStreamJoin] Static analysis also failed")
+
+                # Update build_config with results
                 if left_fields and right_fields:
                     # 1. 更新 table_schema 的 options
                     build_config["join_conditions"]["table_schema"][0]["options"] = left_fields  # left_key
@@ -216,17 +251,15 @@ class ETLDualStreamJoinComponent(Component):
                     )
                     logger.info(f"[DualStreamJoin] Loaded fields - left: {left_fields}, right: {right_fields}")
                 else:
-                    # 仍然更新选项，即使没有字段
-                    build_config["join_conditions"]["table_schema"][0]["options"] = left_fields
-                    build_config["join_conditions"]["table_schema"][2]["options"] = right_fields
-                    self.status = i18n.t("components.operations.dual_stream_join.status.no_fields_found")
+                    # 仍然更新选项，即使只有部分字段
+                    if left_fields:
+                        build_config["join_conditions"]["table_schema"][0]["options"] = left_fields
+                    if right_fields:
+                        build_config["join_conditions"]["table_schema"][2]["options"] = right_fields
 
-            except ValueError as e:
-                error_msg = str(e)
-                logger.warning(f"[DualStreamJoin] Field loading warning: {error_msg}")
-                self.status = i18n.t(
-                    "components.operations.dual_stream_join.errors.load_fields_failed", error=error_msg
-                )
+                    self.status = i18n.t("components.operations.dual_stream_join.warnings.field_load_failed")
+                    logger.warning("[DualStreamJoin] Could not extract all fields")
+
             except Exception as e:  # noqa: BLE001
                 logger.exception("[DualStreamJoin] Failed to load fields")
                 self.status = i18n.t("components.operations.dual_stream_join.errors.load_fields_failed", error=str(e))
@@ -239,18 +272,68 @@ class ETLDualStreamJoinComponent(Component):
                     self.status = i18n.t("components.operations.dual_stream_join.errors.no_graph_data")
                     return build_config
 
-                # 从上游节点获取实际数据
-                left_data = await self.get_upstream_data(
-                    input_name="left_stream", graph_data=graph_data, sample_size=10, vertex_id=node_id
-                )
+                output_fields = []
+                left_data = None
+                right_data = None
 
-                right_data = await self.get_upstream_data(
-                    input_name="right_stream", graph_data=graph_data, sample_size=10, vertex_id=node_id
-                )
+                # Primary strategy: Try to execute upstream nodes to get actual data
+                try:
+                    left_data = await self.get_upstream_data(
+                        input_name="left_stream", graph_data=graph_data, sample_size=10, vertex_id=node_id
+                    )
+                    right_data = await self.get_upstream_data(
+                        input_name="right_stream", graph_data=graph_data, sample_size=10, vertex_id=node_id
+                    )
 
-                # 生成输出字段预览
-                output_fields = self._generate_output_fields_preview(left_data, right_data)
+                    # 生成输出字段预览
+                    output_fields = self._generate_output_fields_preview(left_data, right_data)
 
+                    if output_fields:
+                        logger.info(f"[DualStreamJoin] Generated {len(output_fields)} output fields from upstream data")
+
+                except ValueError as e:
+                    # Fallback strategy: Extract from upstream node configurations
+                    logger.warning(f"[DualStreamJoin] Upstream execution failed for preview: {e}. Trying static analysis...")
+
+                    try:
+                        from lfx.components.helpers.field_extraction import find_and_extract_upstream_fields
+
+                        # Extract field names from both inputs
+                        left_fields = find_and_extract_upstream_fields(
+                            graph_data, node_id, "left_stream", "DualStreamJoin"
+                        )
+                        right_fields = find_and_extract_upstream_fields(
+                            graph_data, node_id, "right_stream", "DualStreamJoin"
+                        )
+
+                        # Generate simple preview without data types
+                        if left_fields or right_fields:
+                            output_fields = []
+                            for field in left_fields:
+                                output_fields.append(
+                                    {
+                                        "field_name": field,
+                                        "source": "left",
+                                        "data_type": "unknown",  # Cannot infer without data
+                                    }
+                                )
+                            for field in right_fields:
+                                output_fields.append(
+                                    {
+                                        "field_name": field,
+                                        "source": "right",
+                                        "data_type": "unknown",
+                                    }
+                                )
+
+                            logger.info(
+                                f"[DualStreamJoin] Generated {len(output_fields)} output fields from static config"
+                            )
+
+                    except Exception:  # noqa: BLE001
+                        logger.exception("[DualStreamJoin] Static analysis for preview also failed")
+
+                # Update build_config with results
                 if output_fields:
                     build_config["output_fields"]["value"] = output_fields
                     self.status = i18n.t(
@@ -258,12 +341,9 @@ class ETLDualStreamJoinComponent(Component):
                     )
                     logger.info(f"[DualStreamJoin] Generated {len(output_fields)} output field previews")
                 else:
-                    self.status = i18n.t("components.operations.dual_stream_join.status.no_fields_found")
+                    self.status = i18n.t("components.operations.dual_stream_join.warnings.field_load_failed")
+                    logger.warning("[DualStreamJoin] Could not generate output field preview")
 
-            except ValueError as e:
-                error_msg = str(e)
-                logger.warning(f"[DualStreamJoin] Field preview warning: {error_msg}")
-                self.status = i18n.t("components.operations.dual_stream_join.errors.preview_failed", error=error_msg)
             except Exception as e:  # noqa: BLE001
                 logger.exception("[DualStreamJoin] Failed to preview fields")
                 self.status = i18n.t("components.operations.dual_stream_join.errors.preview_failed", error=str(e))
@@ -513,7 +593,7 @@ class ETLDualStreamJoinComponent(Component):
         left_df = left_df.copy()
         right_df = right_df.copy()
 
-        for left_key, right_key in zip(left_keys, right_keys):
+        for left_key, right_key in zip(left_keys, right_keys, strict=False):
             left_dtype = left_df[left_key].dtype
             right_dtype = right_df[right_key].dtype
 

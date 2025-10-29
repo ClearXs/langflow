@@ -1,17 +1,20 @@
 {
   "display_name": "CDC Stream Input",
   "description": "Capture database changes using Change Data Capture in real-time",
-  "connection_string": {
-    "display_name": "Connection String",
-    "info": "Database connection string"
+  "datasource_selector": {
+    "display_name": "Data Source",
+    "info": "Select the data source to monitor for changes"
   },
-  "table_name": {
+  "table_selector": {
     "display_name": "Table Name",
-    "info": "Table to monitor for changes"
+    "info": "Select the table to capture changes from"
   },
   "cdc_mode": {
     "display_name": "CDC Mode",
-    "info": "Change capture mode"
+    "info": "Change capture mode",
+    "timestamp": "Timestamp-Based",
+    "log_based": "Log-Based",
+    "trigger_based": "Trigger-Based"
   },
   "timestamp_column": {
     "display_name": "Timestamp Column",
@@ -43,12 +46,31 @@
   },
   "status": {
     "capturing": "Capturing changes...",
-    "success": "Captured %{changes} changes"
+    "success": "Captured {changes} changes",
+    "loading_datasources": "Loading data sources...",
+    "loading_tables": "Loading tables...",
+    "tables_loaded": "Loaded {count} tables",
+    "no_datasource": "Please select a data source first",
+    "no_tables_found": "No tables found in this data source",
+    "table_selected": "Table selected: {table}",
+    "log_based_placeholder": "Log-based CDC requires external tools integration"
   },
   "errors": {
     "invalid_mode": "Invalid CDC mode",
-    "capture_failed": "Failed to capture changes: %{error}",
-    "audit_table_missing": "Audit table not found"
+    "capture_failed": "Failed to capture changes: {error}",
+    "audit_table_missing": "Audit table '{table}' not found",
+    "no_datasource": "No data source selected",
+    "no_table": "No table selected",
+    "invalid_datasource": "Invalid data source configuration",
+    "loading_tables_failed": "Failed to load tables: {error}",
+    "api_failed": "Failed to load datasources from API (status: {status})",
+    "api_error": "HTTP error when fetching datasources: {error}",
+    "unexpected": "Unexpected error: {error}",
+    "connection_failed": "Failed to get connection string (status: {status})",
+    "empty_connection": "Connection string is empty"
+  },
+  "info": {
+    "log_based_requirement": "Log-based CDC requires integration with Debezium or similar tools"
   },
   "outputs": {
     "data": {
@@ -56,6 +78,11 @@
     },
     "change_summary": {
       "display_name": "Change Summary"
+    }
+  },
+  "base": {
+    "dataSource": {
+      "addDataSource": "Adddatasource"
     }
   }
 }

@@ -1,13 +1,9 @@
-import type { ColDef, ColGroupDef } from "ag-grid-community";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useSearchParams } from "react-router-dom";
 import IconComponent from "@/components/common/genericIconComponent";
-import PaginatorComponent from "@/components/common/paginatorComponent";
-import TableComponent from "@/components/core/parameterRenderComponent/components/tableComponent";
-import { useGetTransactionsQuery } from "@/controllers/API/queries/transactions";
+import ExecutionLogsComponent from "@/components/core/executionLogsComponent";
 import useFlowsManagerStore from "@/stores/flowsManagerStore";
-import { convertUTCToLocalTimezone } from "@/utils/utils";
 import BaseModal from "../baseModal";
 
 export default function FlowLogsModal({
@@ -18,82 +14,40 @@ export default function FlowLogsModal({
   const { t } = useTranslation();
   const currentFlowId = useFlowsManagerStore((state) => state.currentFlowId);
   const [open, setOpen] = useState(false);
-
-  const [pageIndex, setPageIndex] = useState(1);
-  const [pageSize, setPageSize] = useState(20);
-  const [columns, setColumns] = useState<Array<ColDef | ColGroupDef>>([]);
-  const [rows, setRows] = useState<any>([]);
   const [searchParams] = useSearchParams();
   const flowIdFromUrl = searchParams.get("id");
 
-  const { data, isLoading, refetch } = useGetTransactionsQuery({
-    id: currentFlowId ?? flowIdFromUrl,
-    params: {
-      page: pageIndex,
-      size: pageSize,
-    },
-    mode: "union",
-  });
-
-  useEffect(() => {
-    if (data) {
-      const { columns, rows } = data;
-
-      if (data?.rows?.length > 0) {
-        data.rows.map((row: any) => {
-          row.timestamp = convertUTCToLocalTimezone(row.timestamp);
-        });
-      }
-
-      setColumns(columns.map((col) => ({ ...col, editable: true })));
-      setRows(rows);
-    }
-  }, [data]);
-
-  useEffect(() => {
-    if (open) {
-      refetch();
-    }
-  }, [open]);
-
-  const handlePageChange = useCallback((newPageIndex, newPageSize) => {
-    setPageIndex(newPageIndex);
-    setPageSize(newPageSize);
-  }, []);
+  const flowId = currentFlowId ?? flowIdFromUrl;
 
   return (
     <BaseModal open={open} setOpen={setOpen} size="x-large">
       <BaseModal.Trigger asChild>{children}</BaseModal.Trigger>
       <BaseModal.Header description={t("flow.panel.logs.description")}>
         <div className="flex w-full justify-between">
-          <div className="flex h-fit w-32 items-center">
+          <div className="flex h-fit items-center">
             <span className="pr-2">{t("flow.panel.logs.displayName")}</span>
             <IconComponent name="ScrollText" className="mr-2 h-4 w-4" />
           </div>
-          <div className="flex h-fit w-32 items-center"></div>
+          <div className="flex h-fit items-center">
+            <span className="text-sm text-muted-foreground">
+              Flow ID: {flowId?.slice(0, 8)}...
+            </span>
+          </div>
         </div>
       </BaseModal.Header>
       <BaseModal.Content>
-        <TableComponent
-          key={"Executions"}
-          readOnlyEdit
-          className="h-max-full h-full w-full"
-          pagination={false}
-          columnDefs={columns}
-          autoSizeStrategy={{ type: "fitGridWidth" }}
-          rowData={rows}
-          headerHeight={rows.length === 0 ? 0 : undefined}
-        ></TableComponent>
-        {!isLoading && (data?.pagination.total ?? 0) >= 10 && (
-          <div className="flex justify-end px-3 py-4">
-            <PaginatorComponent
-              pageIndex={data?.pagination.page ?? 1}
-              pageSize={data?.pagination.size ?? 10}
-              rowsCount={[12, 24, 48, 96]}
-              totalRowsCount={data?.pagination.total ?? 0}
-              paginate={handlePageChange}
-              pages={data?.pagination.pages}
-            />
+        {flowId ? (
+          <ExecutionLogsComponent flowId={flowId} />
+        ) : (
+          <div className="flex items-center justify-center py-12 text-muted-foreground">
+            <div className="text-center">
+              <IconComponent
+                name="AlertCircle"
+                className="h-12 w-12 mx-auto mb-4 opacity-50"
+              />
+              <div>无法获取流程ID</div>
+              <div className="text-sm mt-2">请确保在流程页面中打开此日志</div>
+            </div>
           </div>
         )}
       </BaseModal.Content>

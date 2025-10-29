@@ -28,6 +28,7 @@ import {
 } from "@/CustomNodes/utils/get-handle-id";
 import { INCOMPLETE_LOOP_ERROR_ALERT } from "@/constants/alerts_constants";
 import { customDownloadFlow } from "@/customization/utils/custom-reactFlowUtils";
+import i18n from "@/i18n";
 import useFlowStore from "@/stores/flowStore";
 import getFieldTitle from "../CustomNodes/utils/get-field-title";
 import {
@@ -625,9 +626,7 @@ export function updateIds(
 
 export function validateNode(node: AllNodeType, edges: Edge[]): Array<string> {
   if (!node.data?.node?.template || !Object.keys(node.data.node.template)) {
-    return [
-      "We've noticed a potential issue with a Component in the flow. Please review it and, if necessary, submit a bug report with your exported flow file. Thank you for your help!",
-    ];
+    return [i18n.t("constants.error.componentIssue")];
   }
 
   const {
@@ -655,7 +654,10 @@ export function validateNode(node: AllNodeType, edges: Edge[]): Array<string> {
       )
     ) {
       errors.push(
-        `${displayName || type} is missing ${getFieldTitle(template, t)}.`,
+        i18n.t("constants.error.fieldMissing", {
+          component: displayName || type,
+          field: getFieldTitle(template, t),
+        }),
       );
     } else if (
       template[t].type === "dict" &&

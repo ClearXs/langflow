@@ -122,37 +122,61 @@ class ETLFieldNameMappingComponent(Component):
                     self.status = i18n.t("components.manipulations.field_name_mapping.errors.no_graph_data")
                     return build_config
 
-                # Use the generic get_upstream_data method to fetch actual data
-                upstream_data = await self.get_upstream_data(
-                    input_name="data_input", graph_data=graph_data, sample_size=10, vertex_id=node_id
-                )
+                field_mappings = []
 
-                if not upstream_data:
-                    logger.warning("[FieldNameMapping] No data returned from upstream node")
-                    self.status = i18n.t("components.manipulations.field_name_mapping.status.no_fields_found")
-                    return build_config
+                # Primary strategy: Try to execute upstream node to get actual data
+                try:
+                    upstream_data = await self.get_upstream_data(
+                        input_name="data_input", graph_data=graph_data, sample_size=10, vertex_id=node_id
+                    )
 
-                # Extract field names from upstream data
-                field_mappings = self._extract_field_mappings(upstream_data)
+                    if upstream_data:
+                        # Extract field names from upstream data
+                        field_mappings = self._extract_field_mappings(upstream_data)
+                        logger.info(f"[FieldNameMapping] Extracted {len(field_mappings)} field mappings from upstream data")
+                    else:
+                        logger.warning("[FieldNameMapping] No data returned from upstream node")
 
+                except ValueError as e:
+                    # Fallback strategy: Extract from upstream node configuration
+                    logger.warning(f"[FieldNameMapping] Upstream execution failed: {e}. Trying static analysis...")
+
+                    try:
+                        from lfx.components.helpers.field_extraction import find_and_extract_upstream_fields
+
+                        field_names = find_and_extract_upstream_fields(
+                            graph_data, node_id, "data_input", "FieldNameMapping"
+                        )
+
+                        if field_names:
+                            # Generate field mappings from field names
+                            field_mappings = [
+                                {
+                                    "source_field": field_name,
+                                    "target_field": field_name,  # Default: same as source
+                                    "description": "",  # Empty description by default
+                                }
+                                for field_name in field_names
+                            ]
+                            logger.info(
+                                f"[FieldNameMapping] Extracted {len(field_mappings)} field mappings from static config"
+                            )
+                        else:
+                            logger.warning("[FieldNameMapping] Static analysis returned no fields")
+
+                    except Exception:  # noqa: BLE001
+                        logger.exception("[FieldNameMapping] Static analysis also failed")
+
+                # Update build_config with results
                 if field_mappings:
-                    # Update build_config with field mappings
                     build_config["field_mappings"]["value"] = field_mappings
-                    logger.info(f"[FieldNameMapping] Generated {len(field_mappings)} field mappings")
                     self.status = i18n.t(
                         "components.manipulations.field_name_mapping.status.analysis_success", count=len(field_mappings)
                     )
                 else:
+                    self.status = i18n.t("components.manipulations.field_name_mapping.warnings.field_load_failed")
                     logger.warning("[FieldNameMapping] No fields extracted from upstream data")
-                    self.status = i18n.t("components.manipulations.field_name_mapping.status.no_fields_found")
 
-            except ValueError as e:
-                # Handle expected errors (no upstream node, etc.)
-                error_msg = str(e)
-                logger.warning(f"[FieldNameMapping] Field analysis warning: {error_msg}")
-                self.status = i18n.t(
-                    "components.manipulations.field_name_mapping.errors.analysis_failed", error=error_msg
-                )
             except Exception:  # noqa: BLE001
                 # Handle unexpected errors - broad exception needed for production stability
                 logger.exception("[FieldNameMapping] Field analysis failed with unexpected error")
@@ -276,7 +300,9 @@ class ETLFieldNameMappingComponent(Component):
                 fields=len(mapping_dict),
             )
 
-            logger.info(f"[FieldNameMapping] Successfully mapped {len(result)} records with {len(mapping_dict)} field transformations")
+            logger.info(
+                f"[FieldNameMapping] Successfully mapped {len(result)} records with {len(mapping_dict)} field transformations"
+            )
 
             return result
 

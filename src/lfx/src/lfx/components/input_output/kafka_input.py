@@ -1,11 +1,25 @@
 import json
+import time
+from collections.abc import Generator
 from typing import Any
 
 import i18n
 
 from lfx.custom.custom_component.component import Component
-from lfx.io import BoolInput, IntInput, MessageTextInput, Output, SecretStrInput
+from lfx.log.logger import logger
+from lfx.io import (
+    BoolInput,
+    DropdownInput,
+    IntInput,
+    MessageTextInput,
+    Output,
+    SecretStrInput,
+    TableInput,
+)
 from lfx.schema import Data
+
+# Constants
+SAMPLE_CACHE_SIZE = 5
 
 
 class ETLKafkaInputComponent(Component):
@@ -13,6 +27,33 @@ class ETLKafkaInputComponent(Component):
     description = i18n.t("components.input_output.kafka_input.description")
     icon = "activity"
     name = "ETLKafkaInput"
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self._sample_data_cache = []  # 缓存样本数据
+        self._current_consumer = None  # Track current consumer instance
+        self._stop_streaming = False  # 流式模式停止标志
+
+    def __del__(self):
+        """Cleanup when component is destroyed."""
+        try:
+            self._stop_streaming = True  # 设置停止标志
+            if self._current_consumer:
+                self._current_consumer.close()
+                logger.info("[KafkaInput] Component destroyed, consumer closed")
+        except Exception:
+            pass  # Ignore errors during cleanup
+
+    def stop(self):
+        """手动停止流式消费（供外部调用）"""
+        logger.info("[KafkaInput] Stop signal received")
+        self._stop_streaming = True
+        self._close_current_consumer()
+
+    def _debug_log(self, message: str):
+        """Log message only in debug mode."""
+        if self.debug_mode:
+            logger.info(f"[DEBUG] {message}")
 
     inputs = [
         MessageTextInput(
@@ -43,6 +84,21 @@ class ETLKafkaInputComponent(Component):
             value="json",
             advanced=True,
         ),
+        DropdownInput(
+            name="auto_offset_reset",
+            display_name=i18n.t("components.input_output.kafka_input.auto_offset_reset.display_name"),
+            info=i18n.t("components.input_output.kafka_input.auto_offset_reset.info"),
+            options=["latest", "earliest", "none"],
+            value="earliest",
+            advanced=True,
+        ),
+        BoolInput(
+            name="reset_offsets",
+            display_name=i18n.t("components.input_output.kafka_input.reset_offsets.display_name"),
+            info=i18n.t("components.input_output.kafka_input.reset_offsets.info"),
+            value=False,
+            advanced=True,
+        ),
         IntInput(
             name="max_messages",
             display_name=i18n.t("components.input_output.kafka_input.max_messages.display_name"),
@@ -54,8 +110,105 @@ class ETLKafkaInputComponent(Component):
             name="timeout_ms",
             display_name=i18n.t("components.input_output.kafka_input.timeout_ms.display_name"),
             info=i18n.t("components.input_output.kafka_input.timeout_ms.info"),
-            value=10000,
+            value=300000,  # 增加到5分钟，支持更长的消费时间
             advanced=True,
+        ),
+        IntInput(
+            name="stream_timeout_minutes",
+            display_name=i18n.t("components.input_output.kafka_input.stream_timeout_minutes.display_name"),
+            info=i18n.t("components.input_output.kafka_input.stream_timeout_minutes.info"),
+            value=30,  # 30分钟流式超时
+            advanced=True,
+        ),
+        BoolInput(
+            name="debug_mode",
+            display_name=i18n.t("components.input_output.kafka_input.debug_mode.display_name"),
+            info=i18n.t("components.input_output.kafka_input.debug_mode.info"),
+            value=False,
+            advanced=True,
+        ),
+        BoolInput(
+            name="force_new_group",
+            display_name=i18n.t("components.input_output.kafka_input.force_new_group.display_name"),
+            info=i18n.t("components.input_output.kafka_input.force_new_group.info"),
+            value=True,  # 默认强制使用新的Consumer Group
+            advanced=True,
+        ),
+        BoolInput(
+            name="continuous_poll",
+            display_name=i18n.t("components.input_output.kafka_input.continuous_poll.display_name"),
+            info=i18n.t("components.input_output.kafka_input.continuous_poll.info"),
+            value=False,  # 默认关闭
+            advanced=True,
+        ),
+        IntInput(
+            name="batch_size",
+            display_name=i18n.t("components.input_output.kafka_input.batch_size.display_name"),
+            info=i18n.t("components.input_output.kafka_input.batch_size.info"),
+            value=10,
+            advanced=True,
+        ),
+        DropdownInput(
+            name="output_format",
+            display_name=i18n.t("components.input_output.kafka_input.output_format.display_name"),
+            info=i18n.t("components.input_output.kafka_input.output_format.info"),
+            options=["flattened", "raw"],
+            value="flattened",
+            advanced=True,
+        ),
+        DropdownInput(
+            name="field_extraction_mode",
+            display_name=i18n.t("components.input_output.kafka_input.field_extraction_mode.display_name"),
+            info=i18n.t("components.input_output.kafka_input.field_extraction_mode.info"),
+            options=["auto", "schema_only", "flatten_all"],
+            value="auto",
+            advanced=True,
+        ),
+        TableInput(
+            name="message_schema",
+            display_name=i18n.t("components.input_output.kafka_input.message_schema.display_name"),
+            info=i18n.t("components.input_output.kafka_input.message_schema.info"),
+            table_schema=[
+                {
+                    "name": "field_name",
+                    "type": "str",
+                    "display_name": i18n.t("components.input_output.kafka_input.message_schema.field_name"),
+                },
+                {
+                    "name": "field_type",
+                    "type": "str",
+                    "display_name": i18n.t("components.input_output.kafka_input.message_schema.data_type"),
+                    "options": ["string", "int", "float", "bool", "json", "timestamp"],
+                },
+                {
+                    "name": "json_path",
+                    "type": "str",
+                    "display_name": i18n.t("components.input_output.kafka_input.message_schema.json_path"),
+                    "placeholder": "$.user.name",
+                },
+                {
+                    "name": "required",
+                    "type": "bool",
+                    "display_name": i18n.t("components.input_output.kafka_input.message_schema.required"),
+                    "formatter": "checkbox",
+                },
+                {
+                    "name": "description",
+                    "type": "str",
+                    "display_name": i18n.t("components.input_output.kafka_input.message_schema.description"),
+                },
+            ],
+            value=[],
+            table_options={
+                "action_buttons": [
+                    {
+                        "name": "auto_detect_schema",
+                        "label": i18n.t("components.input_output.kafka_input.message_schema.auto_detect_schema"),
+                        "icon": "RefreshCw",
+                        "position": "top",
+                    }
+                ]
+            },
         ),
         BoolInput(
             name="auto_commit",
@@ -92,99 +245,347 @@ class ETLKafkaInputComponent(Component):
             method="consume_messages",
         ),
         Output(
+            name="sample_data",
+            display_name=i18n.t("components.input_output.kafka_input.outputs.sample_data.display_name"),
+            method="get_sample_data",
+        ),
+        Output(
             name="consumer_info",
             display_name=i18n.t("components.input_output.kafka_input.outputs.consumer_info.display_name"),
             method="get_consumer_info",
         ),
     ]
 
+    def _close_current_consumer(self):
+        """关闭当前 Consumer"""
+        if self._current_consumer:
+            logger.info("[KafkaInput] Closing consumer...")
+            try:
+                self._current_consumer.close()
+                logger.info("[KafkaInput] Consumer closed successfully")
+            except Exception as e:
+                logger.error(f"[KafkaInput] Failed to close consumer: {e}")
+            finally:
+                self._current_consumer = None
+
+    def _create_consumer(self):
+        """创建 Consumer 并记录详细信息"""
+        import time
+        import uuid
+
+        from confluent_kafka import Consumer
+
+        # 如果启用强制新组，生成唯一的组ID
+        effective_group_id = self.group_id
+        if self.force_new_group:
+            timestamp = int(time.time())
+            unique_id = str(uuid.uuid4())[:8]
+            effective_group_id = f"{self.group_id}-{timestamp}-{unique_id}"
+            logger.debug(f"[KafkaInput] Using unique group_id: {effective_group_id}")
+
+        # 配置 consumer
+        consumer_config = {
+            "bootstrap.servers": self.bootstrap_servers,
+            "group.id": effective_group_id,
+            "auto.offset.reset": self.auto_offset_reset,
+            "enable.auto.commit": self.auto_commit,
+            "session.timeout.ms": 30000,
+            "request.timeout.ms": 40000,
+            "heartbeat.interval.ms": 3000,
+        }
+
+        # 添加 SASL 认证
+        if self.sasl_username and self.sasl_password:
+            consumer_config.update(
+                {
+                    "security.protocol": "SASL_PLAINTEXT",
+                    "sasl.mechanism": "PLAIN",
+                    "sasl.username": self.sasl_username,
+                    "sasl.password": self.sasl_password,
+                }
+            )
+
+        logger.debug(f"[KafkaInput] Consumer config: servers={self.bootstrap_servers}, group={effective_group_id}")
+
+        consumer = Consumer(consumer_config)
+        logger.info("[KafkaInput] Consumer created successfully")
+
+        return consumer
+
+    def _log_subscription_info(self, consumer, topics):
+        """记录订阅信息"""
+        try:
+            # 获取集群元数据
+            metadata = consumer.list_topics(timeout=5.0)
+
+            logger.info("━━━ Kafka Cluster Info ━━━")
+            logger.info(f"Brokers: {len(metadata.brokers)} nodes")
+            broker_list = [f"{broker.host}:{broker.port}" for broker in metadata.brokers.values()]
+            logger.info(f"Broker list: {', '.join(broker_list[:3])}{' ...' if len(broker_list) > 3 else ''}")
+            cluster_id = getattr(metadata, "cluster_id", "N/A")
+            logger.info(f"Cluster ID: {cluster_id}")
+
+            logger.info("━━━ Subscription Info ━━━")
+            logger.info(f"Topics to subscribe: {topics}")
+
+            # 检查主题是否存在并显示详情
+            for topic in topics:
+                if topic in metadata.topics:
+                    topic_meta = metadata.topics[topic]
+                    partition_count = len(topic_meta.partitions)
+                    logger.info(f"  ✓ {topic}: {partition_count} partition(s)")
+
+                    # 显示每个分区的信息
+                    for partition_id, partition in topic_meta.partitions.items():
+                        if partition.error:
+                            logger.info(f"    - Partition {partition_id}: ERROR - {partition.error}")
+                        else:
+                            logger.info(f"    - Partition {partition_id}: {len(partition.replicas)} replica(s)")
+                else:
+                    logger.info(f"  ✗ {topic}: NOT FOUND (will cause subscription error)")
+
+        except Exception as e:
+            logger.info(f"Failed to get subscription info: {e}")
+
+    def _wait_for_assignment(self, consumer):
+        """等待分区分配完成"""
+        logger.info("Waiting for partition assignment...")
+        max_wait = 10  # 最多等待10秒
+        start_time = time.time()
+
+        while time.time() - start_time < max_wait:
+            # 触发分区分配
+            consumer.poll(timeout=0.5)
+
+            # 检查是否已分配
+            assignment = consumer.assignment()
+            if assignment:
+                logger.info(f"✓ Partitions assigned after {time.time() - start_time:.1f}s")
+                return True
+
+        logger.info("⚠️  No partitions assigned after 10s (may be normal if no partitions available)")
+        return False
+
+    def _log_partition_assignment(self, consumer):
+        """记录分区分配详情"""
+        try:
+            assignment = consumer.assignment()
+
+            logger.info("━━━ Partition Assignment ━━━")
+            if not assignment:
+                logger.info("  No partitions assigned")
+                return
+
+            logger.info(f"  Assigned {len(assignment)} partition(s):")
+
+            for tp in assignment:
+                try:
+                    # 获取已提交的 offset
+                    committed = consumer.committed([tp], timeout=5.0)
+                    current_offset = (
+                        committed[0].offset if committed and committed[0] and committed[0].offset >= 0 else -1
+                    )
+
+                    # 获取 watermark offsets
+                    low, high = consumer.get_watermark_offsets(tp, timeout=5.0)
+
+                    # 计算 lag
+                    if current_offset >= 0:
+                        lag = high - current_offset
+                    else:
+                        lag = high  # 如果没有提交过，lag 就是全部消息数
+
+                    logger.info(f"    • {tp.topic}-{tp.partition}:")
+                    logger.info(f"      Current offset: {current_offset}")
+                    logger.info(f"      High watermark: {high}")
+                    logger.info(f"      Consumer lag: {lag}")
+
+                except Exception as e:
+                    logger.info(f"    • {tp.topic}-{tp.partition}: Failed to get info - {e}")
+
+        except Exception as e:
+            logger.info(f"Failed to get partition assignment: {e}")
+
+    def _poll_messages(self, consumer, topics):
+        """轮询消息并记录详细诊断"""
+        from confluent_kafka import KafkaError
+
+        results = []
+
+        logger.info("━━━ Starting Message Poll ━━━")
+        logger.info(f"Max messages: {self.max_messages}")
+        logger.info(f"Timeout: {self.timeout_ms}ms ({self.timeout_ms / 1000:.1f}s)")
+        logger.info(f"Auto offset reset: {self.auto_offset_reset}")
+        logger.info(f"Force new group: {self.force_new_group}")
+
+        # 检查分区水位线信息
+        try:
+            assignment = consumer.assignment()
+            if assignment:
+                logger.info("📊 Initial partition watermarks:")
+                for tp in assignment:
+                    low, high = consumer.get_watermark_offsets(tp, timeout=5.0)
+                    logger.info(f"  {tp.topic}-{tp.partition}: low={low}, high={high}, available={high - low} messages")
+            else:
+                logger.info("⚠️  No partitions assigned yet")
+        except Exception as e:
+            logger.info(f"⚠️  Failed to get watermarks: {e}")
+
+        poll_count = 0
+        eof_count = 0
+        start_time = time.time()
+        last_log_time = start_time
+        timeout_seconds = self.timeout_ms / 1000.0
+
+        while len(results) < self.max_messages:
+            # 检查超时
+            if time.time() - start_time > timeout_seconds:
+                logger.info(f"⏱️  Timeout reached after {timeout_seconds:.1f}s")
+                break
+
+            poll_count += 1
+            msg = consumer.poll(timeout=1.0)
+
+            # 定期输出状态
+            if time.time() - last_log_time > 5.0:
+                elapsed = time.time() - start_time
+                logger.info(
+                    f"📊 Status: {len(results)} messages, {poll_count} polls, {eof_count} EOF, {elapsed:.1f}s elapsed"
+                )
+                last_log_time = time.time()
+
+            if msg is None:
+                self._debug_log(f"Poll #{poll_count}: empty")
+                continue
+
+            if msg.error():
+                error_code = msg.error().code()
+
+                if error_code == KafkaError._PARTITION_EOF:
+                    eof_count += 1
+                    self._debug_log(f"Poll #{poll_count}: EOF on {msg.topic()}-{msg.partition()} offset {msg.offset()}")
+
+                    # 如果多次 EOF 且没有消息，提前退出
+                    if len(results) == 0 and eof_count > len(topics) * 2:
+                        logger.info(f"⚠️  Reached EOF on all partitions ({eof_count} EOF messages) with no data")
+                        break
+                    continue
+                error_detail = f"Poll #{poll_count}: ERROR - {msg.error()}"
+                logger.info(error_detail)
+                continue
+
+            # 成功获取消息
+            self._debug_log(f"Poll #{poll_count}: ✓ {msg.topic()}-{msg.partition()} offset {msg.offset()}")
+
+            try:
+                # 反序列化消息
+                value_bytes = msg.value()
+                if not value_bytes:
+                    self._debug_log("  Empty message body, skipping")
+                    continue
+
+                if self.value_deserializer == "json":
+                    try:
+                        value = json.loads(value_bytes.decode("utf-8"))
+                        self._debug_log(f"  JSON parsed: {type(value).__name__}")
+                    except json.JSONDecodeError as json_error:
+                        raw_text = value_bytes.decode("utf-8", errors="replace")
+                        preview = raw_text[:100] + "..." if len(raw_text) > 100 else raw_text
+                        error_detail = f"  JSON decode error: {json_error}. Preview: {preview}"
+                        logger.info(error_detail)
+                        continue
+                else:
+                    try:
+                        value = value_bytes.decode("utf-8")
+                        self._debug_log(f"  String decoded: {len(value)} chars")
+                    except UnicodeDecodeError as unicode_error:
+                        error_detail = f"  Unicode decode error: {unicode_error}"
+                        logger.info(error_detail)
+                        continue
+
+                # 提取 JSONPath
+                if self.json_path and isinstance(value, dict):
+                    try:
+                        value = self._extract_json_path(value)
+                        self._debug_log(f"  JSONPath extracted: {type(value).__name__}")
+                    except Exception as path_error:
+                        logger.info(f"  JSONPath extraction error: {path_error}")
+                        continue
+
+                # 处理消息
+                processed_data = self._process_message(value)
+
+                # 添加 Kafka 元数据
+                if isinstance(processed_data, dict):
+                    processed_data.update(
+                        {
+                            "_kafka_topic": msg.topic(),
+                            "_kafka_partition": msg.partition(),
+                            "_kafka_offset": msg.offset(),
+                            "_kafka_timestamp": msg.timestamp()[1] if msg.timestamp()[0] else None,
+                        }
+                    )
+
+                    # 确保有 text 和 content 字段用于兼容性
+                    if "text" not in processed_data and "content" not in processed_data:
+                        text_value = json.dumps(processed_data, ensure_ascii=False, indent=2)
+                        processed_data["text"] = text_value
+                        processed_data["content"] = text_value
+                    elif "text" in processed_data and "content" not in processed_data:
+                        processed_data["content"] = processed_data["text"]
+                    elif "content" in processed_data and "text" not in processed_data:
+                        processed_data["text"] = processed_data["content"]
+
+                # 缓存样本数据
+                if len(self._sample_data_cache) < SAMPLE_CACHE_SIZE:
+                    self._sample_data_cache.append(processed_data.copy())
+
+                # 创建 Data 对象
+                data_obj = Data(data=processed_data)
+                results.append(data_obj)
+
+                self._debug_log(f"  ✓ Added to results (total: {len(results)})")
+
+            except Exception as processing_error:
+                error_detail = f"  Unexpected error processing message: {processing_error}"
+                logger.info(error_detail)
+                continue
+
+        elapsed = time.time() - start_time
+        logger.info(
+            f"[KafkaInput] Consumed {len(results)} messages in {elapsed:.2f}s (polls={poll_count}, eof={eof_count})"
+        )
+
+        return results
+
     def consume_messages(self) -> list[Data]:
-        """Consume messages from Kafka topics with authentication support."""
+        """消费 Kafka 消息并返回数据列表"""
         try:
             self.status = i18n.t("components.input_output.kafka_input.status.connecting")
 
-            # Import kafka-python
+            # 导入必要库
             try:
-                from kafka import KafkaConsumer
-            except ImportError:
-                raise ImportError(i18n.t("components.input_output.kafka_input.errors.kafka_not_installed"))
+                from confluent_kafka import Consumer, KafkaError  # noqa: F401
+            except ImportError as import_err:
+                error_msg = i18n.t("components.input_output.kafka_input.errors.kafka_not_installed")
+                logger.error(f"[KafkaInput] {error_msg}")
+                raise ImportError(error_msg) from import_err
 
-            # Parse topics
+            # 解析主题列表
             topics = [t.strip() for t in self.topics.split(",")]
 
-            # Configure consumer
-            consumer_config = {
-                "bootstrap_servers": self.bootstrap_servers.split(","),
-                "group_id": self.group_id,
-                "auto_offset_reset": "earliest",
-                "enable_auto_commit": self.auto_commit,
-                "consumer_timeout_ms": self.timeout_ms,
-            }
-
-            # Add SASL authentication if provided
-            if self.sasl_username and self.sasl_password:
-                consumer_config.update(
-                    {
-                        "security_protocol": "SASL_PLAINTEXT",
-                        "sasl_mechanism": "PLAIN",
-                        "sasl_plain_username": self.sasl_username,
-                        "sasl_plain_password": self.sasl_password,
-                    }
-                )
-
-            # Configure value deserializer
-            if self.value_deserializer == "json":
-                consumer_config["value_deserializer"] = lambda m: json.loads(m.decode("utf-8"))
+            # 根据配置选择模式
+            if self.continuous_poll:
+                logger.info("[KafkaInput] Starting continuous polling mode")
+                return self._consume_messages_continuous()
             else:
-                consumer_config["value_deserializer"] = lambda m: m.decode("utf-8")
-
-            # Create consumer
-            consumer = KafkaConsumer(*topics, **consumer_config)
-
-            result_data = []
-            message_count = 0
-
-            self.status = i18n.t("components.input_output.kafka_input.status.consuming")
-
-            for message in consumer:
-                try:
-                    value = message.value
-
-                    # Extract data using JSONPath if provided
-                    if self.json_path and isinstance(value, dict):
-                        value = self._extract_json_path(value)
-
-                    # Handle list or single item
-                    if isinstance(value, list):
-                        for item in value:
-                            result_data.append(Data(data=item))
-                    else:
-                        message_data = {
-                            "topic": message.topic,
-                            "partition": message.partition,
-                            "offset": message.offset,
-                            "timestamp": message.timestamp,
-                            "value": value,
-                        }
-                        result_data.append(Data(data=message_data))
-
-                    message_count += 1
-
-                    if message_count >= self.max_messages:
-                        break
-
-                except Exception as e:
-                    self.log(f"Error processing message: {e}")
-                    continue
-
-            consumer.close()
-
-            self.status = i18n.t("components.input_output.kafka_input.status.success", messages=len(result_data))
-            return result_data
+                logger.info("[KafkaInput] Starting batch mode")
+                return self._consume_messages_batch()
 
         except Exception as e:
             error_msg = i18n.t("components.input_output.kafka_input.errors.consume_failed", error=str(e))
             self.status = error_msg
+            logger.error(f"[KafkaInput] {error_msg}")
             raise ValueError(error_msg) from e
 
     def _extract_json_path(self, data: dict) -> Any:
@@ -203,6 +604,301 @@ class ETLKafkaInputComponent(Component):
 
         return current
 
+    def _flatten_dict(self, d: dict, parent_key: str, result: dict):
+        """Recursively flatten dictionary."""
+        for key, value in d.items():
+            new_key = f"{parent_key}_{key}" if parent_key else key
+
+            if isinstance(value, dict):
+                self._flatten_dict(value, new_key, result)
+            elif isinstance(value, list) and len(value) > 0 and isinstance(value[0], dict):
+                # For object arrays, only flatten the first element
+                self._flatten_dict(value[0], new_key, result)
+            else:
+                result[new_key] = value
+
+    def _extract_by_json_path(self, data: dict, json_path: str) -> Any:
+        """Extract data from dictionary using JSON Path notation."""
+        if not json_path or not json_path.startswith("$"):
+            return data
+
+        # Remove '$.' prefix and split path
+        path_parts = json_path[2:].split(".") if json_path.startswith("$.") else json_path[1:].split(".")
+        # Filter out empty parts
+        path_parts = [p for p in path_parts if p]
+
+        current = data
+
+        for part in path_parts:
+            if isinstance(current, dict) and part in current:
+                current = current[part]
+            else:
+                return None
+
+        return current
+
+    def _extract_fields_from_schema(self, message_value: Any) -> dict:
+        """Extract fields based on message schema definition."""
+        if not isinstance(message_value, dict) or not self.message_schema:
+            return {"value": message_value}
+
+        result = {}
+
+        for schema_row in self.message_schema:
+            field_name = schema_row.get("field_name")
+            json_path = schema_row.get("json_path", f"$.{field_name}")
+            required = schema_row.get("required", False)
+
+            # Extract value using JSON Path
+            value = self._extract_by_json_path(message_value, json_path)
+
+            # Handle missing required fields
+            if value is None and required:
+                logger.info(f"Required field '{field_name}' is missing in message")
+
+            # Add to result - include if value exists OR if field is required (even if None)
+            if value is not None:
+                result[field_name] = value
+            elif required:
+                result[field_name] = None
+
+        return result
+
+    def _process_message(self, message_value: Any) -> dict:
+        """Process message based on field extraction mode and output format."""
+        # First, handle field extraction based on mode
+        if self.field_extraction_mode == "schema_only":
+            if self.message_schema:
+                processed = self._extract_fields_from_schema(message_value)
+            else:
+                logger.info(i18n.t("components.input_output.kafka_input.logs.schema_mode_no_schema"))
+                processed = message_value if isinstance(message_value, dict) else {"value": message_value}
+
+        elif self.field_extraction_mode == "flatten_all":
+            # Flatten everything
+            if isinstance(message_value, dict):
+                processed = {}
+                self._flatten_dict(message_value, "", processed)
+            else:
+                processed = {"value": message_value}
+
+        elif self.message_schema:
+            # Use schema if defined
+            processed = self._extract_fields_from_schema(message_value)
+        # Fallback to flatten all
+        elif isinstance(message_value, dict):
+            processed = {}
+            self._flatten_dict(message_value, "", processed)
+        else:
+            processed = {"value": message_value}
+
+        # Then handle output format
+        if self.output_format == "flattened":
+            # For flattened output, ensure single level
+            if isinstance(processed, dict):
+                result = {}
+                self._flatten_dict(processed, "", result)
+                return result
+            return {"value": processed}
+        # Raw output (preserves structure from schema or flatten_all)
+        return processed if isinstance(processed, dict) else {"value": processed}
+
+    def test_connection(self) -> dict:
+        """Test Kafka connection and provide diagnostic information."""
+        try:
+            self.status = i18n.t("components.input_output.kafka_input.status.testing_connection")
+
+            # Import confluent-kafka
+            try:
+                from confluent_kafka import Consumer, KafkaError
+            except ImportError as import_err:
+                return {
+                    "success": False,
+                    "error": i18n.t("components.input_output.kafka_input.errors.kafka_not_installed"),
+                    "details": str(import_err),
+                }
+
+            # Parse topics
+            topics = [t.strip() for t in self.topics.split(",")]
+
+            # Configure consumer for testing
+            consumer_config = {
+                "bootstrap.servers": self.bootstrap_servers,
+                "group.id": f"{self.group_id}_test",
+                "auto.offset.reset": "earliest",
+                "enable.auto.commit": False,
+                "session.timeout.ms": 10000,
+                "request.timeout.ms": 10000,
+            }
+
+            # Add SASL authentication if provided
+            if self.sasl_username and self.sasl_password:
+                consumer_config.update(
+                    {
+                        "security.protocol": "SASL_PLAINTEXT",
+                        "sasl.mechanism": "PLAIN",
+                        "sasl.username": self.sasl_username,
+                        "sasl.password": self.sasl_password,
+                    }
+                )
+
+            diagnostic_info = {
+                "bootstrap_servers": self.bootstrap_servers,
+                "topics": topics,
+                "group_id": self.group_id,
+                "sasl_enabled": bool(self.sasl_username and self.sasl_password),
+            }
+
+            # Test 1: Create consumer
+            try:
+                consumer = Consumer(consumer_config)
+                diagnostic_info["consumer_creation"] = "success"
+            except Exception as e:
+                diagnostic_info["consumer_creation"] = "failed"
+                return {
+                    "success": False,
+                    "error": f"Failed to create consumer: {e!s}",
+                    "diagnostic": diagnostic_info,
+                }
+
+            # Test 2: Get metadata
+            try:
+                cluster_metadata = consumer.list_topics(timeout=5.0)
+                diagnostic_info["cluster_metadata"] = {
+                    "brokers": len(cluster_metadata.brokers),
+                    "topics": len(cluster_metadata.topics),
+                    "cluster_id": getattr(cluster_metadata, "cluster_id", "unknown"),
+                }
+            except Exception as e:
+                consumer.close()
+                diagnostic_info["cluster_metadata"] = "failed"
+                return {
+                    "success": False,
+                    "error": f"Failed to get cluster metadata: {e!s}",
+                    "diagnostic": diagnostic_info,
+                }
+
+            # Test 3: Check if topics exist
+            topic_metadata = {}
+            missing_topics = []
+            for topic in topics:
+                try:
+                    topic_info = cluster_metadata.topics.get(topic)
+                    if topic_info:
+                        topic_metadata[topic] = {
+                            "partitions": len(topic_info.partitions),
+                            "replicas": topic_info.partitions[0].replicas if topic_info.partitions else [],
+                        }
+                    else:
+                        missing_topics.append(topic)
+                except Exception as e:
+                    topic_metadata[topic] = {"error": str(e)}
+
+            diagnostic_info["topic_metadata"] = topic_metadata
+            diagnostic_info["missing_topics"] = missing_topics
+
+            if missing_topics:
+                consumer.close()
+                return {
+                    "success": False,
+                    "error": f"Topics not found: {', '.join(missing_topics)}",
+                    "diagnostic": diagnostic_info,
+                }
+
+            # Test 4: Subscribe to topics
+            try:
+                consumer.subscribe(topics)
+                diagnostic_info["subscription"] = "success"
+            except Exception as e:
+                consumer.close()
+                diagnostic_info["subscription"] = "failed"
+                return {
+                    "success": False,
+                    "error": f"Failed to subscribe to topics: {e!s}",
+                    "diagnostic": diagnostic_info,
+                }
+
+            # Test 5: Poll for messages (brief test)
+            try:
+                message_count = 0
+                start_time = time.time()
+                while time.time() - start_time < 3.0:  # Test for 3 seconds
+                    msg = consumer.poll(timeout=1.0)
+                    if msg is None:
+                        continue
+                    if msg.error():
+                        if msg.error().code() == KafkaError._PARTITION_EOF:
+                            continue
+                        diagnostic_info["poll_error"] = str(msg.error())
+                        break
+                    message_count += 1
+                    if message_count >= 5:  # Found some messages, connection is working
+                        break
+
+                diagnostic_info["messages_found"] = message_count
+                diagnostic_info["poll_test"] = "success"
+            except Exception as e:
+                diagnostic_info["poll_test"] = "failed"
+                diagnostic_info["poll_error"] = str(e)
+
+            consumer.close()
+
+            # Determine overall success
+            success = (
+                diagnostic_info.get("consumer_creation") == "success"
+                and diagnostic_info.get("cluster_metadata") != "failed"
+                and not missing_topics
+                and diagnostic_info.get("subscription") == "success"
+            )
+
+            return {
+                "success": success,
+                "message": "Connection successful" if success else "Connection test completed with issues",
+                "diagnostic": diagnostic_info,
+                "recommendations": self._get_connection_recommendations(diagnostic_info),
+            }
+
+        except Exception as e:
+            return {"success": False, "error": f"Connection test failed: {e!s}", "diagnostic": {"error": str(e)}}
+
+    def _get_connection_recommendations(self, diagnostic: dict) -> list[str]:
+        """Get connection recommendations based on diagnostic information."""
+        recommendations = []
+
+        if diagnostic.get("consumer_creation") == "failed":
+            recommendations.append("Check bootstrap servers format (e.g., 'localhost:9092')")
+            recommendations.append("Verify Kafka cluster is running")
+
+        if diagnostic.get("missing_topics"):
+            recommendations.append(f"Create missing topics: {', '.join(diagnostic['missing_topics'])}")
+            recommendations.append("Check topic spelling and permissions")
+
+        if diagnostic.get("sasl_enabled") and diagnostic.get("subscription") == "failed":
+            recommendations.append("Verify SASL username and password")
+            recommendations.append("Check if SASL authentication is properly configured on Kafka broker")
+
+        if diagnostic.get("messages_found", 0) == 0 and diagnostic.get("poll_test") == "success":
+            recommendations.append("Try setting 'Reset Offsets' to True to read from beginning")
+            recommendations.append("Send test messages to the topics")
+            recommendations.append("Check if auto_offset_reset is set to 'earliest'")
+
+        return recommendations
+
+    def get_sample_data(self) -> list[Data]:
+        """Get cached sample data for downstream component field discovery."""
+        if self._sample_data_cache:
+            return [Data(data=sample) for sample in self._sample_data_cache]
+
+        # If no cache, return example structure
+        example_data = {"_kafka_topic": "", "_kafka_partition": 0, "_kafka_offset": 0, "_kafka_timestamp": 0}
+
+        # Adjust example based on output format
+        if self.output_format == "flattened":
+            # Flattened example
+            return [Data(data=example_data)]
+        # Raw structure example
+        return [Data(data={"value": "sample_data", **example_data})]
+
     def get_consumer_info(self) -> Data:
         """Get Kafka consumer information."""
         info = {
@@ -210,5 +906,391 @@ class ETLKafkaInputComponent(Component):
             "topics": self.topics,
             "group_id": self.group_id,
             "max_messages": self.max_messages,
+            "timeout_ms": self.timeout_ms,
+            "auto_offset_reset": self.auto_offset_reset,
+            "output_format": self.output_format,
+            "field_extraction_mode": self.field_extraction_mode,
+            "batch_size": self.batch_size,
+            "auto_commit": self.auto_commit,
+            "value_deserializer": self.value_deserializer,
+            "json_path": self.json_path if self.json_path else None,
+            "sasl_enabled": bool(self.sasl_username and self.sasl_password),
+            "schema_defined": bool(self.message_schema),
+            "schema_fields": len(self.message_schema) if self.message_schema else 0,
+            "debug_mode": self.debug_mode,
+            "reset_offsets": self.reset_offsets,
         }
         return Data(data=info)
+
+    def update_build_config(
+        self, build_config: dict[str, Any], field_value: Any, field_name: str | None = None
+    ) -> dict[str, Any]:
+        """Update build config based on user actions."""
+        if field_name == "message_schema" and field_value == "auto_detect_schema":
+            # Auto-detect schema from sample messages
+            try:
+                sample_schema = self._auto_detect_schema_from_samples()
+                if sample_schema:
+                    build_config["message_schema"]["value"] = sample_schema
+                    self.status = i18n.t(
+                        "components.input_output.kafka_input.status.schema_detected", fields=len(sample_schema)
+                    )
+                else:
+                    self.status = i18n.t("components.input_output.kafka_input.status.no_schema_detected")
+            except Exception as e:
+                error_msg = i18n.t("components.input_output.kafka_input.errors.schema_detection_failed", error=str(e))
+                self.status = error_msg
+                logger.info(f"Schema detection failed: {e}")
+
+        return build_config
+
+    def _auto_detect_schema_from_samples(self) -> list[dict]:
+        """Auto-detect schema from cached sample messages."""
+        if not self._sample_data_cache:
+            # Try to get sample messages
+            try:
+                # Create a temporary consumer to fetch samples
+                from confluent_kafka import Consumer, KafkaError
+
+                consumer_config = {
+                    "bootstrap.servers": self.bootstrap_servers,
+                    "group.id": f"{self.group_id}_schema_detection",
+                    "auto.offset.reset": "latest",
+                    "enable.auto.commit": False,
+                }
+
+                if self.sasl_username and self.sasl_password:
+                    consumer_config.update(
+                        {
+                            "security.protocol": "SASL_PLAINTEXT",
+                            "sasl.mechanism": "PLAIN",
+                            "sasl.username": self.sasl_username,
+                            "sasl.password": self.sasl_password,
+                        }
+                    )
+
+                consumer = Consumer(consumer_config)
+                topics = [t.strip() for t in self.topics.split(",")]
+                consumer.subscribe(topics)
+
+                # Try to get a few messages
+                samples = []
+                for _ in range(5):  # Try up to 5 messages
+                    try:
+                        message = consumer.poll(timeout=2.0)
+                        if message is None:
+                            continue
+
+                        if message.error():
+                            if message.error().code() == KafkaError._PARTITION_EOF:
+                                continue
+                            logger.info(f"Error fetching sample: {message.error()}")
+                            continue
+
+                        # Deserialize message
+                        value_bytes = message.value()
+                        if self.value_deserializer == "json":
+                            value = json.loads(value_bytes.decode("utf-8"))
+                        else:
+                            value = value_bytes.decode("utf-8")
+
+                        samples.append(value)
+                        if len(samples) >= 3:  # Get at least 3 samples
+                            break
+                    except Exception as e:
+                        logger.info(f"Error processing sample message: {e}")
+                        continue
+
+                consumer.close()
+
+                # Update sample cache
+                for sample in samples:
+                    if isinstance(sample, dict):
+                        flattened = {}
+                        self._flatten_dict(sample, "", flattened)
+                        self._sample_data_cache.append(flattened)
+
+            except Exception as e:
+                logger.info(f"Failed to fetch sample messages: {e}")
+                return []
+
+        # Analyze sample data to create schema
+        if not self._sample_data_cache:
+            return []
+
+        return self._analyze_sample_data_for_schema(self._sample_data_cache)
+
+    def _analyze_sample_data_for_schema(self, samples: list[dict]) -> list[dict]:
+        """Analyze sample data to create schema definition."""
+        if not samples:
+            return []
+
+        # Collect all possible fields and their types
+        field_info = {}
+
+        for sample in samples:
+            if isinstance(sample, dict):
+                for field_name, value in sample.items():
+                    if field_name not in field_info:
+                        field_info[field_name] = {"count": 0, "values": [], "types": set(), "examples": []}
+
+                    field_info[field_name]["count"] += 1
+                    field_info[field_name]["values"].append(value)
+                    field_info[field_name]["types"].add(type(value).__name__)
+
+                    # Keep a few examples
+                    if len(field_info[field_name]["examples"]) < 3:
+                        field_info[field_name]["examples"].append(str(value))
+
+        # Generate schema rows
+        schema = []
+        total_samples = len(samples)
+
+        for field_name, info in field_info.items():
+            # Determine field type
+            types = info["types"]
+            field_type = "string"  # default
+
+            if len(types) == 1:
+                single_type = list(types)[0]
+                if single_type == "int":
+                    field_type = "int"
+                elif single_type == "float":
+                    field_type = "float"
+                elif single_type == "bool":
+                    field_type = "bool"
+                elif single_type == "dict":
+                    field_type = "json"
+
+            # Determine if required (present in all samples)
+            required = info["count"] == total_samples
+
+            # Generate JSON Path (assuming flat structure for auto-detect)
+            json_path = f"$.{field_name}"
+
+            # Generate description
+            examples_str = ", ".join(info["examples"][:2])
+            if len(info["examples"]) > 2:
+                examples_str += f" (and {len(info['examples']) - 2} more)"
+            description = f"Auto-detected from {info['count']} samples. Examples: {examples_str}"
+
+            schema_row = {
+                "field_name": field_name,
+                "field_type": field_type,
+                "json_path": json_path,
+                "required": required,
+                "description": description,
+            }
+
+            schema.append(schema_row)
+
+        # Sort by frequency (most common first) then by name
+        schema.sort(key=lambda x: (-field_info[x["field_name"]]["count"], x["field_name"]))
+
+        return schema
+
+    def _consume_messages_batch(self) -> list[Data]:
+        """批量消费 Kafka 消息（原有逻辑）"""
+        # 导入 confluent-kafka
+        try:
+            from confluent_kafka import Consumer, KafkaError  # noqa: F401
+        except ImportError as import_err:
+            error_msg = i18n.t("components.input_output.kafka_input.errors.kafka_not_installed")
+            logger.info(f"❌ {error_msg}")
+            raise ImportError(error_msg) from import_err
+
+        # 解析主题列表
+        topics = [t.strip() for t in self.topics.split(",")]
+
+        # 1. 关闭旧 Consumer
+        self._close_current_consumer()
+
+        # 2. 创建新 Consumer
+        consumer = self._create_consumer()
+        self._current_consumer = consumer
+
+        # 3. 记录订阅信息
+        self._log_subscription_info(consumer, topics)
+
+        # 4. 订阅主题
+        logger.info(f"Subscribing to topics: {topics}...")
+        consumer.subscribe(topics)
+        logger.info("✓ Subscribed successfully")
+
+        # 5. 等待分区分配
+        self._wait_for_assignment(consumer)
+
+        # 6. 记录分区分配详情
+        self._log_partition_assignment(consumer)
+
+        # 7. 轮询消息
+        self.status = i18n.t("components.input_output.kafka_input.status.consuming")
+        results = self._poll_messages(consumer, topics)
+
+        # 8. 关闭 Consumer
+        self._close_current_consumer()
+
+        # 9. 返回结果
+        if results:
+            self.status = i18n.t("components.input_output.kafka_input.status.success", messages=len(results))
+        else:
+            self.status = i18n.t("components.input_output.kafka_input.status.no_messages_found")
+            logger.info("")
+            logger.info("💡 Troubleshooting:")
+            logger.info("  1. Check if there are messages in the topic")
+            logger.info("  2. Try enabling 'Reset Offsets' option")
+            logger.info("  3. Verify 'Auto Offset Reset' is set to 'earliest'")
+            logger.info("  4. Check Consumer Lag using kafka-consumer-groups command")
+
+        logger.info("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+
+        return results
+
+    def _consume_messages_continuous(self) -> list[Data]:
+        """连续轮询模式 - 持续消费直到超时，返回所有消息"""
+        from confluent_kafka import Consumer, KafkaError
+
+        results = []
+
+        try:
+            self.status = "🔄 Starting continuous polling..."
+
+            # 解析主题列表
+            topics = [t.strip() for t in self.topics.split(",")]
+
+            # 关闭旧Consumer
+            self._close_current_consumer()
+
+            # 创建新Consumer
+            consumer = self._create_consumer()
+            self._current_consumer = consumer
+
+            # 订阅主题
+            consumer.subscribe(topics)
+            logger.info(f"[KafkaInput] Subscribed to topics: {topics}")
+
+            # 等待分区分配
+            self._wait_for_assignment(consumer)
+
+            self.status = "✅ Continuous polling active"
+            logger.info(f"[KafkaInput] Continuous polling started, timeout={self.stream_timeout_minutes}min")
+
+            # 连续轮询循环
+            start_time = time.time()
+            timeout_seconds = self.stream_timeout_minutes * 60
+            message_count = 0
+            poll_timeout = 2.0  # 轮询超时2秒
+
+            while time.time() - start_time < timeout_seconds and not self._stop_streaming:
+                try:
+                    # 检查停止标志
+                    if self._stop_streaming:
+                        logger.info("[KafkaInput] Stop signal detected, exiting polling")
+                        break
+
+                    # 轮询消息
+                    msg = consumer.poll(timeout=poll_timeout)
+
+                    if msg is None:
+                        self._debug_log("No message received")
+                        continue
+
+                    if msg.error():
+                        if msg.error().code() == KafkaError._PARTITION_EOF:
+                            self._debug_log(f"EOF on {msg.topic()}-{msg.partition()}")
+                            continue
+                        else:
+                            logger.info(f"⚠️ Kafka error: {msg.error()}")
+                            continue
+
+                    # 处理消息
+                    value_bytes = msg.value()
+                    if not value_bytes:
+                        self._debug_log("Empty message body, skipping")
+                        continue
+
+                    # 反序列化消息
+                    if self.value_deserializer == "json":
+                        try:
+                            value = json.loads(value_bytes.decode("utf-8"))
+                        except json.JSONDecodeError as json_error:
+                            logger.info(f"JSON decode error: {json_error}")
+                            continue
+                    else:
+                        try:
+                            value = value_bytes.decode("utf-8")
+                        except UnicodeDecodeError as unicode_error:
+                            logger.info(f"Unicode decode error: {unicode_error}")
+                            continue
+
+                    # 提取 JSONPath
+                    if self.json_path and isinstance(value, dict):
+                        try:
+                            value = self._extract_json_path(value)
+                        except Exception as path_error:
+                            logger.info(f"JSONPath extraction error: {path_error}")
+                            continue
+
+                    # 处理消息
+                    processed_data = self._process_message(value)
+
+                    # 添加 Kafka 元数据
+                    if isinstance(processed_data, dict):
+                        processed_data.update(
+                            {
+                                "_kafka_topic": msg.topic(),
+                                "_kafka_partition": msg.partition(),
+                                "_kafka_offset": msg.offset(),
+                                "_kafka_timestamp": msg.timestamp()[1] if msg.timestamp()[0] else None,
+                            }
+                        )
+
+                        # 确保有 text 和 content 字段用于兼容性
+                        if "text" not in processed_data and "content" not in processed_data:
+                            # 创建 JSON 表示
+                            text_value = json.dumps(processed_data, ensure_ascii=False, indent=2)
+                            processed_data["text"] = text_value
+                            processed_data["content"] = text_value
+                        elif "text" in processed_data and "content" not in processed_data:
+                            processed_data["content"] = processed_data["text"]
+                        elif "content" in processed_data and "text" not in processed_data:
+                            processed_data["text"] = processed_data["content"]
+
+                    # 创建 Data 对象并添加到结果
+                    data_obj = Data(data=processed_data)
+                    results.append(data_obj)
+                    message_count += 1
+
+                    # 更新状态
+                    if message_count % 10 == 0:
+                        elapsed = time.time() - start_time
+                        self.status = f"📊 Polled: {message_count} messages ({elapsed:.1f}s)"
+                        logger.info(f"[KafkaInput] Polled {message_count} messages so far")
+
+                except KeyboardInterrupt:
+                    logger.info("[KafkaInput] Polling cancelled by user")
+                    self._stop_streaming = True
+                    break
+                except Exception as e:
+                    logger.error(f"[KafkaInput] Polling processing error: {e}")
+                    # 继续运行，不因单个消息错误而中断
+                    continue
+
+            # 轮询结束
+            elapsed = time.time() - start_time
+            if self._stop_streaming:
+                logger.info(f"[KafkaInput] Polling stopped: {message_count} messages in {elapsed:.1f}s")
+                self.status = f"Polling stopped: {message_count} messages"
+            else:
+                logger.info(f"[KafkaInput] Polling completed: {message_count} messages in {elapsed:.1f}s")
+                self.status = f"Polling completed: {message_count} messages"
+
+            return results
+
+        except Exception as e:
+            logger.error(f"[KafkaInput] Polling error: {e}")
+            self.status = f"Polling error: {e}"
+            raise
+        finally:
+            self._stop_streaming = True  # 确保设置停止标志
+            self._close_current_consumer()

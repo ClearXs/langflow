@@ -24,7 +24,7 @@ import FilesContextMenuComponent from "@/modals/fileManagerModal/components/file
 import useAlertStore from "@/stores/alertStore";
 import { formatFileSize } from "@/utils/stringManipulation";
 import { FILE_ICONS } from "@/utils/styleUtils";
-import { cn } from "@/utils/utils";
+import { cn, convertUTCToLocalTimezone } from "@/utils/utils";
 import { sortByDate } from "../../../utils/sort-flows";
 import DragWrapComponent from "./dragWrapComponent";
 
@@ -211,7 +211,7 @@ const FilesTab = ({
       valueFormatter: (params) => {
         return params.data.progress
           ? ""
-          : new Date(params.value + "Z").toLocaleString();
+          : convertUTCToLocalTimezone(params.value);
       },
       editable: false,
       flex: 1,

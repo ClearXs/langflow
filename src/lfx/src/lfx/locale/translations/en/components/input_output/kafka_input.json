@@ -17,6 +17,32 @@
     "display_name": "Value Deserializer",
     "info": "Message value deserializer"
   },
+  "auto_offset_reset": {
+    "display_name": "Offset Reset",
+    "info": "Strategy when no initial offset is available"
+  },
+  "reset_offsets": {
+    "display_name": "Reset Offsets",
+    "info": "Force reset consumer offsets to beginning of topics. Useful for re-reading all messages."
+  },
+  "output_format": {
+    "display_name": "Output Format",
+    "info": "Message output format: flattened (single level) or raw (preserves structure)"
+  },
+  "field_extraction_mode": {
+    "display_name": "Field Extraction Mode",
+    "info": "Method for extracting fields from messages"
+  },
+  "message_schema": {
+    "display_name": "Message Schema",
+    "info": "Define field structure for Kafka messages",
+    "field_name": "Field Name",
+    "data_type": "Data Type",
+    "json_path": "JSON Path",
+    "required": "Required",
+    "description": "Description",
+    "auto_detect_schema": "Auto-Detect Schema"
+  },
   "max_messages": {
     "display_name": "Max Messages",
     "info": "Maximum messages to consume"
@@ -24,6 +50,26 @@
   "timeout_ms": {
     "display_name": "Timeout (ms)",
     "info": "Consumer timeout in milliseconds"
+  },
+  "debug_mode": {
+    "display_name": "Debug Mode",
+    "info": "Enable detailed logging for troubleshooting message consumption issues"
+  },
+  "force_new_group": {
+    "display_name": "Force New Consumer Group",
+    "info": "Create a unique consumer group ID for each execution to avoid offset conflicts"
+  },
+  "continuous_poll": {
+    "display_name": "Continuous Polling",
+    "info": "Continuously poll for messages until timeout. Collects all messages and returns them as a list (compatible with all downstream components)."
+  },
+  "stream_timeout_minutes": {
+    "display_name": "Stream Timeout (minutes)",
+    "info": "Maximum duration for streaming mode. The stream will automatically stop after this period."
+  },
+  "batch_size": {
+    "display_name": "Batch Size",
+    "info": "Number of messages to process before updating status"
   },
   "auto_commit": {
     "display_name": "Auto Commit",
@@ -44,18 +90,48 @@
   "status": {
     "connecting": "Connecting to Kafka...",
     "consuming": "Consuming messages...",
-    "success": "Successfully consumed %{messages} messages"
+    "streaming": "Streaming messages continuously...",
+    "streaming_progress": "Streaming... %{messages} messages processed",
+    "stopped": "Consumer stopped",
+    "stopping": "Stopping consumer...",
+    "success": "Successfully consumed %{messages} messages",
+    "schema_detected": "Schema detected with %{fields} fields",
+    "no_schema_detected": "No schema detected from samples",
+    "reconnected": "Reconnected (attempt %{attempt})",
+    "reconnect_failed": "Failed to reconnect after %{attempts} attempts",
+    "testing_connection": "Testing Kafka connection...",
+    "connection_successful": "Connection successful, found %{topics} topics",
+    "no_messages_found": "Connected but no messages found. Try sending messages or using 'Reset Offsets' option.",
+    "partition_assignment": "Assigned to %{partitions} partitions across %{topics} topics"
   },
   "errors": {
-    "kafka_not_installed": "kafka-python library not installed",
-    "consume_failed": "Failed to consume messages: %{error}"
+    "kafka_not_installed": "confluent-kafka library not installed",
+    "consume_failed": "Failed to consume messages: %{error}",
+    "schema_detection_failed": "Schema detection failed: %{error}"
+  },
+  "logs": {
+    "schema_mode_no_schema": "Schema mode enabled but no schema defined, using raw message"
   },
   "outputs": {
     "data": {
-      "display_name": "Data"
+      "display_name": "Data",
+      "info": "Batch consumed messages (non-streaming mode)"
+    },
+    "stream": {
+      "display_name": "Stream",
+      "info": "Continuous stream of messages (streaming mode)"
+    },
+    "sample_data": {
+      "display_name": "Sample Data",
+      "info": "Sample messages for field discovery (use 'Load Available Fields' in downstream components)"
     },
     "consumer_info": {
-      "display_name": "Consumer Info"
+      "display_name": "Consumer Info",
+      "info": "Consumer configuration information"
+    },
+    "connection_test": {
+      "display_name": "Connection Test",
+      "info": "Test Kafka connection and get diagnostic information"
     }
   }
 }

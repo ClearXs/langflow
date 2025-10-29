@@ -1,5 +1,7 @@
+import i18n from "@/i18n";
+
 // ERROR
-export const MISSED_ERROR_ALERT = "Oops! Looks like you missed something";
+export const MISSED_ERROR_ALERT = i18n.t("constants.error.missedSomething");
 export const INCOMPLETE_LOOP_ERROR_ALERT =
   "The flow has an incomplete loop. Check your connections and try again.";
 export const INVALID_FILE_ALERT =

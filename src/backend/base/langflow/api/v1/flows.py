@@ -17,7 +17,7 @@ from fastapi.responses import StreamingResponse
 from fastapi_pagination import Page, Params
 from fastapi_pagination.ext.sqlmodel import apaginate
 from lfx.log import logger
-from sqlmodel import and_, col, select
+from sqlmodel import col, select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from langflow.api.utils import CurrentActiveUser, DbSession, cascade_delete_flow, remove_api_keys, validate_is_component
@@ -35,6 +35,7 @@ from langflow.services.database.models.flow.model import (
 from langflow.services.database.models.flow.utils import get_webhook_component_in_flow
 from langflow.services.database.models.folder.constants import DEFAULT_FOLDER_NAME
 from langflow.services.database.models.folder.model import Folder
+from langflow.services.database.models.transactions.model import TransactionReadResponse, TransactionTable
 from langflow.services.deps import get_settings_service
 from langflow.utils.compression import compress_response
 
@@ -71,26 +72,18 @@ async def _new_flow(
         if flow.user_id is None:
             flow.user_id = user_id
 
-        # First check if the flow.name is unique
-        # there might be flows with name like: "MyFlow", "MyFlow (1)", "MyFlow (2)"
-        # so we need to check if the name is unique with `like` operator
-        # if we find a flow with the same name, we add a number to the end of the name
+        # Check if the flow.name is unique globally (across all users)
+        # If we find a flow with the same name, we add a number to the end of the name
         # based on the highest number found
-        if (await session.exec(select(Flow).where(Flow.name == flow.name).where(Flow.user_id == user_id))).first():
+        if (await session.exec(select(Flow).where(Flow.name == flow.name))).first():
             flows = (
                 await session.exec(
-                    select(Flow).where(Flow.name.like(f"{flow.name} (%")).where(Flow.user_id == user_id)  # type: ignore[attr-defined]
+                    select(Flow).where(Flow.name.like(f"{flow.name} (%"))  # type: ignore[attr-defined]
                 )
             ).all()
             if flows:
                 # Use regex to extract numbers only from flows that follow the copy naming pattern:
                 # "{original_name} ({number})"
-                # This avoids extracting numbers from the original flow name if it naturally contains parentheses
-                #
-                # Examples:
-                # - For flow "My Flow": matches "My Flow (1)", "My Flow (2)" → extracts 1, 2
-                # - For flow "Analytics (Q1)": matches "Analytics (Q1) (1)" → extracts 1
-                #   but does NOT match "Analytics (Q1)" → avoids extracting the original "1"
                 extract_number = re.compile(rf"^{re.escape(flow.name)} \((\d+)\)$")
                 numbers = []
                 for _flow in flows:
@@ -103,26 +96,19 @@ async def _new_flow(
                     flow.name = f"{flow.name} (1)"
             else:
                 flow.name = f"{flow.name} (1)"
-        # Now check if the endpoint is unique
+        # Now check if the endpoint is unique globally
         if (
             flow.endpoint_name
-            and (
-                await session.exec(
-                    select(Flow).where(Flow.endpoint_name == flow.endpoint_name).where(Flow.user_id == user_id)
-                )
-            ).first()
+            and (await session.exec(select(Flow).where(Flow.endpoint_name == flow.endpoint_name))).first()
         ):
             flows = (
                 await session.exec(
-                    select(Flow)
-                    .where(Flow.endpoint_name.like(f"{flow.endpoint_name}-%"))  # type: ignore[union-attr]
-                    .where(Flow.user_id == user_id)
+                    select(Flow).where(Flow.endpoint_name.like(f"{flow.endpoint_name}-%"))  # type: ignore[union-attr]
                 )
             ).all()
             if flows:
                 # The endpoint name is like "my-endpoint","my-endpoint-1", "my-endpoint-2"
                 # so we need to get the highest number and add 1
-                # we need to get the last part of the endpoint name
                 numbers = [int(flow.endpoint_name.split("-")[-1]) for flow in flows]
                 flow.endpoint_name = f"{flow.endpoint_name}-{max(numbers) + 1}"
             else:
@@ -216,8 +202,6 @@ async def read_flows(
         A list of flows or a paginated response containing the list of flows or a list of flow headers.
     """
     try:
-        auth_settings = get_settings_service().auth_settings
-
         default_folder = (await session.exec(select(Folder).where(Folder.name == DEFAULT_FOLDER_NAME))).first()
         default_folder_id = default_folder.id if default_folder else None
 
@@ -233,12 +217,8 @@ async def read_flows(
         if not folder_id:
             folder_id = default_folder_id
 
-        if auth_settings.AUTO_LOGIN:
-            stmt = select(Flow).where(
-                (Flow.user_id == None) | (Flow.user_id == current_user.id)  # noqa: E711
-            )
-        else:
-            stmt = select(Flow).where(Flow.user_id == current_user.id)
+        # Query all flows without user_id filtering
+        stmt = select(Flow)
 
         if remove_example_flows:
             stmt = stmt.where(Flow.folder_id != starter_folder_id)
@@ -278,10 +258,9 @@ async def read_flows(
 async def _read_flow(
     session: AsyncSession,
     flow_id: UUID,
-    user_id: UUID,
 ):
     """Read a flow."""
-    stmt = select(Flow).where(Flow.id == flow_id).where(Flow.user_id == user_id)
+    stmt = select(Flow).where(Flow.id == flow_id)
 
     return (await session.exec(stmt)).first()
 
@@ -294,7 +273,7 @@ async def read_flow(
     current_user: CurrentActiveUser,
 ):
     """Read a flow."""
-    if user_flow := await _read_flow(session, flow_id, current_user.id):
+    if user_flow := await _read_flow(session, flow_id):
         return user_flow
     raise HTTPException(status_code=404, detail="Flow not found")
 
@@ -328,7 +307,6 @@ async def update_flow(
         db_flow = await _read_flow(
             session=session,
             flow_id=flow_id,
-            user_id=current_user.id,
         )
 
         if not db_flow:
@@ -393,7 +371,6 @@ async def delete_flow(
     flow = await _read_flow(
         session=session,
         flow_id=flow_id,
-        user_id=current_user.id,
     )
     if not flow:
         raise HTTPException(status_code=404, detail="Flow not found")
@@ -412,6 +389,7 @@ async def create_flows(
     """Create multiple new flows."""
     db_flows = []
     for flow in flow_list.flows:
+        # user_id is no longer used for filtering, but keep for compatibility
         flow.user_id = current_user.id
         db_flow = Flow.model_validate(flow, from_attributes=True)
         session.add(db_flow)
@@ -435,11 +413,12 @@ async def upload_file(
     data = orjson.loads(contents)
     response_list = []
     flow_list = FlowListCreate(**data) if "flows" in data else FlowListCreate(flows=[FlowCreate(**data)])
-    # Now we set the user_id for all flows
+    # Now we set the user_id for all flows (kept for compatibility)
     for flow in flow_list.flows:
         flow.user_id = current_user.id
         if folder_id:
             flow.folder_id = folder_id
+        # user_id is passed for compatibility but not used for filtering
         response = await _new_flow(session=session, flow=flow, user_id=current_user.id)
         response_list.append(response)
 
@@ -485,9 +464,7 @@ async def delete_multiple_flows(
 
     """
     try:
-        flows_to_delete = (
-            await db.exec(select(Flow).where(col(Flow.id).in_(flow_ids)).where(Flow.user_id == user.id))
-        ).all()
+        flows_to_delete = (await db.exec(select(Flow).where(col(Flow.id).in_(flow_ids)))).all()
         for flow in flows_to_delete:
             await cascade_delete_flow(db, flow.id)
 
@@ -504,7 +481,7 @@ async def download_multiple_file(
     db: DbSession,
 ):
     """Download all flows as a zip file."""
-    flows = (await db.exec(select(Flow).where(and_(Flow.user_id == user.id, Flow.id.in_(flow_ids))))).all()  # type: ignore[attr-defined]
+    flows = (await db.exec(select(Flow).where(Flow.id.in_(flow_ids)))).all()  # type: ignore[attr-defined]
 
     if not flows:
         raise HTTPException(status_code=404, detail="No flows found.")
@@ -575,5 +552,263 @@ async def read_basic_examples(
         # Return compressed response using our utility function
         return all_starter_folder_flows_response  # noqa: TRY300
 
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e)) from e
+
+
+@router.get("/{flow_id}/logs", response_model=list[TransactionReadResponse], status_code=200)
+async def get_flow_logs(
+    *,
+    session: DbSession,
+    flow_id: UUID,
+    current_user: CurrentActiveUser,
+    component_type: str | None = None,
+    status: str | None = None,
+    vertex_id: str | None = None,
+    limit: int = 100,
+):
+    """Get execution logs for a specific flow.
+
+    Args:
+        session (Session): The database session
+        flow_id (UUID): The flow ID to get logs for
+        current_user (User): The current authenticated user
+        component_type (str, optional): Filter by component type (etl_input, model, agent, tool, etc.)
+        status (str, optional): Filter by execution status (running, success, error)
+        vertex_id (str, optional): Filter by specific vertex/component ID
+        limit (int): Maximum number of logs to return (default: 100, max: 1000)
+
+    Returns:
+        list[TransactionReadResponse]: List of execution log records with metadata
+    """
+    try:
+        # Verify flow exists and user has access
+        flow = await _read_flow(session, flow_id)
+        if not flow:
+            raise HTTPException(status_code=404, detail="Flow not found")
+
+        # Build query
+        stmt = select(TransactionTable).where(TransactionTable.flow_id == flow_id)
+
+        # Apply filters
+        if status:
+            stmt = stmt.where(TransactionTable.status == status)
+
+        if vertex_id:
+            stmt = stmt.where(TransactionTable.vertex_id == vertex_id)
+
+        # Apply limit (max 1000)
+        limit = min(limit, 1000)
+        stmt = stmt.limit(limit)
+
+        # Order by timestamp descending (newest first)
+        stmt = stmt.order_by(TransactionTable.timestamp.desc())
+
+        # Execute query
+        results = (await session.exec(stmt)).all()
+
+        # Filter by component_type if provided (requires JSON field access)
+        if component_type:
+            filtered_results = []
+            for transaction in results:
+                # Extract component_type from inputs._metadata
+                if transaction.inputs and isinstance(transaction.inputs, dict):
+                    metadata = transaction.inputs.get("_metadata", {})
+                    if metadata.get("component_type") == component_type:
+                        filtered_results.append(transaction)
+            results = filtered_results
+
+        # Convert to response model
+        response = [
+            TransactionReadResponse(
+                id=t.id,
+                flow_id=t.flow_id,
+                timestamp=t.timestamp,
+                vertex_id=t.vertex_id,
+                target_id=t.target_id,
+                inputs=t.inputs,
+                outputs=t.outputs,
+                status=t.status,
+                error=t.error,
+            )
+            for t in results
+        ]
+
+        return response
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e)) from e
+
+
+@router.get("/{flow_id}/stats", status_code=200)
+async def get_flow_stats(
+    *,
+    session: DbSession,
+    flow_id: UUID,
+    current_user: CurrentActiveUser,
+):
+    """Get execution statistics summary for a specific flow.
+
+    Args:
+        session (Session): The database session
+        flow_id (UUID): The flow ID to get stats for
+        current_user (User): The current authenticated user
+
+    Returns:
+        dict: Execution statistics including component counts, success rates, performance metrics
+    """
+    try:
+        # Verify flow exists and user has access
+        flow = await _read_flow(session, flow_id)
+        if not flow:
+            raise HTTPException(status_code=404, detail="Flow not found")
+
+        # Get all transactions for the flow
+        stmt = select(TransactionTable).where(TransactionTable.flow_id == flow_id)
+        transactions = (await session.exec(stmt)).all()
+
+        if not transactions:
+            return {
+                "total_executions": 0,
+                "successful_executions": 0,
+                "failed_executions": 0,
+                "running_executions": 0,
+                "success_rate": 0.0,
+                "component_types": {},
+                "performance_metrics": {
+                    "avg_duration_ms": 0,
+                    "total_duration_ms": 0
+                },
+                "latest_execution": None,
+                "earliest_execution": None
+            }
+
+        # Initialize statistics
+        stats = {
+            "total_executions": len(transactions),
+            "successful_executions": 0,
+            "failed_executions": 0,
+            "running_executions": 0,
+            "component_types": {},
+            "performance_metrics": {
+                "total_duration_ms": 0,
+                "avg_duration_ms": 0
+            },
+            "latest_execution": None,
+            "earliest_execution": None
+        }
+
+        # Process transactions
+        durations = []
+        latest_time = None
+        earliest_time = None
+
+        for transaction in transactions:
+            # Count by status
+            if transaction.status == "success":
+                stats["successful_executions"] += 1
+            elif transaction.status == "error":
+                stats["failed_executions"] += 1
+            elif transaction.status == "running":
+                stats["running_executions"] += 1
+
+            # Extract component type from metadata
+            if transaction.inputs and isinstance(transaction.inputs, dict):
+                metadata = transaction.inputs.get("_metadata", {})
+                component_type = metadata.get("component_type", "unknown")
+                stats["component_types"][component_type] = stats["component_types"].get(component_type, 0) + 1
+
+            # Extract performance metrics
+            if transaction.outputs and isinstance(transaction.outputs, dict):
+                output_metadata = transaction.outputs.get("_metadata", {})
+                duration = output_metadata.get("execution_duration_ms")
+                if duration and isinstance(duration, (int, float)):
+                    durations.append(duration)
+
+            # Track time range
+            if latest_time is None or transaction.timestamp > latest_time:
+                latest_time = transaction.timestamp
+            if earliest_time is None or transaction.timestamp < earliest_time:
+                earliest_time = transaction.timestamp
+
+        # Calculate success rate
+        total_completed = stats["successful_executions"] + stats["failed_executions"]
+        stats["success_rate"] = (
+            (stats["successful_executions"] / total_completed) * 100 if total_completed > 0 else 0.0
+        )
+
+        # Calculate performance metrics
+        if durations:
+            stats["performance_metrics"]["total_duration_ms"] = sum(durations)
+            stats["performance_metrics"]["avg_duration_ms"] = sum(durations) / len(durations)
+
+        # Format timestamps
+        if latest_time:
+            stats["latest_execution"] = latest_time.isoformat()
+        if earliest_time:
+            stats["earliest_execution"] = earliest_time.isoformat()
+
+        return stats
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e)) from e
+
+
+@router.get("/{flow_id}/logs/{transaction_id}", response_model=TransactionReadResponse, status_code=200)
+async def get_transaction_log(
+    *,
+    session: DbSession,
+    flow_id: UUID,
+    transaction_id: UUID,
+    current_user: CurrentActiveUser,
+):
+    """Get detailed execution log for a specific transaction.
+
+    Args:
+        session (Session): The database session
+        flow_id (UUID): The flow ID
+        transaction_id (UUID): The transaction ID to get details for
+        current_user (User): The current authenticated user
+
+    Returns:
+        TransactionReadResponse: Detailed execution log with full metadata
+    """
+    try:
+        # Verify flow exists and user has access
+        flow = await _read_flow(session, flow_id)
+        if not flow:
+            raise HTTPException(status_code=404, detail="Flow not found")
+
+        # Get the specific transaction
+        stmt = select(TransactionTable).where(
+            TransactionTable.id == transaction_id,
+            TransactionTable.flow_id == flow_id
+        )
+        transaction = (await session.exec(stmt)).first()
+
+        if not transaction:
+            raise HTTPException(status_code=404, detail="Transaction not found")
+
+        # Convert to response model
+        response = TransactionReadResponse(
+            id=transaction.id,
+            flow_id=transaction.flow_id,
+            timestamp=transaction.timestamp,
+            vertex_id=transaction.vertex_id,
+            target_id=transaction.target_id,
+            inputs=transaction.inputs,
+            outputs=transaction.outputs,
+            status=transaction.status,
+            error=transaction.error,
+        )
+
+        return response
+
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e)) from e

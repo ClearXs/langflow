@@ -1,0 +1,4 @@
+{
+  "error_building_component": "Error building Component",
+  "error_building_component_no_result": "Error building Component: no result found for vertex {vertex_id}"
+}

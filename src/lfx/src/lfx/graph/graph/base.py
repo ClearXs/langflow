@@ -4,6 +4,7 @@ import asyncio
 import contextlib
 import contextvars
 import copy
+import i18n
 import json
 import queue
 import threading
@@ -1572,7 +1573,7 @@ class Graph:
 
         except Exception as exc:
             if not isinstance(exc, ComponentBuildError):
-                await logger.aexception("Error building Component")
+                await logger.aexception(i18n.t("graph.errors.error_building_component"))
             raise
 
         if vertex.result is not None:
@@ -1581,7 +1582,7 @@ class Graph:
             result_dict = vertex.result
             artifacts = vertex.artifacts
         else:
-            msg = f"Error building Component: no result found for vertex {vertex_id}"
+            msg = i18n.t("graph.errors.error_building_component_no_result", vertex_id=vertex_id)
             raise ValueError(msg)
 
         return VertexBuildResult(
@@ -1743,7 +1744,7 @@ class Graph:
             from lfx.utils.exceptions import format_exception_message
 
             tb = traceback.format_exc()
-            await logger.aexception("Error building Component")
+            await logger.aexception(i18n.t("graph.errors.error_building_component"))
 
             params = format_exception_message(result)
         message = {"errorMessage": params, "stackTrace": tb}

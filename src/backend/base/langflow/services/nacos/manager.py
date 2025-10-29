@@ -14,14 +14,54 @@ if TYPE_CHECKING:
     from collections.abc import Callable
 
 from v2.nacos import (
-    NacosConfigService,
-    NacosNamingService,
     ClientConfigBuilder,
     ConfigParam,
-    RegisterInstanceParam,
     DeregisterInstanceParam,
-    ListInstanceParam
+    ListInstanceParam,
+    NacosConfigService,
+    NacosNamingService,
+    RegisterInstanceParam,
 )
+
+# Global event loop for Nacos async operations (running in dedicated thread)
+_nacos_loop: asyncio.AbstractEventLoop | None = None
+_loop_lock = threading.Lock()
+
+
+def _get_nacos_loop():
+    """Get or create dedicated event loop for Nacos operations."""
+    global _nacos_loop
+    if _nacos_loop is None or _nacos_loop.is_closed():
+        with _loop_lock:
+            if _nacos_loop is None or _nacos_loop.is_closed():
+                _nacos_loop = asyncio.new_event_loop()
+
+                # Start the loop in a dedicated thread
+                def run_loop():
+                    asyncio.set_event_loop(_nacos_loop)
+                    _nacos_loop.run_forever()
+
+                thread = threading.Thread(target=run_loop, daemon=True, name="nacos-event-loop")
+                thread.start()
+    return _nacos_loop
+
+
+def _run_async(coro):
+    """Safely run async coroutine in sync context.
+
+    This helper uses a dedicated event loop running in a separate thread
+    to avoid conflicts with the main FastAPI event loop.
+    """
+    try:
+        # Try to get the current running loop
+        asyncio.get_running_loop()
+        # We're in an async context, use the dedicated Nacos loop
+        nacos_loop = _get_nacos_loop()
+        future = asyncio.run_coroutine_threadsafe(coro, nacos_loop)
+        return future.result(timeout=30)  # 30 second timeout
+    except RuntimeError:
+        # No running loop, we can use asyncio.run directly
+        return asyncio.run(coro)
 
 
 class NacosConfigManager:
@@ -44,7 +84,6 @@ class NacosConfigManager:
             password: Nacos password for authentication
             timeout: Default timeout for operations in seconds
         """
-
         self.server_addresses = server_addresses
         self.namespace = namespace
         self.timeout = timeout
@@ -55,12 +94,14 @@ class NacosConfigManager:
 
         try:
             # Build client configuration using v2 ClientConfigBuilder
-            self.client_config = (ClientConfigBuilder()
-                                 .server_address(server_addresses)
-                                 .namespace(namespace)
-                                 .username(username)
-                                 .password(password)
-                                 .build())
+            self.client_config = (
+                ClientConfigBuilder()
+                .server_address(server_addresses)
+                .namespace_id(namespace)
+                .username(username)
+                .password(password)
+                .build()
+            )
             logger.info(f"Nacos v2 config client config built: {server_addresses}, namespace: {namespace}")
         except Exception:
             logger.exception("Failed to build Nacos v2 client configuration")
@@ -69,9 +110,7 @@ class NacosConfigManager:
     def _ensure_client(self) -> None:
         """Ensure async config client is initialized."""
         if self._config_client is None:
-            self._config_client = asyncio.run(
-                NacosConfigService.create_config_service(self.client_config)
-            )
+            self._config_client = _run_async(NacosConfigService.create_config_service(self.client_config))
             logger.info("Nacos v2 config client initialized")
 
     def get_config(
@@ -104,11 +143,11 @@ class NacosConfigManager:
 
         # Fetch from Nacos using v2 async API
         try:
-            config = asyncio.run(self._config_client.get_config(ConfigParam(
-                data_id=data_id,
-                group=group,
-                timeout_ms=(timeout or self.timeout) * 1000
-            )))
+            config = _run_async(
+                self._config_client.get_config(
+                    ConfigParam(data_id=data_id, group=group, timeout_ms=(timeout or self.timeout) * 1000)
+                )
+            )
 
             # Update cache
             if config and use_cache:
@@ -170,11 +209,9 @@ class NacosConfigManager:
         self._ensure_client()
 
         try:
-            result = asyncio.run(self._config_client.publish_config(ConfigParam(
-                data_id=data_id,
-                group=group,
-                content=content
-            )))
+            result = _run_async(
+                self._config_client.publish_config(ConfigParam(data_id=data_id, group=group, content=content))
+            )
 
             # Update cache
             if result:
@@ -207,10 +244,7 @@ class NacosConfigManager:
         self._ensure_client()
 
         try:
-            result = asyncio.run(self._config_client.remove_config(ConfigParam(
-                data_id=data_id,
-                group=group
-            )))
+            result = _run_async(self._config_client.remove_config(ConfigParam(data_id=data_id, group=group)))
 
             # Clear cache
             if result:
@@ -257,7 +291,7 @@ class NacosConfigManager:
 
         try:
             # Use v2 async API to add listener
-            asyncio.run(self._config_client.add_listener(data_id, group, async_config_listener))
+            _run_async(self._config_client.add_listener(data_id, group, async_config_listener))
             with self._lock:
                 if cache_key not in self._watchers:
                     self._watchers[cache_key] = []
@@ -290,12 +324,12 @@ class NacosConfigManager:
 
                 if remove_all:
                     for watcher in watchers:
-                        asyncio.run(self._config_client.remove_listener(data_id, group, watcher))
+                        _run_async(self._config_client.remove_listener(data_id, group, watcher))
                     self._watchers.pop(cache_key, None)
                     logger.info(f"All config watchers removed using v2 API: {cache_key}")
                 elif watchers:
                     watcher = watchers.pop()
-                    asyncio.run(self._config_client.remove_listener(data_id, group, watcher))
+                    _run_async(self._config_client.remove_listener(data_id, group, watcher))
                     logger.info(f"Config watcher removed using v2 API: {cache_key}")
         except Exception:
             logger.exception(f"Failed to remove config watcher: {cache_key}")
@@ -351,7 +385,6 @@ class NacosServiceManager:
             metadata: Service metadata
             ephemeral: Whether this is an ephemeral instance
         """
-
         self.server_addresses = server_addresses
         self.service_name = service_name
         self.ip = ip
@@ -367,12 +400,14 @@ class NacosServiceManager:
 
         try:
             # Build client configuration using v2 ClientConfigBuilder
-            self.client_config = (ClientConfigBuilder()
-                                 .server_address(server_addresses)
-                                 .namespace(namespace)
-                                 .username(username)
-                                 .password(password)
-                                 .build())
+            self.client_config = (
+                ClientConfigBuilder()
+                .server_address(server_addresses)
+                .namespace_id(namespace)
+                .username(username)
+                .password(password)
+                .build()
+            )
             logger.info(f"Nacos v2 naming client config built: {server_addresses}, namespace: {namespace}")
         except Exception:
             logger.exception("Failed to build Nacos v2 naming client configuration")
@@ -381,9 +416,7 @@ class NacosServiceManager:
     def _ensure_client(self) -> None:
         """Ensure async naming client is initialized."""
         if self._naming_client is None:
-            self._naming_client = asyncio.run(
-                NacosNamingService.create_naming_service(self.client_config)
-            )
+            self._naming_client = _run_async(NacosNamingService.create_naming_service(self.client_config))
             logger.info("Nacos v2 naming client initialized")
 
     def register(self) -> bool:
@@ -400,20 +433,22 @@ class NacosServiceManager:
 
         try:
             # Use v2 async API to register service instance
-            result = asyncio.run(self._naming_client.register_instance(
-                request=RegisterInstanceParam(
-                    service_name=self.service_name,
-                    group_name=self.group_name,
-                    ip=self.ip,
-                    port=self.port,
-                    cluster_name=self.cluster_name,
-                    weight=self.weight,
-                    metadata=self.metadata,
-                    enabled=True,
-                    healthy=True,
-                    ephemeral=self.ephemeral
+            result = _run_async(
+                self._naming_client.register_instance(
+                    request=RegisterInstanceParam(
+                        service_name=self.service_name,
+                        group_name=self.group_name,
+                        ip=self.ip,
+                        port=self.port,
+                        cluster_name=self.cluster_name,
+                        weight=self.weight,
+                        metadata=self.metadata,
+                        enabled=True,
+                        healthy=True,
+                        ephemeral=self.ephemeral,
+                    )
                 )
-            ))
+            )
 
             if result:
                 self._registered = True
@@ -443,16 +478,18 @@ class NacosServiceManager:
 
         try:
             # Use v2 async API to deregister service instance
-            result = asyncio.run(self._naming_client.deregister_instance(
-                request=DeregisterInstanceParam(
-                    service_name=self.service_name,
-                    group_name=self.group_name,
-                    ip=self.ip,
-                    port=self.port,
-                    cluster_name=self.cluster_name,
-                    ephemeral=self.ephemeral
+            result = _run_async(
+                self._naming_client.deregister_instance(
+                    request=DeregisterInstanceParam(
+                        service_name=self.service_name,
+                        group_name=self.group_name,
+                        ip=self.ip,
+                        port=self.port,
+                        cluster_name=self.cluster_name,
+                        ephemeral=self.ephemeral,
+                    )
                 )
-            ))
+            )
 
             if result:
                 self._registered = False
@@ -467,7 +504,6 @@ class NacosServiceManager:
 
     # Heartbeat is automatically handled by v2 Nacos SDK, no manual heartbeat method needed
 
-    
     def discover_instances(
         self,
         service_name: str | None = None,
@@ -490,13 +526,11 @@ class NacosServiceManager:
 
         try:
             # Use v2 async API to list instances
-            instances = asyncio.run(self._naming_client.list_instances(
-                ListInstanceParam(
-                    service_name=service_name,
-                    group_name=group_name,
-                    healthy_only=healthy_only
+            instances = _run_async(
+                self._naming_client.list_instances(
+                    ListInstanceParam(service_name=service_name, group_name=group_name, healthy_only=healthy_only)
                 )
-            ))
+            )
             logger.debug(f"Discovered {len(instances)} instances for {service_name} using v2 API")
             return instances
         except Exception:

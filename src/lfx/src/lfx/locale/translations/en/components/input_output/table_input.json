@@ -3,7 +3,7 @@
   "description": "Read table data from datasources with SQL queries, field mappings and data transformations",
   "datasource_selector": {
     "display_name": "Datasource",
-    "info": "Select the datasource to connect to"
+    "info": "Select the datasource to connect to (includes built-in and public datasources)"
   },
   "database_connection": {
     "display_name": "Database Connection",
@@ -122,6 +122,17 @@
     "no_sql": "Please enter SQL query first",
     "no_datasource": "Please select datasource first",
     "analysis_failed": "SQL analysis failed: %{error}",
-    "preview_failed": "Preview failed: %{error}"
+    "preview_failed": "Preview failed: %{error}",
+    "public_datasource_load_failed": "Failed to load public datasources: %{error}",
+    "unified_datasource_load_failed": "Failed to load datasources: %{error}",
+    "unsupported_public_datasource": "Unsupported database type for public datasource: %{type}",
+    "feign_service_unavailable": "Feign service unavailable for public datasources",
+    "connection_string_empty": "Connection string is empty",
+    "no_datasource_selected": "No datasource selected"
+  },
+  "base": {
+    "dataSource": {
+      "addDataSource": "Adddatasource"
+    }
   }
 }

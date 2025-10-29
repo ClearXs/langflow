@@ -27,7 +27,12 @@ export default function SessionView({
   const setSuccessData = useAlertStore((state) => state.setSuccessData);
   const updateMessage = useMessagesStore((state) => state.updateMessage);
   const deleteMessagesStore = useMessagesStore((state) => state.removeMessages);
-  const columns = extractColumnsFromRows(messages, "intersection");
+  const columns = extractColumnsFromRows(
+    messages,
+    "intersection",
+    undefined,
+    t,
+  );
   const playgroundPage = useFlowStore((state) => state.playgroundPage);
   const isFetching = useIsFetching({
     queryKey: ["useGetMessagesQuery"],

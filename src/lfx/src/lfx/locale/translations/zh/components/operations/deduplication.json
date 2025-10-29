@@ -58,5 +58,8 @@
     "load_failed": "字段加载失败: %{error}",
     "dedup_failed": "去重失败: %{error}",
     "preview_failed": "预览生成失败: %{error}"
+  },
+  "warnings": {
+    "field_load_failed": "无法自动加载字段，请手动配置"
   }
 }

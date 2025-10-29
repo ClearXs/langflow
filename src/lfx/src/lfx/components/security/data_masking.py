@@ -1,5 +1,3 @@
-import hashlib
-import re
 from typing import Any
 
 import i18n
@@ -40,45 +38,14 @@ class ETLDataMaskingComponent(Component):
                     "description": i18n.t("components.security.data_masking.masking_rules.field_desc"),
                 },
                 {
-                    "name": "masking_type",
-                    "display_name": i18n.t("components.security.data_masking.masking_rules.masking_type"),
-                    "type": "str",
+                    "name": "rule_id",
+                    "display_name": i18n.t("components.security.data_masking.masking_rules.rule_id"),
+                    "type": "int",
                     "formatter": "dropdown",
-                    "options": ["phone", "email", "id", "credit_card", "full", "hash"],
-                    "options_metadata": [
-                        {
-                            "value": "phone",
-                            "label": i18n.t("components.security.data_masking.masking_rules.masking_types.phone"),
-                        },
-                        {
-                            "value": "email",
-                            "label": i18n.t("components.security.data_masking.masking_rules.masking_types.email"),
-                        },
-                        {
-                            "value": "id",
-                            "label": i18n.t("components.security.data_masking.masking_rules.masking_types.id"),
-                        },
-                        {
-                            "value": "credit_card",
-                            "label": i18n.t("components.security.data_masking.masking_rules.masking_types.credit_card"),
-                        },
-                        {
-                            "value": "full",
-                            "label": i18n.t("components.security.data_masking.masking_rules.masking_types.full"),
-                        },
-                        {
-                            "value": "hash",
-                            "label": i18n.t("components.security.data_masking.masking_rules.masking_types.hash"),
-                        },
-                    ],
+                    "options": [],  # 动态填充
+                    "options_metadata": [],  # 动态填充
                     "required": True,
-                    "description": i18n.t("components.security.data_masking.masking_rules.masking_type_desc"),
-                },
-                {
-                    "name": "mask_char",
-                    "display_name": i18n.t("components.security.data_masking.masking_rules.mask_char"),
-                    "type": "str",
-                    "description": i18n.t("components.security.data_masking.masking_rules.mask_char_desc"),
+                    "description": i18n.t("components.security.data_masking.masking_rules.rule_id_desc"),
                 },
             ],
             value=[],
@@ -128,62 +95,46 @@ class ETLDataMaskingComponent(Component):
 
         # Handle "load_fields" button click
         if field_name == "masking_rules" and action == "load_fields":
-            logger.info("[DataMasking] Field loading triggered")
+            logger.info("[DataMasking] Field and rule loading triggered")
 
             try:
-                # Get graph_data and node_id from build_config
-                graph_data = build_config.get("_graph_data", {})
-                node_id = build_config.get("_node_id")
-
-                # If not in build_config, try to get from self.graph
-                if not graph_data and hasattr(self, "graph") and self.graph is not None:
-                    if hasattr(self.graph, "data"):
-                        graph_data = self.graph.data
-                    else:
-                        logger.warning("[DataMasking] PlaceholderGraph detected - no graph data available")
-
-                if not graph_data:
-                    logger.warning("[DataMasking] No graph data available")
-                    self.status = i18n.t("components.security.data_masking.errors.no_graph_data")
-                    return build_config
-
-                # Fetch upstream data
-                upstream_data = await self.get_upstream_data(
-                    input_name="data_input", graph_data=graph_data, sample_size=10, vertex_id=node_id
-                )
-
-                if not upstream_data:
-                    logger.warning("[DataMasking] No data returned from upstream node")
-                    self.status = i18n.t("components.security.data_masking.status.no_fields_found")
-                    return build_config
-
-                # Extract field names
-                field_names = self._extract_field_names(upstream_data)
-
-                if not field_names:
-                    logger.warning("[DataMasking] No fields extracted from upstream data")
-                    self.status = i18n.t("components.security.data_masking.status.no_fields_found")
-                    return build_config
-
-                # Update dropdown options for field column
+                # 1. Load field names from upstream data
+                field_names = await self._load_upstream_fields(build_config)
                 build_config["masking_rules"]["table_schema"][0]["options"] = field_names
 
-                # Auto-fill table with default masking rules if empty
-                if not build_config["masking_rules"].get("value"):
-                    build_config["masking_rules"]["value"] = [
-                        {
-                            "field": name,
-                            "masking_type": "full",
-                            "mask_char": "*",
-                        }
-                        for name in field_names
+                # 2. Load masking rules from data security service
+                masking_rules = await self._load_masking_rules()
+                if masking_rules:
+                    build_config["masking_rules"]["table_schema"][1]["options"] = [rule["id"] for rule in masking_rules]
+                    build_config["masking_rules"]["table_schema"][1]["options_metadata"] = [
+                        {"value": rule["id"], "label": rule["ruleName"]} for rule in masking_rules
                     ]
-                    logger.info(f"[DataMasking] Auto-filled {len(field_names)} masking rules")
                 else:
-                    # Just update the options, keep existing rows
-                    logger.info(f"[DataMasking] Updated field options with {len(field_names)} fields")
+                    build_config["masking_rules"]["table_schema"][1]["options"] = []
+                    build_config["masking_rules"]["table_schema"][1]["options_metadata"] = []
 
-                self.status = i18n.t("components.security.data_masking.status.load_success", count=len(field_names))
+                # Auto-fill table with default masking configs if empty
+                if not build_config["masking_rules"].get("value") and field_names and masking_rules:
+                    # Use first available masking rule for all fields
+                    default_rule_id = masking_rules[0]["id"]
+                    build_config["masking_rules"]["value"] = [
+                        {"field": name, "rule_id": default_rule_id} for name in field_names
+                    ]
+                    logger.info(
+                        f"[DataMasking] Auto-filled {len(field_names)} field masking configs "
+                        f"with default rule {default_rule_id}"
+                    )
+                else:
+                    logger.info(
+                        f"[DataMasking] Updated field options with {len(field_names)} fields "
+                        f"and {len(masking_rules)} rules"
+                    )
+
+                self.status = i18n.t(
+                    "components.security.data_masking.status.load_success",
+                    fields_count=len(field_names),
+                    rules_count=len(masking_rules),
+                )
 
             except ValueError as e:
                 error_msg = str(e)
@@ -192,30 +143,27 @@ class ETLDataMaskingComponent(Component):
                 # Fallback: try to extract fields from upstream node config
                 try:
                     logger.info("[DataMasking] Attempting fallback: extracting fields from upstream node config")
-                    field_names = self._extract_fields_from_upstream_config(build_config, graph_data, node_id)
+                    field_names = self._extract_fields_from_upstream_config(
+                        build_config, build_config.get("_graph_data", {}), build_config.get("_node_id")
+                    )
 
                     if field_names:
                         # Update dropdown options for field column
                         build_config["masking_rules"]["table_schema"][0]["options"] = field_names
 
-                        # Auto-fill table with default masking rules if empty
+                        # Auto-fill table with default masking configs if empty
                         if not build_config["masking_rules"].get("value"):
-                            build_config["masking_rules"]["value"] = [
-                                {
-                                    "field": name,
-                                    "masking_type": "full",
-                                    "mask_char": "*",
-                                }
-                                for name in field_names
-                            ]
-                            logger.info(f"[DataMasking] Auto-filled {len(field_names)} masking rules (from config)")
+                            build_config["masking_rules"]["value"] = [{"field": name} for name in field_names]
+                            logger.info(
+                                f"[DataMasking] Auto-filled {len(field_names)} field masking configs (from config)"
+                            )
                         else:
                             logger.info(
                                 f"[DataMasking] Updated field options with {len(field_names)} fields (from config)"
                             )
 
                         self.status = i18n.t(
-                            "components.security.data_masking.status.load_success", count=len(field_names)
+                            "components.security.data_masking.status.load_fields_success", count=len(field_names)
                         )
                     else:
                         self.status = i18n.t("components.security.data_masking.errors.load_failed", error=error_msg)
@@ -228,6 +176,71 @@ class ETLDataMaskingComponent(Component):
                 self.status = i18n.t("components.security.data_masking.errors.graph_not_available")
 
         return build_config
+
+    async def _load_upstream_fields(self, build_config: dict) -> list[str]:
+        """Load field names from upstream data.
+
+        Args:
+            build_config: Build configuration
+
+        Returns:
+            List of field names
+        """
+        # Get graph_data and node_id from build_config
+        graph_data = build_config.get("_graph_data", {})
+        node_id = build_config.get("_node_id")
+
+        # If not in build_config, try to get from self.graph
+        if not graph_data and hasattr(self, "graph") and self.graph is not None:
+            if hasattr(self.graph, "data"):
+                graph_data = self.graph.data
+            else:
+                logger.warning("[DataMasking] PlaceholderGraph detected - no graph data available")
+
+        if not graph_data:
+            logger.warning("[DataMasking] No graph data available")
+            return []
+
+        # Fetch upstream data
+        upstream_data = await self.get_upstream_data(
+            input_name="data_input", graph_data=graph_data, sample_size=10, vertex_id=node_id
+        )
+
+        if not upstream_data:
+            logger.warning("[DataMasking] No data returned from upstream node")
+            return []
+
+        # Extract field names
+        field_names = self._extract_field_names(upstream_data)
+
+        if not field_names:
+            logger.warning("[DataMasking] No fields extracted from upstream data")
+            return []
+
+        logger.debug(f"[DataMasking] Extracted {len(field_names)} field names: {field_names}")
+        return field_names
+
+    async def _load_masking_rules(self) -> list[dict]:
+        """Load masking rules from data security service.
+
+        Returns:
+            List of masking rules
+        """
+        try:
+            from lfx.services.deps import get_data_security_client
+
+            client = get_data_security_client()
+            if client is None:
+                logger.warning("[DataMasking] Data security client not available")
+                return []
+
+            rules = await client.get_protection_rules(rule_type="MASKING")
+            logger.info(f"[DataMasking] Loaded {len(rules)} masking rules")
+            return rules
+
+        except Exception as e:
+            logger.exception(f"[DataMasking] Failed to load masking rules: {e}")
+            return []
 
     def _extract_field_names(self, data_list: list[Data]) -> list[str]:
         """Extract field names from upstream data.
@@ -397,8 +410,8 @@ class ETLDataMaskingComponent(Component):
             logger.exception("[DataMasking] Failed to extract fields from upstream config")
             return []
 
-    def mask_data(self) -> list[Data]:
-        """Apply masking rules to data."""
+    async def mask_data(self) -> list[Data]:
+        """Apply masking rules to data using external service."""
         try:
             logger.info("[DataMasking] Starting data masking")
 
@@ -410,13 +423,18 @@ class ETLDataMaskingComponent(Component):
 
             logger.info(f"[DataMasking] Processing {len(df)} records with {len(self.masking_rules)} masking rules")
 
+            from lfx.services.deps import get_data_security_client
+
+            client = get_data_security_client()
+            if client is None:
+                raise ValueError(i18n.t("components.security.data_masking.errors.service_unavailable"))
+
             # Apply masking rules
             for rule in self.masking_rules:
                 field = rule.get("field", "").strip()
-                masking_type = rule.get("masking_type", "").lower()
-                mask_char = rule.get("mask_char", "*")
+                rule_id = rule.get("rule_id")
 
-                if not field or not masking_type:
+                if not field or not rule_id:
                     logger.warning(f"[DataMasking] Skipping empty rule: {rule}")
                     continue
 
@@ -424,33 +442,42 @@ class ETLDataMaskingComponent(Component):
                     logger.warning(f"[DataMasking] Field '{field}' not found in data, skipping")
                     continue
 
-                logger.debug(f"[DataMasking] Applying {masking_type} masking to field '{field}'")
+                logger.info(f"[DataMasking] Processing field '{field}' with rule {rule_id}")
 
-                # Apply appropriate masking function
-                if masking_type == "phone":
-                    df[field] = df[field].apply(lambda x: self._mask_phone(str(x), mask_char) if pd.notnull(x) else x)
-                elif masking_type == "email":
-                    df[field] = df[field].apply(lambda x: self._mask_email(str(x), mask_char) if pd.notnull(x) else x)
-                elif masking_type == "id":
-                    df[field] = df[field].apply(lambda x: self._mask_id(str(x), mask_char) if pd.notnull(x) else x)
-                elif masking_type == "credit_card":
-                    df[field] = df[field].apply(
-                        lambda x: self._mask_credit_card(str(x), mask_char) if pd.notnull(x) else x
-                    )
-                elif masking_type == "full":
-                    df[field] = df[field].apply(lambda x: mask_char * len(str(x)) if pd.notnull(x) else x)
-                elif masking_type == "hash":
-                    df[field] = df[field].apply(
-                        lambda x: hashlib.sha256(str(x).encode()).hexdigest() if pd.notnull(x) else x
-                    )
-                else:
-                    logger.warning(f"[DataMasking] Unknown masking type '{masking_type}' for field '{field}'")
+                # Extract non-null values for batch processing
+                mask = df[field].notnull()
+                values_to_mask = df.loc[mask, field].astype(str).tolist()
+
+                if not values_to_mask:
+                    logger.debug(f"[DataMasking] No values to mask in field '{field}'")
+                    continue
+
+                try:
+                    # Batch masking using external service
+                    masked_values = await client.test_rule_batch(rule_id, values_to_mask)
+
+                    # Validate response length
+                    if len(masked_values) != len(values_to_mask):
+                        raise ValueError(
+                            f"Masking service returned {len(masked_values)} values but expected {len(values_to_mask)}"
+                        )
+
+                    # Update DataFrame with masked values
+                    df.loc[mask, field] = masked_values
+                    logger.info(f"[DataMasking] Successfully masked {len(masked_values)} values in field '{field}'")
+
+                except Exception as e:
+                    error_msg = f"Field '{field}' masking failed (rule_id={rule_id}): {e!s}"
+                    logger.error(error_msg)
+                    raise ValueError(error_msg) from e
 
             # Convert back to Data objects
             result = [Data(data=row.to_dict()) for _, row in df.iterrows()]
 
             self.status = i18n.t(
-                "components.security.data_masking.status.success", count=len(result), fields=len(self.masking_rules)
+                "components.security.data_masking.status.success",
+                count=len(result),
+                fields=len(self.masking_rules),
             )
 
             logger.info(f"[DataMasking] Successfully masked {len(result)} records")
@@ -476,8 +503,7 @@ class ETLDataMaskingComponent(Component):
                 "masking_rules": [
                     {
                         "field": rule.get("field"),
-                        "masking_type": rule.get("masking_type"),
-                        "mask_char": rule.get("mask_char", "*"),
+                        "rule_id": rule.get("rule_id"),
                     }
                     for rule in self.masking_rules
                 ],
@@ -498,30 +524,3 @@ class ETLDataMaskingComponent(Component):
                     "error": str(e),
                 }
             )
-
-    def _mask_phone(self, phone: str, mask_char: str) -> str:
-        """Mask phone number, keeping last 4 digits."""
-        if len(phone) > 4:
-            return mask_char * (len(phone) - 4) + phone[-4:]
-        return phone
-
-    def _mask_email(self, email: str, mask_char: str) -> str:
-        """Mask email, keeping first and last character of local part."""
-        if "@" in email:
-            local, domain = email.split("@", 1)
-            if len(local) > 2:
-                return local[0] + mask_char * (len(local) - 2) + local[-1] + "@" + domain
-        return email
-
-    def _mask_id(self, id_str: str, mask_char: str) -> str:
-        """Mask ID, keeping first 3 and last 3 characters."""
-        if len(id_str) > 6:
-            return id_str[:3] + mask_char * (len(id_str) - 6) + id_str[-3:]
-        return id_str
-
-    def _mask_credit_card(self, card: str, mask_char: str) -> str:
-        """Mask credit card number, keeping last 4 digits."""
-        card_digits = re.sub(r"\D", "", card)
-        if len(card_digits) >= 4:
-            return mask_char * (len(card_digits) - 4) + card_digits[-4:]
-        return card

@@ -1,0 +1,5 @@
+{
+  "errors": {
+    "error_building_component": "构建组件 {display_name} 时出错: \n\n{error}"
+  }
+}

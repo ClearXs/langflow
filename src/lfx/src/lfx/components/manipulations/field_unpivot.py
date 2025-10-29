@@ -130,41 +130,58 @@ class ETLFieldUnpivotComponent(Component):
                     self.status = "No graph data available. Please ensure the component is connected to a data source."
                     return build_config
 
-                # Get data sample from upstream node
-                upstream_data = await self.get_upstream_data(
-                    input_name="data_input", graph_data=graph_data, sample_size=1, vertex_id=node_id
-                )
+                fields = []
 
-                if upstream_data:
-                    # Extract field names
-                    fields = self._extract_field_names(upstream_data)
-                    logger.debug(f"[FieldUnpivot] Extracted {len(fields)} fields: {fields}")
-
-                    if fields:
-                        # 1. Update source_field dropdown options in table schema
-                        build_config["field_mapping"]["table_schema"][0]["options"] = fields
-
-                        # 2. Auto-fill field_mapping table with default mappings
-                        default_mappings = []
-                        for field in fields:
-                            default_mappings.append({"source_field": field, "key_value": field})
-
-                        build_config["field_mapping"]["value"] = default_mappings
-                        self.status = f"Successfully loaded {len(fields)} fields from upstream data source"
-                        logger.info(f"[FieldUnpivot] Successfully loaded {len(fields)} fields")
-                    else:
-                        self.status = "No fields found in upstream data"
-                        logger.warning("[FieldUnpivot] No fields found in upstream data")
-                else:
-                    self.status = (
-                        "No data available from upstream component. Please ensure it's connected and has data."
+                # Primary strategy: Try to execute upstream node to get actual data
+                try:
+                    upstream_data = await self.get_upstream_data(
+                        input_name="data_input", graph_data=graph_data, sample_size=1, vertex_id=node_id
                     )
-                    logger.warning("[FieldUnpivot] No upstream data available")
 
-            except ValueError as e:
-                logger.warning(f"[FieldUnpivot] Expected error loading fields: {e}")
-                self.status = f"Failed to load fields: {e!s}"
-            except Exception as e:
+                    if upstream_data:
+                        # Extract field names
+                        fields = self._extract_field_names(upstream_data)
+                        logger.debug(f"[FieldUnpivot] Extracted {len(fields)} fields from upstream data: {fields}")
+                    else:
+                        logger.warning("[FieldUnpivot] No data returned from upstream node")
+
+                except ValueError as e:
+                    # Fallback strategy: Extract from upstream node configuration
+                    logger.warning(f"[FieldUnpivot] Upstream execution failed: {e}. Trying static analysis...")
+
+                    try:
+                        from lfx.components.helpers.field_extraction import find_and_extract_upstream_fields
+
+                        fields = find_and_extract_upstream_fields(
+                            graph_data, node_id, "data_input", "FieldUnpivot"
+                        )
+
+                        if fields:
+                            logger.info(f"[FieldUnpivot] Extracted {len(fields)} fields from static config")
+                        else:
+                            logger.warning("[FieldUnpivot] Static analysis returned no fields")
+
+                    except Exception:  # noqa: BLE001
+                        logger.exception("[FieldUnpivot] Static analysis also failed")
+
+                # Update build_config with results
+                if fields:
+                    # 1. Update source_field dropdown options in table schema
+                    build_config["field_mapping"]["table_schema"][0]["options"] = fields
+
+                    # 2. Auto-fill field_mapping table with default mappings
+                    default_mappings = []
+                    for field in fields:
+                        default_mappings.append({"source_field": field, "key_value": field})
+
+                    build_config["field_mapping"]["value"] = default_mappings
+                    self.status = f"Successfully loaded {len(fields)} fields from upstream data source"
+                    logger.info(f"[FieldUnpivot] Successfully loaded {len(fields)} fields")
+                else:
+                    self.status = "Unable to automatically load fields, please configure manually"
+                    logger.warning("[FieldUnpivot] No fields could be extracted")
+
+            except Exception as e:  # noqa: BLE001
                 logger.error(f"[FieldUnpivot] Unexpected error loading fields: {e}", exc_info=True)
                 self.status = f"Error loading fields: {e!s}"
 

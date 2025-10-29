@@ -60,5 +60,44 @@
     "field_not_found": "Field %{field} not found",
     "split_failed": "Split failed: %{error}",
     "load_fields_failed": "Failed to load fields: %{error}"
+  },
+  "custom_delimiter": {
+    "display_name": "Display Name",
+    "info": "Information about custom delimiter"
+  },
+  "default_value": {
+    "display_name": "Display Name",
+    "info": "Information about default value"
+  },
+  "delimiter": {
+    "comma": "Comma",
+    "custom": "Custom",
+    "display_name": "Display Name",
+    "info": "Information about delimiter",
+    "newline": "Newline",
+    "pipe": "Pipe",
+    "semicolon": "Semicolon",
+    "space": "Space",
+    "tab": "Tab"
+  },
+  "drop_source_field": {
+    "display_name": "Display Name",
+    "info": "Information about drop source field"
+  },
+  "is_regex": {
+    "display_name": "Display Name",
+    "info": "Information about is regex"
+  },
+  "max_splits": {
+    "display_name": "Display Name",
+    "info": "Information about max splits"
+  },
+  "new_fields_config": {
+    "display_name": "Display Name",
+    "info": "Information about new fields config"
+  },
+  "source_field": {
+    "display_name": "Display Name",
+    "info": "Information about source field"
   }
 }

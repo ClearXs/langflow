@@ -5,6 +5,7 @@ import ast
 import asyncio
 import contextlib
 import hashlib
+import i18n
 import inspect
 import re
 import traceback
@@ -559,7 +560,7 @@ def build_custom_component_template(
         raise HTTPException(
             status_code=400,
             detail={
-                "error": (f"Error building Component: {exc}"),
+                "error": i18n.t("custom.errors.error_building_component", error=exc),
                 "traceback": traceback.format_exc(),
             },
         ) from exc
@@ -567,7 +568,7 @@ def build_custom_component_template(
         raise HTTPException(
             status_code=400,
             detail={
-                "error": ("Error building Component. Please check if you are importing Component correctly."),
+                "error": i18n.t("custom.errors.error_building_component_import"),
             },
         )
     try:
@@ -605,7 +606,7 @@ def build_custom_component_template(
         raise HTTPException(
             status_code=400,
             detail={
-                "error": (f"Error building Component: {exc}"),
+                "error": i18n.t("custom.errors.error_building_component", error=exc),
                 "traceback": traceback.format_exc(),
             },
         ) from exc

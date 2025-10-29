@@ -9,6 +9,7 @@ import {
   useUpdateUser,
 } from "@/controllers/API/queries/auth";
 import CustomLoader from "@/customization/components/custom-loader";
+import { convertUTCToLocalTimezone } from "@/utils/utils";
 import IconComponent from "../../components/common/genericIconComponent";
 import ShadTooltip from "../../components/common/shadTooltipComponent";
 import { Button } from "../../components/ui/button";
@@ -423,18 +424,14 @@ export default function AdminPage() {
                             </ConfirmationModal>
                           </TableCell>
                           <TableCell className="truncate py-2">
-                            {
-                              new Date(user.create_at!)
-                                .toISOString()
-                                .split("T")[0]
-                            }
+                            {user.create_at
+                              ? convertUTCToLocalTimezone(user.create_at)
+                              : "-"}
                           </TableCell>
                           <TableCell className="truncate py-2">
-                            {
-                              new Date(user.updated_at!)
-                                .toISOString()
-                                .split("T")[0]
-                            }
+                            {user.updated_at
+                              ? convertUTCToLocalTimezone(user.updated_at)
+                              : "-"}
                           </TableCell>
                           <TableCell className="flex w-[100px] py-2 text-right">
                             <div className="flex">

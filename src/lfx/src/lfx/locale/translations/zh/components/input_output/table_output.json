@@ -99,7 +99,9 @@
     "preview_failed": "目标数据预览失败: %{error}",
     "write_failed": "%{error_type}: %{error}",
     "load_tables_failed": "加载表列表失败",
-    "no_graph_data": "无法获取流程图数据,请确保组件已连接到上游节点"
+    "no_graph_data": "无法获取流程图数据,请确保组件已连接到上游节点",
+    "connection_string_empty": "连接字符串为空",
+    "no_datasource_selected": "未选择数据源"
   },
   "outputs": {
     "result": {
@@ -107,6 +109,11 @@
     },
     "row_count": {
       "display_name": "行数"
+    }
+  },
+  "base": {
+    "dataSource": {
+      "addDataSource": "Adddatasource"
     }
   }
 }

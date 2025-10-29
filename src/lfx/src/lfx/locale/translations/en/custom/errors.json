@@ -1,0 +1,4 @@
+{
+  "error_building_component": "Error building Component: {error}",
+  "error_building_component_import": "Error building Component. Please check if you are importing Component correctly."
+}

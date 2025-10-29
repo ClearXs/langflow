@@ -1,3 +1,4 @@
+import asyncio
 from typing import Any
 
 import i18n
@@ -211,39 +212,43 @@ class ETLTableInputComponent(Component):
 
         import os
 
-        import httpx
-
         api_url = os.getenv("LANGFLOW_API_URL", "http://localhost:7860")
 
         # Always load datasources for: initial load (None) or refresh datasource_selector (empty value)
         if field_name is None or (field_name == "datasource_selector" and not field_value):
             logger.debug(f"[TableInput] Loading datasources (field_name={field_name}, field_value={field_value})")
             try:
-                with httpx.Client(timeout=10.0) as client:
-                    response = client.get(f"{api_url}/api/v1/datasources")
+                # 加载统一的数据源列表（内置 + 公共）
+                all_datasources = self._load_unified_datasources()
 
-                    if response.status_code == 200:
-                        datasources = response.json()
-                        logger.debug(f"[TableInput] Loaded {len(datasources)} datasources from API")
+                # 构建显示选项和元数据
+                options = []
+                options_metadata = []
 
-                        # 构建显示选项和元数据
-                        options = []
-                        options_metadata = []
+                for ds in all_datasources:
+                    options.append(ds["display_name"])
+                    # 使用 options_metadata 存储完整信息
+                    options_metadata.append(
+                        {
+                            "id": ds["id"],
+                            "name": ds["name"],
+                            "type": ds["type"],
+                            "source": ds["source"],
+                            "display_name": ds["display_name"],
+                            "raw_data": ds.get("raw_data"),  # 公共数据源的原始数据
+                        }
+                    )
 
-                        for ds in datasources:
-                            display_name = f"{ds['name']} ({ds['type']})"
-                            options.append(display_name)
-                            # 使用 options_metadata 存储 ID 映射
-                            options_metadata.append({"id": ds["id"], "name": ds["name"], "type": ds["type"]})
+                build_config["datasource_selector"]["options"] = options
+                build_config["datasource_selector"]["options_metadata"] = options_metadata
+                logger.debug(f"[TableInput] Set datasource_selector options: {options}")
+                logger.debug(f"[TableInput] Set options_metadata with {len(options_metadata)} entries")
 
-                        build_config["datasource_selector"]["options"] = options
-                        build_config["datasource_selector"]["options_metadata"] = options_metadata
-                        logger.debug(f"[TableInput] Set datasource_selector options: {options}")
-                        logger.debug(f"[TableInput] Set options_metadata with {len(options_metadata)} entries")
-                    else:
-                        logger.warning(f"[TableInput] Failed to load datasources, status: {response.status_code}")
             except Exception as e:
-                logger.error(f"[TableInput] Error loading datasources: {e}")
+                logger.error(f"[TableInput] Error loading unified datasources: {e}")
+                # 设置错误选项
+                build_config["datasource_selector"]["options"] = ["加载失败"]
+                build_config["datasource_selector"]["options_metadata"] = []
 
         # When datasource is selected, we can optionally load table/column metadata for SQL assistance
         # But we don't auto-populate anything - user writes their own SQL
@@ -272,15 +277,52 @@ class ETLTableInputComponent(Component):
                     self.status = i18n.t("components.input_output.table_input.errors.no_datasource")
                     return build_config
 
-                # 从 options_metadata 中获取数据源ID
-                datasource_id = self._get_datasource_id_from_metadata(
-                    current_datasource, build_config.get("datasource_selector", {}).get("options_metadata", [])
-                )
+                # 从 options_metadata 中获取数据源ID和信息
+                options_metadata = build_config.get("datasource_selector", {}).get("options_metadata", [])
+                datasource_id = self._get_datasource_id_from_metadata(current_datasource, options_metadata)
 
                 if not datasource_id:
                     logger.error(f"[TableInput] Cannot find datasource ID for: {current_datasource}")
                     self.status = i18n.t("components.input_output.table_input.errors.no_datasource")
                     return build_config
+
+                # 获取数据源详细信息（用于区分公共和内置数据源）
+                datasource_info = None
+                for metadata in options_metadata:
+                    if metadata.get("display_name") == current_datasource:
+                        datasource_info = metadata
+                        break
+
+                # 如果在 options_metadata 中找不到，尝试重新加载数据源列表
+                if not datasource_info:
+                    logger.warning("[TableInput] Datasource info not found in options_metadata, reloading datasources")
+                    all_datasources = self._load_unified_datasources()
+                    for ds in all_datasources:
+                        if ds["display_name"] == current_datasource:
+                            datasource_info = {
+                                "id": ds["id"],
+                                "name": ds["name"],
+                                "type": ds["type"],
+                                "source": ds["source"],
+                                "display_name": ds["display_name"],
+                                "raw_data": ds.get("raw_data"),
+                            }
+                            # 更新 options_metadata
+                            if ds["display_name"] not in [m.get("display_name") for m in options_metadata]:
+                                options_metadata.append(datasource_info)
+                            break
+
+                # 保存数据源信息供后续使用
+                self._current_datasource_info = datasource_info
+
+                # 调试日志
+                if datasource_info:
+                    logger.debug(
+                        f"[TableInput] Datasource info found: source={datasource_info.get('source')}, "
+                        f"has_raw_data={bool(datasource_info.get('raw_data'))}"
+                    )
+                else:
+                    logger.error(f"[TableInput] Failed to find datasource info for: {current_datasource}")
 
                 # 执行SQL分析
                 logger.info("[TableInput] Starting SQL field inference...")
@@ -339,7 +381,36 @@ class ETLTableInputComponent(Component):
                 self.status = i18n.t("components.input_output.table_input.status.previewing_data")
 
                 # Get database connection string
-                connection_string = self._get_connection_string(datasource_id)
+                # 从options_metadata中获取数据源信息
+                options_metadata = build_config.get("datasource_selector", {}).get("options_metadata", [])
+                datasource_info = None
+                for metadata in options_metadata:
+                    if metadata.get("display_name") == current_datasource:
+                        datasource_info = metadata
+                        break
+
+                # 如果在 options_metadata 中找不到，尝试重新加载数据源列表
+                if not datasource_info:
+                    logger.warning(
+                        "[TableInput] Datasource info not found in options_metadata for preview, reloading datasources"
+                    )
+                    all_datasources = self._load_unified_datasources()
+                    for ds in all_datasources:
+                        if ds["display_name"] == current_datasource:
+                            datasource_info = {
+                                "id": ds["id"],
+                                "name": ds["name"],
+                                "type": ds["type"],
+                                "source": ds["source"],
+                                "display_name": ds["display_name"],
+                                "raw_data": ds.get("raw_data"),
+                            }
+                            break
+
+                # 保存数据源信息供后续使用
+                self._current_datasource_info = datasource_info
+
+                connection_string = self._get_connection_string(datasource_id, datasource_info)
                 engine = create_engine(connection_string, poolclass=NullPool)
 
                 try:
@@ -393,12 +464,149 @@ class ETLTableInputComponent(Component):
         logger.debug(f"[TableInput] Returning build_config with keys: {list(build_config.keys())}")
         return build_config
 
+    def _load_unified_datasources(self) -> list[dict]:
+        """加载统一的数据源列表（内置数据源 + 公共数据源）"""
+        try:
+            # 获取内置数据源
+            builtin_datasources = self._get_builtin_datasources()
+
+            # 获取公共数据源
+            try:
+                public_datasources = asyncio.run(self._get_public_datasources())
+            except Exception as e:
+                logger.warning(f"[TableInput] Failed to get public datasources: {e}")
+                public_datasources = []
+
+            # 合并数据源列表
+            all_datasources = []
+
+            # 添加内置数据源
+            for ds in builtin_datasources:
+                display_name = f"{ds['name']} ({ds['type']}) [自定义]"
+                all_datasources.append(
+                    {
+                        "id": str(ds["id"]),
+                        "name": ds["name"],
+                        "type": ds["type"],
+                        "source": "builtin",
+                        "display_name": display_name,
+                    }
+                )
+
+            # 添加公共数据源
+            for ds in public_datasources:
+                display_name = self._build_display_name(ds, "public")
+                all_datasources.append(
+                    {
+                        "id": str(ds["id"]),
+                        "name": ds["name"],
+                        "type": ds["type"],
+                        "source": "public",
+                        "display_name": display_name,
+                        "raw_data": ds,
+                    }
+                )
+
+            logger.info(
+                f"[TableInput] Loaded {len(all_datasources)} datasources ({len(builtin_datasources)} builtin, {len(public_datasources)} public)"
+            )
+            return all_datasources
+
+        except Exception as e:
+            logger.error(f"[TableInput] Error loading unified datasources: {e}")
+            return []
+
+    def _get_builtin_datasources(self) -> list[dict]:
+        """获取内置数据源"""
+        try:
+            datasources = asyncio.run(self.datasource_manager.get_datasources())
+            builtin_datasources = []
+
+            # 合并企业和自定义数据源
+            for ds in datasources.get("enterprise", []):
+                builtin_datasources.append(
+                    {"id": ds["id"], "name": ds["name"], "type": ds["type"], "source": "enterprise"}
+                )
+
+            for ds in datasources.get("custom", []):
+                builtin_datasources.append({"id": ds["id"], "name": ds["name"], "type": ds["type"], "source": "custom"})
+
+            return builtin_datasources
+
+        except Exception as e:
+            logger.error(f"[TableInput] Error getting builtin datasources: {e}")
+            return []
+
+    async def _get_public_datasources(self) -> list[dict]:
+        """通过feign接口获取公共数据源"""
+        try:
+            from lfx.services.deps import get_feign_service
+
+            feign_service = get_feign_service()
+            from lfx.services.feign.clients.data_construction import DataConstructionFeignClient
+
+            client = DataConstructionFeignClient(feign_service)
+
+            # 调用feign接口
+            datasource_list = await client.get_datasource_list()
+
+            logger.info(f"[TableInput] Got {len(datasource_list)} public datasources from feign API")
+            return datasource_list if isinstance(datasource_list, list) else []
+
+        except Exception as e:
+            logger.error(f"[TableInput] Error getting public datasources: {e}")
+            return []
+
+    def _build_display_name(self, datasource: dict, source: str) -> str:
+        """构建丰富的显示名称"""
+        base_name = f"{datasource['name']} ({datasource['type']})"
+
+        # 来源标识
+        source_label = "[公共]" if source == "public" else "[自定义]"
+
+        # 附加信息标签
+        extra_labels = []
+
+        if source == "public":
+            # 公共数据源的额外信息
+            raw_data = datasource
+
+            # 环境信息
+            if raw_data.get("environment"):
+                extra_labels.append(f"[{raw_data['environment']}]")
+
+            # 认证方式
+            if raw_data.get("authType") == "kerberos":
+                extra_labels.append("[Kerberos认证]")
+            elif raw_data.get("authType") == "basic":
+                extra_labels.append("[用户名密码]")
+
+            # 版本信息
+            if raw_data.get("version"):
+                extra_labels.append(f"[{raw_data['version']}]")
+
+            # Hive特殊标识
+            if datasource.get("type", "").lower() == "hive":
+                extra_labels.append("[Hive数据仓库]")
+
+        else:
+            # 内置数据源的额外信息
+            if datasource.get("source") == "enterprise":
+                extra_labels.append("[企业]")
+
+            # 连接状态
+            if datasource.get("status") == "connected":
+                extra_labels.append("[已连接]")
+
+        # 组合最终显示名称
+        if extra_labels:
+            return f"{base_name} {source_label} {' '.join(extra_labels)}"
+        return f"{base_name} {source_label}"
+
     def _get_datasource_id_from_metadata(self, display_name: str, options_metadata: list[dict]) -> str | None:
         """从 options_metadata 中根据显示名称获取数据源ID"""
         for metadata in options_metadata:
-            # 重建显示名称并匹配
-            meta_display_name = f"{metadata.get('name')} ({metadata.get('type')})"
-            if meta_display_name == display_name:
+            if metadata.get("display_name") == display_name:
                 datasource_id = metadata.get("id")
                 logger.debug(f"[TableInput] Found datasource ID '{datasource_id}' for display name '{display_name}'")
                 return datasource_id
@@ -493,8 +701,114 @@ class ETLTableInputComponent(Component):
             logger.error(f"[TableInput] Error extracting field name: {e}")
             return str(identifier).strip()
 
-    def _get_connection_string(self, datasource_id: str) -> str:
-        """获取数据源连接字符串"""
+    def _get_connection_string(self, datasource_id: str, datasource_info: dict = None) -> str:
+        """获取数据源连接字符串，支持内置和公共数据源"""
+        if datasource_info and datasource_info.get("source") == "public":
+            # 公共数据源：从raw_data构建连接字符串
+            return self._build_public_connection_string(datasource_info["raw_data"])
+        # 内置数据源：使用现有逻辑
+        return self._get_builtin_connection_string(datasource_id)
+
+    def _build_public_connection_string(self, raw_data: dict) -> str:
+        """构建公共数据源连接字符串"""
+        # 记录原始数据以便调试
+        logger.debug(f"[TableInput] Building connection string from raw_data with keys: {list(raw_data.keys())}")
+
+        # 尝试多种可能的type字段名
+        ds_type = (
+            raw_data.get("type")
+            or raw_data.get("dataSourceType")
+            or raw_data.get("dbType")
+            or raw_data.get("datasourceType")
+            or raw_data.get("databaseType")
+        )
+
+        # 记录找到的type值
+        logger.debug(
+            f"[TableInput] Found type values - type: {raw_data.get('type')}, "
+            f"dataSourceType: {raw_data.get('dataSourceType')}, "
+            f"dbType: {raw_data.get('dbType')}"
+        )
+
+        # 如果是空字符串或None，尝试从名称推断
+        if not ds_type or (isinstance(ds_type, str) and ds_type.strip() == ""):
+            logger.warning(
+                f"[TableInput] Public datasource type is empty, raw_data sample: {dict(list(raw_data.items())[:3])}"
+            )
+            # 尝试从datasource名称推断（作为最后的后备方案）
+            ds_name = raw_data.get("name", "").lower()
+            if "pg" in ds_name or "postgres" in ds_name:
+                ds_type = "postgresql"
+                logger.info(f"[TableInput] Inferred type 'postgresql' from name: {ds_name}")
+            elif "mysql" in ds_name:
+                ds_type = "mysql"
+                logger.info(f"[TableInput] Inferred type 'mysql' from name: {ds_name}")
+            elif "hive" in ds_name:
+                ds_type = "hive"
+                logger.info(f"[TableInput] Inferred type 'hive' from name: {ds_name}")
+            else:
+                # 最后的默认值
+                ds_type = "postgresql"
+                logger.warning("[TableInput] Cannot infer type, using default: postgresql")
+
+        ds_type = ds_type.lower().strip()
+        logger.info(f"[TableInput] Using datasource type: {ds_type}")
+
+        params = raw_data.get("dataSourceParam", {}) or raw_data.get("parameters", {})
+
+        if ds_type == "hive":
+            # Hive连接字符串构建
+            host = params.get("host")
+            port = params.get("port", 10000)
+            database = params.get("database", "default")
+            username = params.get("username", "hive")
+            password = params.get("password", "")
+
+            # 构建Hive JDBC连接字符串
+            conn_str = f"jdbc:hive2://{host}:{port}/{database}"
+
+            # 添加认证参数
+            if password:
+                from urllib.parse import quote_plus
+
+                password_encoded = quote_plus(password)
+                conn_str += f"?user={username};password={password_encoded}"
+            elif username and username != "hive":
+                from urllib.parse import quote_plus
+
+                username_encoded = quote_plus(username)
+                conn_str += f"?user={username_encoded}"
+
+            return conn_str
+
+        # 其他数据源类型的连接字符串构建（MySQL, PostgreSQL等）
+        return self._build_connection_string_from_params(ds_type, params)
+
+    def _build_connection_string_from_params(self, ds_type: str, params: dict) -> str:
+        """从参数构建连接字符串"""
+        from urllib.parse import quote_plus
+
+        host = params.get("host", "localhost")
+        port = params.get("port", 3306)
+        database = params.get("database", "")
+        username = params.get("username", "")
+        password = params.get("password", "")
+
+        username_encoded = quote_plus(username)
+        password_encoded = quote_plus(password)
+
+        if ds_type == "mysql":
+            return f"mysql+pymysql://{username_encoded}:{password_encoded}@{host}:{port}/{database}"
+        if ds_type == "postgresql":
+            return f"postgresql://{username_encoded}:{password_encoded}@{host}:{port}/{database}"
+        if ds_type == "oracle":
+            return f"oracle+cx_oracle://{username_encoded}:{password_encoded}@{host}:{port}/{database}"
+        if ds_type == "mssql":
+            return f"mssql+pymssql://{username_encoded}:{password_encoded}@{host}:{port}/{database}"
+        raise ValueError(f"Unsupported database type: {ds_type}")
+
+    def _get_builtin_connection_string(self, datasource_id: str) -> str:
+        """获取内置数据源连接字符串"""
         import os
 
         import httpx
@@ -512,11 +826,11 @@ class ETLTableInputComponent(Component):
                 connection_string = connection_data.get("connection_string")
 
                 if not connection_string:
-                    raise ValueError("Connection string is empty")
+                    raise ValueError(i18n.t("components.input_output.table_input.errors.connection_string_empty"))
 
                 return connection_string
         except Exception as e:
-            logger.error(f"[TableInput] Error getting connection string: {e}")
+            logger.error(f"[TableInput] Error getting builtin connection string: {e}")
             raise
 
     def _map_dtype(self, dtype) -> str:
@@ -545,7 +859,12 @@ class ETLTableInputComponent(Component):
                 return []
 
             # 2. 获取数据库连接
-            connection_string = self._get_connection_string(datasource_id)
+            # 从options_metadata中获取数据源信息
+            datasource_info = None
+            if hasattr(self, "_current_datasource_info"):
+                datasource_info = self._current_datasource_info
+
+            connection_string = self._get_connection_string(datasource_id, datasource_info)
             engine = create_engine(connection_string, poolclass=NullPool)
 
             field_info = []
@@ -592,47 +911,41 @@ class ETLTableInputComponent(Component):
             raise
 
     def _get_datasource_id(self) -> str:
-        """从选中的显示名称获取实际的数据源ID（运行时从API获取）"""
+        """从选中的显示名称获取实际的数据源ID（支持内置和公共数据源）"""
         if not self.datasource_selector:
-            raise ValueError("No datasource selected")
-
-        import os
-
-        import httpx
-
-        api_url = os.getenv("LANGFLOW_API_URL", "http://localhost:7860")
+            raise ValueError(i18n.t("components.input_output.table_input.errors.no_datasource_selected"))
 
         try:
-            with httpx.Client(timeout=10.0) as client:
-                response = client.get(f"{api_url}/api/v1/datasources")
-                if response.status_code == 200:
-                    datasources = response.json()
+            # 加载统一的数据源列表
+            all_datasources = self._load_unified_datasources()
 
-                    # 遍历所有数据源，找到匹配的显示名称
-                    for ds in datasources:
-                        display_name = f"{ds['name']} ({ds['type']})"
-                        if display_name == self.datasource_selector:
-                            datasource_id = ds["id"]
-                            logger.debug(
-                                f"[TableInput] Found datasource ID '{datasource_id}' for '{self.datasource_selector}'"
-                            )
-                            return datasource_id
+            # 查找匹配的数据源
+            for ds in all_datasources:
+                if ds["display_name"] == self.datasource_selector:
+                    datasource_id = ds["id"]
+                    source = ds["source"]
 
-                    # 如果没找到匹配的显示名称，尝试直接使用作为ID（向后兼容）
-                    logger.warning(
-                        f"[TableInput] Display name '{self.datasource_selector}' not found, trying as direct ID"
+                    # 保存数据源信息供后续使用
+                    self._current_datasource_info = {
+                        "id": datasource_id,
+                        "name": ds["name"],
+                        "type": ds["type"],
+                        "source": source,
+                        "display_name": ds["display_name"],
+                        "raw_data": ds.get("raw_data"),
+                    }
+
+                    logger.debug(
+                        f"[TableInput] Found datasource ID '{datasource_id}' ({source}) for '{self.datasource_selector}'"
                     )
-                    return self.datasource_selector
+                    return datasource_id
 
-                logger.error(f"[TableInput] Failed to load datasources from API, status: {response.status_code}")
-                raise ValueError(f"Failed to load datasources: HTTP {response.status_code}")
-
-        except httpx.HTTPError as e:
-            logger.error(f"[TableInput] HTTP error when fetching datasources: {e}")
-            raise ValueError(f"Failed to fetch datasources: {e}")
+            # 如果没找到匹配的显示名称，尝试直接使用作为ID（向后兼容）
+            logger.warning(f"[TableInput] Display name '{self.datasource_selector}' not found, trying as direct ID")
+            return self.datasource_selector
 
         except Exception as e:
-            logger.error(f"[TableInput] Unexpected error: {e}")
+            logger.error(f"[TableInput] Error getting datasource ID: {e}")
             raise ValueError(f"Cannot determine datasource ID: {e}")
 
     def _apply_null_values(self, row_dict: dict) -> dict:
@@ -729,31 +1042,16 @@ class ETLTableInputComponent(Component):
             datasource_id = self._get_datasource_id()
             logger.debug(f"[TableInput] Using datasource ID: {datasource_id}")
 
-            # Get connection string from datasource API
-            import os
-
-            import httpx
-
-            api_url = os.getenv("LANGFLOW_API_URL", "http://localhost:7860")
-
+            # Get connection string (supports both builtin and public datasources)
             try:
-                with httpx.Client(timeout=10.0) as client:
-                    response = client.get(f"{api_url}/api/v1/datasources/{datasource_id}/connection-string")
+                # 使用保存的数据源信息
+                datasource_info = getattr(self, "_current_datasource_info", None)
+                connection_string = self._get_connection_string(datasource_id, datasource_info)
+                logger.debug(f"[TableInput] Got connection string for datasource {datasource_id}")
 
-                    if response.status_code != 200:
-                        logger.error(f"[TableInput] Failed to get connection string, status: {response.status_code}")
-                        raise ValueError(i18n.t("components.input_output.table_input.errors.invalid_datasource"))
-
-                    connection_data = response.json()
-                    connection_string = connection_data.get("connection_string")
-
-                    if not connection_string:
-                        logger.error("[TableInput] Connection string is empty")
-                        raise ValueError(i18n.t("components.input_output.table_input.errors.invalid_datasource"))
-
-            except httpx.RequestError as e:
-                logger.error(f"[TableInput] HTTP request failed: {e}")
-                # In design-time, if API is not available, use field_mappings as fallback
+            except Exception as e:
+                logger.error(f"[TableInput] Failed to get connection string: {e}")
+                # In design-time, if connection fails, use field_mappings as fallback
                 if self.field_mappings:
                     sample_data = {
                         mapping.get("source_field"): None
@@ -762,10 +1060,10 @@ class ETLTableInputComponent(Component):
                     }
                     if sample_data:
                         logger.info(
-                            f"[TableInput] API unavailable, returning sample record with {len(sample_data)} fields from mappings"
+                            f"[TableInput] Connection failed, returning sample record with {len(sample_data)} fields from mappings"
                         )
                         return [Data(data=sample_data)]
-                raise ValueError(f"Failed to connect to datasource API: {e}") from e
+                raise ValueError(i18n.t("components.input_output.table_input.errors.invalid_datasource")) from e
 
             # Build SQL query - use as provided by user
             sql_query = self.sql_query.strip()
@@ -935,8 +1233,9 @@ class ETLTableInputComponent(Component):
             # Get datasource ID
             datasource_id = self._get_datasource_id()
 
-            # Get connection string
-            connection_string = self._get_connection_string(datasource_id)
+            # Get connection string (supports both builtin and public datasources)
+            datasource_info = getattr(self, "_current_datasource_info", None)
+            connection_string = self._get_connection_string(datasource_id, datasource_info)
             engine = create_engine(connection_string, poolclass=NullPool)
 
             try:

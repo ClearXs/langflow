@@ -3,9 +3,63 @@
 This module provides utilities for extracting field information from upstream nodes
 when they cannot be executed (e.g., in design-time context where upstream nodes
 have dependencies that are not yet built).
+
+This is the fallback mechanism used when get_upstream_data() fails with
+"Component has not been built yet" error.
 """
 
 from lfx.log.logger import logger
+
+
+def find_and_extract_upstream_fields(
+    graph_data: dict, node_id: str, input_name: str, component_name: str = "Component"
+) -> list[str]:
+    """Find upstream node and extract field names from its configuration.
+
+    This is a convenience function that combines finding the upstream node
+    and extracting fields in one call.
+
+    Args:
+        graph_data: Flow graph data containing nodes and edges
+        node_id: Current node ID
+        input_name: Name of the input to find upstream connection for
+        component_name: Name of the calling component (for logging)
+
+    Returns:
+        List of field names extracted from upstream node config, or empty list if not found
+
+    Example:
+        field_names = find_and_extract_upstream_fields(
+            graph_data, "my-node-id", "data_input", "MyComponent"
+        )
+    """
+    try:
+        from lfx.custom.graph_utils import find_upstream_node_id
+
+        # Find the upstream node ID
+        upstream_node_id = find_upstream_node_id(graph_data, node_id, input_name)
+        if not upstream_node_id:
+            logger.debug(f"[{component_name}] No upstream node found for input '{input_name}'")
+            return []
+
+        # Find the upstream node in graph_data
+        nodes = graph_data.get("nodes", [])
+        upstream_node = None
+        for node in nodes:
+            if node.get("id") == upstream_node_id:
+                upstream_node = node
+                break
+
+        if not upstream_node:
+            logger.warning(f"[{component_name}] Upstream node {upstream_node_id} not found in graph data")
+            return []
+
+        # Extract fields from the upstream node
+        return extract_fields_from_node_template(upstream_node, component_name)
+
+    except Exception:  # noqa: BLE001
+        logger.exception(f"[{component_name}] Failed to find and extract upstream fields")
+        return []
 
 
 def extract_fields_from_node_template(upstream_node: dict, component_name: str = "Component") -> list[str]:
@@ -150,6 +204,171 @@ def extract_fields_from_node_template(upstream_node: dict, component_name: str =
                         for agg in config_value:
                             if isinstance(agg, dict) and agg.get("output_field"):
                                 field_names.append(agg["output_field"])
+
+        # For field name mapping
+        elif upstream_node_type == "ETLFieldNameMapping":
+            # Extract target_field from field_mappings
+            if "field_mappings" in template:
+                mappings_config = template.get("field_mappings", {})
+                if isinstance(mappings_config, dict):
+                    config_value = mappings_config.get("value", [])
+                    if isinstance(config_value, list):
+                        field_names = [
+                            mapping.get("target_field")
+                            for mapping in config_value
+                            if isinstance(mapping, dict) and mapping.get("target_field")
+                        ]
+
+        # For field value mapping
+        elif upstream_node_type == "ETLFieldValueMapping":
+            # Field value mapping doesn't change field names, just values
+            # Extract field_name from mapping_rules
+            if "mapping_rules" in template:
+                rules_config = template.get("mapping_rules", {})
+                if isinstance(rules_config, dict):
+                    config_value = rules_config.get("value", [])
+                    if isinstance(config_value, list):
+                        field_names = [
+                            rule.get("field_name")
+                            for rule in config_value
+                            if isinstance(rule, dict) and rule.get("field_name")
+                        ]
+
+        # For field pivot
+        elif upstream_node_type == "ETLFieldPivot":
+            # Pivot operation creates new column names based on pivot values
+            # We can try to extract configured output columns, but this is limited
+            # without actual data execution
+            if "output_fields" in template:
+                output_config = template.get("output_fields", {})
+                if isinstance(output_config, dict):
+                    config_value = output_config.get("value", [])
+                    if isinstance(config_value, list):
+                        field_names = [
+                            field.get("field_name")
+                            for field in config_value
+                            if isinstance(field, dict) and field.get("field_name")
+                        ]
+
+        # For field unpivot
+        elif upstream_node_type == "ETLFieldUnpivot":
+            # Unpivot creates a standard structure with indicator and value columns
+            if "indicator_column" in template:
+                indicator = template.get("indicator_column", {}).get("value")
+                if indicator:
+                    field_names.append(indicator)
+            if "value_column" in template:
+                value_col = template.get("value_column", {}).get("value")
+                if value_col:
+                    field_names.append(value_col)
+            # Also include any preserved columns
+            if "preserve_columns" in template:
+                preserve_config = template.get("preserve_columns", {})
+                if isinstance(preserve_config, dict):
+                    config_value = preserve_config.get("value", [])
+                    if isinstance(config_value, list):
+                        for col in config_value:
+                            if isinstance(col, dict) and col.get("column_name"):
+                                field_names.append(col["column_name"])
+
+        # For field split to columns
+        elif upstream_node_type == "ETLFieldSplitToColumns":
+            # Extract output columns from split configuration
+            if "output_columns" in template:
+                output_config = template.get("output_columns", {})
+                if isinstance(output_config, dict):
+                    config_value = output_config.get("value", [])
+                    if isinstance(config_value, list):
+                        field_names = [
+                            col.get("column_name")
+                            for col in config_value
+                            if isinstance(col, dict) and col.get("column_name")
+                        ]
+
+        # For deduplication
+        elif upstream_node_type == "ETLDeduplication":
+            # Deduplication preserves all fields from input
+            # Try to extract from group_by_fields
+            if "group_by_fields" in template:
+                dedup_config = template.get("group_by_fields", {})
+                if isinstance(dedup_config, dict):
+                    config_value = dedup_config.get("value", [])
+                    if isinstance(config_value, list):
+                        field_names = [
+                            field.get("field_name")
+                            for field in config_value
+                            if isinstance(field, dict) and field.get("field_name")
+                        ]
+
+        # For data cleaning
+        elif upstream_node_type == "ETLDataCleaning":
+            # Data cleaning preserves field names but transforms values
+            # Extract from cleaning_rules
+            if "cleaning_rules" in template:
+                cleaning_config = template.get("cleaning_rules", {})
+                if isinstance(cleaning_config, dict):
+                    config_value = cleaning_config.get("value", [])
+                    if isinstance(config_value, list):
+                        field_names = [
+                            rule.get("field_name")
+                            for rule in config_value
+                            if isinstance(rule, dict) and rule.get("field_name")
+                        ]
+
+        # For Kafka Input
+        elif upstream_node_type == "ETLKafkaInput":
+            # Priority 1: Extract from defined schema
+            if "message_schema" in template:
+                schema_config = template.get("message_schema", {})
+                schema_value = schema_config.get("value", [])
+                if schema_value:
+                    field_names = [
+                        row.get("field_name")
+                        for row in schema_value
+                        if row.get("field_name")
+                    ]
+                    logger.info(f"[{component_name}] Extracted {len(field_names)} fields from Kafka schema: {field_names}")
+                    return field_names
+
+            # Priority 2: Try to get sample data from sample_data output
+            try:
+                outputs = upstream_node.get("data", {}).get("node", {}).get("outputs", [])
+                sample_output = next((o for o in outputs if o.get("name") == "sample_data"), None)
+
+                if sample_output and sample_output.get("value"):
+                    # Extract fields from sample data
+                    sample_data = sample_output["value"]
+                    if sample_data and len(sample_data) > 0:
+                        first_sample = sample_data[0]
+                        if hasattr(first_sample, "data"):
+                            field_names = list(first_sample.data.keys())
+                        elif isinstance(first_sample, dict):
+                            field_names = list(first_sample.keys())
+
+                        if field_names:
+                            logger.info(f"[{component_name}] Extracted {len(field_names)} fields from Kafka sample data: {field_names}")
+                            return field_names
+            except Exception as e:
+                logger.debug(f"[{component_name}] Failed to extract fields from Kafka sample data: {e}")
+
+            # Priority 3: Check field_extraction_mode and output format
+            field_extraction_mode = template.get("field_extraction_mode", {}).get("value", "auto")
+            output_format = template.get("output_format", {}).get("value", "flattened")
+
+            if field_extraction_mode == "schema_only":
+                # Schema mode but no schema defined - return empty
+                field_names = []
+                logger.info(f"[{component_name}] Schema mode enabled but no schema defined: {field_names}")
+            elif field_extraction_mode == "flatten_all" or output_format == "flattened":
+                # Default flattened fields for Kafka messages
+                field_names = [
+                    "user_id", "event_type", "timestamp", "source", "payload"
+                ]
+                logger.info(f"[{component_name}] Using default flattened Kafka fields: {field_names}")
+            else:
+                # Default raw structure fields for Kafka messages
+                field_names = ["value", "topic", "partition", "offset", "timestamp"]
+                logger.info(f"[{component_name}] Using default raw Kafka fields: {field_names}")
 
         if field_names:
             logger.info(f"[{component_name}] Extracted {len(field_names)} fields from upstream config: {field_names}")

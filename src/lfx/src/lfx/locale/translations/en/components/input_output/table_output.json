@@ -99,7 +99,9 @@
     "preview_failed": "Target data preview failed: %{error}",
     "write_failed": "%{error_type}: %{error}",
     "load_tables_failed": "Failed to load tables list",
-    "no_graph_data": "Cannot retrieve flow graph data. Please ensure the component is connected to upstream nodes"
+    "no_graph_data": "Cannot retrieve flow graph data. Please ensure the component is connected to upstream nodes",
+    "connection_string_empty": "Connection string is empty",
+    "no_datasource_selected": "No datasource selected"
   },
   "outputs": {
     "result": {
@@ -107,6 +109,11 @@
     },
     "row_count": {
       "display_name": "Row Count"
+    }
+  },
+  "base": {
+    "dataSource": {
+      "addDataSource": "Adddatasource"
     }
   }
 }

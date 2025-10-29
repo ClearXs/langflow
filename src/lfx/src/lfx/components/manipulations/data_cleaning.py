@@ -395,7 +395,13 @@ class ETLDataCleaningComponent(Component):
         ),
     ]
 
-    outputs = [Output(name="data", display_name="Cleaned Data", method="clean_data")]
+    outputs = [
+        Output(
+            name="data",
+            display_name=i18n.t("components.manipulations.data_cleaning.outputs.data.display_name"),
+            method="clean_data",
+        )
+    ]
 
     async def update_build_config(
         self,
@@ -434,34 +440,63 @@ class ETLDataCleaningComponent(Component):
                     self.status = i18n.t("components.manipulations.data_cleaning.errors.no_graph_data")
                     return build_config
 
-                # Get upstream data for field analysis
-                upstream_data = await self.get_upstream_data(
-                    input_name="data_input", graph_data=graph_data, sample_size=10, vertex_id=node_id
-                )
+                filter_fields = []
 
-                if not upstream_data:
-                    logger.warning("[DataCleaning] No data returned from upstream node for filter conditions")
-                    self.status = i18n.t("components.manipulations.data_cleaning.status.no_fields_found")
-                    return build_config
+                # Primary strategy: Try to execute upstream node to get actual data
+                try:
+                    upstream_data = await self.get_upstream_data(
+                        input_name="data_input", graph_data=graph_data, sample_size=10, vertex_id=node_id
+                    )
 
-                # Extract field names for filter conditions
-                filter_fields = self._extract_filter_fields(upstream_data)
+                    if upstream_data:
+                        # Extract field names for filter conditions
+                        filter_fields = self._extract_filter_fields(upstream_data)
+                        logger.info(f"[DataCleaning] Extracted {len(filter_fields)} filter fields from upstream data")
+                    else:
+                        logger.warning("[DataCleaning] No data returned from upstream node for filter conditions")
 
+                except ValueError as e:
+                    # Fallback strategy: Extract from upstream node configuration
+                    logger.warning(f"[DataCleaning] Upstream execution failed: {e}. Trying static analysis...")
+
+                    try:
+                        from lfx.components.helpers.field_extraction import find_and_extract_upstream_fields
+
+                        field_names = find_and_extract_upstream_fields(
+                            graph_data, node_id, "data_input", "DataCleaning"
+                        )
+
+                        if field_names:
+                            # Generate filter conditions from field names
+                            filter_fields = [
+                                {
+                                    "field_name": field_name,
+                                    "operator": "=",  # Default operator
+                                    "compare_value": "",
+                                    "logic_operator": "AND",  # Default logic
+                                }
+                                for field_name in field_names
+                            ]
+                            logger.info(
+                                f"[DataCleaning] Extracted {len(filter_fields)} filter fields from static config"
+                            )
+                        else:
+                            logger.warning("[DataCleaning] Static analysis returned no fields")
+
+                    except Exception:  # noqa: BLE001
+                        logger.exception("[DataCleaning] Static analysis also failed")
+
+                # Update build_config with results
                 if filter_fields:
                     build_config["filter_conditions"]["value"] = filter_fields
-                    logger.info(f"[DataCleaning] Generated {len(filter_fields)} filter conditions")
                     self.status = i18n.t(
                         "components.manipulations.data_cleaning.status.filter_analysis_success",
                         count=len(filter_fields),
                     )
                 else:
+                    self.status = i18n.t("components.manipulations.data_cleaning.warnings.field_load_failed")
                     logger.warning("[DataCleaning] No fields extracted for filter conditions")
-                    self.status = i18n.t("components.manipulations.data_cleaning.status.no_fields_found")
 
-            except ValueError as e:
-                error_msg = str(e)
-                logger.warning(f"[DataCleaning] Filter field analysis warning: {error_msg}")
-                self.status = i18n.t("components.manipulations.data_cleaning.errors.analysis_failed", error=error_msg)
             except Exception:  # noqa: BLE001
                 logger.exception("[DataCleaning] Filter field analysis failed with unexpected error")
                 self.status = i18n.t("components.manipulations.data_cleaning.errors.graph_not_available")
@@ -488,35 +523,61 @@ class ETLDataCleaningComponent(Component):
                     self.status = i18n.t("components.manipulations.data_cleaning.errors.no_graph_data")
                     return build_config
 
-                # Use the generic get_upstream_data method to fetch actual data
-                upstream_data = await self.get_upstream_data(
-                    input_name="data_input", graph_data=graph_data, sample_size=10, vertex_id=node_id
-                )
+                cleaning_rules = []
 
-                if not upstream_data:
-                    logger.warning("[DataCleaning] No data returned from upstream node")
-                    self.status = i18n.t("components.manipulations.data_cleaning.status.no_fields_found")
-                    return build_config
+                # Primary strategy: Try to execute upstream node to get actual data
+                try:
+                    upstream_data = await self.get_upstream_data(
+                        input_name="data_input", graph_data=graph_data, sample_size=10, vertex_id=node_id
+                    )
 
-                # Extract field names and generate cleaning rules
-                cleaning_rules = self._extract_cleaning_rules(upstream_data)
+                    if upstream_data:
+                        # Extract field names and generate cleaning rules
+                        cleaning_rules = self._extract_cleaning_rules(upstream_data)
+                        logger.info(f"[DataCleaning] Extracted {len(cleaning_rules)} cleaning rules from upstream data")
+                    else:
+                        logger.warning("[DataCleaning] No data returned from upstream node")
 
+                except ValueError as e:
+                    # Fallback strategy: Extract from upstream node configuration
+                    logger.warning(f"[DataCleaning] Upstream execution failed: {e}. Trying static analysis...")
+
+                    try:
+                        from lfx.components.helpers.field_extraction import find_and_extract_upstream_fields
+
+                        field_names = find_and_extract_upstream_fields(
+                            graph_data, node_id, "data_input", "DataCleaning"
+                        )
+
+                        if field_names:
+                            # Generate cleaning rules from field names
+                            cleaning_rules = [
+                                {
+                                    "field_name": field_name,
+                                    "transformation_rule": "none",  # Default: no transformation
+                                    "custom_expression": "",
+                                }
+                                for field_name in field_names
+                            ]
+                            logger.info(
+                                f"[DataCleaning] Extracted {len(cleaning_rules)} cleaning rules from static config"
+                            )
+                        else:
+                            logger.warning("[DataCleaning] Static analysis returned no fields")
+
+                    except Exception:  # noqa: BLE001
+                        logger.exception("[DataCleaning] Static analysis also failed")
+
+                # Update build_config with results
                 if cleaning_rules:
-                    # Update build_config with cleaning rules
                     build_config["cleaning_rules"]["value"] = cleaning_rules
-                    logger.info(f"[DataCleaning] Generated {len(cleaning_rules)} cleaning rules")
                     self.status = i18n.t(
                         "components.manipulations.data_cleaning.status.analysis_success", count=len(cleaning_rules)
                     )
                 else:
+                    self.status = i18n.t("components.manipulations.data_cleaning.warnings.field_load_failed")
                     logger.warning("[DataCleaning] No fields extracted from upstream data")
-                    self.status = i18n.t("components.manipulations.data_cleaning.status.no_fields_found")
 
-            except ValueError as e:
-                # Handle expected errors (no upstream node, etc.)
-                error_msg = str(e)
-                logger.warning(f"[DataCleaning] Field analysis warning: {error_msg}")
-                self.status = i18n.t("components.manipulations.data_cleaning.errors.analysis_failed", error=error_msg)
             except Exception:  # noqa: BLE001
                 # Handle unexpected errors - broad exception needed for production stability
                 logger.exception("[DataCleaning] Field analysis failed with unexpected error")

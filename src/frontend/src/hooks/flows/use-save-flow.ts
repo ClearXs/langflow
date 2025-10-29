@@ -1,4 +1,5 @@
 import type { ReactFlowJsonObject } from "@xyflow/react";
+import { useTranslation } from "react-i18next";
 import { useGetFlow } from "@/controllers/API/queries/flows/use-get-flow";
 import { usePatchUpdateFlow } from "@/controllers/API/queries/flows/use-patch-update-flow";
 import useAlertStore from "@/stores/alertStore";
@@ -8,6 +9,7 @@ import type { AllNodeType, EdgeType, FlowType } from "@/types/flow";
 import { customStringify } from "@/utils/reactflowUtils";
 
 const useSaveFlow = () => {
+  const { t } = useTranslation();
   const setFlows = useFlowsManagerStore((state) => state.setFlows);
   const setErrorData = useAlertStore((state) => state.setErrorData);
   const setSaveLoading = useFlowsManagerStore((state) => state.setSaveLoading);
@@ -99,7 +101,7 @@ const useSaveFlow = () => {
                     resolve();
                   } else {
                     setErrorData({
-                      title: "Failed to save flow",
+                      title: t("flows.saveFailedTitle"),
                       list: ["Flows variable undefined"],
                     });
                     reject(new Error("Flows variable undefined"));
@@ -107,7 +109,7 @@ const useSaveFlow = () => {
                 },
                 onError: (e) => {
                   setErrorData({
-                    title: "Failed to save flow",
+                    title: t("flows.saveFailedTitle"),
                     list: [e.message],
                   });
                   setSaveLoading(false);
@@ -120,7 +122,7 @@ const useSaveFlow = () => {
           }
         } else {
           setErrorData({
-            title: "Failed to save flow",
+            title: t("flows.saveFailedTitle"),
             list: ["Flow not found"],
           });
           reject(new Error("Flow not found"));

@@ -6,6 +6,7 @@ import traceback
 import uuid
 from typing import TYPE_CHECKING, Annotated
 
+import i18n
 from fastapi import APIRouter, BackgroundTasks, Body, Depends, HTTPException, Request, status
 from fastapi.responses import StreamingResponse
 from lfx.graph.graph.base import Graph
@@ -534,7 +535,7 @@ async def build_vertex_stream(
             media_type="text/event-stream",
         )
     except Exception as exc:
-        raise HTTPException(status_code=500, detail="Error building Component") from exc
+        raise HTTPException(status_code=500, detail=i18n.t("api.errors.error_building_component")) from exc
 
 
 async def build_flow_and_stream(flow_id, inputs, background_tasks, current_user):

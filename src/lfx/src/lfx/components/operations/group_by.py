@@ -227,25 +227,45 @@ class ETLGroupByComponent(Component):
                     self.status = i18n.t("components.operations.group_by.errors.no_graph_data")
                     return build_config
 
-                # Use the generic get_upstream_data method to fetch actual data
-                upstream_data = await self.get_upstream_data(
-                    input_name="data_input", graph_data=graph_data, sample_size=10, vertex_id=node_id
-                )
+                field_names = []
 
-                if not upstream_data:
-                    logger.warning("[GroupBy] No data returned from upstream node")
-                    self.status = i18n.t("components.operations.group_by.status.no_fields_found")
-                    return build_config
+                # Primary strategy: Try to execute upstream node to get actual data
+                try:
+                    upstream_data = await self.get_upstream_data(
+                        input_name="data_input", graph_data=graph_data, sample_size=10, vertex_id=node_id
+                    )
 
-                # Extract field names from upstream data
-                field_names = self._extract_field_names(upstream_data)
+                    if upstream_data:
+                        # Extract field names from upstream data
+                        field_names = self._extract_field_names(upstream_data)
+                        logger.info(f"[GroupBy] Extracted {len(field_names)} fields from upstream data")
+                    else:
+                        logger.warning("[GroupBy] No data returned from upstream node")
 
-                if not field_names:
-                    logger.warning("[GroupBy] No fields extracted from upstream data")
-                    self.status = i18n.t("components.operations.group_by.status.no_fields_found")
-                    return build_config
+                except ValueError as e:
+                    # Fallback strategy: Extract from upstream node configuration
+                    logger.warning(f"[GroupBy] Upstream execution failed: {e}. Trying static analysis...")
+
+                    try:
+                        from lfx.components.helpers.field_extraction import find_and_extract_upstream_fields
+
+                        field_names = find_and_extract_upstream_fields(
+                            graph_data, node_id, "data_input", "GroupBy"
+                        )
+
+                        if field_names:
+                            logger.info(f"[GroupBy] Extracted {len(field_names)} fields from static config")
+                        else:
+                            logger.warning("[GroupBy] Static analysis returned no fields")
+
+                    except Exception:  # noqa: BLE001
+                        logger.exception("[GroupBy] Static analysis also failed")
 
                 # Update configuration based on which table triggered the action
+                if not field_names:
+                    logger.warning("[GroupBy] Could not extract fields from any strategy")
+                    self.status = i18n.t("components.operations.group_by.warnings.field_load_failed")
+                    return build_config
                 if field_name == "group_by_columns":
                     # Get existing values (保留用户已选择的字段)
                     existing_values = build_config.get("group_by_columns", {}).get("value", [])

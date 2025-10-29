@@ -1,0 +1,5 @@
+{
+  "errors": {
+    "error_building_component": "Error building Component {display_name}: \n\n{error}"
+  }
+}

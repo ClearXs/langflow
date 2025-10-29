@@ -1,36 +1,21 @@
 {
   "display_name": "Quality Model",
-  "description": "Detect data quality using quality models",
-  "data_input": {
-    "display_name": "Data Input",
-    "info": "Input data to be quality checked"
-  },
-  "quality_model_config": {
-    "display_name": "Quality Model Config",
-    "info": "Select quality models to apply",
-    "model_id": "Model ID",
-    "model_id_desc": "Unique identifier of the quality model",
-    "model_name": "Model Name",
-    "model_name_desc": "Name of the quality model",
-    "enabled": "Enabled",
-    "enabled_desc": "Whether to enable this quality model",
-    "load_button": "Load Quality Models"
-  },
-  "auto_evaluate": {
-    "display_name": "Auto Evaluate",
-    "info": "Automatically execute quality check when enabled (reserved for future)"
+  "description": "Execute manual mode quality model checks",
+  "quality_model_id": {
+    "display_name": "Quality Model",
+    "info": "Select quality model to execute (only manual execution mode models shown)"
   },
   "outputs": {
-    "data": {
-      "display_name": "Processed Data"
-    },
-    "quality_result": {
-      "display_name": "Quality Result"
+    "execution_result": {
+      "display_name": "Execution Result"
     }
   },
   "status": {
     "loading_models": "Loading quality model list from data-governance service...",
-    "models_loaded": "Successfully loaded %{count} quality models",
+    "models_loaded": "Successfully loaded %{count} manual execution quality models",
+    "filtering_manual_models": "Filtering manual execution mode quality models...",
+    "executing_model": "Executing quality model check (Model ID: %{model_id})...",
+    "execution_success": "Quality model executed successfully: %{message}",
     "processing_data": "Processing %{count} records...",
     "data_processed": "Successfully processed %{count} records",
     "evaluation_complete": "Quality check completed for %{count} records",
@@ -38,6 +23,10 @@
   },
   "errors": {
     "no_models_found": "No available quality models found",
+    "no_manual_models": "No manual execution mode quality models found",
+    "no_model_selected": "No quality model selected, please select a quality model first",
+    "model_id_not_found": "Cannot find quality model ID for model name: %{name}",
+    "execution_failed": "Quality model execution failed: %{error}",
     "api_call_failed": "Quality model API call failed: %{error}",
     "missing_config": "Missing data input or quality model configuration",
     "no_data_input": "No data input provided. Please connect a data source first.",

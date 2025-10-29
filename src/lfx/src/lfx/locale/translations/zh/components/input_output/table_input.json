@@ -1,127 +1,138 @@
 {
-  "display_name": "表输入",
-  "description": "从数据源读取表数据，支持SQL查询、字段映射和数据转换",
-  "datasource_selector": {
-    "display_name": "数据源",
-    "info": "选择要连接的数据源"
-  },
-  "database_connection": {
-    "display_name": "数据库连接",
-    "info": "从可用连接中选择一个数据库连接"
-  },
-  "table_name": {
-    "display_name": "表名",
-    "info": "要查询的数据库表名"
-  },
-  "sql_query": {
-    "display_name": "SQL查询",
-    "info": "输入要执行的SQL查询语句，可以使用%{table_name}作为占位符"
-  },
-  "use_pagination": {
-    "display_name": "使用分页",
-    "info": "是否分页获取数据以减少内存使用"
-  },
-  "page_size": {
-    "display_name": "页面大小",
-    "info": "使用分页时每页的记录数"
-  },
-  "max_records": {
-    "display_name": "最大记录数",
-    "info": "最多获取的记录数(0表示不限制)"
-  },
-  "enable_transaction": {
-    "display_name": "启用事务",
-    "info": "是否使用数据库事务以保证数据一致性"
-  },
-  "isolation_level": {
-    "display_name": "隔离级别",
-    "info": "数据库事务隔离级别"
-  },
-  "field_mappings": {
-    "display_name": "字段查看",
-    "info": "查看SQL查询字段的数据类型、缺省值和转换规则",
-    "source_field": "字段名称",
-    "data_type": "数据类型",
-    "null_value": "缺省值",
-    "null_value_desc": "当字段为空时使用的默认值",
-    "transformation_rule": "转换规则",
-    "analyze_sql_button": "分析SQL字段",
-    "fieldMapper": {
-      "enabled": "启用",
-      "sourceField": "源字段",
-      "targetField": "目标字段",
-      "dataType": "数据类型",
-      "transformationRule": "转换规则",
-      "defaultValue": "默认值",
-      "sourceFieldPlaceholder": "选择或输入源字段",
-      "targetFieldPlaceholder": "输入目标字段名",
-      "defaultValuePlaceholder": "默认值(可选)",
-      "addMapping": "添加字段映射",
-      "mappingsCount": "已配置 {%{count}} 个映射",
-      "noMappings": "暂无字段映射",
-      "clickToAdd": "点击上方按钮添加字段映射"
+    "display_name": "\u8868\u8f93\u5165",
+    "description": "\u4ece\u6570\u636e\u6e90\u8bfb\u53d6\u8868\u6570\u636e\uff0c\u652f\u6301SQL\u67e5\u8be2\u3001\u5b57\u6bb5\u6620\u5c04\u548c\u6570\u636e\u8f6c\u6362",
+    "datasource_selector": {
+        "display_name": "\u6570\u636e\u6e90",
+        "info": "\u9009\u62e9\u8981\u8fde\u63a5\u7684\u6570\u636e\u6e90\uff08\u5305\u62ec\u5185\u7f6e\u6570\u636e\u6e90\u548c\u516c\u5171\u6570\u636e\u6e90\uff09"
+    },
+    "database_connection": {
+        "display_name": "\u6570\u636e\u5e93\u8fde\u63a5",
+        "info": "\u4ece\u53ef\u7528\u8fde\u63a5\u4e2d\u9009\u62e9\u4e00\u4e2a\u6570\u636e\u5e93\u8fde\u63a5"
+    },
+    "table_name": {
+        "display_name": "\u8868\u540d",
+        "info": "\u8981\u67e5\u8be2\u7684\u6570\u636e\u5e93\u8868\u540d"
+    },
+    "sql_query": {
+        "display_name": "SQL\u67e5\u8be2",
+        "info": "\u8f93\u5165\u8981\u6267\u884c\u7684SQL\u67e5\u8be2\u8bed\u53e5\uff0c\u53ef\u4ee5\u4f7f\u7528%{table_name}\u4f5c\u4e3a\u5360\u4f4d\u7b26"
+    },
+    "use_pagination": {
+        "display_name": "\u4f7f\u7528\u5206\u9875",
+        "info": "\u662f\u5426\u5206\u9875\u83b7\u53d6\u6570\u636e\u4ee5\u51cf\u5c11\u5185\u5b58\u4f7f\u7528"
+    },
+    "page_size": {
+        "display_name": "\u9875\u9762\u5927\u5c0f",
+        "info": "\u4f7f\u7528\u5206\u9875\u65f6\u6bcf\u9875\u7684\u8bb0\u5f55\u6570"
+    },
+    "max_records": {
+        "display_name": "\u6700\u5927\u8bb0\u5f55\u6570",
+        "info": "\u6700\u591a\u83b7\u53d6\u7684\u8bb0\u5f55\u6570(0\u8868\u793a\u4e0d\u9650\u5236)"
+    },
+    "enable_transaction": {
+        "display_name": "\u542f\u7528\u4e8b\u52a1",
+        "info": "\u662f\u5426\u4f7f\u7528\u6570\u636e\u5e93\u4e8b\u52a1\u4ee5\u4fdd\u8bc1\u6570\u636e\u4e00\u81f4\u6027"
+    },
+    "isolation_level": {
+        "display_name": "\u9694\u79bb\u7ea7\u522b",
+        "info": "\u6570\u636e\u5e93\u4e8b\u52a1\u9694\u79bb\u7ea7\u522b"
+    },
+    "field_mappings": {
+        "display_name": "\u5b57\u6bb5\u67e5\u770b",
+        "info": "\u67e5\u770bSQL\u67e5\u8be2\u5b57\u6bb5\u7684\u6570\u636e\u7c7b\u578b\u3001\u7f3a\u7701\u503c\u548c\u8f6c\u6362\u89c4\u5219",
+        "source_field": "\u5b57\u6bb5\u540d\u79f0",
+        "data_type": "\u6570\u636e\u7c7b\u578b",
+        "null_value": "\u7f3a\u7701\u503c",
+        "null_value_desc": "\u5f53\u5b57\u6bb5\u4e3a\u7a7a\u65f6\u4f7f\u7528\u7684\u9ed8\u8ba4\u503c",
+        "transformation_rule": "\u8f6c\u6362\u89c4\u5219",
+        "analyze_sql_button": "\u5206\u6790SQL\u5b57\u6bb5",
+        "fieldMapper": {
+            "enabled": "\u542f\u7528",
+            "sourceField": "\u6e90\u5b57\u6bb5",
+            "targetField": "\u76ee\u6807\u5b57\u6bb5",
+            "dataType": "\u6570\u636e\u7c7b\u578b",
+            "transformationRule": "\u8f6c\u6362\u89c4\u5219",
+            "defaultValue": "\u9ed8\u8ba4\u503c",
+            "sourceFieldPlaceholder": "\u9009\u62e9\u6216\u8f93\u5165\u6e90\u5b57\u6bb5",
+            "targetFieldPlaceholder": "\u8f93\u5165\u76ee\u6807\u5b57\u6bb5\u540d",
+            "defaultValuePlaceholder": "\u9ed8\u8ba4\u503c(\u53ef\u9009)",
+            "addMapping": "\u6dfb\u52a0\u5b57\u6bb5\u6620\u5c04",
+            "mappingsCount": "\u5df2\u914d\u7f6e {%{count}} \u4e2a\u6620\u5c04",
+            "noMappings": "\u6682\u65e0\u5b57\u6bb5\u6620\u5c04",
+            "clickToAdd": "\u70b9\u51fb\u4e0a\u65b9\u6309\u94ae\u6dfb\u52a0\u5b57\u6bb5\u6620\u5c04"
+        }
+    },
+    "preview_table": {
+        "display_name": "\u6570\u636e\u9884\u89c8",
+        "info": "\u9884\u89c8\u67e5\u8be2\u7ed3\u679c\u7684\u524d100\u884c\u6570\u636e",
+        "preview_button": "\u9884\u89c8\u6570\u636e(\u524d100\u884c)"
+    },
+    "safe_mode": {
+        "display_name": "\u5b89\u5168\u6a21\u5f0f",
+        "info": "\u542f\u7528\u540e\uff0c\u5c06\u963b\u6b62\u5371\u9669\u7684SQL\u64cd\u4f5c\uff08DROP\u3001DELETE\u3001UPDATE\u3001INSERT\u7b49\uff09"
+    },
+    "connection_string": {
+        "display_name": "\u8fde\u63a5\u5b57\u7b26\u4e32",
+        "info": "\u6570\u636e\u5e93\u8fde\u63a5\u5b57\u7b26\u4e32(\u4f8b\u5982: postgresql://user:password@host:port/database)"
+    },
+    "incremental_offset_seconds": {
+        "display_name": "\u589e\u91cf\u504f\u79fb(\u79d2)",
+        "info": "\u589e\u91cf\u6570\u636e\u63d0\u53d6\u7684\u65f6\u95f4\u504f\u79fb\u91cf"
+    },
+    "incremental_timestamp_init": {
+        "display_name": "\u589e\u91cf\u65f6\u95f4\u6233\u521d\u59cb\u503c",
+        "info": "\u589e\u91cf\u6570\u636e\u63d0\u53d6\u7684\u521d\u59cb\u65f6\u95f4\u6233(\u4f8b\u5982: 2024-01-01 00:00:00)"
+    },
+    "outputs": {
+        "data": "\u6570\u636e",
+        "row_count": "\u884c\u6570\u7edf\u8ba1",
+        "fields_schema": "\u5b57\u6bb5\u6a21\u5f0f"
+    },
+    "status": {
+        "connecting": "\u6b63\u5728\u8fde\u63a5\u6570\u636e\u5e93...",
+        "success": "\u6210\u529f\u63d0\u53d6%{records}\u6761\u8bb0\u5f55",
+        "extracting": "\u6b63\u5728\u63d0\u53d6\u6570\u636e...",
+        "processing": "\u6b63\u5728\u5904\u7406\u6570\u636e...",
+        "analyzing_sql": "\u6b63\u5728\u5206\u6790SQL\u5b57\u6bb5...",
+        "analysis_success": "\u6210\u529f\u5206\u6790%{count}\u4e2a\u5b57\u6bb5",
+        "no_fields_found": "\u672a\u4eceSQL\u4e2d\u627e\u5230\u4efb\u4f55\u5b57\u6bb5",
+        "previewing_data": "\u6b63\u5728\u9884\u89c8\u6570\u636e...",
+        "preview_success": "\u6210\u529f\u9884\u89c8%{count}\u884c\u6570\u636e",
+        "no_data_found": "\u67e5\u8be2\u672a\u8fd4\u56de\u4efb\u4f55\u6570\u636e"
+    },
+    "success": {
+        "loaded": "\u6210\u529f\u52a0\u8f7d %{rows} \u884c\u6570\u636e"
+    },
+    "warnings": {
+        "no_results": "\u67e5\u8be2\u6267\u884c\u6210\u529f\u4f46\u672a\u8fd4\u56de\u7ed3\u679c"
+    },
+    "errors": {
+        "empty_query": "SQL\u67e5\u8be2\u4e0d\u80fd\u4e3a\u7a7a",
+        "missing_connection": "\u5fc5\u987b\u9009\u62e9\u6570\u636e\u5e93\u8fde\u63a5",
+        "missing_config": "\u7f3a\u5c11\u914d\u7f6e",
+        "invalid_datasource": "\u65e0\u6548\u7684\u6570\u636e\u6e90",
+        "connection_not_found": "\u5728\u914d\u7f6e\u4e2d\u672a\u627e\u5230\u6570\u636e\u5e93\u8fde\u63a5 '%{name}'",
+        "connection_failed": "\u8fde\u63a5\u6570\u636e\u5e93\u5931\u8d25: %{error}",
+        "sqlalchemy_required": "\u9700\u8981\u5b89\u88c5SQLAlchemy\u3002\u8bf7\u4f7f\u7528\u4ee5\u4e0b\u547d\u4ee4\u5b89\u88c5: pip install sqlalchemy",
+        "dangerous_operation": "\u67e5\u8be2\u88ab\u5b89\u5168\u6a21\u5f0f\u963b\u6b62: \u5305\u542b '%{keyword}' \u64cd\u4f5c",
+        "execution_error": "\u6267\u884cSQL\u67e5\u8be2\u65f6\u51fa\u9519: %{error}",
+        "dataframe_error": "\u52a0\u8f7d\u6570\u636e\u6846\u65f6\u51fa\u9519: %{error}",
+        "extraction_failed": "\u63d0\u53d6\u5931\u8d25: %{error}",
+        "transformation_failed": "\u5b57\u6bb5\u8f6c\u6362\u5931\u8d25: %{error}",
+        "no_sql": "\u8bf7\u5148\u8f93\u5165SQL\u67e5\u8be2\u8bed\u53e5",
+        "no_datasource": "\u8bf7\u5148\u9009\u62e9\u6570\u636e\u6e90",
+        "analysis_failed": "SQL\u5206\u6790\u5931\u8d25: %{error}",
+        "preview_failed": "\u9884\u89c8\u5931\u8d25: %{error}",
+        "public_datasource_load_failed": "\u52a0\u8f7d\u516c\u5171\u6570\u636e\u6e90\u5931\u8d25: %{error}",
+        "unified_datasource_load_failed": "\u52a0\u8f7d\u6570\u636e\u6e90\u5931\u8d25: %{error}",
+        "unsupported_public_datasource": "\u4e0d\u652f\u6301\u7684\u516c\u5171\u6570\u636e\u6e90\u7c7b\u578b: %{type}",
+        "feign_service_unavailable": "\u516c\u5171\u6570\u636e\u6e90\u7684Feign\u670d\ufffd\ufffd\ufffd\u4e0d\u53ef\u7528",
+        "connection_string_empty": "\u8fde\u63a5\u5b57\u7b26\u4e32\u4e3a\u7a7a",
+        "no_datasource_selected": "\u672a\u9009\u62e9\u6570\u636e\u6e90"
+    },
+    "base": {
+        "dataSource": {
+            "addDataSource": "Adddatasource"
+        }
     }
-  },
-  "preview_table": {
-    "display_name": "数据预览",
-    "info": "预览查询结果的前100行数据",
-    "preview_button": "预览数据(前100行)"
-  },
-  "safe_mode": {
-    "display_name": "安全模式",
-    "info": "启用后，将阻止危险的SQL操作（DROP、DELETE、UPDATE、INSERT等）"
-  },
-  "connection_string": {
-    "display_name": "连接字符串",
-    "info": "数据库连接字符串(例如: postgresql://user:password@host:port/database)"
-  },
-  "incremental_offset_seconds": {
-    "display_name": "增量偏移(秒)",
-    "info": "增量数据提取的时间偏移量"
-  },
-  "incremental_timestamp_init": {
-    "display_name": "增量时间戳初始值",
-    "info": "增量数据提取的初始时间戳(例如: 2024-01-01 00:00:00)"
-  },
-  "outputs": {
-    "data": "数据",
-    "row_count": "行数统计",
-    "fields_schema": "字段模式"
-  },
-  "status": {
-    "connecting": "正在连接数据库...",
-    "success": "成功提取%{records}条记录",
-    "extracting": "正在提取数据...",
-    "processing": "正在处理数据...",
-    "analyzing_sql": "正在分析SQL字段...",
-    "analysis_success": "成功分析%{count}个字段",
-    "no_fields_found": "未从SQL中找到任何字段",
-    "previewing_data": "正在预览数据...",
-    "preview_success": "成功预览%{count}行数据",
-    "no_data_found": "查询未返回任何数据"
-  },
-  "success": {
-    "loaded": "成功加载 %{rows} 行数据"
-  },
-  "warnings": {
-    "no_results": "查询执行成功但未返回结果"
-  },
-  "errors": {
-    "empty_query": "SQL查询不能为空",
-    "missing_connection": "必须选择数据库连接",
-    "missing_config": "缺少配置",
-    "invalid_datasource": "无效的数据源",
-    "connection_not_found": "在配置中未找到数据库连接 '%{name}'",
-    "connection_failed": "连接数据库失败: %{error}",
-    "sqlalchemy_required": "需要安装SQLAlchemy。请使用以下命令安装: pip install sqlalchemy",
-    "dangerous_operation": "查询被安全模式阻止: 包含 '%{keyword}' 操作",
-    "execution_error": "执行SQL查询时出错: %{error}",
-    "dataframe_error": "加载数据框时出错: %{error}",
-    "extraction_failed": "提取失败: %{error}",
-    "transformation_failed": "字段转换失败: %{error}",
-    "no_sql": "请先输入SQL查询语句",
-    "no_datasource": "请先选择数据源",
-    "analysis_failed": "SQL分析失败: %{error}",
-    "preview_failed": "预览失败: %{error}"
-  }
 }

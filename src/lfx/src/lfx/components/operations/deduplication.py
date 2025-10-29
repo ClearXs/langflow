@@ -159,19 +159,41 @@ class ETLDeduplicationComponent(Component):
                     self.status = i18n.t("components.operations.deduplication.errors.no_upstream_data")
                     return build_config
 
-                # Use generic get_upstream_data method to fetch actual data (sample 10 rows for schema inference)
-                upstream_data = await self.get_upstream_data(
-                    input_name="data_input", graph_data=graph_data, sample_size=10, vertex_id=node_id
-                )
+                field_names = []
 
-                if not upstream_data:
-                    logger.warning("[Deduplication] No data returned from upstream node")
-                    self.status = i18n.t("components.operations.deduplication.errors.no_upstream_data")
-                    return build_config
+                # Primary strategy: Try to execute upstream node to get actual data
+                try:
+                    upstream_data = await self.get_upstream_data(
+                        input_name="data_input", graph_data=graph_data, sample_size=10, vertex_id=node_id
+                    )
 
-                # Extract field names from upstream data
-                field_names = self._extract_field_names(upstream_data)
+                    if upstream_data:
+                        # Extract field names from upstream data
+                        field_names = self._extract_field_names(upstream_data)
+                        logger.info(f"[Deduplication] Extracted {len(field_names)} fields from upstream data")
+                    else:
+                        logger.warning("[Deduplication] No data returned from upstream node")
 
+                except ValueError as e:
+                    # Fallback strategy: Extract from upstream node configuration
+                    logger.warning(f"[Deduplication] Upstream execution failed: {e}. Trying static analysis...")
+
+                    try:
+                        from lfx.components.helpers.field_extraction import find_and_extract_upstream_fields
+
+                        field_names = find_and_extract_upstream_fields(
+                            graph_data, node_id, "data_input", "Deduplication"
+                        )
+
+                        if field_names:
+                            logger.info(f"[Deduplication] Extracted {len(field_names)} fields from static config")
+                        else:
+                            logger.warning("[Deduplication] Static analysis returned no fields")
+
+                    except Exception:  # noqa: BLE001
+                        logger.exception("[Deduplication] Static analysis also failed")
+
+                # Update build_config with results
                 if field_names:
                     # Update group_by_fields table with field names
                     build_config["group_by_fields"]["value"] = [{"field_name": name} for name in field_names]
@@ -184,14 +206,9 @@ class ETLDeduplicationComponent(Component):
                         "components.operations.deduplication.status.fields_loaded", count=len(field_names)
                     )
                 else:
-                    logger.warning("[Deduplication] No fields extracted from upstream data")
-                    self.status = i18n.t("components.operations.deduplication.errors.no_upstream_data")
+                    self.status = i18n.t("components.operations.deduplication.warnings.field_load_failed")
+                    logger.warning("[Deduplication] No fields could be extracted")
 
-            except ValueError as e:
-                # Handle expected errors (no upstream node, etc.)
-                error_msg = str(e)
-                logger.warning(f"[Deduplication] Field loading warning: {error_msg}")
-                self.status = i18n.t("components.operations.deduplication.errors.load_failed", error=error_msg)
             except Exception:  # noqa: BLE001
                 # Handle unexpected errors - broad exception needed for production stability
                 logger.exception("[Deduplication] Field loading failed with unexpected error")
@@ -211,14 +228,37 @@ class ETLDeduplicationComponent(Component):
                         graph_data = self.graph.data
 
                 if graph_data:
-                    upstream_data = await self.get_upstream_data(
-                        input_name="data_input", graph_data=graph_data, sample_size=10, vertex_id=node_id
-                    )
+                    field_names = []
 
-                    if upstream_data:
-                        field_names = self._extract_field_names(upstream_data)
+                    # Primary strategy: Try to execute upstream node
+                    try:
+                        upstream_data = await self.get_upstream_data(
+                            input_name="data_input", graph_data=graph_data, sample_size=10, vertex_id=node_id
+                        )
+
+                        if upstream_data:
+                            field_names = self._extract_field_names(upstream_data)
+                            logger.info(f"[Deduplication] Refreshed sort field with {len(field_names)} fields from upstream data")
+
+                    except ValueError:
+                        # Fallback strategy: Extract from static config
+                        logger.warning("[Deduplication] Upstream execution failed for sort field. Trying static analysis...")
+
+                        try:
+                            from lfx.components.helpers.field_extraction import find_and_extract_upstream_fields
+
+                            field_names = find_and_extract_upstream_fields(
+                                graph_data, node_id, "data_input", "Deduplication"
+                            )
+                            if field_names:
+                                logger.info(f"[Deduplication] Refreshed sort field with {len(field_names)} fields from static config")
+
+                        except Exception:  # noqa: BLE001
+                            logger.exception("[Deduplication] Static analysis for sort field also failed")
+
+                    # Update options
+                    if field_names:
                         build_config["sort_field"]["options"] = [""] + field_names
-                        logger.info(f"[Deduplication] Refreshed sort field options with {len(field_names)} fields")
 
             except Exception:  # noqa: BLE001
                 # Broad exception needed to prevent refresh failures from breaking UI

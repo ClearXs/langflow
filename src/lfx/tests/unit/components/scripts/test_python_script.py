@@ -11,9 +11,7 @@ class TestPythonScriptComponent:
 
     def test_basic_execution(self):
         """测试基本代码执行和日志格式"""
-        component = ETLPythonScriptComponent(
-            script="print('test')\nresult = 42", data_input=[], capture_output=True
-        )
+        component = ETLPythonScriptComponent(script="print('test')\nresult = 42", data_input=[], capture_output=True)
         output = component.execute_python()
 
         # 验证数据输出
@@ -24,9 +22,7 @@ class TestPythonScriptComponent:
 
         # 验证日志格式（纯文本，无emoji）
         assert component.status is not None
-        assert (
-            "开始时间:" in component.status or "Start Time:" in component.status
-        )
+        assert "开始时间:" in component.status or "Start Time:" in component.status
         assert "执行耗时:" in component.status or "Duration:" in component.status
         assert "标准输出:" in component.status or "Standard Output:" in component.status
         assert "test" in component.status
@@ -76,40 +72,27 @@ class TestPythonScriptComponent:
 
     def test_error_handling(self):
         """测试错误处理和错误日志"""
-        component = ETLPythonScriptComponent(
-            script="result = undefined_variable", data_input=[], capture_output=True
-        )
+        component = ETLPythonScriptComponent(script="result = undefined_variable", data_input=[], capture_output=True)
 
         with pytest.raises(ValueError) as exc_info:
             component.execute_python()
 
-        assert "execution failed" in str(exc_info.value).lower() or "执行失败" in str(
-            exc_info.value
-        )
+        assert "execution failed" in str(exc_info.value).lower() or "执行失败" in str(exc_info.value)
 
         # 验证错误日志
         assert component.status is not None
         assert "错误信息:" in component.status or "Error:" in component.status
-        assert (
-            "状态: 执行失败" in component.status
-            or "Status: Execution Failed" in component.status
-        )
+        assert "状态: 执行失败" in component.status or "Status: Execution Failed" in component.status
 
     def test_empty_script(self):
         """测试空脚本"""
-        component = ETLPythonScriptComponent(
-            script="", data_input=[], capture_output=True
-        )
+        component = ETLPythonScriptComponent(script="", data_input=[], capture_output=True)
 
         with pytest.raises(ValueError) as exc_info:
             component.execute_python()
 
         error_msg = str(exc_info.value).lower()
-        assert (
-            "required" in error_msg
-            or "empty" in error_msg
-            or "不能为空" in str(exc_info.value)
-        )
+        assert "required" in error_msg or "empty" in error_msg or "不能为空" in str(exc_info.value)
 
     def test_complex_data_processing(self):
         """测试复杂数据处理"""
@@ -132,9 +115,7 @@ result = {
 }
 """
 
-        component = ETLPythonScriptComponent(
-            script=script, data_input=data, capture_output=True
-        )
+        component = ETLPythonScriptComponent(script=script, data_input=data, capture_output=True)
         output = component.execute_python()
 
         assert output.data["result"]["total"] == 3

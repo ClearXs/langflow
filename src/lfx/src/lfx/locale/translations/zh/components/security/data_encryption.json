@@ -1,49 +1,36 @@
 {
   "display_name": "数据加密",
-  "description": "加密或解密字段数据",
+  "description": "使用外部规则加密字段数据",
   "data_input": {
     "display_name": "数据输入",
     "info": "要处理的输入数据"
   },
-  "operation": {
-    "display_name": "操作",
-    "info": "加密或解密",
-    "types": {
-      "encrypt": "加密",
-      "decrypt": "解密"
-    }
-  },
-  "encryption_key": {
-    "display_name": "加密密钥",
-    "info": "加密/解密密钥"
-  },
   "field_configs": {
-    "display_name": "要处理的字段",
-    "info": "要加密/解密的字段（表格中的每一行代表一个待处理字段）",
+    "display_name": "字段加密配置",
+    "info": "配置字段和加密规则（表格中的每一行代表一个字段配置）",
     "field": "字段名",
-    "field_desc": "要加密/解密的字段",
-    "load_fields_button": "加载字段列表"
-  },
-  "use_base64": {
-    "display_name": "使用Base64",
-    "info": "使用Base64编码结果"
+    "field_desc": "要加密的字段",
+    "rule_id": "加密规则",
+    "rule_id_desc": "从数据安全服务选择加密规则",
+    "load_fields_button": "加载字段和规则"
   },
   "outputs": {
     "data": {
-      "display_name": "处理后的数据"
+      "display_name": "加密后的数据"
     },
     "encryption_stats": {
       "display_name": "加密统计信息"
     }
   },
   "status": {
-    "success": "成功%{operation}了 %{count} 条记录（处理了 %{fields} 个字段）",
-    "load_success": "从上游数据中加载了 %{count} 个字段",
-    "no_fields_found": "未在上游数据中找到字段"
+    "success": "成功加密了 %{count} 条记录（处理了 %{fields} 个字段）",
+    "load_success": "加载了 %{fields_count} 个字段和 %{rules_count} 条加密规则",
+    "load_fields_success": "从上游配置中加载了 %{count} 个字段"
   },
   "errors": {
-    "missing_config": "加密配置是必需的",
-    "process_failed": "加密/解密失败：%{error}",
+    "missing_config": "字段加密配置是必需的",
+    "process_failed": "加密失败：%{error}",
+    "service_unavailable": "数据安全服务不可用",
     "no_graph_data": "没有可用的图数据进行字段分析",
     "load_failed": "字段加载失败：%{error}",
     "graph_not_available": "无法分析字段 - 图上下文不可用"

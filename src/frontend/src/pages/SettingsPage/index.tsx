@@ -8,6 +8,7 @@ import {
   ENABLE_LANGFLOW_STORE,
   ENABLE_PROFILE_ICONS,
 } from "@/customization/feature-flags";
+import { useIsEmbedded } from "@/hooks/use-iframe-params";
 import useAuthStore from "@/stores/authStore";
 import { useStoreStore } from "@/stores/storeStore";
 import ForwardedIconComponent from "../../components/common/genericIconComponent";
@@ -15,6 +16,7 @@ import PageLayout from "../../components/common/pageLayout";
 export default function SettingsPage(): JSX.Element {
   const autoLogin = useAuthStore((state) => state.autoLogin);
   const hasStore = useStoreStore((state) => state.hasStore);
+  const isEmbedded = useIsEmbedded();
 
   const { t } = useTranslation();
 
@@ -27,7 +29,8 @@ export default function SettingsPage(): JSX.Element {
     icon: React.ReactNode;
   }[] = [];
 
-  if (showGeneralSettings) {
+  // Hide General, MCP Servers, and Langflow API Keys when embedded
+  if (showGeneralSettings && !isEmbedded) {
     sidebarNavItems.push({
       title: t("settings.general"),
       href: "/settings/general",
@@ -40,8 +43,8 @@ export default function SettingsPage(): JSX.Element {
     });
   }
 
-  sidebarNavItems.push(
-    {
+  if (!isEmbedded) {
+    sidebarNavItems.push({
       title: t("settings.mcpServers"),
       href: "/settings/mcp-servers",
       icon: (
@@ -50,7 +53,10 @@ export default function SettingsPage(): JSX.Element {
           className="w-4 flex-shrink-0 justify-start stroke-[1.5]"
         />
       ),
-    },
+    });
+  }
+
+  sidebarNavItems.push(
     {
       title: t("dataSource.management"),
       href: "/settings/datasources",
@@ -95,8 +101,12 @@ export default function SettingsPage(): JSX.Element {
   );
 
   // TODO: Remove this on cleanup
+  // Hide Langflow API Keys when embedded
   if (!ENABLE_DATASTAX_LANGFLOW) {
-    const langflowItems = CustomStoreSidebar(true, ENABLE_LANGFLOW_STORE);
+    const langflowItems = CustomStoreSidebar(
+      !isEmbedded,
+      ENABLE_LANGFLOW_STORE,
+    );
     sidebarNavItems.splice(2, 0, ...langflowItems);
   }
 

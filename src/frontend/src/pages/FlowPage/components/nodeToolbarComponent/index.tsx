@@ -106,10 +106,13 @@ const NodeToolbarComponent = memo(
     );
 
     const nodeLength = useMemo(() => getNodeLength(data), [data]);
-    const hasCode = useMemo(
-      () => Object.keys(data.node!.template).includes("code"),
-      [data.node],
-    );
+    const hasCode = useMemo(() => {
+      const hasCodeField = Object.keys(data.node!.template).includes("code");
+      // Only show code button for custom components (CustomComponent or custom_components)
+      const isCustomComponent =
+        data?.type === "CustomComponent" || data?.type === "custom_components";
+      return hasCodeField && isCustomComponent;
+    }, [data.node, data.type]);
     const isGroup = useMemo(
       () => (data.node?.flow ? true : false),
       [data.node],

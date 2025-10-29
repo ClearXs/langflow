@@ -30,16 +30,16 @@ export function SaveChangesModal({
       destructiveCancel
       title={
         (autoSave
-          ? t("modals.saveChanges.title.flow")
+          ? t("modal.saveChanges.title.flow")
           : truncate(flowName, { length: 32 })) +
         " " +
-        t("modals.saveChanges.title.unsavedChanges")
+        t("modal.saveChanges.title.unsavedChanges")
       }
       cancelText={
-        autoSave ? undefined : t("modals.saveChanges.buttons.exitAnyway")
+        autoSave ? undefined : t("modal.saveChanges.buttons.exitAnyway")
       }
       confirmationText={
-        autoSave ? undefined : t("modals.saveChanges.buttons.saveAndExit")
+        autoSave ? undefined : t("modal.saveChanges.buttons.saveAndExit")
       }
       onConfirm={
         autoSave
@@ -57,26 +57,26 @@ export function SaveChangesModal({
         {autoSave ? (
           <div className="mb-4 flex w-full items-center gap-3 rounded-md bg-muted px-4 py-2 text-muted-foreground">
             <Loading className="h-5 w-5" />
-            {t("modals.saveChanges.messages.saving")}
+            {t("modal.saveChanges.messages.saving")}
           </div>
         ) : (
           <>
             <div className="mb-4 flex w-full items-center gap-3 rounded-md bg-yellow-100 px-4 py-2 text-yellow-800 dark:bg-yellow-900/40 dark:text-yellow-100">
               <ForwardedIconComponent name="Info" className="h-5 w-5" />
-              {t("modals.saveChanges.messages.lastSaved", {
-                time: lastSaved ?? t("modals.saveChanges.messages.never"),
+              {t("modal.saveChanges.messages.lastSaved", {
+                time: lastSaved ?? t("modal.saveChanges.messages.never"),
               })}
             </div>
-            {t("modals.saveChanges.messages.warningLost")}{" "}
+            {t("modal.saveChanges.messages.warningLost")}{" "}
             <a
               target="_blank"
               className="text-secondary underline"
               href="https://docs.langflow.org/configuration-auto-save"
               rel="noopener"
             >
-              {t("modals.saveChanges.links.enableAutoSave")}
+              {t("modal.saveChanges.links.enableAutoSave")}
             </a>{" "}
-            {t("modals.saveChanges.messages.avoidLosing")}
+            {t("modal.saveChanges.messages.avoidLosing")}
           </>
         )}
       </ConfirmationModal.Content>

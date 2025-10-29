@@ -213,3 +213,6 @@ def _setup_compatibility_modules():
 
 # Set up all the compatibility modules
 _setup_compatibility_modules()
+
+# Initialize langflow locale for i18n support
+from langflow import locale  # noqa: E402, F401

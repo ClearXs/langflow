@@ -2,15 +2,18 @@ import { Panel, useStoreApi } from "@xyflow/react";
 import { type ReactNode, useEffect } from "react";
 import { useShallow } from "zustand/react/shallow";
 import { Separator } from "@/components/ui/separator";
+import { useIsEmbedded } from "@/hooks/use-iframe-params";
 import useFlowStore from "@/stores/flowStore";
 import CanvasControlsDropdown from "./CanvasControlsDropdown";
 import HelpDropdown from "./HelpDropdown";
+import SettingsButton from "./SettingsButton";
 
 const CanvasControls = ({ children }: { children?: ReactNode }) => {
   const reactFlowStoreApi = useStoreApi();
   const isFlowLocked = useFlowStore(
     useShallow((state) => state.currentFlow?.locked),
   );
+  const isEmbedded = useIsEmbedded();
 
   useEffect(() => {
     reactFlowStoreApi.setState({
@@ -36,7 +39,7 @@ const CanvasControls = ({ children }: { children?: ReactNode }) => {
       <span>
         <Separator orientation="vertical" />
       </span>
-      <HelpDropdown />
+      {isEmbedded ? <SettingsButton /> : <HelpDropdown />}
     </Panel>
   );
 };

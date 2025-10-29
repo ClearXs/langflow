@@ -69,9 +69,7 @@ class ETLShellScriptComponent(Component):
                 no_script_msg = i18n.t("components.scripts.shell_script.errors.no_script")
                 # Fallback if i18n key not found
                 if "components.scripts" in no_script_msg:
-                    no_script_msg = (
-                        "Script code is required" if i18n.get("locale") == "en" else "脚本代码不能为空"
-                    )
+                    no_script_msg = "Script code is required" if i18n.get("locale") == "en" else "脚本代码不能为空"
                 raise ValueError(no_script_msg)
 
             # Execute command
@@ -192,7 +190,5 @@ class ETLShellScriptComponent(Component):
             error_msg = i18n.t("components.scripts.shell_script.errors.execution_failed", error=str(e))
             # Fallback if i18n key not found
             if "components.scripts" in error_msg:
-                error_msg = (
-                    f"Script execution failed: {e!s}" if i18n.get("locale") == "en" else f"脚本执行失败: {e!s}"
-                )
+                error_msg = f"Script execution failed: {e!s}" if i18n.get("locale") == "en" else f"脚本执行失败: {e!s}"
             raise ValueError(error_msg) from e

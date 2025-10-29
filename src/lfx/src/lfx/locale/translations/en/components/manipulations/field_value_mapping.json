@@ -70,6 +70,7 @@
   },
   "warnings": {
     "field_not_found": "Input field '%{field}' not found in data",
-    "no_match": "No mapping rule matched for field '%{field}' value '%{value}'"
+    "no_match": "No mapping rule matched for field '%{field}' value '%{value}'",
+    "field_load_failed": "Unable to automatically load fields, please configure manually"
   }
 }

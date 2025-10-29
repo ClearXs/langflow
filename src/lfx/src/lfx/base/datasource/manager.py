@@ -373,14 +373,6 @@ class DataSourceManager:
         username = datasource.get("username") or ""
         password = datasource.get("password") or ""
 
-        # Validate required fields
-        if not host:
-            raise ValueError("Host is required for database connection")
-        if not database:
-            raise ValueError("Database name is required for database connection")
-        if not username:
-            raise ValueError("Username is required for database connection")
-
         # URL encode username and password to handle special characters
         username_encoded = quote_plus(username)
         password_encoded = quote_plus(password)
@@ -393,6 +385,27 @@ class DataSourceManager:
             return f"oracle+cx_oracle://{username_encoded}:{password_encoded}@{host}:{port}/{database}"
         if db_type == "mssql":
             return f"mssql+pymssql://{username_encoded}:{password_encoded}@{host}:{port}/{database}"
+        if db_type == "hive":
+            # Hive connection string - use standard JDBC format
+            # Default port for Hive is 10000, database is 'default'
+            hive_port = port if port != 3306 else 10000
+            hive_database = database or "default"
+            hive_username = username or "hive"
+
+            # Build Hive JDBC connection string
+            # Format: jdbc:hive2://host:port/database
+            conn_str = f"jdbc:hive2://{host}:{hive_port}/{hive_database}"
+
+            # Add authentication parameters if provided
+            if password:
+                conn_str += f"?user={hive_username}"
+                if password:
+                    conn_str += f";password={password_encoded}"
+            elif username and username != "hive":
+                conn_str += f"?user={username_encoded}"
+
+            return conn_str
+
         raise ValueError(f"Unsupported database type: {db_type}")
 
     def _encrypt(self, text: str) -> str:

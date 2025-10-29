@@ -394,15 +394,32 @@ export function extractColumnsFromRows(
   rows: object[],
   mode: "intersection" | "union",
   excludeColumns?: Array<string>,
+  t?: (key: string) => string,
 ): ColDef<any>[] {
   const columnsKeys: { [key: string]: ColDef<any> | ColGroupDef<any> } = {};
   if (rows.length === 0) {
     return [];
   }
+
+  // Helper function to get translated header name
+  const getHeaderName = (key: string): string => {
+    if (t) {
+      // Try to get translation from table.headers
+      const translationKey = `table.headers.${key}`;
+      const translated = t(translationKey);
+      // If translation exists and is different from the key, use it
+      if (translated && translated !== translationKey) {
+        return translated;
+      }
+    }
+    // Fallback to original key
+    return key;
+  };
+
   function intersection() {
     for (const key in rows[0]) {
       columnsKeys[key] = {
-        headerName: key,
+        headerName: getHeaderName(key),
         field: key,
         cellRenderer: TableAutoCellRender,
         filter: true,
@@ -420,7 +437,7 @@ export function extractColumnsFromRows(
     for (const row of rows) {
       for (const key in row) {
         columnsKeys[key] = {
-          headerName: key,
+          headerName: getHeaderName(key),
           field: key,
           filter: true,
           cellRenderer: TableAutoCellRender,
@@ -894,7 +911,88 @@ export function testIdCase(str: string): string {
 
 export const convertUTCToLocalTimezone = (timestamp: string) => {
   const localTimezone = moment.tz.guess();
-  return moment.utc(timestamp).tz(localTimezone).format("MM/DD/YYYY HH:mm:ss");
+  return moment.utc(timestamp).tz(localTimezone).format("YYYY-MM-DD HH:mm:ss");
+};
+
+/**
+ * Format timestamp as relative time (e.g., "刚刚", "5分钟前", "2小时前", "昨天 14:45")
+ * @param timestamp - UTC timestamp string
+ * @returns Formatted relative time string
+ */
+export const formatRelativeTime = (timestamp: string): string => {
+  const localTimezone = moment.tz.guess();
+  const now = moment.tz(localTimezone);
+  const time = moment.utc(timestamp).tz(localTimezone);
+
+  const diffMinutes = now.diff(time, "minutes");
+  const diffHours = now.diff(time, "hours");
+  const diffDays = now.diff(time, "days");
+
+  // 刚刚 (less than 1 minute)
+  if (diffMinutes < 1) {
+    return "刚刚";
+  }
+
+  // X分钟前 (1-59 minutes)
+  if (diffMinutes < 60) {
+    return `${diffMinutes}分钟前`;
+  }
+
+  // X小时前 (1-23 hours)
+  if (diffHours < 24) {
+    return `${diffHours}小时前`;
+  }
+
+  // 昨天 HH:mm (yesterday)
+  if (diffDays === 1) {
+    return `昨天 ${time.format("HH:mm")}`;
+  }
+
+  // 前天 HH:mm (day before yesterday)
+  if (diffDays === 2) {
+    return `前天 ${time.format("HH:mm")}`;
+  }
+
+  // X天前 (3-6 days)
+  if (diffDays < 7) {
+    return `${diffDays}天前`;
+  }
+
+  // 完整日期时间 (7+ days)
+  return time.format("YYYY-MM-DD HH:mm:ss");
+};
+
+/**
+ * Smart timestamp formatting - returns relative time for recent timestamps, absolute time for older ones
+ * @param timestamp - UTC timestamp string
+ * @param alwaysRelative - If true, always show relative time regardless of age
+ * @returns Formatted timestamp string
+ */
+export const formatTimestamp = (
+  timestamp: string,
+  alwaysRelative: boolean = false,
+): string => {
+  try {
+    if (alwaysRelative) {
+      return formatRelativeTime(timestamp);
+    }
+
+    const localTimezone = moment.tz.guess();
+    const now = moment.tz(localTimezone);
+    const time = moment.utc(timestamp).tz(localTimezone);
+    const diffDays = now.diff(time, "days");
+
+    // Use relative time for recent timestamps (less than 7 days)
+    if (diffDays < 7) {
+      return formatRelativeTime(timestamp);
+    }
+
+    // Use absolute time for older timestamps
+    return convertUTCToLocalTimezone(timestamp);
+  } catch (error) {
+    // If parsing fails, return original timestamp
+    return timestamp;
+  }
 };
 
 export const formatNumber = (num: number | undefined): string => {

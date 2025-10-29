@@ -17,6 +17,7 @@ import {
   trackDataLoaded,
   trackFlowBuild,
 } from "@/customization/utils/analytics";
+import i18n from "@/i18n";
 import { brokenEdgeMessage } from "@/utils/utils";
 import { BuildStatus, EventDeliveryType } from "../constants/enums";
 import type { LogsLogType, VertexBuildTypeAPI } from "../types/api";
@@ -123,7 +124,7 @@ const useFlowStore = create<FlowStoreType>((set, get) => ({
     set({ isBuilding: false });
     get().revertBuiltStatusFromBuilding();
     useAlertStore.getState().setErrorData({
-      title: "Build stopped",
+      title: i18n.t("constants.build.stopped"),
     });
   },
   isPending: true,
@@ -712,7 +713,7 @@ const useFlowStore = create<FlowStoreType>((set, get) => ({
     errors = errors.concat(errorsObjs.flatMap((obj) => obj.errors));
     if (errors.length > 0) {
       setErrorData({
-        title: MISSED_ERROR_ALERT,
+        title: i18n.t("constants.error.missedSomething"),
         list: errors,
       });
       const ids = errorsObjs.flatMap((obj) => obj.id);

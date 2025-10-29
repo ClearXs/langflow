@@ -23,6 +23,7 @@ class DataSourceBase(SQLModel):
     status: str | None = Field(default="inactive", nullable=True)  # active, inactive, error
     last_tested_at: datetime | None = Field(default=None, sa_column=Column(DateTime(timezone=True), nullable=True))
 
+
 class DataSource(DataSourceBase, table=True):  # type: ignore[call-arg]
     """Data source model."""
 

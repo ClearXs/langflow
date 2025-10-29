@@ -49,6 +49,13 @@
     "parse_failed": "Failed to parse SQL script: %{error}",
     "execution_failed": "Script execution failed: %{error}",
     "transaction_failed": "Transaction failed and rolled back: %{error}",
-    "invalid_datasource": "Invalid or unavailable datasource"
+    "invalid_datasource": "Invalid or unavailable datasource",
+    "connection_string_empty": "Connection string is empty",
+    "no_datasource_selected": "No datasource selected"
+  },
+  "base": {
+    "dataSource": {
+      "addDataSource": "Adddatasource"
+    }
   }
 }

@@ -49,6 +49,13 @@
     "parse_failed": "解析SQL脚本失败:%{error}",
     "execution_failed": "脚本执行失败:%{error}",
     "transaction_failed": "事务失败并已回滚:%{error}",
-    "invalid_datasource": "无效或不可用的数据源"
+    "invalid_datasource": "无效或不可用的数据源",
+    "connection_string_empty": "连接字符串为空",
+    "no_datasource_selected": "未选择数据源"
+  },
+  "base": {
+    "dataSource": {
+      "addDataSource": "Adddatasource"
+    }
   }
 }

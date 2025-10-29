@@ -118,7 +118,7 @@
     "flowSavedSuccessfully": "流程保存成功！",
     "unmounting": "卸载中",
     "doubleClickToStartTyping": "双击开始输入或输入 Markdown...",
-    "duplicate": "复制",
+    "duplicate": "克隆",
     "docs": "文档",
     "pickColor": "选择颜色",
     "showMore": "显示更多",
@@ -179,7 +179,7 @@
     "running": "运行中",
     "runningFlow": "运行流程中",
     "playground": "演练场",
-    "duplicate": "复制",
+    "duplicate": "克隆",
     "rename": "重命名",
     "delete": "删除",
     "lock": "锁定",
@@ -654,7 +654,7 @@
     "minimize": "最小化",
     "code": "代码",
     "copy": "复制",
-    "duplicate": "复制",
+    "duplicate": "克隆",
     "componentShare": "组件分享",
     "docs": "文档",
     "changesSave": "保存更改",
@@ -954,6 +954,7 @@
     },
     "build": {
       "success": "构建成功 ✨",
+      "stopped": "构建已停止",
       "statusBuild": "构建以验证状态。",
       "statusMissingFields": "请填写所有必填字段。",
       "statusInactive": "执行已阻止",
@@ -1026,7 +1027,13 @@
       "updatingComponent": "更新组件时发生意外错误。请重试。",
       "updatingComponentTitle": "更新组件时出错",
       "fsError": "请确保您的文件具有以下扩展名之一：",
-      "uuidParsing": "uuid 解析"
+      "uuidParsing": "uuid 解析",
+      "loadFlowsFromDatabase": "无法从数据库加载流程",
+      "unexpectedError": "抱歉，发生了意外错误！",
+      "unexpectedErrorDescription": "请重试或联系技术支持。感谢您的理解！",
+      "missedSomething": "哎呀！您似乎遗漏了一些内容",
+      "fieldMissing": "{{component}} 缺少 {{field}}",
+      "componentIssue": "我们注意到流程中的某个组件可能存在问题。请检查它，必要时请提交包含导出流程文件的错误报告。谢谢您的帮助！"
     },
     "polling": {
       "endpointNotAvailable": "端点不可用",
@@ -1049,6 +1056,23 @@
       "deleteSelected": "删除选中的项",
       "resetColumns": "重置列",
       "paginationInfo": "分页信息"
+    },
+    "headers": {
+      "timestamp": "时间戳",
+      "message": "消息",
+      "text": "文本",
+      "sender": "发送者",
+      "sender_name": "发送者名称",
+      "session_id": "会话ID",
+      "files": "文件",
+      "name": "名称",
+      "type": "类型",
+      "component_name": "组件名称",
+      "component_type": "组件类型",
+      "status": "状态",
+      "duration_ms": "耗时(ms)",
+      "error_message": "错误信息",
+      "error_type": "错误类型"
     }
   },
   "node": {
@@ -1082,7 +1106,7 @@
     "contextMenu": {
       "rename": "重命名",
       "download": "下载",
-      "duplicate": "复制",
+      "duplicate": "克隆",
       "delete": "删除",
       "remove": "移除"
     },
@@ -1412,11 +1436,11 @@
     "newFlow": "新建流程",
     "editDetails": "编辑详情",
     "export": "导出",
-    "duplicate": "复制",
+    "duplicate": "克隆",
     "searchPlaceholder": "搜索 {{type}}...",
     "downloadedSuccessfully": "流程下载成功",
     "deletedSuccessfully": "流程删除成功",
-    "duplicatedSuccessfully": "{{type}}复制成功",
+    "duplicatedSuccessfully": "{{type}}克隆成功",
     "andMessageHistory": "和{{possessive}}消息历史"
   }
 }

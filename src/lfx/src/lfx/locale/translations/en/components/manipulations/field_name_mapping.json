@@ -1,46 +1,49 @@
 {
-    "display_name": "Field Name Mapping",
-    "description": "Map source field names to target field names for data transformation",
-    "data_input": {
-        "display_name": "Data Input",
-        "info": "Input data containing fields to be renamed"
-    },
-    "field_mappings": {
-        "display_name": "Field Mappings",
-        "info": "Define source to target field name mappings",
-        "source_field": "Source Field",
-        "source_field_desc": "Original field name from input data",
-        "target_field": "Target Field",
-        "target_field_desc": "New field name in output data",
-        "description": "Description",
-        "description_desc": "Optional notes about this mapping rule",
-        "analyze_button": "Auto Analyze Fields"
-    },
-    "drop_unmapped": {
-        "display_name": "Drop Unmapped Fields",
-        "info": "Remove fields not specified in mappings (keep all fields if disabled)"
-    },
-    "outputs": {
-        "data": {
-            "display_name": "Mapped Data"
-        }
-    },
-    "status": {
-        "success": "Successfully mapped %{count} records with %{fields} field transformations",
-        "analyzing_fields": "Analyzing fields from input data...",
-        "analysis_success": "Successfully analyzed %{count} fields from input data",
-        "fields_loaded_fallback": "Fields loaded from config: %{count} field mappings created",
-        "no_fields_found": "No fields found in input data"
-    },
-    "errors": {
-        "missing_config": "Field mappings configuration is required",
-        "mapping_failed": "Field mapping failed: %{error}",
-        "source_field_not_found": "Source field '%{field}' not found in input data",
-        "duplicate_target_field": "Duplicate target field name '%{field}' detected",
-        "no_data_input": "No data input provided. Please connect a data source first.",
-        "no_graph_data": "No graph data available. Please save the flow first.",
-        "no_fields_in_config": "No fields found in upstream node configuration",
-        "graph_not_available": "Auto-analysis is only available during flow execution. This button works when the flow is running, not during design time.",
-        "analysis_failed": "Field analysis failed: %{error}"
+  "display_name": "Field Name Mapping",
+  "description": "Map source field names to target field names for data transformation",
+  "data_input": {
+    "display_name": "Data Input",
+    "info": "Input data containing fields to be renamed"
+  },
+  "field_mappings": {
+    "display_name": "Field Mappings",
+    "info": "Define source to target field name mappings",
+    "source_field": "Source Field",
+    "source_field_desc": "Original field name from input data",
+    "target_field": "Target Field",
+    "target_field_desc": "New field name in output data",
+    "description": "Description",
+    "description_desc": "Optional notes about this mapping rule",
+    "analyze_button": "Auto Analyze Fields"
+  },
+  "drop_unmapped": {
+    "display_name": "Drop Unmapped Fields",
+    "info": "Remove fields not specified in mappings (keep all fields if disabled)"
+  },
+  "outputs": {
+    "data": {
+      "display_name": "Mapped Data"
     }
+  },
+  "status": {
+    "success": "Successfully mapped %{count} records with %{fields} field transformations",
+    "analyzing_fields": "Analyzing fields from input data...",
+    "analysis_success": "Successfully analyzed %{count} fields from input data",
+    "fields_loaded_fallback": "Fields loaded from config: %{count} field mappings created",
+    "no_fields_found": "No fields found in input data"
+  },
+  "errors": {
+    "missing_config": "Field mappings configuration is required",
+    "mapping_failed": "Field mapping failed: %{error}",
+    "source_field_not_found": "Source field '%{field}' not found in input data",
+    "duplicate_target_field": "Duplicate target field name '%{field}' detected",
+    "no_data_input": "No data input provided. Please connect a data source first.",
+    "no_graph_data": "No graph data available. Please save the flow first.",
+    "no_fields_in_config": "No fields found in upstream node configuration",
+    "graph_not_available": "Auto-analysis is only available during flow execution. This button works when the flow is running, not during design time.",
+    "analysis_failed": "Field analysis failed: %{error}"
+  },
+  "warnings": {
+    "field_load_failed": "Unable to automatically load fields, please configure manually"
+  }
 }

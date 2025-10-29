@@ -951,6 +951,7 @@
     },
     "build": {
       "success": "Built successfully ✨",
+      "stopped": "Build stopped",
       "statusBuild": "Build to validate status.",
       "statusMissingFields": "Please fill all the required fields.",
       "statusInactive": "Execution blocked",
@@ -1023,7 +1024,13 @@
       "updatingComponent": "An unexpected error occurred while updating the Component. Please try again.",
       "updatingComponentTitle": "Error while updating the Component",
       "fsError": "Please ensure your file has one of the following extensions:",
-      "uuidParsing": "uuid_parsing"
+      "uuidParsing": "uuid_parsing",
+      "loadFlowsFromDatabase": "Could not load flows from database",
+      "unexpectedError": "Sorry, we found an unexpected error!",
+      "unexpectedErrorDescription": "Please retry or contact technical support. Thank you for your understanding!",
+      "missedSomething": "Oops! Looks like you missed something",
+      "fieldMissing": "{{component}} is missing {{field}}",
+      "componentIssue": "We've noticed a potential issue with a Component in the flow. Please review it and, if necessary, submit a bug report with your exported flow file. Thank you for your help!"
     },
     "polling": {
       "endpointNotAvailable": "Endpoint not available",
@@ -1046,6 +1053,23 @@
       "deleteSelected": "Delete selected items",
       "resetColumns": "Reset Columns",
       "paginationInfo": "Pagination Info"
+    },
+    "headers": {
+      "timestamp": "Timestamp",
+      "message": "Message",
+      "text": "Text",
+      "sender": "Sender",
+      "sender_name": "Sender Name",
+      "session_id": "Session ID",
+      "files": "Files",
+      "name": "Name",
+      "type": "Type",
+      "component_name": "Component Name",
+      "component_type": "Component Type",
+      "status": "Status",
+      "duration_ms": "Duration (ms)",
+      "error_message": "Error Message",
+      "error_type": "Error Type"
     }
   },
   "node": {

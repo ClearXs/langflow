@@ -1,0 +1,4 @@
+{
+  "error_building_component": "构建组件时出错：{error}",
+  "error_building_component_import": "构建组件时出错。请检查是否正确导入了 Component。"
+}

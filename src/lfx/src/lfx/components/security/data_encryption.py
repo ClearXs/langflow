@@ -1,14 +1,10 @@
-import base64
 from typing import Any
 
 import i18n
 import pandas as pd
-from cryptography.fernet import Fernet
-from cryptography.hazmat.primitives import hashes
-from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 
 from lfx.custom.custom_component.component import Component
-from lfx.io import BoolInput, DataInput, DropdownInput, Output, SecretStrInput, TableInput
+from lfx.io import DataInput, Output, TableInput
 from lfx.log.logger import logger
 from lfx.schema import Data
 
@@ -27,29 +23,6 @@ class ETLDataEncryptionComponent(Component):
             is_list=True,
             required=True,
         ),
-        DropdownInput(
-            name="operation",
-            display_name=i18n.t("components.security.data_encryption.operation.display_name"),
-            info=i18n.t("components.security.data_encryption.operation.info"),
-            options=["encrypt", "decrypt"],
-            options_metadata=[
-                {
-                    "value": "encrypt",
-                    "label": i18n.t("components.security.data_encryption.operation.types.encrypt"),
-                },
-                {
-                    "value": "decrypt",
-                    "label": i18n.t("components.security.data_encryption.operation.types.decrypt"),
-                },
-            ],
-            value="encrypt",
-        ),
-        SecretStrInput(
-            name="encryption_key",
-            display_name=i18n.t("components.security.data_encryption.encryption_key.display_name"),
-            info=i18n.t("components.security.data_encryption.encryption_key.info"),
-            required=True,
-        ),
         TableInput(
             name="field_configs",
             display_name=i18n.t("components.security.data_encryption.field_configs.display_name"),
@@ -64,6 +37,16 @@ class ETLDataEncryptionComponent(Component):
                     "required": True,
                     "description": i18n.t("components.security.data_encryption.field_configs.field_desc"),
                 },
+                {
+                    "name": "rule_id",
+                    "display_name": i18n.t("components.security.data_encryption.field_configs.rule_id"),
+                    "type": "int",
+                    "formatter": "dropdown",
+                    "options": [],  # 动态填充
+                    "options_metadata": [],  # 动态填充
+                    "required": True,
+                    "description": i18n.t("components.security.data_encryption.field_configs.rule_id_desc"),
+                },
             ],
             value=[],
             required=True,
@@ -77,13 +60,6 @@ class ETLDataEncryptionComponent(Component):
                     }
                 ],
             },
-        ),
-        BoolInput(
-            name="use_base64",
-            display_name=i18n.t("components.security.data_encryption.use_base64.display_name"),
-            info=i18n.t("components.security.data_encryption.use_base64.info"),
-            value=True,
-            advanced=True,
         ),
     ]
 
@@ -119,55 +95,48 @@ class ETLDataEncryptionComponent(Component):
 
         # Handle "load_fields" button click
         if field_name == "field_configs" and action == "load_fields":
-            logger.info("[DataEncryption] Field loading triggered")
+            logger.info("[DataEncryption] Field and rule loading triggered")
 
             try:
-                # Get graph_data and node_id from build_config
-                graph_data = build_config.get("_graph_data", {})
-                node_id = build_config.get("_node_id")
-
-                # If not in build_config, try to get from self.graph
-                if not graph_data and hasattr(self, "graph") and self.graph is not None:
-                    if hasattr(self.graph, "data"):
-                        graph_data = self.graph.data
-                    else:
-                        logger.warning("[DataEncryption] PlaceholderGraph detected - no graph data available")
-
-                if not graph_data:
-                    logger.warning("[DataEncryption] No graph data available")
-                    self.status = i18n.t("components.security.data_encryption.errors.no_graph_data")
-                    return build_config
-
-                # Fetch upstream data
-                upstream_data = await self.get_upstream_data(
-                    input_name="data_input", graph_data=graph_data, sample_size=10, vertex_id=node_id
-                )
-
-                if not upstream_data:
-                    logger.warning("[DataEncryption] No data returned from upstream node")
-                    self.status = i18n.t("components.security.data_encryption.status.no_fields_found")
-                    return build_config
-
-                # Extract field names
-                field_names = self._extract_field_names(upstream_data)
-
-                if not field_names:
-                    logger.warning("[DataEncryption] No fields extracted from upstream data")
-                    self.status = i18n.t("components.security.data_encryption.status.no_fields_found")
-                    return build_config
-
-                # Update dropdown options for field column
+                # 1. Load field names from upstream data
+                field_names = await self._load_upstream_fields(build_config)
                 build_config["field_configs"]["table_schema"][0]["options"] = field_names
 
-                # Auto-fill table with default encryption configs if empty
-                if not build_config["field_configs"].get("value"):
-                    build_config["field_configs"]["value"] = [{"field": name} for name in field_names]
-                    logger.info(f"[DataEncryption] Auto-filled {len(field_names)} field encryption configs")
+                # 2. Load encryption rules from data security service
+                encryption_rules = await self._load_encryption_rules()
+                if encryption_rules:
+                    build_config["field_configs"]["table_schema"][1]["options"] = [
+                        rule["id"] for rule in encryption_rules
+                    ]
+                    build_config["field_configs"]["table_schema"][1]["options_metadata"] = [
+                        {"value": rule["id"], "label": rule["ruleName"]} for rule in encryption_rules
+                    ]
                 else:
-                    # Just update the options, keep existing rows
-                    logger.info(f"[DataEncryption] Updated field options with {len(field_names)} fields")
+                    build_config["field_configs"]["table_schema"][1]["options"] = []
+                    build_config["field_configs"]["table_schema"][1]["options_metadata"] = []
 
-                self.status = i18n.t("components.security.data_encryption.status.load_success", count=len(field_names))
+                # Auto-fill table with default encryption configs if empty
+                if not build_config["field_configs"].get("value") and field_names and encryption_rules:
+                    # Use first available encryption rule for all fields
+                    default_rule_id = encryption_rules[0]["id"]
+                    build_config["field_configs"]["value"] = [
+                        {"field": name, "rule_id": default_rule_id} for name in field_names
+                    ]
+                    logger.info(
+                        f"[DataEncryption] Auto-filled {len(field_names)} field encryption configs "
+                        f"with default rule {default_rule_id}"
+                    )
+                else:
+                    logger.info(
+                        f"[DataEncryption] Updated field options with {len(field_names)} fields "
+                        f"and {len(encryption_rules)} rules"
+                    )
+
+                self.status = i18n.t(
+                    "components.security.data_encryption.status.load_success",
+                    fields_count=len(field_names),
+                    rules_count=len(encryption_rules),
+                )
 
             except ValueError as e:
                 error_msg = str(e)
@@ -176,7 +145,9 @@ class ETLDataEncryptionComponent(Component):
                 # Fallback: try to extract fields from upstream node config
                 try:
                     logger.info("[DataEncryption] Attempting fallback: extracting fields from upstream node config")
-                    field_names = self._extract_fields_from_upstream_config(build_config, graph_data, node_id)
+                    field_names = self._extract_fields_from_upstream_config(
+                        build_config, build_config.get("_graph_data", {}), build_config.get("_node_id")
+                    )
 
                     if field_names:
                         # Update dropdown options for field column
@@ -194,7 +165,7 @@ class ETLDataEncryptionComponent(Component):
                             )
 
                         self.status = i18n.t(
-                            "components.security.data_encryption.status.load_success", count=len(field_names)
+                            "components.security.data_encryption.status.load_fields_success", count=len(field_names)
                         )
                     else:
                         self.status = i18n.t("components.security.data_encryption.errors.load_failed", error=error_msg)
@@ -207,6 +178,71 @@ class ETLDataEncryptionComponent(Component):
                 self.status = i18n.t("components.security.data_encryption.errors.graph_not_available")
 
         return build_config
+
+    async def _load_upstream_fields(self, build_config: dict) -> list[str]:
+        """Load field names from upstream data.
+
+        Args:
+            build_config: Build configuration
+
+        Returns:
+            List of field names
+        """
+        # Get graph_data and node_id from build_config
+        graph_data = build_config.get("_graph_data", {})
+        node_id = build_config.get("_node_id")
+
+        # If not in build_config, try to get from self.graph
+        if not graph_data and hasattr(self, "graph") and self.graph is not None:
+            if hasattr(self.graph, "data"):
+                graph_data = self.graph.data
+            else:
+                logger.warning("[DataEncryption] PlaceholderGraph detected - no graph data available")
+
+        if not graph_data:
+            logger.warning("[DataEncryption] No graph data available")
+            return []
+
+        # Fetch upstream data
+        upstream_data = await self.get_upstream_data(
+            input_name="data_input", graph_data=graph_data, sample_size=10, vertex_id=node_id
+        )
+
+        if not upstream_data:
+            logger.warning("[DataEncryption] No data returned from upstream node")
+            return []
+
+        # Extract field names
+        field_names = self._extract_field_names(upstream_data)
+
+        if not field_names:
+            logger.warning("[DataEncryption] No fields extracted from upstream data")
+            return []
+
+        logger.debug(f"[DataEncryption] Extracted {len(field_names)} field names: {field_names}")
+        return field_names
+
+    async def _load_encryption_rules(self) -> list[dict]:
+        """Load encryption rules from data security service.
+
+        Returns:
+            List of encryption rules
+        """
+        try:
+            from lfx.services.deps import get_data_security_client
+
+            client = get_data_security_client()
+            if client is None:
+                logger.warning("[DataEncryption] Data security client not available")
+                return []
+
+            rules = await client.get_protection_rules(rule_type="ENCRYPTION")
+            logger.info(f"[DataEncryption] Loaded {len(rules)} encryption rules")
+            return rules
+
+        except Exception as e:
+            logger.exception(f"[DataEncryption] Failed to load encryption rules: {e}")
+            return []
 
     def _extract_field_names(self, data_list: list[Data]) -> list[str]:
         """Extract field names from upstream data.
@@ -357,12 +393,12 @@ class ETLDataEncryptionComponent(Component):
             logger.exception("[DataEncryption] Failed to extract fields from upstream config")
             return []
 
-    def process_encryption(self) -> list[Data]:
-        """Apply encryption/decryption to specified fields."""
+    async def process_encryption(self) -> list[Data]:
+        """Apply encryption to specified fields using external rules."""
         try:
-            logger.info(f"[DataEncryption] Starting {self.operation}")
+            logger.info("[DataEncryption] Starting encryption")
 
-            if not self.data_input or not self.field_configs or not self.encryption_key:
+            if not self.data_input or not self.field_configs:
                 raise ValueError(i18n.t("components.security.data_encryption.errors.missing_config"))
 
             # Convert to DataFrame
@@ -372,32 +408,62 @@ class ETLDataEncryptionComponent(Component):
                 f"[DataEncryption] Processing {len(df)} records with {len(self.field_configs)} field configurations"
             )
 
-            cipher = self._get_cipher()
+            from lfx.services.deps import get_data_security_client
 
+            client = get_data_security_client()
+            if client is None:
+                raise ValueError(i18n.t("components.security.data_encryption.errors.service_unavailable"))
+
+            # Process each field configuration
             for config in self.field_configs:
                 field = config.get("field", "").strip()
+                rule_id = config.get("rule_id")
 
-                if not field:
-                    logger.warning(f"[DataEncryption] Skipping empty field config: {config}")
+                if not field or not rule_id:
+                    logger.warning(f"[DataEncryption] Skipping empty config: {config}")
                     continue
 
                 if field not in df.columns:
                     logger.warning(f"[DataEncryption] Field '{field}' not found in data, skipping")
                     continue
 
-                logger.debug(f"[DataEncryption] Applying {self.operation} to field '{field}'")
+                logger.info(f"[DataEncryption] Processing field '{field}' with rule {rule_id}")
 
-                if self.operation == "encrypt":
-                    df[field] = df[field].apply(lambda x: self._encrypt_value(str(x), cipher) if pd.notnull(x) else x)
-                else:
-                    df[field] = df[field].apply(lambda x: self._decrypt_value(str(x), cipher) if pd.notnull(x) else x)
+                # Extract non-null values for batch processing
+                mask = df[field].notnull()
+                values_to_encrypt = df.loc[mask, field].astype(str).tolist()
+
+                if not values_to_encrypt:
+                    logger.debug(f"[DataEncryption] No values to encrypt in field '{field}'")
+                    continue
+
+                try:
+                    # Batch encryption using external service
+                    encrypted_values = await client.test_rule_batch(rule_id, values_to_encrypt)
+
+                    # Validate response length
+                    if len(encrypted_values) != len(values_to_encrypt):
+                        raise ValueError(
+                            f"Encryption service returned {len(encrypted_values)} values "
+                            f"but expected {len(values_to_encrypt)}"
+                        )
+
+                    # Update DataFrame with encrypted values
+                    df.loc[mask, field] = encrypted_values
+                    logger.info(
+                        f"[DataEncryption] Successfully encrypted {len(encrypted_values)} values in field '{field}'"
+                    )
+
+                except Exception as e:
+                    error_msg = f"Field '{field}' encryption failed (rule_id={rule_id}): {e!s}"
+                    logger.error(error_msg)
+                    raise ValueError(error_msg) from e
 
             # Convert back to Data objects
             result = [Data(data=row.to_dict()) for _, row in df.iterrows()]
 
             self.status = i18n.t(
                 "components.security.data_encryption.status.success",
-                operation=self.operation,
                 count=len(result),
                 fields=len(self.field_configs),
             )
@@ -414,43 +480,22 @@ class ETLDataEncryptionComponent(Component):
             self.status = error_msg
             raise ValueError(error_msg) from e
 
-    def _get_cipher(self):
-        key_bytes = self.encryption_key.encode()
-        if len(key_bytes) != 32:
-            from cryptography.hazmat.backends import default_backend
-
-            kdf = PBKDF2HMAC(
-                algorithm=hashes.SHA256(),
-                length=32,
-                salt=b"langflow_etl_salt",
-                iterations=100000,
-                backend=default_backend(),
-            )
-            key_bytes = kdf.derive(key_bytes)
-        fernet_key = base64.urlsafe_b64encode(key_bytes)
-        return Fernet(fernet_key)
-
-    def _encrypt_value(self, value: str, cipher) -> str:
-        encrypted = cipher.encrypt(value.encode())
-        return base64.b64encode(encrypted).decode() if self.use_base64 else encrypted.decode()
-
-    def _decrypt_value(self, value: str, cipher) -> str:
-        encrypted_bytes = base64.b64decode(value) if self.use_base64 else value.encode()
-        decrypted = cipher.decrypt(encrypted_bytes)
-        return decrypted.decode()
-
     def get_encryption_stats(self) -> Data:
-        """Get statistics about the encryption/decryption operation."""
+        """Get statistics about the encryption operation."""
         try:
             processed_data = self.process_encryption()
 
             stats = {
-                "operation": self.operation,
                 "total_records": len(self.data_input) if self.data_input else 0,
                 "processed_records": len(processed_data),
-                "field_configs": [{"field": config.get("field")} for config in self.field_configs],
+                "field_configs": [
+                    {
+                        "field": config.get("field"),
+                        "rule_id": config.get("rule_id"),
+                    }
+                    for config in self.field_configs
+                ],
                 "total_fields_processed": len(self.field_configs),
-                "use_base64": self.use_base64,
             }
 
             logger.info(f"[DataEncryption] Stats: {stats}")
@@ -460,12 +505,10 @@ class ETLDataEncryptionComponent(Component):
             logger.error(f"[DataEncryption] Failed to get encryption stats: {e}")
             return Data(
                 data={
-                    "operation": self.operation if hasattr(self, "operation") else "unknown",
                     "total_records": 0,
                     "processed_records": 0,
                     "field_configs": [],
                     "total_fields_processed": 0,
-                    "use_base64": self.use_base64 if hasattr(self, "use_base64") else True,
                     "error": str(e),
                 }
             )

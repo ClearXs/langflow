@@ -1,5 +1,6 @@
 import { keepPreviousData } from "@tanstack/react-query";
 import type { ColDef, ColGroupDef } from "ag-grid-community";
+import { useTranslation } from "react-i18next";
 import useFlowStore from "@/stores/flowStore";
 import { useMessagesStore } from "@/stores/messagesStore";
 import type { useQueryFunctionType } from "../../../../types/api";
@@ -28,6 +29,7 @@ export const useGetMessagesQuery: useQueryFunctionType<
   MessagesResponse
 > = ({ id, mode, excludedFields, params }, options) => {
   const { query } = UseRequestProcessor();
+  const { t } = useTranslation();
 
   const getMessagesFn = async (id?: string, params = {}) => {
     const isPlaygroundPage = useFlowStore.getState().playgroundPage;
@@ -56,7 +58,7 @@ export const useGetMessagesQuery: useQueryFunctionType<
 
   const responseFn = async () => {
     const data = await getMessagesFn(id, params);
-    const columns = extractColumnsFromRows(data.data, mode, excludedFields);
+    const columns = extractColumnsFromRows(data.data, mode, excludedFields, t);
     useMessagesStore.getState().setMessages(data.data);
     return { rows: data, columns };
   };

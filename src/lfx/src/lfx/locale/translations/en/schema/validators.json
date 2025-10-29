@@ -1,0 +1,7 @@
+{
+  "errors": {
+    "invalid_numeric_timestamp": "Invalid numeric timestamp: {timestamp}",
+    "invalid_timestamp_format": "Invalid timestamp format: {timestamp}",
+    "invalid_timestamp_format_expected": "Invalid timestamp format: {timestamp}. Expected format: YYYY-MM-DD HH:MM:SS UTC"
+  }
+}

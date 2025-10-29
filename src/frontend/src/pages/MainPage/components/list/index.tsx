@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import ForwardedIconComponent from "@/components/common/genericIconComponent";
+import ShadTooltip from "@/components/common/shadTooltipComponent";
 import useDragStart from "@/components/core/cardComponent/hooks/use-on-drag-start";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -19,7 +20,11 @@ import useAlertStore from "@/stores/alertStore";
 import type { FlowType } from "@/types/flow";
 import { downloadFlow } from "@/utils/reactflowUtils";
 import { swatchColors } from "@/utils/styleUtils";
-import { cn, getNumberFromString } from "@/utils/utils";
+import {
+  cn,
+  convertUTCToLocalTimezone,
+  getNumberFromString,
+} from "@/utils/utils";
 import useDescriptionModal from "../../hooks/use-description-modal";
 import { useGetTemplateStyle } from "../../utils/get-template-style";
 import { timeElapsed } from "../../utils/time-elapse";
@@ -169,9 +174,14 @@ const ListComponent = ({
                 </span>
               </div>
               <div className="flex min-w-0 flex-shrink text-xs text-muted-foreground">
-                <span className="truncate">
-                  Edited {timeElapsed(flowData.updated_at)} ago
-                </span>
+                <ShadTooltip
+                  content={convertUTCToLocalTimezone(flowData.updated_at)}
+                  side="bottom"
+                >
+                  <span className="truncate">
+                    Edited {timeElapsed(flowData.updated_at)} ago
+                  </span>
+                </ShadTooltip>
               </div>
             </div>
           </div>

@@ -89,6 +89,92 @@ class DataConstructionFeignClient:
         )
         return response.json()
 
+    async def get_datasource_list(self) -> list[dict]:
+        """Get datasource list from feign API.
+
+        Returns:
+            List of datasource dictionaries
+
+        Raises:
+            ValueError: Failed to get datasource list
+        """
+        try:
+            logger.info(f"[DataConstructionClient] Attempting to get datasource list from service: {self.SERVICE_NAME}")
+
+            response = await self.feign_service.get(
+                service_name=self.SERVICE_NAME,
+                path="/feign/client/data-construction/datasource-manage/getDatasourceList",
+            )
+
+            # Parse response data
+            response_data = response.json()
+            logger.debug(f"[DataConstructionClient] Raw response data: {response_data}")
+
+            # Handle R<List<DatasourceManageVO>> response structure
+            if isinstance(response_data, dict):
+                if "data" in response_data:
+                    datasource_list = response_data["data"]
+                    logger.info(f"[DataConstructionClient] Got {len(datasource_list)} datasources from feign API")
+                    return datasource_list if isinstance(datasource_list, list) else []
+                # If no data field, return the whole response if it's a list
+                if isinstance(response_data, list):
+                    logger.info(f"[DataConstructionClient] Got {len(response_data)} datasources from feign API")
+                    return response_data
+                logger.warning(f"[DataConstructionClient] Unexpected response format: {response_data}")
+                return []
+            if isinstance(response_data, list):
+                logger.info(f"[DataConstructionClient] Got {len(response_data)} datasources from feign API")
+                return response_data
+            logger.warning(f"[DataConstructionClient] Unexpected response type: {type(response_data)}")
+            return []
+
+        except ValueError as e:
+            # 特殊处理Nacos服务未找到的情况
+            if "No healthy instances found" in str(e):
+                logger.warning(f"[DataConstructionClient] Service {self.SERVICE_NAME} not found in Nacos. This might be normal if the service is not deployed.")
+                return []
+            error_msg = f"Failed to get datasource list: {e}"
+            logger.exception(f"[DataConstructionClient] {error_msg}")
+            raise ValueError(error_msg) from e
+        except Exception as e:
+            error_msg = f"Failed to get datasource list: {e}"
+            logger.exception(f"[DataConstructionClient] {error_msg}")
+            raise ValueError(error_msg) from e
+
+    async def get_datasource_detail(self, datasource_id: int) -> dict:
+        """Get datasource detail by ID.
+
+        Args:
+            datasource_id: Datasource ID
+
+        Returns:
+            Datasource detail dictionary
+
+        Raises:
+            ValueError: Failed to get datasource detail
+        """
+        try:
+            response = await self.feign_service.get(
+                service_name=self.SERVICE_NAME,
+                path="/feign/client/data-construction/datasource-manage/getDatasourceManageById",
+                params={"id": datasource_id},
+            )
+
+            response_data = response.json()
+
+            # Handle R<DatasourceManageVO> response structure
+            if isinstance(response_data, dict) and "data" in response_data:
+                datasource_detail = response_data["data"]
+                logger.info(f"[DataConstructionClient] Got datasource detail for ID {datasource_id}")
+                return datasource_detail
+            logger.info(f"[DataConstructionClient] Got datasource detail for ID {datasource_id}")
+            return response_data
+
+        except Exception as e:
+            error_msg = f"Failed to get datasource detail {datasource_id}: {e}"
+            logger.exception(f"[DataConstructionClient] {error_msg}")
+            raise ValueError(error_msg) from e
+
 
 # ============= Convenience Functions =============
 

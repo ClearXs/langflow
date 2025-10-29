@@ -228,6 +228,14 @@ class Settings(BaseSettings):
     vertex_builds_storage_enabled: bool = True
     """If set to True, Langflow will keep track of each vertex builds (outputs) in the UI for any flow."""
 
+    # Component Execution Logging
+    component_execution_logging_enabled: bool = True
+    """If set to True, Langflow will record detailed execution logs for all components (ETL, LLM, Agent, etc.).
+    Logs are stored in the transaction table's inputs/outputs JSON fields."""
+    component_execution_logging_exclude: list[str] = []
+    """List of component types to exclude from execution logging.
+    Example: ['PromptComponent', 'TextInput'] to skip logging for these components."""
+
     # Config
     host: str = "localhost"
     """The host on which Langflow will run."""

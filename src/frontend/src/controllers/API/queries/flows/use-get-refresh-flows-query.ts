@@ -1,6 +1,7 @@
 import type { UseQueryOptions } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 import buildQueryStringUrl from "@/controllers/utils/create-query-param-string";
+import i18n from "@/i18n";
 import useAlertStore from "@/stores/alertStore";
 import useFlowsManagerStore from "@/stores/flowsManagerStore";
 import { useTypesStore } from "@/stores/typesStore";
@@ -77,7 +78,7 @@ export const useGetRefreshFlowsQuery: useQueryFunctionType<
     } catch (e) {
       if (e instanceof AxiosError && e.status !== 403) {
         setErrorData({
-          title: "Could not load flows from database",
+          title: i18n.t("constants.error.loadFlowsFromDatabase"),
         });
       }
       throw e;

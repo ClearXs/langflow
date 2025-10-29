@@ -17,6 +17,32 @@
     "display_name": "值反序列化器",
     "info": "消息值的反序列化方式"
   },
+  "auto_offset_reset": {
+    "display_name": "偏移量重置策略",
+    "info": "没有初始偏移量时的处理策略"
+  },
+  "reset_offsets": {
+    "display_name": "重置偏移量",
+    "info": "强制将消费者偏移量重置到主题开头。用于重新读取所有消息。"
+  },
+  "output_format": {
+    "display_name": "输出格式",
+    "info": "消息输出格式：flattened（扁平化）或 raw（保留原始结构）"
+  },
+  "field_extraction_mode": {
+    "display_name": "字段提取模式",
+    "info": "从消息中提取字段的方法"
+  },
+  "message_schema": {
+    "display_name": "消息 Schema",
+    "info": "定义 Kafka 消息的字段结构",
+    "field_name": "字段名",
+    "data_type": "数据类型",
+    "json_path": "JSON路径",
+    "required": "必填",
+    "description": "描述",
+    "auto_detect_schema": "自动检测 Schema"
+  },
   "max_messages": {
     "display_name": "最大消息数",
     "info": "要消费的最大消息数量"
@@ -24,6 +50,26 @@
   "timeout_ms": {
     "display_name": "超时时间（毫秒）",
     "info": "消费者超时时间（毫秒）"
+  },
+  "continuous_poll": {
+    "display_name": "启用实时流式传输",
+    "info": "启用连续实时流式模式进行实时数据处理。启用后，组件将在Kafka主题中的消息到达时持续输出消息。"
+  },
+  "debug_mode": {
+    "display_name": "调试模式",
+    "info": "启用详细日志记录，用于故障排除消息消费问题"
+  },
+  "force_new_group": {
+    "display_name": "强制新消费者组",
+    "info": "为每次执行创建唯一的消费者组ID，避免偏移量冲突"
+  },
+  "stream_timeout_minutes": {
+    "display_name": "流式超时（分钟）",
+    "info": "流式模式的最大持续时间。流式传输在此时间后将自动停止。"
+  },
+  "batch_size": {
+    "display_name": "批次大小",
+    "info": "处理消息后更新状态的消息数量"
   },
   "auto_commit": {
     "display_name": "自动提交",
@@ -44,18 +90,48 @@
   "status": {
     "connecting": "正在连接Kafka...",
     "consuming": "正在消费消息...",
-    "success": "成功消费了 %{messages} 条消息"
+    "streaming": "正在持续流式消费消息...",
+    "streaming_progress": "流式消费中...已处理 %{messages} 条消息",
+    "stopped": "消费者已停止",
+    "stopping": "正在停止消费者...",
+    "success": "成功消费了 %{messages} 条消息",
+    "schema_detected": "检测到 Schema，包含 %{fields} 个字段",
+    "no_schema_detected": "未能从样本中检测到 Schema",
+    "reconnected": "已重新连接（第 %{attempt} 次尝试）",
+    "reconnect_failed": "重新连接失败，已尝试 %{attempts} 次",
+    "testing_connection": "正在测试Kafka连接...",
+    "connection_successful": "连接成功，发现 %{topics} 个主题",
+    "no_messages_found": "已连接但未找到消息。请尝试发送消息或使用'重置偏移量'选项。",
+    "partition_assignment": "已分配到 %{topics} 个主题的 %{partitions} 个分区"
   },
   "errors": {
-    "kafka_not_installed": "未安装kafka-python库",
-    "consume_failed": "消费消息失败：%{error}"
+    "kafka_not_installed": "未安装confluent-kafka库",
+    "consume_failed": "消费消息失败：%{error}",
+    "schema_detection_failed": "Schema 检测失败：%{error}"
+  },
+  "logs": {
+    "schema_mode_no_schema": "Schema 模式已启用但未定义 Schema，使用原始消息"
   },
   "outputs": {
     "data": {
-      "display_name": "数据"
+      "display_name": "数据",
+      "info": "批量消费的消息（非流式模式）"
+    },
+    "stream": {
+      "display_name": "流",
+      "info": "持续的消息流（流式模式）"
+    },
+    "sample_data": {
+      "display_name": "样本数据",
+      "info": "用于字段发现的样本消息（在下游组件中点击'加载可用字段'）"
     },
     "consumer_info": {
-      "display_name": "消费者信息"
+      "display_name": "消费者信息",
+      "info": "消费者配置信息"
+    },
+    "connection_test": {
+      "display_name": "连接测试",
+      "info": "测试Kafka连接并获取诊断信息"
     }
   }
 }

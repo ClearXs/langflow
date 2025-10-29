@@ -1,0 +1,4 @@
+{
+  "error_building_component": "构建组件时出错",
+  "error_building_component_no_result": "构建组件时出错：未找到顶点 {vertex_id} 的结果"
+}

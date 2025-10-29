@@ -171,8 +171,10 @@ class ETLMultiStreamUnionComponent(Component):
                 # 尝试从每个输入流获取上游数据
                 for i in range(1, 6):
                     input_name = f"stream_{i}"
+                    fields = []
+
+                    # Primary strategy: Try to execute upstream node to get actual data
                     try:
-                        # Use get_upstream_data to fetch actual data from upstream node
                         upstream_data = await self.get_upstream_data(
                             input_name=input_name, graph_data=graph_data, sample_size=1, vertex_id=node_id
                         )
@@ -180,25 +182,44 @@ class ETLMultiStreamUnionComponent(Component):
                         if upstream_data:
                             # Extract field names from upstream data
                             fields = self._extract_field_names(upstream_data)
-                            for field in fields:
-                                if field not in field_seen:
-                                    field_seen[field] = []
-                                field_seen[field].append(input_name)
-
-                            logger.debug(f"[MultiStreamUnion] {input_name}: found {len(fields)} fields")
+                            logger.debug(f"[MultiStreamUnion] {input_name}: found {len(fields)} fields from upstream data")
 
                     except ValueError as e:
-                        # Expected error when no upstream node is connected
-                        logger.debug(f"[MultiStreamUnion] {input_name}: {e}")
-                        continue
+                        # Fallback strategy: Extract from upstream node configuration
+                        logger.debug(f"[MultiStreamUnion] {input_name}: upstream execution failed - {e}")
+                        logger.debug(f"[MultiStreamUnion] {input_name}: trying static analysis...")
+
+                        try:
+                            from lfx.components.helpers.field_extraction import find_and_extract_upstream_fields
+
+                            fields = find_and_extract_upstream_fields(
+                                graph_data, node_id, input_name, "MultiStreamUnion"
+                            )
+
+                            if fields:
+                                logger.debug(
+                                    f"[MultiStreamUnion] {input_name}: found {len(fields)} fields from static config"
+                                )
+                            else:
+                                logger.debug(f"[MultiStreamUnion] {input_name}: no fields found in static config")
+
+                        except Exception:  # noqa: BLE001
+                            logger.exception(f"[MultiStreamUnion] {input_name}: static analysis also failed")
+
                     except Exception as e:
                         # Unexpected error - log but continue with other streams
-                        logger.warning(f"[MultiStreamUnion] {input_name}: failed to get upstream data - {e}")
-                        continue
+                        logger.warning(f"[MultiStreamUnion] {input_name}: unexpected error - {e}")
+
+                    # Collect fields found by either strategy
+                    if fields:
+                        for field in fields:
+                            if field not in field_seen:
+                                field_seen[field] = []
+                            field_seen[field].append(input_name)
 
                 if not field_seen:
                     logger.warning("[MultiStreamUnion] No fields found from any upstream node")
-                    self.status = i18n.t("components.operations.multi_stream_union.status.no_fields_found")
+                    self.status = i18n.t("components.operations.multi_stream_union.warnings.field_load_failed")
                     return build_config
 
                 # 构建字段配置列表

@@ -128,6 +128,17 @@ export default function NodeInputField({
     />
   );
 
+  // Check if this is a built-in component's code field
+  // Only show code field for custom components (CustomComponent or custom_components)
+  const isCustomComponent =
+    data?.type === "CustomComponent" || data?.type === "custom_components";
+  const isCodeField = name === "code" && type === "code";
+
+  // Don't render code field for built-in components to improve performance
+  if (!isCustomComponent && isCodeField) {
+    return !showNode ? displayHandle ? Handle : <></> : null;
+  }
+
   return !showNode ? (
     displayHandle ? (
       Handle

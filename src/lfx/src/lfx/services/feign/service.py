@@ -60,6 +60,22 @@ class FeignService(Service):
         instance = instances[self._instance_counters[service_name] % len(instances)]
         self._instance_counters[service_name] += 1
 
+        # Convert Instance object to dict if needed (Nacos v2 SDK returns Instance objects)
+        if hasattr(instance, "ip") and hasattr(instance, "port"):
+            # It's an Instance object, access attributes
+            instance_dict = {
+                "ip": instance.ip,
+                "port": instance.port,
+                "weight": getattr(instance, "weight", 1.0),
+                "healthy": getattr(instance, "healthy", True),
+                "enabled": getattr(instance, "enabled", True),
+                "metadata": getattr(instance, "metadata", {}),
+            }
+            logger.debug(
+                f"[FeignService] Selected instance for {service_name}: {instance_dict['ip']}:{instance_dict['port']}"
+            )
+            return instance_dict
+        # It's already a dict
         logger.debug(f"[FeignService] Selected instance for {service_name}: {instance['ip']}:{instance['port']}")
         return instance
 

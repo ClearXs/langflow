@@ -1,80 +1,83 @@
 {
-    "display_name": "Dual Stream Join",
-    "description": "Join two data streams using inner/left/right/outer join with multiple conditions and operators",
-    "left_stream": {
-        "display_name": "Left Stream",
-        "info": "First table input component data stream"
-    },
-    "right_stream": {
-        "display_name": "Right Stream",
-        "info": "Second table input component data stream"
-    },
-    "join_type": {
-        "display_name": "Join Type",
-        "info": "Select join type: inner, left, right, or outer join"
-    },
-    "join_conditions": {
-        "display_name": "Join Conditions",
-        "info": "Configure join conditions for two data streams (supports multiple conditions)",
-        "left_key": "Left Field",
-        "operator": "Operator",
-        "right_key": "Right Field",
-        "load_fields_button": "Load Field List"
-    },
-    "output_fields": {
-        "display_name": "Output Fields",
-        "info": "View output field list after join",
-        "field_name": "Field Name",
-        "source": "Source",
-        "data_type": "Data Type",
-        "left_table": "Left Table",
-        "right_table": "Right Table",
-        "preview_button": "Preview Output Fields"
-    },
-    "left_prefix": {
-        "display_name": "Left Prefix",
-        "info": "Prefix for left table field conflicts"
-    },
-    "right_prefix": {
-        "display_name": "Right Prefix",
-        "info": "Prefix for right table field conflicts"
-    },
-    "drop_duplicates": {
-        "display_name": "Drop Duplicates",
-        "info": "Remove duplicate rows after join"
-    },
-    "status": {
-        "joining": "Joining streams...",
-        "success": "Successfully joined %{records} records",
-        "fields_loaded": "Fields loaded: %{left_count} from left table, %{right_count} from right table",
-        "fields_loaded_fallback": "Fields loaded from config: %{left_count} from left table, %{right_count} from right table",
-        "preview_success": "Generated %{count} output field previews",
-        "no_fields_found": "No fields found"
-    },
-    "errors": {
-        "missing_streams": "Both data streams are required",
-        "missing_conditions": "Join conditions are required",
-        "join_failed": "Join operation failed: %{error}",
-        "field_not_found": "Field %{field} not found",
-        "left_field_not_found": "Left table field '%{field}' not found",
-        "right_field_not_found": "Right table field '%{field}' not found",
-        "merge_failed": "Data merge failed: %{error}",
-        "load_fields_failed": "Failed to load field list: %{error}",
-        "no_fields_in_config": "No fields found in upstream node configuration",
-        "no_streams_for_preview": "Please connect left and right data streams first",
-        "no_graph_data": "Cannot get graph data, ensure component is properly connected",
-        "preview_failed": "Failed to preview fields: %{error}"
-    },
-    "field_preview": {
-        "common_field": "Common field (exists in both tables)",
-        "left_table": "Left table",
-        "right_table": "Right table",
-        "no_conflict": "No conflict",
-        "use_prefix": "Using prefixes: %{left_prefix}%{field}, %{right_prefix}%{field}"
-    },
-    "outputs": {
-        "data": "Joined Data",
-        "join_stats": "Join Statistics",
-        "field_preview": "Field Preview"
-    }
+  "display_name": "Dual Stream Join",
+  "description": "Join two data streams using inner/left/right/outer join with multiple conditions and operators",
+  "left_stream": {
+    "display_name": "Left Stream",
+    "info": "First table input component data stream"
+  },
+  "right_stream": {
+    "display_name": "Right Stream",
+    "info": "Second table input component data stream"
+  },
+  "join_type": {
+    "display_name": "Join Type",
+    "info": "Select join type: inner, left, right, or outer join"
+  },
+  "join_conditions": {
+    "display_name": "Join Conditions",
+    "info": "Configure join conditions for two data streams (supports multiple conditions)",
+    "left_key": "Left Field",
+    "operator": "Operator",
+    "right_key": "Right Field",
+    "load_fields_button": "Load Field List"
+  },
+  "output_fields": {
+    "display_name": "Output Fields",
+    "info": "View output field list after join",
+    "field_name": "Field Name",
+    "source": "Source",
+    "data_type": "Data Type",
+    "left_table": "Left Table",
+    "right_table": "Right Table",
+    "preview_button": "Preview Output Fields"
+  },
+  "left_prefix": {
+    "display_name": "Left Prefix",
+    "info": "Prefix for left table field conflicts"
+  },
+  "right_prefix": {
+    "display_name": "Right Prefix",
+    "info": "Prefix for right table field conflicts"
+  },
+  "drop_duplicates": {
+    "display_name": "Drop Duplicates",
+    "info": "Remove duplicate rows after join"
+  },
+  "status": {
+    "joining": "Joining streams...",
+    "success": "Successfully joined %{records} records",
+    "fields_loaded": "Fields loaded: %{left_count} from left table, %{right_count} from right table",
+    "fields_loaded_fallback": "Fields loaded from config: %{left_count} from left table, %{right_count} from right table",
+    "preview_success": "Generated %{count} output field previews",
+    "no_fields_found": "No fields found"
+  },
+  "errors": {
+    "missing_streams": "Both data streams are required",
+    "missing_conditions": "Join conditions are required",
+    "join_failed": "Join operation failed: %{error}",
+    "field_not_found": "Field %{field} not found",
+    "left_field_not_found": "Left table field '%{field}' not found",
+    "right_field_not_found": "Right table field '%{field}' not found",
+    "merge_failed": "Data merge failed: %{error}",
+    "load_fields_failed": "Failed to load field list: %{error}",
+    "no_fields_in_config": "No fields found in upstream node configuration",
+    "no_streams_for_preview": "Please connect left and right data streams first",
+    "no_graph_data": "Cannot get graph data, ensure component is properly connected",
+    "preview_failed": "Failed to preview fields: %{error}"
+  },
+  "field_preview": {
+    "common_field": "Common field (exists in both tables)",
+    "left_table": "Left table",
+    "right_table": "Right table",
+    "no_conflict": "No conflict",
+    "use_prefix": "Using prefixes: %{left_prefix}%{field}, %{right_prefix}%{field}"
+  },
+  "outputs": {
+    "data": "Joined Data",
+    "join_stats": "Join Statistics",
+    "field_preview": "Field Preview"
+  },
+  "warnings": {
+    "field_load_failed": "Unable to automatically load fields, please configure manually"
+  }
 }

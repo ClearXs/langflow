@@ -1,49 +1,36 @@
 {
   "display_name": "Data Encryption",
-  "description": "Encrypt or decrypt field data",
+  "description": "Encrypt field data using external rules",
   "data_input": {
     "display_name": "Data Input",
     "info": "Input data to process"
   },
-  "operation": {
-    "display_name": "Operation",
-    "info": "Encrypt or decrypt",
-    "types": {
-      "encrypt": "Encrypt",
-      "decrypt": "Decrypt"
-    }
-  },
-  "encryption_key": {
-    "display_name": "Encryption Key",
-    "info": "Encryption/decryption key"
-  },
   "field_configs": {
-    "display_name": "Fields to Process",
-    "info": "Fields to encrypt/decrypt (each row represents a field to process)",
+    "display_name": "Field Encryption Configuration",
+    "info": "Configure fields and encryption rules (each row represents a field configuration)",
     "field": "Field Name",
-    "field_desc": "Field to encrypt/decrypt",
-    "load_fields_button": "Load Fields List"
-  },
-  "use_base64": {
-    "display_name": "Use Base64",
-    "info": "Encode result with Base64"
+    "field_desc": "Field to encrypt",
+    "rule_id": "Encryption Rule",
+    "rule_id_desc": "Select encryption rule from data security service",
+    "load_fields_button": "Load Fields & Rules"
   },
   "outputs": {
     "data": {
-      "display_name": "Processed Data"
+      "display_name": "Encrypted Data"
     },
     "encryption_stats": {
       "display_name": "Encryption Statistics"
     }
   },
   "status": {
-    "success": "Successfully %{operation}ed %{count} records (%{fields} fields processed)",
-    "load_success": "Loaded %{count} fields from upstream data",
-    "no_fields_found": "No fields found in upstream data"
+    "success": "Successfully encrypted %{count} records (%{fields} fields processed)",
+    "load_success": "Loaded %{fields_count} fields and %{rules_count} encryption rules",
+    "load_fields_success": "Loaded %{count} fields from upstream configuration"
   },
   "errors": {
-    "missing_config": "Encryption configuration is required",
-    "process_failed": "Encryption/decryption failed: %{error}",
+    "missing_config": "Field encryption configuration is required",
+    "process_failed": "Encryption failed: %{error}",
+    "service_unavailable": "Data security service is not available",
     "no_graph_data": "No graph data available for field analysis",
     "load_failed": "Field loading failed: %{error}",
     "graph_not_available": "Cannot analyze fields - graph context not available"

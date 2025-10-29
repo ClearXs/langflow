@@ -139,3 +139,17 @@ def get_feign_service():
     from lfx.services.schema import ServiceType
 
     return get_service(ServiceType.FEIGN_SERVICE, FeignServiceFactory())
+
+
+def get_data_security_client():
+    """Get data security Feign client.
+
+    Returns:
+        DataSecurityFeignClient instance
+    """
+    from lfx.services.feign.clients.data_security import DataSecurityFeignClient
+
+    feign_service = get_feign_service()
+    if feign_service is None:
+        return None
+    return DataSecurityFeignClient(feign_service)

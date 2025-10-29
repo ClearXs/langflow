@@ -58,5 +58,8 @@
     "load_failed": "Failed to load fields: %{error}",
     "dedup_failed": "Deduplication failed: %{error}",
     "preview_failed": "Preview generation failed: %{error}"
+  },
+  "warnings": {
+    "field_load_failed": "Unable to automatically load fields, please configure manually"
   }
 }

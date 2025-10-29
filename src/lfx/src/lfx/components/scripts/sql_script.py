@@ -292,7 +292,7 @@ class ETLSQLScriptComponent(Component):
                 connection_string = connection_data.get("connection_string")
 
                 if not connection_string:
-                    raise ValueError("Connection string is empty")
+                    raise ValueError(i18n.t("components.scripts.sql_script.errors.connection_string_empty"))
 
                 return connection_string
         except Exception as e:
@@ -485,7 +485,7 @@ class ETLSQLScriptComponent(Component):
     def _get_datasource_id(self) -> str:
         """Get datasource ID from selected display name."""
         if not self.datasource_selector:
-            raise ValueError("No datasource selected")
+            raise ValueError(i18n.t("components.scripts.sql_script.errors.no_datasource_selected"))
 
         import os
 

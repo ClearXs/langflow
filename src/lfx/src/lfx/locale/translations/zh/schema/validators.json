@@ -1,0 +1,7 @@
+{
+  "errors": {
+    "invalid_numeric_timestamp": "无效的数字时间戳：{timestamp}",
+    "invalid_timestamp_format": "无效的时间戳格式：{timestamp}",
+    "invalid_timestamp_format_expected": "无效的时间戳格式：{timestamp}。期望格式：YYYY-MM-DD HH:MM:SS UTC"
+  }
+}

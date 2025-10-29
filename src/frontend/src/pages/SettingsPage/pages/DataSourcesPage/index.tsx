@@ -49,6 +49,7 @@ import {
 } from "@/controllers/API/datasources";
 import DeleteConfirmationModal from "@/modals/deleteConfirmationModal";
 import useAlertStore from "@/stores/alertStore";
+import { convertUTCToLocalTimezone } from "@/utils/utils";
 
 interface DataSource {
   id: string;
@@ -440,7 +441,7 @@ export default function DataSourcesPage() {
                   </TableCell>
                   <TableCell>
                     {dataSource.lastTested
-                      ? new Date(dataSource.lastTested).toLocaleString()
+                      ? convertUTCToLocalTimezone(dataSource.lastTested)
                       : "-"}
                   </TableCell>
                   <TableCell className="text-right">

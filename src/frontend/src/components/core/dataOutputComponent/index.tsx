@@ -33,7 +33,12 @@ function DataOutputComponent({
     }
   }, [rows]);
 
-  const columns = extractColumnsFromRows(rowsInternal, columnMode);
+  const columns = extractColumnsFromRows(
+    rowsInternal,
+    columnMode,
+    undefined,
+    t,
+  );
 
   const columnDefs = columns.map((col, idx) => ({
     ...col,

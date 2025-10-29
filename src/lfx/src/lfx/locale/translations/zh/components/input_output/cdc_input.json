@@ -1,34 +1,24 @@
 {
   "display_name": "CDC流输入",
   "description": "实时捕获数据库变更",
-  "connection_string": {
-    "display_name": "连接字符串",
-    "info": "数据库连接字符串"
+  "datasource_selector": {
+    "display_name": "数据源",
+    "info": "选择要监控变更的数据源"
   },
-  "status": {
-    "capturing": "正在捕获变更...",
-    "success": "捕获 %{changes} 条变更"
-  },
-  "errors": {
-    "capture_failed": "捕获变更失败: %{error}",
-    "audit_table_missing": "审计表未找到",
-    "invalid_mode": "无效的CDC模式"
-  },
-  "batch_size": {
-    "display_name": "批次大小",
-    "info": "每批变更数"
-  },
-  "capture_deletes": {
-    "display_name": "捕获删除",
-    "info": "包含已删除记录"
+  "table_selector": {
+    "display_name": "表名",
+    "info": "选择要捕获变更的表"
   },
   "cdc_mode": {
     "display_name": "CDC模式",
-    "info": "变更捕获模式"
+    "info": "变更捕获模式",
+    "timestamp": "时间戳模式",
+    "log_based": "日志模式",
+    "trigger_based": "触发器模式"
   },
-  "include_change_type": {
-    "display_name": "包含变更类型",
-    "info": "添加变更类型元数据"
+  "timestamp_column": {
+    "display_name": "时间戳列",
+    "info": "跟踪变更的列"
   },
   "last_sync_time": {
     "display_name": "最后同步时间",
@@ -38,17 +28,49 @@
     "display_name": "轮询间隔(秒)",
     "info": "轮询间隔(秒)"
   },
+  "batch_size": {
+    "display_name": "批次大小",
+    "info": "每批变更数"
+  },
+  "capture_deletes": {
+    "display_name": "捕获删除",
+    "info": "包含已删除记录"
+  },
+  "include_change_type": {
+    "display_name": "包含变更类型",
+    "info": "添加变更类型元数据"
+  },
   "primary_keys": {
     "display_name": "主键",
     "info": "主键列(逗号分隔)"
   },
-  "table_name": {
-    "display_name": "表名",
-    "info": "监控变更的表"
+  "status": {
+    "capturing": "正在捕获变更...",
+    "success": "捕获 {changes} 条变更",
+    "loading_datasources": "正在加载数据源...",
+    "loading_tables": "正在加载表列表...",
+    "tables_loaded": "已加载 {count} 个表",
+    "no_datasource": "请先选择数据源",
+    "no_tables_found": "该数据源中未找到表",
+    "table_selected": "已选择表: {table}",
+    "log_based_placeholder": "日志模式需要外部工具集成"
   },
-  "timestamp_column": {
-    "display_name": "时间戳列",
-    "info": "跟踪变更的列"
+  "errors": {
+    "invalid_mode": "无效的CDC模式",
+    "capture_failed": "捕获变更失败: {error}",
+    "audit_table_missing": "未找到审计表 '{table}'",
+    "no_datasource": "未选择数据源",
+    "no_table": "未选择表",
+    "invalid_datasource": "无效的数据源配置",
+    "loading_tables_failed": "加载表失败: {error}",
+    "api_failed": "从API加载数据源失败 (状态码: {status})",
+    "api_error": "获取数据源时HTTP错误: {error}",
+    "unexpected": "意外错误: {error}",
+    "connection_failed": "获取连接字符串失败 (状态码: {status})",
+    "empty_connection": "连接字符串为空"
+  },
+  "info": {
+    "log_based_requirement": "日志模式需要Debezium或类似工具集成"
   },
   "outputs": {
     "data": {
@@ -56,6 +78,11 @@
     },
     "change_summary": {
       "display_name": "变更汇总"
+    }
+  },
+  "base": {
+    "dataSource": {
+      "addDataSource": "Adddatasource"
     }
   }
 }

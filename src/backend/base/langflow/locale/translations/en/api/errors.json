@@ -1,0 +1,7 @@
+{
+  "error_building_component": "Error building Component",
+  "no_event_task_found": "No event task found for job",
+  "event_polling_cancelled": "Event polling was cancelled",
+  "job_not_found": "Job not found: %{error}",
+  "unexpected_error": "Unexpected error: %{error}"
+}

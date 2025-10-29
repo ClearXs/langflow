@@ -62,5 +62,8 @@
     "data": "合并后数据",
     "union_stats": "合并统计",
     "field_preview": "字段预览"
+  },
+  "warnings": {
+    "field_load_failed": "无法自动加载字段，请手动配置"
   }
 }

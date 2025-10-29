@@ -1,28 +1,18 @@
 {
   "display_name": "Data Masking",
-  "description": "Mask sensitive data (phone/email/ID/credit card)",
+  "description": "Mask sensitive data using external rules",
   "data_input": {
     "display_name": "Data Input",
     "info": "Input data to mask"
   },
   "masking_rules": {
-    "display_name": "Masking Rules",
-    "info": "Configure masking rules for each field (each row represents a field to mask)",
+    "display_name": "Field Masking Configuration",
+    "info": "Configure fields and masking rules (each row represents a field configuration)",
     "field": "Field Name",
     "field_desc": "Field to apply masking",
-    "masking_type": "Masking Type",
-    "masking_type_desc": "Type of masking to apply",
-    "mask_char": "Mask Character",
-    "mask_char_desc": "Character used for masking (default: *)",
-    "load_fields_button": "Load Fields List",
-    "masking_types": {
-      "phone": "Phone Number",
-      "email": "Email Address",
-      "id": "ID Number",
-      "credit_card": "Credit Card",
-      "full": "Full Masking",
-      "hash": "Hash"
-    }
+    "rule_id": "Masking Rule",
+    "rule_id_desc": "Select masking rule from data security service",
+    "load_fields_button": "Load Fields & Rules"
   },
   "outputs": {
     "data": {
@@ -34,12 +24,13 @@
   },
   "status": {
     "success": "Masked %{count} records (%{fields} fields processed)",
-    "load_success": "Loaded %{count} fields from upstream data",
-    "no_fields_found": "No fields found in upstream data"
+    "load_success": "Loaded %{fields_count} fields and %{rules_count} masking rules",
+    "load_fields_success": "Loaded %{count} fields from upstream configuration"
   },
   "errors": {
-    "missing_config": "Masking rules are required",
+    "missing_config": "Field masking configuration is required",
     "masking_failed": "Data masking failed: %{error}",
+    "service_unavailable": "Data security service is not available",
     "no_graph_data": "No graph data available for field analysis",
     "load_failed": "Field loading failed: %{error}",
     "graph_not_available": "Cannot analyze fields - graph context not available"

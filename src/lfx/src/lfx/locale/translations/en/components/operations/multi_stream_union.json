@@ -62,5 +62,8 @@
     "data": "Merged Data",
     "union_stats": "Union Statistics",
     "field_preview": "Field Preview"
+  },
+  "warnings": {
+    "field_load_failed": "Unable to automatically load fields, please configure manually"
   }
 }

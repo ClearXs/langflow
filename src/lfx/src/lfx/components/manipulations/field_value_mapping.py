@@ -1,7 +1,7 @@
+import re
 from typing import Any
 
 import i18n
-import re
 
 from lfx.base.transformation.script import ScriptTransformation
 from lfx.custom.custom_component.component import Component
@@ -199,7 +199,7 @@ class ETLFieldValueMappingComponent(Component):
     async def update_build_config(
         self,
         build_config: dict,
-        field_value: Any,  # noqa: ARG002
+        field_value: Any,
         field_name: str | None = None,
         action: str | None = None,
     ):
@@ -235,38 +235,62 @@ class ETLFieldValueMappingComponent(Component):
                     self.status = i18n.t("components.manipulations.field_value_mapping.errors.no_graph_data")
                     return build_config
 
-                # Use the generic get_upstream_data method to fetch actual data
-                # This is the key improvement: fetching actual runtime data from upstream nodes
-                upstream_data = await self.get_upstream_data(
-                    input_name="data_input", graph_data=graph_data, sample_size=10, vertex_id=node_id
-                )
+                mapping_rules = []
 
-                if not upstream_data:
-                    logger.warning("[FieldValueMapping] No data returned from upstream node")
-                    self.status = i18n.t("components.manipulations.field_value_mapping.status.no_fields_found")
-                    return build_config
+                # Primary strategy: Try to execute upstream node to get actual data
+                try:
+                    upstream_data = await self.get_upstream_data(
+                        input_name="data_input", graph_data=graph_data, sample_size=10, vertex_id=node_id
+                    )
 
-                # Extract field names and sample values from upstream data
-                mapping_rules = self._extract_mapping_rules_with_samples(upstream_data)
+                    if upstream_data:
+                        # Extract field names and sample values from upstream data
+                        mapping_rules = self._extract_mapping_rules_with_samples(upstream_data)
+                        logger.info(f"[FieldValueMapping] Extracted {len(mapping_rules)} mapping rules from upstream data")
+                    else:
+                        logger.warning("[FieldValueMapping] No data returned from upstream node")
 
+                except ValueError as e:
+                    # Fallback strategy: Extract from upstream node configuration
+                    logger.warning(f"[FieldValueMapping] Upstream execution failed: {e}. Trying static analysis...")
+
+                    try:
+                        from lfx.components.helpers.field_extraction import find_and_extract_upstream_fields
+
+                        field_names = find_and_extract_upstream_fields(
+                            graph_data, node_id, "data_input", "FieldValueMapping"
+                        )
+
+                        if field_names:
+                            # Generate mapping rules from field names (without sample values)
+                            mapping_rules = [
+                                {
+                                    "field_name": field_name,
+                                    "operator": "equals",  # Default operator
+                                    "original_value": "",
+                                    "new_value": "",
+                                }
+                                for field_name in field_names
+                            ]
+                            logger.info(
+                                f"[FieldValueMapping] Extracted {len(mapping_rules)} mapping rules from static config"
+                            )
+                        else:
+                            logger.warning("[FieldValueMapping] Static analysis returned no fields")
+
+                    except Exception:  # noqa: BLE001
+                        logger.exception("[FieldValueMapping] Static analysis also failed")
+
+                # Update build_config with results
                 if mapping_rules:
-                    # Update build_config with mapping rules
                     build_config["mapping_rules"]["value"] = mapping_rules
-                    logger.info(f"[FieldValueMapping] Generated {len(mapping_rules)} mapping rules")
                     self.status = i18n.t(
                         "components.manipulations.field_value_mapping.status.analysis_success", count=len(mapping_rules)
                     )
                 else:
+                    self.status = i18n.t("components.manipulations.field_value_mapping.warnings.field_load_failed")
                     logger.warning("[FieldValueMapping] No fields extracted from upstream data")
-                    self.status = i18n.t("components.manipulations.field_value_mapping.status.no_fields_found")
 
-            except ValueError as e:
-                # Handle expected errors (no upstream node, etc.)
-                error_msg = str(e)
-                logger.warning(f"[FieldValueMapping] Field analysis warning: {error_msg}")
-                self.status = i18n.t(
-                    "components.manipulations.field_value_mapping.errors.analysis_failed", error=error_msg
-                )
             except Exception:  # noqa: BLE001
                 # Handle unexpected errors - broad exception needed for production stability
                 logger.exception("[FieldValueMapping] Field analysis failed with unexpected error")
@@ -470,9 +494,7 @@ class ETLFieldValueMappingComponent(Component):
                 # if (row.gender == '1') row.gender_text = 'Male';
                 # if (row.age > 65) row.category = 'Senior';
                 script_result = self.script_engine.execute_javascript(
-                    value=result_dict,
-                    script=self.script_content,
-                    row_data=result_dict
+                    value=result_dict, script=self.script_content, row_data=result_dict
                 )
                 if isinstance(script_result, dict):
                     result_dict = script_result
@@ -486,9 +508,7 @@ class ETLFieldValueMappingComponent(Component):
                 # if row.get('age', 0) > 65:
                 #     result['category'] = 'Senior'
                 script_result = self.script_engine.execute_python(
-                    value=result_dict,
-                    script=self.script_content,
-                    row_data=result_dict
+                    value=result_dict, script=self.script_content, row_data=result_dict
                 )
                 if isinstance(script_result, dict):
                     result_dict = script_result

@@ -80,6 +80,11 @@
     "javascript": "JavaScript",
     "python": "Python"
   },
+  "outputs": {
+    "data": {
+      "display_name": "Cleaned Data"
+    }
+  },
   "status": {
     "processing": "Processing data cleaning...",
     "analyzing": "Analyzing upstream fields...",
@@ -95,5 +100,8 @@
     "no_graph_data": "No graph data available",
     "graph_not_available": "Cannot access graph data",
     "analysis_failed": "Field analysis failed: %{error}"
+  },
+  "warnings": {
+    "field_load_failed": "Unable to automatically load fields, please configure manually"
   }
 }

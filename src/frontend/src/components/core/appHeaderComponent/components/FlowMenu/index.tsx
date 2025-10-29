@@ -23,7 +23,11 @@ import useFlowStore from "@/stores/flowStore";
 import useFlowsManagerStore from "@/stores/flowsManagerStore";
 import { useShortcutsStore } from "@/stores/shortcuts";
 import { swatchColors } from "@/utils/styleUtils";
-import { cn, getNumberFromString } from "@/utils/utils";
+import {
+  cn,
+  convertUTCToLocalTimezone,
+  getNumberFromString,
+} from "@/utils/utils";
 
 export const MenuBar = memo((): JSX.Element => {
   const { t } = useTranslation();
@@ -100,10 +104,7 @@ export const MenuBar = memo((): JSX.Element => {
 
     const lastSavedText = t("constants.timestamp.savedHover");
     const timeText = updatedAt
-      ? new Date(updatedAt).toLocaleString("en-US", {
-          hour: "numeric",
-          minute: "numeric",
-        })
+      ? convertUTCToLocalTimezone(updatedAt)
       : t("flowMenu.never");
 
     return lastSavedText + timeText;

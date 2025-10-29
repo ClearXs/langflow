@@ -1,0 +1,7 @@
+{
+  "error_building_component": "构建组件时出错",
+  "no_event_task_found": "未找到作业的事件任务",
+  "event_polling_cancelled": "事件轮询已取消",
+  "job_not_found": "未找到作业：%{error}",
+  "unexpected_error": "意外错误：%{error}"
+}

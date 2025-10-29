@@ -11,9 +11,7 @@ class TestShellScriptComponent:
 
     def test_basic_execution(self):
         """测试基本Shell命令执行和日志格式"""
-        component = ETLShellScriptComponent(
-            script="echo 'test'", data_input=[], capture_output=True
-        )
+        component = ETLShellScriptComponent(script="echo 'test'", data_input=[], capture_output=True)
         output = component.execute_shell()
 
         # 验证数据输出
@@ -24,9 +22,7 @@ class TestShellScriptComponent:
 
         # 验证日志格式（纯文本，无emoji）
         assert component.status is not None
-        assert (
-            "开始时间:" in component.status or "Start Time:" in component.status
-        )
+        assert "开始时间:" in component.status or "Start Time:" in component.status
         assert "执行耗时:" in component.status or "Duration:" in component.status
         assert "退出码:" in component.status or "Exit Code:" in component.status
         assert "状态:" in component.status or "Status:" in component.status
@@ -62,23 +58,16 @@ class TestShellScriptComponent:
 
     def test_exit_code_success(self):
         """测试成功的退出码"""
-        component = ETLShellScriptComponent(
-            script="exit 0", data_input=[], capture_output=True
-        )
+        component = ETLShellScriptComponent(script="exit 0", data_input=[], capture_output=True)
         output = component.execute_shell()
 
         assert output.data["exit_code"] == 0
         assert output.data["success"] is True
-        assert (
-            "状态: 执行成功" in component.status
-            or "Status: Execution Successful" in component.status
-        )
+        assert "状态: 执行成功" in component.status or "Status: Execution Successful" in component.status
 
     def test_exit_code_failure(self):
         """测试失败的退出码"""
-        component = ETLShellScriptComponent(
-            script="exit 1", data_input=[], capture_output=True
-        )
+        component = ETLShellScriptComponent(script="exit 1", data_input=[], capture_output=True)
         output = component.execute_shell()
 
         assert output.data["exit_code"] == 1
@@ -88,19 +77,13 @@ class TestShellScriptComponent:
 
     def test_empty_script(self):
         """测试空脚本"""
-        component = ETLShellScriptComponent(
-            script="", data_input=[], capture_output=True
-        )
+        component = ETLShellScriptComponent(script="", data_input=[], capture_output=True)
 
         with pytest.raises(ValueError) as exc_info:
             component.execute_shell()
 
         error_msg = str(exc_info.value).lower()
-        assert (
-            "required" in error_msg
-            or "empty" in error_msg
-            or "不能为空" in str(exc_info.value)
-        )
+        assert "required" in error_msg or "empty" in error_msg or "不能为空" in str(exc_info.value)
 
     def test_multiline_commands(self):
         """测试多行命令"""
@@ -109,9 +92,7 @@ echo 'Line 1'
 echo 'Line 2'
 echo 'Line 3'
 """
-        component = ETLShellScriptComponent(
-            script=script, data_input=[], capture_output=True
-        )
+        component = ETLShellScriptComponent(script=script, data_input=[], capture_output=True)
         output = component.execute_shell()
 
         assert output.data["exit_code"] == 0
@@ -150,10 +131,7 @@ echo 'Line 3'
         # 验证超时日志
         assert component.status is not None
         assert "错误:" in component.status or "Error:" in component.status
-        assert (
-            "状态: 执行失败" in component.status
-            or "Status: Execution Failed" in component.status
-        )
+        assert "状态: 执行失败" in component.status or "Status: Execution Failed" in component.status
 
     def test_output_without_capture(self):
         """测试不捕获输出的情况"""
@@ -197,9 +175,7 @@ echo 'Line 3'
     def test_data_input_passthrough(self):
         """测试数据输入透传（Shell脚本不直接使用data_input，但应该接受）"""
         data = [Data(data={"id": 1}), Data(data={"id": 2})]
-        component = ETLShellScriptComponent(
-            script="echo 'test'", data_input=data, capture_output=True
-        )
+        component = ETLShellScriptComponent(script="echo 'test'", data_input=data, capture_output=True)
         output = component.execute_shell()
 
         # 应该正常执行，data_input被接受但不影响脚本执行
