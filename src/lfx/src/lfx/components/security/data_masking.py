@@ -32,7 +32,7 @@ class ETLDataMaskingComponent(Component):
                     "name": "field",
                     "display_name": i18n.t("components.security.data_masking.masking_rules.field"),
                     "type": "str",
-                    "formatter": "dropdown",
+                    "formatter": "text",
                     "options": [],  # 动态填充
                     "required": True,
                     "description": i18n.t("components.security.data_masking.masking_rules.field_desc"),
@@ -41,7 +41,7 @@ class ETLDataMaskingComponent(Component):
                     "name": "rule_id",
                     "display_name": i18n.t("components.security.data_masking.masking_rules.rule_id"),
                     "type": "int",
-                    "formatter": "dropdown",
+                    "formatter": "text",
                     "options": [],  # 动态填充
                     "options_metadata": [],  # 动态填充
                     "required": True,
@@ -105,9 +105,11 @@ class ETLDataMaskingComponent(Component):
                 # 2. Load masking rules from data security service
                 masking_rules = await self._load_masking_rules()
                 if masking_rules:
-                    build_config["masking_rules"]["table_schema"][1]["options"] = [rule["id"] for rule in masking_rules]
+                    build_config["masking_rules"]["table_schema"][1]["options"] = [
+                        int(rule["id"]) for rule in masking_rules
+                    ]
                     build_config["masking_rules"]["table_schema"][1]["options_metadata"] = [
-                        {"value": rule["id"], "label": rule["ruleName"]} for rule in masking_rules
+                        {"value": int(rule["id"]), "label": rule["ruleName"]} for rule in masking_rules
                     ]
                 else:
                     build_config["masking_rules"]["table_schema"][1]["options"] = []
@@ -116,7 +118,7 @@ class ETLDataMaskingComponent(Component):
                 # Auto-fill table with default masking configs if empty
                 if not build_config["masking_rules"].get("value") and field_names and masking_rules:
                     # Use first available masking rule for all fields
-                    default_rule_id = masking_rules[0]["id"]
+                    default_rule_id = int(masking_rules[0]["id"])
                     build_config["masking_rules"]["value"] = [
                         {"field": name, "rule_id": default_rule_id} for name in field_names
                     ]
@@ -151,6 +153,25 @@ class ETLDataMaskingComponent(Component):
                         # Update dropdown options for field column
                         build_config["masking_rules"]["table_schema"][0]["options"] = field_names
 
+                        # Still try to load masking rules even in fallback mode
+                        try:
+                            masking_rules = await self._load_masking_rules()
+                            if masking_rules:
+                                build_config["masking_rules"]["table_schema"][1]["options"] = [
+                                    int(rule["id"]) for rule in masking_rules
+                                ]
+                                build_config["masking_rules"]["table_schema"][1]["options_metadata"] = [
+                                    {"value": int(rule["id"]), "label": rule["ruleName"]} for rule in masking_rules
+                                ]
+                                logger.info(f"[DataMasking] Loaded {len(masking_rules)} masking rules in fallback mode")
+                            else:
+                                build_config["masking_rules"]["table_schema"][1]["options"] = []
+                                build_config["masking_rules"]["table_schema"][1]["options_metadata"] = []
+                        except Exception:  # noqa: BLE001
+                            logger.exception("[DataMasking] Failed to load masking rules in fallback mode")
+                            build_config["masking_rules"]["table_schema"][1]["options"] = []
+                            build_config["masking_rules"]["table_schema"][1]["options_metadata"] = []
+
                         # Auto-fill table with default masking configs if empty
                         if not build_config["masking_rules"].get("value"):
                             build_config["masking_rules"]["value"] = [{"field": name} for name in field_names]
@@ -162,8 +183,11 @@ class ETLDataMaskingComponent(Component):
                                 f"[DataMasking] Updated field options with {len(field_names)} fields (from config)"
                             )
 
+                        masking_rules_count = len(build_config["masking_rules"]["table_schema"][1].get("options", []))
                         self.status = i18n.t(
-                            "components.security.data_masking.status.load_fields_success", count=len(field_names)
+                            "components.security.data_masking.status.load_success",
+                            fields_count=len(field_names),
+                            rules_count=masking_rules_count,
                         )
                     else:
                         self.status = i18n.t("components.security.data_masking.errors.load_failed", error=error_msg)
@@ -429,8 +453,11 @@ class ETLDataMaskingComponent(Component):
             if client is None:
                 raise ValueError(i18n.t("components.security.data_masking.errors.service_unavailable"))
 
-            # Apply masking rules
-            for rule in self.masking_rules:
+            # Collect all masking rules for batch processing
+            batch_requests = []
+            field_mapping = []  # To map requests back to DataFrame positions
+
+            for rule_idx, rule in enumerate(self.masking_rules):
                 field = rule.get("field", "").strip()
                 rule_id = rule.get("rule_id")
 
@@ -442,8 +469,6 @@ class ETLDataMaskingComponent(Component):
                     logger.warning(f"[DataMasking] Field '{field}' not found in data, skipping")
                     continue
 
-                logger.info(f"[DataMasking] Processing field '{field}' with rule {rule_id}")
-
                 # Extract non-null values for batch processing
                 mask = df[field].notnull()
                 values_to_mask = df.loc[mask, field].astype(str).tolist()
@@ -452,24 +477,68 @@ class ETLDataMaskingComponent(Component):
                     logger.debug(f"[DataMasking] No values to mask in field '{field}'")
                     continue
 
-                try:
-                    # Batch masking using external service
-                    masked_values = await client.test_rule_batch(rule_id, values_to_mask)
+                logger.info(
+                    f"[DataMasking] Preparing {len(values_to_mask)} values for field '{field}' with rule {rule_id}"
+                )
 
-                    # Validate response length
-                    if len(masked_values) != len(values_to_mask):
-                        raise ValueError(
-                            f"Masking service returned {len(masked_values)} values but expected {len(values_to_mask)}"
-                        )
+                # Create batch requests for this field
+                for idx, value in enumerate(values_to_mask):
+                    request_id = f"field_{field}_{rule_idx}_{idx}"
+                    # Use camelCase for Java backend compatibility
+                    batch_requests.append({"ruleId": rule_id, "input": value, "requestId": request_id})
+                    # Store mapping to DataFrame position
+                    row_indices = df[mask].index.tolist()
+                    field_mapping.append({"request_id": request_id, "field": field, "row_index": row_indices[idx]})
 
-                    # Update DataFrame with masked values
-                    df.loc[mask, field] = masked_values
-                    logger.info(f"[DataMasking] Successfully masked {len(masked_values)} values in field '{field}'")
+            if not batch_requests:
+                logger.info("[DataMasking] No data to mask")
+                return [Data(data=row.to_dict()) for _, row in df.iterrows()]
 
-                except Exception as e:
-                    error_msg = f"Field '{field}' masking failed (rule_id={rule_id}): {e!s}"
+            logger.info(f"[DataMasking] Processing {len(batch_requests)} total masking requests")
+
+            try:
+                # Batch masking using external service with multiple rule IDs
+                responses = await client.test_rule_batch_multi(batch_requests)
+
+                # Process responses and update DataFrame
+                successful_count = 0
+                failed_count = 0
+
+                for response in responses:
+                    if not response.get("success", False):
+                        # Support both camelCase and snake_case
+                        request_id = response.get("requestId") or response.get("request_id")
+                        error_msg_text = response.get("errorMessage") or response.get("error_message", "Unknown error")
+                        error_msg = f"Masking failed for request {request_id}: {error_msg_text}"
+                        logger.error(error_msg)
+                        failed_count += 1
+                        continue
+
+                    # Find corresponding field and row (support both naming conventions)
+                    response_request_id = response.get("requestId") or response.get("request_id")
+                    mapping = next((m for m in field_mapping if m["request_id"] == response_request_id), None)
+                    if not mapping:
+                        logger.warning(f"[DataMasking] No mapping found for request {response_request_id}")
+                        continue
+
+                    # Update DataFrame with masked value
+                    df.at[mapping["row_index"], mapping["field"]] = response.get("output")
+                    successful_count += 1
+
+                logger.info(
+                    f"[DataMasking] Successfully masked {successful_count} values, failed {failed_count} values"
+                )
+
+                if failed_count > 0:
+                    error_msg = f"Masking failed for {failed_count} values"
                     logger.error(error_msg)
-                    raise ValueError(error_msg) from e
+                    # Raise error if any failures occurred
+                    raise ValueError(error_msg)
+
+            except Exception as e:
+                error_msg = f"Batch masking failed: {e!s}"
+                logger.error(error_msg)
+                raise ValueError(error_msg) from e
 
             # Convert back to Data objects
             result = [Data(data=row.to_dict()) for _, row in df.iterrows()]

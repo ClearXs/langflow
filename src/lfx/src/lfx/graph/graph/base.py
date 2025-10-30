@@ -4,7 +4,6 @@ import asyncio
 import contextlib
 import contextvars
 import copy
-import i18n
 import json
 import queue
 import threading
@@ -15,6 +14,8 @@ from datetime import datetime, timezone
 from functools import partial
 from itertools import chain
 from typing import TYPE_CHECKING, Any, cast
+
+import i18n
 
 from lfx.exceptions.component import ComponentBuildError
 from lfx.graph.edge.base import CycleEdge, Edge

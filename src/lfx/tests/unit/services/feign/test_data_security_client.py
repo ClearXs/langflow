@@ -1,7 +1,8 @@
 """Unit tests for DataSecurityFeignClient."""
 
+from unittest.mock import AsyncMock, Mock
+
 import pytest
-from unittest.mock import AsyncMock, Mock, patch
 
 from lfx.services.feign.clients.data_security import DataSecurityFeignClient
 

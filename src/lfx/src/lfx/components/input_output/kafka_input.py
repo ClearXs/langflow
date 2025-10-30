@@ -6,7 +6,6 @@ from typing import Any
 import i18n
 
 from lfx.custom.custom_component.component import Component
-from lfx.log.logger import logger
 from lfx.io import (
     BoolInput,
     DropdownInput,
@@ -16,6 +15,7 @@ from lfx.io import (
     SecretStrInput,
     TableInput,
 )
+from lfx.log.logger import logger
 from lfx.schema import Data
 
 # Constants
@@ -32,28 +32,28 @@ class ETLKafkaInputComponent(Component):
         super().__init__(**kwargs)
         self._sample_data_cache = []  # 缓存样本数据
         self._current_consumer = None  # Track current consumer instance
-        self._stop_streaming = False  # 流式模式停止标志
+        self._should_stop = False  # 停止标志
 
     def __del__(self):
         """Cleanup when component is destroyed."""
         try:
-            self._stop_streaming = True  # 设置停止标志
+            self._should_stop = True
             if self._current_consumer:
                 self._current_consumer.close()
-                logger.info("[KafkaInput] Component destroyed, consumer closed")
+                logger.info("Component destroyed, consumer closed")
         except Exception:
             pass  # Ignore errors during cleanup
 
     def stop(self):
-        """手动停止流式消费（供外部调用）"""
-        logger.info("[KafkaInput] Stop signal received")
-        self._stop_streaming = True
+        """停止消费（可被外部调用）"""
+        logger.info("Stop requested")
+        self._should_stop = True
         self._close_current_consumer()
 
     def _debug_log(self, message: str):
         """Log message only in debug mode."""
         if self.debug_mode:
-            logger.info(f"[DEBUG] {message}")
+            logger.debug(message)
 
     inputs = [
         MessageTextInput(
@@ -89,8 +89,7 @@ class ETLKafkaInputComponent(Component):
             display_name=i18n.t("components.input_output.kafka_input.auto_offset_reset.display_name"),
             info=i18n.t("components.input_output.kafka_input.auto_offset_reset.info"),
             options=["latest", "earliest", "none"],
-            value="earliest",
-            advanced=True,
+            value="latest",
         ),
         BoolInput(
             name="reset_offsets",
@@ -135,11 +134,10 @@ class ETLKafkaInputComponent(Component):
             advanced=True,
         ),
         BoolInput(
-            name="continuous_poll",
-            display_name=i18n.t("components.input_output.kafka_input.continuous_poll.display_name"),
-            info=i18n.t("components.input_output.kafka_input.continuous_poll.info"),
-            value=False,  # 默认关闭
-            advanced=True,
+            name="keep_consumer_alive",
+            display_name=i18n.t("components.input_output.kafka_input.keep_consumer_alive.display_name"),
+            info=i18n.t("components.input_output.kafka_input.keep_consumer_alive.info"),
+            value=True,
         ),
         IntInput(
             name="batch_size",
@@ -259,12 +257,12 @@ class ETLKafkaInputComponent(Component):
     def _close_current_consumer(self):
         """关闭当前 Consumer"""
         if self._current_consumer:
-            logger.info("[KafkaInput] Closing consumer...")
+            logger.info("Closing consumer...")
             try:
                 self._current_consumer.close()
-                logger.info("[KafkaInput] Consumer closed successfully")
+                logger.info("Consumer closed successfully")
             except Exception as e:
-                logger.error(f"[KafkaInput] Failed to close consumer: {e}")
+                logger.error(f"Failed to close consumer: {e}")
             finally:
                 self._current_consumer = None
 
@@ -281,7 +279,7 @@ class ETLKafkaInputComponent(Component):
             timestamp = int(time.time())
             unique_id = str(uuid.uuid4())[:8]
             effective_group_id = f"{self.group_id}-{timestamp}-{unique_id}"
-            logger.debug(f"[KafkaInput] Using unique group_id: {effective_group_id}")
+            logger.debug(f"Using unique group_id: {effective_group_id}")
 
         # 配置 consumer
         consumer_config = {
@@ -305,10 +303,10 @@ class ETLKafkaInputComponent(Component):
                 }
             )
 
-        logger.debug(f"[KafkaInput] Consumer config: servers={self.bootstrap_servers}, group={effective_group_id}")
+        logger.debug(f"Consumer config: servers={self.bootstrap_servers}, group={effective_group_id}")
 
         consumer = Consumer(consumer_config)
-        logger.info("[KafkaInput] Consumer created successfully")
+        logger.info("Consumer created successfully")
 
         return consumer
 
@@ -552,41 +550,44 @@ class ETLKafkaInputComponent(Component):
                 continue
 
         elapsed = time.time() - start_time
-        logger.info(
-            f"[KafkaInput] Consumed {len(results)} messages in {elapsed:.2f}s (polls={poll_count}, eof={eof_count})"
-        )
+        logger.info(f"Consumed {len(results)} messages in {elapsed:.2f}s (polls={poll_count}, eof={eof_count})")
 
         return results
 
-    def consume_messages(self) -> list[Data]:
-        """消费 Kafka 消息并返回数据列表"""
+    def consume_messages(self) -> Generator[Data, None, None]:
+        """实时流式消费 Kafka 消息，一条一条地 yield"""
         try:
+            # 重置停止标志
+            self._should_stop = False
+
             self.status = i18n.t("components.input_output.kafka_input.status.connecting")
 
             # 导入必要库
             try:
-                from confluent_kafka import Consumer, KafkaError  # noqa: F401
+                from confluent_kafka import Consumer, KafkaError
             except ImportError as import_err:
                 error_msg = i18n.t("components.input_output.kafka_input.errors.kafka_not_installed")
-                logger.error(f"[KafkaInput] {error_msg}")
+                logger.error(error_msg)
                 raise ImportError(error_msg) from import_err
 
             # 解析主题列表
             topics = [t.strip() for t in self.topics.split(",")]
 
-            # 根据配置选择模式
-            if self.continuous_poll:
-                logger.info("[KafkaInput] Starting continuous polling mode")
-                return self._consume_messages_continuous()
-            else:
-                logger.info("[KafkaInput] Starting batch mode")
-                return self._consume_messages_batch()
+            # 使用流式模式
+            logger.info("Starting streaming mode")
+            yield from self._consume_messages_streaming()
 
         except Exception as e:
             error_msg = i18n.t("components.input_output.kafka_input.errors.consume_failed", error=str(e))
             self.status = error_msg
-            logger.error(f"[KafkaInput] {error_msg}")
+            logger.error(error_msg)
             raise ValueError(error_msg) from e
+        finally:
+            # 根据配置决定是否关闭 Consumer
+            if not self.keep_consumer_alive:
+                self._close_current_consumer()
+            else:
+                logger.info("Keeping consumer alive for next execution")
 
     def _extract_json_path(self, data: dict) -> Any:
         """Extract data using JSONPath notation."""
@@ -700,8 +701,15 @@ class ETLKafkaInputComponent(Component):
                 self._flatten_dict(processed, "", result)
                 return result
             return {"value": processed}
+
         # Raw output (preserves structure from schema or flatten_all)
-        return processed if isinstance(processed, dict) else {"value": processed}
+        result = processed if isinstance(processed, dict) else {"value": processed}
+
+        # 确保结果是字典类型
+        if not isinstance(result, dict):
+            result = {"value": result}
+
+        return result
 
     def test_connection(self) -> dict:
         """Test Kafka connection and provide diagnostic information."""
@@ -1096,18 +1104,23 @@ class ETLKafkaInputComponent(Component):
             from confluent_kafka import Consumer, KafkaError  # noqa: F401
         except ImportError as import_err:
             error_msg = i18n.t("components.input_output.kafka_input.errors.kafka_not_installed")
-            logger.info(f"❌ {error_msg}")
+            logger.error(error_msg)
             raise ImportError(error_msg) from import_err
 
         # 解析主题列表
         topics = [t.strip() for t in self.topics.split(",")]
 
-        # 1. 关闭旧 Consumer
-        self._close_current_consumer()
+        # 1. 如果不保持 Consumer 活跃，关闭旧的
+        if not self.keep_consumer_alive:
+            self._close_current_consumer()
 
-        # 2. 创建新 Consumer
-        consumer = self._create_consumer()
-        self._current_consumer = consumer
+        # 2. 复用或创建 Consumer
+        if self._current_consumer is None:
+            consumer = self._create_consumer()
+            self._current_consumer = consumer
+        else:
+            consumer = self._current_consumer
+            logger.info("Reusing existing consumer")
 
         # 3. 记录订阅信息
         self._log_subscription_info(consumer, topics)
@@ -1127,8 +1140,11 @@ class ETLKafkaInputComponent(Component):
         self.status = i18n.t("components.input_output.kafka_input.status.consuming")
         results = self._poll_messages(consumer, topics)
 
-        # 8. 关闭 Consumer
-        self._close_current_consumer()
+        # 8. 根据配置决定是否关闭 Consumer
+        if not self.keep_consumer_alive:
+            self._close_current_consumer()
+        else:
+            logger.info("Keeping consumer alive for next execution")
 
         # 9. 返回结果
         if results:
@@ -1146,49 +1162,55 @@ class ETLKafkaInputComponent(Component):
 
         return results
 
-    def _consume_messages_continuous(self) -> list[Data]:
-        """连续轮询模式 - 持续消费直到超时，返回所有消息"""
+    def _consume_messages_streaming(self) -> Generator[Data, None, None]:
+        """流式消费 Kafka 消息 - 接收一条立即 yield 一条"""
         from confluent_kafka import Consumer, KafkaError
 
-        results = []
+        # 解析主题列表
+        topics = [t.strip() for t in self.topics.split(",")]
 
         try:
-            self.status = "🔄 Starting continuous polling..."
+            # 1. 如果不保持 Consumer 活跃，关闭旧的
+            if not self.keep_consumer_alive:
+                self._close_current_consumer()
 
-            # 解析主题列表
-            topics = [t.strip() for t in self.topics.split(",")]
+            # 2. 复用或创建 Consumer
+            if self._current_consumer is None:
+                consumer = self._create_consumer()
+                self._current_consumer = consumer
+            else:
+                consumer = self._current_consumer
+                logger.info("Reusing existing consumer")
 
-            # 关闭旧Consumer
-            self._close_current_consumer()
+            # 3. 记录订阅信息
+            self._log_subscription_info(consumer, topics)
 
-            # 创建新Consumer
-            consumer = self._create_consumer()
-            self._current_consumer = consumer
-
-            # 订阅主题
+            # 4. 订阅主题
+            logger.info(f"Subscribing to topics: {topics}...")
             consumer.subscribe(topics)
-            logger.info(f"[KafkaInput] Subscribed to topics: {topics}")
+            logger.info("✓ Subscribed successfully")
 
-            # 等待分区分配
+            # 5. 等待分区分配
             self._wait_for_assignment(consumer)
 
-            self.status = "✅ Continuous polling active"
-            logger.info(f"[KafkaInput] Continuous polling started, timeout={self.stream_timeout_minutes}min")
+            # 6. 记录分区分配详情
+            self._log_partition_assignment(consumer)
 
-            # 连续轮询循环
-            start_time = time.time()
-            timeout_seconds = self.stream_timeout_minutes * 60
+            # 7. 开始流式轮询
+            self.status = i18n.t("components.input_output.kafka_input.status.streaming")
+            logger.info("Starting streaming consumption...")
+
             message_count = 0
-            poll_timeout = 2.0  # 轮询超时2秒
+            poll_timeout = 1.0  # 1秒超时，快速响应停止信号
 
-            while time.time() - start_time < timeout_seconds and not self._stop_streaming:
+            while not self._should_stop:
                 try:
                     # 检查停止标志
-                    if self._stop_streaming:
-                        logger.info("[KafkaInput] Stop signal detected, exiting polling")
+                    if self._should_stop:
+                        logger.info("Stop signal detected, exiting")
                         break
 
-                    # 轮询消息
+                    # 轮询单条消息
                     msg = consumer.poll(timeout=poll_timeout)
 
                     if msg is None:
@@ -1196,101 +1218,108 @@ class ETLKafkaInputComponent(Component):
                         continue
 
                     if msg.error():
-                        if msg.error().code() == KafkaError._PARTITION_EOF:
-                            self._debug_log(f"EOF on {msg.topic()}-{msg.partition()}")
+                        error_code = msg.error().code()
+                        if error_code == KafkaError._PARTITION_EOF:
+                            self._debug_log(f"EOF on {msg.topic()}-{msg.partition()} offset {msg.offset()}")
                             continue
-                        else:
-                            logger.info(f"⚠️ Kafka error: {msg.error()}")
-                            continue
-
-                    # 处理消息
-                    value_bytes = msg.value()
-                    if not value_bytes:
-                        self._debug_log("Empty message body, skipping")
+                        logger.warning(f"Kafka error: {msg.error()}")
                         continue
 
-                    # 反序列化消息
-                    if self.value_deserializer == "json":
-                        try:
-                            value = json.loads(value_bytes.decode("utf-8"))
-                        except json.JSONDecodeError as json_error:
-                            logger.info(f"JSON decode error: {json_error}")
-                            continue
-                    else:
-                        try:
-                            value = value_bytes.decode("utf-8")
-                        except UnicodeDecodeError as unicode_error:
-                            logger.info(f"Unicode decode error: {unicode_error}")
+                    # 成功获取消息
+                    self._debug_log(f"✓ {msg.topic()}-{msg.partition()} offset {msg.offset()}")
+
+                    try:
+                        # 反序列化消息
+                        value_bytes = msg.value()
+                        if not value_bytes:
+                            self._debug_log("Empty message body, skipping")
                             continue
 
-                    # 提取 JSONPath
-                    if self.json_path and isinstance(value, dict):
-                        try:
-                            value = self._extract_json_path(value)
-                        except Exception as path_error:
-                            logger.info(f"JSONPath extraction error: {path_error}")
-                            continue
+                        if self.value_deserializer == "json":
+                            try:
+                                value = json.loads(value_bytes.decode("utf-8"))
+                                self._debug_log(f"JSON parsed: {type(value).__name__}")
+                            except json.JSONDecodeError as json_error:
+                                logger.warning(f"JSON decode error: {json_error}")
+                                continue
+                        else:
+                            try:
+                                value = value_bytes.decode("utf-8")
+                                self._debug_log(f"String decoded: {len(value)} chars")
+                            except UnicodeDecodeError as unicode_error:
+                                logger.warning(f"Unicode decode error: {unicode_error}")
+                                continue
 
-                    # 处理消息
-                    processed_data = self._process_message(value)
+                        # 提取 JSONPath
+                        if self.json_path and isinstance(value, dict):
+                            try:
+                                value = self._extract_json_path(value)
+                                self._debug_log(f"JSONPath extracted: {type(value).__name__}")
+                            except Exception as path_error:
+                                logger.warning(f"JSONPath extraction error: {path_error}")
+                                continue
 
-                    # 添加 Kafka 元数据
-                    if isinstance(processed_data, dict):
-                        processed_data.update(
-                            {
-                                "_kafka_topic": msg.topic(),
-                                "_kafka_partition": msg.partition(),
-                                "_kafka_offset": msg.offset(),
-                                "_kafka_timestamp": msg.timestamp()[1] if msg.timestamp()[0] else None,
-                            }
-                        )
+                        # 处理消息
+                        processed_data = self._process_message(value)
 
-                        # 确保有 text 和 content 字段用于兼容性
-                        if "text" not in processed_data and "content" not in processed_data:
-                            # 创建 JSON 表示
-                            text_value = json.dumps(processed_data, ensure_ascii=False, indent=2)
-                            processed_data["text"] = text_value
-                            processed_data["content"] = text_value
-                        elif "text" in processed_data and "content" not in processed_data:
-                            processed_data["content"] = processed_data["text"]
-                        elif "content" in processed_data and "text" not in processed_data:
-                            processed_data["text"] = processed_data["content"]
+                        # 添加 Kafka 元数据
+                        if isinstance(processed_data, dict):
+                            processed_data.update(
+                                {
+                                    "_kafka_topic": msg.topic(),
+                                    "_kafka_partition": msg.partition(),
+                                    "_kafka_offset": msg.offset(),
+                                    "_kafka_timestamp": msg.timestamp()[1] if msg.timestamp()[0] else None,
+                                }
+                            )
 
-                    # 创建 Data 对象并添加到结果
-                    data_obj = Data(data=processed_data)
-                    results.append(data_obj)
-                    message_count += 1
+                            # 确保有 text 和 content 字段用于兼容性
+                            if "text" not in processed_data and "content" not in processed_data:
+                                text_value = json.dumps(processed_data, ensure_ascii=False, indent=2)
+                                processed_data["text"] = text_value
+                                processed_data["content"] = text_value
+                            elif "text" in processed_data and "content" not in processed_data:
+                                processed_data["content"] = processed_data["text"]
+                            elif "content" in processed_data and "text" not in processed_data:
+                                processed_data["text"] = processed_data["content"]
 
-                    # 更新状态
-                    if message_count % 10 == 0:
-                        elapsed = time.time() - start_time
-                        self.status = f"📊 Polled: {message_count} messages ({elapsed:.1f}s)"
-                        logger.info(f"[KafkaInput] Polled {message_count} messages so far")
+                        # 缓存样本数据
+                        if len(self._sample_data_cache) < SAMPLE_CACHE_SIZE:
+                            self._sample_data_cache.append(processed_data.copy())
+
+                        # 创建 Data 对象并立即 yield
+                        data_obj = Data(data=processed_data)
+                        message_count += 1
+
+                        # 更新状态
+                        if message_count % 10 == 0:
+                            self.status = f"📊 Streaming: {message_count} messages"
+                            logger.info(f"Streamed {message_count} messages so far")
+
+                        self._debug_log(f"✓ Yielding message {message_count}")
+                        yield data_obj
+
+                    except Exception as processing_error:
+                        logger.error(f"Error processing message: {processing_error}")
+                        continue
 
                 except KeyboardInterrupt:
-                    logger.info("[KafkaInput] Polling cancelled by user")
-                    self._stop_streaming = True
+                    logger.info("Streaming interrupted by user")
+                    self._should_stop = True
                     break
                 except Exception as e:
-                    logger.error(f"[KafkaInput] Polling processing error: {e}")
-                    # 继续运行，不因单个消息错误而中断
+                    logger.error(f"Polling error: {e}")
+                    # 继续运行，不因单个错误而中断
                     continue
 
-            # 轮询结束
-            elapsed = time.time() - start_time
-            if self._stop_streaming:
-                logger.info(f"[KafkaInput] Polling stopped: {message_count} messages in {elapsed:.1f}s")
-                self.status = f"Polling stopped: {message_count} messages"
-            else:
-                logger.info(f"[KafkaInput] Polling completed: {message_count} messages in {elapsed:.1f}s")
-                self.status = f"Polling completed: {message_count} messages"
-
-            return results
+            # 流式消费结束
+            logger.info(f"Streaming completed: {message_count} messages")
+            self.status = f"Streaming completed: {message_count} messages"
 
         except Exception as e:
-            logger.error(f"[KafkaInput] Polling error: {e}")
-            self.status = f"Polling error: {e}"
+            logger.error(f"Streaming error: {e}")
+            self.status = f"Streaming error: {e}"
             raise
         finally:
-            self._stop_streaming = True  # 确保设置停止标志
-            self._close_current_consumer()
+            # 注意：不在这里关闭 consumer，由 consume_messages 的 finally 块处理
+            pass

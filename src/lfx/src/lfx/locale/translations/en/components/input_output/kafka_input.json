@@ -63,6 +63,10 @@
     "display_name": "Continuous Polling",
     "info": "Continuously poll for messages until timeout. Collects all messages and returns them as a list (compatible with all downstream components)."
   },
+  "keep_consumer_alive": {
+    "display_name": "Keep Consumer Alive",
+    "info": "Keep the Kafka consumer connection alive between executions for real-time continuous monitoring. When enabled, the consumer will not close after each execution, allowing you to receive new messages on subsequent runs."
+  },
   "stream_timeout_minutes": {
     "display_name": "Stream Timeout (minutes)",
     "info": "Maximum duration for streaming mode. The stream will automatically stop after this period."
@@ -133,5 +137,9 @@
       "display_name": "Connection Test",
       "info": "Test Kafka connection and get diagnostic information"
     }
+  },
+  "keep_consumer_alive": {
+    "display_name": "Keep Consumer Alive",
+    "info": "Keep the Kafka consumer connection alive between executions for real-time continuous monitoring. When enabled, the consumer will not close after each execution, allowing you to receive new messages on subsequent runs."
   }
 }

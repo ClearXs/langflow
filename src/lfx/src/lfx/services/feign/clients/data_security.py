@@ -89,6 +89,82 @@ class DataSecurityFeignClient:
             logger.exception(f"[DataSecurityClient] {error_msg}")
             raise ValueError(error_msg) from e
 
+    async def test_rule_batch_multi(self, requests: list[dict]) -> list[dict]:
+        """Batch test multiple rule executions with different rule IDs.
+
+        Args:
+            requests: List of requests, each containing:
+                - rule_id: Rule ID
+                - input: Input value
+                - request_id: Optional request identifier
+
+        Returns:
+            List of responses, each containing:
+                - request_id: Request identifier
+                - rule_id: Rule ID
+                - input: Original input
+                - output: Processed output
+                - success: Whether processing was successful
+                - error_message: Error message if processing failed
+        """
+        try:
+            logger.info(f"[DataSecurityClient] Testing {len(requests)} rule requests with multiple rule IDs")
+
+            response = await self.feign_service.post(
+                service_name=self.SERVICE_NAME,
+                path="/protection-rule/testRuleBatch",
+                json=requests,
+            )
+
+            response_data = response.json()
+            logger.debug(f"[DataSecurityClient] Multi-rule batch test raw response: {response_data}")
+
+            # Handle R<List<ProtectionRuleBatchResponse>> response structure
+            if isinstance(response_data, dict):
+                if "data" in response_data:
+                    responses = response_data["data"]
+                    if isinstance(responses, list):
+                        success_count = sum(1 for r in responses if r.get("success", False))
+                        logger.info(
+                            f"[DataSecurityClient] Successfully processed {success_count}/{len(responses)} rule requests"
+                        )
+                        return responses
+                    logger.warning(
+                        f"[DataSecurityClient] Expected list in response data, got {type(responses)}: {responses}"
+                    )
+                    return []
+                # If no data field, check if the response itself is a list
+                if isinstance(response_data, list):
+                    success_count = sum(1 for r in response_data if r.get("success", False))
+                    logger.info(
+                        f"[DataSecurityClient] Successfully processed {success_count}/{len(response_data)} rule requests"
+                    )
+                    return response_data
+                logger.warning(f"[DataSecurityClient] Unexpected response format: {response_data}")
+                return []
+            if isinstance(response_data, list):
+                success_count = sum(1 for r in response_data if r.get("success", False))
+                logger.info(
+                    f"[DataSecurityClient] Successfully processed {success_count}/{len(response_data)} rule requests"
+                )
+                return response_data
+            logger.warning(f"[DataSecurityClient] Unexpected response type: {type(response_data)}")
+            return []
+
+        except ValueError as e:
+            # Special handling for Nacos service not found
+            if "No healthy instances found" in str(e):
+                error_msg = "Data security service not available for batch rule testing"
+                logger.error(f"[DataSecurityClient] {error_msg}")
+                raise ValueError(error_msg) from e
+            error_msg = f"Failed to test batch rules: {e}"
+            logger.exception(f"[DataSecurityClient] {error_msg}")
+            raise ValueError(error_msg) from e
+        except Exception as e:
+            error_msg = f"Failed to test batch rules: {e}"
+            logger.exception(f"[DataSecurityClient] {error_msg}")
+            raise ValueError(error_msg) from e
+
     async def test_rule_batch(self, rule_id: int, input_values: list[str]) -> list[str]:
         """Batch test rule execution.
 
@@ -104,7 +180,7 @@ class DataSecurityFeignClient:
 
             response = await self.feign_service.post(
                 service_name=self.SERVICE_NAME,
-                path="/protection-rule/testRuleBatch",
+                path="/protection-rule/testRuleBatchSingle",
                 params={"id": rule_id},
                 json=input_values,
             )

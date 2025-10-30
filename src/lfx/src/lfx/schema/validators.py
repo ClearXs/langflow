@@ -4,7 +4,7 @@ import i18n
 from pydantic import BeforeValidator
 
 
-def timestamp_to_str(timestamp: datetime | str | float | int) -> str:
+def timestamp_to_str(timestamp: datetime | str | float) -> str:
     """Convert timestamp to standardized string format.
 
     Handles multiple input formats and ensures consistent UTC timezone output.
@@ -52,7 +52,7 @@ def timestamp_to_str(timestamp: datetime | str | float | int) -> str:
     return timestamp.strftime("%Y-%m-%d %H:%M:%S %Z")
 
 
-def str_to_timestamp(timestamp: str | datetime | float | int) -> datetime:
+def str_to_timestamp(timestamp: str | datetime | float) -> datetime:
     """Convert timestamp to datetime object.
 
     Handles multiple input formats and ensures consistent UTC timezone output.
@@ -83,7 +83,7 @@ def str_to_timestamp(timestamp: str | datetime | float | int) -> datetime:
     return timestamp
 
 
-def timestamp_with_fractional_seconds(timestamp: datetime | str | float | int) -> str:
+def timestamp_with_fractional_seconds(timestamp: datetime | str | float) -> str:
     """Convert timestamp to string format including fractional seconds.
 
     Handles multiple input formats and ensures consistent UTC timezone output.

@@ -5,13 +5,13 @@ import ast
 import asyncio
 import contextlib
 import hashlib
-import i18n
 import inspect
 import re
 import traceback
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
+import i18n
 from fastapi import HTTPException
 from pydantic import BaseModel
 

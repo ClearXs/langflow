@@ -32,7 +32,7 @@ class ETLDataEncryptionComponent(Component):
                     "name": "field",
                     "display_name": i18n.t("components.security.data_encryption.field_configs.field"),
                     "type": "str",
-                    "formatter": "dropdown",
+                    "formatter": "text",
                     "options": [],  # 动态填充
                     "required": True,
                     "description": i18n.t("components.security.data_encryption.field_configs.field_desc"),
@@ -41,7 +41,7 @@ class ETLDataEncryptionComponent(Component):
                     "name": "rule_id",
                     "display_name": i18n.t("components.security.data_encryption.field_configs.rule_id"),
                     "type": "int",
-                    "formatter": "dropdown",
+                    "formatter": "text",
                     "options": [],  # 动态填充
                     "options_metadata": [],  # 动态填充
                     "required": True,
@@ -106,10 +106,10 @@ class ETLDataEncryptionComponent(Component):
                 encryption_rules = await self._load_encryption_rules()
                 if encryption_rules:
                     build_config["field_configs"]["table_schema"][1]["options"] = [
-                        rule["id"] for rule in encryption_rules
+                        int(rule["id"]) for rule in encryption_rules
                     ]
                     build_config["field_configs"]["table_schema"][1]["options_metadata"] = [
-                        {"value": rule["id"], "label": rule["ruleName"]} for rule in encryption_rules
+                        {"value": int(rule["id"]), "label": rule["ruleName"]} for rule in encryption_rules
                     ]
                 else:
                     build_config["field_configs"]["table_schema"][1]["options"] = []
@@ -118,7 +118,7 @@ class ETLDataEncryptionComponent(Component):
                 # Auto-fill table with default encryption configs if empty
                 if not build_config["field_configs"].get("value") and field_names and encryption_rules:
                     # Use first available encryption rule for all fields
-                    default_rule_id = encryption_rules[0]["id"]
+                    default_rule_id = int(encryption_rules[0]["id"])
                     build_config["field_configs"]["value"] = [
                         {"field": name, "rule_id": default_rule_id} for name in field_names
                     ]
@@ -153,6 +153,27 @@ class ETLDataEncryptionComponent(Component):
                         # Update dropdown options for field column
                         build_config["field_configs"]["table_schema"][0]["options"] = field_names
 
+                        # Still try to load encryption rules even in fallback mode
+                        try:
+                            encryption_rules = await self._load_encryption_rules()
+                            if encryption_rules:
+                                build_config["field_configs"]["table_schema"][1]["options"] = [
+                                    int(rule["id"]) for rule in encryption_rules
+                                ]
+                                build_config["field_configs"]["table_schema"][1]["options_metadata"] = [
+                                    {"value": int(rule["id"]), "label": rule["ruleName"]} for rule in encryption_rules
+                                ]
+                                logger.info(
+                                    f"[DataEncryption] Loaded {len(encryption_rules)} encryption rules in fallback mode"
+                                )
+                            else:
+                                build_config["field_configs"]["table_schema"][1]["options"] = []
+                                build_config["field_configs"]["table_schema"][1]["options_metadata"] = []
+                        except Exception:  # noqa: BLE001
+                            logger.exception("[DataEncryption] Failed to load encryption rules in fallback mode")
+                            build_config["field_configs"]["table_schema"][1]["options"] = []
+                            build_config["field_configs"]["table_schema"][1]["options_metadata"] = []
+
                         # Auto-fill table with default encryption configs if empty
                         if not build_config["field_configs"].get("value"):
                             build_config["field_configs"]["value"] = [{"field": name} for name in field_names]
@@ -164,8 +185,13 @@ class ETLDataEncryptionComponent(Component):
                                 f"[DataEncryption] Updated field options with {len(field_names)} fields (from config)"
                             )
 
+                        encryption_rules_count = len(
+                            build_config["field_configs"]["table_schema"][1].get("options", [])
+                        )
                         self.status = i18n.t(
-                            "components.security.data_encryption.status.load_fields_success", count=len(field_names)
+                            "components.security.data_encryption.status.load_success",
+                            fields_count=len(field_names),
+                            rules_count=encryption_rules_count,
                         )
                     else:
                         self.status = i18n.t("components.security.data_encryption.errors.load_failed", error=error_msg)
@@ -414,8 +440,11 @@ class ETLDataEncryptionComponent(Component):
             if client is None:
                 raise ValueError(i18n.t("components.security.data_encryption.errors.service_unavailable"))
 
-            # Process each field configuration
-            for config in self.field_configs:
+            # Collect all field configurations for batch processing
+            batch_requests = []
+            field_mapping = []  # To map requests back to DataFrame positions
+
+            for config_idx, config in enumerate(self.field_configs):
                 field = config.get("field", "").strip()
                 rule_id = config.get("rule_id")
 
@@ -427,8 +456,6 @@ class ETLDataEncryptionComponent(Component):
                     logger.warning(f"[DataEncryption] Field '{field}' not found in data, skipping")
                     continue
 
-                logger.info(f"[DataEncryption] Processing field '{field}' with rule {rule_id}")
-
                 # Extract non-null values for batch processing
                 mask = df[field].notnull()
                 values_to_encrypt = df.loc[mask, field].astype(str).tolist()
@@ -437,27 +464,68 @@ class ETLDataEncryptionComponent(Component):
                     logger.debug(f"[DataEncryption] No values to encrypt in field '{field}'")
                     continue
 
-                try:
-                    # Batch encryption using external service
-                    encrypted_values = await client.test_rule_batch(rule_id, values_to_encrypt)
+                logger.info(
+                    f"[DataEncryption] Preparing {len(values_to_encrypt)} values for field '{field}' with rule {rule_id}"
+                )
 
-                    # Validate response length
-                    if len(encrypted_values) != len(values_to_encrypt):
-                        raise ValueError(
-                            f"Encryption service returned {len(encrypted_values)} values "
-                            f"but expected {len(values_to_encrypt)}"
-                        )
+                # Create batch requests for this field
+                for idx, value in enumerate(values_to_encrypt):
+                    request_id = f"field_{field}_{config_idx}_{idx}"
+                    # Use camelCase for Java backend compatibility
+                    batch_requests.append({"ruleId": rule_id, "input": value, "requestId": request_id})
+                    # Store mapping to DataFrame position
+                    row_indices = df[mask].index.tolist()
+                    field_mapping.append({"request_id": request_id, "field": field, "row_index": row_indices[idx]})
 
-                    # Update DataFrame with encrypted values
-                    df.loc[mask, field] = encrypted_values
-                    logger.info(
-                        f"[DataEncryption] Successfully encrypted {len(encrypted_values)} values in field '{field}'"
-                    )
+            if not batch_requests:
+                logger.info("[DataEncryption] No data to encrypt")
+                return [Data(data=row.to_dict()) for _, row in df.iterrows()]
 
-                except Exception as e:
-                    error_msg = f"Field '{field}' encryption failed (rule_id={rule_id}): {e!s}"
+            logger.info(f"[DataEncryption] Processing {len(batch_requests)} total encryption requests")
+
+            try:
+                # Batch encryption using external service with multiple rule IDs
+                responses = await client.test_rule_batch_multi(batch_requests)
+
+                # Process responses and update DataFrame
+                successful_count = 0
+                failed_count = 0
+
+                for response in responses:
+                    if not response.get("success", False):
+                        # Support both camelCase and snake_case
+                        request_id = response.get("requestId") or response.get("request_id")
+                        error_msg_text = response.get("errorMessage") or response.get("error_message", "Unknown error")
+                        error_msg = f"Encryption failed for request {request_id}: {error_msg_text}"
+                        logger.error(error_msg)
+                        failed_count += 1
+                        continue
+
+                    # Find corresponding field and row (support both naming conventions)
+                    response_request_id = response.get("requestId") or response.get("request_id")
+                    mapping = next((m for m in field_mapping if m["request_id"] == response_request_id), None)
+                    if not mapping:
+                        logger.warning(f"[DataEncryption] No mapping found for request {response_request_id}")
+                        continue
+
+                    # Update DataFrame with encrypted value
+                    df.at[mapping["row_index"], mapping["field"]] = response.get("output")
+                    successful_count += 1
+
+                logger.info(
+                    f"[DataEncryption] Successfully encrypted {successful_count} values, failed {failed_count} values"
+                )
+
+                if failed_count > 0:
+                    error_msg = f"Encryption failed for {failed_count} values"
                     logger.error(error_msg)
-                    raise ValueError(error_msg) from e
+                    # Raise error if any failures occurred
+                    raise ValueError(error_msg)
+
+            except Exception as e:
+                error_msg = f"Batch encryption failed: {e!s}"
+                logger.error(error_msg)
+                raise ValueError(error_msg) from e
 
             # Convert back to Data objects
             result = [Data(data=row.to_dict()) for _, row in df.iterrows()]

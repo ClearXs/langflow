@@ -1,8 +1,8 @@
 """Unit tests for ETLDataMaskingComponent."""
 
+from unittest.mock import AsyncMock, patch
+
 import pytest
-import pandas as pd
-from unittest.mock import AsyncMock, Mock, patch
 
 from lfx.components.security.data_masking import ETLDataMaskingComponent
 from lfx.schema import Data
@@ -50,7 +50,7 @@ class TestETLDataMaskingComponent:
             "137****7000"
         ]
 
-        with patch('lfx.services.deps.get_data_security_client', return_value=mock_data_security_client):
+        with patch("lfx.services.deps.get_data_security_client", return_value=mock_data_security_client):
             # Execute
             result = await component.mask_data()
 
@@ -85,7 +85,7 @@ class TestETLDataMaskingComponent:
             ["zh***@example.com", "li***@example.com"]       # Second call for email (skip null)
         ]
 
-        with patch('lfx.services.deps.get_data_security_client', return_value=mock_data_security_client):
+        with patch("lfx.services.deps.get_data_security_client", return_value=mock_data_security_client):
             # Execute
             result = await component.mask_data()
 
@@ -110,7 +110,7 @@ class TestETLDataMaskingComponent:
         component.data_input = sample_data
         component.masking_rules = [{"field": "non_existent_field", "rule_id": 10}]
 
-        with patch('lfx.services.deps.get_data_security_client', return_value=mock_data_security_client):
+        with patch("lfx.services.deps.get_data_security_client", return_value=mock_data_security_client):
             # Execute
             result = await component.mask_data()
 
@@ -150,7 +150,7 @@ class TestETLDataMaskingComponent:
         component.data_input = sample_data
         component.masking_rules = [{"field": "phone", "rule_id": 10}]
 
-        with patch('lfx.services.deps.get_data_security_client', return_value=None):
+        with patch("lfx.services.deps.get_data_security_client", return_value=None):
             # Execute and verify exception
             with pytest.raises(ValueError, match="components.security.data_masking.errors.service_unavailable"):
                 await component.mask_data()
@@ -165,7 +165,7 @@ class TestETLDataMaskingComponent:
         # Setup mock to raise exception
         mock_data_security_client.test_rule_batch.side_effect = Exception("Rule not found")
 
-        with patch('lfx.services.deps.get_data_security_client', return_value=mock_data_security_client):
+        with patch("lfx.services.deps.get_data_security_client", return_value=mock_data_security_client):
             # Execute and verify exception
             with pytest.raises(ValueError, match="Field 'phone' masking failed \\(rule_id=10\\): Rule not found"):
                 await component.mask_data()
@@ -180,7 +180,7 @@ class TestETLDataMaskingComponent:
         # Setup mock to return different number of results
         mock_data_security_client.test_rule_batch.return_value = ["masked_1"]  # Only 1 result for 3 inputs
 
-        with patch('lfx.services.deps.get_data_security_client', return_value=mock_data_security_client):
+        with patch("lfx.services.deps.get_data_security_client", return_value=mock_data_security_client):
             # Execute and verify exception
             with pytest.raises(ValueError, match="Field 'phone' masking failed \\(rule_id=10\\): "
                                  "Masking service returned 1 values but expected 3"):
@@ -201,7 +201,7 @@ class TestETLDataMaskingComponent:
         # Setup mock - should only receive non-null values
         mock_data_security_client.test_rule_batch.return_value = ["masked_1", "masked_3"]
 
-        with patch('lfx.services.deps.get_data_security_client', return_value=mock_data_security_client):
+        with patch("lfx.services.deps.get_data_security_client", return_value=mock_data_security_client):
             # Execute
             result = await component.mask_data()
 
@@ -228,7 +228,7 @@ class TestETLDataMaskingComponent:
         # Mock the masking process
         mock_data_security_client.test_rule_batch.return_value = ["masked_phone"]
 
-        with patch('lfx.services.deps.get_data_security_client', return_value=mock_data_security_client):
+        with patch("lfx.services.deps.get_data_security_client", return_value=mock_data_security_client):
             # Execute
             stats_data = component.get_masking_stats()
 
@@ -268,7 +268,7 @@ class TestETLDataMaskingComponent:
             {"id": 12, "ruleName": "身份证脱敏"},
         ]
 
-        with patch('lfx.services.deps.get_data_security_client', return_value=mock_data_security_client):
+        with patch("lfx.services.deps.get_data_security_client", return_value=mock_data_security_client):
             # Execute
             rules = await component._load_masking_rules()
 
@@ -287,7 +287,7 @@ class TestETLDataMaskingComponent:
     @pytest.mark.asyncio
     async def test_load_masking_rules_service_unavailable(self, component):
         """Test loading masking rules when service is unavailable."""
-        with patch('lfx.services.deps.get_data_security_client', return_value=None):
+        with patch("lfx.services.deps.get_data_security_client", return_value=None):
             # Execute
             rules = await component._load_masking_rules()
 
@@ -300,7 +300,7 @@ class TestETLDataMaskingComponent:
         # Setup mock to raise exception
         mock_data_security_client.get_protection_rules.side_effect = Exception("Service error")
 
-        with patch('lfx.services.deps.get_data_security_client', return_value=mock_data_security_client):
+        with patch("lfx.services.deps.get_data_security_client", return_value=mock_data_security_client):
             # Execute
             rules = await component._load_masking_rules()
 
@@ -358,7 +358,7 @@ class TestETLDataMaskingComponent:
         # Setup mock response
         mock_data_security_client.test_rule_batch.return_value = ["masked_email1", "masked_email2"]
 
-        with patch('lfx.services.deps.get_data_security_client', return_value=mock_data_security_client):
+        with patch("lfx.services.deps.get_data_security_client", return_value=mock_data_security_client):
             # Execute
             result = await component.mask_data()
 
@@ -381,7 +381,7 @@ class TestETLDataMaskingComponent:
         component.data_input = data_all_nulls
         component.masking_rules = [{"field": "field1", "rule_id": 10}]
 
-        with patch('lfx.services.deps.get_data_security_client', return_value=mock_data_security_client):
+        with patch("lfx.services.deps.get_data_security_client", return_value=mock_data_security_client):
             # Execute
             result = await component.mask_data()
 

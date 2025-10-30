@@ -87,6 +87,10 @@
     "display_name": "SASL密码",
     "info": "SASL认证密码"
   },
+  "keep_consumer_alive": {
+    "display_name": "保持消费者活跃",
+    "info": "在执行之间保持Kafka消费者连接活跃，以实现实时连续监控。启用后，消费者在每次执行后不会关闭，允许您在后续运行中接收新消息。"
+  },
   "status": {
     "connecting": "正在连接Kafka...",
     "consuming": "正在消费消息...",

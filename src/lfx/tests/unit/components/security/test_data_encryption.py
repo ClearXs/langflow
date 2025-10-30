@@ -1,8 +1,8 @@
 """Unit tests for ETLDataEncryptionComponent."""
 
+from unittest.mock import AsyncMock, patch
+
 import pytest
-import pandas as pd
-from unittest.mock import AsyncMock, Mock, patch
 
 from lfx.components.security.data_encryption import ETLDataEncryptionComponent
 from lfx.schema import Data
@@ -50,7 +50,7 @@ class TestETLDataEncryptionComponent:
             "encrypted_phone_3"
         ]
 
-        with patch('lfx.services.deps.get_data_security_client', return_value=mock_data_security_client):
+        with patch("lfx.services.deps.get_data_security_client", return_value=mock_data_security_client):
             # Execute
             result = await component.process_encryption()
 
@@ -85,7 +85,7 @@ class TestETLDataEncryptionComponent:
             ["encrypted_id_1", "encrypted_id_2"]                               # Second call for id_card (skip null)
         ]
 
-        with patch('lfx.services.deps.get_data_security_client', return_value=mock_data_security_client):
+        with patch("lfx.services.deps.get_data_security_client", return_value=mock_data_security_client):
             # Execute
             result = await component.process_encryption()
 
@@ -110,7 +110,7 @@ class TestETLDataEncryptionComponent:
         component.data_input = sample_data
         component.field_configs = [{"field": "non_existent_field", "rule_id": 1}]
 
-        with patch('lfx.services.deps.get_data_security_client', return_value=mock_data_security_client):
+        with patch("lfx.services.deps.get_data_security_client", return_value=mock_data_security_client):
             # Execute
             result = await component.process_encryption()
 
@@ -150,7 +150,7 @@ class TestETLDataEncryptionComponent:
         component.data_input = sample_data
         component.field_configs = [{"field": "phone", "rule_id": 1}]
 
-        with patch('lfx.services.deps.get_data_security_client', return_value=None):
+        with patch("lfx.services.deps.get_data_security_client", return_value=None):
             # Execute and verify exception
             with pytest.raises(ValueError, match="components.security.data_encryption.errors.service_unavailable"):
                 await component.process_encryption()
@@ -165,7 +165,7 @@ class TestETLDataEncryptionComponent:
         # Setup mock to raise exception
         mock_data_security_client.test_rule_batch.side_effect = Exception("Rule not found")
 
-        with patch('lfx.services.deps.get_data_security_client', return_value=mock_data_security_client):
+        with patch("lfx.services.deps.get_data_security_client", return_value=mock_data_security_client):
             # Execute and verify exception
             with pytest.raises(ValueError, match="Field 'phone' encryption failed \\(rule_id=1\\): Rule not found"):
                 await component.process_encryption()
@@ -180,7 +180,7 @@ class TestETLDataEncryptionComponent:
         # Setup mock to return different number of results
         mock_data_security_client.test_rule_batch.return_value = ["encrypted_1"]  # Only 1 result for 3 inputs
 
-        with patch('lfx.services.deps.get_data_security_client', return_value=mock_data_security_client):
+        with patch("lfx.services.deps.get_data_security_client", return_value=mock_data_security_client):
             # Execute and verify exception
             with pytest.raises(ValueError, match="Field 'phone' encryption failed \\(rule_id=1\\): "
                                  "Encryption service returned 1 values but expected 3"):
@@ -201,7 +201,7 @@ class TestETLDataEncryptionComponent:
         # Setup mock - should only receive non-null values
         mock_data_security_client.test_rule_batch.return_value = ["encrypted_1", "encrypted_3"]
 
-        with patch('lfx.services.deps.get_data_security_client', return_value=mock_data_security_client):
+        with patch("lfx.services.deps.get_data_security_client", return_value=mock_data_security_client):
             # Execute
             result = await component.process_encryption()
 
@@ -228,7 +228,7 @@ class TestETLDataEncryptionComponent:
         # Mock the encryption process
         mock_data_security_client.test_rule_batch.return_value = ["encrypted_phone"]
 
-        with patch('lfx.services.deps.get_data_security_client', return_value=mock_data_security_client):
+        with patch("lfx.services.deps.get_data_security_client", return_value=mock_data_security_client):
             # Execute
             stats_data = component.get_encryption_stats()
 
@@ -267,7 +267,7 @@ class TestETLDataEncryptionComponent:
             {"id": 2, "ruleName": "MD5哈希"},
         ]
 
-        with patch('lfx.services.deps.get_data_security_client', return_value=mock_data_security_client):
+        with patch("lfx.services.deps.get_data_security_client", return_value=mock_data_security_client):
             # Execute
             rules = await component._load_encryption_rules()
 
@@ -284,7 +284,7 @@ class TestETLDataEncryptionComponent:
     @pytest.mark.asyncio
     async def test_load_encryption_rules_service_unavailable(self, component):
         """Test loading encryption rules when service is unavailable."""
-        with patch('lfx.services.deps.get_data_security_client', return_value=None):
+        with patch("lfx.services.deps.get_data_security_client", return_value=None):
             # Execute
             rules = await component._load_encryption_rules()
 
@@ -297,7 +297,7 @@ class TestETLDataEncryptionComponent:
         # Setup mock to raise exception
         mock_data_security_client.get_protection_rules.side_effect = Exception("Service error")
 
-        with patch('lfx.services.deps.get_data_security_client', return_value=mock_data_security_client):
+        with patch("lfx.services.deps.get_data_security_client", return_value=mock_data_security_client):
             # Execute
             rules = await component._load_encryption_rules()
 
