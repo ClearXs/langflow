@@ -1,4 +1,3 @@
-# syntax=docker/dockerfile:1
 # Keep this syntax directive! It's used to enable Docker BuildKit
 
 ################################
@@ -49,7 +48,7 @@ COPY ./src/lfx/pyproject.toml /app/src/lfx/pyproject.toml
 RUN --mount=type=cache,target=/root/.cache/uv \
     RUSTFLAGS='--cfg reqwest_unstable' \
     UV_HTTP_TIMEOUT=500 \
-    uv sync --frozen --no-install-project --no-editable --extra postgresql --index-url https://pypi.tuna.tsinghua.edu.cn/simple
+    uv sync --frozen --no-install-project --no-editable --extra postgresql --index-url https://mirrors.aliyun.com/pypi/simple
 
 COPY ./src /app/src
 
@@ -101,6 +100,8 @@ WORKDIR /app
 
 ENV LANGFLOW_HOST=0.0.0.0
 ENV LANGFLOW_PORT=7860
+
+EXPOSE 7860
 
 CMD ["langflow", "run"]
 
