@@ -610,8 +610,14 @@ class Vertex:
 
     async def _build_each_vertex_in_params_dict(self) -> None:
         """Iterates over each vertex in the params dictionary and builds it."""
+        await logger.adebug(f"[BUILD] {self.display_name} _build_each_vertex_in_params_dict starting")
+        await logger.adebug(f"[BUILD] raw_params keys: {list(self.raw_params.keys())}")
+
         for key, value in self.raw_params.items():
+            await logger.adebug(f"[BUILD] Processing {key}: type={type(value).__name__}")
+
             if self._is_vertex(value):
+                await logger.adebug(f"[BUILD] {key} is a Vertex, will call get_result()")
                 if value == self:
                     del self.params[key]
                     continue
@@ -620,13 +626,18 @@ class Vertex:
                     value,
                 )
             elif isinstance(value, list) and self._is_list_of_vertices(value):
+                await logger.adebug(f"[BUILD] {key} is a list of Vertices")
                 await self._build_list_of_vertices_and_update_params(key, value)
             elif isinstance(value, dict):
+                await logger.adebug(f"[BUILD] {key} is a dict")
                 await self._build_dict_and_update_params(
                     key,
                     value,
                 )
             elif key not in self.params or self.updated_raw_params:
+                await logger.adebug(
+                    f"[BUILD] {key} is simple value, setting directly (updated_raw_params={self.updated_raw_params})"
+                )
                 self.params[key] = value
 
     async def _build_dict_and_update_params(

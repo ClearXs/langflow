@@ -1,6 +1,6 @@
 import json
 import time
-from collections.abc import Generator
+from collections.abc import AsyncGenerator, Generator
 from typing import Any
 
 import i18n
@@ -17,16 +17,19 @@ from lfx.io import (
 )
 from lfx.log.logger import logger
 from lfx.schema import Data
+from lfx.streaming import streaming_component
 
 # Constants
 SAMPLE_CACHE_SIZE = 5
 
 
+@streaming_component
 class ETLKafkaInputComponent(Component):
     display_name = i18n.t("components.input_output.kafka_input.display_name")
     description = i18n.t("components.input_output.kafka_input.description")
     icon = "activity"
     name = "ETLKafkaInput"
+    is_streaming_component = True
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -241,16 +244,19 @@ class ETLKafkaInputComponent(Component):
             name="data",
             display_name=i18n.t("components.input_output.kafka_input.outputs.data.display_name"),
             method="consume_messages",
+            types=["Data"],
         ),
         Output(
             name="sample_data",
             display_name=i18n.t("components.input_output.kafka_input.outputs.sample_data.display_name"),
             method="get_sample_data",
+            types=["Data"],
         ),
         Output(
             name="consumer_info",
             display_name=i18n.t("components.input_output.kafka_input.outputs.consumer_info.display_name"),
             method="get_consumer_info",
+            types=["Data"],
         ),
     ]
 
@@ -554,9 +560,18 @@ class ETLKafkaInputComponent(Component):
 
         return results
 
-    def consume_messages(self) -> Generator[Data, None, None]:
-        """实时流式消费 Kafka 消息，一条一条地 yield"""
+    async def consume_messages(self) -> AsyncGenerator[Data, None]:
+        """实时流式消费 Kafka 消息，一条一条地 yield（异步版本）"""
         try:
+            # 检查是否在设计时上下文中（字段分析等）
+            # 在设计时，我们返回样本数据而不是异步生成器
+            if not hasattr(self, "graph") or self.graph is None:
+                logger.info("[KafkaInput] Design-time context detected, returning sample data")
+                sample_data_list = self.get_sample_data()
+                for sample_data in sample_data_list:
+                    yield sample_data
+                return
+
             # 重置停止标志
             self._should_stop = False
 
@@ -573,9 +588,10 @@ class ETLKafkaInputComponent(Component):
             # 解析主题列表
             topics = [t.strip() for t in self.topics.split(",")]
 
-            # 使用流式模式
-            logger.info("Starting streaming mode")
-            yield from self._consume_messages_streaming()
+            # 使用流式模式（异步）
+            logger.info("Starting async streaming mode")
+            async for data in self._consume_messages_streaming_async():
+                yield data
 
         except Exception as e:
             error_msg = i18n.t("components.input_output.kafka_input.errors.consume_failed", error=str(e))
@@ -897,13 +913,102 @@ class ETLKafkaInputComponent(Component):
         if self._sample_data_cache:
             return [Data(data=sample) for sample in self._sample_data_cache]
 
-        # If no cache, return example structure
-        example_data = {"_kafka_topic": "", "_kafka_partition": 0, "_kafka_offset": 0, "_kafka_timestamp": 0}
+        # Auto-populate schema if empty (for design-time discovery)
+        if not self.message_schema:
+            logger.info("[KafkaInput] No schema defined, creating example schema for field discovery")
+            self.message_schema = [
+                {"field_name": "id", "field_type": "string", "required": True, "json_path": "", "description": "Unique identifier"},
+                {"field_name": "name", "field_type": "string", "required": True, "json_path": "", "description": "Entity name"},
+                {"field_name": "value", "field_type": "float", "required": False, "json_path": "", "description": "Numeric value"},
+                {"field_name": "timestamp", "field_type": "timestamp", "required": True, "json_path": "", "description": "Event timestamp"}
+            ]
+            logger.info(f"[KafkaInput] Created example schema with {len(self.message_schema)} fields")
+
+        # Generate sample data based on schema if available
+        if self.message_schema:
+            logger.info(f"[KafkaInput] Generating sample data from schema with {len(self.message_schema)} fields")
+
+            # Create sample data based on user-defined schema
+            sample_data = {}
+            valid_fields_found = False
+
+            for field in self.message_schema:
+                # Debug field structure
+                logger.debug(f"[KafkaInput] Processing field: {field}")
+
+                field_name = field.get("field_name", "")
+                field_type = field.get("field_type", "string")
+                is_required = field.get("required", False)
+
+                # Skip empty field names (only if not required)
+                if not field_name or field_name.strip() == "":
+                    if is_required:
+                        logger.warning("[KafkaInput] Required field has empty name, using placeholder")
+                        field_name = "required_field"
+                    else:
+                        logger.debug("[KafkaInput] Skipping empty field name")
+                        continue
+
+                logger.debug(f"[KafkaInput] Adding field '{field_name}' with type '{field_type}', required: {is_required}")
+
+                # Generate sample value based on type
+                if field_type == "string":
+                    sample_data[field_name] = f"sample_{field_name}"
+                elif field_type == "int":
+                    sample_data[field_name] = 0
+                elif field_type == "float":
+                    sample_data[field_name] = 0.0
+                elif field_type == "bool":
+                    sample_data[field_name] = True
+                elif field_type == "json":
+                    sample_data[field_name] = {"nested": "value"}
+                elif field_type == "timestamp":
+                    sample_data[field_name] = "2024-01-01T00:00:00Z"
+                else:
+                    sample_data[field_name] = f"sample_{field_name}"
+
+                valid_fields_found = True
+
+            # If no valid fields were found, provide default sample data
+            if not valid_fields_found:
+                logger.warning("[KafkaInput] No valid schema fields found, providing default sample data")
+                sample_data = {
+                    "id": "sample_id",
+                    "name": "sample_name",
+                    "value": "sample_value",
+                    "timestamp": "2024-01-01T00:00:00Z"
+                }
+
+            # Add Kafka metadata
+            sample_data.update({
+                "_kafka_topic": self.topics.split(",")[0] if self.topics else "sample_topic",
+                "_kafka_partition": 0,
+                "_kafka_offset": 0,
+                "_kafka_timestamp": "2024-01-01T00:00:00Z"
+            })
+
+            logger.info(f"[KafkaInput] Generated sample data: {sample_data}")
+            return [Data(data=sample_data)]
+
+        # If no schema, return example structure
+        example_data = {
+            "_kafka_topic": self.topics.split(",")[0] if self.topics else "sample_topic",
+            "_kafka_partition": 0,
+            "_kafka_offset": 0,
+            "_kafka_timestamp": "2024-01-01T00:00:00Z"
+        }
 
         # Adjust example based on output format
         if self.output_format == "flattened":
-            # Flattened example
+            # Flattened example with common fields
+            example_data.update({
+                "id": "sample_id",
+                "name": "sample_name",
+                "value": "sample_value",
+                "timestamp": "2024-01-01T00:00:00Z"
+            })
             return [Data(data=example_data)]
+
         # Raw structure example
         return [Data(data={"value": "sample_data", **example_data})]
 
@@ -931,7 +1036,7 @@ class ETLKafkaInputComponent(Component):
         return Data(data=info)
 
     def update_build_config(
-        self, build_config: dict[str, Any], field_value: Any, field_name: str | None = None
+        self, build_config: dict[str, Any], field_value: Any, field_name: str | None = None, action: str | None = None
     ) -> dict[str, Any]:
         """Update build config based on user actions."""
         if field_name == "message_schema" and field_value == "auto_detect_schema":
@@ -1164,7 +1269,7 @@ class ETLKafkaInputComponent(Component):
 
     def _consume_messages_streaming(self) -> Generator[Data, None, None]:
         """流式消费 Kafka 消息 - 接收一条立即 yield 一条"""
-        from confluent_kafka import Consumer, KafkaError
+        from confluent_kafka import KafkaError
 
         # 解析主题列表
         topics = [t.strip() for t in self.topics.split(",")]
@@ -1318,6 +1423,183 @@ class ETLKafkaInputComponent(Component):
 
         except Exception as e:
             logger.error(f"Streaming error: {e}")
+            self.status = f"Streaming error: {e}"
+            raise
+        finally:
+            # 注意：不在这里关闭 consumer，由 consume_messages 的 finally 块处理
+            pass
+
+    async def _consume_messages_streaming_async(self) -> AsyncGenerator[Data, None]:
+        """异步流式消费 Kafka 消息 - 接收一条立即 yield 一条（真正非阻塞）"""
+        import asyncio
+
+        from confluent_kafka import KafkaError
+
+        # 解析主题列表
+        topics = [t.strip() for t in self.topics.split(",")]
+
+        try:
+            # 1. 如果不保持 Consumer 活跃，关闭旧的
+            if not self.keep_consumer_alive:
+                self._close_current_consumer()
+
+            # 2. 复用或创建 Consumer
+            if self._current_consumer is None:
+                consumer = self._create_consumer()
+                self._current_consumer = consumer
+            else:
+                consumer = self._current_consumer
+                logger.info("Reusing existing consumer")
+
+            # 3. 记录订阅信息
+            self._log_subscription_info(consumer, topics)
+
+            # 4. 订阅主题
+            logger.info(f"Subscribing to topics: {topics}...")
+            consumer.subscribe(topics)
+            logger.info("✓ Subscribed successfully")
+
+            # 5. 等待分区分配（在线程池中执行）
+            await asyncio.to_thread(self._wait_for_assignment, consumer)
+
+            # 6. 记录分区分配详情
+            self._log_partition_assignment(consumer)
+
+            # 7. 开始流式轮询
+            self.status = i18n.t("components.input_output.kafka_input.status.streaming")
+            logger.info("Starting async streaming consumption...")
+
+            message_count = 0
+            poll_timeout = 1.0  # 1秒超时，快速响应停止信号
+
+            while not self._should_stop:
+                try:
+                    # 检查停止标志
+                    if self._should_stop:
+                        logger.info("Stop signal detected, exiting")
+                        break
+
+                    # ✅ 在线程池中执行阻塞的 poll 操作
+                    msg = await asyncio.to_thread(consumer.poll, poll_timeout)
+
+                    if msg is None:
+                        self._debug_log("No message received")
+                        # ✅ 让出控制权，保持 UI 响应
+                        await asyncio.sleep(0)
+                        continue
+
+                    if msg.error():
+                        error_code = msg.error().code()
+                        if error_code == KafkaError._PARTITION_EOF:
+                            self._debug_log(f"EOF on {msg.topic()}-{msg.partition()} offset {msg.offset()}")
+                            await asyncio.sleep(0)
+                            continue
+                        logger.warning(f"Kafka error: {msg.error()}")
+                        await asyncio.sleep(0)
+                        continue
+
+                    # 成功获取消息
+                    self._debug_log(f"✓ {msg.topic()}-{msg.partition()} offset {msg.offset()}")
+
+                    try:
+                        # 反序列化消息
+                        value_bytes = msg.value()
+                        if not value_bytes:
+                            self._debug_log("Empty message body, skipping")
+                            await asyncio.sleep(0)
+                            continue
+
+                        if self.value_deserializer == "json":
+                            try:
+                                value = json.loads(value_bytes.decode("utf-8"))
+                                self._debug_log(f"JSON parsed: {type(value).__name__}")
+                            except json.JSONDecodeError as json_error:
+                                logger.warning(f"JSON decode error: {json_error}")
+                                await asyncio.sleep(0)
+                                continue
+                        else:
+                            try:
+                                value = value_bytes.decode("utf-8")
+                                self._debug_log(f"String decoded: {len(value)} chars")
+                            except UnicodeDecodeError as unicode_error:
+                                logger.warning(f"Unicode decode error: {unicode_error}")
+                                await asyncio.sleep(0)
+                                continue
+
+                        # 提取 JSONPath
+                        if self.json_path and isinstance(value, dict):
+                            try:
+                                value = self._extract_json_path(value)
+                                self._debug_log(f"JSONPath extracted: {type(value).__name__}")
+                            except Exception as path_error:
+                                logger.warning(f"JSONPath extraction error: {path_error}")
+                                await asyncio.sleep(0)
+                                continue
+
+                        # 处理消息
+                        processed_data = self._process_message(value)
+
+                        # 添加 Kafka 元数据
+                        if isinstance(processed_data, dict):
+                            processed_data.update(
+                                {
+                                    "_kafka_topic": msg.topic(),
+                                    "_kafka_partition": msg.partition(),
+                                    "_kafka_offset": msg.offset(),
+                                    "_kafka_timestamp": msg.timestamp()[1] if msg.timestamp()[0] else None,
+                                }
+                            )
+
+                            # 确保有 text 和 content 字段用于兼容性
+                            if "text" not in processed_data and "content" not in processed_data:
+                                text_value = json.dumps(processed_data, ensure_ascii=False, indent=2)
+                                processed_data["text"] = text_value
+                                processed_data["content"] = text_value
+                            elif "text" in processed_data and "content" not in processed_data:
+                                processed_data["content"] = processed_data["text"]
+                            elif "content" in processed_data and "text" not in processed_data:
+                                processed_data["text"] = processed_data["content"]
+
+                        # 缓存样本数据
+                        if len(self._sample_data_cache) < SAMPLE_CACHE_SIZE:
+                            self._sample_data_cache.append(processed_data.copy())
+
+                        # 创建 Data 对象并立即 yield
+                        data_obj = Data(data=processed_data)
+                        message_count += 1
+
+                        # 更新状态
+                        if message_count % 10 == 0:
+                            self.status = f"📊 Streaming: {message_count} messages"
+                            logger.info(f"Streamed {message_count} messages so far")
+
+                        self._debug_log(f"✓ Yielding message {message_count}")
+                        yield data_obj
+
+                        # ✅ 让出控制权，允许其他任务运行
+                        await asyncio.sleep(0)
+
+                    except Exception as processing_error:
+                        logger.error(f"Error processing message: {processing_error}")
+                        await asyncio.sleep(0)
+                        continue
+
+                except KeyboardInterrupt:
+                    logger.info("Streaming interrupted by user")
+                    self._should_stop = True
+                    break
+                except Exception as e:
+                    logger.error(f"Polling error: {e}")
+                    # 继续运行，不因单个错误而中断
+                    await asyncio.sleep(0)
+                    continue
+
+            # 流式消费结束
+            logger.info(f"Async streaming completed: {message_count} messages")
+            self.status = f"Streaming completed: {message_count} messages"
+
+        except Exception as e:
+            logger.error(f"Async streaming error: {e}")
             self.status = f"Streaming error: {e}"
             raise
         finally:

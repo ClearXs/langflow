@@ -352,6 +352,7 @@ dockerfile_build:
 	@echo 'BUILDING DOCKER IMAGE: ${DOCKERFILE}'
 	@command -v $(DOCKER) >/dev/null 2>&1 || { echo "Error: $(DOCKER) is not installed. Please install $(DOCKER), or run 'make docker_build DOCKER=podman' (or DOCKER=docker) if you have an alternative installed."; exit 1; }
 	@$(DOCKER) build --rm \
+		--platform linux/amd64 \
 		-f ${DOCKERFILE} \
 		-t langflow:${VERSION} .
 

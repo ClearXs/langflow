@@ -1,3 +1,4 @@
+import asyncio
 from typing import Any
 
 import i18n
@@ -185,40 +186,59 @@ class ETLDualStreamJoinComponent(Component):
                 right_fields = []
 
                 # Primary strategy: Try to execute upstream nodes to get actual data
-                try:
-                    left_data = await self.get_upstream_data(
-                        input_name="left_stream", graph_data=graph_data, sample_size=10, vertex_id=node_id
-                    )
-                    right_data = await self.get_upstream_data(
-                        input_name="right_stream", graph_data=graph_data, sample_size=10, vertex_id=node_id
-                    )
+                # Enhanced with retry mechanism for "has not been built yet" errors
+                max_retries = 2
+                left_data = None
+                right_data = None
 
-                    # 提取字段列表
-                    left_fields = self._extract_field_names(left_data) if left_data else []
-                    right_fields = self._extract_field_names(right_data) if right_data else []
-
-                    if left_fields or right_fields:
-                        logger.info(
-                            f"[DualStreamJoin] Extracted fields from upstream data - left: {len(left_fields)}, right: {len(right_fields)}"
+                for attempt in range(max_retries):
+                    try:
+                        left_data = await self.get_upstream_data(
+                            input_name="left_stream", graph_data=graph_data, sample_size=10, vertex_id=node_id
+                        )
+                        right_data = await self.get_upstream_data(
+                            input_name="right_stream", graph_data=graph_data, sample_size=10, vertex_id=node_id
                         )
 
-                except ValueError as e:
-                    # Fallback strategy: Extract from upstream node configurations
-                    logger.warning(f"[DualStreamJoin] Upstream execution failed: {e}. Trying static analysis...")
+                        # 提取字段列表
+                        left_fields = self._extract_field_names(left_data) if left_data else []
+                        right_fields = self._extract_field_names(right_data) if right_data else []
 
+                        if left_fields or right_fields:
+                            logger.info(
+                                f"[DualStreamJoin] Extracted fields from upstream data - left: {len(left_fields)}, right: {len(right_fields)} (attempt {attempt + 1})"
+                            )
+                            break
+                        else:
+                            logger.warning(f"[DualStreamJoin] No data returned from upstream nodes (attempt {attempt + 1})")
+
+                    except ValueError as e:
+                        error_msg = str(e)
+                        if "has not been built yet" in error_msg and attempt < max_retries - 1:
+                            logger.warning(f"[DualStreamJoin] Upstream node not built, retrying... (attempt {attempt + 1}/{max_retries})")
+                            await asyncio.sleep(0.2)  # Brief delay before retry
+                            continue
+                        else:
+                            # Fallback strategy: Extract from upstream node configurations
+                            logger.warning(f"[DualStreamJoin] Upstream execution failed after {attempt + 1} attempts: {e}. Trying static analysis...")
+                            break
+                    except Exception as e:
+                        logger.warning(f"[DualStreamJoin] Unexpected error during upstream execution: {e}. Falling back to static analysis...")
+                        break
+
+                # If we couldn't get data from execution, try static analysis
+                if not left_data and not right_data:
                     try:
                         from lfx.components.helpers.field_extraction import find_and_extract_upstream_fields
 
                         # Extract from both inputs
-                        if not left_fields:
-                            left_fields = find_and_extract_upstream_fields(
-                                graph_data, node_id, "left_stream", "DualStreamJoin"
-                            )
+                        left_fields = find_and_extract_upstream_fields(
+                            graph_data, node_id, "left_stream", "DualStreamJoin"
+                        )
 
-                        if not right_fields:
-                            right_fields = find_and_extract_upstream_fields(
-                                graph_data, node_id, "right_stream", "DualStreamJoin"
-                            )
+                        right_fields = find_and_extract_upstream_fields(
+                            graph_data, node_id, "right_stream", "DualStreamJoin"
+                        )
 
                         if left_fields or right_fields:
                             logger.info(

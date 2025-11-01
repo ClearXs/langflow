@@ -186,6 +186,7 @@
     "unlock": "解锁",
     "freeze": "冻结",
     "unfreeze": "解冻",
+    "back": "返回",
     "share": {
       "button": "分享",
       "menu": {
@@ -1005,6 +1006,7 @@
       "chatFormSubtitle": "与您的 AI 互动。监控输入、输出和记忆。",
       "editSubtitle": "调整组件的设置并定义参数可见性。记得保存您的更改。",
       "codePromptSubtitle": "编辑您的 Python 代码片段。有关如何编写自己的组件的更多信息，请参阅 Langflow 文档。",
+      "codePromptSubtitleBash": "编辑您的 Shell 脚本代码。有关如何编写自己的组件的更多信息，请参阅 Langflow 文档。",
       "codeDictSubtitle": "根据需要自定义您的字典，添加或编辑键值对。支持添加新对象 {} 或数组 []。",
       "promptSubtitle": "创建您的提示。提示可以帮助指导语言模型的行为。使用大括号 {} 引入变量。",
       "importSubtitle": "从 JSON 文件导入流程或从预先存在的示例中选择。",

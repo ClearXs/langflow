@@ -5,6 +5,7 @@ import "ace-builds/src-noconflict/ace";
 import "ace-builds/src-noconflict/ext-language_tools";
 import "ace-builds/src-noconflict/ext-searchbox";
 import "ace-builds/src-noconflict/mode-python";
+import "ace-builds/src-noconflict/mode-sh";
 import "ace-builds/src-noconflict/theme-github";
 import "ace-builds/src-noconflict/theme-twilight";
 import { useEffect, useRef, useState } from "react";
@@ -39,6 +40,7 @@ export default function CodeAreaModal({
   open: myOpen,
   setOpen: mySetOpen,
   componentId,
+  language = "python",
 }: codeAreaModalPropsType): JSX.Element {
   const { t } = useTranslation();
 
@@ -134,6 +136,13 @@ export default function CodeAreaModal({
   }
 
   function processCode() {
+    // For non-Python languages (like bash), skip validation and save directly
+    if (language !== "python") {
+      setValue(code);
+      setOpen(false);
+      return;
+    }
+
     if (!dynamic) {
       processNonDynamicField();
     } else {
@@ -191,7 +200,7 @@ export default function CodeAreaModal({
       size="x-large"
     >
       <BaseModal.Trigger>{children}</BaseModal.Trigger>
-      <BaseModal.Header description={t("constants.dialog.codePromptSubtitle")}>
+      <BaseModal.Header description={t(language === "bash" ? "constants.dialog.codePromptSubtitleBash" : "constants.dialog.codePromptSubtitle")}>
         <span className="pr-2">{t("constants.modal.editCodeTitle")}</span>
         <IconComponent
           name="prompts"
@@ -212,7 +221,7 @@ export default function CodeAreaModal({
               ref={codeRef}
               readOnly={readonly}
               value={code}
-              mode="python"
+              mode={language === "bash" ? "sh" : "python"}
               setOptions={{ fontFamily: "monospace" }}
               height={height ?? "100%"}
               highlightActiveLine={true}

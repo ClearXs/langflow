@@ -941,9 +941,28 @@ class ETLDataCleaningComponent(Component):
             processed_count = 0
 
             # Process each data item
-            for data_item in self.data_input:
+            # Handle both single Data objects and lists of Data objects
+            data_items = self.data_input
+            if not isinstance(data_items, list):
+                data_items = [data_items]
+
+            for data_item in data_items:
                 # Get original data dictionary
-                row_dict = data_item.data if hasattr(data_item, "data") else data_item
+                row_dict = data_item.data if hasattr(data_item, "data") and isinstance(data_item.data, dict) else data_item
+
+                # If row_dict is still not a dict, try to handle it
+                if not isinstance(row_dict, dict):
+                    if isinstance(row_dict, tuple):
+                        # Handle tuple case - try to extract meaningful data
+                        logger.warning(f"Received tuple instead of dict: {row_dict}")
+                        if len(row_dict) >= 2 and isinstance(row_dict[1], dict):
+                            row_dict = row_dict[1]  # Use the second element if it's a dict
+                        else:
+                            logger.error(f"Cannot process tuple: {row_dict}")
+                            continue
+                    else:
+                        logger.warning(f"Expected dict but got {type(row_dict)}: {row_dict}")
+                        continue
 
                 # 1. Evaluate filter conditions
                 if not self._evaluate_filter_conditions(row_dict):

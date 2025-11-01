@@ -11,18 +11,18 @@
   },
   "cdc_mode": {
     "display_name": "CDC Mode",
-    "info": "Change capture mode",
+    "info": "Choose how to capture data changes:\n\n【Timestamp-Based Mode】(Recommended, Simplest)\nHow it works: Queries the update time field in records (e.g., updated_at) to find recently updated entries\nAdvantages: No database configuration needed, ready to use\nRequirements: Table must have an update time field (updated_at, modified_at, etc.)\nUse case: Recommended for most scenarios\n\n【Trigger-Based Mode】(Requires Database Setup)\nHow it works: Creates database triggers to automatically log changes to an audit table\nAdvantages: Can capture delete operations, records detailed change information\nRequirements: Must manually create audit table (table_name_audit) and database triggers\nUse case: Scenarios requiring complete audit logs\n\n【Log-Based Mode】(Requires External Tools)\nHow it works: Parses database transaction logs (binlog, WAL, etc.)\nRequirements: Requires installation and configuration of CDC tools like Debezium\nUse case: Enterprise-level real-time data synchronization",
     "timestamp": "Timestamp-Based",
     "log_based": "Log-Based",
     "trigger_based": "Trigger-Based"
   },
   "timestamp_column": {
     "display_name": "Timestamp Column",
-    "info": "Column to track changes"
+    "info": "【Only required for Timestamp-Based mode】\n\nSpecify which field in your table stores the last update time of records.\n\nCommon column names:\n• updated_at - Update time\n• modified_at - Modification time\n• last_modified - Last modified time\n• update_time - Update time\n\nExample: If your companies table has the following structure:\n- id (integer)\n- name (string)\n- updated_at (timestamp) ← This field\n\nThen enter here: updated_at"
   },
   "last_sync_time": {
     "display_name": "Last Sync Time",
-    "info": "Last synchronization timestamp"
+    "info": "The last synchronization timestamp, only captures changes after this time. Format: YYYY-MM-DD HH:MM:SS. Leave empty to capture all records from 1970-01-01"
   },
   "poll_interval_seconds": {
     "display_name": "Poll Interval (seconds)",
@@ -59,6 +59,8 @@
     "invalid_mode": "Invalid CDC mode",
     "capture_failed": "Failed to capture changes: {error}",
     "audit_table_missing": "Audit table '{table}' not found",
+    "audit_table_not_found": "Audit table '{audit_table}' for table '{table}' does not exist. Trigger-based CDC requires an audit table and triggers to be set up in advance.\n\nPlease follow these steps:\n1. Create audit table: Use CREATE TABLE statement to create '{audit_table}' table with fields like audit_timestamp, operation_type, etc.\n2. Create triggers to log changes to the audit table\n3. Or switch to 'Timestamp-Based' mode which does not require an audit table",
+    "audit_query_failed": "Failed to query audit table '{audit_table}': {error}",
     "no_datasource": "No data source selected",
     "no_table": "No table selected",
     "invalid_datasource": "Invalid data source configuration",

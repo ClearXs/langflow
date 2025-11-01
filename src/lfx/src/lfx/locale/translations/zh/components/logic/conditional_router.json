@@ -1,9 +1,26 @@
 {
-  "display_name": "条件分支",
-  "description": "根据文本比较将输入消息路由到相应的输出。",
+  "display_name": "条件路由器",
+  "description": "基于多个字段条件和AND/OR逻辑组合路由消息。",
+  "data_input": {
+    "display_name": "数据输入",
+    "info": "用于评估条件的输入数据（Data或Message）。"
+  },
+  "conditions": {
+    "display_name": "条件配置",
+    "info": "配置路由逻辑的多个条件。点击'加载字段'按钮从上游数据填充字段选项。",
+    "field_name": "字段名",
+    "operator": "运算符",
+    "compare_value": "比较值",
+    "compare_value_info": "要比较的值。对于'列表包含'运算符，使用逗号分隔的值。",
+    "load_fields_button": "加载字段"
+  },
+  "combination_logic": {
+    "display_name": "组合逻辑",
+    "info": "选择如何组合多个条件：AND（全部为真）或OR（任一为真）。"
+  },
   "input_text": {
     "display_name": "文本输入",
-    "info": "操作的主要文本输入。"
+    "info": "操作的主要文本输入（传统模式）。"
   },
   "operator": {
     "display_name": "运算符",
@@ -35,24 +52,47 @@
   },
   "outputs": {
     "true_result": {
-      "display_name": "真"
+      "display_name": "true"
     },
     "false_result": {
-      "display_name": "假"
+      "display_name": "false"
     }
   },
   "status": {
     "condition_true": "条件评估为True",
     "condition_false": "条件评估为False",
     "forced_true": "已达到最大迭代次数（%{iteration}）- 强制True输出",
-    "forced_false": "已达到最大迭代次数（%{iteration}）- 强制False输出"
+    "forced_false": "已达到最大迭代次数（%{iteration}）- 强制False输出",
+    "multi_condition_true": "多条件评估成功 - 逻辑：%{logic}，条件数：%{conditions}",
+    "multi_condition_false": "多条件评估失败 - 逻辑：%{logic}，条件数：%{conditions}",
+    "fields_loaded": "成功从上游数据加载了%{count}个字段"
   },
   "warnings": {
     "invalid_regex": "无效的正则表达式模式'%{pattern}'：%{error}",
-    "invalid_number": "比较的数字格式无效 - 输入：'%{input_text}'，匹配：'%{match_text}'，错误：%{error}"
+    "invalid_number": "比较的数字格式无效 - 输入：'%{input_text}'，匹配：'%{match_text}'，错误：%{error}",
+    "invalid_list": "无效的列表格式'%{match_text}'：%{error}",
+    "field_extraction_error": "提取字段'%{field_path}'失败：%{error}",
+    "no_conditions_configured": "未配置任何条件进行评估",
+    "empty_field_name": "条件字段名为空，跳过",
+    "field_population_error": "填充字段选项失败：%{error}",
+    "update_field_options_error": "更新字段选项失败：%{error}",
+    "field_loading_error": "加载字段时出错：%{error}",
+    "no_graph_data_placeholder": "检测到占位图 - 无图数据可用",
+    "no_upstream_data": "从上游节点未返回数据",
+    "upstream_failed": "上游执行失败：%{error}。尝试静态分析...",
+    "static_extraction_failed": "静态字段提取失败：%{error}",
+    "no_fields_found_error": "在上游配置中未找到字段"
+  },
+  "errors": {
+    "field_not_found": "在上游数据中未找到字段'%{field}'",
+    "invalid_condition": "无效的条件配置：%{error}",
+    "no_graph_data_error": "无图数据可用于字段加载",
+    "field_loading_failed": "字段加载失败：%{error}"
   },
   "logs": {
     "pre_run_setup": "预运行设置已完成 - 迭代计数器已重置",
+    "legacy_mode_enabled": "已启用传统单条件模式",
+    "multi_condition_mode_enabled": "已启用多条件模式",
     "evaluating": "正在评估条件 - 运算符：%{operator}，区分大小写：%{case_sensitive}",
     "evaluation_result": "条件评估结果：%{result}",
     "iteration_updated": "迭代已更新 - 当前：%{iteration}，最大：%{max_iterations}",
@@ -66,6 +106,33 @@
     "forced_false_output": "由于达到最大迭代次数而强制False输出：%{iteration}",
     "updating_config": "正在更新运算符的构建配置：%{operator}",
     "removed_case_sensitive": "已为正则表达式运算符移除case_sensitive字段",
-    "added_case_sensitive": "已将case_sensitive字段添加到构建配置"
-  }
+    "added_case_sensitive": "已将case_sensitive字段添加到构建配置",
+    "updating_combination_logic": "正在更新组合逻辑：%{logic}",
+    "updating_conditions": "正在更新条件表，包含%{conditions_count}个条件",
+    "condition_evaluated": "条件已评估 - 字段：%{field}，运算符：%{operator}，值：%{value}，比较：%{compare}，结果：%{result}",
+    "and_short_circuit": "AND逻辑短路：条件失败，返回False",
+    "or_short_circuit": "OR逻辑短路：条件成功，返回True",
+    "final_evaluation": "最终评估 - 逻辑：%{logic}，结果：%{results}，最终：%{final_result}",
+    "no_graph_available": "无图可用于字段提取",
+    "no_graph_data": "无图数据可用于字段提取",
+    "fields_from_data": "从上游数据提取了%{count}个字段",
+    "fields_from_message": "从消息对象提取了%{count}个字段",
+    "fields_from_template": "从模板配置提取了%{count}个字段",
+    "no_fields_found": "在上游配置中未找到字段",
+    "field_options_updated": "已更新字段选项，包含%{count}个可用字段",
+    "loading_fields": "正在从上游数据加载字段选项",
+    "loaded_fields": "成功加载了%{count}个字段选项",
+    "trying_data_extraction": "Schema提取为空，尝试从数据提取作为备用"
+  },
+  "select_field": "选择字段...",
+  "select_operator": "选择运算符...",
+  "add_condition": "添加条件",
+  "no_conditions_added": "未添加任何条件。点击'添加条件'开始。",
+  "instructions": {
+    "field_selection": "从上游数据中选择要比较的字段。",
+    "operator_selection": "为字段类型选择合适的运算符。",
+    "list_format": "对于'列表包含'运算符，请输入逗号分隔的值（例如：'值1,值2,值3'）。"
+  },
+  "value_placeholder": "输入比较值...",
+  "list_placeholder": "输入逗号分隔的值..."
 }

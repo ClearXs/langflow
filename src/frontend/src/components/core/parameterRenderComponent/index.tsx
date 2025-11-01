@@ -1,6 +1,7 @@
 import type { handleOnNewValueType } from "@/CustomNodes/hooks/use-handle-new-value";
 import AggregationConfigComponent from "@/components/core/parameterRenderComponent/components/aggregationConfigComponent";
 import CodeAreaComponent from "@/components/core/parameterRenderComponent/components/codeAreaComponent";
+import ConditionalRouterTableInputComponent from "@/components/core/parameterRenderComponent/components/conditionalRouterTableInput";
 import EncryptionConfigComponent from "@/components/core/parameterRenderComponent/components/encryptionConfigComponent";
 import FieldMappingTableInputComponent from "@/components/core/parameterRenderComponent/components/fieldMappingTableInputComponent";
 import FieldValueMappingComponent from "@/components/core/parameterRenderComponent/components/fieldValueMappingComponent";
@@ -195,7 +196,7 @@ export function ParameterRenderComponent({
           />
         );
       case "code":
-        return <CodeAreaComponent {...baseInputProps} id={`codearea_${id}`} />;
+        return <CodeAreaComponent {...baseInputProps} id={`codearea_${id}`} language={templateData.language} />;
       case "table":
         return (
           <TableNodeComponent
@@ -310,6 +311,14 @@ export function ParameterRenderComponent({
           <StreamJoinConfigComponent
             {...baseInputProps}
             id={`streamjoin_${id}`}
+          />
+        );
+      case "ConditionalRouterTableInput":
+        return (
+          <ConditionalRouterTableInputComponent
+            {...baseInputProps}
+            id={`conditionalrouter_${id}`}
+            fieldSchema={templateData?.table_schema}
           />
         );
       case "AggregationConfig":

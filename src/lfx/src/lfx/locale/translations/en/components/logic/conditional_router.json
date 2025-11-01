@@ -1,9 +1,26 @@
 {
-  "display_name": "If-Else",
-  "description": "Routes an input message to a corresponding output based on text comparison.",
+  "display_name": "Conditional Router",
+  "description": "Route messages based on multiple field conditions with AND/OR logic combinations.",
+  "data_input": {
+    "display_name": "Data Input",
+    "info": "The input data (Data or Message) to evaluate conditions against."
+  },
+  "conditions": {
+    "display_name": "Conditions",
+    "info": "Configure multiple conditions for routing logic. Click 'Load Fields' to populate field options from upstream data.",
+    "field_name": "Field Name",
+    "operator": "Operator",
+    "compare_value": "Compare Value",
+    "compare_value_info": "The value to compare against. For 'in list' operators, use comma-separated values.",
+    "load_fields_button": "Load Fields"
+  },
+  "combination_logic": {
+    "display_name": "Logic",
+    "info": "Choose how to combine multiple conditions: AND (all must be true) or OR (any can be true)."
+  },
   "input_text": {
     "display_name": "Text Input",
-    "info": "The primary text input for the operation."
+    "info": "The primary text input for the operation (legacy mode)."
   },
   "operator": {
     "display_name": "Operator",
@@ -45,14 +62,37 @@
     "condition_true": "Condition evaluated to True",
     "condition_false": "Condition evaluated to False",
     "forced_true": "Max iterations (%{iteration}) reached - forcing True output",
-    "forced_false": "Max iterations (%{iteration}) reached - forcing False output"
+    "forced_false": "Max iterations (%{iteration}) reached - forcing False output",
+    "multi_condition_true": "Multi-condition evaluation succeeded - Logic: %{logic}, Conditions: %{conditions}",
+    "multi_condition_false": "Multi-condition evaluation failed - Logic: %{logic}, Conditions: %{conditions}",
+    "fields_loaded": "Successfully loaded %{count} fields from upstream data"
   },
   "warnings": {
     "invalid_regex": "Invalid regex pattern '%{pattern}': %{error}",
-    "invalid_number": "Invalid number format for comparison - Input: '%{input_text}', Match: '%{match_text}', Error: %{error}"
+    "invalid_number": "Invalid number format for comparison - Input: '%{input_text}', Match: '%{match_text}', Error: %{error}",
+    "invalid_list": "Invalid list format '%{match_text}': %{error}",
+    "field_extraction_error": "Failed to extract field '%{field_path}': %{error}",
+    "no_conditions_configured": "No conditions configured for evaluation",
+    "empty_field_name": "Condition has empty field name, skipping",
+    "field_population_error": "Failed to populate field options: %{error}",
+    "update_field_options_error": "Failed to update field options: %{error}",
+    "field_loading_error": "Error loading fields: %{error}",
+    "no_graph_data_placeholder": "PlaceholderGraph detected - no graph data available",
+    "no_upstream_data": "No data returned from upstream node",
+    "upstream_failed": "Upstream execution failed: %{error}. Trying static analysis...",
+    "static_extraction_failed": "Static field extraction failed: %{error}",
+    "no_fields_found_error": "No fields found in upstream configuration"
+  },
+  "errors": {
+    "field_not_found": "Field '%{field}' not found in upstream data",
+    "invalid_condition": "Invalid condition configuration: %{error}",
+    "no_graph_data_error": "No graph data available for field loading",
+    "field_loading_failed": "Field loading failed: %{error}"
   },
   "logs": {
     "pre_run_setup": "Pre-run setup completed - iteration counter reset",
+    "legacy_mode_enabled": "Legacy single-condition mode enabled",
+    "multi_condition_mode_enabled": "Multi-condition mode enabled",
     "evaluating": "Evaluating condition - Operator: %{operator}, Case Sensitive: %{case_sensitive}",
     "evaluation_result": "Condition evaluation result: %{result}",
     "iteration_updated": "Iteration updated - Current: %{iteration}, Max: %{max_iterations}",
@@ -66,6 +106,33 @@
     "forced_false_output": "Forced False output due to max iterations: %{iteration}",
     "updating_config": "Updating build config for operator: %{operator}",
     "removed_case_sensitive": "Removed case_sensitive field for regex operator",
-    "added_case_sensitive": "Added case_sensitive field to build config"
-  }
+    "added_case_sensitive": "Added case_sensitive field to build config",
+    "updating_combination_logic": "Updating combination logic: %{logic}",
+    "updating_conditions": "Updating conditions table with %{conditions_count} condition(s)",
+    "condition_evaluated": "Condition evaluated - Field: %{field}, Operator: %{operator}, Value: %{value}, Compare: %{compare}, Result: %{result}",
+    "and_short_circuit": "AND logic short-circuit: condition failed, returning False",
+    "or_short_circuit": "OR logic short-circuit: condition succeeded, returning True",
+    "final_evaluation": "Final evaluation - Logic: %{logic}, Results: %{results}, Final: %{final_result}",
+    "no_graph_available": "No graph available for field extraction",
+    "no_graph_data": "No graph data available for field extraction",
+    "fields_from_data": "Extracted %{count} fields from upstream data",
+    "fields_from_message": "Extracted %{count} fields from message object",
+    "fields_from_template": "Extracted %{count} fields from template configuration",
+    "no_fields_found": "No fields found in upstream configuration",
+    "field_options_updated": "Updated field options with %{count} available fields",
+    "loading_fields": "Loading field options from upstream data",
+    "loaded_fields": "Successfully loaded %{count} field options",
+    "trying_data_extraction": "Schema extraction empty, trying data extraction as fallback"
+  },
+  "select_field": "Select field...",
+  "select_operator": "Select operator...",
+  "add_condition": "Add Condition",
+  "no_conditions_added": "No conditions added. Click 'Add Condition' to get started.",
+  "instructions": {
+    "field_selection": "Select a field from upstream data to compare against.",
+    "operator_selection": "Choose an appropriate operator for the field type.",
+    "list_format": "For 'in list' operators, enter comma-separated values (e.g., 'value1,value2,value3')."
+  },
+  "value_placeholder": "Enter comparison value...",
+  "list_placeholder": "Enter comma-separated values..."
 }

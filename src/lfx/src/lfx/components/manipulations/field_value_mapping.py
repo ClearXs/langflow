@@ -1,3 +1,4 @@
+import asyncio
 import re
 from typing import Any
 
@@ -238,22 +239,40 @@ class ETLFieldValueMappingComponent(Component):
                 mapping_rules = []
 
                 # Primary strategy: Try to execute upstream node to get actual data
-                try:
-                    upstream_data = await self.get_upstream_data(
-                        input_name="data_input", graph_data=graph_data, sample_size=10, vertex_id=node_id
-                    )
+                # Enhanced with retry mechanism for "has not been built yet" errors
+                max_retries = 2
+                upstream_data = None
 
-                    if upstream_data:
-                        # Extract field names and sample values from upstream data
-                        mapping_rules = self._extract_mapping_rules_with_samples(upstream_data)
-                        logger.info(f"[FieldValueMapping] Extracted {len(mapping_rules)} mapping rules from upstream data")
-                    else:
-                        logger.warning("[FieldValueMapping] No data returned from upstream node")
+                for attempt in range(max_retries):
+                    try:
+                        upstream_data = await self.get_upstream_data(
+                            input_name="data_input", graph_data=graph_data, sample_size=10, vertex_id=node_id
+                        )
 
-                except ValueError as e:
-                    # Fallback strategy: Extract from upstream node configuration
-                    logger.warning(f"[FieldValueMapping] Upstream execution failed: {e}. Trying static analysis...")
+                        if upstream_data:
+                            # Extract field names and sample values from upstream data
+                            mapping_rules = self._extract_mapping_rules_with_samples(upstream_data)
+                            logger.info(f"[FieldValueMapping] Extracted {len(mapping_rules)} mapping rules from upstream data (attempt {attempt + 1})")
+                            break
+                        else:
+                            logger.warning(f"[FieldValueMapping] No data returned from upstream node (attempt {attempt + 1})")
 
+                    except ValueError as e:
+                        error_msg = str(e)
+                        if "has not been built yet" in error_msg and attempt < max_retries - 1:
+                            logger.warning(f"[FieldValueMapping] Upstream node not built, retrying... (attempt {attempt + 1}/{max_retries})")
+                            await asyncio.sleep(0.2)  # Brief delay before retry
+                            continue
+                        else:
+                            # Fallback strategy: Extract from upstream node configuration
+                            logger.warning(f"[FieldValueMapping] Upstream execution failed after {attempt + 1} attempts: {e}. Trying static analysis...")
+                            break
+                    except Exception as e:
+                        logger.warning(f"[FieldValueMapping] Unexpected error during upstream execution: {e}. Falling back to static analysis...")
+                        break
+
+                # If we couldn't get data from execution, try static analysis
+                if not upstream_data:
                     try:
                         from lfx.components.helpers.field_extraction import find_and_extract_upstream_fields
 
@@ -265,10 +284,11 @@ class ETLFieldValueMappingComponent(Component):
                             # Generate mapping rules from field names (without sample values)
                             mapping_rules = [
                                 {
-                                    "field_name": field_name,
-                                    "operator": "equals",  # Default operator
-                                    "original_value": "",
-                                    "new_value": "",
+                                    "input_field": field_name,
+                                    "operator": "=",  # Default operator
+                                    "compare_value": "",
+                                    "replacement_value": "",
+                                    "output_field": field_name,  # Default: same as input
                                 }
                                 for field_name in field_names
                             ]
@@ -548,10 +568,30 @@ class ETLFieldValueMappingComponent(Component):
 
             result_data = []
 
+            # Handle both single Data objects and lists of Data objects
+            data_items = self.data_input
+            if not isinstance(data_items, list):
+                data_items = [data_items]
+
             # Process each data item
-            for data_item in self.data_input:
-                # Get original data dictionary
-                row_dict = data_item.data if hasattr(data_item, "data") else data_item
+            for data_item in data_items:
+                # Get original data dictionary with proper error handling
+                if hasattr(data_item, "data") and isinstance(data_item.data, dict):
+                    row_dict = data_item.data
+                elif isinstance(data_item, dict):
+                    row_dict = data_item
+                elif isinstance(data_item, tuple):
+                    # Handle tuple case - try to extract meaningful data
+                    logger.warning(f"Received tuple instead of Data object: {data_item}")
+                    if len(data_item) >= 2 and isinstance(data_item[1], dict):
+                        row_dict = data_item[1]  # Use the second element if it's a dict
+                    else:
+                        logger.error(f"Cannot process tuple: {data_item}")
+                        continue
+                else:
+                    logger.warning(f"Unknown data type {type(data_item)}: {data_item}")
+                    continue
+
                 result_dict = row_dict.copy()
 
                 # Track which output fields have been set to avoid overwriting

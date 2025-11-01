@@ -29,6 +29,7 @@ class ETLShellScriptComponent(Component):
             info=i18n.t("components.scripts.shell_script.script.info"),
             required=True,
             value=i18n.t("components.scripts.shell_script.script.default_code"),
+            language="bash",
         ),
         BoolInput(
             name="capture_output",

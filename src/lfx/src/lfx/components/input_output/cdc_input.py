@@ -1,4 +1,5 @@
 import asyncio
+from collections.abc import AsyncGenerator, Generator
 from datetime import datetime
 from typing import Any
 
@@ -9,17 +10,21 @@ from lfx.custom.custom_component.component import Component
 from lfx.io import BoolInput, DropdownInput, IntInput, MessageTextInput, Output
 from lfx.log.logger import logger
 from lfx.schema import Data
+from lfx.streaming import streaming_component
 
 
+@streaming_component
 class ETLCDCStreamInputComponent(Component):
     display_name = i18n.t("components.input_output.cdc_input.display_name")
     description = i18n.t("components.input_output.cdc_input.description")
     icon = "database"
     name = "ETLCDCStreamInput"
+    is_streaming_component = True
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.datasource_manager = DataSourceManager()
+        self._should_stop = False
 
     inputs = [
         DropdownInput(
@@ -112,11 +117,13 @@ class ETLCDCStreamInputComponent(Component):
             name="data",
             display_name=i18n.t("components.input_output.cdc_input.outputs.data.display_name"),
             method="capture_changes",
+            types=["Data"],
         ),
         Output(
             name="change_summary",
             display_name=i18n.t("components.input_output.cdc_input.outputs.change_summary.display_name"),
             method="get_change_summary",
+            types=["Data"],
         ),
     ]
 
@@ -192,7 +199,7 @@ class ETLCDCStreamInputComponent(Component):
                     self.status = i18n.t("components.input_output.cdc_input.status.loading_tables")
                     logger.info(f"[CDCInput] Loading tables for datasource: {datasource_id}")
 
-                    with httpx.Client(timeout=10.0) as client:
+                    with httpx.Client(timeout=120.0) as client:
                         response = client.get(f"{api_url}/api/v1/datasources/{datasource_id}/tables")
 
                         if response.status_code == 200:
@@ -368,7 +375,7 @@ class ETLCDCStreamInputComponent(Component):
         api_url = os.getenv("LANGFLOW_API_URL", "http://localhost:7860")
 
         try:
-            with httpx.Client(timeout=10.0) as client:
+            with httpx.Client(timeout=120.0) as client:
                 response = client.get(f"{api_url}/api/v1/datasources/{datasource_id}/connection-string")
 
                 if response.status_code != 200:
@@ -423,9 +430,13 @@ class ETLCDCStreamInputComponent(Component):
         logger.debug(f"[CDCInput] Normalized CDC mode '{mode_value}' to '{normalized}'")
         return normalized
 
-    def capture_changes(self) -> list[Data]:
-        """Capture database changes using Change Data Capture (CDC) in real-time."""
+    async def capture_changes(self) -> AsyncGenerator[Data, None]:
+        """实时流式捕获数据库变更，一条一条地yield（异步版本）.
+
+        使用Change Data Capture (CDC)实时捕获数据库变更。
+        """
         try:
+            self._should_stop = False
             self.status = i18n.t("components.input_output.cdc_input.status.capturing")
 
             # 验证必需的输入
@@ -438,17 +449,421 @@ class ETLCDCStreamInputComponent(Component):
             normalized_mode = self._normalize_cdc_mode(self.cdc_mode)
 
             if normalized_mode == "Timestamp":
-                return self._capture_timestamp_based()
-            if normalized_mode == "Log-Based":
-                return self._capture_log_based()
-            if normalized_mode == "Trigger-Based":
-                return self._capture_trigger_based()
-            raise ValueError(i18n.t("components.input_output.cdc_input.errors.invalid_mode"))
+                async for data in self._capture_timestamp_based_streaming_async():
+                    yield data
+            elif normalized_mode == "Log-Based":
+                async for data in self._capture_log_based_streaming_async():
+                    yield data
+            elif normalized_mode == "Trigger-Based":
+                async for data in self._capture_trigger_based_streaming_async():
+                    yield data
+            else:
+                raise ValueError(i18n.t("components.input_output.cdc_input.errors.invalid_mode"))
 
         except Exception as e:
             error_msg = i18n.t("components.input_output.cdc_input.errors.capture_failed", error=str(e))
             self.status = error_msg
+            logger.error(f"CDC捕获失败: {error_msg}")
             raise ValueError(error_msg) from e
+
+    def _capture_timestamp_based_streaming(self) -> Generator[Data, None, None]:
+        """流式捕获基于时间戳的变更，一条一条yield."""
+        import time
+
+        import pandas as pd
+        from sqlalchemy import create_engine, text
+        from sqlalchemy.pool import NullPool
+
+        engine = None
+        try:
+            # 获取数据源ID和连接字符串
+            datasource_id = self._get_datasource_id()
+            datasource_info = getattr(self, "_current_datasource_info", None)
+            connection_string = self._get_connection_string(datasource_id, datasource_info)
+
+            engine = create_engine(connection_string, poolclass=NullPool)
+
+            # 持续轮询变更
+            last_sync = self.last_sync_time if self.last_sync_time else "1970-01-01 00:00:00"
+            changes_count = 0
+
+            while not self._should_stop:
+                with engine.connect() as connection:
+                    # 构建查询语句
+                    query = f"""
+                        SELECT * FROM {self.table_selector}
+                        WHERE {self.timestamp_column} > '{last_sync}'
+                        ORDER BY {self.timestamp_column}
+                        LIMIT {self.batch_size}
+                    """
+
+                    df = pd.read_sql_query(text(query), connection)
+
+                    # 如果有新数据，一条一条yield
+                    if not df.empty:
+                        for _, row in df.iterrows():
+                            if self._should_stop:
+                                logger.info("CDC流式捕获被停止")
+                                break
+
+                            row_dict = row.to_dict()
+
+                            if self.include_change_type:
+                                row_dict["_change_type"] = "INSERT/UPDATE"
+                                row_dict["_capture_time"] = datetime.now().isoformat()
+
+                            changes_count += 1
+                            logger.debug(f"CDC捕获到变更 #{changes_count}")
+
+                            yield Data(data=row_dict)
+
+                            # 更新last_sync为当前行的时间戳
+                            if self.timestamp_column in row_dict:
+                                last_sync = str(row_dict[self.timestamp_column])
+
+                    # 如果没有新数据或处理完当前批次，等待一段时间再查询
+                    if not self._should_stop:
+                        time.sleep(self.poll_interval_seconds)
+
+            self.status = i18n.t("components.input_output.cdc_input.status.success", changes=changes_count)
+            logger.info(f"CDC流式捕获完成，共捕获 {changes_count} 条变更")
+
+        finally:
+            # 确保引擎被正确释放
+            if engine:
+                engine.dispose()
+
+    def _capture_log_based_streaming(self) -> Generator[Data, None, None]:
+        """流式捕获基于日志的变更."""
+        # Log-based CDC需要集成Debezium等工具
+        # 这里提供占位符实现
+        logger.info("Log-based CDC需要集成Debezium或类似工具")
+
+        info = {
+            "message": i18n.t("components.input_output.cdc_input.info.log_based_requirement"),
+            "table": self.table_selector,
+            "datasource": self.datasource_selector,
+            "mode": "log-based",
+        }
+        yield Data(data=info)
+
+        self.status = i18n.t("components.input_output.cdc_input.status.log_based_placeholder")
+
+    def _capture_trigger_based_streaming(self) -> Generator[Data, None, None]:
+        """流式捕获基于触发器的变更，一条一条yield."""
+        import time
+
+        import pandas as pd
+        from sqlalchemy import create_engine, text
+        from sqlalchemy.pool import NullPool
+
+        engine = None
+        try:
+            # 获取数据源ID和连接字符串
+            datasource_id = self._get_datasource_id()
+            datasource_info = getattr(self, "_current_datasource_info", None)
+            connection_string = self._get_connection_string(datasource_id, datasource_info)
+
+            engine = create_engine(connection_string, poolclass=NullPool)
+
+            # 审计表名称
+            audit_table = f"{self.table_selector}_audit"
+
+            # 首先检查审计表是否存在
+            with engine.connect() as connection:
+                if not self._check_table_exists(connection, audit_table):
+                    error_msg = self._format_i18n(
+                        "components.input_output.cdc_input.errors.audit_table_not_found",
+                        table=self.table_selector,
+                        audit_table=audit_table,
+                    )
+                    logger.error(f"[CDCInput] {error_msg}")
+                    self.status = error_msg
+                    raise ValueError(error_msg)
+
+            # 持续轮询变更
+            last_sync = self.last_sync_time if self.last_sync_time else "1970-01-01 00:00:00"
+            changes_count = 0
+
+            while not self._should_stop:
+                with engine.connect() as connection:
+                    query = f"""
+                        SELECT * FROM {audit_table}
+                        WHERE audit_timestamp > '{last_sync}'
+                        ORDER BY audit_timestamp
+                        LIMIT {self.batch_size}
+                    """
+
+                    try:
+                        df = pd.read_sql_query(text(query), connection)
+
+                        # 如果有新数据，一条一条yield
+                        if not df.empty:
+                            for _, row in df.iterrows():
+                                if self._should_stop:
+                                    logger.info("CDC流式捕获被停止")
+                                    break
+
+                                row_dict = row.to_dict()
+
+                                if self.include_change_type:
+                                    row_dict["_change_type"] = row_dict.get("operation_type", "UNKNOWN")
+                                    row_dict["_capture_time"] = datetime.now().isoformat()
+
+                                changes_count += 1
+                                logger.debug(f"CDC审计表捕获到变更 #{changes_count}")
+
+                                yield Data(data=row_dict)
+
+                                # 更新last_sync为当前行的审计时间戳
+                                if "audit_timestamp" in row_dict:
+                                    last_sync = str(row_dict["audit_timestamp"])
+
+                    except Exception as e:
+                        logger.error(f"[CDCInput] 查询审计表 {audit_table} 出错: {e}")
+                        raise ValueError(
+                            self._format_i18n(
+                                "components.input_output.cdc_input.errors.audit_query_failed",
+                                audit_table=audit_table,
+                                error=str(e),
+                            )
+                        )
+
+                # 如果没有新数据或处理完当前批次，等待一段时间再查询
+                if not self._should_stop:
+                    time.sleep(self.poll_interval_seconds)
+
+            self.status = i18n.t("components.input_output.cdc_input.status.success", changes=changes_count)
+            logger.info(f"CDC审计表流式捕获完成，共捕获 {changes_count} 条变更")
+
+        finally:
+            # 确保引擎被正确释放
+            if engine:
+                engine.dispose()
+
+    async def _capture_timestamp_based_streaming_async(self) -> AsyncGenerator[Data, None]:
+        """异步流式捕获基于时间戳的变更，一条一条yield."""
+        import asyncio
+
+        import pandas as pd
+        from sqlalchemy import create_engine, text
+        from sqlalchemy.pool import NullPool
+
+        engine = None
+        try:
+            # ✅ 在线程池中获取数据源ID和连接字符串（避免阻塞）
+            def get_connection_setup():
+                datasource_id = self._get_datasource_id()
+                datasource_info = getattr(self, "_current_datasource_info", None)
+                connection_string = self._get_connection_string(datasource_id, datasource_info)
+                return connection_string
+
+            logger.info("[CDCInput] Getting connection string (may take up to 60s)...")
+            connection_string = await asyncio.to_thread(get_connection_setup)
+            logger.info("[CDCInput] Connection string obtained successfully")
+
+            engine = create_engine(
+                connection_string,
+                poolclass=NullPool,
+                pool_pre_ping=True,  # 自动检查连接
+                connect_args={
+                    "connect_timeout": 60  # 连接超时60秒
+                }
+            )
+
+            # 持续轮询变更
+            last_sync = self.last_sync_time if self.last_sync_time else "1970-01-01 00:00:00"
+            changes_count = 0
+
+            while not self._should_stop:
+                # ✅ 在线程池中执行阻塞的数据库查询
+                def query_changes():
+                    with engine.connect() as connection:
+                        query = f"""
+                            SELECT * FROM {self.table_selector}
+                            WHERE {self.timestamp_column} > '{last_sync}'
+                            ORDER BY {self.timestamp_column}
+                            LIMIT {self.batch_size}
+                        """
+                        return pd.read_sql_query(text(query), connection)
+
+                df = await asyncio.to_thread(query_changes)
+
+                # 如果有新数据，一条一条yield
+                if not df.empty:
+                    for _, row in df.iterrows():
+                        if self._should_stop:
+                            logger.info("CDC流式捕获被停止")
+                            break
+
+                        row_dict = row.to_dict()
+
+                        if self.include_change_type:
+                            row_dict["_change_type"] = "INSERT/UPDATE"
+                            row_dict["_capture_time"] = datetime.now().isoformat()
+
+                        changes_count += 1
+                        logger.debug(f"CDC捕获到变更 #{changes_count}")
+
+                        yield Data(data=row_dict)
+
+                        # 更新last_sync为当前行的时间戳
+                        if self.timestamp_column in row_dict:
+                            last_sync = str(row_dict[self.timestamp_column])
+
+                        # ✅ 让出控制权
+                        await asyncio.sleep(0)
+
+                # 如果没有新数据或处理完当前批次，等待一段时间再查询
+                if not self._should_stop:
+                    # ✅ 使用 asyncio.sleep 而非 time.sleep
+                    await asyncio.sleep(self.poll_interval_seconds)
+
+            self.status = i18n.t("components.input_output.cdc_input.status.success", changes=changes_count)
+            logger.info(f"CDC流式捕获完成，共捕获 {changes_count} 条变更")
+
+        finally:
+            # 确保引擎被正确释放
+            if engine:
+                engine.dispose()
+
+    async def _capture_log_based_streaming_async(self) -> AsyncGenerator[Data, None]:
+        """异步流式捕获基于日志的变更."""
+        import asyncio
+
+        # Log-based CDC需要集成Debezium等工具
+        # 这里提供占位符实现
+        logger.info("Log-based CDC需要集成Debezium或类似工具")
+
+        info = {
+            "message": i18n.t("components.input_output.cdc_input.info.log_based_requirement"),
+            "table": self.table_selector,
+            "datasource": self.datasource_selector,
+            "mode": "log-based",
+        }
+        yield Data(data=info)
+
+        # ✅ 让出控制权
+        await asyncio.sleep(0)
+
+        self.status = i18n.t("components.input_output.cdc_input.status.log_based_placeholder")
+
+    async def _capture_trigger_based_streaming_async(self) -> AsyncGenerator[Data, None]:
+        """异步流式捕获基于触发器的变更，一条一条yield."""
+        import asyncio
+
+        import pandas as pd
+        from sqlalchemy import create_engine, text
+        from sqlalchemy.pool import NullPool
+
+        engine = None
+        try:
+            # ✅ 在线程池中获取数据源ID和连接字符串（避免阻塞）
+            def get_connection_setup():
+                datasource_id = self._get_datasource_id()
+                datasource_info = getattr(self, "_current_datasource_info", None)
+                connection_string = self._get_connection_string(datasource_id, datasource_info)
+                return connection_string
+
+            logger.info("[CDCInput] Getting connection string (may take up to 60s)...")
+            connection_string = await asyncio.to_thread(get_connection_setup)
+            logger.info("[CDCInput] Connection string obtained successfully")
+
+            engine = create_engine(
+                connection_string,
+                poolclass=NullPool,
+                pool_pre_ping=True,  # 自动检查连接
+                connect_args={
+                    "connect_timeout": 60  # 连接超时60秒
+                }
+            )
+
+            # 审计表名称
+            audit_table = f"{self.table_selector}_audit"
+
+            # 首先检查审计表是否存在（在线程池中执行）
+            def check_table():
+                with engine.connect() as connection:
+                    return self._check_table_exists(connection, audit_table)
+
+            table_exists = await asyncio.to_thread(check_table)
+
+            if not table_exists:
+                error_msg = self._format_i18n(
+                    "components.input_output.cdc_input.errors.audit_table_not_found",
+                    table=self.table_selector,
+                    audit_table=audit_table,
+                )
+                logger.error(f"[CDCInput] {error_msg}")
+                self.status = error_msg
+                raise ValueError(error_msg)
+
+            # 持续轮询变更
+            last_sync = self.last_sync_time if self.last_sync_time else "1970-01-01 00:00:00"
+            changes_count = 0
+
+            while not self._should_stop:
+                # ✅ 在线程池中执行阻塞的数据库查询
+                def query_audit():
+                    with engine.connect() as connection:
+                        query = f"""
+                            SELECT * FROM {audit_table}
+                            WHERE audit_timestamp > '{last_sync}'
+                            ORDER BY audit_timestamp
+                            LIMIT {self.batch_size}
+                        """
+                        return pd.read_sql_query(text(query), connection)
+
+                try:
+                    df = await asyncio.to_thread(query_audit)
+
+                    # 如果有新数据，一条一条yield
+                    if not df.empty:
+                        for _, row in df.iterrows():
+                            if self._should_stop:
+                                logger.info("CDC流式捕获被停止")
+                                break
+
+                            row_dict = row.to_dict()
+
+                            if self.include_change_type:
+                                row_dict["_change_type"] = row_dict.get("operation_type", "UNKNOWN")
+                                row_dict["_capture_time"] = datetime.now().isoformat()
+
+                            changes_count += 1
+                            logger.debug(f"CDC审计表捕获到变更 #{changes_count}")
+
+                            yield Data(data=row_dict)
+
+                            # 更新last_sync为当前行的审计时间戳
+                            if "audit_timestamp" in row_dict:
+                                last_sync = str(row_dict["audit_timestamp"])
+
+                            # ✅ 让出控制权
+                            await asyncio.sleep(0)
+
+                except Exception as e:
+                    logger.error(f"[CDCInput] 查询审计表 {audit_table} 出错: {e}")
+                    raise ValueError(
+                        self._format_i18n(
+                            "components.input_output.cdc_input.errors.audit_query_failed",
+                            audit_table=audit_table,
+                            error=str(e),
+                        )
+                    )
+
+                # 如果没有新数据或处理完当前批次，等待一段时间再查询
+                if not self._should_stop:
+                    # ✅ 使用 asyncio.sleep 而非 time.sleep
+                    await asyncio.sleep(self.poll_interval_seconds)
+
+            self.status = i18n.t("components.input_output.cdc_input.status.success", changes=changes_count)
+            logger.info(f"CDC审计表流式捕获完成，共捕获 {changes_count} 条变更")
+
+        finally:
+            # 确保引擎被正确释放
+            if engine:
+                engine.dispose()
 
     def _capture_timestamp_based(self) -> list[Data]:
         """Capture changes using timestamp-based tracking."""
@@ -534,6 +949,17 @@ class ETLCDCStreamInputComponent(Component):
             audit_table = f"{self.table_selector}_audit"
 
             with engine.connect() as connection:
+                # 首先检查审计表是否存在
+                if not self._check_table_exists(connection, audit_table):
+                    error_msg = self._format_i18n(
+                        "components.input_output.cdc_input.errors.audit_table_not_found",
+                        table=self.table_selector,
+                        audit_table=audit_table,
+                    )
+                    logger.error(f"[CDCInput] {error_msg}")
+                    self.status = error_msg
+                    raise ValueError(error_msg)
+
                 last_sync = self.last_sync_time if self.last_sync_time else "1970-01-01 00:00:00"
 
                 query = f"""
@@ -556,9 +982,13 @@ class ETLCDCStreamInputComponent(Component):
                         result_data.append(Data(data=row_dict))
 
                 except Exception as e:
-                    logger.error(f"Audit table {audit_table} may not exist: {e}")
+                    logger.error(f"[CDCInput] Error querying audit table {audit_table}: {e}")
                     raise ValueError(
-                        i18n.t("components.input_output.cdc_input.errors.audit_table_missing", table=audit_table)
+                        self._format_i18n(
+                            "components.input_output.cdc_input.errors.audit_query_failed",
+                            audit_table=audit_table,
+                            error=str(e),
+                        )
                     )
 
             self.status = i18n.t("components.input_output.cdc_input.status.success", changes=len(result_data))
@@ -568,6 +998,27 @@ class ETLCDCStreamInputComponent(Component):
             # 确保引擎被正确释放
             if "engine" in locals():
                 engine.dispose()
+
+    def _check_table_exists(self, connection, table_name: str) -> bool:
+        """检查表是否存在"""
+        from sqlalchemy import text
+
+        try:
+            # PostgreSQL 检查
+            query = text(
+                """
+                SELECT EXISTS (
+                    SELECT FROM information_schema.tables
+                    WHERE table_name = :table_name
+                )
+            """
+            )
+            result = connection.execute(query, {"table_name": table_name})
+            return result.scalar()
+        except Exception as e:
+            logger.warning(f"[CDCInput] Could not check if table exists: {e}")
+            # 如果检查失败，假设表存在，让后续查询来处理
+            return True
 
     def get_change_summary(self) -> Data:
         """Get summary of captured changes."""
@@ -606,7 +1057,7 @@ class ETLCDCStreamInputComponent(Component):
 
             # 1. 加载内置数据源（现有逻辑）
             try:
-                with httpx.Client(timeout=10.0) as client:
+                with httpx.Client(timeout=120.0) as client:
                     response = client.get(f"{api_url}/api/v1/datasources")
 
                     if response.status_code == 200:

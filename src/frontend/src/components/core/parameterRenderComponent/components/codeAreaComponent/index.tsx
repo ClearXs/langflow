@@ -52,7 +52,8 @@ export default function CodeAreaComponent({
   handleNodeClass,
   id = "",
   placeholder,
-}: InputProps<string>) {
+  language = "python",
+}: InputProps<string> & { language?: string }) {
   const renderCodeText = () => (
     <span
       id={id}
@@ -113,6 +114,7 @@ export default function CodeAreaComponent({
         nodeClass={nodeClass}
         setNodeClass={handleNodeClass!}
         setValue={(newValue) => handleOnNewValue({ value: newValue })}
+        language={language}
       >
         <Button unstyled className="w-full">
           <div className="relative w-full">

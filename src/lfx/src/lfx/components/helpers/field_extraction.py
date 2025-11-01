@@ -125,7 +125,7 @@ def extract_fields_from_node_template(upstream_node: dict, component_name: str =
 
         # For table input components
         elif upstream_node_type in ["ETLTableInput", "ETLCustomInput", "ETLCSVInput", "ETLExcelInput"]:
-            # Try to get from table_schema
+            # Try to get from table_schema first
             if "table_schema" in template:
                 table_schema = template.get("table_schema", {})
                 if isinstance(table_schema, dict):
@@ -147,6 +147,17 @@ def extract_fields_from_node_template(upstream_node: dict, component_name: str =
                         first_row = data_value[0]
                         if isinstance(first_row, dict):
                             field_names = list(first_row.keys())
+
+            # Special handling for ETLCustomInput - if no schema or data, provide common defaults
+            if not field_names and upstream_node_type == "ETLCustomInput":
+                logger.info(f"[{component_name}] ETLCustomInput has no schema or data configured, providing default fields")
+                # Check if there are any generation rules that might give us hints about field types
+                field_rules = template.get("field_rules", {}).get("value", [])
+                if isinstance(field_rules, list) and field_rules:
+                    field_names = [rule.get("field_name", f"field_{i+1}") for i, rule in enumerate(field_rules)]
+                else:
+                    # Provide sensible default field names
+                    field_names = ["id", "name", "value", "type", "description", "created_at"]
 
         # For field manipulation components (field_split, field_pivot, etc.)
         elif upstream_node_type and "Field" in upstream_node_type:
@@ -218,6 +229,36 @@ def extract_fields_from_node_template(upstream_node: dict, component_name: str =
                             for mapping in config_value
                             if isinstance(mapping, dict) and mapping.get("target_field")
                         ]
+
+            # If no field mappings configured, try to get fields from upstream of field name mapping
+            if not field_names:
+                logger.info(f"[{component_name}] ETLFieldNameMapping has no field_mappings, trying to get fields from its upstream")
+                try:
+                    # Recursively try to get fields from the upstream of field name mapping
+                    from lfx.custom.graph_utils import find_upstream_node_id
+
+                    # Find the upstream of ETLFieldNameMapping
+                    field_mapping_upstream_id = find_upstream_node_id(graph_data, upstream_node.get("id"), "data_input")
+                    if field_mapping_upstream_id:
+                        # Find the upstream node in graph_data
+                        upstream_nodes = graph_data.get("nodes", [])
+                        field_mapping_upstream_node = None
+                        for node in upstream_nodes:
+                            if node.get("id") == field_mapping_upstream_id:
+                                field_mapping_upstream_node = node
+                                break
+
+                        if field_mapping_upstream_node:
+                            # Extract fields from the upstream of field name mapping
+                            field_names = extract_fields_from_node_template(field_mapping_upstream_node, component_name)
+                            logger.info(f"[{component_name}] Extracted {len(field_names)} fields from ETLFieldNameMapping's upstream: {field_names}")
+                except Exception as e:
+                    logger.debug(f"[{component_name}] Failed to extract fields from ETLFieldNameMapping's upstream: {e}")
+
+            # If still no fields, provide some common default fields
+            if not field_names:
+                logger.info(f"[{component_name}] ETLFieldNameMapping has no configured fields, using common defaults")
+                field_names = ["id", "name", "value", "created_at", "updated_at"]
 
         # For field value mapping
         elif upstream_node_type == "ETLFieldValueMapping":
@@ -303,7 +344,7 @@ def extract_fields_from_node_template(upstream_node: dict, component_name: str =
         # For data cleaning
         elif upstream_node_type == "ETLDataCleaning":
             # Data cleaning preserves field names but transforms values
-            # Extract from cleaning_rules
+            # Extract from cleaning_rules first
             if "cleaning_rules" in template:
                 cleaning_config = template.get("cleaning_rules", {})
                 if isinstance(cleaning_config, dict):
@@ -314,6 +355,48 @@ def extract_fields_from_node_template(upstream_node: dict, component_name: str =
                             for rule in config_value
                             if isinstance(rule, dict) and rule.get("field_name")
                         ]
+
+            # If cleaning_rules is empty, try to extract from filter_conditions
+            if not field_names and "filter_conditions" in template:
+                filter_config = template.get("filter_conditions", {})
+                if isinstance(filter_config, dict):
+                    filter_value = filter_config.get("value", [])
+                    if isinstance(filter_value, list):
+                        field_names = [
+                            cond.get("field_name")
+                            for cond in filter_value
+                            if isinstance(cond, dict) and cond.get("field_name")
+                        ]
+
+            # If still no fields found, try to get from upstream of data cleaning
+            if not field_names:
+                logger.info(f"[{component_name}] ETLDataCleaning has no cleaning_rules or filter_conditions, trying to get fields from its upstream")
+                try:
+                    # Recursively try to get fields from the upstream of data cleaning
+                    from lfx.custom.graph_utils import find_upstream_node_id
+
+                    # Find the upstream of ETLDataCleaning
+                    data_cleaning_upstream_id = find_upstream_node_id(graph_data, upstream_node.get("id"), "data_input")
+                    if data_cleaning_upstream_id:
+                        # Find the upstream node in graph_data
+                        upstream_nodes = graph_data.get("nodes", [])
+                        data_cleaning_upstream_node = None
+                        for node in upstream_nodes:
+                            if node.get("id") == data_cleaning_upstream_id:
+                                data_cleaning_upstream_node = node
+                                break
+
+                        if data_cleaning_upstream_node:
+                            # Extract fields from the upstream of data cleaning
+                            field_names = extract_fields_from_node_template(data_cleaning_upstream_node, component_name)
+                            logger.info(f"[{component_name}] Extracted {len(field_names)} fields from ETLDataCleaning's upstream: {field_names}")
+                except Exception as e:
+                    logger.debug(f"[{component_name}] Failed to extract fields from ETLDataCleaning's upstream: {e}")
+
+            # If still no fields, provide some common default fields
+            if not field_names:
+                logger.info(f"[{component_name}] ETLDataCleaning has no configured fields, using common defaults")
+                field_names = ["id", "name", "value", "created_at", "updated_at"]
 
         # For Kafka Input
         elif upstream_node_type == "ETLKafkaInput":

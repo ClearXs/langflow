@@ -130,6 +130,10 @@ class Graph:
         self._snapshots: list[dict[str, Any]] = []
         self._end_trace_tasks: set[asyncio.Task] = set()
 
+        # Streaming support
+        self._streaming_vertices: set[str] = set()
+        self._streaming_executor = None
+
         if context and not isinstance(context, dict):
             msg = "Context must be a dictionary"
             raise TypeError(msg)
@@ -1394,6 +1398,57 @@ class Graph:
     def extend_run_queue(self, vertices: list[str]) -> None:
         self._run_queue.extend(vertices)
 
+    def _detect_streaming_vertices(self):
+        """Detect streaming vertices in the graph.
+
+        This method identifies vertices that are streaming components and
+        stores them for special handling during execution.
+        """
+        from lfx.streaming import is_streaming_component
+
+        logger.info("[STREAMING DETECTION] Starting detection...")
+        self._streaming_vertices.clear()
+        for vertex in self.vertices:
+            logger.info(
+                f"[STREAMING DETECTION] Checking {vertex.display_name}: "
+                f"has_is_streaming={hasattr(vertex, 'is_streaming')}, "
+                f"has_custom_component={hasattr(vertex, 'custom_component')}, "
+                f"custom_component_exists={vertex.custom_component is not None if hasattr(vertex, 'custom_component') else False}"
+            )
+
+            # Check if vertex or its component is marked as streaming
+            if hasattr(vertex, "is_streaming") and vertex.is_streaming:
+                logger.info(f"[STREAMING DETECTION] ✓ {vertex.display_name} is streaming (vertex.is_streaming=True)")
+                self._streaming_vertices.add(vertex.id)
+            elif hasattr(vertex, "custom_component") and vertex.custom_component:
+                is_streaming = is_streaming_component(vertex.custom_component)
+                logger.info(
+                    f"[STREAMING DETECTION] {vertex.display_name} custom_component check: is_streaming={is_streaming}"
+                )
+                if is_streaming:
+                    logger.info(f"[STREAMING DETECTION] ✓ {vertex.display_name} is streaming (decorator)")
+                    self._streaming_vertices.add(vertex.id)
+                    vertex.is_streaming = True  # Mark vertex as streaming
+
+        if self._streaming_vertices:
+            logger.info(
+                f"[STREAMING DETECTION] ✓ Detected {len(self._streaming_vertices)} streaming vertices: "
+                f"{[self.get_vertex(vid).display_name for vid in self._streaming_vertices]}"
+            )
+        else:
+            logger.warning("[STREAMING DETECTION] ✗ No streaming vertices detected!")
+
+    def _is_streaming_vertex(self, vertex_id: str) -> bool:
+        """Check if a vertex is a streaming component.
+
+        Args:
+            vertex_id: ID of the vertex to check
+
+        Returns:
+            True if the vertex is a streaming component
+        """
+        return vertex_id in self._streaming_vertices
+
     async def astep(
         self,
         inputs: InputValueRequest | None = None,
@@ -1404,6 +1459,21 @@ class Graph:
         if not self._prepared:
             msg = "Graph not prepared. Call prepare() first."
             raise ValueError(msg)
+
+        # Detect streaming vertices on first run
+        logger.info(
+            f"[STREAMING] Check detection: _streaming_vertices={self._streaming_vertices}, "
+            f"has__streaming_detected={hasattr(self, '_streaming_detected')}"
+        )
+        if not self._streaming_vertices and not hasattr(self, "_streaming_detected"):
+            logger.info("[STREAMING] Calling _detect_streaming_vertices()")
+            self._detect_streaming_vertices()
+            self._streaming_detected = True
+        else:
+            logger.info(
+                f"[STREAMING] Skipping detection (already detected or vertices exist: {len(self._streaming_vertices)} vertices)"
+            )
+
         if not self._run_queue:
             self._end_all_traces_async()
             return Finish()
@@ -1411,6 +1481,18 @@ class Graph:
         if not vertex_id:
             msg = "No vertex to run"
             raise ValueError(msg)
+
+        # Check if this is a streaming vertex
+        # Only vertices marked with @streaming_component should use streaming execution
+        # Downstream non-streaming components will be triggered by StreamingExecutor._propagate_to_downstream()
+        is_streaming = self._is_streaming_vertex(vertex_id)
+
+        logger.debug(f"Checking vertex {vertex_id}: is_streaming={is_streaming}")
+
+        if is_streaming:
+            return await self._astep_streaming(vertex_id, inputs, files, user_id, event_manager)
+
+        # Normal batch execution (existing logic preserved)
         chat_service = get_chat_service()
 
         # Provide fallback cache functions if chat service is unavailable
@@ -1553,6 +1635,17 @@ class Graph:
                         should_build = True
 
             if should_build:
+                # Check if this is a streaming component BEFORE building
+                from lfx.streaming import is_streaming_component
+
+                is_streaming = False
+                if hasattr(vertex, "custom_component") and vertex.custom_component:
+                    is_streaming = is_streaming_component(vertex.custom_component)
+                    logger.info(
+                        f"[BUILD_VERTEX] {vertex.display_name}: is_streaming={is_streaming} (checked custom_component)"
+                    )
+
+                # Always build the vertex first
                 await vertex.build(
                     user_id=user_id,
                     inputs=inputs_dict,
@@ -1560,6 +1653,60 @@ class Graph:
                     files=files,
                     event_manager=event_manager,
                 )
+
+                # If it's a streaming component, propagate data to downstream
+                if is_streaming:
+                    logger.info(f"[BUILD_VERTEX] Using streaming execution for {vertex.display_name}")
+
+                    # Get downstream vertices for propagation
+                    downstream_vertices = self.get_successors(vertex)
+                    logger.info(
+                        f"[BUILD_VERTEX] {vertex.display_name} has {len(downstream_vertices)} downstream vertices"
+                    )
+
+                    logger.info(f"[BUILD_VERTEX] vertex.results: {vertex.results}, has_results={bool(vertex.results)}")
+
+                    # If there are downstream vertices, propagate streaming data
+                    if downstream_vertices and vertex.results:
+                        from collections.abc import AsyncGenerator, Generator
+
+                        # Find the generator in vertex.results
+                        generator_found = None
+                        for key, result_value in vertex.results.items():
+                            logger.info(f"[BUILD_VERTEX] Checking result key={key}, type={type(result_value).__name__}")
+                            if isinstance(result_value, (Generator, AsyncGenerator)):
+                                generator_found = result_value
+                                logger.info(f"[BUILD_VERTEX] ✓ Found generator at key={key}")
+                                break
+
+                        if generator_found:
+                            logger.info(f"[BUILD_VERTEX] Found generator in results, propagating to downstream")
+
+                            if self._streaming_executor is None:
+                                from lfx.streaming.engine import StreamingExecutor
+
+                                self._streaming_executor = StreamingExecutor()
+
+                            # Propagate each data item to downstream vertices
+                            if isinstance(generator_found, AsyncGenerator):
+                                async for data in generator_found:
+                                    await self._streaming_executor._propagate_to_downstream(
+                                        data, downstream_vertices, self
+                                    )
+                            else:
+                                # Convert sync generator to async
+                                async for data in self._streaming_executor._sync_generator_to_async(generator_found):
+                                    await self._streaming_executor._propagate_to_downstream(
+                                        data, downstream_vertices, self
+                                    )
+                        else:
+                            logger.warning(f"[BUILD_VERTEX] ✗ No generator found in results for {vertex.display_name}")
+                    else:
+                        logger.warning(
+                            f"[BUILD_VERTEX] Skip propagation: downstream_vertices={len(downstream_vertices) if downstream_vertices else 0}, "
+                            f"has_results={bool(vertex.results)}"
+                        )
+
                 if set_cache is not None:
                     vertex_dict = {
                         "built": vertex.built,
@@ -2295,3 +2442,71 @@ class Graph:
             predecessors = [i.id for i in self.get_predecessors(vertex)]
             result |= {vertex_id: {"successors": sucessors, "predecessors": predecessors}}
         return result
+
+    async def _astep_streaming(
+        self,
+        vertex_id: str,
+        inputs: InputValueRequest | None = None,
+        files: list[str] | None = None,
+        user_id: str | None = None,
+        event_manager: EventManager | None = None,
+    ):
+        """Execute a streaming vertex with real-time data propagation."""
+        from lfx.streaming.engine import StreamingExecutor
+
+        logger.debug(f"Streaming execution requested for vertex_id: {vertex_id}")
+        vertex = self.get_vertex(vertex_id)
+        logger.debug(f"Got streaming vertex: {vertex.display_name}")
+
+        if self._streaming_executor is None:
+            self._streaming_executor = StreamingExecutor()
+
+        try:
+            # Prepare streaming vertex
+            logger.info(f"Starting streaming for {vertex.display_name}")
+            self._run_state[vertex_id] = VertexRunStatus.RUNNING
+            self._begin_all_traces_async(vertex, inputs or {})
+
+            # Set inputs if provided
+            if inputs:
+                for key, value in (inputs or {}).items():
+                    if hasattr(vertex, key):
+                        setattr(vertex, key, value)
+
+            # Get downstream vertices for propagation
+            downstream_vertices = self.get_successors(vertex)
+
+            # Let StreamingExecutor handle the vertex building and streaming
+            # This avoids double execution and properly handles sync/async generators
+            logger.info(f"Starting streaming execution for {vertex.display_name}")
+            async for data in self._streaming_executor.execute_streaming_vertex(vertex, downstream_vertices, self):
+                # Data is propagated by the executor
+                # This loop mainly tracks progress
+                if vertex._should_stop if hasattr(vertex, "_should_stop") else False:
+                    logger.info(f"Streaming stopped for {vertex.display_name}")
+                    break
+
+            logger.info(f"Streaming completed for {vertex.display_name}")
+
+            # Mark vertex as completed
+            self._run_state[vertex_id] = VertexRunStatus.FINISHED
+            self._end_all_traces_async(vertex)
+
+            # Continue normal graph execution
+            # Update run queue and process next vertices
+            self._update_run_queue(vertex_id)
+            processed_vertices = self._processed_vertices.copy()
+            processed_vertices.add(vertex_id)
+
+            # Return Finish to continue normal flow
+            return Finish() if not self._run_queue else None
+
+        except Exception as e:
+            logger.error(f"Error in streaming vertex {vertex.display_name}: {e}")
+            self._run_state[vertex_id] = VertexRunStatus.FAILED
+            self._end_all_traces_async(vertex)
+            raise
+        finally:
+            # Clean up streaming executor if needed
+            if hasattr(self._streaming_executor, "_should_stop"):
+                self._streaming_executor.stop()

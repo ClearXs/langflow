@@ -293,13 +293,77 @@ async def read_public_flow(
     return await read_flow(session=session, flow_id=flow_id, current_user=current_user)
 
 
+@router.put("/{flow_id}", response_model=FlowRead, status_code=200)
+async def update_put_flow(
+    *,
+    session: DbSession,
+    flow_id: UUID,
+    flow: FlowUpdate,
+):
+    """Update a flow."""
+    settings_service = get_settings_service()
+    try:
+        db_flow = await _read_flow(
+            session=session,
+            flow_id=flow_id,
+        )
+
+        if not db_flow:
+            raise HTTPException(status_code=404, detail="Flow not found")
+
+        update_data = flow.model_dump(exclude_unset=True, exclude_none=True)
+
+        # Specifically handle endpoint_name when it's explicitly set to null or empty string
+        if flow.endpoint_name is None or flow.endpoint_name == "":
+            update_data["endpoint_name"] = None
+
+        if settings_service.settings.remove_api_keys:
+            update_data = remove_api_keys(update_data)
+
+        for key, value in update_data.items():
+            setattr(db_flow, key, value)
+
+        await _verify_fs_path(db_flow.fs_path)
+
+        webhook_component = get_webhook_component_in_flow(db_flow.data)
+        db_flow.webhook = webhook_component is not None
+        db_flow.updated_at = datetime.now(timezone.utc)
+
+        if db_flow.folder_id is None:
+            default_folder = (await session.exec(select(Folder).where(Folder.name == DEFAULT_FOLDER_NAME))).first()
+            if default_folder:
+                db_flow.folder_id = default_folder.id
+
+        session.add(db_flow)
+        await session.commit()
+        await session.refresh(db_flow)
+
+        await _save_flow_to_fs(db_flow)
+
+    except Exception as e:
+        if "UNIQUE constraint failed" in str(e):
+            # Get the name of the column that failed
+            columns = str(e).split("UNIQUE constraint failed: ")[1].split(".")[1].split("\n")[0]
+            # UNIQUE constraint failed: flow.user_id, flow.name
+            # or UNIQUE constraint failed: flow.name
+            # if the column has id in it, we want the other column
+            column = columns.split(",")[1] if "id" in columns.split(",")[0] else columns.split(",")[0]
+            raise HTTPException(
+                status_code=400, detail=f"{column.capitalize().replace('_', ' ')} must be unique"
+            ) from e
+
+        if hasattr(e, "status_code"):
+            raise HTTPException(status_code=e.status_code, detail=str(e)) from e
+        raise HTTPException(status_code=500, detail=str(e)) from e
+
+    return db_flow
+
 @router.patch("/{flow_id}", response_model=FlowRead, status_code=200)
 async def update_flow(
     *,
     session: DbSession,
     flow_id: UUID,
     flow: FlowUpdate,
-    current_user: CurrentActiveUser,
 ):
     """Update a flow."""
     settings_service = get_settings_service()
@@ -365,7 +429,6 @@ async def delete_flow(
     *,
     session: DbSession,
     flow_id: UUID,
-    current_user: CurrentActiveUser,
 ):
     """Delete a flow."""
     flow = await _read_flow(
@@ -449,7 +512,6 @@ async def upload_file(
 @router.delete("/")
 async def delete_multiple_flows(
     flow_ids: list[UUID],
-    user: CurrentActiveUser,
     db: DbSession,
 ):
     """Delete multiple flows by their IDs.

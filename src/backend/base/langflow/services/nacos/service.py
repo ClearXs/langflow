@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import os
+import socket
 from typing import TYPE_CHECKING, Any
 
 from lfx.log.logger import logger
@@ -12,6 +13,72 @@ from langflow.services.nacos.manager import NacosConfigManager, NacosServiceMana
 
 if TYPE_CHECKING:
     from langflow.services.settings.service import SettingsService
+
+
+def get_local_ip() -> str:
+    """Get the local IP address that can be used for service registration.
+
+    This function tries to get the local IP address without connecting to external endpoints.
+    It works in offline environments and avoids loopback addresses.
+
+    Returns:
+        Local IP address, or '127.0.0.1' as fallback
+    """
+    # Method 1: Try to get hostname and resolve it
+    try:
+        hostname = socket.gethostname()
+        local_ip = socket.gethostbyname(hostname)
+        # If it resolves to 127.0.0.1, try other methods
+        if not (local_ip.startswith("127.") or local_ip == "::1"):
+            return local_ip
+    except Exception:
+        pass
+
+    # Method 2: Try to get IP from all network interfaces
+    try:
+        hostname = socket.gethostname()
+        # Get all address information for the hostname
+        for addr_info in socket.getaddrinfo(hostname, None):
+            ip = addr_info[4][0]
+            # Skip loopback, link-local, and IPv6 addresses for now
+            if (ip and
+                not ip.startswith("127.") and
+                not ip.startswith("169.254.") and
+                not ip.startswith("fe80::") and
+                not ip == "::1"):
+                # Prefer IPv4 addresses
+                if "." in ip:
+                    return ip
+    except Exception:
+        pass
+
+    # Method 3: Try to get network interface IPs directly
+    try:
+        # Create a UDP socket to get local IP without connecting
+        with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as s:
+            # Just bind to port 0 to get system to assign an IP
+            s.bind(("", 0))
+            local_ip = s.getsockname()[0]
+            if not (local_ip.startswith("127.") or local_ip.startswith("169.254.")):
+                return local_ip
+    except Exception:
+        pass
+
+    # Method 4: Try common network interface IPs
+    try:
+        # Try to connect to localhost on different ports to infer the local IP
+        with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as s:
+            # This doesn't actually send data, just helps determine the local IP
+            s.connect(("127.0.0.1", 80))
+            local_ip = s.getsockname()[0]
+            if not (local_ip.startswith("127.") or local_ip.startswith("169.254.")):
+                return local_ip
+    except Exception:
+        pass
+
+    # If all methods fail, use localhost
+    logger.warning("Could not determine local IP address, using fallback")
+    return "127.0.0.1"
 
 
 class NacosService(Service):
@@ -79,8 +146,15 @@ class NacosService(Service):
                     self.settings_service.settings, "nacos_service_name", "langflow"
                 )
                 service_ip = os.getenv("LANGFLOW_NACOS_SERVICE_IP") or getattr(
-                    self.settings_service.settings, "nacos_service_ip", "127.0.0.1"
+                    self.settings_service.settings, "nacos_service_ip", None
                 )
+
+                # If no IP is configured, automatically get the local IP
+                if not service_ip:
+                    service_ip = get_local_ip()
+                    logger.info(f"Auto-detected local IP for Nacos service registration: {service_ip}")
+                else:
+                    logger.info(f"Using configured IP for Nacos service registration: {service_ip}")
                 service_port_str = os.getenv("LANGFLOW_NACOS_SERVICE_PORT")
                 service_port = (
                     int(service_port_str)

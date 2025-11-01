@@ -179,7 +179,25 @@ class StrInput(
             ValueError: If the value is not of a valid type or if the input is missing a required key.
         """
         is_list = info.data["is_list"]
-        return [cls._validate_value(vv, info) for vv in v] if is_list else cls._validate_value(v, info)
+
+        if is_list:
+            # Handle Data objects properly - avoid iteration over Data attributes
+            from lfx.schema.data import Data
+
+            # If it's a Data object and we expect a list, wrap it
+            if isinstance(v, Data):
+                return [cls._validate_value(v, info)]
+            # If it's already a list, process each item
+            elif isinstance(v, list):
+                return [cls._validate_value(vv, info) for vv in v]
+            # If it's a generator/iterator, process each item (but not Data objects)
+            elif hasattr(v, '__iter__') and not isinstance(v, (str, dict, Data)):
+                return [cls._validate_value(vv, info) for vv in v]
+            # Otherwise, wrap single item in a list
+            else:
+                return [cls._validate_value(v, info)]
+        else:
+            return cls._validate_value(v, info)
 
 
 class MessageInput(StrInput, InputTraceMixin):

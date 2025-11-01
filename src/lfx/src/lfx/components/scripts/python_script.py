@@ -30,6 +30,7 @@ class ETLPythonScriptComponent(Component):
             info=i18n.t("components.scripts.python_script.script.info"),
             required=True,
             value=i18n.t("components.scripts.python_script.script.default_code"),
+            language="python",
         ),
         BoolInput(
             name="capture_output",

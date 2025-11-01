@@ -11,18 +11,18 @@
   },
   "cdc_mode": {
     "display_name": "CDC模式",
-    "info": "变更捕获模式",
+    "info": "选择如何捕获数据变更：\n\n【时间戳模式】（推荐，最简单）\n原理：查询表中记录的更新时间字段（如 updated_at），找出最近更新的记录\n优点：无需任何数据库配置，直接使用\n要求：表中需要有一个更新时间字段（updated_at、modified_at 等）\n适用：大多数场景都推荐使用此模式\n\n【触发器模式】（需要数据库准备）\n原理：在数据库中创建触发器，每次数据变更时自动记录到审计表\n优点：可以捕获删除操作，记录更详细的变更信息\n要求：需要手动创建审计表（表名_audit）和数据库触发器\n适用：需要完整审计日志的场景\n\n【日志模式】（需要外部工具）\n原理：解析数据库的事务日志（binlog、WAL等）\n要求：需要安装配置 Debezium 等 CDC 工具\n适用：企业级实时数据同步场景",
     "timestamp": "时间戳模式",
     "log_based": "日志模式",
     "trigger_based": "触发器模式"
   },
   "timestamp_column": {
     "display_name": "时间戳列",
-    "info": "跟踪变更的列"
+    "info": "【仅时间戳模式需要】\n\n指定表中哪个字段存储了记录的最后更新时间。\n\n常见的列名：\n• updated_at - 更新时间\n• modified_at - 修改时间  \n• last_modified - 最后修改时间\n• update_time - 更新时间\n\n示例：如果您的 companies 表有以下结构：\n- id (整数)\n- name (字符串)\n- updated_at (时间戳) ← 这个字段\n\n那么这里填写：updated_at"
   },
   "last_sync_time": {
     "display_name": "最后同步时间",
-    "info": "最后同步时间戳"
+    "info": "上次同步的时间点，只捕获此时间之后的变更。格式：YYYY-MM-DD HH:MM:SS。留空则从 1970-01-01 开始捕获所有记录"
   },
   "poll_interval_seconds": {
     "display_name": "轮询间隔(秒)",
@@ -59,6 +59,8 @@
     "invalid_mode": "无效的CDC模式",
     "capture_failed": "捕获变更失败: {error}",
     "audit_table_missing": "未找到审计表 '{table}'",
+    "audit_table_not_found": "表 '{table}' 的审计表 '{audit_table}' 不存在。触发器模式需要预先创建审计表和触发器。\n\n请执行以下步骤：\n1. 创建审计表：使用 CREATE TABLE 语句创建 '{audit_table}' 表，包含 audit_timestamp、operation_type 等字段\n2. 创建触发器记录变更到审计表\n3. 或者改用'时间戳模式'，无需审计表",
+    "audit_query_failed": "查询审计表 '{audit_table}' 失败: {error}",
     "no_datasource": "未选择数据源",
     "no_table": "未选择表",
     "invalid_datasource": "无效的数据源配置",

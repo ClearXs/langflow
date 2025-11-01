@@ -48,7 +48,7 @@ SerializableFieldTypes = Annotated[FieldTypes, PlainSerializer(lambda v: v.value
 class BaseInputMixin(CrossModuleModel, validate_assignment=True):
     model_config = ConfigDict(
         arbitrary_types_allowed=True,
-        extra="forbid",
+        extra="allow",  # Allow extra fields like 'language'
         populate_by_name=True,
     )
 

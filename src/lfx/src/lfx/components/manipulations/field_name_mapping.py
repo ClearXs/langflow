@@ -1,3 +1,4 @@
+import asyncio
 from typing import Any
 
 import i18n
@@ -125,22 +126,40 @@ class ETLFieldNameMappingComponent(Component):
                 field_mappings = []
 
                 # Primary strategy: Try to execute upstream node to get actual data
-                try:
-                    upstream_data = await self.get_upstream_data(
-                        input_name="data_input", graph_data=graph_data, sample_size=10, vertex_id=node_id
-                    )
+                # Enhanced with retry mechanism for "has not been built yet" errors
+                max_retries = 2
+                upstream_data = None
 
-                    if upstream_data:
-                        # Extract field names from upstream data
-                        field_mappings = self._extract_field_mappings(upstream_data)
-                        logger.info(f"[FieldNameMapping] Extracted {len(field_mappings)} field mappings from upstream data")
-                    else:
-                        logger.warning("[FieldNameMapping] No data returned from upstream node")
+                for attempt in range(max_retries):
+                    try:
+                        upstream_data = await self.get_upstream_data(
+                            input_name="data_input", graph_data=graph_data, sample_size=10, vertex_id=node_id
+                        )
 
-                except ValueError as e:
-                    # Fallback strategy: Extract from upstream node configuration
-                    logger.warning(f"[FieldNameMapping] Upstream execution failed: {e}. Trying static analysis...")
+                        if upstream_data:
+                            # Extract field names from upstream data
+                            field_mappings = self._extract_field_mappings(upstream_data)
+                            logger.info(f"[FieldNameMapping] Extracted {len(field_mappings)} field mappings from upstream data (attempt {attempt + 1})")
+                            break
+                        else:
+                            logger.warning(f"[FieldNameMapping] No data returned from upstream node (attempt {attempt + 1})")
 
+                    except ValueError as e:
+                        error_msg = str(e)
+                        if "has not been built yet" in error_msg and attempt < max_retries - 1:
+                            logger.warning(f"[FieldNameMapping] Upstream node not built, retrying... (attempt {attempt + 1}/{max_retries})")
+                            await asyncio.sleep(0.2)  # Brief delay before retry
+                            continue
+                        else:
+                            # Fallback strategy: Extract from upstream node configuration
+                            logger.warning(f"[FieldNameMapping] Upstream execution failed after {attempt + 1} attempts: {e}. Trying static analysis...")
+                            break
+                    except Exception as e:
+                        logger.warning(f"[FieldNameMapping] Unexpected error during upstream execution: {e}. Falling back to static analysis...")
+                        break
+
+                # If we couldn't get data from execution, try static analysis
+                if not upstream_data:
                     try:
                         from lfx.components.helpers.field_extraction import find_and_extract_upstream_fields
 
@@ -236,8 +255,31 @@ class ETLFieldNameMappingComponent(Component):
             if not self.data_input or not self.field_mappings:
                 raise ValueError(i18n.t("components.manipulations.field_name_mapping.errors.missing_config"))
 
-            # Convert to DataFrame
-            df = pd.DataFrame([d.data if hasattr(d, "data") else d for d in self.data_input])
+            # Handle both single Data objects and lists of Data objects
+            data_items = self.data_input
+            if not isinstance(data_items, list):
+                data_items = [data_items]
+
+            # Convert to DataFrame with proper error handling
+            processed_data = []
+            for d in data_items:
+                if hasattr(d, "data") and isinstance(d.data, dict):
+                    processed_data.append(d.data)
+                elif isinstance(d, dict):
+                    processed_data.append(d)
+                elif isinstance(d, tuple):
+                    # Handle tuple case - try to extract meaningful data
+                    logger.warning(f"Received tuple instead of Data object: {d}")
+                    if len(d) >= 2 and isinstance(d[1], dict):
+                        processed_data.append(d[1])  # Use the second element if it's a dict
+                    else:
+                        logger.error(f"Cannot process tuple: {d}")
+                        continue
+                else:
+                    logger.warning(f"Unknown data type {type(d)}: {d}")
+                    continue
+
+            df = pd.DataFrame(processed_data)
 
             # Strip whitespace from column names to normalize field names
             df.columns = df.columns.str.strip()

@@ -81,6 +81,12 @@ class Edge:
             self._validate_handles(source, target)
 
     def _validate_handles(self, source, target) -> None:
+        # Check for permissive mode: Generator outputs can connect to any component
+        if self._is_generator_output_permissive(source, target):
+            self.valid_handles = True
+            logger.debug(f"Permissive mode: allowing Generator[{source.display_name}] -> {target.display_name} connection")
+            return
+
         if self.target_handle.input_types is None:
             self.valid_handles = self.target_handle.type in self.source_handle.output_types
         elif self.target_handle.type is None:
@@ -135,6 +141,43 @@ class Edge:
         self.target_reqs = state.get("target_reqs")
         self.matched_type = state.get("matched_type")
 
+    def _is_generator_output_permissive(self, source, target) -> bool:
+        """Check if this is a Generator output that should be allowed in permissive mode.
+
+        In permissive mode, Generator[Data] outputs can connect to any component
+        that accepts Data inputs, regardless of other type constraints.
+        """
+        # Check if source has streaming component marker
+        if hasattr(source, "custom_component") and hasattr(source.custom_component, "is_streaming_component"):
+            if source.custom_component.is_streaming_component:
+                # Check if the target accepts Data or Message types
+                target_inputs = getattr(self.target_handle, "input_types", [])
+                if target_inputs:
+                    # Allow connection if target accepts Data or Message types
+                    data_types = {"Data", "Message"}
+                    if any(input_type in data_types for input_type in target_inputs):
+                        return True
+                    # Also allow if target accepts any compatible type (like 'Any')
+                    if any("Any" in input_type or "object" in input_type for input_type in target_inputs):
+                        return True
+
+                # Additional check: look at target's input field types
+                if hasattr(target, "inputs"):
+                    for input_field in target.inputs:
+                        if hasattr(input_field, "input_types") and input_field.input_types:
+                            data_types = {"Data", "Message"}
+                            if any(input_type in data_types for input_type in input_field.input_types):
+                                return True
+
+        # Also check output types explicitly for Generator types
+        if self.source_handle and hasattr(self.source_handle, "output_types"):
+            for output_type in self.source_handle.output_types or []:
+                if "Generator" in output_type or "generator" in output_type.lower():
+                    # This is a Generator output, allow permissive connection
+                    return True
+
+        return False
+
     def validate_edge(self, source, target) -> None:
         # If the self.source_handle has base_classes, then we are using the legacy
         # way of defining the source and target handles
@@ -144,6 +187,14 @@ class Edge:
             self._validate_edge(source, target)
 
     def _validate_edge(self, source, target) -> None:
+        # Check for permissive mode: Generator outputs can connect to any component
+        if self._is_generator_output_permissive(source, target):
+            self.valid = True
+            # Set matched_type to Data for streaming connections
+            self.matched_type = "Data"
+            logger.debug(f"Permissive mode edge validation passed: {source.display_name} -> {target.display_name}")
+            return
+
         # Validate that the outputs of the source node are valid inputs
         # for the target node
         # .outputs is a list of Output objects as dictionaries

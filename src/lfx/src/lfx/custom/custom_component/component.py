@@ -1197,6 +1197,28 @@ class Component(CustomComponent):
             msg = f'Error running method "{output.method}": {e}'
             raise TypeError(msg) from e
 
+        # Handle Generator/AsyncGenerator detection
+        from collections.abc import AsyncGenerator, Generator
+
+        if isinstance(result, (Generator, AsyncGenerator)):
+            # Check if this is a streaming component
+            is_streaming = getattr(self, "is_streaming_component", False)
+
+            if is_streaming:
+                # Streaming component: return Generator as-is
+                # Don't iterate it - let StreamingExecutor handle it
+                logger.debug(f"Detected Generator for streaming component {self.__class__.__name__}, returning as-is")
+                return result
+            # Non-streaming component: iterate and collect to list (backwards compatibility)
+            logger.debug(
+                f"Detected Generator for non-streaming component {self.__class__.__name__}, collecting to list"
+            )
+            if isinstance(result, AsyncGenerator):
+                result = [item async for item in result]
+            else:
+                # Execute sync generator in thread pool to avoid blocking
+                result = await asyncio.to_thread(list, result)
+
         if (
             self._vertex is not None
             and isinstance(result, Message)

@@ -186,6 +186,7 @@
     "unlock": "Unlock",
     "freeze": "Freeze",
     "unfreeze": "Unfreeze",
+    "back": "Back",
     "share": {
       "button": "Share",
       "menu": {
@@ -1002,6 +1003,7 @@
       "chatFormSubtitle": "Interact with your AI. Monitor inputs, outputs and memories.",
       "editSubtitle": "Adjust component's settings and define parameter visibility. Remember to save your changes.",
       "codePromptSubtitle": "Edit your Python code snippet. Refer to the Langflow documentation for more information on how to write your own component.",
+      "codePromptSubtitleBash": "Edit your Shell script code. Refer to the Langflow documentation for more information on how to write your own component.",
       "codeDictSubtitle": "Customize your dictionary, adding or editing key-value pairs as needed. Supports adding new objects {} or arrays [].",
       "promptSubtitle": "Create your prompt. Prompts can help guide the behavior of a Language Model. Use curly brackets {} to introduce variables.",
       "importSubtitle": "Import flows from a JSON file or choose from pre-existing examples.",

@@ -1,11 +1,37 @@
 import re
+import time
+from dataclasses import dataclass
+from typing import Any
 
 import i18n
 
 from lfx.custom.custom_component.component import Component
-from lfx.io import BoolInput, DropdownInput, IntInput, MessageInput, MessageTextInput, Output
+from lfx.io import (
+    BoolInput,
+    DropdownInput,
+    HandleInput,
+    IntInput,
+    MessageInput,
+    MessageTextInput,
+    Output,
+    TableInput,
+)
 from lfx.log.logger import logger
 from lfx.schema.message import Message
+
+
+@dataclass
+class FieldInfo:
+    """Information about an extracted field including type and sample values."""
+
+    name: str
+    type: str  # 'string', 'number', 'boolean', 'date'
+    sample_values: list[Any] = None
+    description: str = ""
+
+    def __post_init__(self):
+        if self.sample_values is None:
+            self.sample_values = []
 
 
 class ConditionalRouterComponent(Component):
@@ -18,13 +44,89 @@ class ConditionalRouterComponent(Component):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.__iteration_updated = False
+        # Enhanced field extraction with caching
+        self._field_cache: dict[str, tuple[list[FieldInfo], float]] = {}
+        self._cache_ttl = 300  # 5 minutes cache TTL
+        self._field_info_cache: dict[str, list[FieldInfo]] = {}
 
     inputs = [
+        # New enhanced multi-condition inputs
+        HandleInput(
+            name="data_input",
+            display_name=i18n.t("components.logic.conditional_router.data_input.display_name"),
+            info=i18n.t("components.logic.conditional_router.data_input.info"),
+            input_types=["Data", "Message"],
+            required=True,
+        ),
+        TableInput(
+            name="conditions",
+            display_name=i18n.t("components.logic.conditional_router.conditions.display_name"),
+            info=i18n.t("components.logic.conditional_router.conditions.info"),
+            table_schema=[
+                {
+                    "name": "field_name",
+                    "display_name": i18n.t("components.logic.conditional_router.conditions.field_name"),
+                    "type": "str",
+                    "options": [],  # Will be dynamically populated with field info
+                    "field_types": {},  # Will store field type information
+                },
+                {
+                    "name": "operator",
+                    "display_name": i18n.t("components.logic.conditional_router.conditions.operator"),
+                    "type": "str",
+                    "options": [
+                        "equals",
+                        "not equals",
+                        "contains",
+                        "starts with",
+                        "ends with",
+                        "regex",
+                        "less than",
+                        "less than or equal",
+                        "greater than",
+                        "greater than or equal",
+                        "is empty",
+                        "is not empty",
+                        "in list",
+                        "not in list",
+                    ],
+                },
+                {
+                    "name": "compare_value",
+                    "display_name": i18n.t("components.logic.conditional_router.conditions.compare_value"),
+                    "type": "str",
+                    "info": i18n.t("components.logic.conditional_router.conditions.compare_value_info"),
+                },
+            ],
+            value=[],
+            table_options={
+                "block_add": False,
+                "block_delete": False,
+                "pagination": True,
+                "action_buttons": [
+                    {
+                        "name": "load_fields",
+                        "label": i18n.t("components.logic.conditional_router.conditions.load_fields_button"),
+                        "icon": "Download",
+                        "position": "top",
+                    }
+                ],
+            },
+            required=True,
+        ),
+        DropdownInput(
+            name="combination_logic",
+            display_name=i18n.t("components.logic.conditional_router.combination_logic.display_name"),
+            info=i18n.t("components.logic.conditional_router.combination_logic.info"),
+            options=["AND", "OR"],
+            value="AND",
+        ),
+        # Legacy inputs for backward compatibility (hidden by default)
         MessageTextInput(
             name="input_text",
             display_name=i18n.t("components.logic.conditional_router.input_text.display_name"),
             info=i18n.t("components.logic.conditional_router.input_text.info"),
-            required=True,
+            advanced=True,
         ),
         DropdownInput(
             name="operator",
@@ -44,12 +146,13 @@ class ConditionalRouterComponent(Component):
             info=i18n.t("components.logic.conditional_router.operator.info"),
             value="equals",
             real_time_refresh=True,
+            advanced=True,
         ),
         MessageTextInput(
             name="match_text",
             display_name=i18n.t("components.logic.conditional_router.match_text.display_name"),
             info=i18n.t("components.logic.conditional_router.match_text.info"),
-            required=True,
+            advanced=True,
         ),
         BoolInput(
             name="case_sensitive",
@@ -104,7 +207,167 @@ class ConditionalRouterComponent(Component):
 
     def _pre_run_setup(self):
         self.__iteration_updated = False
+        # Determine if we're using legacy mode or new multi-condition mode
+        self._use_legacy_mode = (
+            hasattr(self, "input_text")
+            and hasattr(self, "match_text")
+            and self.input_text
+            and self.match_text
+            and (not hasattr(self, "conditions") or not self.conditions)
+        )
+        if self._use_legacy_mode:
+            logger.debug(i18n.t("components.logic.conditional_router.logs.legacy_mode_enabled"))
+        else:
+            logger.debug(i18n.t("components.logic.conditional_router.logs.multi_condition_mode_enabled"))
         logger.debug(i18n.t("components.logic.conditional_router.logs.pre_run_setup"))
+
+    def extract_field_value(self, data: Any, field_path: str) -> Any:
+        """Extract field value from data object using dot notation for nested fields.
+
+        Args:
+            data: The data object (Data, Message, dict, etc.)
+            field_path: Field path with dot notation (e.g., "user.profile.name")
+
+        Returns:
+            Field value or None if not found
+        """
+        try:
+            # Handle Message objects
+            if hasattr(data, "text") and hasattr(data, "data"):
+                # For Message objects, try to extract from data first, then text
+                if hasattr(data, "data") and data.data:
+                    value = self._extract_from_dict(data.data, field_path)
+                    if value is not None:
+                        return str(value)
+                return data.text or ""
+
+            # Handle Data objects
+            if hasattr(data, "data"):
+                if isinstance(data.data, list) and len(data.data) > 0:
+                    # For Data objects with multiple rows, use first row
+                    first_row = data.data[0]
+                    if isinstance(first_row, dict):
+                        value = self._extract_from_dict(first_row, field_path)
+                        return str(value) if value is not None else ""
+                elif isinstance(data.data, dict):
+                    # First try to find the field directly in the dict
+                    value = self._extract_from_dict(data.data, field_path)
+                    if value is not None:
+                        return str(value)
+
+                    # If not found, look for it in nested lists within the dict
+                    for key, nested_value in data.data.items():
+                        if isinstance(nested_value, list) and len(nested_value) > 0:
+                            first_item = nested_value[0]
+                            if isinstance(first_item, dict):
+                                value = self._extract_from_dict(first_item, field_path)
+                                if value is not None:
+                                    return str(value)
+
+                    return ""
+
+            # Handle plain dictionaries
+            elif isinstance(data, dict):
+                value = self._extract_from_dict(data, field_path)
+                return str(value) if value is not None else ""
+
+            # Handle plain strings/other types
+            else:
+                return str(data) if data is not None else ""
+
+        except Exception as e:
+            logger.warning(
+                i18n.t(
+                    "components.logic.conditional_router.warnings.field_extraction_error",
+                    field_path=field_path,
+                    error=str(e),
+                )
+            )
+            return ""
+
+    def _extract_from_dict(self, data_dict: dict, field_path: str) -> Any:
+        """Extract value from dictionary using dot notation."""
+        keys = field_path.split(".")
+        value = data_dict
+
+        for key in keys:
+            if isinstance(value, dict) and key in value:
+                value = value[key]
+            else:
+                return None
+
+        return value
+
+    def evaluate_conditions(self, input_data: Any) -> bool:
+        """Evaluate multiple conditions with AND/OR logic.
+
+        Args:
+            input_data: The input data (Data, Message, or other object)
+
+        Returns:
+            Boolean result of condition evaluation
+        """
+        if not self.conditions:
+            logger.warning(i18n.t("components.logic.conditional_router.warnings.no_conditions_configured"))
+            return False
+
+        results = []
+
+        for condition in self.conditions:
+            if not isinstance(condition, dict):
+                continue
+
+            field_name = condition.get("field_name", "")
+            operator = condition.get("operator", "equals")
+            compare_value = condition.get("compare_value", "")
+
+            if not field_name:
+                logger.warning(i18n.t("components.logic.conditional_router.warnings.empty_field_name"))
+                continue
+
+            # Extract field value from input data
+            field_value = self.extract_field_value(input_data, field_name)
+
+            # Evaluate single condition
+            result = self.evaluate_condition(field_value, compare_value, operator, case_sensitive=self.case_sensitive)
+
+            results.append(result)
+
+            logger.debug(
+                i18n.t(
+                    "components.logic.conditional_router.logs.condition_evaluated",
+                    field=field_name,
+                    operator=operator,
+                    value=field_value,
+                    compare=compare_value,
+                    result=result,
+                )
+            )
+
+            # Short-circuit evaluation for efficiency
+            if self.combination_logic == "AND" and not result:
+                logger.debug(i18n.t("components.logic.conditional_router.logs.and_short_circuit"))
+                return False
+            if self.combination_logic == "OR" and result:
+                logger.debug(i18n.t("components.logic.conditional_router.logs.or_short_circuit"))
+                return True
+
+        # Final evaluation based on combination logic
+        if self.combination_logic == "AND":
+            final_result = all(results)
+        else:  # OR
+            final_result = any(results)
+
+        logger.debug(
+            i18n.t(
+                "components.logic.conditional_router.logs.final_evaluation",
+                logic=self.combination_logic,
+                results=results,
+                final_result=final_result,
+            )
+        )
+
+        return final_result
 
     def evaluate_condition(self, input_text: str, match_text: str, operator: str, *, case_sensitive: bool) -> bool:
         logger.debug(
@@ -156,6 +419,38 @@ class ConditionalRouterComponent(Component):
                     i18n.t(
                         "components.logic.conditional_router.warnings.invalid_number",
                         input_text=input_text,
+                        match_text=match_text,
+                        error=str(e),
+                    )
+                )
+                return False
+        elif operator == "is empty":
+            result = not input_text or input_text.strip() == ""
+        elif operator == "is not empty":
+            result = bool(input_text and input_text.strip())
+        elif operator == "in list":
+            try:
+                # Parse compare_value as a comma-separated list
+                value_list = [item.strip() for item in match_text.split(",")]
+                result = input_text in value_list
+            except Exception as e:
+                logger.warning(
+                    i18n.t(
+                        "components.logic.conditional_router.warnings.invalid_list",
+                        match_text=match_text,
+                        error=str(e),
+                    )
+                )
+                return False
+        elif operator == "not in list":
+            try:
+                # Parse compare_value as a comma-separated list
+                value_list = [item.strip() for item in match_text.split(",")]
+                result = input_text not in value_list
+            except Exception as e:
+                logger.warning(
+                    i18n.t(
+                        "components.logic.conditional_router.warnings.invalid_list",
                         match_text=match_text,
                         error=str(e),
                     )
@@ -228,9 +523,16 @@ class ConditionalRouterComponent(Component):
             self.graph.exclude_branch_conditionally(self._id, output_name=route_to_stop)
 
     def true_response(self) -> Message:
-        result = self.evaluate_condition(
-            self.input_text, self.match_text, self.operator, case_sensitive=self.case_sensitive
-        )
+        # Choose evaluation method based on mode
+        if self._use_legacy_mode:
+            # Legacy mode: use single condition evaluation
+            result = self.evaluate_condition(
+                self.input_text, self.match_text, self.operator, case_sensitive=self.case_sensitive
+            )
+        else:
+            # New multi-condition mode
+            input_data = getattr(self, "data_input", None) or Message(text=getattr(self, "input_text", ""))
+            result = self.evaluate_conditions(input_data)
 
         # Check if we should force output due to max_iterations on default route
         current_iteration = self.ctx.get(f"{self._id}_iteration", 0)
@@ -245,7 +547,14 @@ class ConditionalRouterComponent(Component):
                     i18n.t("components.logic.conditional_router.logs.forced_true_output", iteration=current_iteration)
                 )
             else:
-                self.status = i18n.t("components.logic.conditional_router.status.condition_true")
+                if self._use_legacy_mode:
+                    self.status = i18n.t("components.logic.conditional_router.status.condition_true")
+                else:
+                    self.status = i18n.t(
+                        "components.logic.conditional_router.status.multi_condition_true",
+                        logic=self.combination_logic,
+                        conditions=len(self.conditions) if hasattr(self, "conditions") else 0,
+                    )
                 logger.debug(i18n.t("components.logic.conditional_router.logs.condition_true"))
 
             if not force_output:  # Only stop the other branch if not forcing due to max iterations
@@ -257,9 +566,16 @@ class ConditionalRouterComponent(Component):
         return Message(content="")
 
     def false_response(self) -> Message:
-        result = self.evaluate_condition(
-            self.input_text, self.match_text, self.operator, case_sensitive=self.case_sensitive
-        )
+        # Choose evaluation method based on mode
+        if self._use_legacy_mode:
+            # Legacy mode: use single condition evaluation
+            result = self.evaluate_condition(
+                self.input_text, self.match_text, self.operator, case_sensitive=self.case_sensitive
+            )
+        else:
+            # New multi-condition mode
+            input_data = getattr(self, "data_input", None) or Message(text=getattr(self, "input_text", ""))
+            result = self.evaluate_conditions(input_data)
 
         # Check if we should force output due to max_iterations on default route
         current_iteration = self.ctx.get(f"{self._id}_iteration", 0)
@@ -274,7 +590,14 @@ class ConditionalRouterComponent(Component):
                     i18n.t("components.logic.conditional_router.logs.forced_false_output", iteration=current_iteration)
                 )
             else:
-                self.status = i18n.t("components.logic.conditional_router.status.condition_false")
+                if self._use_legacy_mode:
+                    self.status = i18n.t("components.logic.conditional_router.status.condition_false")
+                else:
+                    self.status = i18n.t(
+                        "components.logic.conditional_router.status.multi_condition_false",
+                        logic=self.combination_logic,
+                        conditions=len(self.conditions) if hasattr(self, "conditions") else 0,
+                    )
                 logger.debug(i18n.t("components.logic.conditional_router.logs.condition_false"))
 
             self.iterate_and_stop_once("true_result")
@@ -284,7 +607,108 @@ class ConditionalRouterComponent(Component):
         self.iterate_and_stop_once("false_result")
         return Message(content="")
 
-    def update_build_config(self, build_config: dict, field_value: str, field_name: str | None = None) -> dict:
+    async def update_build_config(
+        self, build_config: dict, field_value: str, field_name: str | None = None, action: str | None = None
+    ) -> dict:
+        # Handle load_fields action for populating field options
+        if action == "load_fields" and field_name == "conditions":
+            logger.debug(i18n.t("components.logic.conditional_router.logs.loading_fields"))
+            try:
+                # Get graph_data and node_id from build_config
+                graph_data = build_config.get("_graph_data", {})
+                node_id = build_config.get("_node_id")
+
+                # Fallback to self.graph if available
+                if not graph_data and hasattr(self, "graph") and self.graph is not None:
+                    if hasattr(self.graph, "data"):
+                        graph_data = self.graph.data
+                    else:
+                        logger.warning(
+                            i18n.t("components.logic.conditional_router.warnings.no_graph_data_placeholder")
+                        )
+
+                if not graph_data:
+                    logger.warning(i18n.t("components.logic.conditional_router.logs.no_graph_data"))
+                    self.status = i18n.t("components.logic.conditional_router.errors.no_graph_data_error")
+                    return build_config
+
+                field_options = []
+
+                # PRIMARY STRATEGY: Try static field extraction from upstream schema (FAST, RELIABLE)
+                try:
+                    from lfx.components.helpers.field_extraction import find_and_extract_upstream_fields
+
+                    field_names = find_and_extract_upstream_fields(
+                        graph_data, node_id, "data_input", "ConditionalRouter"
+                    )
+
+                    if field_names:
+                        field_options = field_names
+                        logger.debug(
+                            i18n.t(
+                                "components.logic.conditional_router.logs.fields_from_template",
+                                count=len(field_options),
+                            )
+                        )
+
+                except Exception as static_error:
+                    logger.debug(
+                        i18n.t(
+                            "components.logic.conditional_router.warnings.static_extraction_failed",
+                            error=str(static_error),
+                        )
+                    )
+
+                # FALLBACK STRATEGY: Try to execute upstream node to get actual data (SLOW, MAY FAIL)
+                if not field_options:
+                    logger.debug(
+                        i18n.t("components.logic.conditional_router.logs.trying_data_extraction")
+                    )
+                    try:
+                        upstream_data = await self.get_upstream_data(
+                            input_name="data_input", graph_data=graph_data, sample_size=10, vertex_id=node_id
+                        )
+
+                        if upstream_data:
+                            # Extract field information from upstream data
+                            field_info_list = self.extract_field_info_with_types(upstream_data)
+                            field_options = [info.name for info in field_info_list]
+                            logger.debug(
+                                i18n.t(
+                                    "components.logic.conditional_router.logs.fields_from_data", count=len(field_options)
+                                )
+                            )
+                        else:
+                            logger.warning(
+                                i18n.t("components.logic.conditional_router.warnings.no_upstream_data")
+                            )
+
+                    except Exception as e:
+                        # Upstream execution failed
+                        logger.debug(
+                            i18n.t(
+                                "components.logic.conditional_router.warnings.upstream_failed",
+                                error=str(e),
+                            )
+                        )
+
+                # Update build_config with field options
+                if field_options and "conditions" in build_config:
+                    build_config["conditions"]["field_options"] = field_options
+                    self.status = i18n.t(
+                        "components.logic.conditional_router.status.fields_loaded", count=len(field_options)
+                    )
+                else:
+                    self.status = i18n.t("components.logic.conditional_router.warnings.no_fields_found_error")
+
+            except Exception as e:
+                logger.warning(
+                    i18n.t("components.logic.conditional_router.warnings.field_loading_error", error=str(e))
+                )
+                self.status = i18n.t("components.logic.conditional_router.errors.field_loading_failed", error=str(e))
+
+            return build_config
+
         if field_name == "operator":
             logger.debug(i18n.t("components.logic.conditional_router.logs.updating_config", operator=field_value))
 
@@ -298,4 +722,411 @@ class ConditionalRouterComponent(Component):
                 if case_sensitive_input:
                     build_config["case_sensitive"] = case_sensitive_input.to_dict()
                     logger.debug(i18n.t("components.logic.conditional_router.logs.added_case_sensitive"))
+        elif field_name == "combination_logic":
+            logger.debug(
+                i18n.t("components.logic.conditional_router.logs.updating_combination_logic", logic=field_value)
+            )
+        elif field_name == "conditions":
+            logger.debug(
+                i18n.t(
+                    "components.logic.conditional_router.logs.updating_conditions",
+                    conditions_count=len(field_value) if field_value else 0,
+                )
+            )
         return build_config
+
+    def populate_field_options(self) -> list[str]:
+        """Populate field options from upstream data schema.
+
+        Returns:
+            List of field names available in upstream data
+        """
+        try:
+            # Check if we have graph data available
+            if not hasattr(self, "graph") or not self.graph:
+                logger.debug(i18n.t("components.logic.conditional_router.logs.no_graph_available"))
+                return []
+
+            # Get graph data for field extraction
+            graph_data = getattr(self.graph, "data", {})
+            if not graph_data:
+                logger.debug(i18n.t("components.logic.conditional_router.logs.no_graph_data"))
+                return []
+
+            # Extract fields from upstream data_input
+            field_names = []
+
+            # Try to get upstream data if available (for enhanced real-time field extraction)
+            try:
+                if hasattr(self, "data_input") and self.data_input:
+                    # Use enhanced field extraction with type inference
+                    field_info_list = self.extract_field_info_with_types(self.data_input)
+                    if field_info_list:
+                        field_names = [info.name for info in field_info_list]
+                        logger.info(
+                            i18n.t("components.logic.conditional_router.logs.fields_from_data", count=len(field_names))
+                        )
+                        # Update field types in the component for smart operator suggestions
+                        self.enhance_conditions_with_field_types()
+                        return field_names
+            except Exception as e:
+                logger.debug(f"Failed to extract fields from data_input: {e}")
+
+            # Fallback to field extraction from template configuration
+            from lfx.components.helpers.field_extraction import find_and_extract_upstream_fields
+
+            field_names = find_and_extract_upstream_fields(graph_data, self._id, "data_input", "ConditionalRouter")
+
+            if field_names:
+                logger.info(
+                    i18n.t("components.logic.conditional_router.logs.fields_from_template", count=len(field_names))
+                )
+            else:
+                logger.debug(i18n.t("components.logic.conditional_router.logs.no_fields_found"))
+
+            return field_names
+
+        except Exception as e:
+            logger.warning(i18n.t("components.logic.conditional_router.warnings.field_population_error", error=str(e)))
+            return []
+
+    def get_field_options(self) -> list[str]:
+        """Get field options for dropdown population.
+
+        This method can be called by the frontend to populate field dropdown options.
+
+        Returns:
+            List of available field names
+        """
+        return self.populate_field_options()
+
+    def update_field_options(self) -> None:
+        """Update the field options in the conditions table schema.
+
+        This method can be called to refresh field options when upstream connections change.
+        """
+        try:
+            field_options = self.populate_field_options()
+
+            # Update the conditions table schema field_name options
+            conditions_input = None
+            for input_field in self.inputs:
+                if input_field.name == "conditions":
+                    conditions_input = input_field
+                    break
+
+            if conditions_input and hasattr(conditions_input, "table_schema"):
+                # Find the field_name column and update its options
+                for column in conditions_input.table_schema:
+                    if column.get("name") == "field_name":
+                        column["options"] = field_options
+                        logger.debug(
+                            i18n.t(
+                                "components.logic.conditional_router.logs.field_options_updated",
+                                count=len(field_options),
+                            )
+                        )
+                        break
+
+        except Exception as e:
+            logger.warning(
+                i18n.t("components.logic.conditional_router.warnings.update_field_options_error", error=str(e))
+            )
+
+    def infer_field_type(self, field_name: str, sample_values: list[Any]) -> str:
+        """Infer the type of a field based on sample values.
+
+        Args:
+            field_name: Name of the field
+            sample_values: List of sample values from the field
+
+        Returns:
+            Field type: 'string', 'number', 'boolean', 'date'
+        """
+        if not sample_values:
+            return "string"
+
+        # Analyze sample values
+        numeric_count = 0
+        boolean_count = 0
+        date_count = 0
+        string_count = 0
+
+        for value in sample_values:
+            if value is None or value == "":
+                continue
+
+            # Check for boolean
+            if isinstance(value, bool) or str(value).lower() in ("true", "false", "yes", "no", "1", "0"):
+                boolean_count += 1
+            # Check for numeric
+            elif self._is_numeric(value):
+                numeric_count += 1
+            # Check for date
+            elif self._is_date_like(value):
+                date_count += 1
+            # Default to string
+            else:
+                string_count += 1
+
+        # Determine type based on majority
+        total = numeric_count + boolean_count + date_count + string_count
+        if total == 0:
+            return "string"
+
+        if numeric_count / total > 0.7:
+            return "number"
+        if boolean_count / total > 0.7:
+            return "boolean"
+        if date_count / total > 0.7:
+            return "date"
+        return "string"
+
+    def _is_numeric(self, value: Any) -> bool:
+        """Check if a value can be interpreted as numeric."""
+        try:
+            float(str(value))
+            return True
+        except (ValueError, TypeError):
+            return False
+
+    def _is_date_like(self, value: Any) -> bool:
+        """Check if a value looks like a date."""
+        import datetime
+
+        date_patterns = [
+            r"\d{4}-\d{2}-\d{2}",  # YYYY-MM-DD
+            r"\d{2}/\d{2}/\d{4}",  # MM/DD/YYYY
+            r"\d{2}-\d{2}-\d{4}",  # MM-DD-YYYY
+        ]
+
+        value_str = str(value)
+        for pattern in date_patterns:
+            if re.match(pattern, value_str):
+                return True
+
+        # Try to parse as date
+        for date_format in ["%Y-%m-%d", "%m/%d/%Y", "%m-%d-%Y", "%Y-%m-%d %H:%M:%S"]:
+            try:
+                datetime.datetime.strptime(value_str, date_format)
+                return True
+            except ValueError:
+                continue
+
+        return False
+
+    def extract_field_info_with_types(self, data: Any) -> list[FieldInfo]:
+        """Extract field information including types and sample values.
+
+        Args:
+            data: The data object to analyze
+
+        Returns:
+            List of FieldInfo objects with type information
+        """
+        cache_key = self._get_cache_key(data)
+
+        # Check cache first
+        if cache_key in self._field_info_cache:
+            cached_time, cached_fields = self._field_info_cache.get(cache_key, ([], 0))
+            if isinstance(cached_time, (int, float)) and time.time() - cached_time < self._cache_ttl:
+                logger.debug(f"Using cached field info for {len(cached_fields)} fields")
+                return cached_fields
+
+        field_info_list = []
+        sample_data = self._extract_sample_data(data)
+
+        if not sample_data:
+            return field_info_list
+
+        # Extract all field paths from sample data
+        all_field_paths = set()
+        for sample in sample_data:
+            if isinstance(sample, dict):
+                paths = self._extract_all_field_paths(sample)
+                all_field_paths.update(paths)
+
+        # Create field info for each field
+        for field_path in sorted(all_field_paths):
+            sample_values = []
+            for sample in sample_data:
+                value = self._extract_from_dict(sample, field_path)
+                if value is not None:
+                    sample_values.append(value)
+
+            field_type = self.infer_field_type(field_path, sample_values)
+            field_info = FieldInfo(
+                name=field_path,
+                type=field_type,
+                sample_values=sample_values[:5],  # Keep only first 5 samples
+            )
+            field_info_list.append(field_info)
+
+        # Cache the results
+        self._field_info_cache[cache_key] = field_info_list
+        self._field_cache[cache_key] = (field_info_list, time.time())
+
+        logger.info(f"Extracted {len(field_info_list)} fields with type information")
+        return field_info_list
+
+    def _extract_sample_data(self, data: Any) -> list[dict]:
+        """Extract sample data for field analysis."""
+        samples = []
+
+        try:
+            # Handle Data objects
+            if hasattr(data, "data"):
+                if isinstance(data.data, list):
+                    samples = data.data[:10]  # Limit to 10 samples
+                elif isinstance(data.data, dict):
+                    # Look for lists within the dict (e.g., {"records": [...]})
+                    found_list = False
+                    for key, value in data.data.items():
+                        if isinstance(value, list) and value:
+                            samples = value[:10]  # Limit to 10 samples
+                            found_list = True
+                            break
+                    if not found_list:
+                        samples = [data.data]
+
+            # Handle Message objects
+            elif hasattr(data, "text"):
+                if hasattr(data, "data") and isinstance(data.data, dict):
+                    samples = [data.data]
+                else:
+                    # Create a simple structure with text
+                    samples = [{"text": data.text or ""}]
+
+            # Handle plain dictionaries
+            elif isinstance(data, dict):
+                samples = [data]
+
+            # Handle lists
+            elif isinstance(data, list):
+                # Process list items - they might be Data objects
+                for item in data[:10]:
+                    if hasattr(item, "data") and isinstance(item.data, dict):
+                        # Item is a Data object, extract its data
+                        samples.append(item.data)
+                    elif isinstance(item, dict):
+                        # Item is already a dict
+                        samples.append(item)
+                    # Skip other types
+
+        except Exception as e:
+            logger.warning(f"Error extracting sample data: {e}")
+
+        return [s for s in samples if s]  # Filter out None values
+
+    def _extract_all_field_paths(self, data: dict, prefix: str = "") -> list[str]:
+        """Extract all field paths from a nested dictionary."""
+        paths = []
+
+        for key, value in data.items():
+            current_path = f"{prefix}.{key}" if prefix else key
+
+            if isinstance(value, dict) and value:
+                # Recursively extract nested fields
+                nested_paths = self._extract_all_field_paths(value, current_path)
+                paths.extend(nested_paths)
+            else:
+                paths.append(current_path)
+
+        return paths
+
+    def _get_cache_key(self, data: Any) -> str:
+        """Generate a cache key for the given data."""
+        try:
+            # Create a simple hash based on data structure
+            if hasattr(data, "data"):
+                if isinstance(data.data, list) and data.data:
+                    # Use first item as representative
+                    return str(hash(str(data.data[0])))
+                if isinstance(data.data, dict):
+                    return str(hash(str(data.data)))
+            elif isinstance(data, dict):
+                return str(hash(str(data)))
+            else:
+                return str(hash(str(data)))
+        except Exception:
+            # Fallback to timestamp-based key
+            return f"cache_{int(time.time() // 60)}"  # Cache per minute
+
+    def get_operators_for_field_type(self, field_type: str) -> list[str]:
+        """Get appropriate operators for a given field type.
+
+        Args:
+            field_type: The field type ('string', 'number', 'boolean', 'date')
+
+        Returns:
+            List of suitable operators for the field type
+        """
+        operators = {
+            "string": [
+                "equals",
+                "not equals",
+                "contains",
+                "starts with",
+                "ends with",
+                "regex",
+                "is empty",
+                "is not empty",
+                "in list",
+                "not in list",
+            ],
+            "number": [
+                "equals",
+                "not equals",
+                "less than",
+                "less than or equal",
+                "greater than",
+                "greater than or equal",
+                "is empty",
+                "is not empty",
+            ],
+            "boolean": ["equals", "not equals", "is empty", "is not empty"],
+            "date": [
+                "equals",
+                "not equals",
+                "less than",
+                "less than or equal",
+                "greater than",
+                "greater than or equal",
+                "is empty",
+                "is not empty",
+            ],
+        }
+
+        return operators.get(field_type, operators["string"])
+
+    def enhance_conditions_with_field_types(self):
+        """Enhance the conditions table with field type information."""
+        try:
+            if not hasattr(self, "data_input") or not self.data_input:
+                return
+
+            # Extract field info from upstream data
+            field_info_list = self.extract_field_info_with_types(self.data_input)
+
+            # Update conditions table schema with field types
+            conditions_input = None
+            for input_field in self.inputs:
+                if input_field.name == "conditions":
+                    conditions_input = input_field
+                    break
+
+            if conditions_input and hasattr(conditions_input, "table_schema"):
+                # Update field_types in schema
+                field_types = {info.name: info.type for info in field_info_list}
+
+                for column in conditions_input.table_schema:
+                    if column.get("name") == "field_name":
+                        column["field_types"] = field_types
+                        # Update options with field names only
+                        column["options"] = [info.name for info in field_info_list]
+                        break
+
+                logger.debug(f"Updated conditions table with {len(field_info_list)} field types")
+
+        except Exception as e:
+            logger.warning(f"Error enhancing conditions with field types: {e}")

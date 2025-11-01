@@ -236,8 +236,31 @@ class ETLFieldUnpivotComponent(Component):
             if not self.data_input:
                 raise ValueError(i18n.t("components.manipulations.field_unpivot.errors.no_input_data"))
 
-            # 转换为DataFrame
-            df = pd.DataFrame([d.data if hasattr(d, "data") else d for d in self.data_input])
+            # Handle both single Data objects and lists of Data objects
+            data_items = self.data_input
+            if not isinstance(data_items, list):
+                data_items = [data_items]
+
+            # Convert to DataFrame with proper error handling
+            processed_data = []
+            for d in data_items:
+                if hasattr(d, "data") and isinstance(d.data, dict):
+                    processed_data.append(d.data)
+                elif isinstance(d, dict):
+                    processed_data.append(d)
+                elif isinstance(d, tuple):
+                    # Handle tuple case - try to extract meaningful data
+                    logger.warning(f"Received tuple instead of Data object: {d}")
+                    if len(d) >= 2 and isinstance(d[1], dict):
+                        processed_data.append(d[1])  # Use the second element if it's a dict
+                    else:
+                        logger.error(f"Cannot process tuple: {d}")
+                        continue
+                else:
+                    logger.warning(f"Unknown data type {type(d)}: {d}")
+                    continue
+
+            df = pd.DataFrame(processed_data)
             total_rows = len(df)
             logger.info(f"[FieldUnpivot] Processing {total_rows} rows with {len(df.columns)} columns")
 
