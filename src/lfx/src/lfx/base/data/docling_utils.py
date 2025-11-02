@@ -274,14 +274,19 @@ def docling_worker(
 
                 # Check for specific dependency errors and identify the dependency name
                 dependency_name = None
+                install_command = None
                 if "ocrmac is not correctly installed" in error_msg:
                     dependency_name = "ocrmac"
+                    install_command = "uv pip install 'langflow[docling]'"
                 elif "easyocr" in error_msg and "not installed" in error_msg:
                     dependency_name = "easyocr"
+                    install_command = "uv pip install 'langflow[docling]'"
                 elif "tesserocr" in error_msg and "not installed" in error_msg:
                     dependency_name = "tesserocr"
+                    install_command = "uv pip install 'langflow[docling]'"
                 elif "rapidocr" in error_msg and "not installed" in error_msg:
                     dependency_name = "rapidocr"
+                    install_command = "uv pip install 'langflow[docling]'"
 
                 if dependency_name:
                     queue.put(
@@ -289,6 +294,7 @@ def docling_worker(
                             "error": error_msg,
                             "error_type": "dependency_error",
                             "dependency_name": dependency_name,
+                            "install_command": install_command,
                             "original_exception": type(file_error).__name__,
                         }
                     )
