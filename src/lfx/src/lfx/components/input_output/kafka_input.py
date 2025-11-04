@@ -40,22 +40,17 @@ class ETLKafkaInputComponent(Component):
     def _is_design_time_context(self) -> bool:
         """检测是否在设计时上下文中（字段分析等）"""
 
-        logger.debug(f"[KafkaInput] Design-time detection - bootstrap_servers: {self.bootstrap_servers}, topics: {self.topics}")
-        logger.debug(f"[KafkaInput] Design-time detection - message_schema: {len(self.message_schema) if self.message_schema else 0} fields")
-
         # 方法1: 检查调用栈 - 最可靠的检测方法
         import traceback
         stack = traceback.extract_stack()
-        logger.debug(f"[KafkaInput] Call stack analysis - {len(stack)} frames")
 
         for i, frame in enumerate(stack):
-            logger.debug(f"[KafkaInput] Frame {i}: {frame.filename}:{frame.name}")
             # 检测字段分析相关的调用
             if "analyze_fields" in frame.name or "field_analysis" in frame.name:
                 logger.debug("[KafkaInput] Field analysis detected in call stack, returning sample data")
                 return True
-            # 检测GraphUtils的临时图执行
-            if "GraphUtils" in frame.filename and "execute_node_and_get_result" in frame.name:
+            # 检测GraphUtils的临时图执行 - 修复：使用OR而不是AND
+            if "GraphUtils" in frame.filename or "execute_node_and_get_result" in frame.name:
                 logger.debug("[KafkaInput] GraphUtils execution detected, assuming design-time context")
                 return True
             # 检测字段分析相关的上下文
@@ -66,7 +61,6 @@ class ETLKafkaInputComponent(Component):
         # 方法2: 检查是否有schema定义但没有活跃的Kafka连接配置
         # 如果用户定义了schema，很可能是设计时配置
         if self.message_schema:
-            logger.debug(f"[KafkaInput] Schema defined, checking config quality...")
             # 检查是否使用了默认/示例配置
             if (not self.bootstrap_servers or
                 self.bootstrap_servers.strip() == "" or
@@ -81,7 +75,6 @@ class ETLKafkaInputComponent(Component):
             logger.debug("[KafkaInput] Schema-only mode detected, assuming design-time")
             return True
 
-        logger.debug("[KafkaInput] Runtime context detected, proceeding with Kafka connection")
         return False
 
     def _has_valid_runtime_config(self) -> bool:
@@ -108,11 +101,6 @@ class ETLKafkaInputComponent(Component):
         logger.info("Stop requested")
         self._should_stop = True
         self._close_current_consumer()
-
-    def _debug_log(self, message: str):
-        """Log message only in debug mode."""
-        if self.debug_mode:
-            logger.debug(message)
 
     inputs = [
         MessageTextInput(
@@ -247,7 +235,7 @@ class ETLKafkaInputComponent(Component):
                     "name": "required",
                     "type": "bool",
                     "display_name": i18n.t("components.input_output.kafka_input.message_schema.required"),
-                    "formatter": "checkbox",
+                    "formatter": "boolean",
                 },
                 {
                     "name": "description",
@@ -515,7 +503,6 @@ class ETLKafkaInputComponent(Component):
                 last_log_time = time.time()
 
             if msg is None:
-                self._debug_log(f"Poll #{poll_count}: empty")
                 continue
 
             if msg.error():
@@ -523,7 +510,6 @@ class ETLKafkaInputComponent(Component):
 
                 if error_code == KafkaError._PARTITION_EOF:
                     eof_count += 1
-                    self._debug_log(f"Poll #{poll_count}: EOF on {msg.topic()}-{msg.partition()} offset {msg.offset()}")
 
                     # 如果多次 EOF 且没有消息，提前退出
                     if len(results) == 0 and eof_count > len(topics) * 2:
@@ -535,19 +521,15 @@ class ETLKafkaInputComponent(Component):
                 continue
 
             # 成功获取消息
-            self._debug_log(f"Poll #{poll_count}: ✓ {msg.topic()}-{msg.partition()} offset {msg.offset()}")
-
             try:
                 # 反序列化消息
                 value_bytes = msg.value()
                 if not value_bytes:
-                    self._debug_log("  Empty message body, skipping")
                     continue
 
                 if self.value_deserializer == "json":
                     try:
                         value = json.loads(value_bytes.decode("utf-8"))
-                        self._debug_log(f"  JSON parsed: {type(value).__name__}")
                     except json.JSONDecodeError as json_error:
                         raw_text = value_bytes.decode("utf-8", errors="replace")
                         preview = raw_text[:100] + "..." if len(raw_text) > 100 else raw_text
@@ -557,7 +539,6 @@ class ETLKafkaInputComponent(Component):
                 else:
                     try:
                         value = value_bytes.decode("utf-8")
-                        self._debug_log(f"  String decoded: {len(value)} chars")
                     except UnicodeDecodeError as unicode_error:
                         error_detail = f"  Unicode decode error: {unicode_error}"
                         logger.info(error_detail)
@@ -567,7 +548,6 @@ class ETLKafkaInputComponent(Component):
                 if self.json_path and isinstance(value, dict):
                     try:
                         value = self._extract_json_path(value)
-                        self._debug_log(f"  JSONPath extracted: {type(value).__name__}")
                     except Exception as path_error:
                         logger.info(f"  JSONPath extraction error: {path_error}")
                         continue
@@ -603,8 +583,6 @@ class ETLKafkaInputComponent(Component):
                 # 创建 Data 对象
                 data_obj = Data(data=processed_data)
                 results.append(data_obj)
-
-                self._debug_log(f"  ✓ Added to results (total: {len(results)})")
 
             except Exception as processing_error:
                 error_detail = f"  Unexpected error processing message: {processing_error}"
@@ -1409,38 +1387,32 @@ class ETLKafkaInputComponent(Component):
                     msg = consumer.poll(timeout=poll_timeout)
 
                     if msg is None:
-                        self._debug_log("No message received")
                         continue
 
                     if msg.error():
                         error_code = msg.error().code()
                         if error_code == KafkaError._PARTITION_EOF:
-                            self._debug_log(f"EOF on {msg.topic()}-{msg.partition()} offset {msg.offset()}")
                             continue
                         logger.warning(f"Kafka error: {msg.error()}")
                         continue
 
                     # 成功获取消息
-                    self._debug_log(f"✓ {msg.topic()}-{msg.partition()} offset {msg.offset()}")
 
                     try:
                         # 反序列化消息
                         value_bytes = msg.value()
                         if not value_bytes:
-                            self._debug_log("Empty message body, skipping")
                             continue
 
                         if self.value_deserializer == "json":
                             try:
                                 value = json.loads(value_bytes.decode("utf-8"))
-                                self._debug_log(f"JSON parsed: {type(value).__name__}")
                             except json.JSONDecodeError as json_error:
                                 logger.warning(f"JSON decode error: {json_error}")
                                 continue
                         else:
                             try:
                                 value = value_bytes.decode("utf-8")
-                                self._debug_log(f"String decoded: {len(value)} chars")
                             except UnicodeDecodeError as unicode_error:
                                 logger.warning(f"Unicode decode error: {unicode_error}")
                                 continue
@@ -1449,7 +1421,6 @@ class ETLKafkaInputComponent(Component):
                         if self.json_path and isinstance(value, dict):
                             try:
                                 value = self._extract_json_path(value)
-                                self._debug_log(f"JSONPath extracted: {type(value).__name__}")
                             except Exception as path_error:
                                 logger.warning(f"JSONPath extraction error: {path_error}")
                                 continue
@@ -1491,7 +1462,6 @@ class ETLKafkaInputComponent(Component):
                             self.status = f"📊 Streaming: {message_count} messages"
                             logger.info(f"Streamed {message_count} messages so far")
 
-                        self._debug_log(f"✓ Yielding message {message_count}")
                         yield data_obj
 
                     except Exception as processing_error:
@@ -1573,7 +1543,6 @@ class ETLKafkaInputComponent(Component):
                     msg = await asyncio.to_thread(consumer.poll, poll_timeout)
 
                     if msg is None:
-                        self._debug_log("No message received")
                         # ✅ 让出控制权，保持 UI 响应
                         await asyncio.sleep(0)
                         continue
@@ -1581,7 +1550,6 @@ class ETLKafkaInputComponent(Component):
                     if msg.error():
                         error_code = msg.error().code()
                         if error_code == KafkaError._PARTITION_EOF:
-                            self._debug_log(f"EOF on {msg.topic()}-{msg.partition()} offset {msg.offset()}")
                             await asyncio.sleep(0)
                             continue
                         logger.warning(f"Kafka error: {msg.error()}")
@@ -1589,20 +1557,17 @@ class ETLKafkaInputComponent(Component):
                         continue
 
                     # 成功获取消息
-                    self._debug_log(f"✓ {msg.topic()}-{msg.partition()} offset {msg.offset()}")
 
                     try:
                         # 反序列化消息
                         value_bytes = msg.value()
                         if not value_bytes:
-                            self._debug_log("Empty message body, skipping")
                             await asyncio.sleep(0)
                             continue
 
                         if self.value_deserializer == "json":
                             try:
                                 value = json.loads(value_bytes.decode("utf-8"))
-                                self._debug_log(f"JSON parsed: {type(value).__name__}")
                             except json.JSONDecodeError as json_error:
                                 logger.warning(f"JSON decode error: {json_error}")
                                 await asyncio.sleep(0)
@@ -1610,7 +1575,6 @@ class ETLKafkaInputComponent(Component):
                         else:
                             try:
                                 value = value_bytes.decode("utf-8")
-                                self._debug_log(f"String decoded: {len(value)} chars")
                             except UnicodeDecodeError as unicode_error:
                                 logger.warning(f"Unicode decode error: {unicode_error}")
                                 await asyncio.sleep(0)
@@ -1620,7 +1584,6 @@ class ETLKafkaInputComponent(Component):
                         if self.json_path and isinstance(value, dict):
                             try:
                                 value = self._extract_json_path(value)
-                                self._debug_log(f"JSONPath extracted: {type(value).__name__}")
                             except Exception as path_error:
                                 logger.warning(f"JSONPath extraction error: {path_error}")
                                 await asyncio.sleep(0)
@@ -1663,7 +1626,6 @@ class ETLKafkaInputComponent(Component):
                             self.status = f"📊 Streaming: {message_count} messages"
                             logger.info(f"Streamed {message_count} messages so far")
 
-                        self._debug_log(f"✓ Yielding message {message_count}")
                         yield data_obj
 
                         # ✅ 让出控制权，允许其他任务运行
