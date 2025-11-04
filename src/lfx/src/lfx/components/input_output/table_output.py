@@ -408,7 +408,7 @@ class ETLTableOutputComponent(Component):
                 except Exception as e:
                     logger.error(f"[TableOutput] Error loading columns: {e}")
 
-        # 4. Handle "Analyze Schema" button - analyze input data structure
+        # 4. Handle "Analyze Schema" button - analyze input data structure using static field extraction
         if field_name == "field_mappings" and action == "analyze_schema":
             logger.info("[TableOutput] Schema analysis triggered by action button")
 
@@ -429,47 +429,68 @@ class ETLTableOutputComponent(Component):
                     self.status = i18n.t("components.input_output.table_output.errors.no_graph_data")
                     return build_config
 
-                # Use the generic get_upstream_data method to fetch actual data
+                # Use static field extraction instead of executing upstream components
                 self.status = i18n.t("components.input_output.table_output.status.analyzing_schema")
+                logger.info("[TableOutput] Using static field extraction from upstream component configuration")
 
-                # 在同步上下文中运行异步方法
                 try:
-                    import asyncio
-                    loop = asyncio.get_event_loop()
-                    if loop.is_running():
-                        # 在运行的事件循环中，使用 run_coroutine_threadsafe
-                        import concurrent.futures
-                        with concurrent.futures.ThreadPoolExecutor() as executor:
-                            future = executor.submit(
-                                asyncio.run,
-                                self.get_upstream_data(input_name="data_input", graph_data=graph_data, sample_size=10, vertex_id=node_id)
-                            )
-                            upstream_data = future.result(timeout=10)
-                    else:
-                        upstream_data = asyncio.run(
-                            self.get_upstream_data(input_name="data_input", graph_data=graph_data, sample_size=10, vertex_id=node_id)
-                        )
-                except Exception as e:
-                    logger.error(f"[TableOutput] Error getting upstream data: {e}")
-                    upstream_data = None
+                    from lfx.components.helpers.field_extraction import extract_fields_from_node_template
+                    from lfx.custom.graph_utils import find_upstream_node_id
 
-                if not upstream_data:
-                    logger.warning("[TableOutput] No data returned from upstream node")
-                    self.status = i18n.t("components.input_output.table_output.status.no_input_data")
-                    return build_config
+                    # Find the upstream node connected to data_input
+                    upstream_node_id = find_upstream_node_id(graph_data, node_id, "data_input")
+                    if not upstream_node_id:
+                        logger.warning("[TableOutput] No upstream node found for field analysis")
+                        self.status = i18n.t("components.input_output.table_output.status.no_fields_found")
+                        return build_config
 
-                # Extract field structure from upstream data
-                field_info = self._extract_field_info_from_data(upstream_data)
+                    # Find the upstream node in graph data
+                    upstream_node = None
+                    for node in graph_data.get("nodes", []):
+                        if node.get("id") == upstream_node_id:
+                            upstream_node = node
+                            break
 
-                if field_info:
+                    if not upstream_node:
+                        logger.warning(f"[TableOutput] Upstream node {upstream_node_id} not found in graph data")
+                        self.status = i18n.t("components.input_output.table_output.status.no_fields_found")
+                        return build_config
+
+                    # Extract field names using the same logic as FieldNameMapping
+                    field_names = extract_fields_from_node_template(
+                        upstream_node,
+                        component_name="TableOutput",
+                        graph_data=graph_data
+                    )
+
+                    if not field_names:
+                        logger.warning("[TableOutput] No fields extracted from upstream configuration")
+                        self.status = i18n.t("components.input_output.table_output.status.no_fields_found")
+                        return build_config
+
+                    logger.info(f"[TableOutput] Extracted {len(field_names)} fields from upstream: {field_names}")
+
+                    # Convert field names to field mapping format
+                    field_info = []
+                    for field_name in field_names:
+                        field_info.append({
+                            "source_field": field_name,
+                            "target_field": field_name,  # Default to same name
+                            "data_type": "string",       # Default type
+                            "update_option": "sync_update",
+                            "is_key_field": False,
+                            "null_value": "",
+                        })
+
                     build_config["field_mappings"]["value"] = field_info
-                    logger.info(f"[TableOutput] Schema analysis completed, generated {len(field_info)} field mappings")
+                    logger.info(f"[TableOutput] Static field analysis completed, generated {len(field_info)} field mappings")
                     self.status = i18n.t(
                         "components.input_output.table_output.status.analysis_success", count=len(field_info)
                     )
-                else:
-                    logger.warning("[TableOutput] No fields extracted from upstream data")
-                    self.status = i18n.t("components.input_output.table_output.status.no_input_data")
+
+                except Exception as e:
+                    logger.error(f"[TableOutput] Static field extraction failed: {e}")
+                    self.status = i18n.t("components.input_output.table_output.errors.analysis_failed", error=str(e))
 
             except ValueError as e:
                 # Handle expected errors (no upstream node, etc.)
@@ -539,82 +560,57 @@ class ETLTableOutputComponent(Component):
                     "components.input_output.table_output.errors.mapping_failed", error=error_msg
                 )
 
-        # 6. Handle "Preview Output Data" button - preview transformed data to be written
+        # 6. Handle "Preview Output Data" button - generate sample preview data from field structure
         if field_name == "preview_table" and action == "preview_target_data":
             logger.info("[TableOutput] Output data preview triggered by action button")
 
             try:
-                # Get graph data and node ID from build_config
-                graph_data = build_config.get("_graph_data", {})
-                node_id = build_config.get("_node_id")
-
-                # If not in build_config, try to get from self.graph (runtime context)
-                if not graph_data and hasattr(self, "graph") and self.graph is not None:
-                    if hasattr(self.graph, "data"):
-                        graph_data = self.graph.data
-                    else:
-                        logger.warning("[TableOutput] PlaceholderGraph detected - no graph data available")
-
-                if not graph_data:
-                    logger.warning("[TableOutput] No graph data available for output preview")
-                    self.status = i18n.t("components.input_output.table_output.errors.no_graph_data")
-                    return build_config
-
-                # Use the generic get_upstream_data method to fetch actual data
+                # Use field mappings to generate sample preview data (no actual data execution needed)
                 self.status = i18n.t("components.input_output.table_output.status.previewing_data")
+                logger.info("[TableOutput] Generating sample preview data from field mappings")
 
-                # 在同步上下文中运行异步方法
-                try:
-                    import asyncio
-                    loop = asyncio.get_event_loop()
-                    if loop.is_running():
-                        # 在运行的事件循环中，使用 run_coroutine_threadsafe
-                        import concurrent.futures
-                        with concurrent.futures.ThreadPoolExecutor() as executor:
-                            future = executor.submit(
-                                asyncio.run,
-                                self.get_upstream_data(input_name="data_input", graph_data=graph_data, sample_size=100, vertex_id=node_id)
-                            )
-                            upstream_data = future.result(timeout=10)
-                    else:
-                        upstream_data = asyncio.run(
-                            self.get_upstream_data(input_name="data_input", graph_data=graph_data, sample_size=100, vertex_id=node_id)
-                        )
-                except Exception as e:
-                    logger.error(f"[TableOutput] Error getting upstream data for preview: {e}")
-                    upstream_data = None
-
-                if not upstream_data:
-                    logger.warning("[TableOutput] No data returned from upstream node")
-                    self.status = i18n.t("components.input_output.table_output.status.no_input_data")
+                field_mappings = build_config.get("field_mappings", {}).get("value", [])
+                if not field_mappings:
+                    logger.warning("[TableOutput] No field mappings configured for preview")
+                    self.status = i18n.t("components.input_output.table_output.status.no_fields_to_map")
                     build_config["preview_table"]["table_schema"] = []
                     build_config["preview_table"]["value"] = []
                     return build_config
 
-                # Convert upstream data to DataFrame
-                df = pd.DataFrame([d.data if hasattr(d, "data") else d for d in upstream_data])
+                # Create a sample DataFrame with the field mappings structure
+                sample_data = {}
+                for mapping in field_mappings:
+                    source_field = mapping.get("source_field", "")
+                    if source_field:
+                        # Generate sample data based on field name heuristics
+                        if "id" in source_field.lower():
+                            sample_data[source_field] = f"sample_{hash(source_field) % 1000:03d}"
+                        elif "name" in source_field.lower():
+                            sample_data[source_field] = f"Sample {source_field.title()}"
+                        elif "email" in source_field.lower():
+                            sample_data[source_field] = f"sample_{source_field}@example.com"
+                        elif "phone" in source_field.lower():
+                            sample_data[source_field] = "13800138000"
+                        elif "date" in source_field.lower() or "time" in source_field.lower():
+                            sample_data[source_field] = "2024-01-01 12:00:00"
+                        elif "amount" in source_field.lower() or "price" in source_field.lower():
+                            sample_data[source_field] = f"{(hash(source_field) % 10000) / 100:.2f}"
+                        elif "count" in source_field.lower() or "num" in source_field.lower():
+                            sample_data[source_field] = hash(source_field) % 100
+                        else:
+                            sample_data[source_field] = f"Sample {source_field}"
 
-                if df.empty:
-                    logger.warning("[TableOutput] Upstream data is empty")
-                    self.status = i18n.t("components.input_output.table_output.status.no_input_data")
-                    build_config["preview_table"]["table_schema"] = []
-                    build_config["preview_table"]["value"] = []
-                    return build_config
-
-                logger.info(f"[TableOutput] Received {len(df)} rows from upstream")
+                # Create DataFrame from sample data
+                df = pd.DataFrame([sample_data])
 
                 # Apply field mappings if configured
-                field_mappings = build_config.get("field_mappings", {}).get("value", [])
                 if field_mappings:
                     df = self._apply_field_mappings_preview(df, field_mappings)
                     logger.info(
-                        f"[TableOutput] Applied field mappings, result: {len(df)} rows, {len(df.columns)} columns"
+                        f"[TableOutput] Applied field mappings to preview, result: {len(df)} rows, {len(df.columns)} columns"
                     )
 
-                # Limit to 100 rows for preview
-                if len(df) > 100:
-                    df = df.head(100)
-                    logger.info("[TableOutput] Limited preview to 100 rows")
+                logger.info(f"[TableOutput] Generated sample preview with {len(df.columns)} columns")
 
                 # Generate table schema
                 table_schema = [
@@ -634,19 +630,14 @@ class ETLTableOutputComponent(Component):
                 build_config["preview_table"]["table_schema"] = table_schema
                 build_config["preview_table"]["value"] = preview_data
 
-                logger.info(f"[TableOutput] Output preview completed, showing {len(preview_data)} rows")
+                logger.info(f"[TableOutput] Sample preview completed, showing {len(preview_data)} rows")
                 self.status = i18n.t(
                     "components.input_output.table_output.status.preview_success", count=len(preview_data)
                 )
 
-            except ValueError as e:
-                # Handle expected errors (no upstream node, etc.)
-                error_msg = str(e)
-                logger.warning(f"[TableOutput] Output preview warning: {error_msg}")
-                self.status = i18n.t("components.input_output.table_output.errors.preview_failed", error=error_msg)
             except Exception as e:
                 error_msg = f"{type(e).__name__}: {e!s}"
-                logger.error(f"[TableOutput] Output preview failed: {error_msg}")
+                logger.error(f"[TableOutput] Preview generation failed: {error_msg}")
                 import traceback
 
                 logger.error(f"[TableOutput] Traceback: {traceback.format_exc()}")
@@ -697,7 +688,17 @@ class ETLTableOutputComponent(Component):
             # 获取公共数据源
             try:
                 logger.debug("[TableOutput] Starting to load public datasources...")
-                public_datasources = asyncio.run(self._get_public_datasources())
+                # 使用线程池执行器运行异步方法
+                try:
+                    import concurrent.futures
+                    with concurrent.futures.ThreadPoolExecutor() as executor:
+                        future = executor.submit(asyncio.run, self._get_public_datasources())
+                        public_datasources = future.result(timeout=10)
+                except Exception:
+                    # 如果异步方法失败，回退到空列表
+                    logger.debug("[TableOutput] Async method failed, falling back to empty public datasource list")
+                    public_datasources = []
+
                 logger.info(f"[TableOutput] Loaded {len(public_datasources)} public datasources")
                 if public_datasources:
                     logger.debug(f"[TableOutput] Public datasource sample: {public_datasources[0]}")
@@ -803,8 +804,8 @@ class ETLTableOutputComponent(Component):
             client = DataConstructionFeignClient(feign_service)
             logger.info("[TableOutput] Calling feign API to get datasource list...")
 
-            # 调用feign接口获取数据源列表
-            datasource_list = asyncio.run(client.get_datasource_list())
+            # 直接调用异步方法，不使用 asyncio.run
+            datasource_list = await client.get_datasource_list()
 
             logger.info(f"[TableOutput] Got {len(datasource_list)} public datasources from feign API")
             logger.debug(f"[TableOutput] Public datasource sample: {datasource_list[:1] if datasource_list else 'None'}")
@@ -1118,7 +1119,68 @@ class ETLTableOutputComponent(Component):
             connection_string = self._get_connection_string_sync(datasource_id, datasource_info)
 
             # 3. Convert data to DataFrame
-            df = pd.DataFrame([d.data if hasattr(d, "data") else d for d in self.data_input])
+            data_records = []
+            logger.debug(f"[TableOutput] Processing data_input with {len(self.data_input)} items")
+            logger.debug(f"[TableOutput] data_input type: {type(self.data_input)}")
+
+            # Ensure data_input is a list
+            if not isinstance(self.data_input, list):
+                data_input_list = [self.data_input]
+                logger.debug(f"[TableOutput] Wrapped single data_input into list")
+            else:
+                data_input_list = self.data_input
+
+            for i, d in enumerate(data_input_list):
+                logger.debug(f"[TableOutput] Processing item {i}: type={type(d)}")
+
+                # Try to extract the actual data
+                if isinstance(d, tuple):
+                    # Handle tuple data from streaming - recursively process tuple contents
+                    logger.debug(f"[TableOutput] Processing tuple with {len(d)} items")
+                    for j, item in enumerate(d):
+                        logger.debug(f"[TableOutput] Tuple item {j}: type={type(item)}")
+                        if hasattr(item, "data") and isinstance(item.data, dict):
+                            data_records.append(item.data)
+                            logger.debug(f"[TableOutput] Added Data object from tuple with {len(item.data)} fields")
+                        elif isinstance(item, dict):
+                            data_records.append(item)
+                            logger.debug(f"[TableOutput] Added dict from tuple with {len(item)} fields")
+                        else:
+                            logger.warning(f"[TableOutput] Skipping unexpected tuple item type: {type(item)}")
+                elif hasattr(d, "data") and isinstance(d.data, dict):
+                    data_records.append(d.data)
+                    logger.debug(f"[TableOutput] Added Data object with {len(d.data)} fields")
+                elif isinstance(d, dict):
+                    data_records.append(d)
+                    logger.debug(f"[TableOutput] Added dict with {len(d)} fields")
+                else:
+                    logger.warning(f"[TableOutput] Unexpected data type: {type(d)}")
+
+            logger.info(f"[TableOutput] Extracted {len(data_records)} data records from {len(data_input_list)} input items")
+            logger.debug(f"[TableOutput] data_records sample: {data_records[:2] if data_records else 'empty'}")
+
+            if not data_records:
+                error_msg = i18n.t("components.input_output.table_output.errors.empty_dataframe")
+                self.status = error_msg
+                raise ValueError(error_msg)
+
+            # Create DataFrame with explicit error handling
+            try:
+                df = pd.DataFrame(data_records)
+                logger.debug(f"[TableOutput] Created DataFrame with type: {type(df)}, isinstance check: {isinstance(df, pd.DataFrame)}")
+
+                # Verify it's actually a DataFrame
+                if not isinstance(df, pd.DataFrame):
+                    logger.error(f"[TableOutput] ERROR: pd.DataFrame() returned {type(df)} instead of DataFrame!")
+                    logger.error(f"[TableOutput] data_records type: {type(data_records)}, len: {len(data_records)}")
+                    logger.error(f"[TableOutput] First record: {data_records[0] if data_records else 'N/A'}")
+                    raise ValueError(f"pd.DataFrame() returned {type(df)} instead of DataFrame")
+
+                logger.debug(f"[TableOutput] DataFrame shape: {df.shape}, columns: {list(df.columns)}")
+            except Exception as e:
+                logger.error(f"[TableOutput] Failed to create DataFrame: {e}")
+                logger.error(f"[TableOutput] data_records: {data_records}")
+                raise ValueError(f"Failed to create DataFrame: {e}") from e
 
             if df.empty:
                 error_msg = i18n.t("components.input_output.table_output.errors.empty_dataframe")
@@ -1342,7 +1404,7 @@ class ETLTableOutputComponent(Component):
             row_dict = row.to_dict()
 
             # Build WHERE clause for key fields
-            where_clause = " AND ".join([f"{col} = :{col}" for col in key_fields])
+            where_clause = " AND ".join([f"{str(col)} = :{col}" for col in key_fields])
 
             # Check if record exists
             check_query = f"SELECT COUNT(*) FROM {self.table_selector} WHERE {where_clause}"
@@ -1372,12 +1434,12 @@ class ETLTableOutputComponent(Component):
                                 continue  # Skip if empty
                         elif update_option == "cumulative_update":
                             # Add to existing value
-                            update_fields.append(f"{col} = {col} + :{col}")
+                            update_fields.append(f"{str(col)} = {str(col)} + :{col}")
                             update_params[col] = row_dict.get(col, 0)
                             continue
 
                         # Default: sync_update
-                        update_fields.append(f"{col} = :{col}")
+                        update_fields.append(f"{str(col)} = :{col}")
                         update_params[col] = row_dict.get(col)
 
                 if update_fields:
@@ -1392,7 +1454,7 @@ class ETLTableOutputComponent(Component):
 
             else:
                 # INSERT new record
-                cols = ", ".join(df.columns)
+                cols = ", ".join([str(col) for col in df.columns])
                 placeholders = ", ".join([f":{col}" for col in df.columns])
                 insert_query = f"INSERT INTO {self.table_selector} ({cols}) VALUES ({placeholders})"
 
