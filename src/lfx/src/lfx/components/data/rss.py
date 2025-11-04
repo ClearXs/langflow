@@ -31,14 +31,14 @@ class RSSComponent(Component):
             display_name=i18n.t("components.data.rss.max_entries.display_name"),
             info=i18n.t("components.data.rss.max_entries.info"),
             value=10,
-            range_spec=(1, 100),
+            range_spec={"min": 1, "max": 100},
         ),
         IntInput(
             name="days_back",
             display_name=i18n.t("components.data.rss.days_back.display_name"),
             info=i18n.t("components.data.rss.days_back.info"),
             value=7,
-            range_spec=(1, 365),
+            range_spec={"min": 1, "max": 365},
             advanced=True,
         ),
         BoolInput(
@@ -82,7 +82,7 @@ class RSSComponent(Component):
             display_name=i18n.t("components.data.rss.timeout.display_name"),
             info=i18n.t("components.data.rss.timeout.info"),
             value=30,
-            range_spec=(5, 120),
+            range_spec={"min": 5, "max": 120},
             advanced=True,
         ),
         MessageTextInput(

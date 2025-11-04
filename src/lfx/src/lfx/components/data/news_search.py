@@ -70,14 +70,14 @@ class NewsSearchComponent(Component):
             display_name=i18n.t("components.data.news_search.max_results.display_name"),
             info=i18n.t("components.data.news_search.max_results.info"),
             value=10,
-            range_spec=(1, 100),
+            range_spec={"min": 1, "max": 100},
         ),
         IntInput(
             name="days_back",
             display_name=i18n.t("components.data.news_search.days_back.display_name"),
             info=i18n.t("components.data.news_search.days_back.info"),
             value=7,
-            range_spec=(1, 30),
+            range_spec={"min": 1, "max": 30},
             advanced=True,
         ),
         BoolInput(

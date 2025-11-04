@@ -178,8 +178,7 @@ class ETLDeduplicationComponent(Component):
                             field_names = self._extract_field_names(upstream_data)
                             logger.info(f"[Deduplication] Extracted {len(field_names)} fields from upstream data (attempt {attempt + 1})")
                             break
-                        else:
-                            logger.warning(f"[Deduplication] No data returned from upstream node (attempt {attempt + 1})")
+                        logger.warning(f"[Deduplication] No data returned from upstream node (attempt {attempt + 1})")
 
                     except ValueError as e:
                         error_msg = str(e)
@@ -187,10 +186,9 @@ class ETLDeduplicationComponent(Component):
                             logger.warning(f"[Deduplication] Upstream node not built, retrying... (attempt {attempt + 1}/{max_retries})")
                             await asyncio.sleep(0.2)  # Brief delay before retry
                             continue
-                        else:
-                            # Fallback strategy: Extract from upstream node configuration
-                            logger.warning(f"[Deduplication] Upstream execution failed after {attempt + 1} attempts: {e}. Trying static analysis...")
-                            break
+                        # Fallback strategy: Extract from upstream node configuration
+                        logger.warning(f"[Deduplication] Upstream execution failed after {attempt + 1} attempts: {e}. Trying static analysis...")
+                        break
                     except Exception as e:
                         logger.warning(f"[Deduplication] Unexpected error during upstream execution: {e}. Falling back to static analysis...")
                         break

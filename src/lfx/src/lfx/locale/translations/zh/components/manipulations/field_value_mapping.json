@@ -1,24 +1,24 @@
 {
   "display_name": "字段值映射",
-  "description": "基于条件比较映射字段值。支持多字段和多种比较运算符。",
+  "description": "基于条件比较映射字段值。支持多字段和各种比较运算符。",
   "data_input": {
     "display_name": "数据输入",
     "info": "要转换的输入数据流"
   },
   "mapping_rules": {
     "display_name": "映射规则",
-    "info": "配置多个字段值映射规则。每条规则将字段值与条件进行比较,匹配时输出替换值。"
+    "info": "配置多个字段值映射规则。每个规则将字段值与条件进行比较，并在匹配时输出替换值。"
   },
   "input_field": "输入字段",
   "input_field_desc": "要读取值进行比较的字段名称",
   "operator": "运算符",
-  "operator_desc": "使用的比较运算符 (=, !=, >, <, 包含等)",
+  "operator_desc": "使用的比较运算符（=, !=, >, <, contains等）",
   "compare_value": "比较值",
   "compare_value_desc": "与输入字段值进行比较的值",
   "replacement_value": "替换值",
   "replacement_value_desc": "条件匹配时输出的值",
   "output_field": "输出字段",
-  "output_field_desc": "写入替换值的字段名称(可以与输入字段相同以覆盖原值)",
+  "output_field_desc": "写入替换值的字段名称（可以与输入字段相同以覆盖）",
   "analyze_button": "分析字段",
   "operators": {
     "equal": "等于 (=)",
@@ -29,15 +29,15 @@
     "less_equal": "小于等于 (≤)",
     "contains": "包含",
     "not_contains": "不包含",
-    "starts_with": "开头是",
-    "ends_with": "结尾是",
-    "in": "在列表中 (逗号分隔)",
-    "not_in": "不在列表中 (逗号分隔)",
+    "starts_with": "开始于",
+    "ends_with": "结束于",
+    "in": "在列表中（逗号分隔）",
+    "not_in": "不在列表中（逗号分隔）",
     "regex": "正则表达式"
   },
   "enable_script": {
     "display_name": "启用脚本",
-    "info": "启用自定义脚本来处理复杂的映射逻辑"
+    "info": "启用自定义脚本进行复杂映射逻辑"
   },
   "script_type": {
     "display_name": "脚本类型",
@@ -45,32 +45,32 @@
   },
   "script_content": {
     "display_name": "脚本内容",
-    "info": "编写自定义脚本来处理字段值映射。脚本可以访问 'row' 对象（包含所有字段）并修改它。",
-    "placeholder": "// JavaScript 示例：\nif (row.gender == '1') row.gender_text = '男';\nif (row.age > 65) row.category = '老年';\n\n# Python 示例：\nif row.get('gender') == '1':\n    result['gender_text'] = '男'\nif row.get('age', 0) > 65:\n    result['category'] = '老年'"
+    "info": "编写字段值映射的自定义脚本。脚本可以访问包含所有字段的'row'对象并修改它。",
+    "placeholder": "// JavaScript 示例：\nif (row.gender == '1') row.gender_text = 'Male';\nif (row.age > 65) row.category = 'Senior';\n\n# Python 示例：\nif row.get('gender') == '1':\n    result['gender_text'] = 'Male'\nif row.get('age', 0) > 65:\n    result['category'] = 'Senior'"
   },
   "outputs": {
-    "data": "映射后的数据"
+    "data": "映射数据"
   },
   "status": {
-    "success": "成功使用 %{rules} 条规则映射了 %{count} 条记录",
+    "success": "成功映射了 %{count} 条记录，使用了 %{rules} 条规则",
     "processing": "正在处理字段值映射...",
-    "analysis_success": "字段分析完成，已生成 %{count} 个映射模板",
+    "analysis_success": "字段分析完成，生成了 %{count} 个映射模板",
     "no_fields_found": "在上游数据中未找到字段"
   },
   "errors": {
-    "missing_config": "映射规则是必需的",
+    "missing_config": "需要映射规则",
     "missing_fields": "每条规则都需要输入字段和输出字段",
-    "invalid_operator": "无效的运算符: %{operator}",
-    "mapping_failed": "字段值映射失败: %{error}",
+    "invalid_operator": "无效的运算符：%{operator}",
+    "mapping_failed": "字段值映射失败：%{error}",
     "no_data_input": "没有可用于字段分析的数据输入",
     "no_fields_found": "在数据中未找到字段",
-    "analysis_failed": "字段分析失败: %{error}",
+    "analysis_failed": "字段分析失败：%{error}",
     "no_graph_data": "没有可用于字段分析的图数据",
     "graph_not_available": "图上下文不可用于字段分析"
   },
   "warnings": {
     "field_not_found": "在数据中未找到输入字段 '%{field}'",
-    "no_match": "字段 '%{field}' 值 '%{value}' 没有匹配的映射规则",
+    "no_match": "字段 '%{field}' 的值 '%{value}' 没有匹配的映射规则",
     "field_load_failed": "无法自动加载字段，请手动配置"
   }
 }

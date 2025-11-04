@@ -10,6 +10,16 @@ from sqlmodel import col, select
 from langflow.api.utils import DbSession, custom_params
 from langflow.schema.message import MessageResponse
 from langflow.services.auth.utils import get_current_active_user
+from langflow.services.database.models.data_exchange import (
+    DataExchangeReadResponse,
+    DataExchangeStatsResponse,
+    VertexExchangeResponse,
+    get_data_exchange_stats,
+    get_data_exchanges_by_flow_id,
+    get_data_exchanges_by_transaction_id,
+    get_vertex_exchanges,
+    transform_data_exchange_table,
+)
 from langflow.services.database.models.message.model import MessageRead, MessageTable, MessageUpdate
 from langflow.services.database.models.transactions.crud import transform_transaction_table
 from langflow.services.database.models.transactions.model import TransactionTable
@@ -199,5 +209,108 @@ async def get_transactions(
                 "ignore", category=DeprecationWarning, module=r"fastapi_pagination\.ext\.sqlalchemy"
             )
             return await apaginate(session, stmt, params=params, transformer=transform_transaction_table)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e)) from e
+
+
+@router.get("/data-exchanges")
+async def get_data_exchanges(
+    flow_id: Annotated[UUID, Query()],
+    session: DbSession,
+    source_vertex_id: Annotated[str | None, Query()] = None,
+    target_vertex_id: Annotated[str | None, Query()] = None,
+    exchange_type: Annotated[str | None, Query()] = None,
+    limit: Annotated[int, Query()] = 1000,
+) -> list[DataExchangeReadResponse]:
+    """Get data exchange records for a flow with optional filters.
+
+    Args:
+        flow_id: Flow UUID
+        session: Database session
+        source_vertex_id: Optional source vertex filter
+        target_vertex_id: Optional target vertex filter
+        exchange_type: Optional exchange type filter (direct, broadcast, conditional, aggregated)
+        limit: Maximum number of records to return
+
+    Returns:
+        List of data exchange records
+    """
+    try:
+        exchanges = await get_data_exchanges_by_flow_id(
+            session,
+            flow_id=flow_id,
+            source_vertex_id=source_vertex_id,
+            target_vertex_id=target_vertex_id,
+            exchange_type=exchange_type,
+            limit=limit,
+        )
+        return transform_data_exchange_table(exchanges)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e)) from e
+
+
+@router.get("/data-exchanges/transaction/{transaction_id}")
+async def get_data_exchanges_by_transaction(
+    transaction_id: UUID,
+    session: DbSession,
+    limit: Annotated[int, Query()] = 1000,
+) -> list[DataExchangeReadResponse]:
+    """Get data exchange records for a specific transaction.
+
+    Args:
+        transaction_id: Transaction UUID
+        session: Database session
+        limit: Maximum number of records to return
+
+    Returns:
+        List of data exchange records
+    """
+    try:
+        exchanges = await get_data_exchanges_by_transaction_id(session, transaction_id=transaction_id, limit=limit)
+        return transform_data_exchange_table(exchanges)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e)) from e
+
+
+@router.get("/data-exchanges/stats")
+async def get_data_exchange_statistics(
+    flow_id: Annotated[UUID, Query()],
+    session: DbSession,
+) -> DataExchangeStatsResponse:
+    """Get aggregated statistics for data exchanges in a flow.
+
+    Args:
+        flow_id: Flow UUID
+        session: Database session
+
+    Returns:
+        Aggregated statistics
+    """
+    try:
+        return await get_data_exchange_stats(session, flow_id=flow_id)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e)) from e
+
+
+@router.get("/data-exchanges/vertex/{vertex_id}")
+async def get_vertex_exchange_history(
+    vertex_id: str,
+    flow_id: Annotated[UUID, Query()],
+    session: DbSession,
+    limit: Annotated[int, Query()] = 100,
+) -> VertexExchangeResponse:
+    """Get data exchange history for a specific vertex (component).
+
+    Args:
+        vertex_id: Vertex ID
+        flow_id: Flow UUID
+        session: Database session
+        limit: Maximum number of records per direction
+
+    Returns:
+        Vertex exchange summary with input and output exchanges
+    """
+    try:
+        return await get_vertex_exchanges(session, flow_id=flow_id, vertex_id=vertex_id, limit=limit)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e)) from e

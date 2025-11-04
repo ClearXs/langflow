@@ -53,7 +53,7 @@ class URLComponent(Component):
             display_name=i18n.t("components.data.url.timeout.display_name"),
             info=i18n.t("components.data.url.timeout.info"),
             value=30,
-            range_spec=(1, 300),
+            range_spec={"min": 1, "max": 300},
             advanced=True,
         ),
         BoolInput(
@@ -97,7 +97,7 @@ class URLComponent(Component):
             display_name=i18n.t("components.data.url.max_content_length.display_name"),
             info=i18n.t("components.data.url.max_content_length.info"),
             value=1048576,  # 1MB
-            range_spec=(1024, 10485760),  # 1KB to 10MB
+            range_spec={"min": 1024, "max": 10485760},  # 1KB to 10MB
             advanced=True,
         ),
         MessageTextInput(

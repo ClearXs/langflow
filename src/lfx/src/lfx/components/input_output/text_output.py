@@ -62,7 +62,7 @@ class TextOutputComponent(Component):
             display_name=i18n.t("components.input_output.text_output.max_length.display_name"),
             info=i18n.t("components.input_output.text_output.max_length.info"),
             value=0,
-            range_spec=(0, 100000),
+            range_spec={"min": 0, "max": 100000},
             advanced=True,
         ),
         BoolInput(

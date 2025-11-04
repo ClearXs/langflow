@@ -210,7 +210,6 @@ class ETLTableInputComponent(Component):
             f"field_value: {field_value}, action: {action}"
         )
 
-        import os
 
         # Always load datasources for: initial load (None) or refresh datasource_selector (empty value)
         if field_name is None or (field_name == "datasource_selector" and not field_value):
@@ -896,12 +895,11 @@ class ETLTableInputComponent(Component):
                         raise ValueError(
                             f"Invalid datasource ID '{datasource_id}' or datasource configuration. Status: {response.status_code}"
                         )
-                    elif response.status_code == 404:
+                    if response.status_code == 404:
                         raise ValueError(
                             f"Datasource with ID '{datasource_id}' not found. Status: {response.status_code}"
                         )
-                    else:
-                        raise ValueError(f"Failed to get connection string, status: {response.status_code}")
+                    raise ValueError(f"Failed to get connection string, status: {response.status_code}")
 
                 connection_data = response.json()
                 connection_string = connection_data.get("connection_string")

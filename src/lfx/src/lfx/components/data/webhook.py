@@ -83,7 +83,7 @@ class WebhookComponent(Component):
             display_name=i18n.t("components.data.webhook.timeout.display_name"),
             info=i18n.t("components.data.webhook.timeout.info"),
             value=30,
-            range_spec=(1, 300),
+            range_spec={"min": 1, "max": 300},
             advanced=True,
         ),
         IntInput(
@@ -91,7 +91,7 @@ class WebhookComponent(Component):
             display_name=i18n.t("components.data.webhook.retry_count.display_name"),
             info=i18n.t("components.data.webhook.retry_count.info"),
             value=3,
-            range_spec=(0, 10),
+            range_spec={"min": 0, "max": 10},
             advanced=True,
         ),
         BoolInput(

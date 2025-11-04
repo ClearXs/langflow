@@ -16,6 +16,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { useGetDataExchangeStats } from "@/controllers/API/queries/data-exchange";
 import {
   useGetExecutionLogsQuery,
   useGetExecutionStatsQuery,
@@ -77,6 +78,9 @@ export default function ExecutionLogsComponent({
     flowId,
   });
 
+  // 获取数据交换统计
+  const { data: exchangeStats } = useGetDataExchangeStats(flowId);
+
   // 获取执行日志
   const {
     data: logs,
@@ -88,6 +92,45 @@ export default function ExecutionLogsComponent({
     status: status === "all" ? undefined : status,
     limit: 100,
   });
+
+  // 计算流程级数据统计
+  const flowDataStats = useMemo(() => {
+    if (!logs)
+      return {
+        total_rows: 0,
+        total_fields: 0,
+        total_data_size: 0,
+        components_with_data: 0,
+      };
+
+    let totalRows = 0;
+    let totalFields = 0;
+    let totalDataSize = 0;
+    let componentsWithData = 0;
+
+    logs.forEach((log) => {
+      const dataMetrics = log.outputs?._metadata?.data_metrics;
+      if (dataMetrics) {
+        if (dataMetrics.row_count !== undefined) {
+          totalRows += dataMetrics.row_count;
+          componentsWithData++;
+        }
+        if (dataMetrics.field_count !== undefined) {
+          totalFields += dataMetrics.field_count;
+        }
+        if (dataMetrics.data_size !== undefined) {
+          totalDataSize += dataMetrics.data_size;
+        }
+      }
+    });
+
+    return {
+      total_rows: totalRows,
+      total_fields: totalFields,
+      total_data_size: totalDataSize,
+      components_with_data: componentsWithData,
+    };
+  }, [logs]);
 
   // 过滤日志
   const filteredLogs = useMemo(() => {
@@ -110,6 +153,18 @@ export default function ExecutionLogsComponent({
     if (!durationMs) return "-";
     if (durationMs < 1000) return `${durationMs.toFixed(3)}ms`;
     return `${(durationMs / 1000).toFixed(3)}s`;
+  };
+
+  // 格式化数据大小
+  const formatDataSize = (bytes?: number) => {
+    if (!bytes) return "0 B";
+    const kb = bytes / 1024;
+    if (kb < 1) return `${bytes} B`;
+    const mb = kb / 1024;
+    if (mb < 1) return `${kb.toFixed(2)} KB`;
+    const gb = mb / 1024;
+    if (gb < 1) return `${mb.toFixed(2)} MB`;
+    return `${gb.toFixed(2)} GB`;
   };
 
   // 格式化JSON
@@ -164,6 +219,121 @@ export default function ExecutionLogsComponent({
             </span>
           </div>
         </div>
+
+        {/* 流程级数据统计 */}
+        {flowDataStats.components_with_data > 0 && (
+          <div className="flex items-center gap-6 border-l pl-6">
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div className="flex items-center gap-2">
+                    <IconComponent
+                      name="Database"
+                      className="h-4 w-4 text-orange-600"
+                    />
+                    <span className="text-sm font-medium text-orange-700">
+                      总数据行数
+                    </span>
+                    <span className="text-lg font-bold text-orange-700">
+                      {flowDataStats.total_rows.toLocaleString()}
+                    </span>
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <div className="text-xs">
+                    <div>涉及组件: {flowDataStats.components_with_data} 个</div>
+                    <div>
+                      总字段数: {flowDataStats.total_fields.toLocaleString()} 个
+                    </div>
+                  </div>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div className="flex items-center gap-2">
+                    <IconComponent
+                      name="HardDrive"
+                      className="h-4 w-4 text-cyan-600"
+                    />
+                    <span className="text-sm font-medium text-cyan-700">
+                      总数据大小
+                    </span>
+                    <span className="text-lg font-bold text-cyan-700">
+                      {formatDataSize(flowDataStats.total_data_size)}
+                    </span>
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <div className="text-xs">
+                    <div>
+                      平均每组件:{" "}
+                      {flowDataStats.components_with_data > 0
+                        ? formatDataSize(
+                            Math.round(
+                              flowDataStats.total_data_size /
+                                flowDataStats.components_with_data,
+                            ),
+                          )
+                        : "0 B"}
+                    </div>
+                    <div>
+                      总字段数: {flowDataStats.total_fields.toLocaleString()} 个
+                    </div>
+                  </div>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
+        )}
+
+        {/* 数据交换统计 */}
+        {exchangeStats && exchangeStats.total_exchanges > 0 && (
+          <div className="flex items-center gap-6 border-l pl-6">
+            <div className="flex items-center gap-2">
+              <IconComponent
+                name="ArrowLeftRight"
+                className="h-4 w-4 text-blue-600"
+              />
+              <span className="text-sm font-medium text-blue-700">
+                数据交换
+              </span>
+              <span className="text-lg font-bold text-blue-700">
+                {exchangeStats.total_exchanges}
+              </span>
+            </div>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div className="flex items-center gap-2">
+                    <IconComponent
+                      name="Database"
+                      className="h-4 w-4 text-purple-600"
+                    />
+                    <span className="text-sm font-medium text-purple-700">
+                      总数据量
+                    </span>
+                    <span className="text-lg font-bold text-purple-700">
+                      {formatDataSize(exchangeStats.total_data_size)}
+                    </span>
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <div className="text-xs">
+                    <div>
+                      平均大小: {formatDataSize(exchangeStats.avg_data_size)}
+                    </div>
+                    <div>源组件数: {exchangeStats.unique_source_vertices}</div>
+                    <div>
+                      目标组件数: {exchangeStats.unique_target_vertices}
+                    </div>
+                  </div>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
+        )}
 
         <Button onClick={() => refetch()} variant="outline" size="sm">
           <IconComponent name="RefreshCw" className="h-3.5 w-3.5 mr-1.5" />
@@ -476,6 +646,38 @@ export default function ExecutionLogsComponent({
                                     </div>
                                   </div>
                                 )}
+
+                                {log.outputs?._metadata?.data_metrics
+                                  ?.field_count !== undefined &&
+                                  log.outputs._metadata.data_metrics
+                                    .field_count > 0 && (
+                                    <div className="bg-background border rounded-md p-3">
+                                      <div className="text-xs text-muted-foreground mb-1">
+                                        字段数
+                                      </div>
+                                      <div className="text-lg font-semibold">
+                                        {log.outputs._metadata.data_metrics.field_count.toLocaleString()}
+                                      </div>
+                                    </div>
+                                  )}
+
+                                {log.outputs?._metadata?.data_metrics
+                                  ?.data_size !== undefined &&
+                                  log.outputs._metadata.data_metrics.data_size >
+                                    0 && (
+                                    <div className="bg-background border rounded-md p-3">
+                                      <div className="text-xs text-muted-foreground mb-1">
+                                        数据大小
+                                      </div>
+                                      <div className="text-lg font-semibold">
+                                        {(
+                                          log.outputs._metadata.data_metrics
+                                            .data_size / 1024
+                                        ).toFixed(2)}{" "}
+                                        KB
+                                      </div>
+                                    </div>
+                                  )}
 
                                 {log.outputs?._metadata?.llm_metrics
                                   ?.estimated_cost_usd && (

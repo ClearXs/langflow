@@ -16,6 +16,8 @@ class TransactionBase(SQLModel):
     status: str = Field(nullable=False)
     error: str | None = Field(default=None)
     flow_id: UUID = Field()
+    exchange_count: int = Field(default=0)  # Number of data exchanges
+    downstream_vertices: list[str] | None = Field(default=None, sa_column=Column(JSON))  # List of downstream vertex IDs
 
     # Needed for Column(JSON)
     class Config:

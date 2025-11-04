@@ -4,7 +4,9 @@
 提取数据行数、schema、转换详情等ETL特定信息。
 """
 
-from loguru import logger
+import json
+
+from lfx.log.logger import logger
 
 from langflow.services.metadata_extractors.base import BaseMetadataExtractor
 
@@ -49,7 +51,8 @@ class ETLMetadataExtractor(BaseMetadataExtractor):
 
         Returns:
             输出元信息字典，包含：
-            - output_data: 输出数据统计信息
+            - data_metrics: 数据统计信息（直接用于前端显示）
+            - output_data: 完整的输出数据分析（包含schema和sample）
             - transformation: 转换详情（如果是transformation组件）
         """
         metadata = {}
@@ -58,6 +61,13 @@ class ETLMetadataExtractor(BaseMetadataExtractor):
         if results:
             output_data = await self._analyze_output_data(results)
             if output_data:
+                # 为前端提供 data_metrics（包含 row_count, field_count, data_size）
+                metadata["data_metrics"] = {
+                    "row_count": output_data.get("row_count", 0),
+                    "field_count": output_data.get("field_count", 0),
+                    "data_size": output_data.get("data_size", 0),
+                }
+                # 保留完整的 output_data（包含 schema 和 sample）
                 metadata["output_data"] = output_data
 
         # 如果是transformation组件，计算转换指标
@@ -131,15 +141,29 @@ class ETLMetadataExtractor(BaseMetadataExtractor):
                 "sample": [...]
             }
         """
+        logger.info(f"[METADATA_DEBUG] Starting _analyze_output_data for component: {self.vertex.vertex_type}")
+        logger.info(f"[METADATA_DEBUG] Results keys: {list(results.keys()) if results else 'None'}")
+        logger.info(f"[METADATA_DEBUG] Results structure: {type(results)}")
+
+        if results:
+            for key, value in results.items():
+                logger.info(f"[METADATA_DEBUG] Result '{key}': {type(value)} - {str(value)[:200]}...")
+
         try:
             # 从results中提取Data对象
             data_list = self._extract_data_from_results(results)
+            logger.info(f"[METADATA_DEBUG] Extracted data_list: {len(data_list) if data_list else 'None'} items")
+
             if not data_list:
+                logger.warning(f"[METADATA_DEBUG] No data extracted from results for component: {self.vertex.vertex_type}")
                 return None
 
             row_count = len(data_list)
             schema = self._extract_schema(data_list)
             field_count = len(schema.get("fields", [])) if schema else 0
+
+            # 估算数据大小（字节）
+            data_size = self._estimate_data_size(data_list)
 
             # 智能采样策略
             sample = None
@@ -156,6 +180,7 @@ class ETLMetadataExtractor(BaseMetadataExtractor):
             return {
                 "row_count": row_count,
                 "field_count": field_count,
+                "data_size": data_size,
                 "schema": schema,
                 "sample": sample,
             }
@@ -165,27 +190,148 @@ class ETLMetadataExtractor(BaseMetadataExtractor):
             return None
 
     def _extract_data_from_results(self, results: dict) -> list | None:
-        """从results字典中提取Data对象列表
+        """通用数据提取：从任何组件输出中提取数据对象
+
+        遍历所有输出，过滤掉纯元数据输出，提取实际数据对象。
+        支持 Data、DataFrame、list、dict 等各种类型。
 
         Args:
-            results: 组件执行结果
+            results: 组件执行结果字典
+
+        Returns:
+            Data对象列表，如果没有找到数据则返回None
+        """
+        logger.info("[METADATA_DEBUG] Starting _extract_data_from_results")
+        all_data = []
+
+        if not results:
+            logger.warning("[METADATA_DEBUG] Results is None or empty")
+            return None
+
+        logger.info(f"[METADATA_DEBUG] Processing {len(results)} output items")
+
+        for output_name, output_data in results.items():
+            logger.info(f"[METADATA_DEBUG] Processing output: '{output_name}' = {type(output_data)}")
+
+            # 跳过纯元数据输出
+            if self._is_metadata_output(output_name):
+                logger.info(f"[METADATA_DEBUG] Skipping metadata output: '{output_name}'")
+                continue
+
+            # 从各种输出类型中提取数据
+            extracted_data = self._extract_from_output(output_data)
+            logger.info(f"[METADATA_DEBUG] Extracted {len(extracted_data) if extracted_data else 0} data items from '{output_name}'")
+
+            if extracted_data:
+                all_data.extend(extracted_data)
+
+        logger.info(f"[METADATA_DEBUG] Total data extracted: {len(all_data)} items")
+        return all_data if all_data else None
+
+    def _is_metadata_output(self, output_name: str) -> bool:
+        """判断输出是否为纯元数据（不包含实际数据）
+
+        Args:
+            output_name: 输出的名称
+
+        Returns:
+            True 表示该输出是纯元数据，应该跳过
+        """
+        metadata_outputs = {
+            "row_count",
+            "field_count",
+            "fields_schema",
+            "schema_info",
+            "sample_data",
+            "consumer_info",
+            "connection_info",
+            "metadata",
+            "status",
+            "error",
+            "warning",
+            "total_statements",
+            "successful_statements",
+            "failed_statements",
+            "total_rows_affected",
+        }
+        return output_name.lower() in metadata_outputs
+
+    def _extract_from_output(self, output_data) -> list:
+        """从各种输出类型中提取数据对象
+
+        支持的类型：
+        - Data 对象（有 .data 属性）
+        - list（Data对象列表、dict列表等）
+        - DataFrame（有 .to_dict() 方法）
+        - dict（原始字典）
+        - 其他类型（string、number等）
+
+        Args:
+            output_data: 组件的输出数据
 
         Returns:
             Data对象列表
         """
-        # 尝试从常见的key中提取数据
-        for key in ["results", "data", "output", "Data"]:
-            if key in results:
-                data = results[key]
-                # 如果是Data对象，转换为列表
-                if not isinstance(data, list):
-                    data = [data] if data is not None else []
-                return data
+        from langflow.schema import Data
 
-        return None
+        # 处理 None
+        if output_data is None:
+            return []
+
+        # 处理 Data 对象
+        if hasattr(output_data, "data"):
+            return [output_data]
+
+        # 处理列表
+        if isinstance(output_data, list):
+            data_list = []
+            for item in output_data:
+                if item is None:
+                    continue
+                if hasattr(item, "data"):  # Data 对象
+                    data_list.append(item)
+                elif isinstance(item, dict):  # 原始 dict
+                    # 检查是否是嵌套的结果结构（如 SQL 脚本）
+                    if "query_data" in item and isinstance(item["query_data"], list):
+                        # SQL 脚本的 statement 结果
+                        for row in item["query_data"]:
+                            if isinstance(row, dict):
+                                data_list.append(Data(data=row))
+                    else:
+                        data_list.append(Data(data=item))
+                else:  # 其他类型
+                    data_list.append(Data(data={"value": str(item)}))
+            return data_list
+
+        # 处理 DataFrame
+        if hasattr(output_data, "to_dict"):
+            try:
+                dict_data = output_data.to_dict(orient="records")
+                return [Data(data=row) for row in dict_data]
+            except Exception:
+                return [Data(data={"value": str(output_data)})]
+
+        # 处理原始字典（可能包含嵌套结构）
+        if isinstance(output_data, dict):
+            # 检查是否是 SQL 脚本的结果结构
+            if "results" in output_data and isinstance(output_data["results"], list):
+                data_list = []
+                for item in output_data["results"]:
+                    if isinstance(item, dict) and "query_data" in item:
+                        for row in item["query_data"]:
+                            if isinstance(row, dict):
+                                data_list.append(Data(data=row))
+                if data_list:
+                    return data_list
+
+            # 否则将整个字典作为一行数据
+            return [Data(data=output_data)]
+
+        # 处理其他类型（string、number等）
+        return [Data(data={"value": str(output_data)})]
 
     def _extract_schema(self, data_list: list) -> dict | None:
-        """从Data列表中提取schema
+        """从Data列表中提取schema（增强版，支持精确类型推断）
 
         Args:
             data_list: Data对象列表
@@ -194,8 +340,8 @@ class ETLMetadataExtractor(BaseMetadataExtractor):
             Schema字典，例如：
             {
                 "fields": [
-                    {"name": "field1", "type": "string"},
-                    {"name": "field2", "type": "integer"},
+                    {"name": "field1", "type": "string", "nullable": false},
+                    {"name": "field2", "type": "integer", "nullable": true},
                 ]
             }
         """
@@ -208,28 +354,96 @@ class ETLMetadataExtractor(BaseMetadataExtractor):
 
             # 处理Data对象
             if hasattr(first_data, "data") and isinstance(first_data.data, dict):
-                fields = []
-                for field_name, field_value in first_data.data.items():
-                    fields.append({
-                        "name": field_name,
-                        "type": type(field_value).__name__ if field_value is not None else "unknown"
-                    })
-                return {"fields": fields}
+                return self._build_schema_from_dict(first_data.data)
 
             # 处理字典
             if isinstance(first_data, dict):
-                fields = []
-                for field_name, field_value in first_data.items():
-                    fields.append({
-                        "name": field_name,
-                        "type": type(field_value).__name__ if field_value is not None else "unknown"
-                    })
-                return {"fields": fields}
+                return self._build_schema_from_dict(first_data)
 
         except Exception as e:
             logger.warning(f"Failed to extract schema: {e}")
 
         return None
+
+    def _build_schema_from_dict(self, data_dict: dict) -> dict:
+        """从字典构建schema，包含精确的类型推断
+
+        Args:
+            data_dict: 数据字典
+
+        Returns:
+            Schema字典，包含字段名、类型和可空性
+        """
+        fields = []
+        for field_name, field_value in data_dict.items():
+            field_type = self._infer_type(field_value)
+            fields.append({"name": field_name, "type": field_type, "nullable": field_value is None})
+        return {"fields": fields}
+
+    def _infer_type(self, value) -> str:
+        """推断值的精确数据类型
+
+        Args:
+            value: 要推断类型的值
+
+        Returns:
+            类型字符串（boolean, integer, float, string, array, object, null, unknown）
+        """
+        if value is None:
+            return "null"
+        if isinstance(value, bool):
+            return "boolean"
+        if isinstance(value, int):
+            return "integer"
+        if isinstance(value, float):
+            return "float"
+        if isinstance(value, str):
+            return "string"
+        if isinstance(value, list):
+            return "array"
+        if isinstance(value, dict):
+            return "object"
+        return "unknown"
+
+    def _estimate_data_size(self, data_list: list) -> int:
+        """估算数据大小（字节）
+
+        使用JSON序列化的长度作为数据大小的估算值
+
+        Args:
+            data_list: 数据列表
+
+        Returns:
+            估算的数据大小（字节）
+        """
+        try:
+            # 对于小数据集，序列化整个列表
+            if len(data_list) <= 100:
+                data_to_serialize = []
+                for item in data_list:
+                    if hasattr(item, "data"):
+                        data_to_serialize.append(item.data)
+                    elif isinstance(item, dict):
+                        data_to_serialize.append(item)
+                    else:
+                        data_to_serialize.append(str(item))
+
+                json_str = json.dumps(data_to_serialize, ensure_ascii=False)
+                return len(json_str.encode("utf-8"))
+
+            # 对于大数据集，采样估算
+            sample_size = min(100, len(data_list))
+            sample = self._sample_data(data_list, sample_size)
+            json_str = json.dumps(sample, ensure_ascii=False)
+            sample_size_bytes = len(json_str.encode("utf-8"))
+
+            # 按比例估算总大小
+            total_size = int(sample_size_bytes * (len(data_list) / sample_size))
+            return total_size
+
+        except Exception as e:
+            logger.warning(f"Failed to estimate data size: {e}")
+            return 0
 
     def _sample_data(self, data_list: list, sample_size: int) -> list:
         """对数据进行采样

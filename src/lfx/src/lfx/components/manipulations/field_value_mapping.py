@@ -10,8 +10,8 @@ from lfx.io import BoolInput, DataInput, DropdownInput, MultilineInput, Output, 
 from lfx.log.logger import logger
 from lfx.schema import Data
 
-# Operator options with metadata for i18n
-OPERATOR_OPTIONS = [
+# Operator options - internal values used for data processing
+OPERATOR_VALUES = [
     "=",
     "!=",
     ">",
@@ -24,7 +24,7 @@ OPERATOR_OPTIONS = [
     "ends_with",
     "in",
     "not_in",
-    "regex",  # New: Regular expression matching
+    "regex",
 ]
 
 
@@ -58,22 +58,8 @@ class ETLFieldValueMappingComponent(Component):
                     "name": "operator",
                     "display_name": i18n.t("components.manipulations.field_value_mapping.operator"),
                     "type": "str",
-                    "formatter": "dropdown",
-                    "options": [
-                        i18n.t("components.manipulations.field_value_mapping.operators.equal"),
-                        i18n.t("components.manipulations.field_value_mapping.operators.not_equal"),
-                        i18n.t("components.manipulations.field_value_mapping.operators.greater_than"),
-                        i18n.t("components.manipulations.field_value_mapping.operators.less_than"),
-                        i18n.t("components.manipulations.field_value_mapping.operators.greater_equal"),
-                        i18n.t("components.manipulations.field_value_mapping.operators.less_equal"),
-                        i18n.t("components.manipulations.field_value_mapping.operators.contains"),
-                        i18n.t("components.manipulations.field_value_mapping.operators.not_contains"),
-                        i18n.t("components.manipulations.field_value_mapping.operators.starts_with"),
-                        i18n.t("components.manipulations.field_value_mapping.operators.ends_with"),
-                        i18n.t("components.manipulations.field_value_mapping.operators.in"),
-                        i18n.t("components.manipulations.field_value_mapping.operators.not_in"),
-                        i18n.t("components.manipulations.field_value_mapping.operators.regex"),
-                    ],
+                    "formatter": "text",
+                    "options": OPERATOR_VALUES,
                     "options_metadata": [
                         {"value": "=", "label": i18n.t("components.manipulations.field_value_mapping.operators.equal")},
                         {
@@ -252,23 +238,31 @@ class ETLFieldValueMappingComponent(Component):
                         if upstream_data:
                             # Extract field names and sample values from upstream data
                             mapping_rules = self._extract_mapping_rules_with_samples(upstream_data)
-                            logger.info(f"[FieldValueMapping] Extracted {len(mapping_rules)} mapping rules from upstream data (attempt {attempt + 1})")
+                            logger.info(
+                                f"[FieldValueMapping] Extracted {len(mapping_rules)} mapping rules from upstream data (attempt {attempt + 1})"
+                            )
                             break
-                        else:
-                            logger.warning(f"[FieldValueMapping] No data returned from upstream node (attempt {attempt + 1})")
+                        logger.warning(
+                            f"[FieldValueMapping] No data returned from upstream node (attempt {attempt + 1})"
+                        )
 
                     except ValueError as e:
                         error_msg = str(e)
                         if "has not been built yet" in error_msg and attempt < max_retries - 1:
-                            logger.warning(f"[FieldValueMapping] Upstream node not built, retrying... (attempt {attempt + 1}/{max_retries})")
+                            logger.warning(
+                                f"[FieldValueMapping] Upstream node not built, retrying... (attempt {attempt + 1}/{max_retries})"
+                            )
                             await asyncio.sleep(0.2)  # Brief delay before retry
                             continue
-                        else:
-                            # Fallback strategy: Extract from upstream node configuration
-                            logger.warning(f"[FieldValueMapping] Upstream execution failed after {attempt + 1} attempts: {e}. Trying static analysis...")
-                            break
+                        # Fallback strategy: Extract from upstream node configuration
+                        logger.warning(
+                            f"[FieldValueMapping] Upstream execution failed after {attempt + 1} attempts: {e}. Trying static analysis..."
+                        )
+                        break
                     except Exception as e:
-                        logger.warning(f"[FieldValueMapping] Unexpected error during upstream execution: {e}. Falling back to static analysis...")
+                        logger.warning(
+                            f"[FieldValueMapping] Unexpected error during upstream execution: {e}. Falling back to static analysis..."
+                        )
                         break
 
                 # If we couldn't get data from execution, try static analysis
@@ -393,23 +387,16 @@ class ETLFieldValueMappingComponent(Component):
             logger.exception("[FieldValueMapping] Failed to extract mapping rules")
             return []
 
-    def _get_operator_value(self, operator_display: str) -> str:
-        """Convert display label to operator value using metadata mapping."""
-        # Try to find in options_metadata
-        for schema in self.inputs:
-            if schema.name == "mapping_rules":
-                for field in schema.table_schema:
-                    if field["name"] == "operator" and "options_metadata" in field:
-                        for metadata in field["options_metadata"]:
-                            if metadata["label"] == operator_display:
-                                return metadata["value"]
-
-        # Fallback: if already a value, return as-is
-        if operator_display in OPERATOR_OPTIONS:
-            return operator_display
+    def _get_operator_value(self, operator_input: Any) -> str:
+        """Convert operator input to operator value."""
+        # OPERATOR_VALUES contains simple strings, so just validate and return
+        if isinstance(operator_input, str):
+            # Check if it's a valid operator
+            if operator_input in OPERATOR_VALUES:
+                return operator_input
 
         # Default fallback
-        logger.warning(f"Unknown operator display: {operator_display}, using '=' as fallback")
+        logger.warning(f"Unknown operator input: {operator_input}, using '=' as fallback")
         return "="
 
     def _evaluate_condition(self, field_value: Any, operator: str, compare_value: str) -> bool:

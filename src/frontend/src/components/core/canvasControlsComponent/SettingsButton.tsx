@@ -1,26 +1,26 @@
-import { useNavigate } from 'react-router-dom';
-import IconComponent from '@/components/common/genericIconComponent';
-import { Button } from '@/components/ui/button';
+import { useNavigate } from "react-router-dom";
+import IconComponent from "@/components/common/genericIconComponent";
+import { Button } from "@/components/ui/button";
 
 const SettingsButton = () => {
   const navigate = useNavigate();
 
   const handleClick = () => {
-    navigate('/settings/datasources?ref=datasense');
+    navigate("/settings/datasources?ref=datasense");
   };
 
   return (
     <Button
-      variant='ghost'
-      size='icon'
-      className='group flex items-center justify-center px-2 rounded-none'
-      title='Settings'
+      variant="ghost"
+      size="icon"
+      className="group flex items-center justify-center px-2 rounded-none"
+      title="Settings"
       onClick={handleClick}
     >
       <IconComponent
-        name='Settings'
-        aria-hidden='true'
-        className='text-muted-foreground group-hover:text-primary !h-5 !w-5'
+        name="Settings"
+        aria-hidden="true"
+        className="text-muted-foreground group-hover:text-primary !h-5 !w-5"
       />
     </Button>
   );

@@ -211,6 +211,24 @@ class ComponentExecutionLogger:
             # 提取组件结果（同步操作）
             component_results = self._extract_component_results(results, artifacts)
 
+            # 🔴 提取输出元信息（关键步骤）
+            output_metadata = {}
+            try:
+                logger.info(f"[METADATA_DEBUG] Starting metadata extraction in queue for component: {self.vertex.vertex_type}")
+                logger.info(f"[METADATA_DEBUG] Results available in queue: {results is not None}")
+                logger.info(f"[METADATA_DEBUG] Results keys in queue: {list(results.keys()) if results else 'None'}")
+
+                output_metadata = await self.metadata_extractor.extract_output_metadata(
+                    results=results,
+                    artifacts=artifacts,
+                )
+
+                logger.info(f"[METADATA_DEBUG] Extracted output_metadata in queue: {output_metadata}")
+            except Exception as e:
+                logger.error(f"[METADATA_DEBUG] Failed to extract output metadata in queue: {e}")
+                import traceback
+                logger.error(f"[METADATA_DEBUG] Traceback: {traceback.format_exc()}")
+
             # 构建outputs JSON
             outputs_json = {
                 **component_results,
@@ -219,6 +237,7 @@ class ComponentExecutionLogger:
                     "execution_duration_ms": duration_ms,
                     "memory_usage_mb": memory_delta_mb,
                     "status_detail": status,
+                    **output_metadata,  # 🔴 合并提取的输出元信息（包含data_metrics）
                 }
             }
 

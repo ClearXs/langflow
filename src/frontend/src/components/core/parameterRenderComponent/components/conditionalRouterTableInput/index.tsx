@@ -10,8 +10,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { cn } from "@/utils/utils";
 import { usePostTemplateValue } from "@/controllers/API/queries/nodes/use-post-template-value";
+import { cn } from "@/utils/utils";
 import type { InputProps } from "../../types";
 
 interface ConditionRow {
@@ -75,7 +75,9 @@ export default function ConditionalRouterTableInputComponent({
     conditions: [],
   });
 
-  const [fieldOptions, setFieldOptions] = useState<Array<{value: string; label: string; type?: string}>>([]);
+  const [fieldOptions, setFieldOptions] = useState<
+    Array<{ value: string; label: string; type?: string }>
+  >([]);
   const [fieldTypes, setFieldTypes] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
 
@@ -106,7 +108,9 @@ export default function ConditionalRouterTableInputComponent({
   useEffect(() => {
     // Extract field types and options from fieldSchema
     if (fieldSchema) {
-      const fieldColumn = fieldSchema.find((col: any) => col.name === 'field_name');
+      const fieldColumn = fieldSchema.find(
+        (col: any) => col.name === "field_name",
+      );
       if (fieldColumn) {
         setFieldOptions(fieldColumn.options || []);
         setFieldTypes(fieldColumn.field_types || {});
@@ -179,7 +183,7 @@ export default function ConditionalRouterTableInputComponent({
     const newConfig = {
       ...config,
       conditions: config.conditions.map((condition) =>
-        condition.id === id ? { ...condition, [field]: value } : condition
+        condition.id === id ? { ...condition, [field]: value } : condition,
       ),
     };
     setConfig(newConfig);
@@ -189,9 +193,9 @@ export default function ConditionalRouterTableInputComponent({
   const getOperatorsForField = (fieldName: string) => {
     const fieldType = fieldTypes[fieldName];
     switch (fieldType) {
-      case 'number':
+      case "number":
         return NUMERIC_OPERATORS;
-      case 'boolean':
+      case "boolean":
         return BOOLEAN_OPERATORS;
       default:
         return STRING_OPERATORS;
@@ -202,7 +206,9 @@ export default function ConditionalRouterTableInputComponent({
     const newConfig = {
       ...config,
       conditions: config.conditions.map((condition) =>
-        condition.id === id ? { ...condition, enabled: !condition.enabled } : condition
+        condition.id === id
+          ? { ...condition, enabled: !condition.enabled }
+          : condition,
       ),
     };
     setConfig(newConfig);
@@ -214,7 +220,10 @@ export default function ConditionalRouterTableInputComponent({
       {/* Combination Logic Selection */}
       <div className="flex items-center space-x-4">
         <label className="text-sm font-medium">
-          {t('components.logic.conditional_router.combination_logic.display_name')}:
+          {t(
+            "components.logic.conditional_router.combination_logic.display_name",
+          )}
+          :
         </label>
         <Select
           value={config.combination_logic}
@@ -242,7 +251,11 @@ export default function ConditionalRouterTableInputComponent({
           className="flex items-center space-x-2"
         >
           <Download className="w-4 h-4" />
-          <span>{t('components.logic.conditional_router.conditions.load_fields_button')}</span>
+          <span>
+            {t(
+              "components.logic.conditional_router.conditions.load_fields_button",
+            )}
+          </span>
         </Button>
       </div>
 
@@ -250,25 +263,25 @@ export default function ConditionalRouterTableInputComponent({
       <div className="border rounded-lg">
         <div className="grid grid-cols-12 gap-2 p-3 border-b bg-gray-50 dark:bg-gray-800">
           <div className="col-span-1 text-xs font-medium text-center">
-            {t('common.enabled')}
+            {t("common.enabled")}
           </div>
           <div className="col-span-3 text-xs font-medium">
-            {t('components.logic.conditional_router.conditions.field_name')}
+            {t("components.logic.conditional_router.conditions.field_name")}
           </div>
           <div className="col-span-3 text-xs font-medium">
-            {t('components.logic.conditional_router.conditions.operator')}
+            {t("components.logic.conditional_router.conditions.operator")}
           </div>
           <div className="col-span-4 text-xs font-medium">
-            {t('components.logic.conditional_router.conditions.compare_value')}
+            {t("components.logic.conditional_router.conditions.compare_value")}
           </div>
           <div className="col-span-1 text-xs font-medium text-center">
-            {t('common.actions')}
+            {t("common.actions")}
           </div>
         </div>
 
         {config.conditions.length === 0 ? (
           <div className="p-8 text-center text-gray-500 dark:text-gray-400">
-            {t('components.logic.conditional_router.no_conditions_added')}
+            {t("components.logic.conditional_router.no_conditions_added")}
           </div>
         ) : (
           <div className="max-h-64 overflow-y-auto">
@@ -277,7 +290,7 @@ export default function ConditionalRouterTableInputComponent({
                 key={condition.id}
                 className={cn(
                   "grid grid-cols-12 gap-2 p-3 border-b last:border-b-0",
-                  !condition.enabled && "opacity-50"
+                  !condition.enabled && "opacity-50",
                 )}
               >
                 {/* Enabled Checkbox */}
@@ -295,11 +308,17 @@ export default function ConditionalRouterTableInputComponent({
                 <div className="col-span-3">
                   <Select
                     value={condition.field_name}
-                    onValueChange={(value) => handleUpdateCondition(condition.id, 'field_name', value)}
+                    onValueChange={(value) =>
+                      handleUpdateCondition(condition.id, "field_name", value)
+                    }
                     disabled={disabled || !condition.enabled}
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder={t('components.logic.conditional_router.select_field')} />
+                      <SelectValue
+                        placeholder={t(
+                          "components.logic.conditional_router.select_field",
+                        )}
+                      />
                     </SelectTrigger>
                     <SelectContent>
                       {fieldOptions.map((field) => (
@@ -315,18 +334,29 @@ export default function ConditionalRouterTableInputComponent({
                 <div className="col-span-3">
                   <Select
                     value={condition.operator}
-                    onValueChange={(value) => handleUpdateCondition(condition.id, 'operator', value)}
+                    onValueChange={(value) =>
+                      handleUpdateCondition(condition.id, "operator", value)
+                    }
                     disabled={disabled || !condition.enabled}
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder={t('components.logic.conditional_router.select_operator')} />
+                      <SelectValue
+                        placeholder={t(
+                          "components.logic.conditional_router.select_operator",
+                        )}
+                      />
                     </SelectTrigger>
                     <SelectContent>
-                      {getOperatorsForField(condition.field_name).map((operator) => (
-                        <SelectItem key={operator.value} value={operator.value}>
-                          {operator.label}
-                        </SelectItem>
-                      ))}
+                      {getOperatorsForField(condition.field_name).map(
+                        (operator) => (
+                          <SelectItem
+                            key={operator.value}
+                            value={operator.value}
+                          >
+                            {operator.label}
+                          </SelectItem>
+                        ),
+                      )}
                     </SelectContent>
                   </Select>
                 </div>
@@ -335,12 +365,23 @@ export default function ConditionalRouterTableInputComponent({
                 <div className="col-span-4">
                   <Input
                     value={condition.compare_value}
-                    onChange={(e) => handleUpdateCondition(condition.id, 'compare_value', e.target.value)}
+                    onChange={(e) =>
+                      handleUpdateCondition(
+                        condition.id,
+                        "compare_value",
+                        e.target.value,
+                      )
+                    }
                     disabled={disabled || !condition.enabled}
                     placeholder={
-                      condition.operator === 'in list' || condition.operator === 'not in list'
-                        ? t('components.logic.conditional_router.list_placeholder')
-                        : t('components.logic.conditional_router.value_placeholder')
+                      condition.operator === "in list" ||
+                      condition.operator === "not in list"
+                        ? t(
+                            "components.logic.conditional_router.list_placeholder",
+                          )
+                        : t(
+                            "components.logic.conditional_router.value_placeholder",
+                          )
                     }
                   />
                 </div>
@@ -371,14 +412,24 @@ export default function ConditionalRouterTableInputComponent({
         className="w-full flex items-center justify-center space-x-2"
       >
         <Plus className="w-4 h-4" />
-        <span>{t('components.logic.conditional_router.add_condition')}</span>
+        <span>{t("components.logic.conditional_router.add_condition")}</span>
       </Button>
 
       {/* Instructions */}
       <div className="text-xs text-gray-500 dark:text-gray-400 space-y-1">
-        <p>{t('components.logic.conditional_router.instructions.field_selection')}</p>
-        <p>{t('components.logic.conditional_router.instructions.operator_selection')}</p>
-        <p>{t('components.logic.conditional_router.instructions.list_format')}</p>
+        <p>
+          {t(
+            "components.logic.conditional_router.instructions.field_selection",
+          )}
+        </p>
+        <p>
+          {t(
+            "components.logic.conditional_router.instructions.operator_selection",
+          )}
+        </p>
+        <p>
+          {t("components.logic.conditional_router.instructions.list_format")}
+        </p>
       </div>
     </div>
   );

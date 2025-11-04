@@ -196,7 +196,13 @@ export function ParameterRenderComponent({
           />
         );
       case "code":
-        return <CodeAreaComponent {...baseInputProps} id={`codearea_${id}`} language={templateData.language} />;
+        return (
+          <CodeAreaComponent
+            {...baseInputProps}
+            id={`codearea_${id}`}
+            language={templateData.language}
+          />
+        );
       case "table":
         return (
           <TableNodeComponent

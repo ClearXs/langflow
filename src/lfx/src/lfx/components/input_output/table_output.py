@@ -225,7 +225,7 @@ class ETLTableOutputComponent(Component):
         ),
     ]
 
-    async def update_build_config(
+    def update_build_config(
         self, build_config: dict, field_value: Any, field_name: str | None = None, action: str | None = None
     ):
         """Dynamic configuration updates based on field changes and action button clicks."""
@@ -328,8 +328,8 @@ class ETLTableOutputComponent(Component):
                     else:
                         logger.debug(f"[TableOutput] Loading tables for datasource ID: {datasource_id}")
                         # Load tables for this datasource
-                        async with httpx.AsyncClient(timeout=10.0) as client:
-                            response = await client.get(f"{api_url}/api/v1/datasources/{datasource_id}/tables")
+                        with httpx.Client(timeout=10.0) as client:
+                            response = client.get(f"{api_url}/api/v1/datasources/{datasource_id}/tables")
                             logger.debug(f"[TableOutput] Tables API response status: {response.status_code}")
 
                             if response.status_code == 200:
@@ -381,8 +381,8 @@ class ETLTableOutputComponent(Component):
                             logger.info("[TableOutput] Skipping column loading for public datasource")
                         else:
                             # Load columns for the target table
-                            async with httpx.AsyncClient(timeout=10.0) as client:
-                                response = await client.get(
+                            with httpx.Client(timeout=10.0) as client:
+                                response = client.get(
                                     f"{api_url}/api/v1/datasources/{datasource_id}/tables/{current_table}/columns"
                                 )
 
@@ -432,9 +432,26 @@ class ETLTableOutputComponent(Component):
                 # Use the generic get_upstream_data method to fetch actual data
                 self.status = i18n.t("components.input_output.table_output.status.analyzing_schema")
 
-                upstream_data = await self.get_upstream_data(
-                    input_name="data_input", graph_data=graph_data, sample_size=10, vertex_id=node_id
-                )
+                # 在同步上下文中运行异步方法
+                try:
+                    import asyncio
+                    loop = asyncio.get_event_loop()
+                    if loop.is_running():
+                        # 在运行的事件循环中，使用 run_coroutine_threadsafe
+                        import concurrent.futures
+                        with concurrent.futures.ThreadPoolExecutor() as executor:
+                            future = executor.submit(
+                                asyncio.run,
+                                self.get_upstream_data(input_name="data_input", graph_data=graph_data, sample_size=10, vertex_id=node_id)
+                            )
+                            upstream_data = future.result(timeout=10)
+                    else:
+                        upstream_data = asyncio.run(
+                            self.get_upstream_data(input_name="data_input", graph_data=graph_data, sample_size=10, vertex_id=node_id)
+                        )
+                except Exception as e:
+                    logger.error(f"[TableOutput] Error getting upstream data: {e}")
+                    upstream_data = None
 
                 if not upstream_data:
                     logger.warning("[TableOutput] No data returned from upstream node")
@@ -546,9 +563,26 @@ class ETLTableOutputComponent(Component):
                 # Use the generic get_upstream_data method to fetch actual data
                 self.status = i18n.t("components.input_output.table_output.status.previewing_data")
 
-                upstream_data = await self.get_upstream_data(
-                    input_name="data_input", graph_data=graph_data, sample_size=100, vertex_id=node_id
-                )
+                # 在同步上下文中运行异步方法
+                try:
+                    import asyncio
+                    loop = asyncio.get_event_loop()
+                    if loop.is_running():
+                        # 在运行的事件循环中，使用 run_coroutine_threadsafe
+                        import concurrent.futures
+                        with concurrent.futures.ThreadPoolExecutor() as executor:
+                            future = executor.submit(
+                                asyncio.run,
+                                self.get_upstream_data(input_name="data_input", graph_data=graph_data, sample_size=100, vertex_id=node_id)
+                            )
+                            upstream_data = future.result(timeout=10)
+                    else:
+                        upstream_data = asyncio.run(
+                            self.get_upstream_data(input_name="data_input", graph_data=graph_data, sample_size=100, vertex_id=node_id)
+                        )
+                except Exception as e:
+                    logger.error(f"[TableOutput] Error getting upstream data for preview: {e}")
+                    upstream_data = None
 
                 if not upstream_data:
                     logger.warning("[TableOutput] No data returned from upstream node")
@@ -621,6 +655,24 @@ class ETLTableOutputComponent(Component):
         logger.debug(f"[TableOutput] Returning build_config with keys: {list(build_config.keys())}")
         return build_config
 
+    def _extract_uuid_from_id(self, datasource_id: str) -> str:
+        """从数据源ID中提取纯UUID，移除可能的前缀"""
+        if not datasource_id:
+            return datasource_id
+
+        # 检查是否有前缀（如 custom_, enterprise_ 等）
+        if "_" in datasource_id:
+            parts = datasource_id.split("_", 1)
+            if len(parts) == 2:
+                prefix, uuid_part = parts
+                # 验证uuid_part是否符合UUID格式（包含-字符且长度正确）
+                if "-" in uuid_part and len(uuid_part) == 36:  # UUID标准格式长度为36个字符
+                    logger.debug(f"[TableOutput] Extracting UUID from datasource ID: {datasource_id} -> {uuid_part}")
+                    return uuid_part
+
+        # 如果没有前缀或不符合UUID格式，直接返回
+        return datasource_id
+
     def _get_datasource_id_from_metadata(self, display_name: str, options_metadata: list[dict]) -> str | None:
         """从 options_metadata 中根据显示名称获取数据源ID"""
         for metadata in options_metadata:
@@ -636,13 +688,23 @@ class ETLTableOutputComponent(Component):
         """加载统一的数据源列表（内置数据源 + 公共数据源）"""
         try:
             # 获取内置数据源
+            logger.debug("[TableOutput] Starting to load builtin datasources...")
             builtin_datasources = self._get_builtin_datasources()
+            logger.info(f"[TableOutput] Loaded {len(builtin_datasources)} builtin datasources")
+            if builtin_datasources:
+                logger.debug(f"[TableOutput] Builtin datasource sample: {builtin_datasources[0]}")
 
             # 获取公共数据源
             try:
+                logger.debug("[TableOutput] Starting to load public datasources...")
                 public_datasources = asyncio.run(self._get_public_datasources())
+                logger.info(f"[TableOutput] Loaded {len(public_datasources)} public datasources")
+                if public_datasources:
+                    logger.debug(f"[TableOutput] Public datasource sample: {public_datasources[0]}")
             except Exception as e:
                 logger.warning(f"[TableOutput] Failed to get public datasources: {e}")
+                import traceback
+                logger.debug(f"[TableOutput] Public datasource error traceback: {traceback.format_exc()}")
                 public_datasources = []
 
             # 合并数据源列表
@@ -678,51 +740,80 @@ class ETLTableOutputComponent(Component):
             logger.info(
                 f"[TableOutput] Loaded {len(all_datasources)} datasources ({len(builtin_datasources)} builtin, {len(public_datasources)} public)"
             )
+            if all_datasources:
+                logger.debug(f"[TableOutput] Final datasource list sample: {all_datasources[0]}")
             return all_datasources
 
         except Exception as e:
             logger.error(f"[TableOutput] Error loading unified datasources: {e}")
+            import traceback
+            logger.error(f"[TableOutput] Traceback: {traceback.format_exc()}")
             return []
 
     def _get_builtin_datasources(self) -> list[dict]:
         """获取内置数据源"""
         try:
+            logger.debug("[TableOutput] Calling datasource_manager.get_datasources()...")
             datasources = asyncio.run(self.datasource_manager.get_datasources())
+            logger.debug(f"[TableOutput] Got raw datasources: {datasources}")
+
             builtin_datasources = []
 
             # 合并企业和自定义数据源
-            for ds in datasources.get("enterprise", []):
+            enterprise_list = datasources.get("enterprise", [])
+            custom_list = datasources.get("custom", [])
+
+            logger.debug(f"[TableOutput] Enterprise datasources: {len(enterprise_list)} items")
+            logger.debug(f"[TableOutput] Custom datasources: {len(custom_list)} items")
+
+            for ds in enterprise_list:
+                # 企业数据源ID通常不需要前缀，直接使用
+                datasource_id = self._extract_uuid_from_id(ds["id"])
                 builtin_datasources.append(
-                    {"id": ds["id"], "name": ds["name"], "type": ds["type"], "source": "enterprise"}
+                    {"id": datasource_id, "name": ds["name"], "type": ds["type"], "source": "enterprise"}
                 )
+                logger.debug(f"[TableOutput] Added enterprise datasource: {ds['name']} -> {datasource_id}")
 
-            for ds in datasources.get("custom", []):
-                builtin_datasources.append({"id": ds["id"], "name": ds["name"], "type": ds["type"], "source": "custom"})
+            for ds in custom_list:
+                # 自定义数据源ID可能包含前缀，需要提取纯UUID
+                datasource_id = self._extract_uuid_from_id(ds["id"])
+                builtin_datasources.append(
+                    {"id": datasource_id, "name": ds["name"], "type": ds["type"], "source": "custom"}
+                )
+                logger.debug(f"[TableOutput] Added custom datasource: {ds['name']} -> {datasource_id}")
 
+            logger.info(f"[TableOutput] Total builtin datasources processed: {len(builtin_datasources)}")
             return builtin_datasources
 
         except Exception as e:
             logger.error(f"[TableOutput] Error getting builtin datasources: {e}")
+            import traceback
+            logger.error(f"[TableOutput] Builtin datasource error traceback: {traceback.format_exc()}")
             return []
 
     async def _get_public_datasources(self) -> list[dict]:
         """通过feign接口获取公共数据源"""
         try:
+            logger.debug("[TableOutput] Initializing feign client...")
             from lfx.services.deps import get_feign_service
 
             feign_service = get_feign_service()
             from lfx.services.feign.clients.data_construction import DataConstructionFeignClient
 
             client = DataConstructionFeignClient(feign_service)
+            logger.info("[TableOutput] Calling feign API to get datasource list...")
 
             # 调用feign接口获取数据源列表
-            datasource_list = await client.get_datasource_list()
+            datasource_list = asyncio.run(client.get_datasource_list())
 
-            logger.debug(f"[TableOutput] Got {len(datasource_list)} public datasources from feign API")
+            logger.info(f"[TableOutput] Got {len(datasource_list)} public datasources from feign API")
+            logger.debug(f"[TableOutput] Public datasource sample: {datasource_list[:1] if datasource_list else 'None'}")
             return datasource_list if isinstance(datasource_list, list) else []
 
         except Exception as e:
             logger.error(f"[TableOutput] Failed to get public datasources: {e}")
+            import traceback
+            logger.error(f"[TableOutput] Feign client error traceback: {traceback.format_exc()}")
             return []
 
     def _build_display_name(self, datasource: dict, source: str) -> str:
@@ -771,13 +862,13 @@ class ETLTableOutputComponent(Component):
             return f"{base_name} {source_label} {' '.join(extra_labels)}"
         return f"{base_name} {source_label}"
 
-    async def _get_connection_string(self, datasource_id: str, datasource_info: dict = None) -> str:
+    def _get_connection_string(self, datasource_id: str, datasource_info: dict = None) -> str:
         """获取数据源连接字符串，支持内置和公共数据源"""
         if datasource_info and datasource_info.get("source") == "public":
             # 公共数据源：从raw_data构建连接字符串
             return self._build_public_connection_string(datasource_info["raw_data"])
         # 内置数据源：使用现有逻辑
-        return await self._get_builtin_connection_string(datasource_id)
+        return self._get_builtin_connection_string(datasource_id)
 
     def _build_public_connection_string(self, raw_data: dict) -> str:
         """构建公共数据源连接字符串"""
@@ -835,7 +926,7 @@ class ETLTableOutputComponent(Component):
             return f"mssql+pymssql://{username_encoded}:{password_encoded}@{host}:{port}/{database}"
         raise ValueError(f"Unsupported database type: {ds_type}")
 
-    async def _get_builtin_connection_string(self, datasource_id: str) -> str:
+    def _get_builtin_connection_string(self, datasource_id: str) -> str:
         """获取内置数据源连接字符串"""
         import os
 
@@ -844,8 +935,8 @@ class ETLTableOutputComponent(Component):
         api_url = os.getenv("LANGFLOW_API_URL", "http://localhost:7860")
 
         try:
-            async with httpx.AsyncClient(timeout=10.0) as client:
-                response = await client.get(f"{api_url}/api/v1/datasources/{datasource_id}/connection-string")
+            with httpx.Client(timeout=10.0) as client:
+                response = client.get(f"{api_url}/api/v1/datasources/{datasource_id}/connection-string")
 
                 if response.status_code != 200:
                     raise ValueError(f"Failed to get connection string, status: {response.status_code}")

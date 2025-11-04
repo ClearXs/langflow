@@ -1680,7 +1680,7 @@ class Graph:
                                 break
 
                         if generator_found:
-                            logger.info(f"[BUILD_VERTEX] Found generator in results, propagating to downstream")
+                            logger.info("[BUILD_VERTEX] Found generator in results, propagating to downstream")
 
                             if self._streaming_executor is None:
                                 from lfx.streaming.engine import StreamingExecutor

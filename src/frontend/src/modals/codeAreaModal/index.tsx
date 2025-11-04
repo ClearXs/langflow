@@ -200,7 +200,13 @@ export default function CodeAreaModal({
       size="x-large"
     >
       <BaseModal.Trigger>{children}</BaseModal.Trigger>
-      <BaseModal.Header description={t(language === "bash" ? "constants.dialog.codePromptSubtitleBash" : "constants.dialog.codePromptSubtitle")}>
+      <BaseModal.Header
+        description={t(
+          language === "bash"
+            ? "constants.dialog.codePromptSubtitleBash"
+            : "constants.dialog.codePromptSubtitle",
+        )}
+      >
         <span className="pr-2">{t("constants.modal.editCodeTitle")}</span>
         <IconComponent
           name="prompts"

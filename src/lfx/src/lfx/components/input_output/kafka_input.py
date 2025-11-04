@@ -37,6 +37,46 @@ class ETLKafkaInputComponent(Component):
         self._current_consumer = None  # Track current consumer instance
         self._should_stop = False  # 停止标志
 
+    def _is_design_time_context(self) -> bool:
+        """检测是否在设计时上下文中（字段分析等）"""
+        # 检查Kafka配置 - 在设计时，通常没有有效的bootstrap servers配置
+        if not self.bootstrap_servers or self.bootstrap_servers.strip() == "" or self.bootstrap_servers == "localhost:9092":
+            logger.debug("[KafkaInput] No valid bootstrap servers configured, assuming design-time context")
+            return True
+
+        # 检查topics配置 - 在设计时可能没有真实的topics
+        if not self.topics or self.topics.strip() == "":
+            logger.debug("[KafkaInput] No topics configured, assuming design-time context")
+            return True
+
+        # 检查调用栈 - 如果是从字段分析调用，返回样本数据
+        import traceback
+        stack = traceback.extract_stack()
+        for frame in stack:
+            if "analyze_fields" in frame.name or "field_analysis" in frame.name:
+                logger.debug("[KafkaInput] Field analysis detected in call stack, returning sample data")
+                return True
+            if "GraphUtils" in frame.filename and "execute_node_and_get_result" in frame.name:
+                logger.debug("[KafkaInput] GraphUtils execution detected, assuming design-time context")
+                return True
+
+        # 如果有schema定义但没有实时配置，很可能是设计时
+        if self.message_schema and not self._has_valid_runtime_config():
+            logger.debug("[KafkaInput] Schema defined but no runtime config, assuming design-time context")
+            return True
+
+        logger.debug("[KafkaInput] Runtime context detected, proceeding with Kafka connection")
+        return False
+
+    def _has_valid_runtime_config(self) -> bool:
+        """检查是否有有效的运行时配置"""
+        # 简单检查：如果有真实的服务器地址和topics，认为是运行时
+        has_server = (self.bootstrap_servers and
+                     self.bootstrap_servers.strip() != "" and
+                     self.bootstrap_servers != "localhost:9092")
+        has_topics = self.topics and self.topics.strip() != ""
+        return has_server and has_topics
+
     def __del__(self):
         """Cleanup when component is destroyed."""
         try:
@@ -565,7 +605,8 @@ class ETLKafkaInputComponent(Component):
         try:
             # 检查是否在设计时上下文中（字段分析等）
             # 在设计时，我们返回样本数据而不是异步生成器
-            if not hasattr(self, "graph") or self.graph is None:
+            is_design_time = self._is_design_time_context()
+            if is_design_time:
                 logger.info("[KafkaInput] Design-time context detected, returning sample data")
                 sample_data_list = self.get_sample_data()
                 for sample_data in sample_data_list:
@@ -655,29 +696,52 @@ class ETLKafkaInputComponent(Component):
         return current
 
     def _extract_fields_from_schema(self, message_value: Any) -> dict:
-        """Extract fields based on message schema definition."""
-        if not isinstance(message_value, dict) or not self.message_schema:
+        """Extract fields based on message schema definition.
+
+        Priority: Schema fields > Actual message content
+        优先使用schema定义的字段，如果schema为空才使用默认value字段
+        """
+        # 如果没有schema定义，使用默认value字段
+        if not self.message_schema:
             return {"value": message_value}
 
         result = {}
+        has_valid_fields = False
 
         for schema_row in self.message_schema:
             field_name = schema_row.get("field_name")
-            json_path = schema_row.get("json_path", f"$.{field_name}")
+            if not field_name:
+                continue
+
+            field_type = schema_row.get("field_type", "string")
+            json_path = schema_row.get("json_path", "")
             required = schema_row.get("required", False)
 
-            # Extract value using JSON Path
-            value = self._extract_by_json_path(message_value, json_path)
+            # 尝试从消息中提取值（如果消息是dict且提供了json_path）
+            extracted_value = None
+            if isinstance(message_value, dict) and json_path:
+                extracted_value = self._extract_by_json_path(message_value, json_path)
 
-            # Handle missing required fields
-            if value is None and required:
-                logger.info(f"Required field '{field_name}' is missing in message")
+            # 如果提取失败或消息不是dict，特殊处理'value'字段
+            if extracted_value is None:
+                if field_name == "value":
+                    # 对于'value'字段，使用消息本身的值
+                    result[field_name] = message_value
+                    has_valid_fields = True
+                elif required:
+                    # 必填字段但无法提取，设置为None
+                    result[field_name] = None
+                    logger.debug(f"[KafkaInput] Required field '{field_name}' set to None (not found in message)")
+                # 可选字段且无法提取，跳过
+            else:
+                # 成功提取到值
+                result[field_name] = extracted_value
+                has_valid_fields = True
 
-            # Add to result - include if value exists OR if field is required (even if None)
-            if value is not None:
-                result[field_name] = value
-            elif required:
-                result[field_name] = None
+        # 如果schema没有提取到任何有效字段，回退到使用value字段
+        if not has_valid_fields:
+            logger.warning("[KafkaInput] Schema defined but no valid fields extracted, using default 'value' field")
+            result = {"value": message_value}
 
         return result
 

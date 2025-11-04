@@ -62,7 +62,7 @@ class TextComponent(Component):
             display_name=i18n.t("components.input_output.text.max_length.display_name"),
             info=i18n.t("components.input_output.text.max_length.info"),
             value=0,
-            range_spec=(0, 1000000),
+            range_spec={"min": 0, "max": 1000000},
             advanced=True,
         ),
         IntInput(
@@ -70,7 +70,7 @@ class TextComponent(Component):
             display_name=i18n.t("components.input_output.text.min_length.display_name"),
             info=i18n.t("components.input_output.text.min_length.info"),
             value=0,
-            range_spec=(0, 1000000),
+            range_spec={"min": 0, "max": 1000000},
             advanced=True,
         ),
         MessageTextInput(

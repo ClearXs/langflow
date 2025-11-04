@@ -1,5 +1,5 @@
 version = 1
-revision = 2
+revision = 3
 requires-python = ">=3.10, <3.14"
 resolution-markers = [
     "python_full_version >= '3.13' and platform_machine == 'arm64' and sys_platform == 'darwin'",
@@ -3377,19 +3377,6 @@ wheels = [
 ]
 
 [[package]]
-name = "google-auth-oauthlib"
-version = "1.2.2"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "google-auth" },
-    { name = "requests-oauthlib" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/fb/87/e10bf24f7bcffc1421b84d6f9c3377c30ec305d082cd737ddaa6d8f77f7c/google_auth_oauthlib-1.2.2.tar.gz", hash = "sha256:11046fb8d3348b296302dd939ace8af0a724042e8029c1b872d87fabc9f41684", size = 20955, upload-time = "2025-04-22T16:40:29.172Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/ac/84/40ee070be95771acd2f4418981edb834979424565c3eec3cd88b6aa09d24/google_auth_oauthlib-1.2.2-py3-none-any.whl", hash = "sha256:fd619506f4b3908b5df17b65f39ca8d66ea56986e5472eb5978fd8f3786f00a2", size = 19072, upload-time = "2025-04-22T16:40:28.174Z" },
-]
-
-[[package]]
 name = "google-cloud-aiplatform"
 version = "1.120.0"
 source = { registry = "https://pypi.org/simple" }
@@ -5035,22 +5022,6 @@ wheels = [
 ]
 
 [[package]]
-name = "langchain-google-calendar-tools"
-version = "0.0.1"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "google-api-python-client" },
-    { name = "google-auth-oauthlib" },
-    { name = "langchain" },
-    { name = "protobuf" },
-    { name = "pytz" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/b4/e0/83e1d3f9d952eee6d920d2edafbb754013f7de474bf02e97d6f99053fc06/langchain_google_calendar_tools-0.0.1.tar.gz", hash = "sha256:2222499ded96880c573c358bb6b4c75a86f638e1f3a446fb14b126a30ee7f62e", size = 12048, upload-time = "2023-11-30T06:50:26.428Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/ff/72/733dacdbab414178d2bfde4e6153861534f30b82abd98306968b63439236/langchain_google_calendar_tools-0.0.1-py3-none-any.whl", hash = "sha256:ce0e62056fc62a90d2f95d4d33c9c2ef3d8a616b25ede266b67f88e8e02f9d55", size = 13792, upload-time = "2023-11-30T06:50:24.223Z" },
-]
-
-[[package]]
 name = "langchain-google-community"
 version = "2.0.3"
 source = { registry = "https://pypi.org/simple" }
@@ -5160,19 +5131,6 @@ wheels = [
 ]
 
 [[package]]
-name = "langchain-milvus"
-version = "0.1.7"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "langchain-core" },
-    { name = "pymilvus" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/0e/fe/765aaf4186d6eecea1afee62d627ea05e9bdb82be2b08048581f1da8a81d/langchain_milvus-0.1.7.tar.gz", hash = "sha256:6cc4b58803c853be6766c6ed68723e244e9af101c3cd52e22ccfc05c96b2107c", size = 20733, upload-time = "2024-11-11T07:52:47.556Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/e0/f1/7138884f3d691d5a4c79a026f9136a2eed146ee98fea46e3fe3a03c91259/langchain_milvus-0.1.7-py3-none-any.whl", hash = "sha256:8d7bef9e7524772db788f996ef9638dea431c034a36cf92a70a31d522eb8ee31", size = 23763, upload-time = "2024-11-11T07:52:45.984Z" },
-]
-
-[[package]]
 name = "langchain-mistralai"
 version = "0.2.3"
 source = { registry = "https://pypi.org/simple" }
@@ -5186,24 +5144,6 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/2e/3e/2af1ffae70385ebc50e385b34bed6b115660142d355a8bb64a4334dfd5b1/langchain_mistralai-0.2.3.tar.gz", hash = "sha256:2033af92fd82ac7915664885a94579edec19feb3122525fff8dd2787e174c087", size = 14010, upload-time = "2024-12-02T16:32:05.9Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/65/b2/657427f7216613af99bf1ca1171f348151c1408bd1a41b331a957a908aeb/langchain_mistralai-0.2.3-py3-none-any.whl", hash = "sha256:960abdd540af527da7e4d68b9316355ece6a740a60d145f32e4e19c1a9fe4d3a", size = 15000, upload-time = "2024-12-02T16:32:04.734Z" },
-]
-
-[[package]]
-name = "langchain-mongodb"
-version = "0.7.0"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "langchain" },
-    { name = "langchain-core" },
-    { name = "langchain-text-splitters" },
-    { name = "lark" },
-    { name = "numpy", version = "1.26.4", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12'" },
-    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12'" },
-    { name = "pymongo" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/f2/30/89ea882d3b13642049afdef94782185cf030a0f430e3785c5b8445c808d1/langchain_mongodb-0.7.0.tar.gz", hash = "sha256:f89479b8902239f29c3664dedbc35ef802d86662a6a847213c145fdd46747fb6", size = 280207, upload-time = "2025-08-19T21:12:53.447Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/4d/84/d7edcdc71b7089cef1abcce65042443a2dc3a43627bc08eadf529b334026/langchain_mongodb-0.7.0-py3-none-any.whl", hash = "sha256:c9122e56302ed6072c704500372a967f20560d9c9f372ce876c05229e9664c29", size = 60319, upload-time = "2025-08-19T21:12:52.524Z" },
 ]
 
 [[package]]
@@ -5339,8 +5279,6 @@ dependencies = [
     { name = "confluent-kafka" },
     { name = "cryptography" },
     { name = "datasets" },
-    { name = "docling", marker = "platform_machine != 'x86_64' or sys_platform != 'darwin'" },
-    { name = "docling-core" },
     { name = "dspy-ai" },
     { name = "duckduckgo-search" },
     { name = "elasticsearch" },
@@ -5363,29 +5301,9 @@ dependencies = [
     { name = "json-repair" },
     { name = "kubernetes" },
     { name = "langchain" },
-    { name = "langchain-anthropic" },
-    { name = "langchain-astradb" },
-    { name = "langchain-aws" },
-    { name = "langchain-chroma" },
-    { name = "langchain-cohere" },
     { name = "langchain-community" },
-    { name = "langchain-elasticsearch" },
-    { name = "langchain-google-calendar-tools" },
-    { name = "langchain-google-community" },
-    { name = "langchain-google-genai" },
-    { name = "langchain-google-vertexai" },
     { name = "langchain-graph-retriever" },
-    { name = "langchain-groq" },
-    { name = "langchain-huggingface" },
-    { name = "langchain-ibm" },
-    { name = "langchain-milvus" },
-    { name = "langchain-mistralai" },
-    { name = "langchain-mongodb" },
-    { name = "langchain-ollama" },
     { name = "langchain-openai" },
-    { name = "langchain-pinecone" },
-    { name = "langchain-sambanova" },
-    { name = "langchain-unstructured" },
     { name = "langflow-base" },
     { name = "langfuse" },
     { name = "langsmith" },
@@ -5398,8 +5316,6 @@ dependencies = [
     { name = "mem0ai" },
     { name = "metal-sdk" },
     { name = "metaphor-python" },
-    { name = "mlx", marker = "python_full_version >= '3.12' and platform_machine == 'arm64' and sys_platform == 'darwin'" },
-    { name = "mlx-vlm", marker = "python_full_version >= '3.12' and platform_machine == 'arm64' and sys_platform == 'darwin'" },
     { name = "nacos-sdk-python" },
     { name = "needle-python" },
     { name = "networkx" },
@@ -5444,14 +5360,66 @@ dependencies = [
 ]
 
 [package.optional-dependencies]
+all = [
+    { name = "cassio" },
+    { name = "clickhouse-connect" },
+    { name = "couchbase" },
+    { name = "ctransformers" },
+    { name = "docling", marker = "platform_machine != 'x86_64' or sys_platform != 'darwin'" },
+    { name = "docling-core" },
+    { name = "easyocr", marker = "platform_machine != 'x86_64' or sys_platform != 'darwin'" },
+    { name = "hmsclient" },
+    { name = "impyla" },
+    { name = "langchain-anthropic" },
+    { name = "langchain-astradb" },
+    { name = "langchain-aws" },
+    { name = "langchain-chroma" },
+    { name = "langchain-cohere" },
+    { name = "langchain-docling" },
+    { name = "langchain-elasticsearch" },
+    { name = "langchain-google-community" },
+    { name = "langchain-google-genai" },
+    { name = "langchain-google-vertexai" },
+    { name = "langchain-groq" },
+    { name = "langchain-huggingface" },
+    { name = "langchain-ibm" },
+    { name = "langchain-mistralai" },
+    { name = "langchain-ollama" },
+    { name = "langchain-pinecone" },
+    { name = "langchain-sambanova" },
+    { name = "langchain-unstructured" },
+    { name = "llama-cpp-python" },
+    { name = "mlx", marker = "python_full_version >= '3.12' and platform_machine == 'arm64' and sys_platform == 'darwin'" },
+    { name = "nv-ingest-api", marker = "python_full_version >= '3.12'" },
+    { name = "nv-ingest-client", marker = "python_full_version >= '3.12'" },
+    { name = "ocrmac", marker = "sys_platform == 'darwin'" },
+    { name = "pyhive" },
+    { name = "rapidocr-onnxruntime" },
+    { name = "sasl" },
+    { name = "sentence-transformers" },
+    { name = "sqlalchemy", extra = ["postgresql-psycopg", "postgresql-psycopg2binary"] },
+    { name = "tesserocr" },
+    { name = "thrift" },
+    { name = "webrtcvad" },
+]
+anthropic = [
+    { name = "langchain-anthropic" },
+]
 audio = [
     { name = "webrtcvad" },
+]
+aws = [
+    { name = "langchain-aws" },
 ]
 cassio = [
     { name = "cassio" },
 ]
 clickhouse-connect = [
     { name = "clickhouse-connect" },
+]
+cohere = [
+    { name = "langchain-cohere" },
+    { name = "langchain-huggingface" },
 ]
 couchbase = [
     { name = "couchbase" },
@@ -5463,6 +5431,17 @@ docling = [
     { name = "rapidocr-onnxruntime" },
     { name = "tesserocr" },
 ]
+document-processing = [
+    { name = "docling", marker = "platform_machine != 'x86_64' or sys_platform != 'darwin'" },
+    { name = "docling-core" },
+    { name = "langchain-unstructured" },
+    { name = "mlx", marker = "python_full_version >= '3.12' and platform_machine == 'arm64' and sys_platform == 'darwin'" },
+]
+google = [
+    { name = "langchain-google-community" },
+    { name = "langchain-google-genai" },
+    { name = "langchain-google-vertexai" },
+]
 hive = [
     { name = "hmsclient" },
     { name = "impyla" },
@@ -5470,10 +5449,33 @@ hive = [
     { name = "sasl" },
     { name = "thrift" },
 ]
+ibm = [
+    { name = "langchain-ibm" },
+]
+llm-providers = [
+    { name = "langchain-anthropic" },
+    { name = "langchain-aws" },
+    { name = "langchain-cohere" },
+    { name = "langchain-google-community" },
+    { name = "langchain-google-genai" },
+    { name = "langchain-google-vertexai" },
+    { name = "langchain-groq" },
+    { name = "langchain-huggingface" },
+    { name = "langchain-ibm" },
+    { name = "langchain-mistralai" },
+    { name = "langchain-ollama" },
+    { name = "langchain-sambanova" },
+]
 local = [
     { name = "ctransformers" },
     { name = "llama-cpp-python" },
     { name = "sentence-transformers" },
+]
+local-models = [
+    { name = "langchain-groq" },
+    { name = "langchain-mistralai" },
+    { name = "langchain-ollama" },
+    { name = "langchain-sambanova" },
 ]
 nv-ingest = [
     { name = "nv-ingest-api", marker = "python_full_version >= '3.12'" },
@@ -5481,6 +5483,12 @@ nv-ingest = [
 ]
 postgresql = [
     { name = "sqlalchemy", extra = ["postgresql-psycopg", "postgresql-psycopg2binary"] },
+]
+vectorstores = [
+    { name = "langchain-astradb" },
+    { name = "langchain-chroma" },
+    { name = "langchain-elasticsearch" },
+    { name = "langchain-pinecone" },
 ]
 
 [package.dev-dependencies]
@@ -5556,8 +5564,8 @@ requires-dist = [
     { name = "cryptography", specifier = ">=43.0.1,<44.0.0" },
     { name = "ctransformers", marker = "extra == 'local'", specifier = ">=0.2.10" },
     { name = "datasets", specifier = ">2.14.7,<4.0.0" },
-    { name = "docling", marker = "platform_machine != 'x86_64' or sys_platform != 'darwin'", specifier = ">=2.36.1,<3.0.0" },
-    { name = "docling-core", specifier = ">=2.36.1,<3.0.0" },
+    { name = "docling", marker = "(platform_machine != 'x86_64' and extra == 'document-processing') or (sys_platform != 'darwin' and extra == 'document-processing')", specifier = ">=2.36.1,<3.0.0" },
+    { name = "docling-core", marker = "extra == 'document-processing'", specifier = ">=2.36.1,<3.0.0" },
     { name = "dspy-ai", specifier = "==2.5.41" },
     { name = "duckduckgo-search", specifier = "==7.2.1" },
     { name = "easyocr", marker = "(platform_machine != 'x86_64' and extra == 'docling') or (sys_platform != 'darwin' and extra == 'docling')", specifier = ">=1.7.2,<2.0.0" },
@@ -5582,30 +5590,29 @@ requires-dist = [
     { name = "json-repair", specifier = "==0.30.3" },
     { name = "kubernetes", specifier = "==31.0.0" },
     { name = "langchain", specifier = "==0.3.23" },
-    { name = "langchain-anthropic", specifier = "==0.3.14" },
-    { name = "langchain-astradb", specifier = ">=0.6.1,<1.0.0" },
-    { name = "langchain-aws", specifier = "==0.2.33" },
-    { name = "langchain-chroma", specifier = ">=0.2.6,<1.0.0" },
-    { name = "langchain-cohere", specifier = "==0.3.3" },
+    { name = "langchain-anthropic", marker = "extra == 'anthropic'", specifier = "==0.3.14" },
+    { name = "langchain-astradb", marker = "extra == 'vectorstores'", specifier = ">=0.6.1,<1.0.0" },
+    { name = "langchain-aws", marker = "extra == 'aws'", specifier = "==0.2.33" },
+    { name = "langchain-chroma", marker = "extra == 'vectorstores'", specifier = ">=0.2.6,<1.0.0" },
+    { name = "langchain-cohere", marker = "extra == 'cohere'", specifier = "==0.3.3" },
     { name = "langchain-community", specifier = ">=0.3.21,<1.0.0" },
     { name = "langchain-docling", marker = "extra == 'docling'", specifier = ">=1.1.0" },
-    { name = "langchain-elasticsearch", specifier = "==0.3.0" },
-    { name = "langchain-google-calendar-tools", specifier = "==0.0.1" },
-    { name = "langchain-google-community", specifier = "==2.0.3" },
-    { name = "langchain-google-genai", specifier = "==2.0.6" },
-    { name = "langchain-google-vertexai", specifier = ">=2.0.7,<3.0.0" },
+    { name = "langchain-elasticsearch", marker = "extra == 'vectorstores'", specifier = "==0.3.0" },
+    { name = "langchain-google-community", marker = "extra == 'google'", specifier = "==2.0.3" },
+    { name = "langchain-google-genai", marker = "extra == 'google'", specifier = "==2.0.6" },
+    { name = "langchain-google-vertexai", marker = "extra == 'google'", specifier = ">=2.0.7,<3.0.0" },
     { name = "langchain-graph-retriever", specifier = "==0.8.0" },
-    { name = "langchain-groq", specifier = "==0.2.1" },
-    { name = "langchain-huggingface", specifier = "==0.3.1" },
-    { name = "langchain-ibm", specifier = ">=0.3.8" },
-    { name = "langchain-milvus", specifier = "==0.1.7" },
-    { name = "langchain-mistralai", specifier = "==0.2.3" },
-    { name = "langchain-mongodb", specifier = "==0.7.0" },
-    { name = "langchain-ollama", specifier = "==0.2.1" },
+    { name = "langchain-groq", marker = "extra == 'local-models'", specifier = "==0.2.1" },
+    { name = "langchain-huggingface", marker = "extra == 'cohere'", specifier = "==0.3.1" },
+    { name = "langchain-ibm", marker = "extra == 'ibm'", specifier = ">=0.3.8" },
+    { name = "langchain-mistralai", marker = "extra == 'local-models'", specifier = "==0.2.3" },
+    { name = "langchain-ollama", marker = "extra == 'local-models'", specifier = "==0.2.1" },
     { name = "langchain-openai", specifier = ">=0.2.12,<1.0.0" },
-    { name = "langchain-pinecone", specifier = ">=0.2.8,<1.0.0" },
-    { name = "langchain-sambanova", specifier = "==0.1.0" },
-    { name = "langchain-unstructured", specifier = "==0.1.5" },
+    { name = "langchain-pinecone", marker = "extra == 'vectorstores'", specifier = ">=0.2.8,<1.0.0" },
+    { name = "langchain-sambanova", marker = "extra == 'local-models'", specifier = "==0.1.0" },
+    { name = "langchain-unstructured", marker = "extra == 'document-processing'", specifier = "==0.1.5" },
+    { name = "langflow", extras = ["google", "anthropic", "cohere", "aws", "local-models", "ibm"], marker = "extra == 'llm-providers'", editable = "." },
+    { name = "langflow", extras = ["llm-providers", "vectorstores", "document-processing", "audio", "couchbase", "cassio", "local", "clickhouse-connect", "hive", "nv-ingest", "postgresql", "docling"], marker = "extra == 'all'", editable = "." },
     { name = "langflow-base", editable = "src/backend/base" },
     { name = "langfuse", specifier = "==2.53.9" },
     { name = "langsmith", specifier = ">=0.3.42,<1.0.0" },
@@ -5619,8 +5626,7 @@ requires-dist = [
     { name = "mem0ai", specifier = "==0.1.34" },
     { name = "metal-sdk", specifier = "==2.5.1" },
     { name = "metaphor-python", specifier = "==0.1.23" },
-    { name = "mlx", marker = "python_full_version >= '3.12' and platform_machine == 'arm64' and sys_platform == 'darwin'", specifier = ">=0.29.0" },
-    { name = "mlx-vlm", marker = "python_full_version >= '3.12' and platform_machine == 'arm64' and sys_platform == 'darwin'", specifier = "==0.3.3" },
+    { name = "mlx", marker = "python_full_version >= '3.12' and platform_machine == 'arm64' and sys_platform == 'darwin' and extra == 'document-processing'", specifier = ">=0.29.0" },
     { name = "nacos-sdk-python", specifier = ">=2.0.9" },
     { name = "needle-python", specifier = ">=0.4.0,<1.0.0" },
     { name = "networkx", specifier = "==3.4.2" },
@@ -5674,7 +5680,7 @@ requires-dist = [
     { name = "youtube-transcript-api", specifier = "==0.6.3" },
     { name = "zep-python", specifier = "==2.0.2" },
 ]
-provides-extras = ["docling", "audio", "couchbase", "cassio", "local", "clickhouse-connect", "hive", "nv-ingest", "postgresql"]
+provides-extras = ["google", "anthropic", "cohere", "aws", "local-models", "ibm", "vectorstores", "document-processing", "llm-providers", "all", "docling", "audio", "couchbase", "cassio", "local", "clickhouse-connect", "hive", "nv-ingest", "postgresql"]
 
 [package.metadata.requires-dev]
 dev = [
@@ -6890,23 +6896,6 @@ wheels = [
 ]
 
 [[package]]
-name = "mlx-lm"
-version = "0.28.2"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "jinja2", marker = "python_full_version >= '3.12' and platform_machine == 'arm64' and sys_platform == 'darwin'" },
-    { name = "mlx", marker = "python_full_version >= '3.12' and platform_machine == 'arm64' and sys_platform == 'darwin'" },
-    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12' and platform_machine == 'arm64' and sys_platform == 'darwin'" },
-    { name = "protobuf", marker = "python_full_version >= '3.12' and platform_machine == 'arm64' and sys_platform == 'darwin'" },
-    { name = "pyyaml", marker = "python_full_version >= '3.12' and platform_machine == 'arm64' and sys_platform == 'darwin'" },
-    { name = "transformers", marker = "python_full_version >= '3.12' and platform_machine == 'arm64' and sys_platform == 'darwin'" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/1c/d7/fdde445c7bd443a2ed23badda6064f1477c4051543922106f365e94082cd/mlx_lm-0.28.2.tar.gz", hash = "sha256:d28752635ed5c89ff2b41361916c928e6b16f765c07b2908044e1dcaf921ed9b", size = 209374, upload-time = "2025-10-02T14:23:57.497Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/f2/1c/89e0f60d45e364de8507065f73aeb8d2fd810d6cb95a9a512880b09399d5/mlx_lm-0.28.2-py3-none-any.whl", hash = "sha256:1501529e625d0d648216f7bb543b8b449d5fd17bd598f635536dbc1fbde6d1d6", size = 284600, upload-time = "2025-10-02T14:23:56.395Z" },
-]
-
-[[package]]
 name = "mlx-metal"
 version = "0.29.2"
 source = { registry = "https://pypi.org/simple" }
@@ -6914,30 +6903,6 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/31/a5/a045006546fed791f6e9a74ed4451dac871d3c35f9e54a3a25d820668a85/mlx_metal-0.29.2-py3-none-macosx_13_0_arm64.whl", hash = "sha256:cf8f83a521e620357185c57945142718d526b9312ee112e5a89eb5600480f4d6", size = 35056194, upload-time = "2025-09-26T22:23:47.201Z" },
     { url = "https://files.pythonhosted.org/packages/4c/8c/4bdd3a7d04ed477b32aec30d30236dfca9f9ac27706cb309511278ddd281/mlx_metal-0.29.2-py3-none-macosx_14_0_arm64.whl", hash = "sha256:fa944001970813b296e8aff5616f2fa9daeda6bc1d190c17fbe8a7ca838ecef0", size = 34791708, upload-time = "2025-09-26T22:23:30.599Z" },
     { url = "https://files.pythonhosted.org/packages/b1/11/12e158848fe4d3316c999ffb6c2d88f554bde98d69022b3385e25ece997e/mlx_metal-0.29.2-py3-none-macosx_15_0_arm64.whl", hash = "sha256:08d8b7fe305425a14b74ebf36cee176575bfd4cd8d34a2aaae8f05b9983d2d71", size = 34784506, upload-time = "2025-09-26T22:23:29.207Z" },
-]
-
-[[package]]
-name = "mlx-vlm"
-version = "0.3.3"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "datasets", marker = "python_full_version >= '3.12' and platform_machine == 'arm64' and sys_platform == 'darwin'" },
-    { name = "fastapi", marker = "python_full_version >= '3.12' and platform_machine == 'arm64' and sys_platform == 'darwin'" },
-    { name = "mlx", marker = "python_full_version >= '3.12' and platform_machine == 'arm64' and sys_platform == 'darwin'" },
-    { name = "mlx-lm", marker = "python_full_version >= '3.12' and platform_machine == 'arm64' and sys_platform == 'darwin'" },
-    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12' and platform_machine == 'arm64' and sys_platform == 'darwin'" },
-    { name = "opencv-python", version = "4.12.0.88", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12' and platform_machine == 'arm64' and sys_platform == 'darwin'" },
-    { name = "pillow", marker = "python_full_version >= '3.12' and platform_machine == 'arm64' and sys_platform == 'darwin'" },
-    { name = "requests", marker = "python_full_version >= '3.12' and platform_machine == 'arm64' and sys_platform == 'darwin'" },
-    { name = "scipy", version = "1.16.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12' and platform_machine == 'arm64' and sys_platform == 'darwin'" },
-    { name = "soundfile", marker = "python_full_version >= '3.12' and platform_machine == 'arm64' and sys_platform == 'darwin'" },
-    { name = "tqdm", marker = "python_full_version >= '3.12' and platform_machine == 'arm64' and sys_platform == 'darwin'" },
-    { name = "transformers", marker = "python_full_version >= '3.12' and platform_machine == 'arm64' and sys_platform == 'darwin'" },
-    { name = "uvicorn", marker = "python_full_version >= '3.12' and platform_machine == 'arm64' and sys_platform == 'darwin'" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/ff/9f/de419334820da334203de28eaf861b57ae0d06b0882770e5e5d0671dc5dd/mlx_vlm-0.3.3.tar.gz", hash = "sha256:5a08c802d1bf32cc47bd6aebe348d3554ce21bfce417a585bba83f9d213a6e66", size = 231935, upload-time = "2025-08-20T14:52:51.323Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/46/cd/64118be528970c30755db4d430b039b1df2aec0fe33ef5b405d7fe303e7e/mlx_vlm-0.3.3-py3-none-any.whl", hash = "sha256:50f977e989613c846c08cac847e8c43bc7eaf074892bb00e439d07d14ee79823", size = 306935, upload-time = "2025-08-20T14:52:50.11Z" },
 ]
 
 [[package]]
@@ -10117,23 +10082,6 @@ wheels = [
 ]
 
 [[package]]
-name = "pymilvus"
-version = "2.6.2"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "grpcio" },
-    { name = "pandas" },
-    { name = "protobuf" },
-    { name = "python-dotenv" },
-    { name = "setuptools" },
-    { name = "ujson" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/42/03/f002dbe86c7d6e762850cd52d0851cdfa30ac4c3718c39d1ad80af550d8c/pymilvus-2.6.2.tar.gz", hash = "sha256:b4802cc954de8f2d47bf8d6230e92196514dcb8a3726ba6098dc27909d4bc8e3", size = 1327019, upload-time = "2025-09-18T12:27:41.954Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/d9/78/ab628de53ae36c2a4519e8d56e09604b2ff6e8084538cb058cdbff42a564/pymilvus-2.6.2-py3-none-any.whl", hash = "sha256:933e447e09424d490dcf595053b01a7277dadea7ae3235cd704363bd6792509d", size = 258838, upload-time = "2025-09-18T12:27:39.847Z" },
-]
-
-[[package]]
 name = "pymongo"
 version = "4.10.1"
 source = { registry = "https://pypi.org/simple" }
@@ -12065,20 +12013,6 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/e8/c4/ba2f8066cceb6f23394729afe52f3bf7adec04bf9ed2c820b39e19299111/sortedcontainers-2.4.0.tar.gz", hash = "sha256:25caa5a06cc30b6b83d11423433f65d1f9d76c4c6a0c90e3379eaa43b9bfdb88", size = 30594, upload-time = "2021-05-16T22:03:42.897Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/32/46/9cb0e58b2deb7f82b84065f37f3bffeb12413f947f9388e4cac22c4621ce/sortedcontainers-2.4.0-py2.py3-none-any.whl", hash = "sha256:a163dcaede0f1c021485e957a39245190e74249897e2ae4b2aa38595db237ee0", size = 29575, upload-time = "2021-05-16T22:03:41.177Z" },
-]
-
-[[package]]
-name = "soundfile"
-version = "0.13.1"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "cffi", marker = "python_full_version >= '3.12' and platform_machine == 'arm64' and sys_platform == 'darwin'" },
-    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12' and platform_machine == 'arm64' and sys_platform == 'darwin'" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/e1/41/9b873a8c055582859b239be17902a85339bec6a30ad162f98c9b0288a2cc/soundfile-0.13.1.tar.gz", hash = "sha256:b2c68dab1e30297317080a5b43df57e302584c49e2942defdde0acccc53f0e5b", size = 46156, upload-time = "2025-01-25T09:17:04.831Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/64/28/e2a36573ccbcf3d57c00626a21fe51989380636e821b341d36ccca0c1c3a/soundfile-0.13.1-py2.py3-none-any.whl", hash = "sha256:a23c717560da2cf4c7b5ae1142514e0fd82d6bbd9dfc93a50423447142f2c445", size = 25751, upload-time = "2025-01-25T09:16:44.235Z" },
-    { url = "https://files.pythonhosted.org/packages/a0/e5/58fd1a8d7b26fc113af244f966ee3aecf03cb9293cb935daaddc1e455e18/soundfile-0.13.1-py2.py3-none-macosx_11_0_arm64.whl", hash = "sha256:743f12c12c4054921e15736c6be09ac26b3b3d603aef6fd69f9dde68748f2593", size = 1101406, upload-time = "2025-01-25T09:16:49.662Z" },
 ]
 
 [[package]]

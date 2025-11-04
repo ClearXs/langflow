@@ -493,16 +493,32 @@ class ComponentExecutionLogger:
                 # 🔵 后台操作1：提取输出元信息（可能很耗时）
                 output_metadata = {}
                 try:
+                    logger.info(f"[METADATA_DEBUG] Starting metadata extraction for transaction {transaction_id}")
+                    logger.info(f"[METADATA_DEBUG] Results available: {results is not None}")
+                    logger.info(f"[METADATA_DEBUG] Artifacts available: {artifacts is not None}")
+
                     output_metadata = await self.metadata_extractor.extract_output_metadata(
                         results=results,
                         artifacts=artifacts,
                     )
+
+                    logger.info(f"[METADATA_DEBUG] Extracted output_metadata: {output_metadata}")
                 except Exception as e:
-                    logger.warning(f"Failed to extract output metadata in background: {e}")
+                    logger.error(f"[METADATA_DEBUG] Failed to extract output metadata in background: {e}")
+                    import traceback
+                    logger.error(f"[METADATA_DEBUG] Traceback: {traceback.format_exc()}")
 
                 # 🔵 后台操作2：丰富outputs JSON
                 if "outputs" in update_data and "_metadata" in update_data["outputs"]:
+                    logger.info("[METADATA_DEBUG] Merging metadata into outputs")
+                    logger.info(f"[METADATA_DEBUG] Before merge - _metadata: {update_data['outputs']['_metadata']}")
                     update_data["outputs"]["_metadata"].update(output_metadata)
+                    logger.info(f"[METADATA_DEBUG] After merge - _metadata: {update_data['outputs']['_metadata']}")
+                else:
+                    logger.warning("[METADATA_DEBUG] No outputs or _metadata field in update_data")
+                    logger.info(f"[METADATA_DEBUG] update_data keys: {list(update_data.keys())}")
+                    if "outputs" in update_data:
+                        logger.info(f"[METADATA_DEBUG] outputs keys: {list(update_data['outputs'].keys())}")
 
                 # 🔵 后台操作3：更新数据库
                 from sqlmodel import select

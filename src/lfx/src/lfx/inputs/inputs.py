@@ -188,16 +188,11 @@ class StrInput(
             if isinstance(v, Data):
                 return [cls._validate_value(v, info)]
             # If it's already a list, process each item
-            elif isinstance(v, list):
-                return [cls._validate_value(vv, info) for vv in v]
-            # If it's a generator/iterator, process each item (but not Data objects)
-            elif hasattr(v, '__iter__') and not isinstance(v, (str, dict, Data)):
+            if isinstance(v, list) or (hasattr(v, "__iter__") and not isinstance(v, (str, dict, Data))):
                 return [cls._validate_value(vv, info) for vv in v]
             # Otherwise, wrap single item in a list
-            else:
-                return [cls._validate_value(v, info)]
-        else:
-            return cls._validate_value(v, info)
+            return [cls._validate_value(v, info)]
+        return cls._validate_value(v, info)
 
 
 class MessageInput(StrInput, InputTraceMixin):

@@ -1,9 +1,9 @@
-import type { Dispatch, SetStateAction } from 'react';
-import { useIsEmbedded } from '@/hooks/use-iframe-params';
-import useFlowStore from '@/stores/flowStore';
-import PublishDropdown from './deploy-dropdown';
-import PlaygroundButton from './playground-button';
-import BackButton from './back-button';
+import type { Dispatch, SetStateAction } from "react";
+import { useIsEmbedded } from "@/hooks/use-iframe-params";
+import useFlowStore from "@/stores/flowStore";
+import BackButton from "./back-button";
+import PublishDropdown from "./deploy-dropdown";
+import PlaygroundButton from "./playground-button";
 
 type FlowToolbarOptionsProps = {
   open: boolean;
@@ -22,8 +22,8 @@ const FlowToolbarOptions = ({
   const isEmbedded = useIsEmbedded();
 
   return (
-    <div className='flex items-center gap-1.5'>
-      <div className='flex h-full w-full gap-1.5 rounded-sm transition-all'>
+    <div className="flex items-center gap-1.5">
+      <div className="flex h-full w-full gap-1.5 rounded-sm transition-all">
         {isEmbedded && <BackButton />}
         <PlaygroundButton
           hasIO={hasIO}

@@ -6,9 +6,11 @@ and propagating data in real-time through the graph.
 
 import asyncio
 from collections.abc import AsyncGenerator
+from uuid import UUID
 
 from lfx.log.logger import logger
 from lfx.schema import Data
+from lfx.streaming.data_exchange_tracker import AggregatedExchangeTracker, DataExchangeTracker
 
 
 class StreamingExecutor:
@@ -18,10 +20,25 @@ class StreamingExecutor:
     proper data propagation to downstream vertices.
     """
 
-    def __init__(self):
-        """Initialize the streaming executor."""
+    def __init__(self, transaction_id: UUID | None = None, db_session=None, enable_tracking: bool = True):
+        """Initialize the streaming executor.
+
+        Args:
+            transaction_id: Optional transaction ID for data exchange tracking
+            db_session: Optional database session for persisting tracking data
+            enable_tracking: Whether to enable data exchange tracking
+        """
         self._active_streams = {}
         self._should_stop = False
+        self._transaction_id = transaction_id
+        self._db_session = db_session
+        self._enable_tracking = enable_tracking
+        self._data_exchange_tracker: DataExchangeTracker | None = None
+        self._aggregated_trackers: dict[str, AggregatedExchangeTracker] = {}  # vertex_id -> tracker
+
+        # Initialize tracker if tracking is enabled
+        if self._enable_tracking and self._transaction_id:
+            self._data_exchange_tracker = DataExchangeTracker(transaction_id=self._transaction_id)
 
     async def execute_streaming_vertex(self, vertex, downstream_vertices: list, graph) -> AsyncGenerator[Data, None]:
         """Execute a streaming vertex and propagate data to downstream vertices.
@@ -70,7 +87,7 @@ class StreamingExecutor:
                     yield data
 
                     # Propagate to downstream vertices
-                    await self._propagate_to_downstream(data, downstream_vertices, graph)
+                    await self._propagate_to_downstream(data, downstream_vertices, graph, source_vertex=vertex)
 
             # Check if result is a sync generator - convert to async
             elif isinstance(result, Generator):
@@ -90,12 +107,37 @@ class StreamingExecutor:
                     yield data
 
                     # Propagate to downstream vertices
-                    await self._propagate_to_downstream(data, downstream_vertices, graph)
+                    await self._propagate_to_downstream(data, downstream_vertices, graph, source_vertex=vertex)
 
             else:
-                # Not a streaming result, just yield it once
-                yield result
-                await self._propagate_to_downstream(result, downstream_vertices, graph)
+                # Not a streaming result, extract Data objects and propagate
+                logger.debug(f"Non-streaming result from {vertex.display_name}, type: {type(result)}")
+
+                # Extract Data objects from result dict
+                data_to_propagate = []
+                if isinstance(result, dict):
+                    # Try to find Data objects in common result keys
+                    for key in ["data", "result", "output", "message"]:
+                        if key in result:
+                            value = result[key]
+                            if isinstance(value, list):
+                                # Filter for Data objects
+                                data_to_propagate = [item for item in value if hasattr(item, "__class__") and item.__class__.__name__ == "Data"]
+                            elif hasattr(value, "__class__") and value.__class__.__name__ == "Data":
+                                data_to_propagate = [value]
+                            if data_to_propagate:
+                                logger.debug(f"Extracted {len(data_to_propagate)} Data objects from '{key}'")
+                                break
+
+                # If we found Data objects, propagate each one
+                if data_to_propagate:
+                    for data in data_to_propagate:
+                        yield data
+                        await self._propagate_to_downstream(data, downstream_vertices, graph, source_vertex=vertex)
+                else:
+                    # No Data objects found, yield the raw result (for non-Data outputs)
+                    logger.debug("No Data objects found in result, yielding raw result")
+                    yield result
 
             logger.info(f"Streaming completed for {vertex.display_name}")
 
@@ -106,7 +148,7 @@ class StreamingExecutor:
             traceback.print_exc()
             raise
 
-    async def _propagate_to_downstream(self, data: Data, downstream_vertices: list, graph):
+    async def _propagate_to_downstream(self, data: Data, downstream_vertices: list, graph, source_vertex=None):
         """Propagate a single data item to all downstream vertices.
 
         This method passes a single Data object to downstream components.
@@ -116,10 +158,16 @@ class StreamingExecutor:
             data: The data item to propagate
             downstream_vertices: List of downstream vertices
             graph: The graph instance
+            source_vertex: Optional source vertex for tracking
         """
         for downstream_vertex in downstream_vertices:
             try:
                 logger.debug(f"Propagating data to {downstream_vertex.display_name}")
+
+                # Track data exchange if enabled
+                if self._enable_tracking and source_vertex:
+                    await self._track_data_exchange(source_vertex, downstream_vertex, data)
+
                 # Set the input data for the downstream vertex (single Data)
                 input_set = await self._set_vertex_input(downstream_vertex, data)
 
@@ -131,11 +179,45 @@ class StreamingExecutor:
                 # Pass fallback_to_env_vars=False as default
                 result = await downstream_vertex.build(fallback_to_env_vars=False)
 
-                # If downstream has its own downstream vertices, propagate recursively
+                # Extract actual data from build result
+                # Build result is typically {'data': [Data(...)], 'artifacts': {}}
+                # We need to extract the Data objects for further propagation
+                extracted_data = None
                 if result:
+                    if isinstance(result, dict):
+                        logger.debug(f"Result is dict with keys: {list(result.keys())}")
+                        # Try to extract data from common result keys
+                        for key in ["data", "result", "output", "message"]:
+                            if key in result:
+                                extracted_value = result[key]
+                                logger.debug(f"Found '{key}' in result, type: {type(extracted_value)}")
+
+                                # Handle list of Data objects
+                                if isinstance(extracted_value, list) and extracted_value:
+                                    if hasattr(extracted_value[0], "__class__") and extracted_value[0].__class__.__name__ == "Data":
+                                        # Use the first Data object for propagation
+                                        extracted_data = extracted_value[0]
+                                        logger.debug(f"Extracted Data object from list: {extracted_data}")
+                                        break
+                                # Handle single Data object
+                                elif hasattr(extracted_value, "__class__") and extracted_value.__class__.__name__ == "Data":
+                                    extracted_data = extracted_value
+                                    logger.debug(f"Extracted single Data object: {extracted_data}")
+                                    break
+                    else:
+                        # Result is already a Data object or compatible type
+                        extracted_data = result
+
+                # If downstream has its own downstream vertices, propagate recursively
+                if extracted_data:
                     next_downstream = graph.get_successors(downstream_vertex)
                     if next_downstream:
-                        await self._propagate_to_downstream(result, next_downstream, graph)
+                        logger.debug(f"Propagating extracted data to {len(next_downstream)} downstream vertices")
+                        await self._propagate_to_downstream(
+                            extracted_data, next_downstream, graph, source_vertex=downstream_vertex
+                        )
+                else:
+                    logger.debug(f"No data to propagate from {downstream_vertex.display_name}")
 
             except Exception as e:
                 logger.error(f"Error propagating to {downstream_vertex.display_name}: {e}")
@@ -262,7 +344,7 @@ class StreamingExecutor:
 
             # Mark that raw_params have been updated to prevent re-processing
             vertex.updated_raw_params = True
-            logger.info(f"[STREAMING] ✓ Set updated_raw_params=True")
+            logger.info("[STREAMING] ✓ Set updated_raw_params=True")
 
             # Also set on custom_component if it exists
             if hasattr(vertex, "custom_component") and vertex.custom_component:
@@ -274,6 +356,109 @@ class StreamingExecutor:
 
         logger.warning(f"No suitable input parameter found for {vertex.display_name}")
         return False
+
+    async def _track_data_exchange(self, source_vertex, target_vertex, data: Data):
+        """Track a data exchange between two vertices.
+
+        Args:
+            source_vertex: The source vertex
+            target_vertex: The target vertex
+            data: The data being exchanged
+        """
+        if not self._data_exchange_tracker:
+            return
+
+        # Determine if source is a high-frequency streaming component
+        is_high_frequency = self._is_high_frequency_component(source_vertex)
+
+        if is_high_frequency:
+            # Use aggregated tracker for high-frequency components
+            source_id = getattr(source_vertex, "id", source_vertex.display_name)
+
+            if source_id not in self._aggregated_trackers:
+                self._aggregated_trackers[source_id] = AggregatedExchangeTracker(
+                    transaction_id=self._transaction_id, window_seconds=60
+                )
+
+            tracker = self._aggregated_trackers[source_id]
+            tracker.record_exchange(
+                source_vertex_id=source_id,
+                source_vertex_name=source_vertex.display_name,
+                target_vertex_id=getattr(target_vertex, "id", target_vertex.display_name),
+                target_vertex_name=target_vertex.display_name,
+                data=data,
+                exchange_type="aggregated",
+            )
+
+            # Check if window should be flushed
+            if tracker.should_flush() and self._db_session:
+                await tracker.flush_to_database(self._db_session)
+        else:
+            # Use regular tracker for normal components
+            self._data_exchange_tracker.record_exchange(
+                source_vertex_id=getattr(source_vertex, "id", source_vertex.display_name),
+                source_vertex_name=source_vertex.display_name,
+                target_vertex_id=getattr(target_vertex, "id", target_vertex.display_name),
+                target_vertex_name=target_vertex.display_name,
+                data=data,
+                exchange_type="direct",
+            )
+
+    def _is_high_frequency_component(self, vertex) -> bool:
+        """Check if a vertex is a high-frequency streaming component.
+
+        Args:
+            vertex: The vertex to check
+
+        Returns:
+            True if vertex is high-frequency (kafka, cdc, etc.)
+        """
+        # List of high-frequency component types
+        high_frequency_types = ["kafka_input", "cdc_input", "stream_input", "real_time_input"]
+
+        # Check vertex type/name
+        vertex_type = getattr(vertex, "vertex_type", "").lower()
+        vertex_name = getattr(vertex, "display_name", "").lower()
+
+        return any(hf_type in vertex_type or hf_type in vertex_name for hf_type in high_frequency_types)
+
+    async def flush_tracking_data(self) -> dict[str, int]:
+        """Flush all pending tracking data to the database.
+
+        Returns:
+            Dict with flush statistics (regular_count, aggregated_count)
+        """
+        stats = {"regular_count": 0, "aggregated_count": 0}
+
+        if not self._enable_tracking or not self._db_session:
+            return stats
+
+        # Flush regular tracker
+        if self._data_exchange_tracker:
+            stats["regular_count"] = await self._data_exchange_tracker.flush_to_database(self._db_session)
+
+        # Flush all aggregated trackers
+        for tracker in self._aggregated_trackers.values():
+            count = await tracker.flush_to_database(self._db_session)
+            stats["aggregated_count"] += count
+
+        return stats
+
+    def get_tracking_summary(self) -> dict:
+        """Get summary of tracked data exchanges.
+
+        Returns:
+            Dict with tracking summary
+        """
+        if not self._data_exchange_tracker:
+            return {"enabled": False}
+
+        return {
+            "enabled": True,
+            "exchange_count": self._data_exchange_tracker.get_exchange_count(),
+            "downstream_vertices": self._data_exchange_tracker.get_downstream_vertices(),
+            "aggregated_trackers": len(self._aggregated_trackers),
+        }
 
     def stop(self):
         """Stop all active streaming executions."""
