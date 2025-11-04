@@ -52,7 +52,7 @@ RUN --mount=type=cache,target=/root/.cache/uv \
 
 COPY ./src /app/src
 
-COPY ./src/frontend /tmp/src/frontend
+COPY src/frontend /tmp/src/frontend
 WORKDIR /tmp/src/frontend
 RUN --mount=type=cache,target=/root/.npm \
     npm config set registry https://registry.npmmirror.com && \
