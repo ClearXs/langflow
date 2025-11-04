@@ -44,6 +44,16 @@ class AuthSettings(BaseSettings):
     """If True, webhook endpoints will require API key authentication.
     If False, webhooks run as flow owner without authentication."""
 
+    DISABLE_AUTH: bool = Field(
+        default=False,
+        description=(
+            "Completely disable authentication for all endpoints. "
+            "SECURITY WARNING: This bypasses all authentication and should only be used in trusted environments. "
+            "This will take precedence over all other authentication settings."
+        ),
+    )
+    """If True, completely disables authentication for all API endpoints."""
+
     ENABLE_SUPERUSER_CLI: bool = Field(
         default=True,
         description="Allow creation of superusers via CLI. Set to False in production for security.",

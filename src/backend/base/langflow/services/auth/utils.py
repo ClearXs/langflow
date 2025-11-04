@@ -48,6 +48,21 @@ async def api_key_security(
     settings_service = get_settings_service()
     result: ApiKey | User | None
 
+    # Check if authentication is completely disabled
+    if settings_service.auth_settings.DISABLE_AUTH:
+        # Return default superuser when auth is disabled
+        async with session_scope() as db:
+            default_user = await get_user_by_username(db, settings_service.auth_settings.SUPERUSER)
+            if default_user and default_user.is_active:
+                return UserRead.model_validate(default_user, from_attributes=True)
+            # If no superuser exists, create one
+            created_user = await create_super_user(
+                settings_service.auth_settings.SUPERUSER,
+                settings_service.auth_settings.SUPERUSER_PASSWORD.get_secret_value(),
+                db
+            )
+            return UserRead.model_validate(created_user, from_attributes=True)
+
     async with session_scope() as db:
         if settings_service.auth_settings.AUTO_LOGIN:
             # Get the first user
@@ -146,6 +161,21 @@ async def get_current_user(
     header_param: Annotated[str, Security(api_key_header)],
     db: Annotated[AsyncSession, Depends(get_session)],
 ) -> User:
+    settings_service = get_settings_service()
+
+    # Check if authentication is completely disabled
+    if settings_service.auth_settings.DISABLE_AUTH:
+        # Return default superuser when auth is disabled
+        default_user = await get_user_by_username(db, settings_service.auth_settings.SUPERUSER)
+        if default_user and default_user.is_active:
+            return default_user
+        # If no superuser exists, create one
+        return await create_super_user(
+            settings_service.auth_settings.SUPERUSER,
+            settings_service.auth_settings.SUPERUSER_PASSWORD.get_secret_value(),
+            db
+        )
+
     if token:
         return await get_current_user_by_jwt(token, db)
     user = await api_key_security(query_param, header_param)
@@ -246,6 +276,23 @@ async def get_current_user_for_websocket(
 
 
 async def get_current_active_user(current_user: Annotated[User, Depends(get_current_user)]):
+    settings_service = get_settings_service()
+
+    # Check if authentication is completely disabled
+    if settings_service.auth_settings.DISABLE_AUTH:
+        # Return default superuser when auth is disabled
+        async with session_scope() as db:
+            default_user = await get_user_by_username(db, settings_service.auth_settings.SUPERUSER)
+            if default_user and default_user.is_active:
+                return default_user
+            # If no superuser exists, create one
+            from langflow.services.auth.utils import create_super_user
+            return await create_super_user(
+                settings_service.auth_settings.SUPERUSER,
+                settings_service.auth_settings.SUPERUSER_PASSWORD.get_secret_value(),
+                db
+            )
+
     if not current_user.is_active:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Inactive user")
     return current_user
@@ -262,6 +309,7 @@ async def get_current_active_superuser(current_user: Annotated[User, Depends(get
 async def get_webhook_user(flow_id: str, request: Request) -> UserRead:
     """Get the user for webhook execution.
 
+    When DISABLE_AUTH=true, completely bypasses all authentication.
     When WEBHOOK_AUTH_ENABLE=false, allows execution as the flow owner without API key.
     When WEBHOOK_AUTH_ENABLE=true, requires API key authentication and validates flow ownership.
 
@@ -278,6 +326,21 @@ async def get_webhook_user(flow_id: str, request: Request) -> UserRead:
     from langflow.helpers.user import get_user_by_flow_id_or_endpoint_name
 
     settings_service = get_settings_service()
+
+    # Check if authentication is completely disabled
+    if settings_service.auth_settings.DISABLE_AUTH:
+        # Return default superuser when auth is disabled
+        async with session_scope() as db:
+            default_user = await get_user_by_username(db, settings_service.auth_settings.SUPERUSER)
+            if default_user and default_user.is_active:
+                return UserRead.model_validate(default_user, from_attributes=True)
+            # If no superuser exists, create one
+            created_user = await create_super_user(
+                settings_service.auth_settings.SUPERUSER,
+                settings_service.auth_settings.SUPERUSER_PASSWORD.get_secret_value(),
+                db
+            )
+            return UserRead.model_validate(created_user, from_attributes=True)
 
     if not settings_service.auth_settings.WEBHOOK_AUTH_ENABLE:
         # When webhook auth is disabled, run webhook as the flow owner without requiring API key
