@@ -99,13 +99,11 @@ export default function ExecutionLogsComponent({
       return {
         total_rows: 0,
         total_fields: 0,
-        total_data_size: 0,
         components_with_data: 0,
       };
 
     let totalRows = 0;
     let totalFields = 0;
-    let totalDataSize = 0;
     let componentsWithData = 0;
 
     logs.forEach((log) => {
@@ -118,16 +116,12 @@ export default function ExecutionLogsComponent({
         if (dataMetrics.field_count !== undefined) {
           totalFields += dataMetrics.field_count;
         }
-        if (dataMetrics.data_size !== undefined) {
-          totalDataSize += dataMetrics.data_size;
-        }
       }
     });
 
     return {
       total_rows: totalRows,
       total_fields: totalFields,
-      total_data_size: totalDataSize,
       components_with_data: componentsWithData,
     };
   }, [logs]);
@@ -242,42 +236,6 @@ export default function ExecutionLogsComponent({
                 <TooltipContent>
                   <div className="text-xs">
                     <div>涉及组件: {flowDataStats.components_with_data} 个</div>
-                    <div>
-                      总字段数: {flowDataStats.total_fields.toLocaleString()} 个
-                    </div>
-                  </div>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <div className="flex items-center gap-2">
-                    <IconComponent
-                      name="HardDrive"
-                      className="h-4 w-4 text-cyan-600"
-                    />
-                    <span className="text-sm font-medium text-cyan-700">
-                      总数据大小
-                    </span>
-                    <span className="text-lg font-bold text-cyan-700">
-                      {formatDataSize(flowDataStats.total_data_size)}
-                    </span>
-                  </div>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <div className="text-xs">
-                    <div>
-                      平均每组件:{" "}
-                      {flowDataStats.components_with_data > 0
-                        ? formatDataSize(
-                            Math.round(
-                              flowDataStats.total_data_size /
-                                flowDataStats.components_with_data,
-                            ),
-                          )
-                        : "0 B"}
-                    </div>
                     <div>
                       总字段数: {flowDataStats.total_fields.toLocaleString()} 个
                     </div>
@@ -657,24 +615,6 @@ export default function ExecutionLogsComponent({
                                       </div>
                                       <div className="text-lg font-semibold">
                                         {log.outputs._metadata.data_metrics.field_count.toLocaleString()}
-                                      </div>
-                                    </div>
-                                  )}
-
-                                {log.outputs?._metadata?.data_metrics
-                                  ?.data_size !== undefined &&
-                                  log.outputs._metadata.data_metrics.data_size >
-                                    0 && (
-                                    <div className="bg-background border rounded-md p-3">
-                                      <div className="text-xs text-muted-foreground mb-1">
-                                        数据大小
-                                      </div>
-                                      <div className="text-lg font-semibold">
-                                        {(
-                                          log.outputs._metadata.data_metrics
-                                            .data_size / 1024
-                                        ).toFixed(2)}{" "}
-                                        KB
                                       </div>
                                     </div>
                                   )}

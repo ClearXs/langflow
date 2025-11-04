@@ -95,7 +95,7 @@ dependencies = [
     "langchain-graph-retriever==0.8.0",
     "graph-retriever==0.8.0",
     "ibm-watsonx-ai>=1.3.1,<2.0.0",
-        "opik>=1.6.3,<2.0.0",
+    "opik>=1.6.3,<2.0.0",
     "openai>=1.68.2,<2.0.0",
     "cleanlab-tlm>=1.1.2,<2.0.0",
     "gassist>=0.0.1; sys_platform == 'win32'",
@@ -230,14 +230,43 @@ document-processing = [
     "mlx>=0.29.0; sys_platform == 'darwin' and platform_machine == 'arm64' and python_version >= '3.12'",
 ]
 
-# All LLM providers
+# Complete AI Models Package (includes all LLM providers + official SDKs)
+ai-models = [
+    "langchain-anthropic==0.3.14",
+    "langchain-google-genai==2.0.6",
+    "langchain-cohere==0.3.3",
+    "langchain-groq==0.2.1",
+    "langchain-ollama==0.2.1",
+    "langchain-mistralai==0.2.3",
+    "langchain-sambanova==0.1.0",
+    "langchain-ibm>=0.3.8",
+    "openai>=1.68.2,<2.0.0",
+    "langchain-huggingface==0.3.1",
+]
+
+# Enhanced Vector Stores Package (includes all vector databases + clients)
+vector-stores = [
+    "langchain-astradb>=0.6.1,<1.0.0",
+    "astrapy>=1.0.0",
+    "langchain-pinecone>=0.2.8,<1.0.0",
+    "pinecone-client>=3.0.0",
+    "langchain-chroma>=0.2.6,<1.0.0",
+    "chromadb>=1.9.2",
+    "faiss-cpu==1.9.0.post1",
+    "qdrant-client==1.9.2",
+    "weaviate-client==4.10.2",
+    "langchain-elasticsearch==0.3.0",
+    "pymongo==4.10.1",
+]
+
+# All LLM providers (kept for backward compatibility)
 llm-providers = [
     "langflow[google,anthropic,cohere,aws,local-models,ibm]",
 ]
 
 # All optional dependencies
 all = [
-    "langflow[llm-providers,vectorstores,document-processing,audio,couchbase,cassio,local,clickhouse-connect,hive,nv-ingest,postgresql,docling]",
+    "langflow[ai-models,vector-stores,document-processing,audio,couchbase,cassio,local,clickhouse-connect,hive,nv-ingest,postgresql,docling]",
 ]
 
 docling = [

@@ -39,30 +39,46 @@ class ETLKafkaInputComponent(Component):
 
     def _is_design_time_context(self) -> bool:
         """检测是否在设计时上下文中（字段分析等）"""
-        # 检查Kafka配置 - 在设计时，通常没有有效的bootstrap servers配置
-        if not self.bootstrap_servers or self.bootstrap_servers.strip() == "" or self.bootstrap_servers == "localhost:9092":
-            logger.debug("[KafkaInput] No valid bootstrap servers configured, assuming design-time context")
-            return True
 
-        # 检查topics配置 - 在设计时可能没有真实的topics
-        if not self.topics or self.topics.strip() == "":
-            logger.debug("[KafkaInput] No topics configured, assuming design-time context")
-            return True
+        logger.debug(f"[KafkaInput] Design-time detection - bootstrap_servers: {self.bootstrap_servers}, topics: {self.topics}")
+        logger.debug(f"[KafkaInput] Design-time detection - message_schema: {len(self.message_schema) if self.message_schema else 0} fields")
 
-        # 检查调用栈 - 如果是从字段分析调用，返回样本数据
+        # 方法1: 检查调用栈 - 最可靠的检测方法
         import traceback
         stack = traceback.extract_stack()
-        for frame in stack:
+        logger.debug(f"[KafkaInput] Call stack analysis - {len(stack)} frames")
+
+        for i, frame in enumerate(stack):
+            logger.debug(f"[KafkaInput] Frame {i}: {frame.filename}:{frame.name}")
+            # 检测字段分析相关的调用
             if "analyze_fields" in frame.name or "field_analysis" in frame.name:
                 logger.debug("[KafkaInput] Field analysis detected in call stack, returning sample data")
                 return True
+            # 检测GraphUtils的临时图执行
             if "GraphUtils" in frame.filename and "execute_node_and_get_result" in frame.name:
                 logger.debug("[KafkaInput] GraphUtils execution detected, assuming design-time context")
                 return True
+            # 检测字段分析相关的上下文
+            if "FieldNameMapping" in frame.filename or "field_name_mapping" in frame.filename:
+                logger.debug("[KafkaInput] Field name mapping context detected, assuming design-time")
+                return True
 
-        # 如果有schema定义但没有实时配置，很可能是设计时
-        if self.message_schema and not self._has_valid_runtime_config():
-            logger.debug("[KafkaInput] Schema defined but no runtime config, assuming design-time context")
+        # 方法2: 检查是否有schema定义但没有活跃的Kafka连接配置
+        # 如果用户定义了schema，很可能是设计时配置
+        if self.message_schema:
+            logger.debug(f"[KafkaInput] Schema defined, checking config quality...")
+            # 检查是否使用了默认/示例配置
+            if (not self.bootstrap_servers or
+                self.bootstrap_servers.strip() == "" or
+                self.bootstrap_servers in ["localhost:9092", "localhost:9093"] or
+                self.bootstrap_servers.startswith("example") or
+                self.topics in ["test-topic", "example-topic", "sample-topic"]):
+                logger.debug("[KafkaInput] Schema with example config detected, assuming design-time")
+                return True
+
+        # 方法3: 检查字段提取模式是否为schema_only（这通常只用于设计时）
+        if hasattr(self, 'field_extraction_mode') and self.field_extraction_mode == "schema_only":
+            logger.debug("[KafkaInput] Schema-only mode detected, assuming design-time")
             return True
 
         logger.debug("[KafkaInput] Runtime context detected, proceeding with Kafka connection")
@@ -600,22 +616,18 @@ class ETLKafkaInputComponent(Component):
 
         return results
 
-    async def consume_messages(self) -> AsyncGenerator[Data, None]:
-        """实时流式消费 Kafka 消息，一条一条地 yield（异步版本）"""
+    async def consume_messages(self):
+        """智能数据获取：设计时返回样本数据，运行时返回流式数据"""
         try:
             # 检查是否在设计时上下文中（字段分析等）
-            # 在设计时，我们返回样本数据而不是异步生成器
             is_design_time = self._is_design_time_context()
             if is_design_time:
-                logger.info("[KafkaInput] Design-time context detected, returning sample data")
+                logger.info("[KafkaInput] Design-time context detected, returning sample data list")
                 sample_data_list = self.get_sample_data()
-                for sample_data in sample_data_list:
-                    yield sample_data
-                return
+                return sample_data_list
 
-            # 重置停止标志
+            # 运行时：重置停止标志
             self._should_stop = False
-
             self.status = i18n.t("components.input_output.kafka_input.status.connecting")
 
             # 导入必要库
@@ -629,10 +641,15 @@ class ETLKafkaInputComponent(Component):
             # 解析主题列表
             topics = [t.strip() for t in self.topics.split(",")]
 
-            # 使用流式模式（异步）
+            # 运行时：使用异步生成器进行流式消费
             logger.info("Starting async streaming mode")
-            async for data in self._consume_messages_streaming_async():
-                yield data
+
+            # 创建一个异步生成器
+            async def stream_generator():
+                async for data in self._consume_messages_streaming_async():
+                    yield data
+
+            return stream_generator()
 
         except Exception as e:
             error_msg = i18n.t("components.input_output.kafka_input.errors.consume_failed", error=str(e))
@@ -640,11 +657,20 @@ class ETLKafkaInputComponent(Component):
             logger.error(error_msg)
             raise ValueError(error_msg) from e
         finally:
-            # 根据配置决定是否关闭 Consumer
-            if not self.keep_consumer_alive:
-                self._close_current_consumer()
-            else:
-                logger.info("Keeping consumer alive for next execution")
+            # 只在运行时关闭consumer
+            if not self._is_design_time_context():
+                if not self.keep_consumer_alive:
+                    self._close_current_consumer()
+                else:
+                    logger.info("Keeping consumer alive for next execution")
+
+    def consume_data_sync(self) -> list[Data]:
+        """同步获取数据，用于设计时字段分析。
+
+        这个方法专门用于设计时的字段分析，返回基于schema的样本数据。
+        """
+        logger.info("[KafkaInput] Getting data for design-time field analysis")
+        return self.get_sample_data()
 
     def _extract_json_path(self, data: dict) -> Any:
         """Extract data using JSONPath notation."""
