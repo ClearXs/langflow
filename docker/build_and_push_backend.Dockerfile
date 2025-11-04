@@ -1,5 +1,5 @@
-# syntax=docker/dockerfile:1
-# Keep this syntax directive! It's used to enable Docker BuildKit
+# Note: syntax directive removed to avoid network timeout issues
+# BuildKit features will still be available when enabled via DOCKER_BUILDKIT=1
 
 ARG LANGFLOW_IMAGE
 FROM $LANGFLOW_IMAGE

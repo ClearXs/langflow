@@ -360,6 +360,7 @@ dockerfile_build_be: dockerfile_build
 	@echo 'BUILDING DOCKER IMAGE BACKEND: ${DOCKERFILE_BACKEND}'
 	@command -v $(DOCKER) >/dev/null 2>&1 || { echo "Error: $(DOCKER) is not installed. Please install $(DOCKER), or run 'make docker_build_backend DOCKER=podman' (or DOCKER=docker) if you have an alternative installed."; exit 1; }
 	@$(DOCKER) build --rm \
+		--platform linux/amd64 \
 		--build-arg LANGFLOW_IMAGE=langflow:${VERSION} \
 		-f ${DOCKERFILE_BACKEND} \
 		-t langflow_backend:${VERSION} .
@@ -368,6 +369,7 @@ dockerfile_build_fe: dockerfile_build
 	@echo 'BUILDING DOCKER IMAGE FRONTEND: ${DOCKERFILE_FRONTEND}'
 	@command -v $(DOCKER) >/dev/null 2>&1 || { echo "Error: $(DOCKER) is not installed. Please install $(DOCKER), or run 'make docker_build_frontend DOCKER=podman' (or DOCKER=docker) if you have an alternative installed."; exit 1; }
 	@$(DOCKER) build --rm \
+		--platform linux/amd64 \
 		--build-arg LANGFLOW_IMAGE=langflow:${VERSION} \
 		-f ${DOCKERFILE_FRONTEND} \
 		-t langflow_frontend:${VERSION} .
@@ -991,6 +993,108 @@ help_advanced: ## show advanced and miscellaneous commands
 	@echo "  Unit test commands support these variables:"
 	@echo "    async=true lf=true ff=true"
 	@echo "  Example: $(GREEN)make unit_tests async=false$(NC)"
+	@echo ''
+	@echo "$(GREEN)═══════════════════════════════════════════════════════════════════$(NC)"
+	@echo ''
+
+######################
+# OPTIMIZED DOCKER BUILDS
+######################
+
+docker_build_optimized_backend: ## Build optimized backend-only image
+	@echo 'Building optimized backend image...'
+	@command -v $(DOCKER) >/dev/null 2>&1 || { echo "Error: $(DOCKER) is not installed."; exit 1; }
+	@$(DOCKER) build --rm \
+		--platform linux/amd64 \
+		-f docker/optimized/backend.Dockerfile \
+		-t langflow-backend-optimized:$(VERSION) .
+	@echo "✓ Optimized backend image built successfully: langflow-backend-optimized:$(VERSION)"
+
+docker_build_optimized_frontend: ## Build optimized frontend-only image
+	@echo 'Building optimized frontend image...'
+	@command -v $(DOCKER) >/dev/null 2>&1 || { echo "Error: $(DOCKER) is not installed."; exit 1; }
+	@$(DOCKER) build --rm \
+		--platform linux/amd64 \
+		-f docker/optimized/frontend.Dockerfile \
+		-t langflow-frontend-optimized:$(VERSION) .
+	@echo "✓ Optimized frontend image built successfully: langflow-frontend-optimized:$(VERSION)"
+
+docker_build_optimized_unified: ## Build optimized unified image
+	@echo 'Building optimized unified image...'
+	@command -v $(DOCKER) >/dev/null 2>&1 || { echo "Error: $(DOCKER) is not installed."; exit 1; }
+	@$(DOCKER) build --rm \
+		--platform linux/amd64 \
+		-f docker/optimized/unified.Dockerfile \
+		-t langflow-optimized:$(VERSION) .
+	@echo "✓ Optimized unified image built successfully: langflow-optimized:$(VERSION)"
+
+docker_build_optimized_all: docker_build_optimized_backend docker_build_optimized_frontend docker_build_optimized_unified ## Build all optimized images
+	@echo "$(GREEN)✓ All optimized images built successfully!$(NC)"
+	@echo "$(YELLOW)Available images:$(NC)"
+	@echo "  - langflow-backend-optimized:$(VERSION)"
+	@echo "  - langflow-frontend-optimized:$(VERSION)"
+	@echo "  - langflow-optimized:$(VERSION)"
+
+docker_run_optimized_backend: ## Run optimized backend container
+	@echo 'Running optimized backend container...'
+	@$(DOCKER) run --rm -it \
+		-p 7860:7860 \
+		--name langflow-backend-test \
+		langflow-backend-optimized:$(VERSION)
+
+docker_run_optimized_frontend: ## Run optimized frontend container
+	@echo 'Running optimized frontend container...'
+	@$(DOCKER) run --rm -it \
+		-p 8080:8080 \
+		--name langflow-frontend-test \
+		langflow-frontend-optimized:$(VERSION)
+
+docker_run_optimized_unified: ## Run optimized unified container
+	@echo 'Running optimized unified container...'
+	@$(DOCKER) run --rm -it \
+		-p 7860:7860 \
+		--name langflow-unified-test \
+		langflow-optimized:$(VERSION)
+
+docker_stop_optimized: ## Stop all optimized test containers
+	@echo 'Stopping optimized test containers...'
+	@$(DOCKER) stop langflow-backend-test langflow-frontend-test langflow-unified-test 2>/dev/null || true
+	@$(DOCKER) rm langflow-backend-test langflow-frontend-test langflow-unified-test 2>/dev/null || true
+	@echo "✓ All optimized test containers stopped and removed"
+
+docker_clean_optimized: ## Clean optimized images
+	@echo 'Cleaning optimized images...'
+	@$(DOCKER) rmi langflow-backend-optimized:$(VERSION) langflow-frontend-optimized:$(VERSION) langflow-optimized:$(VERSION) 2>/dev/null || true
+	@echo "✓ Optimized images cleaned"
+
+help_optimized: ## Show optimized Docker build help
+	@echo ''
+	@echo "$(GREEN)═══════════════════════════════════════════════════════════════════$(NC)"
+	@echo "$(GREEN)                    OPTIMIZED DOCKER COMMANDS                     $(NC)"
+	@echo "$(GREEN)═══════════════════════════════════════════════════════════════════$(NC)"
+	@echo ''
+	@echo "$(GREEN)Optimized Builds:$(NC)"
+	@echo "  $(GREEN)make docker_build_optimized_backend$(NC)    - Build optimized backend-only image"
+	@echo "  $(GREEN)make docker_build_optimized_frontend$(NC)   - Build optimized frontend-only image"
+	@echo "  $(GREEN)make docker_build_optimized_unified$(NC)    - Build optimized unified image"
+	@echo "  $(GREEN)make docker_build_optimized_all$(NC)        - Build all optimized images"
+	@echo ''
+	@echo "$(GREEN)Optimized Testing:$(NC)"
+	@echo "  $(GREEN)make docker_run_optimized_backend$(NC)      - Run optimized backend for testing"
+	@echo "  $(GREEN)make docker_run_optimized_frontend$(NC)     - Run optimized frontend for testing"
+	@echo "  $(GREEN)make docker_run_optimized_unified$(NC)      - Run optimized unified for testing"
+	@echo ''
+	@echo "$(GREEN)Optimized Management:$(NC)"
+	@echo "  $(GREEN)make docker_stop_optimized$(NC)             - Stop all optimized test containers"
+	@echo "  $(GREEN)make docker_clean_optimized$(NC)            - Clean optimized images"
+	@echo "  $(GREEN)make help_optimized$(NC)                    - Show this help"
+	@echo ''
+	@echo "$(YELLOW)Optimized Images Benefits:$(NC)"
+	@echo "  ✓ Enhanced layer caching for faster builds"
+	@echo "  ✓ Independent frontend/backend builds"
+	@echo "  ✓ Security hardening (non-root user, health checks)"
+	@echo "  ✓ Optimized image sizes"
+	@echo "  ✓ Better build performance"
 	@echo ''
 	@echo "$(GREEN)═══════════════════════════════════════════════════════════════════$(NC)"
 	@echo ''

@@ -1,6 +1,3 @@
-# syntax=docker/dockerfile:1
-# Keep this syntax directive! It's used to enable Docker BuildKit
-
 ################################
 # BUILDER-BASE
 # Used to build deps + create our virtual environment
