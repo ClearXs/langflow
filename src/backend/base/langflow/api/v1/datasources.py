@@ -67,10 +67,29 @@ async def create_datasource(data: DataSourceCreate, session: AsyncSession = Depe
         Created data source (without password)
     """
     try:
+        # Validate database type - only support MySQL, PostgreSQL, Hive, Neo4j
+        allowed_types = ["mysql", "postgresql", "hive", "neo4j"]
+        db_type_lower = data.type.lower()
+        if db_type_lower not in allowed_types:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Unsupported database type: {data.type}. Supported types: {', '.join(allowed_types)}"
+            )
+
+        # Validate username and password requirements
+        # For Hive, username and password are optional
+        # For other types (MySQL, PostgreSQL, Neo4j), they are required
+        if db_type_lower != "hive":
+            if not data.username or not data.password:
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"Username and password are required for {data.type} database type"
+                )
+
         # Create datasource with plain password
         db_datasource = DataSource(
             name=data.name,
-            type=data.type,
+            type=db_type_lower,  # Normalize to lowercase
             host=data.host,
             port=data.port,
             database=data.database,
@@ -84,6 +103,8 @@ async def create_datasource(data: DataSourceCreate, session: AsyncSession = Depe
         await session.refresh(db_datasource)
 
         return DataSourceRead.model_validate(db_datasource)
+    except HTTPException:
+        raise
     except Exception as e:
         await session.rollback()
         raise HTTPException(status_code=400, detail=str(e))
@@ -108,11 +129,20 @@ async def update_datasource(
         if not datasource:
             raise HTTPException(status_code=404, detail="Data source not found")
 
+        # Validate database type if being updated
+        if data.type is not None:
+            allowed_types = ["mysql", "postgresql", "hive", "neo4j"]
+            db_type_lower = data.type.lower()
+            if db_type_lower not in allowed_types:
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"Unsupported database type: {data.type}. Supported types: {', '.join(allowed_types)}"
+                )
+            datasource.type = db_type_lower
+
         # Update fields
         if data.name is not None:
             datasource.name = data.name
-        if data.type is not None:
-            datasource.type = data.type
         if data.host is not None:
             datasource.host = data.host
         if data.port is not None:

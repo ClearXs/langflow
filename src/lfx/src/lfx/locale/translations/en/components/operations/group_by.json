@@ -7,13 +7,11 @@
   },
   "group_by_columns": {
     "display_name": "Group By Columns",
-    "info": "Each row in the table represents a grouping field (add/remove rows to manage grouping fields)",
+    "info": "Select columns to group by. Click 'Analyze Fields' to auto-populate from upstream data, then add/remove rows as needed",
     "field_name": "Field Name",
     "field_name_desc": "Column name to group by",
     "load_fields_button": "Load Fields List",
-    "analyze_button": "Analyze Button",
-    "selected": "Selected",
-    "selected_desc": "Selected Desc"
+    "analyze_button": "Analyze Fields"
   },
   "aggregations": {
     "display_name": "Aggregations",
@@ -85,8 +83,7 @@
     "analysis_failed": "Field analysis failed: %{error}",
     "graph_not_available": "Cannot analyze fields - graph context not available",
     "no_fields_in_config": "No fields found in upstream node configuration",
-    "preview_failed": "Failed to preview output fields: %{error}",
-    "no_selected_columns": "No Selected Columns"
+    "preview_failed": "Failed to preview output fields: %{error}"
   },
   "warnings": {
     "field_load_failed": "Unable to automatically load fields, please configure manually"

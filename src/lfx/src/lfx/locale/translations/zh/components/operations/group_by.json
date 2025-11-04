@@ -7,13 +7,11 @@
   },
   "group_by_columns": {
     "display_name": "分组字段",
-    "info": "表格中的每一行代表一个分组字段（添加/删除行来管理分组字段）",
+    "info": "选择用于分组的列。点击「分析字段」可从上游数据自动填充，然后根据需要添加/删除行",
     "field_name": "字段名",
     "field_name_desc": "用于分组的列名",
     "load_fields_button": "加载字段列表",
-    "analyze_button": "Analyze Button",
-    "selected": "Selected",
-    "selected_desc": "Selected Desc"
+    "analyze_button": "分析字段"
   },
   "aggregations": {
     "display_name": "聚合配置",
@@ -85,8 +83,7 @@
     "analysis_failed": "字段分析失败：%{error}",
     "graph_not_available": "无法分析字段 - 图上下文不可用",
     "no_fields_in_config": "在上游节点配置中未找到字段",
-    "preview_failed": "预览输出字段失败：%{error}",
-    "no_selected_columns": "No Selected Columns"
+    "preview_failed": "预览输出字段失败：%{error}"
   },
   "warnings": {
     "field_load_failed": "无法自动加载字段，请手动配置"

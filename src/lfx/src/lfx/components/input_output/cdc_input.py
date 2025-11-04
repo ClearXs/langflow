@@ -199,10 +199,12 @@ class ETLCDCStreamInputComponent(Component):
 
                 if datasource_id:
                     self.status = i18n.t("components.input_output.cdc_input.status.loading_tables")
-                    logger.info(f"[CDCInput] Loading tables for datasource: {datasource_id}")
+                    # 提取纯UUID（移除可能的前缀）
+                    clean_datasource_id = self._extract_uuid_from_id(datasource_id)
+                    logger.info(f"[CDCInput] Loading tables for datasource: {datasource_id} (cleaned: {clean_datasource_id})")
 
                     with httpx.Client(timeout=120.0) as client:
-                        response = client.get(f"{api_url}/api/v1/datasources/{datasource_id}/tables")
+                        response = client.get(f"{api_url}/api/v1/datasources/{clean_datasource_id}/tables")
 
                         if response.status_code == 200:
                             tables = response.json()
@@ -346,7 +348,7 @@ class ETLCDCStreamInputComponent(Component):
         return self._build_connection_string_from_params(ds_type, params)
 
     def _build_connection_string_from_params(self, ds_type: str, params: dict) -> str:
-        """从参数构建连接字符串"""
+        """从参数构建连接字符串 - Only support MySQL, PostgreSQL, Hive, Neo4j"""
         from urllib.parse import quote_plus
 
         host = params.get("host", "localhost")
@@ -355,18 +357,38 @@ class ETLCDCStreamInputComponent(Component):
         username = params.get("username", "")
         password = params.get("password", "")
 
-        username_encoded = quote_plus(username)
-        password_encoded = quote_plus(password)
+        username_encoded = quote_plus(username) if username else ""
+        password_encoded = quote_plus(password) if password else ""
 
         if ds_type == "mysql":
             return f"mysql+pymysql://{username_encoded}:{password_encoded}@{host}:{port}/{database}"
         if ds_type == "postgresql":
             return f"postgresql://{username_encoded}:{password_encoded}@{host}:{port}/{database}"
-        if ds_type == "oracle":
-            return f"oracle+cx_oracle://{username_encoded}:{password_encoded}@{host}:{port}/{database}"
-        if ds_type == "mssql":
-            return f"mssql+pymssql://{username_encoded}:{password_encoded}@{host}:{port}/{database}"
+        if ds_type == "neo4j":
+            # Neo4j connection
+            neo4j_port = port if port != 3306 else 7687
+            if username and password:
+                return f"neo4j://{username_encoded}:{password_encoded}@{host}:{neo4j_port}"
+            return f"neo4j://{host}:{neo4j_port}"
         raise ValueError(f"Unsupported database type: {ds_type}")
+
+    def _extract_uuid_from_id(self, datasource_id: str) -> str:
+        """从数据源ID中提取纯UUID，移除可能的前缀"""
+        if not datasource_id:
+            return datasource_id
+
+        # 检查是否有前缀（如 custom_, enterprise_ 等）
+        if "_" in datasource_id:
+            parts = datasource_id.split("_", 1)
+            if len(parts) == 2:
+                prefix, uuid_part = parts
+                # 验证uuid_part是否符合UUID格式（包含-字符且长度正确）
+                if "-" in uuid_part and len(uuid_part) == 36:  # UUID标准格式长度为36个字符
+                    logger.debug(f"[CDCInput] Extracting UUID from datasource ID: {datasource_id} -> {uuid_part}")
+                    return uuid_part
+
+        # 如果没有前缀或不符合UUID格式，直接返回
+        return datasource_id
 
     def _get_builtin_connection_string(self, datasource_id: str) -> str:
         """获取内置数据源连接字符串"""
@@ -377,8 +399,12 @@ class ETLCDCStreamInputComponent(Component):
         api_url = os.getenv("LANGFLOW_API_URL", "http://localhost:7860")
 
         try:
+            # 提取纯UUID（移除可能的前缀）
+            clean_datasource_id = self._extract_uuid_from_id(datasource_id)
+            logger.debug(f"[CDCInput] Getting connection string for datasource ID: {datasource_id} (cleaned: {clean_datasource_id})")
+
             with httpx.Client(timeout=120.0) as client:
-                response = client.get(f"{api_url}/api/v1/datasources/{datasource_id}/connection-string")
+                response = client.get(f"{api_url}/api/v1/datasources/{clean_datasource_id}/connection-string")
 
                 if response.status_code != 200:
                     raise ValueError(
@@ -1077,10 +1103,12 @@ class ETLCDCStreamInputComponent(Component):
                         logger.debug(f"[CDCInput] Loaded {len(datasources)} built-in datasources from API")
 
                         for ds in datasources:
+                            # 提取纯UUID（移除可能的前缀）
+                            datasource_id = self._extract_uuid_from_id(str(ds["id"]))
                             display_name = f"{ds['name']} ({ds['type']}) [自定义]"
                             all_datasources.append(
                                 {
-                                    "id": str(ds["id"]),
+                                    "id": datasource_id,
                                     "name": ds["name"],
                                     "type": ds["type"],
                                     "source": "builtin",

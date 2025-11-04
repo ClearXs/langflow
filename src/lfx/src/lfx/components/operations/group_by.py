@@ -30,12 +30,6 @@ class ETLGroupByComponent(Component):
             info=i18n.t("components.operations.group_by.group_by_columns.info"),
             table_schema=[
                 {
-                    "name": "selected",
-                    "display_name": i18n.t("components.operations.group_by.group_by_columns.selected"),
-                    "type": "bool",
-                    "description": i18n.t("components.operations.group_by.group_by_columns.selected_desc"),
-                },
-                {
                     "name": "field_name",
                     "display_name": i18n.t("components.operations.group_by.group_by_columns.field_name"),
                     "type": "str",
@@ -284,38 +278,14 @@ class ETLGroupByComponent(Component):
                     self.status = i18n.t("components.operations.group_by.warnings.field_load_failed")
                     return build_config
                 if field_name == "group_by_columns":
-                    # Get existing values (保留用户已选择的字段)
-                    existing_values = build_config.get("group_by_columns", {}).get("value", [])
-                    existing_dict = {
-                        v.get("field_name"): v.get("selected", False) for v in existing_values if v.get("field_name")
-                    }
+                    # Update dropdown options for field_name column
+                    build_config["group_by_columns"]["table_schema"][0]["options"] = field_names
 
-                    # Only update dropdown options (on the second column - field_name)
-                    # This preserves user's selection while making all fields available
-                    build_config["group_by_columns"]["table_schema"][1]["options"] = field_names
-
-                    # If no existing selections, pre-populate with all fields (default selected=False)
-                    if not existing_values or len(existing_values) == 0:
-                        build_config["group_by_columns"]["value"] = [
-                            {"selected": False, "field_name": name} for name in field_names
-                        ]
-                        logger.info(f"[GroupBy] Initial populate {len(field_names)} group by columns")
-                    else:
-                        # Update the list: keep existing selected state, add new fields as unselected
-                        new_value = []
-                        for name in field_names:
-                            if name in existing_dict:
-                                # Preserve existing selected state
-                                new_value.append({"selected": existing_dict[name], "field_name": name})
-                            else:
-                                # New field - default to unselected
-                                new_value.append({"selected": False, "field_name": name})
-
-                        build_config["group_by_columns"]["value"] = new_value
-                        logger.info(
-                            f"[GroupBy] Preserved {len(existing_dict)} existing selections, "
-                            f"updated {len(field_names)} field options"
-                        )
+                    # Auto-populate with all fields (users can remove unwanted ones)
+                    build_config["group_by_columns"]["value"] = [
+                        {"field_name": name} for name in field_names
+                    ]
+                    logger.info(f"[GroupBy] Auto-populated {len(field_names)} group by columns")
 
                     self.status = i18n.t(
                         "components.operations.group_by.status.analysis_success", count=len(field_names)
@@ -417,16 +387,15 @@ class ETLGroupByComponent(Component):
             # Convert to DataFrame
             df = self._convert_to_dataframe(self.data_input)
 
-            # Extract group by columns from the improved schema
-            # Only use columns where selected=True
+            # Extract group by columns - use all rows in the table
             group_cols = [
                 col["field_name"]
                 for col in self.group_by_columns
-                if col.get("field_name") and col.get("selected", False)
+                if col.get("field_name")
             ]
 
             if not group_cols:
-                raise ValueError(i18n.t("components.operations.group_by.errors.no_selected_columns"))
+                raise ValueError(i18n.t("components.operations.group_by.errors.no_group_columns_in_table"))
 
             # Validate group columns exist in dataframe
             missing_cols = [col for col in group_cols if col not in df.columns]

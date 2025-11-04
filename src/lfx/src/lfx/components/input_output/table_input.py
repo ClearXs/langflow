@@ -841,7 +841,7 @@ class ETLTableInputComponent(Component):
         return self._build_connection_string_from_params(ds_type, params)
 
     def _build_connection_string_from_params(self, ds_type: str, params: dict) -> str:
-        """从参数构建连接字符串"""
+        """从参数构建连接字符串 - Only support MySQL, PostgreSQL, Hive, Neo4j"""
         from urllib.parse import quote_plus
 
         host = params.get("host", "localhost")
@@ -850,17 +850,29 @@ class ETLTableInputComponent(Component):
         username = params.get("username", "")
         password = params.get("password", "")
 
-        username_encoded = quote_plus(username)
-        password_encoded = quote_plus(password)
+        username_encoded = quote_plus(username) if username else ""
+        password_encoded = quote_plus(password) if password else ""
 
         if ds_type == "mysql":
             return f"mysql+pymysql://{username_encoded}:{password_encoded}@{host}:{port}/{database}"
         if ds_type == "postgresql":
             return f"postgresql://{username_encoded}:{password_encoded}@{host}:{port}/{database}"
-        if ds_type == "oracle":
-            return f"oracle+cx_oracle://{username_encoded}:{password_encoded}@{host}:{port}/{database}"
-        if ds_type == "mssql":
-            return f"mssql+pymssql://{username_encoded}:{password_encoded}@{host}:{port}/{database}"
+        if ds_type == "hive":
+            # Hive connection - username/password optional
+            hive_port = port if port != 3306 else 10000
+            hive_database = database or "default"
+            conn_str = f"hive://{host}:{hive_port}/{hive_database}"
+            if username:
+                conn_str += f"?auth={username}"
+                if password:
+                    conn_str += f"&pwd={password_encoded}"
+            return conn_str
+        if ds_type == "neo4j":
+            # Neo4j connection
+            neo4j_port = port if port != 3306 else 7687
+            if username and password:
+                return f"neo4j://{username_encoded}:{password_encoded}@{host}:{neo4j_port}"
+            return f"neo4j://{host}:{neo4j_port}"
         raise ValueError(f"Unsupported database type: {ds_type}")
 
     def _get_builtin_connection_string(self, datasource_id: str) -> str:
@@ -872,11 +884,13 @@ class ETLTableInputComponent(Component):
         api_url = os.getenv("LANGFLOW_API_URL", "http://localhost:7860")
 
         try:
-            logger.debug(f"[TableInput] Getting connection string for builtin datasource ID: {datasource_id}")
+            # 提取纯UUID（移除可能的前缀）
+            clean_datasource_id = self._extract_uuid_from_id(datasource_id)
+            logger.debug(f"[TableInput] Getting connection string for builtin datasource ID: {datasource_id} (cleaned: {clean_datasource_id})")
             logger.debug(f"[TableInput] Using API URL: {api_url}")
 
             with httpx.Client(timeout=10.0) as client:
-                url = f"{api_url}/api/v1/datasources/{datasource_id}/connection-string"
+                url = f"{api_url}/api/v1/datasources/{clean_datasource_id}/connection-string"
                 logger.debug(f"[TableInput] Making request to: {url}")
 
                 response = client.get(url)

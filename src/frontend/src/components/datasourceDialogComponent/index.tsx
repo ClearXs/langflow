@@ -76,13 +76,12 @@ export default function DataSourceDialog() {
   });
 
   // Database type options with default ports
+  // Only support MySQL, PostgreSQL, Hive, and Neo4j
   const databaseTypes = [
     { value: "mysql", label: "MySQL", defaultPort: "3306" },
     { value: "postgresql", label: "PostgreSQL", defaultPort: "5432" },
-    { value: "oracle", label: "Oracle", defaultPort: "1521" },
-    { value: "mssql", label: "SQL Server", defaultPort: "1433" },
-    { value: "mongodb", label: "MongoDB", defaultPort: "27017" },
-    { value: "redis", label: "Redis", defaultPort: "6379" },
+    { value: "hive", label: "Hive", defaultPort: "10000" },
+    { value: "neo4j", label: "Neo4j", defaultPort: "7687" },
   ];
 
   const resetForm = () => {
@@ -134,12 +133,16 @@ export default function DataSourceDialog() {
       errors.database = t("dataSource.errors.databaseRequired");
     }
 
-    if (!formData.username.trim()) {
-      errors.username = t("dataSource.errors.usernameRequired");
-    }
+    // Username and password are optional for Hive only
+    const isHive = formData.type.toLowerCase() === "hive";
+    if (!isHive) {
+      if (!formData.username.trim()) {
+        errors.username = t("dataSource.errors.usernameRequired");
+      }
 
-    if (!formData.password.trim()) {
-      errors.password = t("dataSource.errors.passwordRequired");
+      if (!formData.password.trim()) {
+        errors.password = t("dataSource.errors.passwordRequired");
+      }
     }
 
     setFormErrors(errors);
@@ -164,11 +167,16 @@ export default function DataSourceDialog() {
     if (!formData.database.trim()) {
       requiredErrors.database = t("dataSource.errors.databaseRequired");
     }
-    if (!formData.username.trim()) {
-      requiredErrors.username = t("dataSource.errors.usernameRequired");
-    }
-    if (!formData.password.trim()) {
-      requiredErrors.password = t("dataSource.errors.passwordRequired");
+
+    // Username and password are optional for Hive only
+    const isHive = formData.type.toLowerCase() === "hive";
+    if (!isHive) {
+      if (!formData.username.trim()) {
+        requiredErrors.username = t("dataSource.errors.usernameRequired");
+      }
+      if (!formData.password.trim()) {
+        requiredErrors.password = t("dataSource.errors.passwordRequired");
+      }
     }
 
     if (Object.keys(requiredErrors).length > 0) {
@@ -372,7 +380,10 @@ export default function DataSourceDialog() {
           </div>
           <div className="space-y-2">
             <Label htmlFor="username">
-              {t("dataSource.username")} <span className="text-red-500">*</span>
+              {t("dataSource.username")}{" "}
+              {formData.type.toLowerCase() !== "hive" && (
+                <span className="text-red-500">*</span>
+              )}
             </Label>
             <Input
               id="username"
@@ -395,7 +406,10 @@ export default function DataSourceDialog() {
           </div>
           <div className="space-y-2">
             <Label htmlFor="password">
-              {t("dataSource.password")} <span className="text-red-500">*</span>
+              {t("dataSource.password")}{" "}
+              {formData.type.toLowerCase() !== "hive" && (
+                <span className="text-red-500">*</span>
+              )}
             </Label>
             <Input
               id="password"

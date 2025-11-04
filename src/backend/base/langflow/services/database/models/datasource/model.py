@@ -14,12 +14,12 @@ class DataSourceBase(SQLModel):
     """Base model for data source."""
 
     name: str = Field(index=True, nullable=False)
-    type: str = Field(nullable=False)  # mysql, postgresql, oracle, mssql, mongodb, redis
+    type: str = Field(nullable=False)  # mysql, postgresql, hive, neo4j
     host: str = Field(nullable=False)
     port: int = Field(nullable=False)
     database: str = Field(nullable=False)
-    username: str = Field(nullable=False)
-    password: str = Field(nullable=False)  # Store plain password (or you can encrypt it at application level)
+    username: str | None = Field(default=None, nullable=True)  # Optional for Hive
+    password: str | None = Field(default=None, nullable=True)  # Optional for Hive, store plain password (or you can encrypt it at application level)
     status: str | None = Field(default="inactive", nullable=True)  # active, inactive, error
     last_tested_at: datetime | None = Field(default=None, sa_column=Column(DateTime(timezone=True), nullable=True))
 
@@ -46,8 +46,8 @@ class DataSourceCreate(SQLModel):
     host: str
     port: int
     database: str
-    username: str
-    password: str
+    username: str | None = None  # Optional for Hive
+    password: str | None = None  # Optional for Hive
 
 
 class DataSourceUpdate(SQLModel):
@@ -73,7 +73,7 @@ class DataSourceRead(SQLModel):
     host: str
     port: int
     database: str
-    username: str
+    username: str | None  # Optional for Hive
     status: str | None
     last_tested_at: datetime | None
     created_at: datetime

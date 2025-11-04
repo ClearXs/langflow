@@ -326,10 +326,12 @@ class ETLTableOutputComponent(Component):
                         build_config["table_selector"]["options"] = []
                         self.status = i18n.t("components.input_output.table_output.status.public_datasource_selected")
                     else:
-                        logger.debug(f"[TableOutput] Loading tables for datasource ID: {datasource_id}")
+                        # 提取纯UUID（移除可能的前缀）
+                        clean_datasource_id = self._extract_uuid_from_id(datasource_id)
+                        logger.debug(f"[TableOutput] Loading tables for datasource ID: {datasource_id} (cleaned: {clean_datasource_id})")
                         # Load tables for this datasource
                         with httpx.Client(timeout=10.0) as client:
-                            response = client.get(f"{api_url}/api/v1/datasources/{datasource_id}/tables")
+                            response = client.get(f"{api_url}/api/v1/datasources/{clean_datasource_id}/tables")
                             logger.debug(f"[TableOutput] Tables API response status: {response.status_code}")
 
                             if response.status_code == 200:
@@ -381,9 +383,11 @@ class ETLTableOutputComponent(Component):
                             logger.info("[TableOutput] Skipping column loading for public datasource")
                         else:
                             # Load columns for the target table
+                            # 提取纯UUID（移除可能的前缀）
+                            clean_datasource_id = self._extract_uuid_from_id(datasource_id)
                             with httpx.Client(timeout=10.0) as client:
                                 response = client.get(
-                                    f"{api_url}/api/v1/datasources/{datasource_id}/tables/{current_table}/columns"
+                                    f"{api_url}/api/v1/datasources/{clean_datasource_id}/tables/{current_table}/columns"
                                 )
 
                                 if response.status_code == 200:
@@ -905,7 +909,7 @@ class ETLTableOutputComponent(Component):
         return self._build_connection_string_from_params(ds_type, params)
 
     def _build_connection_string_from_params(self, ds_type: str, params: dict) -> str:
-        """从参数构建连接字符串"""
+        """从参数构建连接字符串 - Only support MySQL, PostgreSQL, Hive, Neo4j"""
         from urllib.parse import quote_plus
 
         host = params.get("host", "localhost")
@@ -914,17 +918,19 @@ class ETLTableOutputComponent(Component):
         username = params.get("username", "")
         password = params.get("password", "")
 
-        username_encoded = quote_plus(username)
-        password_encoded = quote_plus(password)
+        username_encoded = quote_plus(username) if username else ""
+        password_encoded = quote_plus(password) if password else ""
 
         if ds_type == "mysql":
             return f"mysql+pymysql://{username_encoded}:{password_encoded}@{host}:{port}/{database}"
         if ds_type == "postgresql":
             return f"postgresql://{username_encoded}:{password_encoded}@{host}:{port}/{database}"
-        if ds_type == "oracle":
-            return f"oracle+cx_oracle://{username_encoded}:{password_encoded}@{host}:{port}/{database}"
-        if ds_type == "mssql":
-            return f"mssql+pymssql://{username_encoded}:{password_encoded}@{host}:{port}/{database}"
+        if ds_type == "neo4j":
+            # Neo4j connection
+            neo4j_port = port if port != 3306 else 7687
+            if username and password:
+                return f"neo4j://{username_encoded}:{password_encoded}@{host}:{neo4j_port}"
+            return f"neo4j://{host}:{neo4j_port}"
         raise ValueError(f"Unsupported database type: {ds_type}")
 
     def _get_builtin_connection_string(self, datasource_id: str) -> str:
@@ -936,8 +942,12 @@ class ETLTableOutputComponent(Component):
         api_url = os.getenv("LANGFLOW_API_URL", "http://localhost:7860")
 
         try:
+            # 提取纯UUID（移除可能的前缀）
+            clean_datasource_id = self._extract_uuid_from_id(datasource_id)
+            logger.debug(f"[TableOutput] Getting connection string for datasource ID: {datasource_id} (cleaned: {clean_datasource_id})")
+
             with httpx.Client(timeout=10.0) as client:
-                response = client.get(f"{api_url}/api/v1/datasources/{datasource_id}/connection-string")
+                response = client.get(f"{api_url}/api/v1/datasources/{clean_datasource_id}/connection-string")
 
                 if response.status_code != 200:
                     raise ValueError(f"Failed to get connection string, status: {response.status_code}")
@@ -970,8 +980,12 @@ class ETLTableOutputComponent(Component):
         api_url = os.getenv("LANGFLOW_API_URL", "http://localhost:7860")
 
         try:
+            # 提取纯UUID（移除可能的前缀）
+            clean_datasource_id = self._extract_uuid_from_id(datasource_id)
+            logger.debug(f"[TableOutput] Getting connection string (sync) for datasource ID: {datasource_id} (cleaned: {clean_datasource_id})")
+
             with httpx.Client(timeout=10.0) as client:
-                response = client.get(f"{api_url}/api/v1/datasources/{datasource_id}/connection-string")
+                response = client.get(f"{api_url}/api/v1/datasources/{clean_datasource_id}/connection-string")
 
                 if response.status_code != 200:
                     raise ValueError(f"Failed to get connection string, status: {response.status_code}")

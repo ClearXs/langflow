@@ -374,17 +374,13 @@ class DataSourceManager:
         password = datasource.get("password") or ""
 
         # URL encode username and password to handle special characters
-        username_encoded = quote_plus(username)
-        password_encoded = quote_plus(password)
+        username_encoded = quote_plus(username) if username else ""
+        password_encoded = quote_plus(password) if password else ""
 
         if db_type == "mysql":
             return f"mysql+pymysql://{username_encoded}:{password_encoded}@{host}:{port}/{database}"
         if db_type == "postgresql":
             return f"postgresql://{username_encoded}:{password_encoded}@{host}:{port}/{database}"
-        if db_type == "oracle":
-            return f"oracle+cx_oracle://{username_encoded}:{password_encoded}@{host}:{port}/{database}"
-        if db_type == "mssql":
-            return f"mssql+pymssql://{username_encoded}:{password_encoded}@{host}:{port}/{database}"
         if db_type == "hive":
             # Hive connection string - use standard JDBC format
             # Default port for Hive is 10000, database is 'default'
@@ -405,6 +401,14 @@ class DataSourceManager:
                 conn_str += f"?user={username_encoded}"
 
             return conn_str
+        if db_type == "neo4j":
+            # Neo4j connection string
+            # Default port for Neo4j is 7687, use bolt protocol
+            neo4j_port = port if port != 3306 else 7687
+            # Neo4j uses bolt protocol for native driver
+            if username and password:
+                return f"neo4j://{username_encoded}:{password_encoded}@{host}:{neo4j_port}"
+            return f"neo4j://{host}:{neo4j_port}"
 
         raise ValueError(f"Unsupported database type: {db_type}")
 

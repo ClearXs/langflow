@@ -1299,7 +1299,7 @@
   },
   "dataSource": {
     "management": "数据源管理",
-    "description": "管理系统数据源连接，包括企业数据源和自定义数据源",
+    "description": "管理自定义数据源",
     "enterprise": "企业数据源",
     "custom": "自定义数据源",
     "addDataSource": "添加数据源",
