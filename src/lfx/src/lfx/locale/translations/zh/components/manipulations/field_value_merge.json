@@ -46,6 +46,7 @@
     "no_graph_data": "无法获取流程图数据",
     "load_fields_failed": "加载字段失败: %{error}",
     "field_not_found": "字段 %{field} 不存在",
-    "no_input_data": "没有输入数据"
+    "no_input_data": "没有输入数据",
+    "no_valid_data": "输入数据格式无效或为空"
   }
 }

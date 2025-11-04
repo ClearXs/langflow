@@ -197,8 +197,8 @@ class ETLKafkaInputComponent(Component):
             name="output_format",
             display_name=i18n.t("components.input_output.kafka_input.output_format.display_name"),
             info=i18n.t("components.input_output.kafka_input.output_format.info"),
-            options=["flattened", "raw"],
-            value="flattened",
+            options=["raw", "flattened"],
+            value="raw",
             advanced=True,
         ),
         DropdownInput(
@@ -721,10 +721,17 @@ class ETLKafkaInputComponent(Component):
             json_path = schema_row.get("json_path", "")
             required = schema_row.get("required", False)
 
-            # 尝试从消息中提取值（如果消息是dict且提供了json_path）
+            # 尝试从消息中提取值
             extracted_value = None
-            if isinstance(message_value, dict) and json_path:
-                extracted_value = self._extract_by_json_path(message_value, json_path)
+
+            if isinstance(message_value, dict):
+                if json_path:
+                    # 如果提供了json_path，使用json_path提取
+                    extracted_value = self._extract_by_json_path(message_value, json_path)
+                elif field_name in message_value:
+                    # 如果没有json_path但字段名在dict中存在，直接提取
+                    extracted_value = message_value[field_name]
+                    logger.debug(f"[KafkaInput] Extracted field '{field_name}' directly from message")
 
             # 如果提取失败或消息不是dict，特殊处理'value'字段
             if extracted_value is None:

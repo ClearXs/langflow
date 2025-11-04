@@ -55,14 +55,14 @@ def find_and_extract_upstream_fields(
             return []
 
         # Extract fields from the upstream node
-        return extract_fields_from_node_template(upstream_node, component_name)
+        return extract_fields_from_node_template(upstream_node, component_name, graph_data)
 
     except Exception:  # noqa: BLE001
         logger.exception(f"[{component_name}] Failed to find and extract upstream fields")
         return []
 
 
-def extract_fields_from_node_template(upstream_node: dict, component_name: str = "Component") -> list[str]:
+def extract_fields_from_node_template(upstream_node: dict, component_name: str = "Component", graph_data: dict | None = None) -> list[str]:
     """Extract field names from upstream node template configuration.
 
     This is a fallback method when upstream node cannot be executed.
@@ -71,6 +71,7 @@ def extract_fields_from_node_template(upstream_node: dict, component_name: str =
     Args:
         upstream_node: The upstream node from graph_data
         component_name: Name of the calling component (for logging)
+        graph_data: The complete graph data (nodes and edges) for recursive lookups
 
     Returns:
         List of field names extracted from upstream config
@@ -158,6 +159,89 @@ def extract_fields_from_node_template(upstream_node: dict, component_name: str =
                 else:
                     # Provide sensible default field names
                     field_names = ["id", "name", "value", "type", "description", "created_at"]
+
+        # For field value merge - extracts both upstream fields AND new merged fields
+        # MUST be before the generic "Field" check below
+        elif upstream_node_type == "ETLFieldValueMerge":
+            logger.info(f"[{component_name}] Processing ETLFieldValueMerge node")
+            logger.debug(f"[{component_name}] Template keys: {list(template.keys()) if template else 'N/A'}")
+
+            # First, get upstream fields
+            upstream_field_names = []
+            if graph_data:
+                try:
+                    from lfx.custom.graph_utils import find_upstream_node_id
+
+                    merge_upstream_id = find_upstream_node_id(graph_data, upstream_node.get("id"), "data_input")
+                    if merge_upstream_id:
+                        upstream_nodes = graph_data.get("nodes", [])
+                        merge_upstream_node = None
+                        for node in upstream_nodes:
+                            if node.get("id") == merge_upstream_id:
+                                merge_upstream_node = node
+                                break
+
+                        if merge_upstream_node:
+                            upstream_field_names = extract_fields_from_node_template(
+                                merge_upstream_node, component_name, graph_data
+                            )
+                            logger.info(
+                                f"[{component_name}] Extracted {len(upstream_field_names)} fields from "
+                                f"ETLFieldValueMerge's upstream: {upstream_field_names}"
+                            )
+                except Exception as e:
+                    logger.debug(f"[{component_name}] Failed to get upstream fields for ETLFieldValueMerge: {e}")
+
+            # Then, add new merged fields from merge_configs
+            new_merged_fields = []
+            if "merge_configs" in template:
+                merge_config = template.get("merge_configs", {})
+                logger.debug(f"[{component_name}] merge_config type: {type(merge_config)}, content: {merge_config}")
+
+                if isinstance(merge_config, dict):
+                    config_value = merge_config.get("value", [])
+                    logger.debug(f"[{component_name}] config_value type: {type(config_value)}, length: {len(config_value) if isinstance(config_value, list) else 'N/A'}")
+
+                    if isinstance(config_value, list):
+                        new_merged_fields = [
+                            merge.get("new_field")
+                            for merge in config_value
+                            if isinstance(merge, dict) and merge.get("new_field")
+                        ]
+                        logger.debug(f"[{component_name}] Extracted new_merged_fields: {new_merged_fields}")
+
+                        if new_merged_fields:
+                            logger.info(
+                                f"[{component_name}] Extracted {len(new_merged_fields)} new merged fields: "
+                                f"{new_merged_fields}"
+                            )
+                        else:
+                            logger.warning(f"[{component_name}] merge_configs has {len(config_value)} items but no valid new_field found")
+            else:
+                logger.warning(f"[{component_name}] 'merge_configs' not found in template")
+
+            # Combine upstream fields + new merged fields
+            # Check drop_source_fields to determine if we should include original fields
+            drop_source = False
+            if "drop_source_fields" in template:
+                drop_config = template.get("drop_source_fields", {})
+                if isinstance(drop_config, dict):
+                    drop_source = drop_config.get("value", False)
+
+            if drop_source:
+                # Only return new merged fields if dropping source fields
+                field_names = new_merged_fields
+                logger.info(
+                    f"[{component_name}] ETLFieldValueMerge with drop_source_fields=True, "
+                    f"returning only {len(field_names)} new fields"
+                )
+            else:
+                # Include both upstream and new merged fields
+                field_names = list(set(upstream_field_names + new_merged_fields))
+                logger.info(
+                    f"[{component_name}] ETLFieldValueMerge returning {len(field_names)} total fields "
+                    f"({len(upstream_field_names)} upstream + {len(new_merged_fields)} merged)"
+                )
 
         # For field manipulation components (field_split, field_pivot, etc.)
         elif upstream_node_type and "Field" in upstream_node_type:
@@ -250,7 +334,7 @@ def extract_fields_from_node_template(upstream_node: dict, component_name: str =
 
                         if field_mapping_upstream_node:
                             # Extract fields from the upstream of field name mapping
-                            field_names = extract_fields_from_node_template(field_mapping_upstream_node, component_name)
+                            field_names = extract_fields_from_node_template(field_mapping_upstream_node, component_name, graph_data)
                             logger.info(f"[{component_name}] Extracted {len(field_names)} fields from ETLFieldNameMapping's upstream: {field_names}")
                 except Exception as e:
                     logger.debug(f"[{component_name}] Failed to extract fields from ETLFieldNameMapping's upstream: {e}")
@@ -388,7 +472,7 @@ def extract_fields_from_node_template(upstream_node: dict, component_name: str =
 
                         if data_cleaning_upstream_node:
                             # Extract fields from the upstream of data cleaning
-                            field_names = extract_fields_from_node_template(data_cleaning_upstream_node, component_name)
+                            field_names = extract_fields_from_node_template(data_cleaning_upstream_node, component_name, graph_data)
                             logger.info(f"[{component_name}] Extracted {len(field_names)} fields from ETLDataCleaning's upstream: {field_names}")
                 except Exception as e:
                     logger.debug(f"[{component_name}] Failed to extract fields from ETLDataCleaning's upstream: {e}")
@@ -460,6 +544,45 @@ def extract_fields_from_node_template(upstream_node: dict, component_name: str =
                 f"[{component_name}] No fields found in upstream config. Node type: {upstream_node_type}, "
                 f"Template keys: {list(template.keys()) if template else 'N/A'}"
             )
+
+        # ============ 通用递归fallback机制 ============
+        # 对于任何未明确处理的ETL组件，自动递归向上游查找字段
+        if not field_names and upstream_node_type and upstream_node_type.startswith("ETL"):
+            if graph_data:
+                logger.info(
+                    f"[{component_name}] No specific field extraction logic for '{upstream_node_type}', "
+                    f"attempting recursive upstream lookup"
+                )
+                try:
+                    from lfx.custom.graph_utils import find_upstream_node_id
+
+                    # 查找当前节点的上游节点
+                    upstream_id = find_upstream_node_id(graph_data, upstream_node.get("id"), "data_input")
+                    if upstream_id:
+                        # 在graph_data中找到上游节点
+                        upstream_nodes = graph_data.get("nodes", [])
+                        next_upstream_node = None
+                        for node in upstream_nodes:
+                            if node.get("id") == upstream_id:
+                                next_upstream_node = node
+                                break
+
+                        if next_upstream_node:
+                            # 递归提取上游节点的字段
+                            field_names = extract_fields_from_node_template(
+                                next_upstream_node,
+                                component_name,
+                                graph_data
+                            )
+                            if field_names:
+                                logger.info(
+                                    f"[{component_name}] Successfully extracted {len(field_names)} fields "
+                                    f"from upstream of '{upstream_node_type}': {field_names}"
+                                )
+                except Exception as e:
+                    logger.debug(
+                        f"[{component_name}] Recursive lookup failed for '{upstream_node_type}': {e}"
+                    )
 
         return field_names
 

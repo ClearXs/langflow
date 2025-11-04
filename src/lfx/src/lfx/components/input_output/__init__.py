@@ -14,6 +14,7 @@ _dynamic_imports = {
     "ETLAPIOutputComponent": "api_output",
     "ETLCSVOutputComponent": "csv_output",
     "ETLExcelOutputComponent": "excel_output",
+    "ETLKafkaOutputComponent": "kafka_output",
     "ETLTableOutputComponent": "table_output",
 }
 

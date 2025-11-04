@@ -212,8 +212,28 @@ class ETLFieldValueMergeComponent(Component):
             if not self.data_input or not self.merge_configs:
                 raise ValueError(i18n.t("components.manipulations.field_value_merge.errors.missing_config"))
 
-            df = pd.DataFrame([d.data if hasattr(d, "data") else d for d in self.data_input])
+            # Ensure data_input is a list
+            if not isinstance(self.data_input, list):
+                data_input_list = [self.data_input]
+            else:
+                data_input_list = self.data_input
+
+            # Extract data from Data objects
+            data_records = []
+            for d in data_input_list:
+                if hasattr(d, "data") and isinstance(d.data, dict):
+                    data_records.append(d.data)
+                elif isinstance(d, dict):
+                    data_records.append(d)
+                else:
+                    logger.warning(f"[FieldValueMerge] Unexpected data type: {type(d)}, skipping")
+
+            if not data_records:
+                raise ValueError(i18n.t("components.manipulations.field_value_merge.errors.no_valid_data"))
+
+            df = pd.DataFrame(data_records)
             logger.debug(f"[FieldValueMerge] Input dataframe: {len(df)} records, {len(df.columns)} fields")
+            logger.debug(f"[FieldValueMerge] DataFrame columns: {list(df.columns)}")
 
             for idx, config in enumerate(self.merge_configs):
                 new_field = config.get("new_field")

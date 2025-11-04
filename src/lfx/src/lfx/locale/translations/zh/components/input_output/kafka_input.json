@@ -2,8 +2,8 @@
   "display_name": "Kafka输入",
   "description": "从Kafka主题消费消息并支持认证",
   "bootstrap_servers": {
-    "display_name": "Kafka服务器",
-    "info": "Kafka引导服务器（逗号分隔）"
+    "display_name": "Kafka服务地址",
+    "info": "Kafka 服务地址的逗号分隔列表（例如：'localhost:9092,localhost:9093'）"
   },
   "topics": {
     "display_name": "主题",

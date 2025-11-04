@@ -1,0 +1,124 @@
+{
+  "display_name": "Kafka输出",
+  "description": "将数据发送到 Kafka 主题，支持实时流数据和批量处理",
+
+  "data_input": {
+    "display_name": "数据输入",
+    "info": "要发送到 Kafka 的数据。接受来自上游组件的 Data 对象列表。"
+  },
+
+  "bootstrap_servers": {
+    "display_name": "Kafka服务地址",
+    "info": "Kafka 服务地址的逗号分隔列表（例如：'localhost:9092,localhost:9093'）"
+  },
+
+  "topic": {
+    "display_name": "主题",
+    "info": "要发送消息的 Kafka 主题"
+  },
+
+  "key_field": {
+    "display_name": "键字段",
+    "info": "用作消息键的字段名称。如果指定，具有相同键的消息将发送到同一分区。"
+  },
+
+  "value_serializer": {
+    "display_name": "值序列化器",
+    "info": "如何序列化消息值"
+  },
+
+  "partition_key": {
+    "display_name": "分区键",
+    "info": "用于自定义分区的字段。具有相同分区键的消息将路由到同一分区。"
+  },
+
+  "headers": {
+    "display_name": "消息头",
+    "info": "每条消息要包含的自定义头部"
+  },
+
+  "compression_type": {
+    "display_name": "压缩",
+    "info": "用于消息的压缩算法"
+  },
+
+  "batch_size": {
+    "display_name": "批处理大小",
+    "info": "为了更好的性能而批处理在一起的消息数量"
+  },
+
+  "timeout_ms": {
+    "display_name": "超时时间（毫秒）",
+    "info": "等待消息传递的最大时间（毫秒）"
+  },
+
+  "acks": {
+    "display_name": "确认级别",
+    "info": "生产者要求领导者已收到确认的数量"
+  },
+
+  "retries": {
+    "display_name": "重试次数",
+    "info": "重试发送失败消息的次数"
+  },
+
+  "send_as_batch": {
+    "display_name": "批量发送",
+    "info": "以批处理方式发送消息以获得更好的性能"
+  },
+
+  "sasl_username": {
+    "display_name": "SASL 用户名",
+    "info": "SASL 认证的用户名（可选）"
+  },
+
+  "sasl_password": {
+    "display_name": "SASL 密码",
+    "info": "SASL 认证的密码（可选）"
+  },
+
+  "outputs": {
+    "result": {
+      "display_name": "结果",
+      "info": "发送到 Kafka 的消息摘要"
+    },
+    "producer_info": {
+      "display_name": "生产者信息",
+      "info": "当前生产者配置和状态"
+    }
+  },
+
+  "status": {
+    "sending": "正在向 Kafka 发送消息...",
+    "testing_connection": "正在测试 Kafka 连接...",
+    "success": "成功向 Kafka 发送了 {success} 条消息",
+    "partial_success": "发送了 {success} 条消息，{errors} 条失败",
+    "connection_successful": "Kafka 连接测试成功"
+  },
+
+  "errors": {
+    "kafka_not_installed": "未安装 confluent-kafka 库。使用以下命令安装：pip install confluent-kafka",
+    "no_data": "没有提供要发送的数据",
+    "send_failed": "向 Kafka 发送消息失败：{error}",
+    "connection_failed": "Kafka 连接测试失败：{error}",
+    "producer_creation_failed": "创建 Kafka 生产者失败：{error}",
+    "serialization_failed": "消息值序列化失败：{error}",
+    "topic_not_found": "主题 '{topic}' 未找到或无法访问",
+    "authentication_failed": "SASL 认证失败：{error}",
+    "timeout": "消息传递在 {timeout_ms} 毫秒后超时"
+  },
+
+  "warnings": {
+    "no_key_field": "未指定键字段。消息将随机分布到各个分区。",
+    "large_batch_size": "大批处理大小可能导致内存问题。考虑减小它。",
+    "no_compression": "未启用压缩。考虑启用压缩以获得更好的性能。",
+    "sasl_credentials_missing": "提供了 SASL 用户名但缺少密码，或反之亦然。"
+  },
+
+  "success": {
+    "messages_sent": "成功向主题 '{topic}' 发送了 {count} 条消息",
+    "batch_sent": "成功发送了 {count} 条消息的批次",
+    "connection_established": "成功连接到 Kafka 集群",
+    "producer_configured": "Kafka 生产者配置成功"
+  }
+}

@@ -46,6 +46,7 @@
     "no_graph_data": "Unable to retrieve graph data",
     "load_fields_failed": "Failed to load fields: %{error}",
     "field_not_found": "Field %{field} not found",
-    "no_input_data": "No input data available"
+    "no_input_data": "No input data available",
+    "no_valid_data": "Input data is invalid or empty"
   }
 }

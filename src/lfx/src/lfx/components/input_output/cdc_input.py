@@ -25,6 +25,8 @@ class ETLCDCStreamInputComponent(Component):
         super().__init__(**kwargs)
         self.datasource_manager = DataSourceManager()
         self._should_stop = False
+        # 添加运行时时间戳跟踪
+        self._current_last_sync = None  # 跟踪当前实际使用的同步时间
 
     inputs = [
         DropdownInput(
@@ -672,20 +674,24 @@ class ETLCDCStreamInputComponent(Component):
             )
 
             # 持续轮询变更
-            last_sync = self.last_sync_time if self.last_sync_time else "1970-01-01 00:00:00"
+            # 使用运行时状态，如果存在则使用，否则使用配置值
+            last_sync = self._current_last_sync if self._current_last_sync else (self.last_sync_time if self.last_sync_time else "1970-01-01 00:00:00")
             changes_count = 0
+            logger.info(f"[CDCInput] Starting streaming with timestamp_column='{self.timestamp_column}', last_sync='{last_sync}'")
 
             while not self._should_stop:
                 # ✅ 在线程池中执行阻塞的数据库查询
                 def query_changes():
                     with engine.connect() as connection:
-                        query = f"""
+                        # 使用参数化查询，确保时间戳比较正确
+                        query = text(f"""
                             SELECT * FROM {self.table_selector}
-                            WHERE {self.timestamp_column} > '{last_sync}'
+                            WHERE {self.timestamp_column} > :last_sync
                             ORDER BY {self.timestamp_column}
-                            LIMIT {self.batch_size}
-                        """
-                        return pd.read_sql_query(text(query), connection)
+                            LIMIT :batch_size
+                        """)
+                        logger.debug(f"[CDCInput] Executing query with last_sync='{last_sync}' (type: {type(last_sync)})")
+                        return pd.read_sql_query(query, connection, params={'last_sync': last_sync, 'batch_size': self.batch_size})
 
                 df = await asyncio.to_thread(query_changes)
 
@@ -707,9 +713,13 @@ class ETLCDCStreamInputComponent(Component):
 
                         yield Data(data=row_dict)
 
-                        # 更新last_sync为当前行的时间戳
+                        # 更新last_sync为当前行的时间戳，并保存到组件属性
                         if self.timestamp_column in row_dict:
-                            last_sync = str(row_dict[self.timestamp_column])
+                            # 保持原始时间戳格式，不进行任何转换
+                            original_timestamp = row_dict[self.timestamp_column]
+                            last_sync = str(original_timestamp)
+                            self._current_last_sync = last_sync  # 持久化到组件属性
+                            logger.info(f"[CDCInput] Updated last_sync to '{last_sync}' (type: {type(original_timestamp)}) from column '{self.timestamp_column}'")
 
                         # ✅ 让出控制权
                         await asyncio.sleep(0)
@@ -799,7 +809,8 @@ class ETLCDCStreamInputComponent(Component):
                 raise ValueError(error_msg)
 
             # 持续轮询变更
-            last_sync = self.last_sync_time if self.last_sync_time else "1970-01-01 00:00:00"
+            # 使用运行时状态，如果存在则使用，否则使用配置值
+            last_sync = self._current_last_sync if self._current_last_sync else (self.last_sync_time if self.last_sync_time else "1970-01-01 00:00:00")
             changes_count = 0
 
             while not self._should_stop:
@@ -835,9 +846,10 @@ class ETLCDCStreamInputComponent(Component):
 
                             yield Data(data=row_dict)
 
-                            # 更新last_sync为当前行的审计时间戳
+                            # 更新last_sync为当前行的审计时间戳，并保存到组件属性
                             if "audit_timestamp" in row_dict:
                                 last_sync = str(row_dict["audit_timestamp"])
+                                self._current_last_sync = last_sync  # 持久化到组件属性
 
                             # ✅ 让出控制权
                             await asyncio.sleep(0)

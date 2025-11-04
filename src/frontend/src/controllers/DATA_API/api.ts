@@ -7,9 +7,9 @@ import axios, {
   type AxiosInstance,
   type AxiosRequestConfig,
   type AxiosResponse,
-} from "axios";
-import { useCallback, useEffect, useRef } from "react";
-import { useUrlParam } from "@/hooks/use-iframe-params";
+} from 'axios';
+import { useCallback, useEffect, useRef } from 'react';
+import { useUrlParam } from '@/hooks/use-iframe-params';
 
 export interface DataAPIConfig {
   baseURL: string;
@@ -43,11 +43,11 @@ export interface DataRequestConfig extends AxiosRequestConfig {
 }
 
 const DEFAULT_CONFIG: DataAPIConfig = {
-  baseURL: "/data-api",
+  baseURL: '/data-api',
   timeout: 10000,
-  clientId: "saber3",
-  clientSecret: "saber3_secret",
-  tokenHeader: "Blade-Auth",
+  clientId: 'saber3',
+  clientSecret: 'saber3_secret',
+  tokenHeader: 'Blade-Auth',
   enableEncryption: false,
   enableProgress: true,
   statusWhiteList: [],
@@ -58,7 +58,7 @@ const DEFAULT_CONFIG: DataAPIConfig = {
 // ============================================================================
 
 function validatenull(val: any): boolean {
-  return val === null || val === undefined || val === "";
+  return val === null || val === undefined || val === '';
 }
 
 function serialize(data: Record<string, any>): string {
@@ -74,7 +74,7 @@ function serialize(data: Record<string, any>): string {
 // ============================================================================
 
 export let showError = (message: string): void => {
-  console.error("[DATA_API]", message);
+  console.error('[DATA_API]', message);
 };
 
 export let refreshAccessToken = async (): Promise<void> => {};
@@ -110,7 +110,8 @@ export function useDataAPI(options: UseDataAPIOptions = {}): AxiosInstance {
   const isErrorShownRef = useRef(false);
   const configRef = useRef<DataAPIConfig>({ ...DEFAULT_CONFIG, ...config });
 
-  const token = useUrlParam("token");
+  const token = useUrlParam('token');
+  const authorization = useUrlParam('authorization');
 
   if (!apiRef.current) {
     apiRef.current = axios.create({
@@ -140,18 +141,18 @@ export function useDataAPI(options: UseDataAPIOptions = {}): AxiosInstance {
   const handleUnauthorized = useCallback(
     async (
       config: DataRequestConfig,
-      response: AxiosResponse,
+      response: AxiosResponse
     ): Promise<AxiosResponse> => {
       return Promise.reject();
     },
-    [api],
+    [api]
   );
 
   // 设置请求拦截器
   useEffect(() => {
     const requestInterceptor = api.interceptors.request.use(
       (config: DataRequestConfig) => {
-        const isMinioFile = config.url && config.url.startsWith("/minio-file");
+        const isMinioFile = config.url && config.url.startsWith('/minio-file');
         if (isMinioFile) {
           return config;
         }
@@ -160,11 +161,12 @@ export function useDataAPI(options: UseDataAPIOptions = {}): AxiosInstance {
         if (!config.headers) {
           config.headers = {} as any;
         }
-        config.headers["Blade-Requested-With"] = "BladeHttpRequest";
+        config.headers['Blade-Requested-With'] = 'BladeHttpRequest';
 
         // Add Authorization header from environment variable or use default
-        const authHeader = import.meta.env.VITE_DATA_API_AUTHORIZATION;
-        config.headers["Authorization"] = authHeader;
+        const authHeader =
+          authorization || import.meta.env.VITE_DATA_API_AUTHORIZATION;
+        config.headers['Authorization'] = authHeader;
 
         // Get default token from environment variable
         const defaultToken = import.meta.env.VITE_DATA_API_DEFAULT_TOKEN;
@@ -178,14 +180,14 @@ export function useDataAPI(options: UseDataAPIOptions = {}): AxiosInstance {
         const meta = config.meta || {};
         // Add access token
         if (config.text === true) {
-          config.headers["Content-Type"] = "text/plain";
+          config.headers['Content-Type'] = 'text/plain';
         }
         if (config.isFormData || meta.isFormData) {
-          config.headers["Content-Type"] = "multipart/form-data";
+          config.headers['Content-Type'] = 'multipart/form-data';
         }
 
         // Serialize form data
-        if (config.method === "post" && meta.isSerialize === true) {
+        if (config.method === 'post' && meta.isSerialize === true) {
           config.data = serialize(config.data);
         }
 
@@ -193,7 +195,7 @@ export function useDataAPI(options: UseDataAPIOptions = {}): AxiosInstance {
       },
       (error) => {
         return Promise.reject(error);
-      },
+      }
     );
 
     return () => {
@@ -210,7 +212,7 @@ export function useDataAPI(options: UseDataAPIOptions = {}): AxiosInstance {
         const status = res.data.error_code || res.data.code || res.status;
         const statusWhiteList = configRef.current.statusWhiteList || [];
         const message =
-          res.data.msg || res.data.error_description || "System error";
+          res.data.msg || res.data.error_description || 'System error';
 
         // Handle whitelisted status codes
         if (statusWhiteList.includes(status)) {
@@ -247,7 +249,7 @@ export function useDataAPI(options: UseDataAPIOptions = {}): AxiosInstance {
       },
       (error: AxiosError) => {
         return Promise.reject(error);
-      },
+      }
     );
 
     return () => {
@@ -259,11 +261,11 @@ export function useDataAPI(options: UseDataAPIOptions = {}): AxiosInstance {
 }
 
 function handleAuthenticationError(message: string): void {
-  showError(message || "User token is unavailable, please login again");
+  showError(message || 'User token is unavailable, please login again');
 }
 
 export function createDataAPI(
-  config: Partial<DataAPIConfig> = {},
+  config: Partial<DataAPIConfig> = {}
 ): AxiosInstance {
   const finalConfig = { ...DEFAULT_CONFIG, ...config };
   const instance = axios.create({
@@ -276,7 +278,7 @@ export function createDataAPI(
   // Add request interceptor to include auth headers
   instance.interceptors.request.use(
     (config) => {
-      const isMinioFile = config.url && config.url.startsWith("/minio-file");
+      const isMinioFile = config.url && config.url.startsWith('/minio-file');
       if (isMinioFile) {
         return config;
       }
@@ -287,30 +289,31 @@ export function createDataAPI(
       }
 
       // Add security headers
-      config.headers["Blade-Requested-With"] = "BladeHttpRequest";
+      config.headers['Blade-Requested-With'] = 'BladeHttpRequest';
 
       // Add Authorization header from environment variable or use default
       const authHeader =
         import.meta.env.VITE_DATA_API_AUTHORIZATION ||
-        "Basic c2FiZXIzOnNhYmVyM19zZWNyZXQ=";
-      config.headers["Authorization"] = authHeader;
+        'Basic c2FiZXIzOnNhYmVyM19zZWNyZXQ=';
+      config.headers['Authorization'] = authHeader;
 
       // Get token from localStorage (same as main API)
-      const token = window.localStorage.getItem("access_token_lf");
+      const token = window.localStorage.getItem('access_token_lf');
       const defaultToken = import.meta.env.VITE_DATA_API_DEFAULT_TOKEN;
 
       if (token) {
         // Remove quotes if present and use user's token
-        const cleanToken = token.replace(/^"(.*)"$/, "$1");
-        config.headers[finalConfig.tokenHeader || "Blade-Auth"] =
-          `bearer ${cleanToken}`;
+        const cleanToken = token.replace(/^"(.*)"$/, '$1');
+        config.headers[
+          finalConfig.tokenHeader || 'Blade-Auth'
+        ] = `bearer ${cleanToken}`;
       } else if (defaultToken) {
         // Use default token from environment variable
-        config.headers[finalConfig.tokenHeader || "Blade-Auth"] = defaultToken;
+        config.headers[finalConfig.tokenHeader || 'Blade-Auth'] = defaultToken;
       } else {
         // Fallback to hardcoded token if no environment variable is set
-        config.headers[finalConfig.tokenHeader || "Blade-Auth"] =
-          "bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJibGFkZXguY24iLCJhdWQiOlsiYmxhZGV4Il0sInRva2VuX3R5cGUiOiJhY2Nlc3NfdG9rZW4iLCJjbGllbnRfaWQiOiJzYWJlcjMiLCJ0ZW5hbnRfaWQiOiIwMDAwMDAiLCJ1c2VyX2lkIjoiMTEyMzU5ODgyMTczODY3NTIwMSIsImRlcHRfaWQiOiIxMTIzNTk4ODEzNzM4Njc1MjAxIiwicG9zdF9pZCI6IjExMjM1OTg4MTc3Mzg2NzUyMDEiLCJyb2xlX2lkIjoiMTEyMzU5ODgxNjczODY3NTIwMSwxOTEyMzk2MDkzMzk1MTQ0NzA2Iiwib2F1dGhfaWQiOiIiLCJhY2NvdW50IjoiYWRtaW4iLCJ1c2VyX25hbWUiOiJhZG1pbiIsIm5pY2tfbmFtZSI6IueuoeeQhuWRmCIsInJlYWxfbmFtZSI6IueuoeeQhuWRmCIsInJvbGVfbmFtZSI6ImFkbWluaXN0cmF0b3Is5pWw5o2u566h55CG5Yaz562W6ICFIiwiZGV0YWlsIjp7InR5cGUiOiJ3ZWIiLCJleHQiOiJodHRwOi8vMTkyLjE2OC4xMTAuMTgwOjMyMTAyL3N5c3RlbS91c2VyIn0sImV4cCI6MTc2NDc5MDE2MSwibmJmIjoxNzYxMTkwMTYxfQ.zlm4tTlGXGo8Trh8AFPpEMk0ifUp0QJ6RetXFLEQo3A";
+        config.headers[finalConfig.tokenHeader || 'Blade-Auth'] =
+          'bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJibGFkZXguY24iLCJhdWQiOlsiYmxhZGV4Il0sInRva2VuX3R5cGUiOiJhY2Nlc3NfdG9rZW4iLCJjbGllbnRfaWQiOiJzYWJlcjMiLCJ0ZW5hbnRfaWQiOiIwMDAwMDAiLCJ1c2VyX2lkIjoiMTEyMzU5ODgyMTczODY3NTIwMSIsImRlcHRfaWQiOiIxMTIzNTk4ODEzNzM4Njc1MjAxIiwicG9zdF9pZCI6IjExMjM1OTg4MTc3Mzg2NzUyMDEiLCJyb2xlX2lkIjoiMTEyMzU5ODgxNjczODY3NTIwMSwxOTEyMzk2MDkzMzk1MTQ0NzA2Iiwib2F1dGhfaWQiOiIiLCJhY2NvdW50IjoiYWRtaW4iLCJ1c2VyX25hbWUiOiJhZG1pbiIsIm5pY2tfbmFtZSI6IueuoeeQhuWRmCIsInJlYWxfbmFtZSI6IueuoeeQhuWRmCIsInJvbGVfbmFtZSI6ImFkbWluaXN0cmF0b3Is5pWw5o2u566h55CG5Yaz562W6ICFIiwiZGV0YWlsIjp7InR5cGUiOiJ3ZWIiLCJleHQiOiJodHRwOi8vMTkyLjE2OC4xMTAuMTgwOjMyMTAyL3N5c3RlbS91c2VyIn0sImV4cCI6MTc2NDc5MDE2MSwibmJmIjoxNzYxMTkwMTYxfQ.zlm4tTlGXGo8Trh8AFPpEMk0ifUp0QJ6RetXFLEQo3A';
       }
 
       // Get metadata from extended config
@@ -319,14 +322,14 @@ export function createDataAPI(
 
       // Add content-type headers
       if (extendedConfig.text === true) {
-        config.headers["Content-Type"] = "text/plain";
+        config.headers['Content-Type'] = 'text/plain';
       }
       if (extendedConfig.isFormData || meta.isFormData) {
-        config.headers["Content-Type"] = "multipart/form-data";
+        config.headers['Content-Type'] = 'multipart/form-data';
       }
 
       // Serialize form data
-      if (config.method === "post" && meta.isSerialize === true) {
+      if (config.method === 'post' && meta.isSerialize === true) {
         config.data = serialize(config.data);
       }
 
@@ -334,7 +337,7 @@ export function createDataAPI(
     },
     (error) => {
       return Promise.reject(error);
-    },
+    }
   );
 
   // Add response interceptor for error handling
@@ -342,7 +345,7 @@ export function createDataAPI(
     (res: AxiosResponse) => {
       const status = res.data?.error_code || res.data?.code || res.status;
       const message =
-        res.data?.msg || res.data?.error_description || "System error";
+        res.data?.msg || res.data?.error_description || 'System error';
 
       // Handle 401 unauthorized
       if (status === 401) {
@@ -360,7 +363,7 @@ export function createDataAPI(
     },
     (error: AxiosError) => {
       return Promise.reject(error);
-    },
+    }
   );
 
   return instance;
