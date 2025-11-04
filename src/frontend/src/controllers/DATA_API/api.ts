@@ -173,7 +173,7 @@ export function useDataAPI(options: UseDataAPIOptions = {}): AxiosInstance {
         // Use token from URL param or default token
         const tokenHeader = DEFAULT_CONFIG.tokenHeader;
         if (tokenHeader && config.headers) {
-          config.headers[tokenHeader] = token || defaultToken;
+          config.headers[tokenHeader] = `bearer ` + (token || defaultToken);
         }
 
         // Get metadata
