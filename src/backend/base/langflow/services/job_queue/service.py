@@ -68,6 +68,7 @@ class JobQueueService(Service):
         to active.
         """
         self._queues: dict[str, tuple[asyncio.Queue, EventManager, asyncio.Task | None, float | None]] = {}
+        self._flow_job_mapping: dict[str, str] = {}  # Maps flow_id -> job_id for persistent streaming
         self._cleanup_task: asyncio.Task | None = None
         self._closed = False
         self.ready = False
@@ -327,3 +328,54 @@ class JobQueueService(Service):
         for name, event_type in event_names_types:
             manager.register_event(name, event_type)
         return manager
+
+    def register_flow_job(self, flow_id: str, job_id: str) -> None:
+        """Register a flow-to-job mapping for persistent streaming flows.
+
+        This mapping allows tracking which job is currently running for a given flow,
+        enabling status queries and reconnection to ongoing streams.
+
+        Args:
+            flow_id (str): Unique identifier for the flow.
+            job_id (str): Unique identifier for the job processing this flow.
+        """
+        self._flow_job_mapping[flow_id] = job_id
+        logger.debug(f"Registered flow {flow_id} -> job {job_id} for persistent streaming")
+
+    def get_flow_job_id(self, flow_id: str) -> str | None:
+        """Retrieve the currently active job ID for a given flow.
+
+        Args:
+            flow_id (str): Unique identifier for the flow.
+
+        Returns:
+            str | None: The job ID if a job is registered for this flow, None otherwise.
+        """
+        return self._flow_job_mapping.get(flow_id)
+
+    def is_job_running(self, job_id: str) -> bool:
+        """Check if a job is currently running.
+
+        Args:
+            job_id (str): Unique identifier for the job.
+
+        Returns:
+            bool: True if the job exists and has an active task, False otherwise.
+        """
+        try:
+            _, _, task, _ = self.get_queue_data(job_id)
+            if task is None:
+                return False
+            return not task.done()
+        except (JobQueueNotFoundError, RuntimeError):
+            return False
+
+    def cleanup_flow_job(self, flow_id: str) -> None:
+        """Remove the flow-to-job mapping for a completed or cancelled flow.
+
+        Args:
+            flow_id (str): Unique identifier for the flow.
+        """
+        if flow_id in self._flow_job_mapping:
+            job_id = self._flow_job_mapping.pop(flow_id)
+            logger.debug(f"Cleaned up flow mapping: {flow_id} (job {job_id})")

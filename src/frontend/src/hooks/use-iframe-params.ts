@@ -30,6 +30,8 @@ export const useIsEmbedded = (): boolean => {
 export const useUrlParam = (paramName: string): string | null => {
   return useMemo(() => {
     const params = new URLSearchParams(window.location.search);
-    return params.get(paramName);
-  }, [paramName, window.location.search]);
+    const value = params.get(paramName);
+    console.log(`[useUrlParam] ${paramName} = ${value}`);
+    return value;
+  }, [paramName]);
 };

@@ -134,7 +134,7 @@
     "contactDeveloperToFix": "请联系组件的开发者修复此问题。",
     "errorUpdatingComponentCode": "更新组件代码时出错",
     "errorUpdatingComponent": "更新组件时出错。",
-    "reportErrorOnDiscord": "如果错误持续存在，请在我们的 Discord 或 GitHub 上报告。",
+    "reportErrorOnDiscord": "如果错误持续存在，请联系我们。",
     "minimizationOnlyAvailable": "仅对具有一个或更少处理程序的组件可用最小化。",
     "cannotAccessCode": "您无法访问",
     "savedSuccessfully": "保存成功",
@@ -152,8 +152,6 @@
     "settings": "设置",
     "admin": "管理员",
     "docs": "文档",
-    "github": "GitHub",
-    "discord": "Discord",
     "twitter": "Twitter"
   },
   "settings": {
@@ -421,7 +419,7 @@
     "update": {
       "errorUpdating": "更新组件错误",
       "errorUpdatingList1": "更新组件时发生错误。",
-      "errorUpdatingList2": "如果错误持续存在，请在我们的 Discord 或 GitHub 上报告。",
+      "errorUpdatingList2": "如果错误持续存在，请联系我们。",
       "edgesLost": "更新组件后丢失了一些连接。请检查流程并重新连接它们。",
       "successUpdated": "成功更新了 {{count}} 个组件",
       "successUpdated_other": "成功更新了 {{count}} 个组件",

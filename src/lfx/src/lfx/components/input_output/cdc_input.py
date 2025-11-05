@@ -163,10 +163,13 @@ class ETLCDCStreamInputComponent(Component):
                 options_metadata = []
 
                 for ds in all_datasources:
-                    options.append(ds["display_name"])
-                    # 使用 options_metadata 存储完整信息
+                    # options 只包含ID (唯一值)
+                    options.append(ds["id"])
+                    # options_metadata 包含显示信息，使用 label 字段供前端显示
                     options_metadata.append(
                         {
+                            "value": ds["id"],  # 实际值
+                            "label": ds["display_name"],  # 显示名称
                             "id": ds["id"],
                             "name": ds["name"],
                             "type": ds["type"],
@@ -201,7 +204,9 @@ class ETLCDCStreamInputComponent(Component):
                     self.status = i18n.t("components.input_output.cdc_input.status.loading_tables")
                     # 提取纯UUID（移除可能的前缀）
                     clean_datasource_id = self._extract_uuid_from_id(datasource_id)
-                    logger.info(f"[CDCInput] Loading tables for datasource: {datasource_id} (cleaned: {clean_datasource_id})")
+                    logger.info(
+                        f"[CDCInput] Loading tables for datasource: {datasource_id} (cleaned: {clean_datasource_id})"
+                    )
 
                     with httpx.Client(timeout=120.0) as client:
                         response = client.get(f"{api_url}/api/v1/datasources/{clean_datasource_id}/tables")
@@ -247,15 +252,38 @@ class ETLCDCStreamInputComponent(Component):
         logger.debug(f"[CDCInput] Returning build_config with keys: {list(build_config.keys())}")
         return build_config
 
-    def _get_datasource_id_from_metadata(self, display_name: str, options_metadata: list[dict]) -> str | None:
-        """从 options_metadata 中根据显示名称获取数据源ID"""
+    def _get_datasource_id_from_metadata(self, selector_value: str, options_metadata: list[dict]) -> str | None:
+        """从 options_metadata 中根据选择器值获取数据源ID
+
+        Args:
+            selector_value: 选择器的值，现在直接就是数据源ID
+            options_metadata: 元数据列表
+
+        Returns:
+            数据源ID，如果未找到则返回None
+        """
+        # 现在 selector_value 直接就是ID，直接返回
+        # 但我们先验证它确实存在于 metadata 中
         for metadata in options_metadata:
-            if metadata.get("display_name") == display_name:
+            if metadata.get("id") == selector_value or metadata.get("value") == selector_value:
+                logger.debug(f"[CDCInput] Found valid datasource ID: '{selector_value}'")
+                return selector_value
+
+        # 向后兼容：尝试从旧的 "ID|||显示名称" 格式中提取ID
+        if "|||" in selector_value:
+            datasource_id = selector_value.split("|||")[0]
+            logger.warning(f"[CDCInput] Legacy format detected, extracted ID '{datasource_id}' from selector value")
+            return datasource_id
+
+        # 再向后兼容：按显示名称查找
+        logger.warning(f"[CDCInput] Trying legacy lookup by display name for: '{selector_value}'")
+        for metadata in options_metadata:
+            if metadata.get("display_name") == selector_value:
                 datasource_id = metadata.get("id")
-                logger.debug(f"[CDCInput] Found datasource ID '{datasource_id}' for display name '{display_name}'")
+                logger.debug(f"[CDCInput] Found datasource ID '{datasource_id}' for display name '{selector_value}'")
                 return datasource_id
 
-        logger.warning(f"[CDCInput] No metadata found for display name: {display_name}")
+        logger.warning(f"[CDCInput] No metadata found for selector value: {selector_value}")
         return None
 
     def _format_i18n(self, key: str, **kwargs) -> str:
@@ -348,7 +376,7 @@ class ETLCDCStreamInputComponent(Component):
         return self._build_connection_string_from_params(ds_type, params)
 
     def _build_connection_string_from_params(self, ds_type: str, params: dict) -> str:
-        """从参数构建连接字符串 - Only support MySQL, PostgreSQL, Hive, Neo4j"""
+        """从参数构建连接字符串 - Only support MySQL, PostgreSQL (CDC does not support Hive, Neo4j)"""
         from urllib.parse import quote_plus
 
         host = params.get("host", "localhost")
@@ -401,7 +429,9 @@ class ETLCDCStreamInputComponent(Component):
         try:
             # 提取纯UUID（移除可能的前缀）
             clean_datasource_id = self._extract_uuid_from_id(datasource_id)
-            logger.debug(f"[CDCInput] Getting connection string for datasource ID: {datasource_id} (cleaned: {clean_datasource_id})")
+            logger.debug(
+                f"[CDCInput] Getting connection string for datasource ID: {datasource_id} (cleaned: {clean_datasource_id})"
+            )
 
             with httpx.Client(timeout=120.0) as client:
                 response = client.get(f"{api_url}/api/v1/datasources/{clean_datasource_id}/connection-string")
@@ -696,14 +726,20 @@ class ETLCDCStreamInputComponent(Component):
                 pool_pre_ping=True,  # 自动检查连接
                 connect_args={
                     "connect_timeout": 60  # 连接超时60秒
-                }
+                },
             )
 
             # 持续轮询变更
             # 使用运行时状态，如果存在则使用，否则使用配置值
-            last_sync = self._current_last_sync if self._current_last_sync else (self.last_sync_time if self.last_sync_time else "1970-01-01 00:00:00")
+            last_sync = (
+                self._current_last_sync
+                if self._current_last_sync
+                else (self.last_sync_time if self.last_sync_time else "1970-01-01 00:00:00")
+            )
             changes_count = 0
-            logger.info(f"[CDCInput] Starting streaming with timestamp_column='{self.timestamp_column}', last_sync='{last_sync}'")
+            logger.info(
+                f"[CDCInput] Starting streaming with timestamp_column='{self.timestamp_column}', last_sync='{last_sync}'"
+            )
 
             while not self._should_stop:
                 # ✅ 在线程池中执行阻塞的数据库查询
@@ -716,8 +752,12 @@ class ETLCDCStreamInputComponent(Component):
                             ORDER BY {self.timestamp_column}
                             LIMIT :batch_size
                         """)
-                        logger.debug(f"[CDCInput] Executing query with last_sync='{last_sync}' (type: {type(last_sync)})")
-                        return pd.read_sql_query(query, connection, params={'last_sync': last_sync, 'batch_size': self.batch_size})
+                        logger.debug(
+                            f"[CDCInput] Executing query with last_sync='{last_sync}' (type: {type(last_sync)})"
+                        )
+                        return pd.read_sql_query(
+                            query, connection, params={"last_sync": last_sync, "batch_size": self.batch_size}
+                        )
 
                 df = await asyncio.to_thread(query_changes)
 
@@ -745,7 +785,9 @@ class ETLCDCStreamInputComponent(Component):
                             original_timestamp = row_dict[self.timestamp_column]
                             last_sync = str(original_timestamp)
                             self._current_last_sync = last_sync  # 持久化到组件属性
-                            logger.info(f"[CDCInput] Updated last_sync to '{last_sync}' (type: {type(original_timestamp)}) from column '{self.timestamp_column}'")
+                            logger.info(
+                                f"[CDCInput] Updated last_sync to '{last_sync}' (type: {type(original_timestamp)}) from column '{self.timestamp_column}'"
+                            )
 
                         # ✅ 让出控制权
                         await asyncio.sleep(0)
@@ -811,7 +853,7 @@ class ETLCDCStreamInputComponent(Component):
                 pool_pre_ping=True,  # 自动检查连接
                 connect_args={
                     "connect_timeout": 60  # 连接超时60秒
-                }
+                },
             )
 
             # 审计表名称
@@ -836,7 +878,11 @@ class ETLCDCStreamInputComponent(Component):
 
             # 持续轮询变更
             # 使用运行时状态，如果存在则使用，否则使用配置值
-            last_sync = self._current_last_sync if self._current_last_sync else (self.last_sync_time if self.last_sync_time else "1970-01-01 00:00:00")
+            last_sync = (
+                self._current_last_sync
+                if self._current_last_sync
+                else (self.last_sync_time if self.last_sync_time else "1970-01-01 00:00:00")
+            )
             changes_count = 0
 
             while not self._should_stop:
@@ -1113,6 +1159,9 @@ class ETLCDCStreamInputComponent(Component):
                                     "type": ds["type"],
                                     "source": "builtin",
                                     "display_name": display_name,
+                                    "database": ds.get("database"),  # 保留 database 字段
+                                    "host": ds.get("host"),
+                                    "port": ds.get("port"),
                                 }
                             )
                     else:
@@ -1146,8 +1195,17 @@ class ETLCDCStreamInputComponent(Component):
             except Exception as e:
                 logger.error(f"[CDCInput] Error loading public datasources: {e}")
 
-            logger.info(f"[CDCInput] Loaded total of {len(all_datasources)} unified datasources")
-            return all_datasources
+            # 过滤掉Neo4j和Hive数据源（CDC不支持这两种类型）
+            filtered_datasources = [
+                ds for ds in all_datasources
+                if ds["type"].lower() not in ["neo4j", "hive"]
+            ]
+
+            logger.info(
+                f"[CDCInput] Loaded {len(filtered_datasources)} datasources "
+                f"(excluded {len(all_datasources) - len(filtered_datasources)} Neo4j/Hive datasources, CDC not supported)"
+            )
+            return filtered_datasources
 
         except Exception as e:
             logger.error(f"[CDCInput] Error in _load_unified_datasources: {e}")

@@ -121,6 +121,18 @@ export default function Dropdown({
   );
 
   // Utility functions
+  const getDisplayLabel = (optionValue: string): string => {
+    if (!optionsMetaData || optionsMetaData.length === 0) {
+      return optionValue;
+    }
+
+    const metadata = optionsMetaData.find(
+      (m: any) => m.value === optionValue || m.id === optionValue,
+    );
+
+    return metadata?.label || optionValue;
+  };
+
   const filterMetadataKeys = (
     metadata: Record<string, any> = {},
     excludeKeys: string[] = ["api_endpoint", "icon", "status", "org_id"],
@@ -437,7 +449,7 @@ export default function Dropdown({
                 <>
                   {
                     options?.includes(value) ? (
-                      value
+                      getDisplayLabel(value)
                     ) : // this logic is used for the agents component, if you update make sure to test the agent component
                     sourceOptions?.fields?.data?.node?.name ===
                       "connect_other_models" ? (
@@ -536,7 +548,7 @@ export default function Dropdown({
                       })}
                     >
                       <div className="text-[13px] mr-2 whitespace-nowrap flex-shrink-0">
-                        {option}
+                        {getDisplayLabel(option)}
                       </div>
                       {filteredMetadata?.[index]?.status && (
                         <span

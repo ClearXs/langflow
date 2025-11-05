@@ -1,7 +1,8 @@
 """Unit tests for ETLKafkaOutputComponent."""
 
-from unittest.mock import Mock, patch
 import json
+from unittest.mock import Mock, patch
+
 import pytest
 
 from lfx.components.input_output.kafka_output import ETLKafkaOutputComponent
@@ -163,7 +164,7 @@ class TestETLKafkaOutputComponent:
         # Test non-string value
         data_int = 123
         result = component._serialize_value(data_int)
-        expected = "123".encode("utf-8")
+        expected = b"123"
         assert result == expected
 
     def test_extract_key(self, basic_component_config):

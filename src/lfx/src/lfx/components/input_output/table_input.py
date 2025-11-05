@@ -35,6 +35,157 @@ TRANSFORMATION_RULE_VALUES = [
 ]
 
 
+def _serialize_neo4j_value(value):
+    """
+    Neo4j对象包装函数 - 把复杂对象包装成React可以渲染的简单结构。
+
+    核心原则：保持原始数据结构不变，只是在表格显示时包装成 {"value": ""} 格式。
+    """
+    # 如果已经是原始类型，包装成 {"value": 原始值}
+    if isinstance(value, (str, int, float, bool)) or value is None:
+        return {"value": value}
+
+    # 处理Neo4j特殊对象
+    try:
+        # 检查是否是Neo4j对象 - 更宽松的检测
+        class_name = value.__class__.__name__
+        module_name = getattr(value.__class__, '__module__', '')
+
+        # 检查是否是Neo4j对象（通过类名或模块名）
+        is_neo4j_object = ('neo4j' in module_name.lower() or
+                          class_name in ['Node', 'Relationship', 'Path', 'Record'])
+
+        if is_neo4j_object:
+            # Neo4j Node对象
+            if (class_name == 'Node' or
+                (hasattr(value, 'labels') and hasattr(value, 'properties'))):
+                node_data = {
+                    "_type": "Node",
+                    "labels": list(value.labels) if hasattr(value, 'labels') else [],
+                    "properties": dict(value.properties) if hasattr(value, 'properties') else {}
+                }
+                if hasattr(value, 'element_id'):
+                    node_data["_element_id"] = str(value.element_id)
+                return {"value": node_data}
+
+            # Neo4j Relationship对象
+            elif (class_name == 'Relationship' or
+                  (hasattr(value, 'type') and hasattr(value, 'start_node') and hasattr(value, 'end_node'))):
+                rel_data = {
+                    "_type": "Relationship",
+                    "type": str(value.type) if hasattr(value, 'type') else "",
+                }
+                if hasattr(value, 'element_id'):
+                    rel_data["_element_id"] = str(value.element_id)
+                if hasattr(value, 'start_node') and hasattr(value.start_node, 'element_id'):
+                    rel_data["start_node_id"] = str(value.start_node.element_id)
+                if hasattr(value, 'end_node') and hasattr(value.end_node, 'element_id'):
+                    rel_data["end_node_id"] = str(value.end_node.element_id)
+                if hasattr(value, 'properties'):
+                    rel_data["properties"] = dict(value.properties)
+                return {"value": rel_data}
+
+            # 其他Neo4j对象，提取所有可用属性
+            else:
+                neo4j_data = {"_type": class_name}
+                for attr in dir(value):
+                    if not attr.startswith('_') and not callable(getattr(value, attr)):
+                        try:
+                            attr_value = getattr(value, attr)
+                            if isinstance(attr_value, (str, int, float, bool, list, dict)) or attr_value is None:
+                                if isinstance(attr_value, frozenset):
+                                    neo4j_data[attr] = list(attr_value)
+                                else:
+                                    neo4j_data[attr] = attr_value
+                        except Exception:
+                            continue
+                return {"value": neo4j_data}
+
+        # 普通复牚对象（字典、列表等），直接JSON序列化
+        import json
+        json_str = json.dumps(value, ensure_ascii=False)
+        # 限制长度避免UI问题
+        if len(json_str) > 500:
+            json_str = json_str[:500] + "..."
+        return {"value": json_str}
+
+    except (TypeError, ValueError, AttributeError):
+        # 如果JSON序列化失败，用字符串表示
+        try:
+            str_value = str(value)
+            if len(str_value) > 500:
+                str_value = str_value[:500] + "..."
+            return {"value": str_value}
+        except Exception:
+            return {"value": f"<{value.__class__.__name__} object>"}
+
+
+def _convert_neo4j_record_to_dict(record):
+    """Convert a Neo4j Record to a flat dictionary with serializable values.
+
+    Args:
+        record: A Neo4j Record object
+
+    Returns:
+        A dictionary with all values serialized for table display
+    """
+    logger.debug(f"[TableInput] Converting Neo4j record with keys: {record.keys()}")
+    result = {}
+    for key in record.keys():
+        try:
+            value = record[key]
+            logger.debug(f"[TableInput] Processing field '{key}' of type {type(value)}")
+
+            # 保持原始数据,只是转换为JSON字符串用于显示
+            serialized_value = _serialize_neo4j_value(value)
+
+            logger.debug(f"[TableInput] Serialized '{key}' to: {type(serialized_value)}")
+            result[key] = serialized_value
+        except Exception as e:
+            # If serialization fails for any reason, provide error info
+            error_msg = f"<Error: {e!s}>"
+            logger.error(f"[TableInput] Error serializing field '{key}': {error_msg}")
+            result[key] = error_msg
+
+    logger.debug(f"[TableInput] Final converted record: {result}")
+    return result
+
+
+def _convert_neo4j_record_to_table_format(record):
+    """Convert a Neo4j Record to single-field table format.
+
+    This function takes a Neo4j record and converts it to a single-field
+    format suitable for table display, where the entire record is JSON-serialized
+    and wrapped in a {"value": "..."} structure.
+
+    Args:
+        record: A Neo4j Record object
+
+    Returns:
+        A dictionary with single "value" key containing JSON-serialized record
+    """
+    logger.debug(f"[TableInput] Converting Neo4j record to table format with keys: {record.keys()}")
+
+    # First convert using the standard method
+    record_dict = _convert_neo4j_record_to_dict(record)
+
+    try:
+        # Convert the entire record to JSON string
+        import json
+        json_str = json.dumps(record_dict, ensure_ascii=False, default=str)
+
+        # Wrap in single-field format for table display
+        table_format = {"value": json_str}
+
+        logger.debug(f"[TableInput] Table format result: {table_format}")
+        return table_format
+
+    except Exception as e:
+        error_msg = f"<Error converting record to table format: {e!s}>"
+        logger.error(f"[TableInput] Error in table format conversion: {error_msg}")
+        return {"value": error_msg}
+
+
 class ETLTableInputComponent(Component):
     display_name = i18n.t("components.input_output.table_input.display_name")
     description = i18n.t("components.input_output.table_input.description")
@@ -210,7 +361,6 @@ class ETLTableInputComponent(Component):
             f"field_value: {field_value}, action: {action}"
         )
 
-
         # Always load datasources for: initial load (None) or refresh datasource_selector (empty value)
         if field_name is None or (field_name == "datasource_selector" and not field_value):
             logger.debug(f"[TableInput] Loading datasources (field_name={field_name}, field_value={field_value})")
@@ -223,10 +373,13 @@ class ETLTableInputComponent(Component):
                 options_metadata = []
 
                 for ds in all_datasources:
-                    options.append(ds["display_name"])
-                    # 使用 options_metadata 存储完整信息
+                    # options 只包含ID (唯一值)
+                    options.append(ds["id"])
+                    # options_metadata 包含显示信息，使用 label 字段供前端显示
                     options_metadata.append(
                         {
+                            "value": ds["id"],  # 实际值
+                            "label": ds["display_name"],  # 显示名称
                             "id": ds["id"],
                             "name": ds["name"],
                             "type": ds["type"],
@@ -400,7 +553,12 @@ class ETLTableInputComponent(Component):
                 options_metadata = build_config.get("datasource_selector", {}).get("options_metadata", [])
                 datasource_info = None
                 for metadata in options_metadata:
-                    if metadata.get("display_name") == current_datasource:
+                    # 支持通过 display_name、id 或 value 来匹配
+                    if (
+                        metadata.get("display_name") == current_datasource
+                        or metadata.get("id") == current_datasource
+                        or metadata.get("value") == current_datasource
+                    ):
                         datasource_info = metadata
                         break
 
@@ -411,7 +569,8 @@ class ETLTableInputComponent(Component):
                     )
                     all_datasources = self._load_unified_datasources()
                     for ds in all_datasources:
-                        if ds["display_name"] == current_datasource:
+                        # 支持通过 display_name 或 id 来匹配
+                        if ds["display_name"] == current_datasource or ds["id"] == current_datasource:
                             datasource_info = {
                                 "id": ds["id"],
                                 "name": ds["name"],
@@ -425,48 +584,106 @@ class ETLTableInputComponent(Component):
                 # 保存数据源信息供后续使用
                 self._current_datasource_info = datasource_info
 
+                # 添加调试日志
+                if datasource_info:
+                    logger.debug(
+                        f"[TableInput] Found datasource info: type={datasource_info.get('type')}, "
+                        f"name={datasource_info.get('name')}, id={datasource_info.get('id')}"
+                    )
+                else:
+                    logger.warning("[TableInput] datasource_info is None!")
+
                 connection_string = self._get_connection_string(datasource_id, datasource_info)
-                engine = create_engine(connection_string, poolclass=NullPool)
 
-                try:
-                    with engine.connect() as conn:
-                        # Execute SQL query, limit to 100 rows
-                        preview_sql = f"{current_sql} LIMIT 100"
-                        df = pd.read_sql_query(text(preview_sql), conn)
+                # Check if this is a Neo4j datasource
+                is_neo4j = datasource_info and datasource_info.get("type", "").lower() == "neo4j"
+                logger.debug(
+                    f"[TableInput] is_neo4j={is_neo4j}, datasource type={datasource_info.get('type') if datasource_info else 'N/A'}"
+                )
 
-                        if df.empty:
-                            logger.warning("[TableInput] No data returned from preview query")
-                            self.status = i18n.t("components.input_output.table_input.status.no_data_found")
-                            # Clear preview table
-                            build_config["preview_table"]["table_schema"] = []
-                            build_config["preview_table"]["value"] = []
-                            return build_config
+                if is_neo4j:
+                    # Neo4j requires native driver, not SQLAlchemy
+                    import re
+                    from urllib.parse import unquote
 
-                        # Generate table schema
-                        table_schema = [
-                            {
-                                "name": str(col),
-                                "display_name": str(col),
-                                "type": "str",
-                                "disable_edit": True,
-                            }
-                            for col in df.columns
-                        ]
+                    from neo4j import GraphDatabase
 
-                        # Convert DataFrame to list of dicts
-                        preview_data = df.fillna("").to_dict("records")
+                    logger.debug(f"[TableInput] Neo4j connection string: {connection_string}")
 
-                        # Update preview table config
-                        build_config["preview_table"]["table_schema"] = table_schema
-                        build_config["preview_table"]["value"] = preview_data
+                    # Parse bolt URI to get host, port, and credentials
+                    # Format: bolt://[username:password@]host:port
+                    match = re.match(r"bolt://(?:([^:]+):([^@]+)@)?([^:]+):(\d+)", connection_string)
+                    if not match:
+                        raise ValueError(f"Invalid Neo4j connection string format: {connection_string}")
 
-                        logger.info(f"[TableInput] Preview completed, showing {len(preview_data)} rows")
-                        self.status = self._format_i18n(
-                            "components.input_output.table_input.status.preview_success", count=len(preview_data)
-                        )
+                    username, password, host, port = match.groups()
 
-                finally:
-                    engine.dispose()
+                    # URL decode username and password (they are URL-encoded in the connection string)
+                    if username:
+                        username = unquote(username)
+                    if password:
+                        password = unquote(password)
+
+                    logger.debug(
+                        f"[TableInput] Parsed Neo4j connection: username={username}, "
+                        f"password={'***' if password else None}, host={host}, port={port}"
+                    )
+                    uri = f"bolt://{host}:{port}"
+
+                    driver = GraphDatabase.driver(uri, auth=(username, password) if username else None)
+                    try:
+                        with driver.session() as session:
+                            # Execute Cypher query
+                            result = session.run(current_sql)
+                            # Convert to list of dictionaries with serialized Neo4j objects
+                            records = []
+                            for record in result:
+                                records.append(_convert_neo4j_record_to_table_format(record))
+                            df = pd.DataFrame(records)
+                    finally:
+                        driver.close()
+                else:
+                    # For SQL databases, use SQLAlchemy
+                    engine = create_engine(connection_string, poolclass=NullPool)
+                    try:
+                        with engine.connect() as conn:
+                            # Execute SQL query, limit to 100 rows
+                            preview_sql = f"{current_sql} LIMIT 100"
+                            df = pd.read_sql_query(text(preview_sql), conn)
+                    finally:
+                        engine.dispose()
+
+                # Process query results (common for both Neo4j and SQL)
+                if df.empty:
+                    logger.warning("[TableInput] No data returned from preview query")
+                    self.status = i18n.t("components.input_output.table_input.status.no_data_found")
+                    # Clear preview table
+                    build_config["preview_table"]["table_schema"] = []
+                    build_config["preview_table"]["value"] = []
+                    return build_config
+
+                # Generate table schema
+                table_schema = [
+                    {
+                        "name": str(col),
+                        "display_name": str(col),
+                        "type": "str",
+                        "disable_edit": True,
+                    }
+                    for col in df.columns
+                ]
+
+                # Convert DataFrame to list of dicts
+                preview_data = df.fillna("").to_dict("records")
+
+                # Update preview table config
+                build_config["preview_table"]["table_schema"] = table_schema
+                build_config["preview_table"]["value"] = preview_data
+
+                logger.info(f"[TableInput] Preview completed, showing {len(preview_data)} rows")
+                self.status = self._format_i18n(
+                    "components.input_output.table_input.status.preview_success", count=len(preview_data)
+                )
 
             except Exception as e:
                 error_msg = f"{type(e).__name__}: {e!s}"
@@ -560,14 +777,30 @@ class ETLTableInputComponent(Component):
                 # 企业数据源ID通常不需要前缀，直接使用
                 datasource_id = self._extract_uuid_from_id(ds["id"])
                 builtin_datasources.append(
-                    {"id": datasource_id, "name": ds["name"], "type": ds["type"], "source": "enterprise"}
+                    {
+                        "id": datasource_id,
+                        "name": ds["name"],
+                        "type": ds["type"],
+                        "source": "enterprise",
+                        "database": ds.get("database"),  # 保留 database 字段
+                        "host": ds.get("host"),
+                        "port": ds.get("port"),
+                    }
                 )
 
             for ds in datasources.get("custom", []):
                 # 自定义数据源ID可能包含前缀，需要提取纯UUID
                 datasource_id = self._extract_uuid_from_id(ds["id"])
                 builtin_datasources.append(
-                    {"id": datasource_id, "name": ds["name"], "type": ds["type"], "source": "custom"}
+                    {
+                        "id": datasource_id,
+                        "name": ds["name"],
+                        "type": ds["type"],
+                        "source": "custom",
+                        "database": ds.get("database"),  # 保留 database 字段
+                        "host": ds.get("host"),
+                        "port": ds.get("port"),
+                    }
                 )
 
             return builtin_datasources
@@ -642,32 +875,45 @@ class ETLTableInputComponent(Component):
             return f"{base_name} {source_label} {' '.join(extra_labels)}"
         return f"{base_name} {source_label}"
 
-    def _get_datasource_id_from_metadata(self, display_name: str, options_metadata: list[dict]) -> str | None:
-        """从 options_metadata 中根据显示名称获取数据源ID"""
-        logger.debug(f"[TableInput] Looking for datasource ID for display name: '{display_name}'")
+    def _get_datasource_id_from_metadata(self, selector_value: str, options_metadata: list[dict]) -> str | None:
+        """从 options_metadata 中根据选择器值获取数据源ID
+
+        Args:
+            selector_value: 选择器的值，现在直接就是数据源ID
+            options_metadata: 元数据列表
+
+        Returns:
+            数据源ID，如果未找到则返回None
+        """
+        logger.debug(f"[TableInput] Looking for datasource ID from selector value: '{selector_value}'")
         logger.debug(f"[TableInput] Available metadata entries: {len(options_metadata)}")
 
         if not options_metadata:
             logger.warning("[TableInput] No options_metadata provided")
             return None
 
-        # 打印所有可用的显示名称以便调试
-        available_names = [m.get("display_name") for m in options_metadata]
-        logger.debug(f"[TableInput] Available display names: {available_names}")
+        # 现在 selector_value 直接就是ID，直接返回
+        # 但我们先验证它确实存在于 metadata 中
+        for metadata in options_metadata:
+            if metadata.get("id") == selector_value or metadata.get("value") == selector_value:
+                logger.info(f"[TableInput] Found valid datasource ID: '{selector_value}'")
+                return selector_value
 
-        for i, metadata in enumerate(options_metadata):
-            metadata_display_name = metadata.get("display_name")
-            metadata_id = metadata.get("id")
-            logger.debug(
-                f"[TableInput] Checking metadata {i}: display_name='{metadata_display_name}', id='{metadata_id}'"
-            )
+        # 向后兼容：尝试从旧的 "ID|||显示名称" 格式中提取ID
+        if "|||" in selector_value:
+            datasource_id = selector_value.split("|||")[0]
+            logger.warning(f"[TableInput] Legacy format detected, extracted ID '{datasource_id}' from selector value")
+            return datasource_id
 
-            if metadata_display_name == display_name:
-                logger.info(f"[TableInput] Found datasource ID '{metadata_id}' for display name '{display_name}'")
-                return metadata_id
+        # 再向后兼容：按显示名称查找
+        logger.warning(f"[TableInput] Trying legacy lookup by display name for: '{selector_value}'")
+        for metadata in options_metadata:
+            if metadata.get("display_name") == selector_value:
+                datasource_id = metadata.get("id")
+                logger.info(f"[TableInput] Found datasource ID '{datasource_id}' for display name '{selector_value}'")
+                return datasource_id
 
-        logger.error(f"[TableInput] No metadata found for display name: '{display_name}'")
-        logger.error(f"[TableInput] Expected display name to be one of: {available_names}")
+        logger.error(f"[TableInput] No metadata found for selector value: '{selector_value}'")
         return None
 
     def _format_i18n(self, key: str, **kwargs) -> str:
@@ -886,7 +1132,9 @@ class ETLTableInputComponent(Component):
         try:
             # 提取纯UUID（移除可能的前缀）
             clean_datasource_id = self._extract_uuid_from_id(datasource_id)
-            logger.debug(f"[TableInput] Getting connection string for builtin datasource ID: {datasource_id} (cleaned: {clean_datasource_id})")
+            logger.debug(
+                f"[TableInput] Getting connection string for builtin datasource ID: {datasource_id} (cleaned: {clean_datasource_id})"
+            )
             logger.debug(f"[TableInput] Using API URL: {api_url}")
 
             with httpx.Client(timeout=10.0) as client:
@@ -1020,9 +1268,13 @@ class ETLTableInputComponent(Component):
             # 加载统一的数据源列表
             all_datasources = self._load_unified_datasources()
 
-            # 查找匹配的数据源
+            # 查找匹配的数据源 - 支持display_name或直接的ID
             for ds in all_datasources:
-                if ds["display_name"] == self.datasource_selector:
+                # 尝试匹配display_name、id或value
+                if (ds["display_name"] == self.datasource_selector or
+                    ds["id"] == self.datasource_selector or
+                    ds.get("value") == self.datasource_selector):
+
                     datasource_id = ds["id"]
                     source = ds["source"]
 
@@ -1042,8 +1294,9 @@ class ETLTableInputComponent(Component):
                     return datasource_id
 
             # 如果没找到匹配的显示名称，这通常表示配置有问题
-            logger.error(f"[TableInput] Display name '{self.datasource_selector}' not found in datasource list")
-            logger.error(f"[TableInput] Available datasources: {[ds['display_name'] for ds in all_datasources]}")
+            logger.error(f"[TableInput] Selector value '{self.datasource_selector}' not found in datasource list")
+            datasource_list = [f"{ds['display_name']} (ID: {ds['id']})" for ds in all_datasources]
+            logger.error(f"[TableInput] Available datasources: {datasource_list}")
             raise ValueError(
                 f"Selected datasource '{self.datasource_selector}' is not available. Please refresh the datasource list and select a valid datasource."
             )
@@ -1172,6 +1425,49 @@ class ETLTableInputComponent(Component):
             # Build SQL query - use as provided by user
             sql_query = self.sql_query.strip()
 
+            # Check if this is a Neo4j datasource
+            datasource_info = getattr(self, "_current_datasource_info", None)
+            is_neo4j = datasource_info and datasource_info.get("type", "").lower() == "neo4j"
+
+            if is_neo4j:
+                # Neo4j-specific handling
+                import re
+                from urllib.parse import unquote
+
+                from neo4j import GraphDatabase
+
+                # Parse bolt URI
+                match = re.match(r"bolt://(?:([^:]+):([^@]+)@)?([^:]+):(\d+)", connection_string)
+                if not match:
+                    raise ValueError(f"Invalid Neo4j connection string format: {connection_string}")
+
+                username, password, host, port = match.groups()
+
+                # URL decode username and password (they are URL-encoded in the connection string)
+                if username:
+                    username = unquote(username)
+                if password:
+                    password = unquote(password)
+
+                uri = f"bolt://{host}:{port}"
+
+                driver = GraphDatabase.driver(uri, auth=(username, password) if username else None)
+                try:
+                    with driver.session() as session:
+                        # Execute Cypher query
+                        result = session.run(sql_query)
+                        result_data = []
+                        for record in result:
+                            result_data.append(Data(data=_convert_neo4j_record_to_table_format(record)))
+                        total_records = len(result_data)
+                finally:
+                    driver.close()
+
+                logger.info(f"[TableInput] Returning {len(result_data)} data records from Neo4j")
+                self.status = i18n.t("components.input_output.table_input.status.success", records=total_records)
+                return result_data
+
+            # For SQL databases, use SQLAlchemy
             # Create database engine
             engine = create_engine(
                 connection_string,

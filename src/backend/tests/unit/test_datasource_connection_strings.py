@@ -52,10 +52,11 @@ class TestConnectionStringBuilding:
             "password": "secret",
         }
         conn_str = self.manager._build_connection_string(datasource)
-        assert conn_str.startswith("jdbc:hive2://")
+        assert conn_str.startswith("hive://")
         assert "localhost:10000" in conn_str
         assert "default" in conn_str
-        assert "user=hive" in conn_str
+        # Authentication should be in URL format: hive://user:password@host:port/db
+        assert "@localhost" in conn_str
 
     def test_hive_connection_string_without_auth(self):
         """Test Hive connection string without authentication."""
@@ -68,11 +69,11 @@ class TestConnectionStringBuilding:
             "password": "",
         }
         conn_str = self.manager._build_connection_string(datasource)
-        assert conn_str.startswith("jdbc:hive2://")
+        assert conn_str.startswith("hive://")
         assert "localhost:10000" in conn_str
         assert "default" in conn_str
-        # Should not have authentication params
-        assert "user=" not in conn_str or "user=hive" in conn_str  # Default user
+        # Should not have authentication params (no @ in URL)
+        assert "@" not in conn_str
 
     def test_neo4j_connection_string_with_auth(self):
         """Test Neo4j connection string with authentication."""
@@ -85,8 +86,10 @@ class TestConnectionStringBuilding:
             "password": "password",
         }
         conn_str = self.manager._build_connection_string(datasource)
-        assert conn_str.startswith("neo4j://")
+        assert conn_str.startswith("bolt://")
         assert "localhost:7687" in conn_str
+        # Authentication should be in URL format: bolt://user:password@host:port
+        assert "@localhost" in conn_str
 
     def test_neo4j_connection_string_without_auth(self):
         """Test Neo4j connection string without authentication."""
@@ -99,8 +102,10 @@ class TestConnectionStringBuilding:
             "password": "",
         }
         conn_str = self.manager._build_connection_string(datasource)
-        assert conn_str.startswith("neo4j://")
+        assert conn_str.startswith("bolt://")
         assert "localhost:7687" in conn_str
+        # Should not have authentication params (no @ in URL)
+        assert "@" not in conn_str
 
     def test_unsupported_database_type(self):
         """Test that unsupported database types raise ValueError."""

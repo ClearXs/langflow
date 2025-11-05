@@ -107,8 +107,12 @@ export type FlowStoreType = {
   addDataToFlowPool: (data: VertexBuildTypeAPI, nodeId: string) => void;
   CleanFlowPool: () => void;
   isBuilding: boolean;
+  streamingJobId: string | null;
+  isPersistentStream: boolean;
   isPending: boolean;
   setIsBuilding: (isBuilding: boolean) => void;
+  setStreamingJobId: (jobId: string | null) => void;
+  setIsPersistentStream: (isPersistent: boolean) => void;
   setPending: (isPending: boolean) => void;
   resetFlow: (flow: FlowType | undefined) => void;
   resetFlowState: () => void;

@@ -1,15 +1,15 @@
-import '@xyflow/react/dist/style.css';
-import { Suspense, useEffect } from 'react';
-import { useTranslation } from 'react-i18next';
-import { RouterProvider } from 'react-router-dom';
-import DataSourceDialog from './components/datasourceDialogComponent';
-import { TooltipProvider } from './components/ui/tooltip';
-import { PostMessageProvider } from './contexts/postMessageContext';
-import { LoadingPage } from './pages/LoadingPage';
-import router from './routes';
-import { useDarkStore } from './stores/darkStore';
-import { useI18nStore } from './stores/i18nStore';
-import type { StoredMessage } from './types/zustand/postMessage';
+import "@xyflow/react/dist/style.css";
+import { Suspense, useEffect } from "react";
+import { useTranslation } from "react-i18next";
+import { RouterProvider } from "react-router-dom";
+import DataSourceDialog from "./components/datasourceDialogComponent";
+import { TooltipProvider } from "./components/ui/tooltip";
+import { PostMessageProvider } from "./contexts/postMessageContext";
+import { LoadingPage } from "./pages/LoadingPage";
+import router from "./routes";
+import { useDarkStore } from "./stores/darkStore";
+import { useI18nStore } from "./stores/i18nStore";
+import type { StoredMessage } from "./types/zustand/postMessage";
 
 export default function App() {
   const dark = useDarkStore((state) => state.dark);
@@ -18,9 +18,9 @@ export default function App() {
 
   useEffect(() => {
     if (!dark) {
-      document.getElementById('body')!.classList.remove('dark');
+      document.getElementById("body")!.classList.remove("dark");
     } else {
-      document.getElementById('body')!.classList.add('dark');
+      document.getElementById("body")!.classList.add("dark");
     }
   }, [dark]);
 
@@ -33,8 +33,8 @@ export default function App() {
   // Global postMessage handler for debugging/logging (optional)
   const handleGlobalMessage = (message: StoredMessage) => {
     // Log all postMessages in development
-    if (process.env.NODE_ENV === 'development') {
-      console.log('[PostMessage]', message.data.type, message);
+    if (process.env.NODE_ENV === "development") {
+      console.log("[PostMessage]", message.data.type, message);
     }
 
     // You can add global message handling logic here
@@ -48,7 +48,7 @@ export default function App() {
           // Configure allowed origins for security
           // In production, specify your parent application domains
           allowedOrigins:
-            process.env.NODE_ENV === 'production'
+            process.env.NODE_ENV === "production"
               ? [
                   // Add your production domains here
                   // "https://your-parent-domain.com",

@@ -24,6 +24,8 @@ export default function FlowBuildingComponent() {
   const isBuilding = useFlowStore((state) => state.isBuilding);
   const flowBuildStatus = useFlowStore((state) => state.flowBuildStatus);
   const buildInfo = useFlowStore((state) => state.buildInfo);
+  const isPersistentStream = useFlowStore((state) => state.isPersistentStream);
+  const streamingJobId = useFlowStore((state) => state.streamingJobId);
   const errorButtonsRef = useRef<HTMLDivElement>(null);
   const stopButtonRef = useRef<HTMLDivElement>(null);
   const setBuildInfo = useFlowStore((state) => state.setBuildInfo);
@@ -81,6 +83,16 @@ export default function FlowBuildingComponent() {
 
   const buildingContent = useMemo(() => {
     if (!isBuilding) return null;
+
+    // For persistent streams, show different message
+    if (isPersistentStream && streamingJobId) {
+      return (
+        <div className="flex items-center gap-2">
+          <TextShimmer duration={1}>实时流运行中</TextShimmer>
+        </div>
+      );
+    }
+
     return (
       <TextShimmer duration={1}>
         {statusBuilding.length > 0
@@ -88,7 +100,7 @@ export default function FlowBuildingComponent() {
           : t("flow.runningFlow")}
       </TextShimmer>
     );
-  }, [isBuilding, statusBuilding, t]);
+  }, [isBuilding, isPersistentStream, streamingJobId, statusBuilding, t]);
 
   useEffect(() => {
     if (buildInfo?.success) {
@@ -107,7 +119,9 @@ export default function FlowBuildingComponent() {
   };
 
   const handleStop = () => {
-    stopBuilding();
+    stopBuilding().catch((error) => {
+      console.error("Error stopping building:", error);
+    });
   };
 
   const handleRetry = () => {
@@ -234,7 +248,9 @@ export default function FlowBuildingComponent() {
                                   size="sm"
                                   onClick={handleStop}
                                 >
-                                  {t("components.button.stop")}
+                                  {isPersistentStream
+                                    ? "停止流"
+                                    : t("components.button.stop")}
                                 </Button>
                               </motion.div>
                             )}

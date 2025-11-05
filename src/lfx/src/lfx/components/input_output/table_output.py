@@ -1,5 +1,7 @@
 import asyncio
+import re
 from typing import Any
+from urllib.parse import unquote
 
 import i18n
 import pandas as pd
@@ -252,10 +254,13 @@ class ETLTableOutputComponent(Component):
                 options_metadata = []
 
                 for ds in all_datasources:
-                    options.append(ds["display_name"])
-                    # 使用 options_metadata 存储完整信息
+                    # options 只包含ID (唯一值)
+                    options.append(ds["id"])
+                    # options_metadata 包含显示信息，使用 label 字段供前端显示
                     options_metadata.append(
                         {
+                            "value": ds["id"],  # 实际值
+                            "label": ds["display_name"],  # 显示名称
                             "id": ds["id"],
                             "name": ds["name"],
                             "type": ds["type"],
@@ -328,7 +333,9 @@ class ETLTableOutputComponent(Component):
                     else:
                         # 提取纯UUID（移除可能的前缀）
                         clean_datasource_id = self._extract_uuid_from_id(datasource_id)
-                        logger.debug(f"[TableOutput] Loading tables for datasource ID: {datasource_id} (cleaned: {clean_datasource_id})")
+                        logger.debug(
+                            f"[TableOutput] Loading tables for datasource ID: {datasource_id} (cleaned: {clean_datasource_id})"
+                        )
                         # Load tables for this datasource
                         with httpx.Client(timeout=10.0) as client:
                             response = client.get(f"{api_url}/api/v1/datasources/{clean_datasource_id}/tables")
@@ -462,9 +469,7 @@ class ETLTableOutputComponent(Component):
 
                     # Extract field names using the same logic as FieldNameMapping
                     field_names = extract_fields_from_node_template(
-                        upstream_node,
-                        component_name="TableOutput",
-                        graph_data=graph_data
+                        upstream_node, component_name="TableOutput", graph_data=graph_data
                     )
 
                     if not field_names:
@@ -477,17 +482,21 @@ class ETLTableOutputComponent(Component):
                     # Convert field names to field mapping format
                     field_info = []
                     for field_name in field_names:
-                        field_info.append({
-                            "source_field": field_name,
-                            "target_field": field_name,  # Default to same name
-                            "data_type": "string",       # Default type
-                            "update_option": "sync_update",
-                            "is_key_field": False,
-                            "null_value": "",
-                        })
+                        field_info.append(
+                            {
+                                "source_field": field_name,
+                                "target_field": field_name,  # Default to same name
+                                "data_type": "string",  # Default type
+                                "update_option": "sync_update",
+                                "is_key_field": False,
+                                "null_value": "",
+                            }
+                        )
 
                     build_config["field_mappings"]["value"] = field_info
-                    logger.info(f"[TableOutput] Static field analysis completed, generated {len(field_info)} field mappings")
+                    logger.info(
+                        f"[TableOutput] Static field analysis completed, generated {len(field_info)} field mappings"
+                    )
                     self.status = i18n.t(
                         "components.input_output.table_output.status.analysis_success", count=len(field_info)
                     )
@@ -668,15 +677,38 @@ class ETLTableOutputComponent(Component):
         # 如果没有前缀或不符合UUID格式，直接返回
         return datasource_id
 
-    def _get_datasource_id_from_metadata(self, display_name: str, options_metadata: list[dict]) -> str | None:
-        """从 options_metadata 中根据显示名称获取数据源ID"""
+    def _get_datasource_id_from_metadata(self, selector_value: str, options_metadata: list[dict]) -> str | None:
+        """从 options_metadata 中根据选择器值获取数据源ID
+
+        Args:
+            selector_value: 选择器的值，现在直接就是数据源ID
+            options_metadata: 元数据列表
+
+        Returns:
+            数据源ID，如果未找到则返回None
+        """
+        # 现在 selector_value 直接就是ID，直接返回
+        # 但我们先验证它确实存在于 metadata 中
         for metadata in options_metadata:
-            if metadata.get("display_name") == display_name:
+            if metadata.get("id") == selector_value or metadata.get("value") == selector_value:
+                logger.debug(f"[TableOutput] Found valid datasource ID: '{selector_value}'")
+                return selector_value
+
+        # 向后兼容：尝试从旧的 "ID|||显示名称" 格式中提取ID
+        if "|||" in selector_value:
+            datasource_id = selector_value.split("|||")[0]
+            logger.warning(f"[TableOutput] Legacy format detected, extracted ID '{datasource_id}' from selector value")
+            return datasource_id
+
+        # 再向后兼容：按显示名称查找
+        logger.warning(f"[TableOutput] Trying legacy lookup by display name for: '{selector_value}'")
+        for metadata in options_metadata:
+            if metadata.get("display_name") == selector_value:
                 datasource_id = metadata.get("id")
-                logger.debug(f"[TableOutput] Found datasource ID '{datasource_id}' for display name '{display_name}'")
+                logger.debug(f"[TableOutput] Found datasource ID '{datasource_id}' for display name '{selector_value}'")
                 return datasource_id
 
-        logger.warning(f"[TableOutput] No metadata found for display name: {display_name}")
+        logger.warning(f"[TableOutput] No metadata found for selector value: '{selector_value}'")
         return None
 
     def _load_unified_datasources(self) -> list[dict]:
@@ -695,6 +727,7 @@ class ETLTableOutputComponent(Component):
                 # 使用线程池执行器运行异步方法
                 try:
                     import concurrent.futures
+
                     with concurrent.futures.ThreadPoolExecutor() as executor:
                         future = executor.submit(asyncio.run, self._get_public_datasources())
                         public_datasources = future.result(timeout=10)
@@ -709,6 +742,7 @@ class ETLTableOutputComponent(Component):
             except Exception as e:
                 logger.warning(f"[TableOutput] Failed to get public datasources: {e}")
                 import traceback
+
                 logger.debug(f"[TableOutput] Public datasource error traceback: {traceback.format_exc()}")
                 public_datasources = []
 
@@ -752,6 +786,7 @@ class ETLTableOutputComponent(Component):
         except Exception as e:
             logger.error(f"[TableOutput] Error loading unified datasources: {e}")
             import traceback
+
             logger.error(f"[TableOutput] Traceback: {traceback.format_exc()}")
             return []
 
@@ -775,7 +810,15 @@ class ETLTableOutputComponent(Component):
                 # 企业数据源ID通常不需要前缀，直接使用
                 datasource_id = self._extract_uuid_from_id(ds["id"])
                 builtin_datasources.append(
-                    {"id": datasource_id, "name": ds["name"], "type": ds["type"], "source": "enterprise"}
+                    {
+                        "id": datasource_id,
+                        "name": ds["name"],
+                        "type": ds["type"],
+                        "source": "enterprise",
+                        "database": ds.get("database"),  # 保留 database 字段
+                        "host": ds.get("host"),
+                        "port": ds.get("port"),
+                    }
                 )
                 logger.debug(f"[TableOutput] Added enterprise datasource: {ds['name']} -> {datasource_id}")
 
@@ -783,7 +826,15 @@ class ETLTableOutputComponent(Component):
                 # 自定义数据源ID可能包含前缀，需要提取纯UUID
                 datasource_id = self._extract_uuid_from_id(ds["id"])
                 builtin_datasources.append(
-                    {"id": datasource_id, "name": ds["name"], "type": ds["type"], "source": "custom"}
+                    {
+                        "id": datasource_id,
+                        "name": ds["name"],
+                        "type": ds["type"],
+                        "source": "custom",
+                        "database": ds.get("database"),  # 保留 database 字段
+                        "host": ds.get("host"),
+                        "port": ds.get("port"),
+                    }
                 )
                 logger.debug(f"[TableOutput] Added custom datasource: {ds['name']} -> {datasource_id}")
 
@@ -793,6 +844,7 @@ class ETLTableOutputComponent(Component):
         except Exception as e:
             logger.error(f"[TableOutput] Error getting builtin datasources: {e}")
             import traceback
+
             logger.error(f"[TableOutput] Builtin datasource error traceback: {traceback.format_exc()}")
             return []
 
@@ -812,12 +864,15 @@ class ETLTableOutputComponent(Component):
             datasource_list = await client.get_datasource_list()
 
             logger.info(f"[TableOutput] Got {len(datasource_list)} public datasources from feign API")
-            logger.debug(f"[TableOutput] Public datasource sample: {datasource_list[:1] if datasource_list else 'None'}")
+            logger.debug(
+                f"[TableOutput] Public datasource sample: {datasource_list[:1] if datasource_list else 'None'}"
+            )
             return datasource_list if isinstance(datasource_list, list) else []
 
         except Exception as e:
             logger.error(f"[TableOutput] Failed to get public datasources: {e}")
             import traceback
+
             logger.error(f"[TableOutput] Feign client error traceback: {traceback.format_exc()}")
             return []
 
@@ -944,7 +999,9 @@ class ETLTableOutputComponent(Component):
         try:
             # 提取纯UUID（移除可能的前缀）
             clean_datasource_id = self._extract_uuid_from_id(datasource_id)
-            logger.debug(f"[TableOutput] Getting connection string for datasource ID: {datasource_id} (cleaned: {clean_datasource_id})")
+            logger.debug(
+                f"[TableOutput] Getting connection string for datasource ID: {datasource_id} (cleaned: {clean_datasource_id})"
+            )
 
             with httpx.Client(timeout=10.0) as client:
                 response = client.get(f"{api_url}/api/v1/datasources/{clean_datasource_id}/connection-string")
@@ -982,7 +1039,9 @@ class ETLTableOutputComponent(Component):
         try:
             # 提取纯UUID（移除可能的前缀）
             clean_datasource_id = self._extract_uuid_from_id(datasource_id)
-            logger.debug(f"[TableOutput] Getting connection string (sync) for datasource ID: {datasource_id} (cleaned: {clean_datasource_id})")
+            logger.debug(
+                f"[TableOutput] Getting connection string (sync) for datasource ID: {datasource_id} (cleaned: {clean_datasource_id})"
+            )
 
             with httpx.Client(timeout=10.0) as client:
                 response = client.get(f"{api_url}/api/v1/datasources/{clean_datasource_id}/connection-string")
@@ -1140,7 +1199,7 @@ class ETLTableOutputComponent(Component):
             # Ensure data_input is a list
             if not isinstance(self.data_input, list):
                 data_input_list = [self.data_input]
-                logger.debug(f"[TableOutput] Wrapped single data_input into list")
+                logger.debug("[TableOutput] Wrapped single data_input into list")
             else:
                 data_input_list = self.data_input
 
@@ -1170,7 +1229,9 @@ class ETLTableOutputComponent(Component):
                 else:
                     logger.warning(f"[TableOutput] Unexpected data type: {type(d)}")
 
-            logger.info(f"[TableOutput] Extracted {len(data_records)} data records from {len(data_input_list)} input items")
+            logger.info(
+                f"[TableOutput] Extracted {len(data_records)} data records from {len(data_input_list)} input items"
+            )
             logger.debug(f"[TableOutput] data_records sample: {data_records[:2] if data_records else 'empty'}")
 
             if not data_records:
@@ -1181,7 +1242,9 @@ class ETLTableOutputComponent(Component):
             # Create DataFrame with explicit error handling
             try:
                 df = pd.DataFrame(data_records)
-                logger.debug(f"[TableOutput] Created DataFrame with type: {type(df)}, isinstance check: {isinstance(df, pd.DataFrame)}")
+                logger.debug(
+                    f"[TableOutput] Created DataFrame with type: {type(df)}, isinstance check: {isinstance(df, pd.DataFrame)}"
+                )
 
                 # Verify it's actually a DataFrame
                 if not isinstance(df, pd.DataFrame):
@@ -1207,6 +1270,34 @@ class ETLTableOutputComponent(Component):
             if self.field_mappings:
                 df = self._apply_field_mappings(df)
 
+            # 5. 检测是否是Neo4j数据源
+            is_neo4j = datasource_info and datasource_info.get("type", "").lower() == "neo4j"
+
+            if is_neo4j:
+                # 使用Neo4j驱动写入
+                logger.info("[TableOutput] Detected Neo4j datasource, using Neo4j driver")
+                rows_written = self._write_to_neo4j(connection_string, df)
+
+                # Build result
+                result_info = {
+                    "success": True,
+                    "table": self.table_selector,
+                    "rows_written": rows_written,
+                    "write_mode": self.write_mode,
+                    "datasource": self.datasource_selector,
+                }
+
+                success_msg = _format_i18n(
+                    "components.input_output.table_output.status.success",
+                    rows=rows_written,
+                    table=self.table_selector,
+                )
+                self.status = success_msg
+                logger.info(f"[TableOutput] {success_msg}")
+
+                return Data(data=result_info)
+
+            # 原有的SQLAlchemy逻辑
             # 5. Create database engine
             engine = create_engine(
                 connection_string,
@@ -1418,7 +1509,7 @@ class ETLTableOutputComponent(Component):
             row_dict = row.to_dict()
 
             # Build WHERE clause for key fields
-            where_clause = " AND ".join([f"{str(col)} = :{col}" for col in key_fields])
+            where_clause = " AND ".join([f"{col!s} = :{col}" for col in key_fields])
 
             # Check if record exists
             check_query = f"SELECT COUNT(*) FROM {self.table_selector} WHERE {where_clause}"
@@ -1448,12 +1539,12 @@ class ETLTableOutputComponent(Component):
                                 continue  # Skip if empty
                         elif update_option == "cumulative_update":
                             # Add to existing value
-                            update_fields.append(f"{str(col)} = {str(col)} + :{col}")
+                            update_fields.append(f"{col!s} = {col!s} + :{col}")
                             update_params[col] = row_dict.get(col, 0)
                             continue
 
                         # Default: sync_update
-                        update_fields.append(f"{str(col)} = :{col}")
+                        update_fields.append(f"{col!s} = :{col}")
                         update_params[col] = row_dict.get(col)
 
                 if update_fields:
@@ -1479,6 +1570,101 @@ class ETLTableOutputComponent(Component):
         logger.debug(f"[TableOutput] Upsert completed: {rows_written} rows affected")
 
         return rows_written
+
+    def _write_to_neo4j(self, connection_string: str, df: pd.DataFrame) -> int:
+        """写入数据到Neo4j数据库"""
+        from neo4j import GraphDatabase
+
+        # 解析连接字符串
+        match = re.match(r"bolt://(?:([^:]+):([^@]+)@)?([^:]+):(\d+)", connection_string)
+        if not match:
+            raise ValueError(f"Invalid Neo4j connection string: {connection_string}")
+
+        username, password, host, port = match.groups()
+        if username:
+            username = unquote(username)
+        if password:
+            password = unquote(password)
+
+        uri = f"bolt://{host}:{port}"
+        driver = GraphDatabase.driver(uri, auth=(username, password) if username else None)
+
+        try:
+            # 根据write_mode选择执行方法
+            if self.write_mode == "replace":
+                rows_written = self._neo4j_write_replace(driver, df)
+            elif self.write_mode == "upsert":
+                rows_written = self._neo4j_write_upsert(driver, df)
+            else:  # batch_insert or append
+                rows_written = self._neo4j_write_create(driver, df)
+
+            return rows_written
+        finally:
+            driver.close()
+
+    def _neo4j_write_create(self, driver, df: pd.DataFrame) -> int:
+        """使用CREATE语句插入节点"""
+        rows_written = 0
+        node_label = self.table_selector  # 表名作为节点标签
+
+        with driver.session() as session:
+            for _, row in df.iterrows():
+                props = row.to_dict()
+                # 移除None值
+                props = {k: v for k, v in props.items() if pd.notna(v)}
+
+                # 构建CREATE Cypher
+                cypher = f"CREATE (n:{node_label} $props)"
+                session.run(cypher, props=props)
+                rows_written += 1
+
+                logger.debug(f"[TableOutput] Created Neo4j node: {props}")
+
+        return rows_written
+
+    def _neo4j_write_upsert(self, driver, df: pd.DataFrame) -> int:
+        """使用MERGE语句更新或插入节点"""
+        rows_written = 0
+        node_label = self.table_selector
+
+        # 获取主键字段
+        key_fields = [m.get("target_field") for m in self.field_mappings if m.get("is_key_field")]
+
+        if not key_fields:
+            raise ValueError("Upsert mode requires key fields in field_mappings")
+
+        with driver.session() as session:
+            for _, row in df.iterrows():
+                props = {k: v for k, v in row.to_dict().items() if pd.notna(v)}
+
+                # 构建MATCH条件
+                match_props = {k: props[k] for k in key_fields if k in props}
+
+                # 构建MERGE Cypher
+                match_clause = ", ".join([f"{k}: ${k}" for k in key_fields])
+                cypher = f"""
+                MERGE (n:{node_label} {{{match_clause}}})
+                ON CREATE SET n = $props
+                ON MATCH SET n += $props
+                """
+
+                session.run(cypher, props=props, **match_props)
+                rows_written += 1
+
+        return rows_written
+
+    def _neo4j_write_replace(self, driver, df: pd.DataFrame) -> int:
+        """删除所有节点后重新插入"""
+        node_label = self.table_selector
+
+        with driver.session() as session:
+            # 删除所有该标签的节点
+            delete_cypher = f"MATCH (n:{node_label}) DETACH DELETE n"
+            session.run(delete_cypher)
+            logger.info(f"[TableOutput] Deleted all nodes with label {node_label}")
+
+        # 重新插入
+        return self._neo4j_write_create(driver, df)
 
     def get_row_count(self) -> Data:
         """Get the count of written rows."""

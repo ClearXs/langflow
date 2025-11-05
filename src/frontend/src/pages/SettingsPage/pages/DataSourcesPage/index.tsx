@@ -206,7 +206,9 @@ export default function DataSourcesPage() {
       errors.port = t("dataSource.errors.portInvalid");
     }
 
-    if (!formData.database.trim()) {
+    // Validate database (not required for Neo4j)
+    const isNeo4j = formData.type.toLowerCase() === "neo4j";
+    if (!isNeo4j && !formData.database.trim()) {
       errors.database = t("dataSource.errors.databaseRequired");
     }
 
@@ -388,8 +390,6 @@ export default function DataSourcesPage() {
               <TableHead>{t("dataSource.type")}</TableHead>
               <TableHead>{t("dataSource.host")}</TableHead>
               <TableHead>{t("dataSource.database")}</TableHead>
-              <TableHead>{t("dataSource.status")}</TableHead>
-              <TableHead>{t("dataSource.lastTested")}</TableHead>
               <TableHead className="text-right">
                 {t("dataSource.actions")}
               </TableHead>
@@ -398,14 +398,14 @@ export default function DataSourcesPage() {
           <TableBody>
             {loading ? (
               <TableRow>
-                <TableCell colSpan={7} className="text-center py-8">
+                <TableCell colSpan={5} className="text-center py-8">
                   <Loader2 className="h-8 w-8 animate-spin mx-auto mb-2" />
                   <p>{t("common.loading")}</p>
                 </TableCell>
               </TableRow>
             ) : filteredDataSources.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={7} className="text-center py-8">
+                <TableCell colSpan={5} className="text-center py-8">
                   <Database className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
                   <p className="text-muted-foreground">
                     {t("dataSource.noDataSources")}
@@ -425,28 +425,6 @@ export default function DataSourcesPage() {
                   </TableCell>
                   <TableCell>{dataSource.host || "-"}</TableCell>
                   <TableCell>{dataSource.database || "-"}</TableCell>
-                  <TableCell>
-                    {dataSource.status === "active" ? (
-                      <Badge variant="default" className="bg-green-600">
-                        <CheckCircle className="h-3 w-3 mr-1" />
-                        {t("dataSource.statusActive")}
-                      </Badge>
-                    ) : dataSource.status === "error" ? (
-                      <Badge variant="destructive">
-                        <XCircle className="h-3 w-3 mr-1" />
-                        {t("dataSource.statusError")}
-                      </Badge>
-                    ) : (
-                      <Badge variant="secondary">
-                        {t("dataSource.statusInactive")}
-                      </Badge>
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    {dataSource.lastTested
-                      ? convertUTCToLocalTimezone(dataSource.lastTested)
-                      : "-"}
-                  </TableCell>
                   <TableCell className="text-right">
                     <div className="flex items-center justify-end gap-2">
                       <Button
@@ -608,7 +586,9 @@ export default function DataSourcesPage() {
             <div className="space-y-2">
               <Label htmlFor="database">
                 {t("dataSource.database")}{" "}
-                <span className="text-red-500">*</span>
+                {formData.type.toLowerCase() !== "neo4j" && (
+                  <span className="text-red-500">*</span>
+                )}
               </Label>
               <Input
                 id="database"

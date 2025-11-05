@@ -1,6 +1,8 @@
 """SQL Script Component for executing SQL statements on selected datasource."""
 
+import re
 from typing import Any
+from urllib.parse import unquote
 
 import i18n
 import pandas as pd
@@ -12,6 +14,109 @@ from lfx.custom.custom_component.component import Component
 from lfx.io import BoolInput, DropdownInput, MessageTextInput, MultilineInput, Output, TableInput
 from lfx.log.logger import logger
 from lfx.schema import Data
+
+
+# Neo4j数据序列化函数 (复制自table_input.py)
+def _serialize_neo4j_value(value):
+    """
+    Neo4j对象包装函数 - 把复杂对象包装成可序列化的结构。
+    """
+    # 如果已经是原始类型，包装成 {"value": 原始值}
+    if isinstance(value, (str, int, float, bool)) or value is None:
+        return {"value": value}
+
+    # 处理Neo4j特殊对象
+    try:
+        # 检查是否是Neo4j对象
+        class_name = value.__class__.__name__
+        module_name = getattr(value.__class__, "__module__", "")
+
+        is_neo4j_object = "neo4j" in module_name.lower() or class_name in [
+            "Node",
+            "Relationship",
+            "Path",
+            "Record",
+        ]
+
+        if is_neo4j_object:
+            # Neo4j Node对象
+            if class_name == "Node" or (hasattr(value, "labels") and hasattr(value, "properties")):
+                node_data = {
+                    "_type": "Node",
+                    "labels": list(value.labels) if hasattr(value, "labels") else [],
+                    "properties": dict(value.items()) if hasattr(value, "items") else {},
+                }
+                if hasattr(value, "element_id"):
+                    node_data["_element_id"] = str(value.element_id)
+                return {"value": node_data}
+
+            # Neo4j Relationship对象
+            elif class_name == "Relationship" or (
+                hasattr(value, "type") and hasattr(value, "start_node") and hasattr(value, "end_node")
+            ):
+                rel_data = {
+                    "_type": "Relationship",
+                    "type": str(value.type) if hasattr(value, "type") else "",
+                }
+                if hasattr(value, "element_id"):
+                    rel_data["_element_id"] = str(value.element_id)
+                if hasattr(value, "start_node") and hasattr(value.start_node, "element_id"):
+                    rel_data["start_node_id"] = str(value.start_node.element_id)
+                if hasattr(value, "end_node") and hasattr(value.end_node, "element_id"):
+                    rel_data["end_node_id"] = str(value.end_node.element_id)
+                if hasattr(value, "items"):
+                    rel_data["properties"] = dict(value.items())
+                return {"value": rel_data}
+
+            # 其他Neo4j对象
+            else:
+                neo4j_data = {"_type": class_name}
+                for attr in dir(value):
+                    if not attr.startswith("_") and not callable(getattr(value, attr)):
+                        try:
+                            attr_value = getattr(value, attr)
+                            if isinstance(attr_value, (str, int, float, bool, list, dict)) or attr_value is None:
+                                if isinstance(attr_value, frozenset):
+                                    neo4j_data[attr] = list(attr_value)
+                                else:
+                                    neo4j_data[attr] = attr_value
+                        except Exception:
+                            continue
+                return {"value": neo4j_data}
+
+        # 普通复杂对象，JSON序列化
+        import json
+
+        json_str = json.dumps(value, ensure_ascii=False)
+        if len(json_str) > 500:
+            json_str = json_str[:500] + "..."
+        return {"value": json_str}
+
+    except (TypeError, ValueError, AttributeError):
+        try:
+            str_value = str(value)
+            if len(str_value) > 500:
+                str_value = str_value[:500] + "..."
+            return {"value": str_value}
+        except Exception:
+            return {"value": f"<{value.__class__.__name__} object>"}
+
+
+def _convert_neo4j_record_to_dict(record):
+    """Convert a Neo4j Record to a flat dictionary with serializable values."""
+    logger.debug(f"[SQLScript] Converting Neo4j record with keys: {record.keys()}")
+    result = {}
+    for key in record.keys():
+        try:
+            value = record[key]
+            serialized_value = _serialize_neo4j_value(value)
+            result[key] = serialized_value
+        except Exception as e:
+            error_msg = f"<Error: {e!s}>"
+            logger.error(f"[SQLScript] Error serializing field '{key}': {error_msg}")
+            result[key] = error_msg
+
+    return result
 
 
 class ETLSQLScriptComponent(Component):
@@ -177,8 +282,22 @@ class ETLSQLScriptComponent(Component):
 
                         for ds in datasources:
                             display_name = f"{ds['name']} ({ds['type']})"
-                            options.append(display_name)
-                            options_metadata.append({"id": ds["id"], "name": ds["name"], "type": ds["type"]})
+                            # options 只包含ID (唯一值)
+                            options.append(ds["id"])
+                            # options_metadata 包含显示信息，使用 label 字段供前端显示
+                            options_metadata.append(
+                                {
+                                    "value": ds["id"],
+                                    "label": display_name,
+                                    "id": ds["id"],
+                                    "name": ds["name"],
+                                    "type": ds["type"],
+                                    "display_name": display_name,
+                                    "database": ds.get("database"),  # 保留 database 字段
+                                    "host": ds.get("host"),
+                                    "port": ds.get("port"),
+                                }
+                            )
 
                         build_config["datasource_selector"]["options"] = options
                         build_config["datasource_selector"]["options_metadata"] = options_metadata
@@ -254,16 +373,39 @@ class ETLSQLScriptComponent(Component):
 
         return build_config
 
-    def _get_datasource_id_from_metadata(self, display_name: str, options_metadata: list[dict]) -> str | None:
-        """Get datasource ID from metadata based on display name."""
+    def _get_datasource_id_from_metadata(self, selector_value: str, options_metadata: list[dict]) -> str | None:
+        """从 options_metadata 中根据选择器值获取数据源ID
+
+        Args:
+            selector_value: 选择器的值，现在直接就是数据源ID
+            options_metadata: 元数据列表
+
+        Returns:
+            数据源ID，如果未找到则返回None
+        """
+        # 现在 selector_value 直接就是ID，直接返回
+        # 但我们先验证它确实存在于 metadata 中
+        for metadata in options_metadata:
+            if metadata.get("id") == selector_value or metadata.get("value") == selector_value:
+                logger.debug(f"[SQLScript] Found valid datasource ID: '{selector_value}'")
+                return selector_value
+
+        # 向后兼容：尝试从旧的 "ID|||显示名称" 格式中提取ID
+        if "|||" in selector_value:
+            datasource_id = selector_value.split("|||")[0]
+            logger.warning(f"[SQLScript] Legacy format detected, extracted ID '{datasource_id}' from selector value")
+            return datasource_id
+
+        # 再向后兼容：按显示名称查找
+        logger.warning(f"[SQLScript] Trying legacy lookup by display name for: '{selector_value}'")
         for metadata in options_metadata:
             meta_display_name = f"{metadata.get('name')} ({metadata.get('type')})"
-            if meta_display_name == display_name:
+            if meta_display_name == selector_value or metadata.get("display_name") == selector_value:
                 datasource_id = metadata.get("id")
-                logger.debug(f"[SQLScript] Found datasource ID '{datasource_id}' for display name '{display_name}'")
+                logger.debug(f"[SQLScript] Found datasource ID '{datasource_id}' for display name '{selector_value}'")
                 return datasource_id
 
-        logger.warning(f"[SQLScript] No metadata found for display name: {display_name}")
+        logger.warning(f"[SQLScript] No metadata found for selector value: {selector_value}")
         return None
 
     def _format_i18n(self, key: str, **kwargs) -> str:
@@ -435,6 +577,17 @@ class ETLSQLScriptComponent(Component):
 
             # Get connection
             connection_string = self._get_connection_string(datasource_id)
+
+            # 检测是否是Neo4j数据源
+            is_neo4j = "bolt://" in connection_string
+
+            if is_neo4j:
+                # 使用Neo4j驱动执行Cypher
+                logger.info("[SQLScript] Detected Neo4j datasource, using Neo4j driver")
+                results = self._execute_neo4j_script(connection_string, statements, enable_transaction)
+                return results
+
+            # 原有的SQLAlchemy逻辑
             engine = create_engine(connection_string, poolclass=NullPool)
 
             results = []
@@ -561,6 +714,33 @@ class ETLSQLScriptComponent(Component):
 
             # Get connection
             connection_string = self._get_connection_string(datasource_id)
+
+            # 检测是否是Neo4j数据源
+            is_neo4j = "bolt://" in connection_string
+
+            if is_neo4j:
+                # 使用Neo4j驱动执行Cypher
+                logger.info("[SQLScript] Detected Neo4j datasource, using Neo4j driver")
+                results = self._execute_neo4j_script(connection_string, statements, self.enable_transaction)
+
+                # 构建summary
+                successful_count = sum(1 for r in results if r["execution_status"] == "success")
+                failed_count = len(results) - successful_count
+                total_rows_affected = sum(r["rows_affected"] for r in results)
+
+                summary_data = {
+                    "total_statements": len(statements),
+                    "successful_statements": successful_count,
+                    "failed_statements": failed_count,
+                    "total_rows_affected": total_rows_affected,
+                    "results": results,
+                }
+
+                self.status = i18n.t("components.scripts.sql_script.status.completed", count=len(statements))
+                logger.info(f"[SQLScript] Execution complete: {successful_count} success, {failed_count} failed")
+                return Data(data=summary_data)
+
+            # 原有的SQLAlchemy逻辑
             engine = create_engine(connection_string, poolclass=NullPool)
 
             results = []
@@ -685,3 +865,107 @@ class ETLSQLScriptComponent(Component):
         except Exception as e:
             logger.error(f"[SQLScript] Failed to get query results: {e}")
             return []
+
+    def _execute_neo4j_script(
+        self, connection_string: str, statements: list[str], enable_transaction: bool
+    ) -> list[dict]:
+        """执行Neo4j Cypher脚本"""
+        from neo4j import GraphDatabase
+
+        # 解析bolt连接字符串
+        match = re.match(r"bolt://(?:([^:]+):([^@]+)@)?([^:]+):(\d+)", connection_string)
+        if not match:
+            raise ValueError(f"Invalid Neo4j connection string: {connection_string}")
+
+        username, password, host, port = match.groups()
+        if username:
+            username = unquote(username)
+        if password:
+            password = unquote(password)
+
+        uri = f"bolt://{host}:{port}"
+        driver = GraphDatabase.driver(uri, auth=(username, password) if username else None)
+
+        results = []
+        try:
+            with driver.session() as session:
+                if enable_transaction:
+                    tx = session.begin_transaction()
+                    try:
+                        for idx, stmt in enumerate(statements, 1):
+                            result = self._execute_neo4j_statement(tx, stmt, idx, len(statements))
+                            results.append(result)
+                            if result["execution_status"] == "failed" and not self.continue_on_error:
+                                tx.rollback()
+                                break
+                        else:
+                            tx.commit()
+                    except Exception:
+                        tx.rollback()
+                        raise
+                else:
+                    for idx, stmt in enumerate(statements, 1):
+                        result = self._execute_neo4j_statement(session, stmt, idx, len(statements))
+                        results.append(result)
+                        if result["execution_status"] == "failed" and not self.continue_on_error:
+                            break
+        finally:
+            driver.close()
+
+        return results
+
+    def _execute_neo4j_statement(self, session_or_tx, statement: str, index: int, total: int) -> dict:
+        """执行单条Cypher语句"""
+        try:
+            stmt_type = self._classify_neo4j_statement(statement)
+            logger.debug(f"[SQLScript] Executing Neo4j statement {index}/{total} ({stmt_type})")
+
+            result = session_or_tx.run(statement)
+
+            # 对于查询语句，获取数据
+            query_data = []
+            rows_affected = 0
+
+            if stmt_type == "DQL":
+                for record in result:
+                    query_data.append(_convert_neo4j_record_to_dict(record))
+                rows_affected = len(query_data)
+            else:
+                summary = result.consume()
+                rows_affected = (
+                    summary.counters.nodes_created
+                    + summary.counters.relationships_created
+                    + summary.counters.properties_set
+                )
+
+            return {
+                "statement_index": index,
+                "statement_type": stmt_type,
+                "rows_affected": rows_affected,
+                "execution_status": "success",
+                "error_message": "",
+                "query_data": query_data,
+            }
+        except Exception as e:
+            logger.error(f"[SQLScript] Neo4j statement {index} failed: {e}")
+            return {
+                "statement_index": index,
+                "statement_type": self._classify_neo4j_statement(statement),
+                "rows_affected": 0,
+                "execution_status": "failed",
+                "error_message": str(e),
+                "query_data": [],
+            }
+
+    def _classify_neo4j_statement(self, statement: str) -> str:
+        """分类Cypher语句类型"""
+        stmt_upper = statement.strip().upper()
+
+        if stmt_upper.startswith(("MATCH", "RETURN", "WITH", "UNWIND")):
+            return "DQL"  # 查询
+        elif stmt_upper.startswith(("CREATE", "MERGE", "SET", "DELETE", "REMOVE", "DETACH")):
+            return "DML"  # 数据操作
+        elif stmt_upper.startswith(("CREATE CONSTRAINT", "DROP CONSTRAINT", "CREATE INDEX", "DROP INDEX")):
+            return "DDL"  # Schema操作
+        else:
+            return "OTHER"

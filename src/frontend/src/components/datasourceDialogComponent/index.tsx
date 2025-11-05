@@ -129,7 +129,9 @@ export default function DataSourceDialog() {
       errors.port = t("dataSource.errors.portInvalid");
     }
 
-    if (!formData.database.trim()) {
+    // Validate database (not required for Neo4j)
+    const isNeo4j = formData.type.toLowerCase() === "neo4j";
+    if (!isNeo4j && !formData.database.trim()) {
       errors.database = t("dataSource.errors.databaseRequired");
     }
 
@@ -164,7 +166,9 @@ export default function DataSourceDialog() {
     ) {
       requiredErrors.port = t("dataSource.errors.portInvalid");
     }
-    if (!formData.database.trim()) {
+    // Database is optional for Neo4j
+    const isNeo4j = formData.type.toLowerCase() === "neo4j";
+    if (!isNeo4j && !formData.database.trim()) {
       requiredErrors.database = t("dataSource.errors.databaseRequired");
     }
 
@@ -357,7 +361,10 @@ export default function DataSourceDialog() {
           </div>
           <div className="space-y-2">
             <Label htmlFor="database">
-              {t("dataSource.database")} <span className="text-red-500">*</span>
+              {t("dataSource.database")}{" "}
+              {formData.type.toLowerCase() !== "neo4j" && (
+                <span className="text-red-500">*</span>
+              )}
             </Label>
             <Input
               id="database"

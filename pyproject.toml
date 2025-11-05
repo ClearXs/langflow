@@ -117,7 +117,8 @@ dependencies = [
     "impyla>=0.16.0",
     "pure-sasl>=0.6.2",
     "thrift-sasl>=0.4.3",
-    "hmsclient>=0.1.0"
+    "hmsclient>=0.1.0",
+    "openpyxl>=3.0.0"
 ]
 
 [dependency-groups]

@@ -7,6 +7,7 @@ import { useGetTypes } from "@/controllers/API/queries/flows/use-get-types";
 import { ENABLE_NEW_SIDEBAR } from "@/customization/feature-flags";
 import { useCustomNavigate } from "@/customization/hooks/use-custom-navigate";
 import useSaveFlow from "@/hooks/flows/use-save-flow";
+import { useUrlParam } from "@/hooks/use-iframe-params";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { SaveChangesModal } from "@/modals/saveChangesModal";
 import useAlertStore from "@/stores/alertStore";
@@ -24,6 +25,13 @@ export default function FlowPage({ view }: { view?: boolean }): JSX.Element {
   const { t } = useTranslation();
   const types = useTypesStore((state) => state.types);
 
+  // Detect stream parameter from URL
+  const streamParam = useUrlParam("stream");
+  const isPersistentStream = streamParam === "true";
+
+  // Debug logging
+  console.log("[FlowPage] streamParam =", streamParam, "isPersistentStream =", isPersistentStream);
+
   useGetTypes({
     enabled: Object.keys(types).length <= 0,
   });
@@ -32,17 +40,75 @@ export default function FlowPage({ view }: { view?: boolean }): JSX.Element {
   const currentFlow = useFlowStore((state) => state.currentFlow);
   const currentSavedFlow = useFlowsManagerStore((state) => state.currentFlow);
   const setSuccessData = useAlertStore((state) => state.setSuccessData);
+  const setIsPersistentStream = useFlowStore(
+    (state) => state.setIsPersistentStream,
+  );
+  const setIsBuilding = useFlowStore((state) => state.setIsBuilding);
+  const setStreamingJobId = useFlowStore((state) => state.setStreamingJobId);
   const [isLoading, setIsLoading] = useState(false);
+
+  // Get flow ID from URL params
+  const { id } = useParams();
+
+  // Sync isPersistentStream to store when URL parameter changes
+  useEffect(() => {
+    setIsPersistentStream(isPersistentStream);
+  }, [isPersistentStream, setIsPersistentStream]);
+
+  // Check and restore streaming status on page load
+  useEffect(() => {
+    const checkAndRestoreStreamingStatus = async () => {
+      // Only check if in persistent streaming mode
+      if (!isPersistentStream) return;
+      if (!id) return;
+
+      try {
+        const response = await fetch(`/api/v1/flows/${id}/status`);
+
+        if (!response.ok) {
+          console.error("Failed to check flow status");
+          return;
+        }
+
+        const data = await response.json();
+        const { is_running, job_id } = data;
+
+        if (is_running && job_id) {
+          console.log(
+            `Restoring streaming status for flow ${id}, job ${job_id}`,
+          );
+
+          // Restore running state
+          setIsBuilding(true);
+          setStreamingJobId(job_id);
+
+          // Optional: Reconnect to job events for real-time logs
+          // This would require additional implementation
+        }
+      } catch (error) {
+        console.error("Error checking flow status:", error);
+      }
+    };
+
+    // Delay execution to ensure page is fully loaded
+    const timeoutId = setTimeout(checkAndRestoreStreamingStatus, 500);
+
+    return () => clearTimeout(timeoutId);
+  }, [isPersistentStream, id, setIsBuilding, setStreamingJobId]);
 
   const changesNotSaved =
     customStringify(currentFlow) !== customStringify(currentSavedFlow) &&
     (currentFlow?.data?.nodes?.length ?? 0) > 0;
 
   const isBuilding = useFlowStore((state) => state.isBuilding);
-  const blocker = useBlocker(changesNotSaved || isBuilding);
+  const isPersistentStreamStore = useFlowStore(
+    (state) => state.isPersistentStream,
+  );
+  const blocker = useBlocker(
+    (isPersistentStreamStore ? false : changesNotSaved) || isBuilding,
+  );
 
   const setOnFlowPage = useFlowStore((state) => state.setOnFlowPage);
-  const { id } = useParams();
   const navigate = useCustomNavigate();
   const saveFlow = useSaveFlow();
 
@@ -90,7 +156,8 @@ export default function FlowPage({ view }: { view?: boolean }): JSX.Element {
 
   useEffect(() => {
     const handleBeforeUnload = (event: BeforeUnloadEvent) => {
-      if (changesNotSaved || isBuilding) {
+      // Persistent streaming flows don't block page exit
+      if (!isPersistentStreamStore && (changesNotSaved || isBuilding)) {
         event.preventDefault();
         event.returnValue = ""; // Required for Chrome
       }
@@ -101,7 +168,7 @@ export default function FlowPage({ view }: { view?: boolean }): JSX.Element {
     return () => {
       window.removeEventListener("beforeunload", handleBeforeUnload);
     };
-  }, [changesNotSaved, isBuilding]);
+  }, [changesNotSaved, isBuilding, isPersistentStreamStore]);
 
   // Set flow tab id
   useEffect(() => {
@@ -129,6 +196,9 @@ export default function FlowPage({ view }: { view?: boolean }): JSX.Element {
       setOnFlowPage(false);
       console.warn(t("common.unmounting"));
 
+      // Don't stop building in cleanup - this causes race conditions
+      // Building should be stopped explicitly by user or handled by beforeunload
+
       setCurrentFlow(undefined);
     };
   }, [id]);
@@ -147,7 +217,9 @@ export default function FlowPage({ view }: { view?: boolean }): JSX.Element {
   useEffect(() => {
     if (blocker.state === "blocked") {
       if (isBuilding) {
-        stopBuilding();
+        stopBuilding().catch((error) => {
+          console.error("Error stopping building:", error);
+        });
       } else if (!changesNotSaved) {
         blocker.proceed && blocker.proceed();
       }

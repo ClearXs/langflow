@@ -273,9 +273,25 @@ export async function buildFlowVertices({
 }: BuildVerticesParams) {
   const inputs = {};
 
-  let buildUrl = customBuildUrl(flowId, playgroundPage);
+  // Check if persistent streaming mode is enabled
+  const isPersistentStream = useFlowStore.getState().isPersistentStream;
+
+  console.log("[buildUtils] Starting build - isPersistentStream =", isPersistentStream);
+
+  // Use different endpoint for persistent streaming
+  let buildUrl = isPersistentStream
+    ? `/api/v1/run/${flowId}`
+    : customBuildUrl(flowId, playgroundPage);
+
+  console.log("[buildUtils] buildUrl =", buildUrl);
 
   const queryParams = new URLSearchParams();
+
+  // Add stream parameter for persistent mode
+  if (isPersistentStream) {
+    queryParams.append("stream", "true");
+    console.log("[buildUtils] Added stream=true to query params");
+  }
 
   if (startNodeId) {
     queryParams.append("start_component_id", startNodeId);
@@ -386,20 +402,41 @@ export async function buildFlowVertices({
 
     const { job_id } = await buildResponse.json();
 
+    // Save job_id for persistent streams
+    if (isPersistentStream) {
+      useFlowStore.getState().setStreamingJobId(job_id);
+      console.log(`Persistent stream started with job_id: ${job_id}`);
+
+      // For persistent streams, trigger onBuildStart and return immediately
+      // The stream continues in background, no need to poll for events
+      if (onBuildStart) {
+        onBuildStart();
+      }
+
+      return; // Exit early for persistent streams
+    }
+
     const cancelBuildUrl = customCancelBuildUrl(job_id);
 
     // Get the buildController from flowStore
     const buildController = new AbortController();
     buildController.signal.addEventListener("abort", () => {
-      try {
-        fetch(cancelBuildUrl, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        });
-      } catch (error) {
-        console.error("Error canceling build:", error);
+      const isPersistent = useFlowStore.getState().isPersistentStream;
+
+      // Only send cancel request for non-persistent flows
+      if (!isPersistent) {
+        try {
+          fetch(cancelBuildUrl, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          });
+        } catch (error) {
+          console.error("Error canceling build:", error);
+        }
+      } else {
+        console.log("Persistent stream: not sending cancel request on abort");
       }
     });
     useFlowStore.getState().setBuildController(buildController);

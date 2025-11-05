@@ -1,6 +1,6 @@
-import json
 import asyncio
-from typing import Any, Dict, List, Optional
+import json
+from typing import Any
 
 import i18n
 
@@ -212,15 +212,12 @@ class ETLKafkaOutputComponent(Component):
         if self.value_serializer == "json":
             if isinstance(value, (dict, list)):
                 return json.dumps(value, ensure_ascii=False).encode("utf-8")
-            else:
-                return json.dumps({"value": value}, ensure_ascii=False).encode("utf-8")
-        else:  # string
-            if isinstance(value, str):
-                return value.encode("utf-8")
-            else:
-                return str(value).encode("utf-8")
+            return json.dumps({"value": value}, ensure_ascii=False).encode("utf-8")
+        if isinstance(value, str):
+            return value.encode("utf-8")
+        return str(value).encode("utf-8")
 
-    def _extract_key(self, data: Dict[str, Any]) -> str:
+    def _extract_key(self, data: dict[str, Any]) -> str:
         """Extract message key from data."""
         if not self.key_field:
             return None
@@ -329,7 +326,7 @@ class ETLKafkaOutputComponent(Component):
                 except Exception:
                     pass
 
-    async def _send_batch(self, producer, batch: List[Dict[str, Any]], headers: Dict[str, str]) -> int:
+    async def _send_batch(self, producer, batch: list[dict[str, Any]], headers: dict[str, str]) -> int:
         """Send a batch of messages to Kafka."""
         success_count = 0
 
@@ -342,7 +339,7 @@ class ETLKafkaOutputComponent(Component):
 
         return success_count
 
-    async def _send_single_message(self, producer, data_item: Dict[str, Any], headers: Dict[str, str]):
+    async def _send_single_message(self, producer, data_item: dict[str, Any], headers: dict[str, str]):
         """Send a single message to Kafka."""
         # Extract key
         key = self._extract_key(data_item)
@@ -380,13 +377,13 @@ class ETLKafkaOutputComponent(Component):
         # Poll to handle delivery reports
         producer.poll(0)
 
-    def _get_partition(self, data_item: Dict[str, Any]) -> Optional[int]:
+    def _get_partition(self, data_item: dict[str, Any]) -> int | None:
         """Determine partition for message based on partition key or key field."""
         if self.partition_key and self.partition_key in data_item:
             # Simple hash-based partitioning
             partition_value = str(data_item[self.partition_key])
             return hash(partition_value) % 100  # Assume max 100 partitions
-        elif self.key_field and self.key_field in data_item:
+        if self.key_field and self.key_field in data_item:
             key_value = str(data_item[self.key_field])
             return hash(key_value) % 100
         return None  # Let Kafka decide

@@ -115,13 +115,39 @@ const useFlowStore = create<FlowStoreType>((set, get) => ({
   nodes: [],
   edges: [],
   isBuilding: false,
-  stopBuilding: () => {
-    get().buildController.abort();
+  streamingJobId: null,
+  isPersistentStream: false,
+  stopBuilding: async () => {
+    const isPersistent = get().isPersistentStream;
+    const jobId = get().streamingJobId;
+
+    if (isPersistent && jobId) {
+      // Persistent streaming: call API to stop
+      try {
+        const response = await fetch(`/api/v1/build/${jobId}/cancel`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+
+        if (!response.ok) {
+          console.error("Failed to stop persistent stream");
+        }
+      } catch (error) {
+        console.error("Error stopping persistent stream:", error);
+      }
+    } else {
+      // Non-persistent: use AbortController
+      get().buildController.abort();
+    }
+
+    // Common cleanup logic
     get().updateEdgesRunningByNodes(
       get().nodes.map((n) => n.id),
       false,
     );
-    set({ isBuilding: false });
+    set({ isBuilding: false, streamingJobId: null });
     get().revertBuiltStatusFromBuilding();
     useAlertStore.getState().setErrorData({
       title: i18n.t("constants.build.stopped"),
@@ -250,6 +276,12 @@ const useFlowStore = create<FlowStoreType>((set, get) => ({
   },
   setIsBuilding: (isBuilding) => {
     set({ isBuilding });
+  },
+  setStreamingJobId: (jobId) => {
+    set({ streamingJobId: jobId });
+  },
+  setIsPersistentStream: (isPersistent) => {
+    set({ isPersistentStream: isPersistent });
   },
   setFlowState: (flowState) => {
     const newFlowState =

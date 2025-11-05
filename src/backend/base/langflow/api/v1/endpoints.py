@@ -11,7 +11,6 @@ import orjson
 import sqlalchemy as sa
 from fastapi import APIRouter, BackgroundTasks, Body, Depends, HTTPException, Request, UploadFile, status
 from fastapi.encoders import jsonable_encoder
-from fastapi.responses import StreamingResponse
 from lfx.custom.custom_component.component import Component
 from lfx.custom.utils import (
     add_code_field_to_build_config,
@@ -51,7 +50,8 @@ from langflow.services.cache.utils import save_uploaded_file
 from langflow.services.database.models.flow.model import Flow, FlowRead
 from langflow.services.database.models.flow.utils import get_all_webhook_components_in_flow
 from langflow.services.database.models.user.model import User, UserRead
-from langflow.services.deps import get_session_service, get_settings_service, get_telemetry_service
+from langflow.services.deps import get_queue_service, get_session_service, get_settings_service, get_telemetry_service
+from langflow.services.job_queue.service import JobQueueService
 from langflow.services.telemetry.schema import RunPayload
 from langflow.utils.compression import compress_response
 from langflow.utils.version import get_version_info
@@ -359,6 +359,7 @@ async def simplified_run_flow(
     api_key_user: Annotated[UserRead, Depends(api_key_security)],
     context: dict | None = None,
     http_request: Request,
+    queue_service: Annotated[JobQueueService, Depends(get_queue_service)],
 ):
     """Executes a specified flow by ID with support for streaming and telemetry.
 
@@ -369,7 +370,9 @@ async def simplified_run_flow(
         background_tasks (BackgroundTasks): FastAPI background task manager
         flow (FlowRead | None): The flow to execute, loaded via dependency
         input_request (SimplifiedAPIRequest | None): Input parameters for the flow
-        stream (bool): Whether to stream the response
+        stream (bool): Whether to stream the response. When True, enables persistent streaming mode
+            where the flow continues running even if the client disconnects, allowing for long-running
+            data processing tasks that can be reconnected to later.
         api_key_user (UserRead): Authenticated user from API key
         context (dict | None): Optional context to pass to the flow
         http_request (Request): The incoming HTTP request for extracting global variables
@@ -386,6 +389,9 @@ async def simplified_run_flow(
         - Supports both streaming and non-streaming execution modes
         - Tracks execution time and success/failure via telemetry
         - Handles graceful client disconnection in streaming mode
+        - **Persistent Streaming Mode**: When stream=True, the flow continues running even after
+          client disconnection, enabling long-running data processing tasks (e.g., Kafka consumers,
+          CDC inputs) that can be monitored or controlled via separate API calls
         - Provides detailed error handling with appropriate HTTP status codes
         - Extracts global variables from HTTP headers with prefix X-LANGFLOW-GLOBAL-VAR-*
         - Merges extracted variables with the context parameter as "request_variables"
@@ -418,9 +424,25 @@ async def simplified_run_flow(
     start_time = time.perf_counter()
 
     if stream:
+        # Check if this flow is already running (singleton enforcement)
+        existing_job_id = queue_service.get_flow_job_id(flow.id)
+        if existing_job_id and queue_service.is_job_running(existing_job_id):
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail=f"Flow {flow.id} is already running with job_id: {existing_job_id}. "
+                "Please stop the existing job before starting a new one.",
+            )
+
+        # Generate a unique job_id for this streaming job
+        job_id = str(uuid4())
+        await logger.ainfo(f"[Persistent Stream] Starting flow_id={flow.id}, job_id={job_id}")
+
+        # Create queue and event manager for this job
         asyncio_queue: asyncio.Queue = asyncio.Queue()
         asyncio_queue_client_consumed: asyncio.Queue = asyncio.Queue()
         event_manager = create_stream_tokens_event_manager(queue=asyncio_queue)
+
+        # Create the main task
         main_task = asyncio.create_task(
             run_flow_generator(
                 flow=flow,
@@ -432,15 +454,31 @@ async def simplified_run_flow(
             )
         )
 
-        async def on_disconnect() -> None:
-            await logger.adebug("Client disconnected, closing tasks")
-            main_task.cancel()
+        # Register the job in the job queue service with the task
+        # This allows the cancel endpoint to find and cancel the task
+        queue_service._queues[job_id] = (asyncio_queue, event_manager, main_task, None)
 
-        return StreamingResponse(
-            consume_and_yield(asyncio_queue, asyncio_queue_client_consumed),
-            background=on_disconnect,
-            media_type="text/event-stream",
-        )
+        # Register the flow-job mapping
+        queue_service.register_flow_job(flow.id, job_id)
+        await logger.ainfo(f"Registered persistent stream: flow_id={flow.id}, job_id={job_id}")
+
+        async def on_disconnect() -> None:
+            if stream:
+                await logger.adebug(
+                    f"Client disconnected but stream=true, keeping task alive for flow {flow.id if flow else 'unknown'}"
+                )
+                # Persistent streaming mode: do not cancel the task
+            else:
+                await logger.adebug("Client disconnected, closing tasks")
+                main_task.cancel()
+
+        # Return immediately with job_id in response body (not SSE stream)
+        # This allows client to disconnect immediately while stream continues
+        return {
+            "job_id": job_id,
+            "flow_id": flow.id,
+            "message": "Persistent stream started successfully. Stream will continue running in background.",
+        }
 
     run_id = str(uuid4())
     try:
@@ -943,3 +981,144 @@ async def get_config() -> ConfigResponse:
 
     except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc)) from exc
+
+
+@router.get("/flows/{flow_id}/status")
+async def get_flow_streaming_status(
+    flow_id: str,
+    queue_service: Annotated[JobQueueService, Depends(get_queue_service)],
+):
+    """Query the streaming status of a persistent flow.
+
+    This endpoint checks if a flow is currently running in persistent streaming mode
+    and returns the associated job_id if found.
+
+    Args:
+        flow_id (str): The unique identifier for the flow.
+        queue_service (JobQueueService): The job queue service dependency.
+
+    Returns:
+        dict: A dictionary containing:
+            - is_running (bool): Whether the flow is currently running.
+            - job_id (str | None): The job ID if running, None otherwise.
+
+    Raises:
+        HTTPException: If an error occurs while checking the flow status.
+    """
+    try:
+        await logger.ainfo(f"[Status Query] Checking status for flow_id={flow_id}")
+
+        # Convert string flow_id to UUID for matching with internal mappings
+        from uuid import UUID
+        try:
+            flow_id_uuid = UUID(flow_id)
+        except ValueError:
+            await logger.aerror(f"[Status Query] Invalid flow_id format: {flow_id}")
+            return {"is_running": False, "job_id": None}
+
+        await logger.ainfo(f"[Status Query] Converted flow_id to UUID: {flow_id_uuid}")
+        await logger.ainfo(f"[Status Query] Current flow mappings: {queue_service._flow_job_mapping}")
+        await logger.ainfo(f"[Status Query] Current queues: {list(queue_service._queues.keys())}")
+
+        job_id = queue_service.get_flow_job_id(flow_id_uuid)
+        await logger.ainfo(f"[Status Query] Found job_id: {job_id}")
+
+        if not job_id:
+            await logger.ainfo(f"[Status Query] No job_id found for flow {flow_id}")
+            return {"is_running": False, "job_id": None}
+
+        is_running = queue_service.is_job_running(job_id)
+        await logger.ainfo(f"[Status Query] Job {job_id} running status: {is_running}")
+
+        if not is_running:
+            # Job has completed, clean up the mapping
+            await logger.ainfo(f"[Status Query] Job {job_id} not running, cleaning up mapping")
+            queue_service.cleanup_flow_job(flow_id_uuid)
+            return {"is_running": False, "job_id": None}
+
+        await logger.ainfo(f"[Status Query] Flow {flow_id} is running with job {job_id}")
+        return {"is_running": True, "job_id": job_id}
+
+    except Exception as exc:
+        await logger.aerror(f"Error checking flow status for {flow_id}: {exc}")
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(exc)) from exc
+
+
+@router.post("/build/{job_id}/cancel")
+async def cancel_build(
+    job_id: str,
+    queue_service: Annotated[JobQueueService, Depends(get_queue_service)],
+):
+    """Cancel a running build/streaming job.
+
+    This endpoint stops a persistent streaming job by job_id. It will:
+    1. Look up the job in the queue service
+    2. Cancel the associated task
+    3. Clean up the flow-job mapping
+
+    Args:
+        job_id (str): The unique identifier for the job to cancel.
+        queue_service (JobQueueService): The job queue service dependency.
+
+    Returns:
+        dict: A dictionary containing:
+            - message (str): Success message
+            - job_id (str): The cancelled job ID
+
+    Raises:
+        HTTPException:
+            - 404: Job not found or already completed
+            - 500: Internal error during cancellation
+    """
+    try:
+        await logger.ainfo(f"[Cancel Request] Attempting to cancel job_id={job_id}")
+        await logger.ainfo(f"[Cancel Request] Current queues: {list(queue_service._queues.keys())}")
+        await logger.ainfo(f"[Cancel Request] Current flow mappings: {queue_service._flow_job_mapping}")
+
+        # Get the queue entry (queue, event_manager, task, mark_time)
+        if job_id not in queue_service._queues:
+            await logger.aerror(f"[Cancel Request] Job not found in queue service: {job_id}")
+            await logger.aerror(f"[Cancel Request] Available jobs: {list(queue_service._queues.keys())}")
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Job not found: {job_id}. Available jobs: {list(queue_service._queues.keys())}",
+            )
+
+        queue_entry = queue_service._queues[job_id]
+        _, _, task, _ = queue_entry
+
+        if task is None:
+            await logger.aerror(f"No task found for job_id: {job_id}")
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Job task not found: {job_id}",
+            )
+
+        # Check if task is still running
+        if task.done():
+            await logger.ainfo(f"Job {job_id} already completed")
+        else:
+            # Cancel the task
+            task.cancel()
+            await logger.ainfo(f"Cancelled job task: {job_id}")
+
+        # Remove from queue service
+        del queue_service._queues[job_id]
+
+        # Find and clean up the flow-job mapping
+        for flow_id, mapped_job_id in list(queue_service._flow_job_mapping.items()):
+            if mapped_job_id == job_id:
+                queue_service.cleanup_flow_job(flow_id)
+                await logger.ainfo(f"Cleaned up flow-job mapping: flow_id={flow_id}, job_id={job_id}")
+                break
+
+        return {
+            "message": "Build cancelled successfully",
+            "job_id": job_id,
+        }
+
+    except HTTPException:
+        raise
+    except Exception as exc:
+        await logger.aerror(f"Error cancelling job {job_id}: {exc}")
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(exc)) from exc

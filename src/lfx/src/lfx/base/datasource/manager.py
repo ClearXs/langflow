@@ -191,6 +191,30 @@ class DataSourceManager:
         try:
             print(f"Testing connection with params: {connection_info}")
 
+            db_type = connection_info.get("type", "").lower()
+
+            # Neo4j requires special handling with native driver
+            if db_type == "neo4j":
+                from neo4j import GraphDatabase
+
+                host = connection_info.get("host", "localhost")
+                port = connection_info.get("port", 7687)
+                username = connection_info.get("username", "")
+                password = connection_info.get("password", "")
+
+                # Build Neo4j bolt URI
+                uri = f"bolt://{host}:{port}"
+
+                # Create driver and test connection
+                driver = GraphDatabase.driver(uri, auth=(username, password) if username else None)
+                try:
+                    # Verify connectivity
+                    driver.verify_connectivity()
+                    return {"status": "success", "message": "Connection successful"}
+                finally:
+                    driver.close()
+
+            # For other databases, use SQLAlchemy
             if connection_info.get("connection_string"):
                 conn_str = connection_info["connection_string"]
             else:
@@ -382,33 +406,29 @@ class DataSourceManager:
         if db_type == "postgresql":
             return f"postgresql://{username_encoded}:{password_encoded}@{host}:{port}/{database}"
         if db_type == "hive":
-            # Hive connection string - use standard JDBC format
+            # Hive connection string - use PyHive SQLAlchemy format
             # Default port for Hive is 10000, database is 'default'
             hive_port = port if port != 3306 else 10000
             hive_database = database or "default"
-            hive_username = username or "hive"
 
-            # Build Hive JDBC connection string
-            # Format: jdbc:hive2://host:port/database
-            conn_str = f"jdbc:hive2://{host}:{hive_port}/{hive_database}"
-
-            # Add authentication parameters if provided
-            if password:
-                conn_str += f"?user={hive_username}"
-                if password:
-                    conn_str += f";password={password_encoded}"
-            elif username and username != "hive":
-                conn_str += f"?user={username_encoded}"
-
-            return conn_str
-        if db_type == "neo4j":
-            # Neo4j connection string
-            # Default port for Neo4j is 7687, use bolt protocol
-            neo4j_port = port if port != 3306 else 7687
-            # Neo4j uses bolt protocol for native driver
+            # Build Hive connection string for SQLAlchemy + PyHive
+            # Format: hive://[user[:password]@]host:port/database
             if username and password:
-                return f"neo4j://{username_encoded}:{password_encoded}@{host}:{neo4j_port}"
-            return f"neo4j://{host}:{neo4j_port}"
+                # With authentication (LDAP mode)
+                return f"hive://{username_encoded}:{password_encoded}@{host}:{hive_port}/{hive_database}"
+            if username:
+                # Username only (no password)
+                return f"hive://{username_encoded}@{host}:{hive_port}/{hive_database}"
+            # No authentication (NOSASL mode)
+            return f"hive://{host}:{hive_port}/{hive_database}"
+        if db_type == "neo4j":
+            # Neo4j connection string - use bolt protocol (native driver)
+            # Default port for Neo4j is 7687
+            neo4j_port = port if port != 3306 else 7687
+            # Neo4j uses bolt:// protocol for native driver, not neo4j://
+            if username and password:
+                return f"bolt://{username_encoded}:{password_encoded}@{host}:{neo4j_port}"
+            return f"bolt://{host}:{neo4j_port}"
 
         raise ValueError(f"Unsupported database type: {db_type}")
 

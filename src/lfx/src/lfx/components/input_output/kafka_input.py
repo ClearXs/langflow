@@ -39,7 +39,6 @@ class ETLKafkaInputComponent(Component):
 
     def _is_design_time_context(self) -> bool:
         """检测是否在设计时上下文中（字段分析等）"""
-
         # 方法1: 检查调用栈 - 最可靠的检测方法
         import traceback
         stack = traceback.extract_stack()
@@ -71,7 +70,7 @@ class ETLKafkaInputComponent(Component):
                 return True
 
         # 方法3: 检查字段提取模式是否为schema_only（这通常只用于设计时）
-        if hasattr(self, 'field_extraction_mode') and self.field_extraction_mode == "schema_only":
+        if hasattr(self, "field_extraction_mode") and self.field_extraction_mode == "schema_only":
             logger.debug("[KafkaInput] Schema-only mode detected, assuming design-time")
             return True
 
