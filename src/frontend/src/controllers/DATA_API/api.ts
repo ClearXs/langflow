@@ -164,16 +164,13 @@ export function useDataAPI(options: UseDataAPIOptions = {}): AxiosInstance {
         config.headers['Blade-Requested-With'] = 'BladeHttpRequest';
 
         // Add Authorization header from environment variable or use default
-        const authHeader =
-          authorization || import.meta.env.VITE_DATA_API_AUTHORIZATION;
-        config.headers['Authorization'] = authHeader;
+        config.headers['Authorization'] = authorization;
 
         // Get default token from environment variable
-        const defaultToken = import.meta.env.VITE_DATA_API_DEFAULT_TOKEN;
         // Use token from URL param or default token
         const tokenHeader = DEFAULT_CONFIG.tokenHeader;
         if (tokenHeader && config.headers) {
-          config.headers[tokenHeader] = `bearer ` + (token || defaultToken);
+          config.headers[tokenHeader] = `bearer ` + token;
         }
 
         // Get metadata
