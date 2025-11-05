@@ -110,6 +110,14 @@ dependencies = [
     "nacos-sdk-python>=2.0.9",
     "sqlparse>=0.5.3",
     "confluent-kafka>=2.12.1",
+    "neo4j>=5.0.0,<6.0.0",
+    "pymysql>=1.1.0,<2.0.0",
+    "pyhive>=0.7.0",
+    "thrift>=0.13.0",
+    "impyla>=0.16.0",
+    "pure-sasl>=0.6.2",
+    "thrift-sasl>=0.4.3",
+    "hmsclient>=0.1.0"
 ]
 
 [dependency-groups]
@@ -265,7 +273,7 @@ llm-providers = [
 
 # All optional dependencies
 all = [
-    "langflow[ai-models,vector-stores,document-processing,audio,couchbase,cassio,local,clickhouse-connect,hive,mysql,neo4j-db,nv-ingest,postgresql,docling]",
+    "langflow[ai-models,vector-stores,document-processing,audio,couchbase,cassio,local,clickhouse-connect,nv-ingest,postgresql,docling]",
 ]
 
 docling = [
@@ -296,21 +304,6 @@ clickhouse-connect = [
     "clickhouse-connect==0.7.19"
 ]
 
-hive = [
-    "pyhive>=0.7.0",
-    "thrift>=0.13.0",
-    "impyla>=0.16.0",
-    "sasl>=0.3.1",
-    "hmsclient>=0.1.0"
-]
-
-mysql = [
-    "pymysql>=1.1.0,<2.0.0"
-]
-
-neo4j-db = [
-    "neo4j>=5.0.0,<6.0.0"
-]
 
 nv-ingest = [
     # NOTE: These must be removed in order to run `uv lock --upgrade` or `uv sync --upgrade`

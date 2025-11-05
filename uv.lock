@@ -1,5 +1,5 @@
 version = 1
-revision = 2
+revision = 3
 requires-python = ">=3.10, <3.14"
 resolution-markers = [
     "python_full_version >= '3.13' and platform_machine == 'arm64' and sys_platform == 'darwin'",
@@ -1629,6 +1629,7 @@ wheels = [
 name = "confluent-kafka"
 version = "2.12.1"
 source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/d5/d6/10799cbc9ad757170eb466eaadfaf2abde1d832b6d67d7ff040179888272/confluent_kafka-2.12.1.tar.gz", hash = "sha256:cfc4ceeb3071a678f7c93cfe1e76216442e1621ee6192584cdf704db1d619894", size = 250074, upload-time = "2025-11-04T19:03:31.969Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/c9/ad/0d2b906aece9069fc0bead3bd7907a440442209ee3795954359555a51b91/confluent_kafka-2.12.1-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:418f52c52c3833a2481cb4f576f4bee5183776dd9411f5288286117d794d858c", size = 3593667, upload-time = "2025-10-21T20:49:58.317Z" },
     { url = "https://files.pythonhosted.org/packages/c4/ae/27220c24f96b5cb7d69b01035e3ebe1fc6d6cde54e8d9e6e69a6fd8fcd69/confluent_kafka-2.12.1-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:6308da6a1feddfc8a5ab757982ab546c4482e33c056e7b4f379deeddfd821c0c", size = 3153382, upload-time = "2025-10-21T20:50:01.627Z" },
@@ -5300,9 +5301,11 @@ dependencies = [
     { name = "google-api-python-client" },
     { name = "google-search-results" },
     { name = "graph-retriever" },
+    { name = "hmsclient" },
     { name = "huggingface-hub", extra = ["inference"] },
     { name = "ibm-watsonx-ai", version = "1.3.42", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
     { name = "ibm-watsonx-ai", version = "1.4.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
+    { name = "impyla" },
     { name = "jigsawstack" },
     { name = "jq" },
     { name = "json-repair" },
@@ -5325,6 +5328,7 @@ dependencies = [
     { name = "metaphor-python" },
     { name = "nacos-sdk-python" },
     { name = "needle-python" },
+    { name = "neo4j" },
     { name = "networkx" },
     { name = "nltk" },
     { name = "numexpr" },
@@ -5333,10 +5337,13 @@ dependencies = [
     { name = "opensearch-py" },
     { name = "opik" },
     { name = "pgvector" },
+    { name = "pure-sasl" },
     { name = "pyarrow" },
     { name = "pydantic-ai" },
     { name = "pydantic-settings" },
+    { name = "pyhive" },
     { name = "pymongo" },
+    { name = "pymysql" },
     { name = "pytube" },
     { name = "pywin32", marker = "sys_platform == 'win32'" },
     { name = "qdrant-client" },
@@ -5352,6 +5359,8 @@ dependencies = [
     { name = "sseclient-py" },
     { name = "structlog" },
     { name = "supabase" },
+    { name = "thrift" },
+    { name = "thrift-sasl" },
     { name = "traceloop-sdk" },
     { name = "twelvelabs" },
     { name = "types-cachetools" },
@@ -5390,8 +5399,6 @@ all = [
     { name = "docling-core" },
     { name = "easyocr", marker = "platform_machine != 'x86_64' or sys_platform != 'darwin'" },
     { name = "faiss-cpu" },
-    { name = "hmsclient" },
-    { name = "impyla" },
     { name = "langchain-anthropic" },
     { name = "langchain-astradb" },
     { name = "langchain-chroma" },
@@ -5414,15 +5421,12 @@ all = [
     { name = "ocrmac", marker = "sys_platform == 'darwin'" },
     { name = "openai" },
     { name = "pinecone-client" },
-    { name = "pyhive" },
     { name = "pymongo" },
     { name = "qdrant-client" },
     { name = "rapidocr-onnxruntime" },
-    { name = "sasl" },
     { name = "sentence-transformers" },
     { name = "sqlalchemy", extra = ["postgresql-psycopg", "postgresql-psycopg2binary"] },
     { name = "tesserocr" },
-    { name = "thrift" },
     { name = "weaviate-client" },
     { name = "webrtcvad" },
 ]
@@ -5465,13 +5469,6 @@ google = [
     { name = "langchain-google-community" },
     { name = "langchain-google-genai" },
     { name = "langchain-google-vertexai" },
-]
-hive = [
-    { name = "hmsclient" },
-    { name = "impyla" },
-    { name = "pyhive" },
-    { name = "sasl" },
-    { name = "thrift" },
 ]
 ibm = [
     { name = "langchain-ibm" },
@@ -5620,10 +5617,10 @@ requires-dist = [
     { name = "google-api-python-client", specifier = "==2.154.0" },
     { name = "google-search-results", specifier = ">=2.4.1,<3.0.0" },
     { name = "graph-retriever", specifier = "==0.8.0" },
-    { name = "hmsclient", marker = "extra == 'hive'", specifier = ">=0.1.0" },
+    { name = "hmsclient", specifier = ">=0.1.0" },
     { name = "huggingface-hub", extras = ["inference"], specifier = ">=0.23.2,<1.0.0" },
     { name = "ibm-watsonx-ai", specifier = ">=1.3.1,<2.0.0" },
-    { name = "impyla", marker = "extra == 'hive'", specifier = ">=0.16.0" },
+    { name = "impyla", specifier = ">=0.16.0" },
     { name = "jigsawstack", specifier = "==0.2.7" },
     { name = "jq", specifier = "==1.8.0" },
     { name = "json-repair", specifier = "==0.30.3" },
@@ -5663,7 +5660,7 @@ requires-dist = [
     { name = "langchain-sambanova", marker = "extra == 'ai-models'", specifier = "==0.1.0" },
     { name = "langchain-sambanova", marker = "extra == 'local-models'", specifier = "==0.1.0" },
     { name = "langchain-unstructured", marker = "extra == 'document-processing'", specifier = "==0.1.5" },
-    { name = "langflow", extras = ["ai-models", "vector-stores", "document-processing", "audio", "couchbase", "cassio", "local", "clickhouse-connect", "hive", "nv-ingest", "postgresql", "docling"], marker = "extra == 'all'", editable = "." },
+    { name = "langflow", extras = ["ai-models", "vector-stores", "document-processing", "audio", "couchbase", "cassio", "local", "clickhouse-connect", "nv-ingest", "postgresql", "docling"], marker = "extra == 'all'", editable = "." },
     { name = "langflow", extras = ["google", "anthropic", "cohere", "aws", "local-models", "ibm"], marker = "extra == 'llm-providers'", editable = "." },
     { name = "langflow-base", editable = "src/backend/base" },
     { name = "langfuse", specifier = "==2.53.9" },
@@ -5681,6 +5678,7 @@ requires-dist = [
     { name = "mlx", marker = "python_full_version >= '3.12' and platform_machine == 'arm64' and sys_platform == 'darwin' and extra == 'document-processing'", specifier = ">=0.29.0" },
     { name = "nacos-sdk-python", specifier = ">=2.0.9" },
     { name = "needle-python", specifier = ">=0.4.0,<1.0.0" },
+    { name = "neo4j", specifier = ">=5.0.0,<6.0.0" },
     { name = "networkx", specifier = "==3.4.2" },
     { name = "nltk", specifier = "==3.9.1" },
     { name = "numexpr", specifier = "==2.10.2" },
@@ -5694,12 +5692,14 @@ requires-dist = [
     { name = "opik", specifier = ">=1.6.3,<2.0.0" },
     { name = "pgvector", specifier = "==0.3.6" },
     { name = "pinecone-client", marker = "extra == 'vector-stores'", specifier = ">=3.0.0" },
+    { name = "pure-sasl", specifier = ">=0.6.2" },
     { name = "pyarrow", specifier = "==19.0.0" },
     { name = "pydantic-ai", specifier = ">=0.0.19,<1.0.0" },
     { name = "pydantic-settings", specifier = ">=2.2.0,<3.0.0" },
-    { name = "pyhive", marker = "extra == 'hive'", specifier = ">=0.7.0" },
+    { name = "pyhive", specifier = ">=0.7.0" },
     { name = "pymongo", specifier = "==4.10.1" },
     { name = "pymongo", marker = "extra == 'vector-stores'", specifier = "==4.10.1" },
+    { name = "pymysql", specifier = ">=1.1.0,<2.0.0" },
     { name = "pytube", specifier = "==15.0.0" },
     { name = "pywin32", marker = "sys_platform == 'win32'", specifier = "==307" },
     { name = "qdrant-client", specifier = "==1.9.2" },
@@ -5707,7 +5707,6 @@ requires-dist = [
     { name = "qianfan", specifier = "==0.3.5" },
     { name = "rapidocr-onnxruntime", marker = "extra == 'docling'", specifier = ">=1.4.4" },
     { name = "redis", specifier = ">=5.2.1,<6.0.0" },
-    { name = "sasl", marker = "extra == 'hive'", specifier = ">=0.3.1" },
     { name = "scipy", specifier = ">=1.14.1,<1.16.2" },
     { name = "scrapegraph-py", specifier = ">=1.12.0,<2.0.0" },
     { name = "sentence-transformers", marker = "extra == 'local'", specifier = ">=2.3.1" },
@@ -5721,7 +5720,8 @@ requires-dist = [
     { name = "structlog", specifier = ">=25.4.0,<26.0.0" },
     { name = "supabase", specifier = ">=2.6.0,<3.0.0" },
     { name = "tesserocr", marker = "extra == 'docling'", specifier = ">=2.8.0" },
-    { name = "thrift", marker = "extra == 'hive'", specifier = ">=0.13.0" },
+    { name = "thrift", specifier = ">=0.13.0" },
+    { name = "thrift-sasl", specifier = ">=0.4.3" },
     { name = "traceloop-sdk", specifier = ">=0.43.1,<1.0.0" },
     { name = "twelvelabs", specifier = ">=0.4.7,<1.0.0" },
     { name = "types-cachetools", specifier = ">=5.5.0.20240820,<6.0.0" },
@@ -5737,7 +5737,7 @@ requires-dist = [
     { name = "youtube-transcript-api", specifier = "==0.6.3" },
     { name = "zep-python", specifier = "==2.0.2" },
 ]
-provides-extras = ["google", "anthropic", "cohere", "aws", "local-models", "ibm", "vectorstores", "document-processing", "ai-models", "vector-stores", "llm-providers", "all", "docling", "audio", "couchbase", "cassio", "local", "clickhouse-connect", "hive", "nv-ingest", "postgresql"]
+provides-extras = ["google", "anthropic", "cohere", "aws", "local-models", "ibm", "vectorstores", "document-processing", "ai-models", "vector-stores", "llm-providers", "all", "docling", "audio", "couchbase", "cassio", "local", "clickhouse-connect", "nv-ingest", "postgresql"]
 
 [package.metadata.requires-dev]
 dev = [
@@ -7353,6 +7353,18 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/6f/c4/034f43a01d41c7c8d220b1f48a3e471c5fb54ba3092581ee848d98cc167d/needle_python-0.6.0.tar.gz", hash = "sha256:6fb2aa99ef56e8f63171add525ab4756c91504dc39b6fd3e33f14cec9ce33b46", size = 6697, upload-time = "2025-07-27T13:11:03.916Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/51/d0/86aa7949a35e5097e144b24d57e38eea34ee6a13ef0a3a226b25b4473e38/needle_python-0.6.0-py3-none-any.whl", hash = "sha256:5349cd16da8ffb6a6e8593df41a49995f52faab6aed37499cc4c9f6872196c40", size = 9592, upload-time = "2025-07-27T13:11:02.825Z" },
+]
+
+[[package]]
+name = "neo4j"
+version = "5.28.2"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "pytz" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/50/69/4862fabc082f2447131aada5c91736155349d77ebf443af7f59553b7b789/neo4j-5.28.2.tar.gz", hash = "sha256:7d38e27e4f987a45cc9052500c6ee27325cb23dae6509037fe31dd7ddaed70c7", size = 231874, upload-time = "2025-07-30T06:04:34.669Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/04/00/1f74089c06aec1fac9390e2300a6a6b2381e0dac281783d64ccca9d681fd/neo4j-5.28.2-py3-none-any.whl", hash = "sha256:5c53b5c3eee6dee7e920c9724391aa38d7135a651e71b766da00533b92a91a94", size = 313156, upload-time = "2025-07-30T06:04:31.438Z" },
 ]
 
 [[package]]
@@ -10202,6 +10214,15 @@ wheels = [
 ]
 
 [[package]]
+name = "pymysql"
+version = "1.1.2"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/f5/ae/1fe3fcd9f959efa0ebe200b8de88b5a5ce3e767e38c7ac32fb179f16a388/pymysql-1.1.2.tar.gz", hash = "sha256:4961d3e165614ae65014e361811a724e2044ad3ea3739de9903ae7c21f539f03", size = 48258, upload-time = "2025-08-24T12:55:55.146Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/7c/4c/ad33b92b9864cbde84f259d5df035a6447f91891f5be77788e2a3892bce3/pymysql-1.1.2-py3-none-any.whl", hash = "sha256:e6b1d89711dd51f8f74b1631fe08f039e7d76cf67a42a323d3178f0f25762ed9", size = 45300, upload-time = "2025-08-24T12:55:53.394Z" },
+]
+
+[[package]]
 name = "pyobjc-core"
 version = "11.1"
 source = { registry = "https://pypi.org/simple" }
@@ -11583,15 +11604,6 @@ torch = [
     { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12'" },
     { name = "torch" },
 ]
-
-[[package]]
-name = "sasl"
-version = "0.3.1"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "six" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/df/ae/d8dda9ef1636f548935c271910d3b35afbf1782df582fda88a13ea48de53/sasl-0.3.1.tar.gz", hash = "sha256:0695030b23faa65aab2b462ce6f067d61caeb406de22d1ca7f9253fd9ebe127e", size = 44677, upload-time = "2021-06-16T11:28:52.028Z" }
 
 [[package]]
 name = "scikit-image"
