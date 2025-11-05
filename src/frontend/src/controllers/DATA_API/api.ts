@@ -292,9 +292,7 @@ export function createDataAPI(
       config.headers['Blade-Requested-With'] = 'BladeHttpRequest';
 
       // Add Authorization header from environment variable or use default
-      const authHeader =
-        import.meta.env.VITE_DATA_API_AUTHORIZATION ||
-        'Basic c2FiZXIzOnNhYmVyM19zZWNyZXQ=';
+      const authHeader = import.meta.env.VITE_DATA_API_AUTHORIZATION;
       config.headers['Authorization'] = authHeader;
 
       // Get token from localStorage (same as main API)
@@ -310,10 +308,6 @@ export function createDataAPI(
       } else if (defaultToken) {
         // Use default token from environment variable
         config.headers[finalConfig.tokenHeader || 'Blade-Auth'] = defaultToken;
-      } else {
-        // Fallback to hardcoded token if no environment variable is set
-        config.headers[finalConfig.tokenHeader || 'Blade-Auth'] =
-          'bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJibGFkZXguY24iLCJhdWQiOlsiYmxhZGV4Il0sInRva2VuX3R5cGUiOiJhY2Nlc3NfdG9rZW4iLCJjbGllbnRfaWQiOiJzYWJlcjMiLCJ0ZW5hbnRfaWQiOiIwMDAwMDAiLCJ1c2VyX2lkIjoiMTEyMzU5ODgyMTczODY3NTIwMSIsImRlcHRfaWQiOiIxMTIzNTk4ODEzNzM4Njc1MjAxIiwicG9zdF9pZCI6IjExMjM1OTg4MTc3Mzg2NzUyMDEiLCJyb2xlX2lkIjoiMTEyMzU5ODgxNjczODY3NTIwMSwxOTEyMzk2MDkzMzk1MTQ0NzA2Iiwib2F1dGhfaWQiOiIiLCJhY2NvdW50IjoiYWRtaW4iLCJ1c2VyX25hbWUiOiJhZG1pbiIsIm5pY2tfbmFtZSI6IueuoeeQhuWRmCIsInJlYWxfbmFtZSI6IueuoeeQhuWRmCIsInJvbGVfbmFtZSI6ImFkbWluaXN0cmF0b3Is5pWw5o2u566h55CG5Yaz562W6ICFIiwiZGV0YWlsIjp7InR5cGUiOiJ3ZWIiLCJleHQiOiJodHRwOi8vMTkyLjE2OC4xMTAuMTgwOjMyMTAyL3N5c3RlbS91c2VyIn0sImV4cCI6MTc2NDc5MDE2MSwibmJmIjoxNzYxMTkwMTYxfQ.zlm4tTlGXGo8Trh8AFPpEMk0ifUp0QJ6RetXFLEQo3A';
       }
 
       // Get metadata from extended config
