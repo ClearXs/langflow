@@ -21,6 +21,7 @@ interface TableModalProps extends TableComponentProps {
   onSave?: () => void;
   onCancel?: () => void;
   onActionButton?: (actionName: string) => void; // NEW: callback for action buttons
+  actionButtonLoading?: string | null; // NEW: loading state for action buttons
 }
 
 const TableModal = forwardRef<AgGridReact, TableModalProps>(
@@ -37,6 +38,7 @@ const TableModal = forwardRef<AgGridReact, TableModalProps>(
       onSave,
       onCancel,
       onActionButton, // NEW: extract callback
+      actionButtonLoading, // NEW: extract loading state
       ...props
     }: TableModalProps,
     ref: ForwardedRef<AgGridReact>,
@@ -89,6 +91,7 @@ const TableModal = forwardRef<AgGridReact, TableModalProps>(
             ref={ref}
             tableOptions={tableOptions}
             onActionButton={onActionButton}
+            actionButtonLoading={actionButtonLoading}
             {...props}
           ></TableComponent>
         </BaseModal.Content>

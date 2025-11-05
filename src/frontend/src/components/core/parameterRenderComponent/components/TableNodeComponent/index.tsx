@@ -97,6 +97,7 @@ export default function TableNodeComponent({
   const [selectedNodes, setSelectedNodes] = useState<Array<any>>([]);
   const [tempValue, setTempValue] = useState<any[]>(cloneDeep(value));
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [actionButtonLoading, setActionButtonLoading] = useState<string | null>(null);
   const agGrid = useRef<AgGridReact>(null);
   // Add useEffect to sync with incoming value changes
   useEffect(() => {
@@ -162,6 +163,9 @@ export default function TableNodeComponent({
     if (!nodeId || !nodeClass || !handleNodeClass) {
       return;
     }
+
+    // Set loading state for the clicked action button
+    setActionButtonLoading(actionName);
 
     try {
       // Check if this action requires preview upstream data
@@ -246,6 +250,9 @@ export default function TableNodeComponent({
           error instanceof Error ? error.message : t("errors.unknownError"),
         ],
       });
+    } finally {
+      // Clear loading state after action completes (success or error)
+      setActionButtonLoading(null);
     }
   }
 
@@ -396,6 +403,7 @@ export default function TableNodeComponent({
           addRow={addRow}
           onDelete={deleteRow}
           onActionButton={handleActionButton}
+          actionButtonLoading={actionButtonLoading}
           gridOptions={{
             ensureDomOrder: true,
             suppressRowClickSelection: true,
