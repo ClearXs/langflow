@@ -15,6 +15,7 @@ export default function TableOptions({
   addRow,
   tableOptions,
   onActionButton,
+  actionButtonLoading,
 }: {
   resetGrid: () => void;
   duplicateRow?: () => void;
@@ -25,6 +26,7 @@ export default function TableOptions({
   tableOptions?: TableOptionsTypeAPI;
   paginationInfo?: string;
   onActionButton?: (actionName: string) => void;
+  actionButtonLoading?: string | null;
 }): JSX.Element {
   const { t } = useTranslation();
 
@@ -36,22 +38,32 @@ export default function TableOptions({
     <div className={cn("absolute bottom-3 left-6")}>
       <div className="flex items-center gap-3">
         {/* Top Action Buttons */}
-        {topButtons.map((button) => (
-          <div key={button.name}>
-            <ShadTooltip content={button.label}>
-              <Button
-                data-testid={`action-button-${button.name}`}
-                unstyled
-                onClick={() => onActionButton?.(button.name)}
-              >
-                <IconComponent
-                  name={button.icon}
-                  className={cn("h-5 w-5 text-primary transition-all")}
-                />
-              </Button>
-            </ShadTooltip>
-          </div>
-        ))}
+        {topButtons.map((button) => {
+          const isLoading = actionButtonLoading === button.name;
+          const isAnyLoading = actionButtonLoading !== null;
+
+          return (
+            <div key={button.name}>
+              <ShadTooltip content={button.label}>
+                <Button
+                  data-testid={`action-button-${button.name}`}
+                  unstyled
+                  onClick={() => onActionButton?.(button.name)}
+                  disabled={isAnyLoading}
+                >
+                  <IconComponent
+                    name={isLoading ? "Loader2" : button.icon}
+                    className={cn(
+                      "h-5 w-5 text-primary transition-all",
+                      isLoading && "animate-spin",
+                      isAnyLoading && !isLoading && "opacity-50 cursor-not-allowed"
+                    )}
+                  />
+                </Button>
+              </ShadTooltip>
+            </div>
+          );
+        })}
         {addRow && !tableOptions?.block_add && (
           <div>
             <ShadTooltip content={t("table.options.addRow")}>

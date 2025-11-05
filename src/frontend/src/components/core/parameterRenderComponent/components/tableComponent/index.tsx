@@ -37,6 +37,7 @@ export interface TableComponentProps extends AgGridReactProps {
   tableOptions?: TableOptionsTypeAPI;
   paginationInfo?: string;
   onActionButton?: (actionName: string) => void;
+  actionButtonLoading?: string | null;
 }
 
 const TableComponent = forwardRef<
@@ -556,6 +557,7 @@ const TableComponent = forwardRef<
           deleteRow={props.onDelete ? props.onDelete : undefined}
           addRow={props.addRow ? props.addRow : undefined}
           onActionButton={props.onActionButton}
+          actionButtonLoading={props.actionButtonLoading}
           resetGrid={() => {
             resetGrid(realRef, initialColumnDefs);
             setTimeout(() => {

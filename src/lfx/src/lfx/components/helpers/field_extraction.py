@@ -153,9 +153,9 @@ def extract_fields_from_node_template(upstream_node: dict, component_name: str =
             if not field_names and upstream_node_type == "ETLCustomInput":
                 logger.info(f"[{component_name}] ETLCustomInput has no schema or data configured, providing default fields")
                 # Check if there are any generation rules that might give us hints about field types
-                field_rules = template.get("field_rules", {}).get("value", [])
-                if isinstance(field_rules, list) and field_rules:
-                    field_names = [rule.get("field_name", f"field_{i+1}") for i, rule in enumerate(field_rules)]
+                field_schema = template.get("field_schema", {}).get("value", [])
+                if isinstance(field_schema, list) and field_schema:
+                    field_names = [schema.get("field_name", f"field_{i+1}") for i, schema in enumerate(field_schema)]
                 else:
                     # Provide sensible default field names
                     field_names = ["id", "name", "value", "type", "description", "created_at"]
