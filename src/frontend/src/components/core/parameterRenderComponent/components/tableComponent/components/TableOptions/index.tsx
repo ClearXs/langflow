@@ -56,7 +56,9 @@ export default function TableOptions({
                     className={cn(
                       "h-5 w-5 text-primary transition-all",
                       isLoading && "animate-spin",
-                      isAnyLoading && !isLoading && "opacity-50 cursor-not-allowed"
+                      isAnyLoading &&
+                        !isLoading &&
+                        "opacity-50 cursor-not-allowed",
                     )}
                   />
                 </Button>

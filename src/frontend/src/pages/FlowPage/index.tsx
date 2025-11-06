@@ -30,7 +30,12 @@ export default function FlowPage({ view }: { view?: boolean }): JSX.Element {
   const isPersistentStream = streamParam === "true";
 
   // Debug logging
-  console.log("[FlowPage] streamParam =", streamParam, "isPersistentStream =", isPersistentStream);
+  console.log(
+    "[FlowPage] streamParam =",
+    streamParam,
+    "isPersistentStream =",
+    isPersistentStream,
+  );
 
   useGetTypes({
     enabled: Object.keys(types).length <= 0,

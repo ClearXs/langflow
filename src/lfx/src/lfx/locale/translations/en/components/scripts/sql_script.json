@@ -41,7 +41,8 @@
     "parsing": "Parsing SQL script...",
     "executing": "Executing statement %{index}/%{total}...",
     "committing": "Committing transaction...",
-    "success": "Script executed successfully: %{success}/%{total} statements"
+    "success": "Script executed successfully: %{success}/%{total} statements",
+    "completed": "Completed"
   },
   "errors": {
     "no_datasource": "No datasource selected",

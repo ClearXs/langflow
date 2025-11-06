@@ -36,8 +36,7 @@ TRANSFORMATION_RULE_VALUES = [
 
 
 def _serialize_neo4j_value(value):
-    """
-    Neo4j对象包装函数 - 把复杂对象包装成React可以渲染的简单结构。
+    """Neo4j对象包装函数 - 把复杂对象包装成React可以渲染的简单结构。
 
     核心原则：保持原始数据结构不变，只是在表格显示时包装成 {"value": ""} 格式。
     """
@@ -49,57 +48,56 @@ def _serialize_neo4j_value(value):
     try:
         # 检查是否是Neo4j对象 - 更宽松的检测
         class_name = value.__class__.__name__
-        module_name = getattr(value.__class__, '__module__', '')
+        module_name = getattr(value.__class__, "__module__", "")
 
         # 检查是否是Neo4j对象（通过类名或模块名）
-        is_neo4j_object = ('neo4j' in module_name.lower() or
-                          class_name in ['Node', 'Relationship', 'Path', 'Record'])
+        is_neo4j_object = ("neo4j" in module_name.lower() or
+                          class_name in ["Node", "Relationship", "Path", "Record"])
 
         if is_neo4j_object:
             # Neo4j Node对象
-            if (class_name == 'Node' or
-                (hasattr(value, 'labels') and hasattr(value, 'properties'))):
+            if (class_name == "Node" or
+                (hasattr(value, "labels") and hasattr(value, "properties"))):
                 node_data = {
                     "_type": "Node",
-                    "labels": list(value.labels) if hasattr(value, 'labels') else [],
-                    "properties": dict(value.properties) if hasattr(value, 'properties') else {}
+                    "labels": list(value.labels) if hasattr(value, "labels") else [],
+                    "properties": dict(value.properties) if hasattr(value, "properties") else {}
                 }
-                if hasattr(value, 'element_id'):
+                if hasattr(value, "element_id"):
                     node_data["_element_id"] = str(value.element_id)
                 return {"value": node_data}
 
             # Neo4j Relationship对象
-            elif (class_name == 'Relationship' or
-                  (hasattr(value, 'type') and hasattr(value, 'start_node') and hasattr(value, 'end_node'))):
+            if (class_name == "Relationship" or
+                  (hasattr(value, "type") and hasattr(value, "start_node") and hasattr(value, "end_node"))):
                 rel_data = {
                     "_type": "Relationship",
-                    "type": str(value.type) if hasattr(value, 'type') else "",
+                    "type": str(value.type) if hasattr(value, "type") else "",
                 }
-                if hasattr(value, 'element_id'):
+                if hasattr(value, "element_id"):
                     rel_data["_element_id"] = str(value.element_id)
-                if hasattr(value, 'start_node') and hasattr(value.start_node, 'element_id'):
+                if hasattr(value, "start_node") and hasattr(value.start_node, "element_id"):
                     rel_data["start_node_id"] = str(value.start_node.element_id)
-                if hasattr(value, 'end_node') and hasattr(value.end_node, 'element_id'):
+                if hasattr(value, "end_node") and hasattr(value.end_node, "element_id"):
                     rel_data["end_node_id"] = str(value.end_node.element_id)
-                if hasattr(value, 'properties'):
+                if hasattr(value, "properties"):
                     rel_data["properties"] = dict(value.properties)
                 return {"value": rel_data}
 
             # 其他Neo4j对象，提取所有可用属性
-            else:
-                neo4j_data = {"_type": class_name}
-                for attr in dir(value):
-                    if not attr.startswith('_') and not callable(getattr(value, attr)):
-                        try:
-                            attr_value = getattr(value, attr)
-                            if isinstance(attr_value, (str, int, float, bool, list, dict)) or attr_value is None:
-                                if isinstance(attr_value, frozenset):
-                                    neo4j_data[attr] = list(attr_value)
-                                else:
-                                    neo4j_data[attr] = attr_value
-                        except Exception:
-                            continue
-                return {"value": neo4j_data}
+            neo4j_data = {"_type": class_name}
+            for attr in dir(value):
+                if not attr.startswith("_") and not callable(getattr(value, attr)):
+                    try:
+                        attr_value = getattr(value, attr)
+                        if isinstance(attr_value, (str, int, float, bool, list, dict)) or attr_value is None:
+                            if isinstance(attr_value, frozenset):
+                                neo4j_data[attr] = list(attr_value)
+                            else:
+                                neo4j_data[attr] = attr_value
+                    except Exception:
+                        continue
+            return {"value": neo4j_data}
 
         # 普通复牚对象（字典、列表等），直接JSON序列化
         import json
@@ -727,12 +725,23 @@ class ETLTableInputComponent(Component):
 
             # 添加公共数据源
             for ds in public_datasources:
+                # ✅ 修复：从 dataSourceParam.type 获取正确的类型
+                params = ds.get("dataSourceParam", {})
+                ds_type = params.get("type") if isinstance(params, dict) else None
+                if not ds_type:
+                    ds_type = (
+                        ds.get("type")
+                        or ds.get("dataSourceType")
+                        or ds.get("dbType")
+                        or "mysql"
+                    )
+
                 display_name = self._build_display_name(ds, "public")
                 all_datasources.append(
                     {
                         "id": str(ds["id"]),
                         "name": ds["name"],
-                        "type": ds["type"],
+                        "type": ds_type,  # ✅ 使用从 dataSourceParam 获取的正确类型
                         "source": "public",
                         "display_name": display_name,
                         "raw_data": ds,
@@ -829,8 +838,51 @@ class ETLTableInputComponent(Component):
             logger.error(f"[TableInput] Error getting public datasources: {e}")
             return []
 
+    def _get_datasource_type_for_display(self, datasource: dict, source: str) -> dict:
+        """获取用于显示的数据源类型和数据库信息"""
+        if source == "public":
+            # 公共数据源：从dataSourceParam获取信息
+            raw_data = datasource
+            params = raw_data.get("dataSourceParam", {})
+
+            # ✅ 优先从 dataSourceParam.type 获取类型
+            ds_type = params.get("type") if isinstance(params, dict) else None
+            if not ds_type:
+                ds_type = raw_data.get("type", "mysql")
+
+            # 获取数据库和连接信息
+            database = params.get("database", "default")
+            host = params.get("host", "localhost")
+            port = params.get("port", self._get_default_port(ds_type))
+
+        else:
+            # 内置数据源：使用现有逻辑
+            ds_type = datasource.get("type", "mysql")
+            database = datasource.get("database", "default")
+            host = datasource.get("host", "localhost")
+            port = datasource.get("port", self._get_default_port(ds_type))
+
+        return {
+            "type": ds_type.lower(),
+            "database": database,
+            "host": host,
+            "port": port
+        }
+
+    def _get_default_port(self, ds_type: str) -> int:
+        """获取数据源的默认端口"""
+        default_ports = {
+            "mysql": 3306,
+            "postgresql": 5432,
+            "hive": 10000,
+            "neo4j": 7687,
+            "oracle": 1521,
+            "sqlserver": 1433
+        }
+        return default_ports.get(ds_type.lower(), 3306)
+
     def _build_display_name(self, datasource: dict, source: str) -> str:
-        """构建丰富的显示名称"""
+        """构建丰富的显示名称 - 恢复原来的格式，信息在 option_metadata 中处理"""
         base_name = f"{datasource['name']} ({datasource['type']})"
 
         # 来源标识
@@ -1016,20 +1068,32 @@ class ETLTableInputComponent(Component):
         # 记录原始数据以便调试
         logger.debug(f"[TableInput] Building connection string from raw_data with keys: {list(raw_data.keys())}")
 
-        # 尝试多种可能的type字段名
-        ds_type = (
-            raw_data.get("type")
-            or raw_data.get("dataSourceType")
-            or raw_data.get("dbType")
-            or raw_data.get("datasourceType")
-            or raw_data.get("databaseType")
-        )
+        # 获取数据源参数
+        params = raw_data.get("dataSourceParam", {}) or raw_data.get("parameters", {})
+        if not params:
+            logger.warning("[TableInput] No dataSourceParam found in raw_data")
+            params = {}
+
+        # ✅ 修复：优先从 dataSourceParam.type 获取类型（公共数据源的实际位置）
+        ds_type = params.get("type") if isinstance(params, dict) else None
+
+        # 如果 dataSourceParam.type 为空，再尝试其他字段（向后兼容）
+        if not ds_type:
+            ds_type = (
+                raw_data.get("type")
+                or raw_data.get("dataSourceType")
+                or raw_data.get("dbType")
+                or raw_data.get("datasourceType")
+                or raw_data.get("databaseType")
+            )
 
         # 记录找到的type值
         logger.debug(
-            f"[TableInput] Found type values - type: {raw_data.get('type')}, "
+            f"[TableInput] Found type values - dataSourceParam.type: {params.get('type')}, "
+            f"type: {raw_data.get('type')}, "
             f"dataSourceType: {raw_data.get('dataSourceType')}, "
-            f"dbType: {raw_data.get('dbType')}"
+            f"dbType: {raw_data.get('dbType')}, "
+            f"final: {ds_type}"
         )
 
         # 如果是空字符串或None，尝试从名称推断
@@ -1056,31 +1120,29 @@ class ETLTableInputComponent(Component):
         ds_type = ds_type.lower().strip()
         logger.info(f"[TableInput] Using datasource type: {ds_type}")
 
-        params = raw_data.get("dataSourceParam", {}) or raw_data.get("parameters", {})
-
         if ds_type == "hive":
-            # Hive连接字符串构建
-            host = params.get("host")
+            # Hive连接字符串构建 - 使用 SQLAlchemy 格式，不是 JDBC 格式
+            from urllib.parse import quote_plus
+
+            host = params.get("host", "localhost")
             port = params.get("port", 10000)
             database = params.get("database", "default")
             username = params.get("username", "hive")
             password = params.get("password", "")
 
-            # 构建Hive JDBC连接字符串
-            conn_str = f"jdbc:hive2://{host}:{port}/{database}"
+            # ✅ 修复：使用 SQLAlchemy + PyHive 格式：hive://[user[:password]@]host:port/database
+            # 不再使用 JDBC 格式 jdbc:hive2://
+            username_encoded = quote_plus(username) if username else ""
+            password_encoded = quote_plus(password) if password else ""
 
-            # 添加认证参数
-            if password:
-                from urllib.parse import quote_plus
+            if username and password:
+                conn_str = f"hive://{username_encoded}:{password_encoded}@{host}:{port}/{database}"
+            elif username:
+                conn_str = f"hive://{username_encoded}@{host}:{port}/{database}"
+            else:
+                conn_str = f"hive://{host}:{port}/{database}"
 
-                password_encoded = quote_plus(password)
-                conn_str += f"?user={username};password={password_encoded}"
-            elif username and username != "hive":
-                from urllib.parse import quote_plus
-
-                username_encoded = quote_plus(username)
-                conn_str += f"?user={username_encoded}"
-
+            logger.debug(f"[TableInput] Built Hive connection string (SQLAlchemy format): {conn_str.replace(password, '***')}")
             return conn_str
 
         # 其他数据源类型的连接字符串构建（MySQL, PostgreSQL等）
@@ -1114,11 +1176,23 @@ class ETLTableInputComponent(Component):
                     conn_str += f"&pwd={password_encoded}"
             return conn_str
         if ds_type == "neo4j":
-            # Neo4j connection
-            neo4j_port = port if port != 3306 else 7687
+            # Neo4j connection - 使用 bolt:// 协议，不是 neo4j://
+            # 优先使用URL中的连接信息
+            url = params.get("url", "")
+            if url and url.startswith("bolt://"):
+                import re
+                match = re.match(r"bolt://([^:]+):(\d+)", url)
+                if match:
+                    host = match.group(1)
+                    port = int(match.group(2))
+            else:
+                # 回退到使用host和port参数
+                neo4j_port = port if port != 3306 else 7687
+                port = neo4j_port
+
             if username and password:
-                return f"neo4j://{username_encoded}:{password_encoded}@{host}:{neo4j_port}"
-            return f"neo4j://{host}:{neo4j_port}"
+                return f"bolt://{username_encoded}:{password_encoded}@{host}:{port}"
+            return f"bolt://{host}:{port}"
         raise ValueError(f"Unsupported database type: {ds_type}")
 
     def _get_builtin_connection_string(self, datasource_id: str) -> str:
@@ -1540,6 +1614,12 @@ class ETLTableInputComponent(Component):
                 if df.empty:
                     break
 
+                # ✅ 清理 NaN 和 NaT 值，替换为 None（JSON 可序列化）
+                import numpy as np
+
+                df = df.replace({pd.NaT: None, pd.NA: None, np.nan: None, np.inf: None, -np.inf: None})
+                df = df.where(pd.notna(df), None)
+
                 # Convert DataFrame to Data objects with transformations
                 for _, row in df.iterrows():
                     row_dict = row.to_dict()
@@ -1563,6 +1643,12 @@ class ETLTableInputComponent(Component):
         else:
             # Fetch all data at once
             df = pd.read_sql_query(text(sql_query), connection)
+
+            # ✅ 清理 NaN 和 NaT 值，替换为 None（JSON 可序列化）
+            import numpy as np
+
+            df = df.replace({pd.NaT: None, pd.NA: None, np.nan: None, np.inf: None, -np.inf: None})
+            df = df.where(pd.notna(df), None)
 
             for _, row in df.iterrows():
                 row_dict = row.to_dict()

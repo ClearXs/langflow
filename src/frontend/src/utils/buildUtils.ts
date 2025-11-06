@@ -276,7 +276,10 @@ export async function buildFlowVertices({
   // Check if persistent streaming mode is enabled
   const isPersistentStream = useFlowStore.getState().isPersistentStream;
 
-  console.log("[buildUtils] Starting build - isPersistentStream =", isPersistentStream);
+  console.log(
+    "[buildUtils] Starting build - isPersistentStream =",
+    isPersistentStream,
+  );
 
   // Use different endpoint for persistent streaming
   let buildUrl = isPersistentStream

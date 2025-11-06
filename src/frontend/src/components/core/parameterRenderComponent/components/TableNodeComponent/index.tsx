@@ -97,7 +97,9 @@ export default function TableNodeComponent({
   const [selectedNodes, setSelectedNodes] = useState<Array<any>>([]);
   const [tempValue, setTempValue] = useState<any[]>(cloneDeep(value));
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [actionButtonLoading, setActionButtonLoading] = useState<string | null>(null);
+  const [actionButtonLoading, setActionButtonLoading] = useState<string | null>(
+    null,
+  );
   const agGrid = useRef<AgGridReact>(null);
   // Add useEffect to sync with incoming value changes
   useEffect(() => {

@@ -16,7 +16,9 @@
   },
   "combination_logic": {
     "display_name": "Logic",
-    "info": "Choose how to combine multiple conditions: AND (all must be true) or OR (any can be true)."
+    "info": "Choose how to combine multiple conditions: AND (all must be true) or OR (any can be true).",
+    "and": "AND",
+    "or": "OR"
   },
   "input_text": {
     "display_name": "Text Input",
@@ -57,6 +59,22 @@
     "false_result": {
       "display_name": "False"
     }
+  },
+  "operators": {
+    "equals": "Equals (=)",
+    "not_equals": "Not Equals (≠)",
+    "contains": "Contains",
+    "starts_with": "Starts With",
+    "ends_with": "Ends With",
+    "regex": "Regular Expression",
+    "less_than": "Less Than (<)",
+    "less_than_or_equal": "Less Than or Equal (≤)",
+    "greater_than": "Greater Than (>)",
+    "greater_than_or_equal": "Greater Than or Equal (≥)",
+    "is_empty": "Is Empty",
+    "is_not_empty": "Is Not Empty",
+    "in_list": "In List (comma-separated)",
+    "not_in_list": "Not In List (comma-separated)"
   },
   "status": {
     "condition_true": "Condition evaluated to True",

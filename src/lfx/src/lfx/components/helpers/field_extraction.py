@@ -62,7 +62,9 @@ def find_and_extract_upstream_fields(
         return []
 
 
-def extract_fields_from_node_template(upstream_node: dict, component_name: str = "Component", graph_data: dict | None = None) -> list[str]:
+def extract_fields_from_node_template(
+    upstream_node: dict, component_name: str = "Component", graph_data: dict | None = None
+) -> list[str]:
     """Extract field names from upstream node template configuration.
 
     This is a fallback method when upstream node cannot be executed.
@@ -151,11 +153,13 @@ def extract_fields_from_node_template(upstream_node: dict, component_name: str =
 
             # Special handling for ETLCustomInput - if no schema or data, provide common defaults
             if not field_names and upstream_node_type == "ETLCustomInput":
-                logger.info(f"[{component_name}] ETLCustomInput has no schema or data configured, providing default fields")
+                logger.info(
+                    f"[{component_name}] ETLCustomInput has no schema or data configured, providing default fields"
+                )
                 # Check if there are any generation rules that might give us hints about field types
                 field_schema = template.get("field_schema", {}).get("value", [])
                 if isinstance(field_schema, list) and field_schema:
-                    field_names = [schema.get("field_name", f"field_{i+1}") for i, schema in enumerate(field_schema)]
+                    field_names = [schema.get("field_name", f"field_{i + 1}") for i, schema in enumerate(field_schema)]
                 else:
                     # Provide sensible default field names
                     field_names = ["id", "name", "value", "type", "description", "created_at"]
@@ -200,7 +204,9 @@ def extract_fields_from_node_template(upstream_node: dict, component_name: str =
 
                 if isinstance(merge_config, dict):
                     config_value = merge_config.get("value", [])
-                    logger.debug(f"[{component_name}] config_value type: {type(config_value)}, length: {len(config_value) if isinstance(config_value, list) else 'N/A'}")
+                    logger.debug(
+                        f"[{component_name}] config_value type: {type(config_value)}, length: {len(config_value) if isinstance(config_value, list) else 'N/A'}"
+                    )
 
                     if isinstance(config_value, list):
                         new_merged_fields = [
@@ -216,7 +222,9 @@ def extract_fields_from_node_template(upstream_node: dict, component_name: str =
                                 f"{new_merged_fields}"
                             )
                         else:
-                            logger.warning(f"[{component_name}] merge_configs has {len(config_value)} items but no valid new_field found")
+                            logger.warning(
+                                f"[{component_name}] merge_configs has {len(config_value)} items but no valid new_field found"
+                            )
             else:
                 logger.warning(f"[{component_name}] 'merge_configs' not found in template")
 
@@ -316,7 +324,9 @@ def extract_fields_from_node_template(upstream_node: dict, component_name: str =
 
             # If no field mappings configured, try to get fields from upstream of field name mapping
             if not field_names:
-                logger.info(f"[{component_name}] ETLFieldNameMapping has no field_mappings, trying to get fields from its upstream")
+                logger.info(
+                    f"[{component_name}] ETLFieldNameMapping has no field_mappings, trying to get fields from its upstream"
+                )
                 try:
                     # Recursively try to get fields from the upstream of field name mapping
                     from lfx.custom.graph_utils import find_upstream_node_id
@@ -334,10 +344,16 @@ def extract_fields_from_node_template(upstream_node: dict, component_name: str =
 
                         if field_mapping_upstream_node:
                             # Extract fields from the upstream of field name mapping
-                            field_names = extract_fields_from_node_template(field_mapping_upstream_node, component_name, graph_data)
-                            logger.info(f"[{component_name}] Extracted {len(field_names)} fields from ETLFieldNameMapping's upstream: {field_names}")
+                            field_names = extract_fields_from_node_template(
+                                field_mapping_upstream_node, component_name, graph_data
+                            )
+                            logger.info(
+                                f"[{component_name}] Extracted {len(field_names)} fields from ETLFieldNameMapping's upstream: {field_names}"
+                            )
                 except Exception as e:
-                    logger.debug(f"[{component_name}] Failed to extract fields from ETLFieldNameMapping's upstream: {e}")
+                    logger.debug(
+                        f"[{component_name}] Failed to extract fields from ETLFieldNameMapping's upstream: {e}"
+                    )
 
             # If still no fields, provide some common default fields
             if not field_names:
@@ -454,7 +470,9 @@ def extract_fields_from_node_template(upstream_node: dict, component_name: str =
 
             # If still no fields found, try to get from upstream of data cleaning
             if not field_names:
-                logger.info(f"[{component_name}] ETLDataCleaning has no cleaning_rules or filter_conditions, trying to get fields from its upstream")
+                logger.info(
+                    f"[{component_name}] ETLDataCleaning has no cleaning_rules or filter_conditions, trying to get fields from its upstream"
+                )
                 try:
                     # Recursively try to get fields from the upstream of data cleaning
                     from lfx.custom.graph_utils import find_upstream_node_id
@@ -472,8 +490,12 @@ def extract_fields_from_node_template(upstream_node: dict, component_name: str =
 
                         if data_cleaning_upstream_node:
                             # Extract fields from the upstream of data cleaning
-                            field_names = extract_fields_from_node_template(data_cleaning_upstream_node, component_name, graph_data)
-                            logger.info(f"[{component_name}] Extracted {len(field_names)} fields from ETLDataCleaning's upstream: {field_names}")
+                            field_names = extract_fields_from_node_template(
+                                data_cleaning_upstream_node, component_name, graph_data
+                            )
+                            logger.info(
+                                f"[{component_name}] Extracted {len(field_names)} fields from ETLDataCleaning's upstream: {field_names}"
+                            )
                 except Exception as e:
                     logger.debug(f"[{component_name}] Failed to extract fields from ETLDataCleaning's upstream: {e}")
 
@@ -489,12 +511,10 @@ def extract_fields_from_node_template(upstream_node: dict, component_name: str =
                 schema_config = template.get("message_schema", {})
                 schema_value = schema_config.get("value", [])
                 if schema_value:
-                    field_names = [
-                        row.get("field_name")
-                        for row in schema_value
-                        if row.get("field_name")
-                    ]
-                    logger.info(f"[{component_name}] Extracted {len(field_names)} fields from Kafka schema: {field_names}")
+                    field_names = [row.get("field_name") for row in schema_value if row.get("field_name")]
+                    logger.info(
+                        f"[{component_name}] Extracted {len(field_names)} fields from Kafka schema: {field_names}"
+                    )
                     return field_names
 
             # Priority 2: Try to get sample data from sample_data output
@@ -513,7 +533,9 @@ def extract_fields_from_node_template(upstream_node: dict, component_name: str =
                             field_names = list(first_sample.keys())
 
                         if field_names:
-                            logger.info(f"[{component_name}] Extracted {len(field_names)} fields from Kafka sample data: {field_names}")
+                            logger.info(
+                                f"[{component_name}] Extracted {len(field_names)} fields from Kafka sample data: {field_names}"
+                            )
                             return field_names
             except Exception as e:
                 logger.debug(f"[{component_name}] Failed to extract fields from Kafka sample data: {e}")
@@ -528,14 +550,40 @@ def extract_fields_from_node_template(upstream_node: dict, component_name: str =
                 logger.info(f"[{component_name}] Schema mode enabled but no schema defined: {field_names}")
             elif field_extraction_mode == "flatten_all" or output_format == "flattened":
                 # Default flattened fields for Kafka messages
-                field_names = [
-                    "user_id", "event_type", "timestamp", "source", "payload"
-                ]
+                field_names = ["user_id", "event_type", "timestamp", "source", "payload"]
                 logger.info(f"[{component_name}] Using default flattened Kafka fields: {field_names}")
             else:
                 # Default raw structure fields for Kafka messages
                 field_names = ["value", "topic", "partition", "offset", "timestamp"]
                 logger.info(f"[{component_name}] Using default raw Kafka fields: {field_names}")
+
+        # For ConditionalRouter - passthrough fields from upstream
+        elif upstream_node_type == "ConditionalRouter":
+            # ConditionalRouter filters data but doesn't change field structure
+            # Get fields from its upstream data_input
+            if graph_data:
+                logger.info(f"[{component_name}] ConditionalRouter detected, extracting fields from its upstream")
+                try:
+                    from lfx.custom.graph_utils import find_upstream_node_id
+
+                    router_upstream_id = find_upstream_node_id(graph_data, upstream_node.get("id"), "data_input")
+                    if router_upstream_id:
+                        upstream_nodes = graph_data.get("nodes", [])
+                        router_upstream_node = None
+                        for node in upstream_nodes:
+                            if node.get("id") == router_upstream_id:
+                                router_upstream_node = node
+                                break
+
+                        if router_upstream_node:
+                            field_names = extract_fields_from_node_template(
+                                router_upstream_node, component_name, graph_data
+                            )
+                            logger.info(
+                                f"[{component_name}] Extracted {len(field_names)} fields from ConditionalRouter's upstream: {field_names}"
+                            )
+                except Exception as e:
+                    logger.debug(f"[{component_name}] Failed to extract fields from ConditionalRouter's upstream: {e}")
 
         if field_names:
             logger.info(f"[{component_name}] Extracted {len(field_names)} fields from upstream config: {field_names}")
@@ -570,9 +618,7 @@ def extract_fields_from_node_template(upstream_node: dict, component_name: str =
                         if next_upstream_node:
                             # 递归提取上游节点的字段
                             field_names = extract_fields_from_node_template(
-                                next_upstream_node,
-                                component_name,
-                                graph_data
+                                next_upstream_node, component_name, graph_data
                             )
                             if field_names:
                                 logger.info(
@@ -580,9 +626,7 @@ def extract_fields_from_node_template(upstream_node: dict, component_name: str =
                                     f"from upstream of '{upstream_node_type}': {field_names}"
                                 )
                 except Exception as e:
-                    logger.debug(
-                        f"[{component_name}] Recursive lookup failed for '{upstream_node_type}': {e}"
-                    )
+                    logger.debug(f"[{component_name}] Recursive lookup failed for '{upstream_node_type}': {e}")
 
         return field_names
 

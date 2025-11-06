@@ -299,6 +299,35 @@ class ETLTableOutputComponent(Component):
             target_datasource = field_value
             logger.debug(f"[TableOutput] Datasource selected: {target_datasource}")
 
+            # 检测是否为Neo4j数据源，动态调整table_selector的required属性
+            try:
+                options_metadata = build_config.get("datasource_selector", {}).get("options_metadata", [])
+                datasource_info = None
+                for metadata in options_metadata:
+                    if metadata.get("value") == target_datasource or metadata.get("display_name") == target_datasource:
+                        datasource_info = metadata
+                        break
+
+                if datasource_info:
+                    datasource_type = datasource_info.get("type", "").lower()
+                    logger.debug(f"[TableOutput] Detected datasource type: {datasource_type}")
+
+                    # Neo4j不需要选择表（使用节点标签），设置为非必填
+                    if datasource_type == "neo4j":
+                        build_config["table_selector"]["required"] = False
+                        build_config["table_selector"]["info"] = i18n.t(
+                            "components.input_output.table_output.table_selector.info_neo4j"
+                        )
+                        logger.info("[TableOutput] Neo4j detected - table_selector set to optional")
+                    else:
+                        # 其他数据库恢复必填
+                        build_config["table_selector"]["required"] = True
+                        build_config["table_selector"]["info"] = i18n.t(
+                            "components.input_output.table_output.table_selector.info"
+                        )
+            except Exception as e:
+                logger.error(f"[TableOutput] Error checking datasource type: {e}")
+
         # Case 2: Table selector refresh button clicked
         elif field_name == "table_selector" and action == "refresh":
             logger.debug("[TableOutput] Detected table_selector refresh action")
@@ -321,15 +350,32 @@ class ETLTableOutputComponent(Component):
                     # 获取数据源信息以判断是否为公共数据源
                     datasource_info = None
                     for metadata in options_metadata:
-                        if metadata.get("display_name") == target_datasource:
+                        # 使用 value 或 id 字段匹配，而不是 display_name
+                        if metadata.get("value") == target_datasource or metadata.get("id") == target_datasource:
                             datasource_info = metadata
                             break
 
-                    # 公共数据源不支持表列表加载，跳过
+                    # 公共数据源：使用新的表加载接口
                     if datasource_info and datasource_info.get("source") == "public":
-                        logger.info(f"[TableOutput] Skipping table loading for public datasource: {target_datasource}")
-                        build_config["table_selector"]["options"] = []
-                        self.status = i18n.t("components.input_output.table_output.status.public_datasource_selected")
+                        logger.info(f"[TableOutput] Loading tables for public datasource: {target_datasource}")
+                        try:
+                            tables = self._load_public_datasource_tables(datasource_info)
+                            if tables:
+                                build_config["table_selector"]["options"] = sorted(tables)
+                                logger.debug(f"[TableOutput] Loaded {len(tables)} tables from public datasource")
+                                self.status = i18n.t(
+                                    "components.input_output.table_output.status.tables_loaded", count=len(tables)
+                                )
+                            else:
+                                build_config["table_selector"]["options"] = []
+                                logger.warning(
+                                    f"[TableOutput] No tables found for public datasource: {target_datasource}"
+                                )
+                                self.status = i18n.t("components.input_output.table_output.errors.no_tables_found")
+                        except Exception as e:
+                            logger.error(f"[TableOutput] Failed to load tables from public datasource: {e}")
+                            build_config["table_selector"]["options"] = []
+                            self.status = i18n.t("components.input_output.table_output.errors.load_tables_failed")
                     else:
                         # 提取纯UUID（移除可能的前缀）
                         clean_datasource_id = self._extract_uuid_from_id(datasource_id)
@@ -659,6 +705,87 @@ class ETLTableOutputComponent(Component):
         logger.debug(f"[TableOutput] Returning build_config with keys: {list(build_config.keys())}")
         return build_config
 
+    def _load_public_datasource_tables(self, datasource_info: dict) -> list[str]:
+        """为公共数据源加载表列表，直接通过连接信息查询数据库"""
+        from sqlalchemy import create_engine, inspect
+        from sqlalchemy.pool import NullPool
+
+        try:
+            # 从datasource_info获取raw_data
+            raw_data = datasource_info.get("raw_data", datasource_info)
+
+            # 构建连接字符串
+            connection_string = self._build_public_connection_string(raw_data)
+            logger.debug("[TableOutput] Loading tables for public datasource with connection string")
+
+            # 获取数据源类型
+            params = raw_data.get("dataSourceParam", {})
+            ds_type = params.get("type") if isinstance(params, dict) else None
+            if not ds_type:
+                ds_type = raw_data.get("type") or raw_data.get("dataSourceType") or raw_data.get("dbType") or "mysql"
+            ds_type = ds_type.lower()
+            logger.debug(f"[TableOutput] Public datasource type: {ds_type}")
+
+            # Neo4j特殊处理：使用neo4j驱动而不是SQLAlchemy
+            if ds_type == "neo4j":
+                return self._load_neo4j_labels(raw_data)
+
+            # 其他数据库使用SQLAlchemy
+            engine = create_engine(connection_string, poolclass=NullPool)
+
+            with engine.connect() as conn:
+                inspector = inspect(engine)
+                tables = inspector.get_table_names()
+                logger.info(f"[TableOutput] Loaded {len(tables)} tables from public datasource")
+                return tables
+
+        except Exception as e:
+            logger.error(f"[TableOutput] Failed to load tables from public datasource: {e}")
+            import traceback
+
+            logger.error(f"[TableOutput] Traceback: {traceback.format_exc()}")
+            raise
+        finally:
+            if "engine" in locals():
+                engine.dispose()
+
+    def _load_neo4j_labels(self, raw_data: dict) -> list[str]:
+        """为Neo4j公共数据源加载节点标签列表"""
+        from neo4j import GraphDatabase
+
+        try:
+            params = raw_data.get("dataSourceParam", {})
+
+            # 优先使用URL中的连接信息
+            url = params.get("url", "")
+            if url and url.startswith("bolt://"):
+                uri = url
+            else:
+                host = params.get("host", "localhost")
+                port = params.get("port", 7687)
+                uri = f"bolt://{host}:{port}"
+
+            username = params.get("username", "neo4j")
+            password = params.get("password", "")
+            database = params.get("database", "neo4j")
+
+            logger.debug(f"[TableOutput] Connecting to Neo4j at {uri}, database: {database}")
+
+            driver = GraphDatabase.driver(uri, auth=(username, password))
+
+            with driver.session(database=database) as session:
+                result = session.run("CALL db.labels()")
+                labels = [record["label"] for record in result]
+                logger.info(f"[TableOutput] Loaded {len(labels)} labels from Neo4j: {labels}")
+                return labels
+
+        except Exception as e:
+            logger.error(f"[TableOutput] Failed to load Neo4j labels: {e}")
+            raise
+        finally:
+            if "driver" in locals():
+                driver.close()
+
     def _extract_uuid_from_id(self, datasource_id: str) -> str:
         """从数据源ID中提取纯UUID，移除可能的前缀"""
         if not datasource_id:
@@ -764,12 +891,18 @@ class ETLTableOutputComponent(Component):
 
             # 添加公共数据源
             for ds in public_datasources:
+                # ✅ 修复：从 dataSourceParam.type 获取正确的类型
+                params = ds.get("dataSourceParam", {})
+                ds_type = params.get("type") if isinstance(params, dict) else None
+                if not ds_type:
+                    ds_type = ds.get("type") or ds.get("dataSourceType") or ds.get("dbType") or "mysql"
+
                 display_name = self._build_display_name(ds, "public")
                 all_datasources.append(
                     {
                         "id": str(ds["id"]),
                         "name": ds["name"],
-                        "type": ds["type"],
+                        "type": ds_type,  # ✅ 使用从 dataSourceParam 获取的正确类型
                         "source": "public",
                         "display_name": display_name,
                         "raw_data": ds,
@@ -876,8 +1009,46 @@ class ETLTableOutputComponent(Component):
             logger.error(f"[TableOutput] Feign client error traceback: {traceback.format_exc()}")
             return []
 
+    def _get_datasource_type_for_display(self, datasource: dict, source: str) -> dict:
+        """获取用于显示的数据源类型和数据库信息"""
+        if source == "public":
+            # 公共数据源：从dataSourceParam获取信息
+            raw_data = datasource.get("raw_data", datasource)
+            params = raw_data.get("dataSourceParam", {})
+
+            # ✅ 优先从 dataSourceParam.type 获取类型
+            ds_type = params.get("type") if isinstance(params, dict) else None
+            if not ds_type:
+                ds_type = raw_data.get("type", "mysql")
+
+            # 获取数据库和连接信息
+            database = params.get("database", "default")
+            host = params.get("host", "localhost")
+            port = params.get("port", self._get_default_port(ds_type))
+
+        else:
+            # 内置数据源：使用现有逻辑
+            ds_type = datasource.get("type", "mysql")
+            database = datasource.get("database", "default")
+            host = datasource.get("host", "localhost")
+            port = datasource.get("port", self._get_default_port(ds_type))
+
+        return {"type": ds_type.lower(), "database": database, "host": host, "port": port}
+
+    def _get_default_port(self, ds_type: str) -> int:
+        """获取数据源的默认端口"""
+        default_ports = {
+            "mysql": 3306,
+            "postgresql": 5432,
+            "hive": 10000,
+            "neo4j": 7687,
+            "oracle": 1521,
+            "sqlserver": 1433,
+        }
+        return default_ports.get(ds_type.lower(), 3306)
+
     def _build_display_name(self, datasource: dict, source: str) -> str:
-        """构建丰富的显示名称"""
+        """构建丰富的显示名称 - 恢复原来的格式，信息在 option_metadata 中处理"""
         base_name = f"{datasource['name']} ({datasource['type']})"
 
         # 来源标识
@@ -932,40 +1103,55 @@ class ETLTableOutputComponent(Component):
 
     def _build_public_connection_string(self, raw_data: dict) -> str:
         """构建公共数据源连接字符串"""
-        ds_type = raw_data.get("type", "mysql").lower()
+        # 获取数据源参数
         params = raw_data.get("dataSourceParam", {})
+        if not params:
+            logger.warning("[TableOutput] No dataSourceParam found in raw_data")
+            params = {}
+
+        # ✅ 修复：优先从 dataSourceParam.type 获取类型（公共数据源的实际位置）
+        ds_type = params.get("type") if isinstance(params, dict) else None
+
+        # 如果 dataSourceParam.type 为空，再尝试其他字段（向后兼容）
+        if not ds_type:
+            ds_type = raw_data.get("type", "mysql")
+
+        ds_type = ds_type.lower()
+        logger.debug(f"[TableOutput] Using datasource type: {ds_type}")
 
         if ds_type == "hive":
-            # Hive连接字符串构建
-            host = params.get("host")
+            # Hive连接字符串构建 - 使用 SQLAlchemy 格式，不是 JDBC 格式
+            from urllib.parse import quote_plus
+
+            host = params.get("host", "localhost")
             port = params.get("port", 10000)
             database = params.get("database", "default")
             username = params.get("username", "hive")
             password = params.get("password", "")
 
-            # 构建Hive JDBC连接字符串
-            conn_str = f"jdbc:hive2://{host}:{port}/{database}"
+            # ✅ 修复：使用 SQLAlchemy + PyHive 格式：hive://[user[:password]@]host:port/database
+            # 不再使用 JDBC 格式 jdbc:hive2://
+            username_encoded = quote_plus(username) if username else ""
+            password_encoded = quote_plus(password) if password else ""
 
-            # 添加认证参数
-            if password:
-                from urllib.parse import quote_plus
+            if username and password:
+                conn_str = f"hive://{username_encoded}:{password_encoded}@{host}:{port}/{database}"
+            elif username:
+                conn_str = f"hive://{username_encoded}@{host}:{port}/{database}"
+            else:
+                conn_str = f"hive://{host}:{port}/{database}"
 
-                password_encoded = quote_plus(password)
-                conn_str += f"?user={username};password={password_encoded}"
-            elif username and username != "hive":
-                from urllib.parse import quote_plus
-
-                username_encoded = quote_plus(username)
-                conn_str += f"?user={username_encoded}"
-
+            logger.debug(
+                f"[TableOutput] Built Hive connection string (SQLAlchemy format): {conn_str.replace(password, '***')}"
+            )
             return conn_str
 
         # 其他数据源类型的连接字符串构建（MySQL, PostgreSQL等）
         return self._build_connection_string_from_params(ds_type, params)
 
     def _build_connection_string_from_params(self, ds_type: str, params: dict) -> str:
-        """从参数构建连接字符串 - Only support MySQL, PostgreSQL, Hive, Neo4j"""
-        from urllib.parse import quote_plus
+        """从参数构建连接字符串 - Support MySQL, PostgreSQL, Hive, Neo4j"""
+        from urllib.parse import quote_plus, unquote
 
         host = params.get("host", "localhost")
         port = params.get("port", 3306)
@@ -980,12 +1166,44 @@ class ETLTableOutputComponent(Component):
             return f"mysql+pymysql://{username_encoded}:{password_encoded}@{host}:{port}/{database}"
         if ds_type == "postgresql":
             return f"postgresql://{username_encoded}:{password_encoded}@{host}:{port}/{database}"
+        if ds_type == "hive":
+            # Hive connection - 与table_input保持一致的格式
+            # 完全由数据源决定端口，不使用默认值
+            hive_database = database or "default"
+
+            conn_str = f"hive://{host}"
+            if port:
+                conn_str += f":{port}"
+            conn_str += f"/{hive_database}"
+
+            if username:
+                conn_str += f"?auth={username}"
+                if password:
+                    # 使用unquote解密密码，与table_input保持一致
+                    password_decoded = unquote(password)
+                    conn_str += f"&pwd={password_decoded}"
+
+            logger.info(f"[TableOutput] Built Hive connection: {conn_str}")
+            return conn_str
         if ds_type == "neo4j":
-            # Neo4j connection
-            neo4j_port = port if port != 3306 else 7687
+            # Neo4j connection - 使用 bolt:// 协议，不是 neo4j://
+            # 优先使用URL中的连接信息
+            url = params.get("url", "")
+            if url and url.startswith("bolt://"):
+                import re
+
+                match = re.match(r"bolt://([^:]+):(\d+)", url)
+                if match:
+                    host = match.group(1)
+                    port = int(match.group(2))
+            else:
+                # 回退到使用host和port参数
+                neo4j_port = port if port != 3306 else 7687
+                port = neo4j_port
+
             if username and password:
-                return f"neo4j://{username_encoded}:{password_encoded}@{host}:{neo4j_port}"
-            return f"neo4j://{host}:{neo4j_port}"
+                return f"bolt://{username_encoded}:{password_encoded}@{host}:{port}"
+            return f"bolt://{host}:{port}"
         raise ValueError(f"Unsupported database type: {ds_type}")
 
     def _get_builtin_connection_string(self, datasource_id: str) -> str:
@@ -1124,7 +1342,7 @@ class ETLTableOutputComponent(Component):
         return "string"
 
     def _get_datasource_id(self) -> str:
-        """从选中的显示名称获取实际的数据源ID（支持内置和公共数据源）"""
+        """从选中的ID或显示名称获取实际的数据源ID（支持内置和公共数据源）"""
         if not self.datasource_selector:
             raise ValueError(i18n.t("components.input_output.table_output.errors.no_datasource_selected"))
 
@@ -1132,7 +1350,36 @@ class ETLTableOutputComponent(Component):
             # 加载统一的数据源列表
             all_datasources = self._load_unified_datasources()
 
-            # 查找匹配的数据源
+            logger.info(f"[TableOutput] Looking for datasource: '{self.datasource_selector}'")
+
+            # 构建数据源列表摘要（避免f-string中使用反斜杠）
+            ds_summary = [f"{ds['name']} (id={ds['id'][:8]}...)" for ds in all_datasources[:5]]
+            more_indicator = " ..." if len(all_datasources) > 5 else ""
+            logger.info(f"[TableOutput] Available datasources ({len(all_datasources)}): {ds_summary}{more_indicator}")
+
+            # 策略1: 优先按ID匹配（前端通常传ID）
+            for ds in all_datasources:
+                if ds["id"] == self.datasource_selector:
+                    datasource_id = ds["id"]
+                    source = ds["source"]
+
+                    # 保存数据源信息供后续使用
+                    self._current_datasource_info = {
+                        "id": datasource_id,
+                        "name": ds["name"],
+                        "type": ds["type"],
+                        "source": source,
+                        "display_name": ds["display_name"],
+                        "raw_data": ds.get("raw_data"),
+                    }
+
+                    logger.info(
+                        f"[TableOutput] ✅ Matched by ID: '{datasource_id}' "
+                        f"({source}) type='{ds['type']}' name='{ds['name']}'"
+                    )
+                    return datasource_id
+
+            # 策略2: 按display_name匹配（向后兼容）
             for ds in all_datasources:
                 if ds["display_name"] == self.datasource_selector:
                     datasource_id = ds["id"]
@@ -1148,13 +1395,25 @@ class ETLTableOutputComponent(Component):
                         "raw_data": ds.get("raw_data"),
                     }
 
-                    logger.debug(
-                        f"[TableOutput] Found datasource ID '{datasource_id}' ({source}) for '{self.datasource_selector}'"
+                    logger.info(
+                        f"[TableOutput] ✅ Matched by display_name: '{ds['display_name']}' "
+                        f"(id={datasource_id}) type='{ds['type']}'"
                     )
                     return datasource_id
 
-            # 如果没找到匹配的显示名称，尝试直接使用作为ID（向后兼容）
-            logger.warning(f"[TableOutput] Display name '{self.datasource_selector}' not found, trying as direct ID")
+            # 策略3: 都没找到，向后兼容（假设直接是ID，type=None）
+            logger.warning("[TableOutput] ⚠️  Not found in datasource list, using as direct ID (type will be unknown)")
+
+            # 在向后兼容模式下，我们无法确定类型，设置为None
+            self._current_datasource_info = {
+                "id": self.datasource_selector,
+                "name": self.datasource_selector,
+                "type": None,  # Unknown type in backward compatibility mode
+                "source": "unknown",
+                "display_name": self.datasource_selector,
+                "raw_data": None,
+            }
+
             return self.datasource_selector
 
         except Exception as e:
@@ -1178,17 +1437,34 @@ class ETLTableOutputComponent(Component):
                 self.status = error_msg
                 raise ValueError(error_msg)
 
-            if not self.table_selector:
-                error_msg = i18n.t("components.input_output.table_output.errors.no_table")
-                self.status = error_msg
-                raise ValueError(error_msg)
-
             # 2. Get datasource ID and connection string
             datasource_id = self._get_datasource_id()
             logger.debug(f"[TableOutput] Using datasource ID: {datasource_id}")
 
-            # Get connection string (supports both builtin and public datasources)
+            # Get datasource info (set by _get_datasource_id)
             datasource_info = getattr(self, "_current_datasource_info", None)
+            logger.debug(f"[TableOutput] datasource_info from _get_datasource_id: {datasource_info}")
+
+            # Check if this is Neo4j (case-insensitive)
+            datasource_type = datasource_info.get("type", "") if datasource_info else ""
+            logger.debug(
+                f"[TableOutput] Extracted datasource_type: '{datasource_type}' (type: {type(datasource_type)})"
+            )
+            is_neo4j = (
+                datasource_type.strip().lower() == "neo4j" if datasource_type and datasource_type.strip() else False
+            )
+            logger.info(
+                f"[TableOutput] Datasource type check - type: '{datasource_type}', "
+                f"is_neo4j: {is_neo4j}, datasource_info keys: {list(datasource_info.keys()) if datasource_info else 'None'}"
+            )
+
+            # Neo4j doesn't require table_selector (uses node labels), other databases need validation
+            if not is_neo4j and not self.table_selector:
+                error_msg = i18n.t("components.input_output.table_output.errors.no_table")
+                self.status = error_msg
+                raise ValueError(error_msg)
+
+            # Get connection string (supports both builtin and public datasources)
             connection_string = self._get_connection_string_sync(datasource_id, datasource_info)
 
             # 3. Convert data to DataFrame
@@ -1270,8 +1546,11 @@ class ETLTableOutputComponent(Component):
             if self.field_mappings:
                 df = self._apply_field_mappings(df)
 
-            # 5. 检测是否是Neo4j数据源
-            is_neo4j = datasource_info and datasource_info.get("type", "").lower() == "neo4j"
+            # 5. 检测是否是Neo4j或Hive数据源
+            # 使用之前已经检查过的数据源类型变量（在步骤2中已经设置）
+            is_hive = (
+                datasource_type.strip().lower() == "hive" if datasource_type and datasource_type.strip() else False
+            )
 
             if is_neo4j:
                 # 使用Neo4j驱动写入
@@ -1295,7 +1574,36 @@ class ETLTableOutputComponent(Component):
                 self.status = success_msg
                 logger.info(f"[TableOutput] {success_msg}")
 
-                return Data(data=result_info)
+                # 缓存结果供get_row_count使用，避免重复写入
+                result_data = Data(data=result_info)
+                self._last_write_result = result_data
+                return result_data
+            elif is_hive:
+                # 使用Hive专用写入方法
+                logger.info("[TableOutput] Detected Hive datasource, using Hive-specific write method")
+                rows_written = self._write_to_hive(connection_string, df)
+
+                # Build result
+                result_info = {
+                    "success": True,
+                    "table": self.table_selector,
+                    "rows_written": rows_written,
+                    "write_mode": self.write_mode,
+                    "datasource": self.datasource_selector,
+                }
+
+                success_msg = _format_i18n(
+                    "components.input_output.table_output.status.success",
+                    rows=rows_written,
+                    table=self.table_selector,
+                )
+                self.status = success_msg
+                logger.info(f"[TableOutput] {success_msg}")
+
+                # 缓存结果供get_row_count使用，避免重复写入
+                result_data = Data(data=result_info)
+                self._last_write_result = result_data
+                return result_data
 
             # 原有的SQLAlchemy逻辑
             # 5. Create database engine
@@ -1339,7 +1647,10 @@ class ETLTableOutputComponent(Component):
             self.status = success_msg
             logger.info(f"[TableOutput] {success_msg}")
 
-            return Data(data=result_info)
+            # 缓存结果供get_row_count使用，避免重复写入
+            result_data = Data(data=result_info)
+            self._last_write_result = result_data
+            return result_data
 
         except Exception as e:
             error_type = type(e).__name__
@@ -1571,8 +1882,60 @@ class ETLTableOutputComponent(Component):
 
         return rows_written
 
+    def _extract_key_fields_from_mappings(self) -> list[str]:
+        """从字段映射中提取标记为关键字段的字段名。
+
+        Returns:
+            list[str]: 关键字段名列表
+        """
+        key_fields = []
+
+        if not self.field_mappings:
+            return key_fields
+
+        for mapping in self.field_mappings:
+            if mapping.get("is_key_field", False):
+                target_field = mapping.get("target_field")
+                if target_field:
+                    key_fields.append(target_field)
+
+        logger.info(f"[TableOutput] Extracted key fields from mappings: {key_fields}")
+        return key_fields
+
+    def _sanitize_label(self, label: str) -> str:
+        """清理标签名称，确保符合Neo4j命名规范。
+
+        Neo4j标签规则：
+        - 只能包含字母、数字、下划线
+        - 不能以数字开头
+        - 不能使用保留关键字
+
+        Args:
+            label: 原始标签名
+
+        Returns:
+            str: 清理后的合法标签名
+        """
+        import re
+
+        # 移除特殊字符，替换为下划线
+        sanitized = re.sub(r"[^a-zA-Z0-9_]", "_", label)
+
+        # 如果以数字开头，添加前缀
+        if sanitized and sanitized[0].isdigit():
+            sanitized = f"T_{sanitized}"
+
+        # 如果为空，使用默认
+        if not sanitized:
+            sanitized = "TableData"
+
+        logger.debug(f"[TableOutput] Sanitized label: '{label}' -> '{sanitized}'")
+        return sanitized
+
     def _write_to_neo4j(self, connection_string: str, df: pd.DataFrame) -> int:
         """写入数据到Neo4j数据库"""
+        import uuid
+
         from neo4j import GraphDatabase
 
         # 解析连接字符串
@@ -1590,83 +1953,445 @@ class ETLTableOutputComponent(Component):
         driver = GraphDatabase.driver(uri, auth=(username, password) if username else None)
 
         try:
-            # 根据write_mode选择执行方法
-            if self.write_mode == "replace":
-                rows_written = self._neo4j_write_replace(driver, df)
+            # 1. 确定节点标签
+            if self.table_selector:
+                label = self._sanitize_label(self.table_selector)
+            else:
+                label = "TableData"
+            logger.info(f"[TableOutput] Using Neo4j label: {label}")
+
+            # 2. 从字段映射中提取关键字段
+            key_fields = self._extract_key_fields_from_mappings()
+
+            # 3. 如果使用upsert模式但没有关键字段，自动生成UUID
+            df_copy = df.copy()
+            if self.write_mode == "upsert" and not key_fields:
+                logger.info("[TableOutput] No key fields found for upsert mode, generating UUID")
+                df_copy["_uuid"] = [str(uuid.uuid4()) for _ in range(len(df_copy))]
+                key_fields = ["_uuid"]
+
+            # 4. 根据write_mode调用对应方法
+            if self.write_mode == "batch_insert":
+                rows_written = self._neo4j_write_batch_insert(driver, df_copy, label)
+            elif self.write_mode == "append":
+                rows_written = self._neo4j_write_append(driver, df_copy, label)
             elif self.write_mode == "upsert":
-                rows_written = self._neo4j_write_upsert(driver, df)
-            else:  # batch_insert or append
-                rows_written = self._neo4j_write_create(driver, df)
+                rows_written = self._neo4j_write_upsert(driver, df_copy, label, key_fields)
+            elif self.write_mode == "replace":
+                rows_written = self._neo4j_write_replace(driver, df_copy, label)
+            else:
+                raise ValueError(f"Unsupported write_mode: {self.write_mode}")
 
             return rows_written
         finally:
             driver.close()
 
-    def _neo4j_write_create(self, driver, df: pd.DataFrame) -> int:
-        """使用CREATE语句插入节点"""
+    def _neo4j_write_batch_insert(self, driver, df: pd.DataFrame, label: str) -> int:
+        """BATCH_INSERT mode: Fast CREATE without duplicate checking.
+
+        Args:
+            driver: Neo4j driver instance
+            df: DataFrame containing data to insert
+            label: Node label to use
+
+        Returns:
+            int: Number of rows written
+        """
+        query = f"""
+        UNWIND $batch AS row
+        CREATE (n:{label})
+        SET n += row
+        RETURN count(n) AS count
+        """
+
         rows_written = 0
-        node_label = self.table_selector  # 表名作为节点标签
+        batch_data = df.to_dict("records")
+
+        # 清理None值
+        for record in batch_data:
+            keys_to_remove = [k for k, v in record.items() if pd.isna(v)]
+            for k in keys_to_remove:
+                del record[k]
+
+        logger.info(f"[TableOutput] Writing {len(batch_data)} rows in batches of {self.batch_size}")
 
         with driver.session() as session:
-            for _, row in df.iterrows():
-                props = row.to_dict()
-                # 移除None值
-                props = {k: v for k, v in props.items() if pd.notna(v)}
+            for i in range(0, len(batch_data), self.batch_size):
+                batch = batch_data[i : i + self.batch_size]
 
-                # 构建CREATE Cypher
-                cypher = f"CREATE (n:{node_label} $props)"
-                session.run(cypher, props=props)
-                rows_written += 1
+                if self.enable_transaction:
+                    with session.begin_transaction() as tx:
+                        result = tx.run(query, batch=batch)
+                        count = result.single()["count"]
+                        rows_written += count
+                        tx.commit()
+                        logger.debug(f"[TableOutput] Batch {i // self.batch_size + 1}: wrote {count} rows")
+                else:
+                    result = session.run(query, batch=batch)
+                    count = result.single()["count"]
+                    rows_written += count
+                    logger.debug(f"[TableOutput] Batch {i // self.batch_size + 1}: wrote {count} rows")
 
-                logger.debug(f"[TableOutput] Created Neo4j node: {props}")
-
+        logger.info(f"[TableOutput] batch_insert completed: {rows_written} rows created")
         return rows_written
 
-    def _neo4j_write_upsert(self, driver, df: pd.DataFrame) -> int:
-        """使用MERGE语句更新或插入节点"""
-        rows_written = 0
-        node_label = self.table_selector
+    def _neo4j_write_append(self, driver, df: pd.DataFrame, label: str) -> int:
+        """APPEND mode: Simple CREATE (same as batch_insert).
 
-        # 获取主键字段
-        key_fields = [m.get("target_field") for m in self.field_mappings if m.get("is_key_field")]
+        Args:
+            driver: Neo4j driver instance
+            df: DataFrame containing data to insert
+            label: Node label to use
+
+        Returns:
+            int: Number of rows written
+        """
+        # append和batch_insert行为相同，都是直接CREATE
+        logger.info("[TableOutput] append mode - using CREATE")
+        return self._neo4j_write_batch_insert(driver, df, label)
+
+    def _neo4j_write_upsert(self, driver, df: pd.DataFrame, label: str, key_fields: list[str]) -> int:
+        """UPSERT mode: MERGE based on key fields.
+
+        Args:
+            driver: Neo4j driver instance
+            df: DataFrame containing data to insert/update
+            label: Node label to use
+            key_fields: List of field names to use as unique identifiers
+
+        Returns:
+            int: Number of rows processed
+        """
+        if not key_fields:
+            error_msg = i18n.t("components.input_output.table_output.errors.no_key_fields_neo4j")
+            raise ValueError(error_msg)
+
+        # 构建MERGE匹配条件
+        match_props = ", ".join([f"{field}: row.{field}" for field in key_fields])
+
+        query = f"""
+        UNWIND $batch AS row
+        MERGE (n:{label} {{{match_props}}})
+        ON CREATE SET n += row, n._created = timestamp()
+        ON MATCH SET n += row, n._updated = timestamp()
+        RETURN count(n) AS count
+        """
+
+        rows_written = 0
+        batch_data = df.to_dict("records")
+
+        # 清理None值
+        for record in batch_data:
+            keys_to_remove = [k for k, v in record.items() if pd.isna(v)]
+            for k in keys_to_remove:
+                del record[k]
+
+        logger.info(
+            f"[TableOutput] Upserting {len(batch_data)} rows with key fields: {key_fields} "
+            f"in batches of {self.batch_size}"
+        )
+
+        with driver.session() as session:
+            for i in range(0, len(batch_data), self.batch_size):
+                batch = batch_data[i : i + self.batch_size]
+
+                if self.enable_transaction:
+                    with session.begin_transaction() as tx:
+                        result = tx.run(query, batch=batch)
+                        count = result.single()["count"]
+                        rows_written += count
+                        tx.commit()
+                        logger.debug(f"[TableOutput] Batch {i // self.batch_size + 1}: upserted {count} rows")
+                else:
+                    result = session.run(query, batch=batch)
+                    count = result.single()["count"]
+                    rows_written += count
+                    logger.debug(f"[TableOutput] Batch {i // self.batch_size + 1}: upserted {count} rows")
+
+        logger.info(f"[TableOutput] upsert completed: {rows_written} rows processed")
+        return rows_written
+
+    def _neo4j_write_replace(self, driver, df: pd.DataFrame, label: str) -> int:
+        """REPLACE mode: DELETE all nodes with label, then CREATE new.
+
+        Args:
+            driver: Neo4j driver instance
+            df: DataFrame containing data to insert
+            label: Node label to use
+
+        Returns:
+            int: Number of rows written
+        """
+        with driver.session() as session:
+            # Step 1: 删除所有同标签节点
+            delete_query = f"MATCH (n:{label}) DETACH DELETE n"
+            session.run(delete_query)
+            logger.info(f"[TableOutput] Deleted all nodes with label :{label}")
+
+        # Step 2: 创建新节点（复用batch_insert逻辑）
+        return self._neo4j_write_batch_insert(driver, df, label)
+
+    def _write_to_hive(self, connection_string: str, df: pd.DataFrame) -> int:
+        """写入数据到Hive数据库"""
+        from pyhive import hive
+
+        try:
+            # 解析连接字符串：hive://host:port/database?auth=user&pwd=pass
+            import urllib.parse
+
+            parsed = urllib.parse.urlparse(connection_string)
+
+            if parsed.scheme != "hive":
+                raise ValueError(f"Invalid Hive connection string scheme: {parsed.scheme}")
+
+            host = parsed.hostname
+            port = parsed.port or 10000  # Hive默认端口
+            database = parsed.path.lstrip("/") if parsed.path else "default"
+
+            # 解析认证参数
+            auth_params = urllib.parse.parse_qs(parsed.query)
+            username = auth_params.get("auth", [None])[0]
+            password = auth_params.get("pwd", [None])[0]
+
+            logger.info(f"[TableOutput] Connecting to Hive: {host}:{port}/{database}")
+
+            # 建立Hive连接
+            connection = hive.Connection(
+                host=host,
+                port=port,
+                username=username if username else "hive",
+                database=database,
+                password=password,
+                auth="CUSTOM" if username else None,
+            )
+
+            # 1. 确定表名
+            if not self.table_selector:
+                error_msg = i18n.t("components.input_output.table_output.errors.no_table")
+                raise ValueError(error_msg)
+            table_name = self.table_selector
+            logger.info(f"[TableOutput] Using Hive table: {table_name}")
+
+            # 2. 根据write_mode调用对应方法
+            if self.write_mode == "batch_insert":
+                rows_written = self._hive_write_batch_insert(connection, df, table_name)
+            elif self.write_mode == "append":
+                rows_written = self._hive_write_append(connection, df, table_name)
+            elif self.write_mode == "upsert":
+                rows_written = self._hive_write_upsert(connection, df, table_name)
+            elif self.write_mode == "replace":
+                rows_written = self._hive_write_replace(connection, df, table_name)
+            else:
+                raise ValueError(f"Unsupported write_mode: {self.write_mode}")
+
+            return rows_written
+
+        except Exception as e:
+            logger.error(f"[TableOutput] Hive connection error: {e!s}")
+            raise
+        finally:
+            try:
+                if "connection" in locals():
+                    connection.close()
+            except:
+                pass
+
+    def _hive_write_batch_insert(self, connection, df: pd.DataFrame, table_name: str) -> int:
+        """BATCH_INSERT mode: Fast INSERT without duplicate checking."""
+        rows_written = 0
+
+        # 清理DataFrame - 移除包含NaN的行或替换为默认值
+        df_clean = df.copy()
+        for col in df_clean.columns:
+            # 对于数值列，NaN替换为0或适当的默认值
+            if df_clean[col].dtype in ["int64", "float64"]:
+                df_clean[col] = df_clean[col].fillna(0)
+            else:
+                # 对于字符串列，NaN替换为空字符串
+                df_clean[col] = df_clean[col].fillna("")
+
+        logger.info(f"[TableOutput] Writing {len(df_clean)} rows to Hive table: {table_name}")
+
+        try:
+            with connection.cursor() as cursor:
+                # 构建列名和占位符
+                columns = list(df_clean.columns)
+                column_str = ", ".join([f"`{col}`" for col in columns])
+
+                # 准备数据 - 将DataFrame转换为元组列表
+                data_tuples = [tuple(row) for row in df_clean.values]
+
+                # 构建INSERT语句 - 使用标准的Hive SQL语法
+                # 注意：Hive支持INSERT INTO ... VALUES语法，但需要明确指定列名
+                placeholders = ", ".join(["%s"] * len(columns))
+                insert_query = f"INSERT INTO TABLE `{table_name}` ({column_str}) VALUES ({placeholders})"
+
+                logger.debug(f"[TableOutput] Hive INSERT query: {insert_query}")
+
+                # Hive不支持事务，使用单独INSERT语句避免executemany的"No result set"错误
+                batch_size = min(self.batch_size, 100)  # 减小批量大小以提高稳定性
+
+                for i in range(0, len(data_tuples), batch_size):
+                    batch = data_tuples[i : i + batch_size]
+
+                    # 为每行数据单独执行INSERT语句，避免executemany的问题
+                    for row_data in batch:
+                        cursor.execute(insert_query, row_data)
+                        rows_written += 1
+
+                    logger.debug(f"[TableOutput] Batch {i // batch_size + 1}: inserted {len(batch)} rows")
+
+        except Exception as e:
+            logger.error(f"[TableOutput] Hive batch insert error: {e!s}")
+            raise
+
+        logger.info(f"[TableOutput] Hive batch_insert completed: {rows_written} rows inserted")
+        return rows_written
+
+    def _hive_write_append(self, connection, df: pd.DataFrame, table_name: str) -> int:
+        """APPEND mode: Simple INSERT (same as batch_insert)."""
+        # append和batch_insert行为相同，都是直接INSERT
+        logger.info("[TableOutput] append mode - using INSERT")
+        return self._hive_write_batch_insert(connection, df, table_name)
+
+    def _hive_write_upsert(self, connection, df: pd.DataFrame, table_name: str) -> int:
+        """UPSERT mode: INSERT or UPDATE based on key fields."""
+        # 从字段映射中提取关键字段
+        key_fields = self._extract_key_fields_from_mappings()
 
         if not key_fields:
-            raise ValueError("Upsert mode requires key fields in field_mappings")
+            error_msg = i18n.t("components.input_output.table_output.errors.no_key_fields_upsert")
+            raise ValueError(error_msg)
 
-        with driver.session() as session:
-            for _, row in df.iterrows():
-                props = {k: v for k, v in row.to_dict().items() if pd.notna(v)}
+        rows_written = 0
 
-                # 构建MATCH条件
-                match_props = {k: props[k] for k in key_fields if k in props}
+        # 清理DataFrame
+        df_clean = df.copy()
+        for col in df_clean.columns:
+            if df_clean[col].dtype in ["int64", "float64"]:
+                df_clean[col] = df_clean[col].fillna(0)
+            else:
+                df_clean[col] = df_clean[col].fillna("")
 
-                # 构建MERGE Cypher
-                match_clause = ", ".join([f"{k}: ${k}" for k in key_fields])
-                cypher = f"""
-                MERGE (n:{node_label} {{{match_clause}}})
-                ON CREATE SET n = $props
-                ON MATCH SET n += $props
-                """
+        logger.info(
+            f"[TableOutput] Upserting {len(df_clean)} rows to Hive table: {table_name} with key fields: {key_fields}"
+        )
 
-                session.run(cypher, props=props, **match_props)
-                rows_written += 1
+        try:
+            with connection.cursor() as cursor:
+                # Hive不支持原生的UPSERT，需要手动实现
+                # 策略：先尝试更新，如果影响行数为0则插入
 
+                for index, row in df_clean.iterrows():
+                    # 构建UPDATE条件
+                    where_conditions = []
+                    where_values = []
+                    for key_field in key_fields:
+                        where_conditions.append(f"`{key_field}` = %s")
+                        where_values.append(row[key_field])
+
+                    where_clause = " AND ".join(where_conditions)
+
+                    # 构建UPDATE语句
+                    update_fields = []
+                    update_values = []
+                    for col in df_clean.columns:
+                        if col not in key_fields:
+                            update_fields.append(f"`{col}` = %s")
+                            update_values.append(row[col])
+
+                    if update_fields:
+                        update_set = ", ".join(update_fields)
+                        update_query = f"UPDATE `{table_name}` SET {update_set} WHERE {where_clause}"
+
+                        cursor.execute(update_query, update_values + where_values)
+
+                        # 检查是否有行被更新
+                        if cursor.rowcount == 0:
+                            # 没有行被更新，执行INSERT
+                            columns = list(df_clean.columns)
+                            column_str = ", ".join([f"`{col}`" for col in columns])
+                            placeholders = ", ".join(["%s"] * len(columns))
+                            insert_values = [row[col] for col in columns]
+
+                            insert_query = f"INSERT INTO TABLE `{table_name}` ({column_str}) VALUES ({placeholders})"
+                            cursor.execute(insert_query, insert_values)
+
+                        rows_written += 1
+
+        except Exception as e:
+            logger.error(f"[TableOutput] Hive upsert error: {e!s}")
+            raise
+
+        logger.info(f"[TableOutput] Hive upsert completed: {rows_written} rows processed")
         return rows_written
 
-    def _neo4j_write_replace(self, driver, df: pd.DataFrame) -> int:
-        """删除所有节点后重新插入"""
-        node_label = self.table_selector
+    def _hive_write_replace(self, connection, df: pd.DataFrame, table_name: str) -> int:
+        """REPLACE mode: DELETE all rows, then INSERT new."""
+        logger.info(f"[TableOutput] replace mode - clearing table {table_name} before insert")
 
-        with driver.session() as session:
-            # 删除所有该标签的节点
-            delete_cypher = f"MATCH (n:{node_label}) DETACH DELETE n"
-            session.run(delete_cypher)
-            logger.info(f"[TableOutput] Deleted all nodes with label {node_label}")
+        try:
+            with connection.cursor() as cursor:
+                # Step 1: 清空表（Hive不支持DELETE，需要TRUNCATE或DROP/CREATE）
+                # 使用TRUNCATE TABLE（如果支持）或者DROP/CREATE
+                try:
+                    cursor.execute(f"TRUNCATE TABLE `{table_name}`")
+                    logger.info(f"[TableOutput] Truncated Hive table: {table_name}")
+                except Exception as truncate_error:
+                    # 如果TRUNCATE不支持，使用DELETE（Hive 2.0+支持）
+                    logger.warning(f"[TableOutput] TRUNCATE failed, trying DELETE: {truncate_error!s}")
+                    try:
+                        cursor.execute(f"DELETE FROM `{table_name}`")
+                        logger.info(f"[TableOutput] Deleted all rows from Hive table: {table_name}")
+                    except Exception as delete_error:
+                        # 如果都不支持，只能使用INSERT OVERWRITE（Hive特有）
+                        logger.warning(f"[TableOutput] DELETE failed, using INSERT OVERWRITE: {delete_error!s}")
+                        # INSERT OVERWRITE会覆盖整个表，所以直接插入新数据即可
 
-        # 重新插入
-        return self._neo4j_write_create(driver, df)
+                # Step 2: 插入新数据
+                if self.write_mode == "replace":
+                    # 对于INSERT OVERWRITE模式，直接使用INSERT OVERWRITE语法
+                    columns = list(df.columns)
+                    column_str = ", ".join([f"`{col}`" for col in columns])
+
+                    # 清理数据
+                    df_clean = df.copy()
+                    for col in df_clean.columns:
+                        if df_clean[col].dtype in ["int64", "float64"]:
+                            df_clean[col] = df_clean[col].fillna(0)
+                        else:
+                            df_clean[col] = df_clean[col].fillna("")
+
+                    # 构建INSERT OVERWRITE语句（Hive特有，高效覆盖表数据）
+                    placeholders = ", ".join(["%s"] * len(columns))
+                    insert_query = f"INSERT OVERWRITE TABLE `{table_name}` ({column_str}) VALUES ({placeholders})"
+
+                    data_tuples = [tuple(row) for row in df_clean.values]
+
+                    # 使用单独INSERT语句避免executemany的"No result set"错误
+                    rows_written = 0
+                    for row_data in data_tuples:
+                        cursor.execute(insert_query, row_data)
+                        rows_written += 1
+                else:
+                    # 使用标准INSERT（如果之前使用了TRUNCATE或DELETE）
+                    rows_written = self._hive_write_batch_insert(connection, df, table_name)
+
+        except Exception as e:
+            logger.error(f"[TableOutput] Hive replace error: {e!s}")
+            raise
+
+        logger.info(f"[TableOutput] Hive replace completed: {rows_written} rows inserted")
+        return rows_written
 
     def get_row_count(self) -> Data:
-        """Get the count of written rows."""
-        result = self.write_to_table()
-        return Data(data={"row_count": result.data.get("rows_written", 0), "table": self.table_selector})
+        """Get the count of written rows from cached result."""
+        # 避免重复写入数据，从缓存的结果中获取行数
+        if hasattr(self, "_last_write_result") and self._last_write_result:
+            rows_written = self._last_write_result.data.get("rows_written", 0)
+        else:
+            # 如果没有缓存结果，返回0（不应该发生，因为result输出应该先执行）
+            logger.warning("[TableOutput] get_row_count called but no cached write result found")
+            rows_written = 0
+
+        return Data(data={"row_count": rows_written, "table": self.table_selector})

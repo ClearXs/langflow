@@ -92,7 +92,7 @@ const FlowSettingsComponent = ({
       saveFlow(newFlow)
         ?.then(() => {
           setIsSaving(false);
-          setSuccessData({ title: "Changes saved successfully" });
+          setSuccessData({ title: t("common.changesSavedSuccessfully") });
           close();
         })
         .catch(() => {

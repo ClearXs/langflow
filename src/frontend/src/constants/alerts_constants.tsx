@@ -62,8 +62,10 @@ export const USER_EDIT_SUCCESS_ALERT = "Success! User edited!";
 export const USER_ADD_SUCCESS_ALERT = "Success! New user added!";
 export const DEL_KEY_SUCCESS_ALERT = "Success! Key deleted!";
 export const DEL_KEY_SUCCESS_ALERT_PLURAL = "Success! Keys deleted!";
-export const FLOW_BUILD_SUCCESS_ALERT = `Flow built successfully`;
-export const SAVE_SUCCESS_ALERT = "Changes saved successfully!";
+export const FLOW_BUILD_SUCCESS_ALERT = i18n.t(
+  "messages.flowBuiltSuccessfully",
+);
+export const SAVE_SUCCESS_ALERT = i18n.t("common.changesSavedSuccessfully");
 export const INVALID_FILE_SIZE_ALERT = (maxSizeMB) => {
   return `The file size is too large. Please select a file smaller than ${maxSizeMB}.`;
 };

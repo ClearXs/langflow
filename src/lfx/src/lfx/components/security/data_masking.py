@@ -33,7 +33,6 @@ class ETLDataMaskingComponent(Component):
                     "display_name": i18n.t("components.security.data_masking.masking_rules.field"),
                     "type": "str",
                     "formatter": "text",
-                    "options": [],  # 动态填充
                     "required": True,
                     "description": i18n.t("components.security.data_masking.masking_rules.field_desc"),
                 },
@@ -100,7 +99,6 @@ class ETLDataMaskingComponent(Component):
             try:
                 # 1. Load field names from upstream data
                 field_names = await self._load_upstream_fields(build_config)
-                build_config["masking_rules"]["table_schema"][0]["options"] = field_names
 
                 # 2. Load masking rules from data security service
                 masking_rules = await self._load_masking_rules()
@@ -115,27 +113,19 @@ class ETLDataMaskingComponent(Component):
                     build_config["masking_rules"]["table_schema"][1]["options"] = []
                     build_config["masking_rules"]["table_schema"][1]["options_metadata"] = []
 
-                # Auto-fill table with default masking configs if empty
-                if not build_config["masking_rules"].get("value") and field_names and masking_rules:
-                    # Use first available masking rule for all fields
-                    default_rule_id = int(masking_rules[0]["id"])
-                    build_config["masking_rules"]["value"] = [
-                        {"field": name, "rule_id": default_rule_id} for name in field_names
-                    ]
-                    logger.info(
-                        f"[DataMasking] Auto-filled {len(field_names)} field masking configs "
-                        f"with default rule {default_rule_id}"
-                    )
-                else:
-                    logger.info(
-                        f"[DataMasking] Updated field options with {len(field_names)} fields "
-                        f"and {len(masking_rules)} rules"
-                    )
+                # 3. Replace table with loaded fields (deduplicated, rule_id left empty)
+                unique_fields = list(dict.fromkeys(field_names))  # Preserve order while deduplicating
+                build_config["masking_rules"]["value"] = [{"field": field_name} for field_name in unique_fields]
+
+                logger.info(
+                    f"[DataMasking] Replaced table with {len(unique_fields)} unique fields "
+                    f"and {len(masking_rules)} rules available"
+                )
 
                 self.status = i18n.t(
                     "components.security.data_masking.status.load_success",
-                    fields_count=len(field_names),
-                    rules_count=len(masking_rules),
+                    fields_count=len(unique_fields),
+                    rules_count=len(masking_rules) if masking_rules else 0,
                 )
 
             except ValueError as e:
@@ -150,9 +140,6 @@ class ETLDataMaskingComponent(Component):
                     )
 
                     if field_names:
-                        # Update dropdown options for field column
-                        build_config["masking_rules"]["table_schema"][0]["options"] = field_names
-
                         # Still try to load masking rules even in fallback mode
                         try:
                             masking_rules = await self._load_masking_rules()
@@ -172,21 +159,16 @@ class ETLDataMaskingComponent(Component):
                             build_config["masking_rules"]["table_schema"][1]["options"] = []
                             build_config["masking_rules"]["table_schema"][1]["options_metadata"] = []
 
-                        # Auto-fill table with default masking configs if empty
-                        if not build_config["masking_rules"].get("value"):
-                            build_config["masking_rules"]["value"] = [{"field": name} for name in field_names]
-                            logger.info(
-                                f"[DataMasking] Auto-filled {len(field_names)} field masking configs (from config)"
-                            )
-                        else:
-                            logger.info(
-                                f"[DataMasking] Updated field options with {len(field_names)} fields (from config)"
-                            )
+                        # Replace table with loaded fields (deduplicated, rule_id left empty)
+                        unique_fields = list(dict.fromkeys(field_names))  # Preserve order while deduplicating
+                        build_config["masking_rules"]["value"] = [{"field": field_name} for field_name in unique_fields]
+
+                        logger.info(f"[DataMasking] Replaced table with {len(unique_fields)} fields (from config)")
 
                         masking_rules_count = len(build_config["masking_rules"]["table_schema"][1].get("options", []))
                         self.status = i18n.t(
                             "components.security.data_masking.status.load_success",
-                            fields_count=len(field_names),
+                            fields_count=len(unique_fields),
                             rules_count=masking_rules_count,
                         )
                     else:
@@ -392,7 +374,8 @@ class ETLDataMaskingComponent(Component):
 
                 if not field_names:
                     logger.debug(
-                        f"[DataMasking] No field_configs or masking_rules found in template. Available keys: {list(template.keys())}"
+                        f"[DataMasking] No field_configs or masking_rules found in template. "
+                        f"Available keys: {list(template.keys())}"
                     )
 
             # For table components or other data sources

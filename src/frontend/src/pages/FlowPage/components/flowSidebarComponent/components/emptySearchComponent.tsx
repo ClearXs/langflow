@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { ENABLE_NEW_SIDEBAR } from "@/customization/feature-flags";
 import { SearchConfigTrigger } from "./searchConfigTrigger";
 
@@ -12,12 +13,20 @@ interface NoResultsMessageProps {
 
 const NoResultsMessage = ({
   onClearSearch,
-  message = "No components found.",
-  clearSearchText = "Clear your search",
-  additionalText = "or filter and try a different query.",
+  message,
+  clearSearchText,
+  additionalText,
   showConfig = false,
   setShowConfig,
 }: NoResultsMessageProps) => {
+  const { t } = useTranslation();
+
+  const defaultMessage =
+    message || t("flow.sidebar.emptySearch.noComponentsFound");
+  const defaultClearText =
+    clearSearchText || t("flow.sidebar.emptySearch.clearSearch");
+  const defaultAdditionalText =
+    additionalText || t("flow.sidebar.emptySearch.orFilterAndTry");
   return (
     <div className="flex h-full flex-col relative">
       {ENABLE_NEW_SIDEBAR && setShowConfig && (
@@ -30,14 +39,14 @@ const NoResultsMessage = ({
       )}
       <div className="flex h-full flex-col items-center justify-center p-3 text-center">
         <p className="text-sm text-secondary-foreground">
-          {message}{" "}
+          {defaultMessage}{" "}
           <a
             className="cursor-pointer underline underline-offset-4"
             onClick={onClearSearch}
           >
-            {clearSearchText}
+            {defaultClearText}
           </a>{" "}
-          {additionalText}
+          {defaultAdditionalText}
         </p>
       </div>
     </div>

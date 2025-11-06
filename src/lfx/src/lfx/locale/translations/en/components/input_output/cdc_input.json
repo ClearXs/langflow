@@ -53,7 +53,8 @@
     "no_datasource": "Please select a data source first",
     "no_tables_found": "No tables found in this data source",
     "table_selected": "Table selected: {table}",
-    "log_based_placeholder": "Log-based CDC requires external tools integration"
+    "log_based_placeholder": "Log-based CDC requires external tools integration",
+    "public_datasource_selected": "Public datasource selected - please enter table name manually"
   },
   "errors": {
     "invalid_mode": "Invalid CDC mode",

@@ -33,7 +33,6 @@ class ETLDataEncryptionComponent(Component):
                     "display_name": i18n.t("components.security.data_encryption.field_configs.field"),
                     "type": "str",
                     "formatter": "text",
-                    "options": [],  # 动态填充
                     "required": True,
                     "description": i18n.t("components.security.data_encryption.field_configs.field_desc"),
                 },
@@ -100,7 +99,6 @@ class ETLDataEncryptionComponent(Component):
             try:
                 # 1. Load field names from upstream data
                 field_names = await self._load_upstream_fields(build_config)
-                build_config["field_configs"]["table_schema"][0]["options"] = field_names
 
                 # 2. Load encryption rules from data security service
                 encryption_rules = await self._load_encryption_rules()
@@ -115,27 +113,19 @@ class ETLDataEncryptionComponent(Component):
                     build_config["field_configs"]["table_schema"][1]["options"] = []
                     build_config["field_configs"]["table_schema"][1]["options_metadata"] = []
 
-                # Auto-fill table with default encryption configs if empty
-                if not build_config["field_configs"].get("value") and field_names and encryption_rules:
-                    # Use first available encryption rule for all fields
-                    default_rule_id = int(encryption_rules[0]["id"])
-                    build_config["field_configs"]["value"] = [
-                        {"field": name, "rule_id": default_rule_id} for name in field_names
-                    ]
-                    logger.info(
-                        f"[DataEncryption] Auto-filled {len(field_names)} field encryption configs "
-                        f"with default rule {default_rule_id}"
-                    )
-                else:
-                    logger.info(
-                        f"[DataEncryption] Updated field options with {len(field_names)} fields "
-                        f"and {len(encryption_rules)} rules"
-                    )
+                # 3. Replace table with loaded fields (deduplicated, rule_id left empty)
+                unique_fields = list(dict.fromkeys(field_names))  # Preserve order while deduplicating
+                build_config["field_configs"]["value"] = [{"field": field_name} for field_name in unique_fields]
+
+                logger.info(
+                    f"[DataEncryption] Replaced table with {len(unique_fields)} unique fields "
+                    f"and {len(encryption_rules)} rules available"
+                )
 
                 self.status = i18n.t(
                     "components.security.data_encryption.status.load_success",
-                    fields_count=len(field_names),
-                    rules_count=len(encryption_rules),
+                    fields_count=len(unique_fields),
+                    rules_count=len(encryption_rules) if encryption_rules else 0,
                 )
 
             except ValueError as e:
@@ -150,9 +140,6 @@ class ETLDataEncryptionComponent(Component):
                     )
 
                     if field_names:
-                        # Update dropdown options for field column
-                        build_config["field_configs"]["table_schema"][0]["options"] = field_names
-
                         # Still try to load encryption rules even in fallback mode
                         try:
                             encryption_rules = await self._load_encryption_rules()
@@ -174,23 +161,18 @@ class ETLDataEncryptionComponent(Component):
                             build_config["field_configs"]["table_schema"][1]["options"] = []
                             build_config["field_configs"]["table_schema"][1]["options_metadata"] = []
 
-                        # Auto-fill table with default encryption configs if empty
-                        if not build_config["field_configs"].get("value"):
-                            build_config["field_configs"]["value"] = [{"field": name} for name in field_names]
-                            logger.info(
-                                f"[DataEncryption] Auto-filled {len(field_names)} field encryption configs (from config)"
-                            )
-                        else:
-                            logger.info(
-                                f"[DataEncryption] Updated field options with {len(field_names)} fields (from config)"
-                            )
+                        # Replace table with loaded fields (deduplicated, rule_id left empty)
+                        unique_fields = list(dict.fromkeys(field_names))  # Preserve order while deduplicating
+                        build_config["field_configs"]["value"] = [{"field": field_name} for field_name in unique_fields]
+
+                        logger.info(f"[DataEncryption] Replaced table with {len(unique_fields)} fields (from config)")
 
                         encryption_rules_count = len(
                             build_config["field_configs"]["table_schema"][1].get("options", [])
                         )
                         self.status = i18n.t(
                             "components.security.data_encryption.status.load_success",
-                            fields_count=len(field_names),
+                            fields_count=len(unique_fields),
                             rules_count=encryption_rules_count,
                         )
                     else:
@@ -465,7 +447,8 @@ class ETLDataEncryptionComponent(Component):
                     continue
 
                 logger.info(
-                    f"[DataEncryption] Preparing {len(values_to_encrypt)} values for field '{field}' with rule {rule_id}"
+                    f"[DataEncryption] Preparing {len(values_to_encrypt)} values "
+                    f"for field '{field}' with rule {rule_id}"
                 )
 
                 # Create batch requests for this field

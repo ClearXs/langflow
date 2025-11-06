@@ -34,7 +34,9 @@ export const LangflowCounts = () => {
   const [firstLoader, setFirstLoader] = useState<boolean>(true);
 
   useEffect(() => {
-    onSwitchLocale(lang);
+    // Temporarily disabled automatic locale switch on component mount
+    // 临时禁用组件挂载时的自动语言切换
+    // onSwitchLocale(lang);
   }, []);
 
   const onSwitchLocale = useCallback(

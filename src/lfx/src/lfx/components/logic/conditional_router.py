@@ -8,16 +8,30 @@ import i18n
 from lfx.custom.custom_component.component import Component
 from lfx.io import (
     BoolInput,
-    DropdownInput,
     HandleInput,
-    IntInput,
-    MessageInput,
-    MessageTextInput,
     Output,
     TableInput,
 )
 from lfx.log.logger import logger
-from lfx.schema.message import Message
+from lfx.schema import Data
+
+# Operator constants for conditional routing
+OPERATOR_VALUES = [
+    "equals",
+    "not_equals",
+    "contains",
+    "starts_with",
+    "ends_with",
+    "regex",
+    "less_than",
+    "less_than_or_equal",
+    "greater_than",
+    "greater_than_or_equal",
+    "is_empty",
+    "is_not_empty",
+    "in_list",
+    "not_in_list",
+]
 
 
 @dataclass
@@ -67,28 +81,70 @@ class ConditionalRouterComponent(Component):
                     "name": "field_name",
                     "display_name": i18n.t("components.logic.conditional_router.conditions.field_name"),
                     "type": "str",
-                    "options": [],  # Will be dynamically populated with field info
-                    "field_types": {},  # Will store field type information
+                    # No options - allow free text input like compare_value
                 },
                 {
                     "name": "operator",
                     "display_name": i18n.t("components.logic.conditional_router.conditions.operator"),
                     "type": "str",
-                    "options": [
-                        "equals",
-                        "not equals",
-                        "contains",
-                        "starts with",
-                        "ends with",
-                        "regex",
-                        "less than",
-                        "less than or equal",
-                        "greater than",
-                        "greater than or equal",
-                        "is empty",
-                        "is not empty",
-                        "in list",
-                        "not in list",
+                    "options": OPERATOR_VALUES,
+                    "options_metadata": [
+                        {
+                            "value": "equals",
+                            "label": i18n.t("components.logic.conditional_router.operators.equals"),
+                        },
+                        {
+                            "value": "not_equals",
+                            "label": i18n.t("components.logic.conditional_router.operators.not_equals"),
+                        },
+                        {
+                            "value": "contains",
+                            "label": i18n.t("components.logic.conditional_router.operators.contains"),
+                        },
+                        {
+                            "value": "starts_with",
+                            "label": i18n.t("components.logic.conditional_router.operators.starts_with"),
+                        },
+                        {
+                            "value": "ends_with",
+                            "label": i18n.t("components.logic.conditional_router.operators.ends_with"),
+                        },
+                        {
+                            "value": "regex",
+                            "label": i18n.t("components.logic.conditional_router.operators.regex"),
+                        },
+                        {
+                            "value": "less_than",
+                            "label": i18n.t("components.logic.conditional_router.operators.less_than"),
+                        },
+                        {
+                            "value": "less_than_or_equal",
+                            "label": i18n.t("components.logic.conditional_router.operators.less_than_or_equal"),
+                        },
+                        {
+                            "value": "greater_than",
+                            "label": i18n.t("components.logic.conditional_router.operators.greater_than"),
+                        },
+                        {
+                            "value": "greater_than_or_equal",
+                            "label": i18n.t("components.logic.conditional_router.operators.greater_than_or_equal"),
+                        },
+                        {
+                            "value": "is_empty",
+                            "label": i18n.t("components.logic.conditional_router.operators.is_empty"),
+                        },
+                        {
+                            "value": "is_not_empty",
+                            "label": i18n.t("components.logic.conditional_router.operators.is_not_empty"),
+                        },
+                        {
+                            "value": "in_list",
+                            "label": i18n.t("components.logic.conditional_router.operators.in_list"),
+                        },
+                        {
+                            "value": "not_in_list",
+                            "label": i18n.t("components.logic.conditional_router.operators.not_in_list"),
+                        },
                     ],
                 },
                 {
@@ -96,6 +152,24 @@ class ConditionalRouterComponent(Component):
                     "display_name": i18n.t("components.logic.conditional_router.conditions.compare_value"),
                     "type": "str",
                     "info": i18n.t("components.logic.conditional_router.conditions.compare_value_info"),
+                },
+                {
+                    "name": "combination_logic",
+                    "display_name": i18n.t("components.logic.conditional_router.combination_logic.display_name"),
+                    "type": "str",
+                    "formatter": "text",
+                    "options": ["AND", "OR"],
+                    "options_metadata": [
+                        {
+                            "value": "AND",
+                            "label": i18n.t("components.logic.conditional_router.combination_logic.and"),
+                        },
+                        {
+                            "value": "OR",
+                            "label": i18n.t("components.logic.conditional_router.combination_logic.or"),
+                        },
+                    ],
+                    "info": i18n.t("components.logic.conditional_router.combination_logic.info"),
                 },
             ],
             value=[],
@@ -114,79 +188,12 @@ class ConditionalRouterComponent(Component):
             },
             required=True,
         ),
-        DropdownInput(
-            name="combination_logic",
-            display_name=i18n.t("components.logic.conditional_router.combination_logic.display_name"),
-            info=i18n.t("components.logic.conditional_router.combination_logic.info"),
-            options=["AND", "OR"],
-            value="AND",
-        ),
-        # Legacy inputs for backward compatibility (hidden by default)
-        MessageTextInput(
-            name="input_text",
-            display_name=i18n.t("components.logic.conditional_router.input_text.display_name"),
-            info=i18n.t("components.logic.conditional_router.input_text.info"),
-            advanced=True,
-        ),
-        DropdownInput(
-            name="operator",
-            display_name=i18n.t("components.logic.conditional_router.operator.display_name"),
-            options=[
-                "equals",
-                "not equals",
-                "contains",
-                "starts with",
-                "ends with",
-                "regex",
-                "less than",
-                "less than or equal",
-                "greater than",
-                "greater than or equal",
-            ],
-            info=i18n.t("components.logic.conditional_router.operator.info"),
-            value="equals",
-            real_time_refresh=True,
-            advanced=True,
-        ),
-        MessageTextInput(
-            name="match_text",
-            display_name=i18n.t("components.logic.conditional_router.match_text.display_name"),
-            info=i18n.t("components.logic.conditional_router.match_text.info"),
-            advanced=True,
-        ),
         BoolInput(
             name="case_sensitive",
             display_name=i18n.t("components.logic.conditional_router.case_sensitive.display_name"),
             info=i18n.t("components.logic.conditional_router.case_sensitive.info"),
             value=True,
-            advanced=True,
-        ),
-        MessageInput(
-            name="true_case_message",
-            display_name=i18n.t("components.logic.conditional_router.true_case_message.display_name"),
-            info=i18n.t("components.logic.conditional_router.true_case_message.info"),
-            advanced=True,
-        ),
-        MessageInput(
-            name="false_case_message",
-            display_name=i18n.t("components.logic.conditional_router.false_case_message.display_name"),
-            info=i18n.t("components.logic.conditional_router.false_case_message.info"),
-            advanced=True,
-        ),
-        IntInput(
-            name="max_iterations",
-            display_name=i18n.t("components.logic.conditional_router.max_iterations.display_name"),
-            info=i18n.t("components.logic.conditional_router.max_iterations.info"),
-            value=10,
-            advanced=True,
-        ),
-        DropdownInput(
-            name="default_route",
-            display_name=i18n.t("components.logic.conditional_router.default_route.display_name"),
-            options=["true_result", "false_result"],
-            info=i18n.t("components.logic.conditional_router.default_route.info"),
-            value="false_result",
-            advanced=True,
+            advanced=False,
         ),
     ]
 
@@ -207,18 +214,7 @@ class ConditionalRouterComponent(Component):
 
     def _pre_run_setup(self):
         self.__iteration_updated = False
-        # Determine if we're using legacy mode or new multi-condition mode
-        self._use_legacy_mode = (
-            hasattr(self, "input_text")
-            and hasattr(self, "match_text")
-            and self.input_text
-            and self.match_text
-            and (not hasattr(self, "conditions") or not self.conditions)
-        )
-        if self._use_legacy_mode:
-            logger.debug(i18n.t("components.logic.conditional_router.logs.legacy_mode_enabled"))
-        else:
-            logger.debug(i18n.t("components.logic.conditional_router.logs.multi_condition_mode_enabled"))
+        logger.debug(i18n.t("components.logic.conditional_router.logs.multi_condition_mode_enabled"))
         logger.debug(i18n.t("components.logic.conditional_router.logs.pre_run_setup"))
 
     def extract_field_value(self, data: Any, field_path: str) -> Any:
@@ -298,6 +294,31 @@ class ConditionalRouterComponent(Component):
 
         return value
 
+    def _get_combination_logic(self) -> str:
+        """Get combination logic from table_options or legacy input.
+
+        Returns:
+            "AND" or "OR" string for combination logic
+        """
+        # Try to get from table_options first (new way)
+        try:
+            conditions_input = next((inp for inp in self.inputs if inp.name == "conditions"), None)
+            if conditions_input and hasattr(conditions_input, "table_options"):
+                table_options = conditions_input.table_options
+                if isinstance(table_options, dict) and "combination_logic" in table_options:
+                    logic_config = table_options["combination_logic"]
+                    if isinstance(logic_config, dict):
+                        return logic_config.get("value", "AND")
+        except Exception as e:
+            logger.debug(f"Failed to get combination_logic from table_options: {e}")
+
+        # Fallback to legacy attribute (backward compatibility)
+        if hasattr(self, "combination_logic"):
+            return self.combination_logic
+
+        # Default to AND
+        return "AND"
+
     def evaluate_conditions(self, input_data: Any) -> bool:
         """Evaluate multiple conditions with AND/OR logic.
 
@@ -311,6 +332,7 @@ class ConditionalRouterComponent(Component):
             logger.warning(i18n.t("components.logic.conditional_router.warnings.no_conditions_configured"))
             return False
 
+        # Evaluate all conditions with their individual combination logic
         results = []
 
         for condition in self.conditions:
@@ -320,6 +342,7 @@ class ConditionalRouterComponent(Component):
             field_name = condition.get("field_name", "")
             operator = condition.get("operator", "equals")
             compare_value = condition.get("compare_value", "")
+            combination_logic = condition.get("combination_logic", "AND")  # Get from each row
 
             if not field_name:
                 logger.warning(i18n.t("components.logic.conditional_router.warnings.empty_field_name"))
@@ -331,7 +354,7 @@ class ConditionalRouterComponent(Component):
             # Evaluate single condition
             result = self.evaluate_condition(field_value, compare_value, operator, case_sensitive=self.case_sensitive)
 
-            results.append(result)
+            results.append((result, combination_logic))
 
             logger.debug(
                 i18n.t(
@@ -344,24 +367,27 @@ class ConditionalRouterComponent(Component):
                 )
             )
 
-            # Short-circuit evaluation for efficiency
-            if self.combination_logic == "AND" and not result:
-                logger.debug(i18n.t("components.logic.conditional_router.logs.and_short_circuit"))
-                return False
-            if self.combination_logic == "OR" and result:
-                logger.debug(i18n.t("components.logic.conditional_router.logs.or_short_circuit"))
-                return True
+        # Compute final result based on individual combination logic operators
+        if not results:
+            return True
 
-        # Final evaluation based on combination logic
-        if self.combination_logic == "AND":
-            final_result = all(results)
-        else:  # OR
-            final_result = any(results)
+        # Start with first result
+        final_result = results[0][0]
+
+        # Apply logic operators sequentially
+        for i in range(1, len(results)):
+            prev_logic = results[i - 1][1]  # Logic operator from previous condition
+            current_result = results[i][0]
+
+            if prev_logic == "AND":
+                final_result = final_result and current_result
+            elif prev_logic == "OR":
+                final_result = final_result or current_result
 
         logger.debug(
             i18n.t(
                 "components.logic.conditional_router.logs.final_evaluation",
-                logic=self.combination_logic,
+                logic="sequential",
                 results=results,
                 final_result=final_result,
             )
@@ -384,13 +410,13 @@ class ConditionalRouterComponent(Component):
 
         if operator == "equals":
             result = input_text == match_text
-        elif operator == "not equals":
+        elif operator == "not_equals":
             result = input_text != match_text
         elif operator == "contains":
             result = match_text in input_text
-        elif operator == "starts with":
+        elif operator == "starts_with":
             result = input_text.startswith(match_text)
-        elif operator == "ends with":
+        elif operator == "ends_with":
             result = input_text.endswith(match_text)
         elif operator == "regex":
             try:
@@ -402,17 +428,17 @@ class ConditionalRouterComponent(Component):
                     )
                 )
                 return False
-        elif operator in ["less than", "less than or equal", "greater than", "greater than or equal"]:
+        elif operator in ["less_than", "less_than_or_equal", "greater_than", "greater_than_or_equal"]:
             try:
                 input_num = float(input_text)
                 match_num = float(match_text)
-                if operator == "less than":
+                if operator == "less_than":
                     result = input_num < match_num
-                elif operator == "less than or equal":
+                elif operator == "less_than_or_equal":
                     result = input_num <= match_num
-                elif operator == "greater than":
+                elif operator == "greater_than":
                     result = input_num > match_num
-                elif operator == "greater than or equal":
+                elif operator == "greater_than_or_equal":
                     result = input_num >= match_num
             except ValueError as e:
                 logger.warning(
@@ -424,11 +450,11 @@ class ConditionalRouterComponent(Component):
                     )
                 )
                 return False
-        elif operator == "is empty":
+        elif operator == "is_empty":
             result = not input_text or input_text.strip() == ""
-        elif operator == "is not empty":
+        elif operator == "is_not_empty":
             result = bool(input_text and input_text.strip())
-        elif operator == "in list":
+        elif operator == "in_list":
             try:
                 # Parse compare_value as a comma-separated list
                 value_list = [item.strip() for item in match_text.split(",")]
@@ -442,7 +468,7 @@ class ConditionalRouterComponent(Component):
                     )
                 )
                 return False
-        elif operator == "not in list":
+        elif operator == "not_in_list":
             try:
                 # Parse compare_value as a comma-separated list
                 value_list = [item.strip() for item in match_text.split(",")]
@@ -522,90 +548,91 @@ class ConditionalRouterComponent(Component):
             # 2. Conditional exclusion for persistent routing (doesn't get reset except by this router)
             self.graph.exclude_branch_conditionally(self._id, output_name=route_to_stop)
 
-    def true_response(self) -> Message:
-        # Choose evaluation method based on mode
-        if self._use_legacy_mode:
-            # Legacy mode: use single condition evaluation
-            result = self.evaluate_condition(
-                self.input_text, self.match_text, self.operator, case_sensitive=self.case_sensitive
+    def true_response(self) -> list[Data]:
+        """Filter data and return items that match the conditions."""
+        input_data = getattr(self, "data_input", None)
+
+        # Handle list of Data objects
+        if isinstance(input_data, list):
+            true_list = []
+
+            for data_item in input_data:
+                # Evaluate conditions for this data item
+                result = self.evaluate_conditions(data_item)
+
+                if result:
+                    true_list.append(data_item)
+
+            # Update status with count
+            self.status = i18n.t(
+                "components.logic.conditional_router.status.multi_condition_true",
+                logic="filter",
+                conditions=len(true_list),
             )
-        else:
-            # New multi-condition mode
-            input_data = getattr(self, "data_input", None) or Message(text=getattr(self, "input_text", ""))
-            result = self.evaluate_conditions(input_data)
+            logger.debug(f"Filtered {len(true_list)} items to true output")
 
-        # Check if we should force output due to max_iterations on default route
-        current_iteration = self.ctx.get(f"{self._id}_iteration", 0)
-        force_output = current_iteration >= self.max_iterations and self.default_route == "true_result"
+            # In data filtering mode, don't stop the other branch
+            # Both branches should execute and return their filtered data
+            return true_list
 
-        if result or force_output:
-            if force_output:
-                self.status = i18n.t(
-                    "components.logic.conditional_router.status.forced_true", iteration=current_iteration
-                )
-                logger.info(
-                    i18n.t("components.logic.conditional_router.logs.forced_true_output", iteration=current_iteration)
-                )
-            else:
-                if self._use_legacy_mode:
-                    self.status = i18n.t("components.logic.conditional_router.status.condition_true")
-                else:
-                    self.status = i18n.t(
-                        "components.logic.conditional_router.status.multi_condition_true",
-                        logic=self.combination_logic,
-                        conditions=len(self.conditions) if hasattr(self, "conditions") else 0,
-                    )
-                logger.debug(i18n.t("components.logic.conditional_router.logs.condition_true"))
+        # Single data item
+        result = self.evaluate_conditions(input_data)
 
-            if not force_output:  # Only stop the other branch if not forcing due to max iterations
-                self.iterate_and_stop_once("false_result")
-            return self.true_case_message
+        if result:
+            self.status = i18n.t("components.logic.conditional_router.status.condition_true")
+            logger.debug(i18n.t("components.logic.conditional_router.logs.condition_true"))
 
-        logger.debug(i18n.t("components.logic.conditional_router.logs.condition_false"))
-        self.iterate_and_stop_once("true_result")
-        return Message(content="")
+            # Return single item as list
+            if hasattr(input_data, "data"):
+                return [input_data]
+            if isinstance(input_data, dict):
+                return [Data(data=input_data)]
+            return [Data(data={"value": str(input_data)})]
 
-    def false_response(self) -> Message:
-        # Choose evaluation method based on mode
-        if self._use_legacy_mode:
-            # Legacy mode: use single condition evaluation
-            result = self.evaluate_condition(
-                self.input_text, self.match_text, self.operator, case_sensitive=self.case_sensitive
+        return []
+
+    def false_response(self) -> list[Data]:
+        """Filter data and return items that don't match the conditions."""
+        input_data = getattr(self, "data_input", None)
+
+        # Handle list of Data objects
+        if isinstance(input_data, list):
+            false_list = []
+
+            for data_item in input_data:
+                # Evaluate conditions for this data item
+                result = self.evaluate_conditions(data_item)
+
+                if not result:
+                    false_list.append(data_item)
+
+            # Update status with count
+            self.status = i18n.t(
+                "components.logic.conditional_router.status.multi_condition_false",
+                logic="filter",
+                conditions=len(false_list),
             )
-        else:
-            # New multi-condition mode
-            input_data = getattr(self, "data_input", None) or Message(text=getattr(self, "input_text", ""))
-            result = self.evaluate_conditions(input_data)
+            logger.debug(f"Filtered {len(false_list)} items to false output")
 
-        # Check if we should force output due to max_iterations on default route
-        current_iteration = self.ctx.get(f"{self._id}_iteration", 0)
-        force_output = current_iteration >= self.max_iterations and self.default_route == "false_result"
+            # In data filtering mode, don't stop the other branch
+            # Both branches should execute and return their filtered data
+            return false_list
 
-        if not result or force_output:
-            if force_output:
-                self.status = i18n.t(
-                    "components.logic.conditional_router.status.forced_false", iteration=current_iteration
-                )
-                logger.info(
-                    i18n.t("components.logic.conditional_router.logs.forced_false_output", iteration=current_iteration)
-                )
-            else:
-                if self._use_legacy_mode:
-                    self.status = i18n.t("components.logic.conditional_router.status.condition_false")
-                else:
-                    self.status = i18n.t(
-                        "components.logic.conditional_router.status.multi_condition_false",
-                        logic=self.combination_logic,
-                        conditions=len(self.conditions) if hasattr(self, "conditions") else 0,
-                    )
-                logger.debug(i18n.t("components.logic.conditional_router.logs.condition_false"))
+        # Single data item
+        result = self.evaluate_conditions(input_data)
 
-            self.iterate_and_stop_once("true_result")
-            return self.false_case_message
+        if not result:
+            self.status = i18n.t("components.logic.conditional_router.status.condition_false")
+            logger.debug(i18n.t("components.logic.conditional_router.logs.condition_false"))
 
-        logger.debug(i18n.t("components.logic.conditional_router.logs.condition_true"))
-        self.iterate_and_stop_once("false_result")
-        return Message(content="")
+            # Return single item as list
+            if hasattr(input_data, "data"):
+                return [input_data]
+            if isinstance(input_data, dict):
+                return [Data(data=input_data)]
+            return [Data(data={"value": str(input_data)})]
+
+        return []
 
     async def update_build_config(
         self, build_config: dict, field_value: str, field_name: str | None = None, action: str | None = None
@@ -623,9 +650,7 @@ class ConditionalRouterComponent(Component):
                     if hasattr(self.graph, "data"):
                         graph_data = self.graph.data
                     else:
-                        logger.warning(
-                            i18n.t("components.logic.conditional_router.warnings.no_graph_data_placeholder")
-                        )
+                        logger.warning(i18n.t("components.logic.conditional_router.warnings.no_graph_data_placeholder"))
 
                 if not graph_data:
                     logger.warning(i18n.t("components.logic.conditional_router.logs.no_graph_data"))
@@ -661,9 +686,7 @@ class ConditionalRouterComponent(Component):
 
                 # FALLBACK STRATEGY: Try to execute upstream node to get actual data (SLOW, MAY FAIL)
                 if not field_options:
-                    logger.debug(
-                        i18n.t("components.logic.conditional_router.logs.trying_data_extraction")
-                    )
+                    logger.debug(i18n.t("components.logic.conditional_router.logs.trying_data_extraction"))
                     try:
                         upstream_data = await self.get_upstream_data(
                             input_name="data_input", graph_data=graph_data, sample_size=10, vertex_id=node_id
@@ -675,13 +698,12 @@ class ConditionalRouterComponent(Component):
                             field_options = [info.name for info in field_info_list]
                             logger.debug(
                                 i18n.t(
-                                    "components.logic.conditional_router.logs.fields_from_data", count=len(field_options)
+                                    "components.logic.conditional_router.logs.fields_from_data",
+                                    count=len(field_options),
                                 )
                             )
                         else:
-                            logger.warning(
-                                i18n.t("components.logic.conditional_router.warnings.no_upstream_data")
-                            )
+                            logger.warning(i18n.t("components.logic.conditional_router.warnings.no_upstream_data"))
 
                     except Exception as e:
                         # Upstream execution failed
@@ -692,9 +714,19 @@ class ConditionalRouterComponent(Component):
                             )
                         )
 
-                # Update build_config with field options
+                # Update build_config with auto-filled table rows
                 if field_options and "conditions" in build_config:
-                    build_config["conditions"]["field_options"] = field_options
+                    # Auto-fill table with one row per field, default operator is "equals"
+                    auto_filled_rows = [
+                        {
+                            "field_name": field_name,
+                            "operator": "equals",  # Default operator
+                            "compare_value": "",  # Empty by default
+                            "combination_logic": "AND",  # Default combination logic
+                        }
+                        for field_name in field_options
+                    ]
+                    build_config["conditions"]["value"] = auto_filled_rows
                     self.status = i18n.t(
                         "components.logic.conditional_router.status.fields_loaded", count=len(field_options)
                     )
@@ -702,9 +734,7 @@ class ConditionalRouterComponent(Component):
                     self.status = i18n.t("components.logic.conditional_router.warnings.no_fields_found_error")
 
             except Exception as e:
-                logger.warning(
-                    i18n.t("components.logic.conditional_router.warnings.field_loading_error", error=str(e))
-                )
+                logger.warning(i18n.t("components.logic.conditional_router.warnings.field_loading_error", error=str(e)))
                 self.status = i18n.t("components.logic.conditional_router.errors.field_loading_failed", error=str(e))
 
             return build_config
@@ -1064,36 +1094,36 @@ class ConditionalRouterComponent(Component):
         operators = {
             "string": [
                 "equals",
-                "not equals",
+                "not_equals",
                 "contains",
-                "starts with",
-                "ends with",
+                "starts_with",
+                "ends_with",
                 "regex",
-                "is empty",
-                "is not empty",
-                "in list",
-                "not in list",
+                "is_empty",
+                "is_not_empty",
+                "in_list",
+                "not_in_list",
             ],
             "number": [
                 "equals",
-                "not equals",
-                "less than",
-                "less than or equal",
-                "greater than",
-                "greater than or equal",
-                "is empty",
-                "is not empty",
+                "not_equals",
+                "less_than",
+                "less_than_or_equal",
+                "greater_than",
+                "greater_than_or_equal",
+                "is_empty",
+                "is_not_empty",
             ],
-            "boolean": ["equals", "not equals", "is empty", "is not empty"],
+            "boolean": ["equals", "not_equals", "is_empty", "is_not_empty"],
             "date": [
                 "equals",
-                "not equals",
-                "less than",
-                "less than or equal",
-                "greater than",
-                "greater than or equal",
-                "is empty",
-                "is not empty",
+                "not_equals",
+                "less_than",
+                "less_than_or_equal",
+                "greater_than",
+                "greater_than_or_equal",
+                "is_empty",
+                "is_not_empty",
             ],
         }
 

@@ -11,7 +11,8 @@
   },
   "table_selector": {
     "display_name": "目标表",
-    "info": "选择要写入数据的表"
+    "info": "选择要写入数据的表",
+    "info_neo4j": "Neo4j节点标签（可选，如果未指定将从写入模式推断）"
   },
   "field_mappings": {
     "display_name": "字段映射",
@@ -84,7 +85,9 @@
     "no_data_found": "目标表为空(无数据)",
     "writing": "正在写入数据到表...",
     "success": "成功写入%{rows}行数据到表'%{table}'",
-    "tables_loaded": "成功加载%{count}个表"
+    "tables_loaded": "成功加载%{count}个表",
+    "no_fields_found": "No Fields Found",
+    "public_datasource_selected": "Public Datasource Selected"
   },
   "errors": {
     "no_data": "没有要写入的数据。请提供输入数据。",
@@ -93,6 +96,8 @@
     "no_datasource_or_table": "预览前请先选择数据源和表",
     "no_field_mappings": "未配置字段映射。请使用'分析字段'按钮。",
     "no_key_fields": "未选择关键字段。Upsert模式至少需要一个关键字段。",
+    "no_key_fields_neo4j": "Neo4j UPSERT模式需要关键字段。请在字段映射中标记关键字段，或系统将自动生成UUID。",
+    "no_key_fields_upsert": "Upsert模式需要关键字段。请在字段映射中至少标记一个字段为关键字段。",
     "empty_dataframe": "数据转换后为空",
     "analysis_failed": "字段分析失败: %{error}",
     "mapping_failed": "自动字段映射失败: %{error}",

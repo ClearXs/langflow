@@ -11,7 +11,8 @@
   },
   "table_selector": {
     "display_name": "Target Table",
-    "info": "Select the table to write data to"
+    "info": "Select the table to write data to",
+    "info_neo4j": "Node label for Neo4j (optional, will be inferred from write_mode if not specified)"
   },
   "field_mappings": {
     "display_name": "Field Mappings",
@@ -84,7 +85,9 @@
     "no_data_found": "Target table is empty (no data)",
     "writing": "Writing data to table...",
     "success": "Successfully wrote %{rows} rows to table '%{table}'",
-    "tables_loaded": "Successfully loaded %{count} tables"
+    "tables_loaded": "Successfully loaded %{count} tables",
+    "no_fields_found": "No Fields Found",
+    "public_datasource_selected": "Public Datasource Selected"
   },
   "errors": {
     "no_data": "No data to write. Please provide input data.",
@@ -93,6 +96,8 @@
     "no_datasource_or_table": "Please select both datasource and table before preview",
     "no_field_mappings": "No field mappings configured. Please use 'Analyze Schema' button.",
     "no_key_fields": "No key fields selected. Upsert mode requires at least one key field.",
+    "no_key_fields_neo4j": "Neo4j UPSERT mode requires key fields. Please mark key fields in field mappings or the system will auto-generate UUID.",
+    "no_key_fields_upsert": "Upsert mode requires key fields. Please mark at least one field as key field in field mappings.",
     "empty_dataframe": "Data conversion resulted in empty DataFrame",
     "analysis_failed": "Schema analysis failed: %{error}",
     "mapping_failed": "Auto field mapping failed: %{error}",

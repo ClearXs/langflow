@@ -138,6 +138,7 @@
     "minimizationOnlyAvailable": "Minimization only available for components with one handle or fewer.",
     "cannotAccessCode": "You can not access",
     "savedSuccessfully": "saved successfully",
+    "changesSavedSuccessfully": "Changes saved successfully",
     "code": "Code",
     "controls": "Controls",
     "freeze": "Freeze",
@@ -187,6 +188,7 @@
     "freeze": "Freeze",
     "unfreeze": "Unfreeze",
     "back": "Back",
+    "saveAndBack": "Save and Back",
     "share": {
       "button": "Share",
       "menu": {
@@ -223,6 +225,11 @@
         "show": "Show",
         "legacy": "Legacy",
         "beta": "Beta"
+      },
+      "emptySearch": {
+        "noComponentsFound": "No components found.",
+        "clearSearch": "Clear your search",
+        "orFilterAndTry": "or filter and try a different query."
       },
       "components": {
         "savedComponents": "Saved",
@@ -1468,6 +1475,7 @@
     "downloadedSuccessfully": "Flows downloaded successfully",
     "deletedSuccessfully": "Flows deleted successfully",
     "duplicatedSuccessfully": "{{type}} duplicated successfully",
-    "andMessageHistory": "and {{possessive}} message history"
+    "andMessageHistory": "and {{possessive}} message history",
+    "saveFailedTitle": "Failed to save flow"
   }
 }

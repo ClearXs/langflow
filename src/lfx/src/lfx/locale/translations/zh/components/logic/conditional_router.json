@@ -16,7 +16,9 @@
   },
   "combination_logic": {
     "display_name": "组合逻辑",
-    "info": "选择如何组合多个条件：AND（全部为真）或OR（任一为真）。"
+    "info": "选择如何组合多个条件：AND（全部为真）或OR（任一为真）。",
+    "and": "AND",
+    "or": "OR"
   },
   "input_text": {
     "display_name": "文本输入",
@@ -57,6 +59,22 @@
     "false_result": {
       "display_name": "false"
     }
+  },
+  "operators": {
+    "equals": "等于 (=)",
+    "not_equals": "不等于 (≠)",
+    "contains": "包含",
+    "starts_with": "开头是",
+    "ends_with": "结尾是",
+    "regex": "正则表达式",
+    "less_than": "小于 (<)",
+    "less_than_or_equal": "小于等于 (≤)",
+    "greater_than": "大于 (>)",
+    "greater_than_or_equal": "大于等于 (≥)",
+    "is_empty": "为空",
+    "is_not_empty": "非空",
+    "in_list": "在列表中（逗号分隔）",
+    "not_in_list": "不在列表中（逗号分隔）"
   },
   "status": {
     "condition_true": "条件评估为True",

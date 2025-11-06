@@ -1,82 +1,66 @@
 {
   "display_name": "Kafka Output",
   "description": "Send data to Kafka topics with support for both real-time streaming and batch processing",
-
   "data_input": {
     "display_name": "Data Input",
     "info": "The data to send to Kafka. Accepts list of Data objects from upstream components."
   },
-
   "bootstrap_servers": {
     "display_name": "Bootstrap Servers",
     "info": "Comma-separated list of Kafka broker addresses (e.g., 'localhost:9092,localhost:9093')"
   },
-
   "topic": {
     "display_name": "Topic",
     "info": "The Kafka topic to send messages to"
   },
-
   "key_field": {
     "display_name": "Key Field",
     "info": "Field name to use as message key. If specified, messages with the same key will go to the same partition."
   },
-
   "value_serializer": {
     "display_name": "Value Serializer",
     "info": "How to serialize the message value"
   },
-
   "partition_key": {
     "display_name": "Partition Key",
     "info": "Field to use for custom partitioning. Messages with the same partition key will be routed to the same partition."
   },
-
   "headers": {
     "display_name": "Message Headers",
     "info": "Custom headers to include with each message"
   },
-
   "compression_type": {
     "display_name": "Compression",
     "info": "Compression algorithm to use for messages"
   },
-
   "batch_size": {
     "display_name": "Batch Size",
     "info": "Number of messages to batch together for better performance"
   },
-
   "timeout_ms": {
     "display_name": "Timeout (ms)",
     "info": "Maximum time to wait for message delivery in milliseconds"
   },
-
   "acks": {
     "display_name": "Acknowledgments",
     "info": "Number of acknowledgments the producer requires the leader to have received"
   },
-
   "retries": {
     "display_name": "Retries",
     "info": "Number of times to retry sending failed messages"
   },
-
   "send_as_batch": {
     "display_name": "Send as Batch",
     "info": "Send messages in batches for better performance"
   },
-
   "sasl_username": {
     "display_name": "SASL Username",
     "info": "Username for SASL authentication (optional)"
   },
-
   "sasl_password": {
     "display_name": "SASL Password",
     "info": "Password for SASL authentication (optional)"
   },
-
   "outputs": {
     "result": {
       "display_name": "Result",
@@ -87,7 +71,6 @@
       "info": "Current producer configuration and status"
     }
   },
-
   "status": {
     "sending": "Sending messages to Kafka...",
     "testing_connection": "Testing Kafka connection...",
@@ -95,7 +78,6 @@
     "partial_success": "Sent {success} messages, {errors} failed",
     "connection_successful": "Kafka connection test successful"
   },
-
   "errors": {
     "kafka_not_installed": "confluent-kafka library is not installed. Install it with: pip install confluent-kafka",
     "no_data": "No data provided to send",
@@ -107,14 +89,12 @@
     "authentication_failed": "SASL authentication failed: {error}",
     "timeout": "Message delivery timed out after {timeout_ms}ms"
   },
-
   "warnings": {
     "no_key_field": "No key field specified. Messages will be distributed across partitions randomly.",
     "large_batch_size": "Large batch size may cause memory issues. Consider reducing it.",
     "no_compression": "No compression enabled. Consider enabling compression for better performance.",
     "sasl_credentials_missing": "SASL username provided but password is missing, or vice versa."
   },
-
   "success": {
     "messages_sent": "Successfully sent {count} messages to topic '{topic}'",
     "batch_sent": "Successfully sent batch of {count} messages",

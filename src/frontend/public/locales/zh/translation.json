@@ -138,6 +138,7 @@
     "minimizationOnlyAvailable": "仅对具有一个或更少处理程序的组件可用最小化。",
     "cannotAccessCode": "您无法访问",
     "savedSuccessfully": "保存成功",
+    "changesSavedSuccessfully": "更改保存成功",
     "code": "代码",
     "controls": "控制",
     "freeze": "冻结",
@@ -185,6 +186,7 @@
     "freeze": "冻结",
     "unfreeze": "解冻",
     "back": "返回",
+    "saveAndBack": "保存并返回",
     "share": {
       "button": "分享",
       "menu": {
@@ -221,6 +223,11 @@
         "show": "显示",
         "legacy": "移除",
         "beta": "测试"
+      },
+      "emptySearch": {
+        "noComponentsFound": "未找到组件。",
+        "clearSearch": "清除搜索",
+        "orFilterAndTry": "或筛选后尝试不同的查询。"
       },
       "components": {
         "savedComponents": "已保存",
@@ -604,7 +611,9 @@
     "pdfLoadError": "运行流程以查看 PDF",
     "imgViewConstant": "展开视图以查看图片",
     "imgViewErrorMsg": "运行流程或提供有效的 URL 以查看图片",
-    "imgViewErrorTitle": "图片输出"
+    "imgViewErrorTitle": "图片输出",
+    "flowBuildFailed": "流程构建失败",
+    "flowBuiltSuccessfully": "流程构建成功"
   },
   "forms": {
     "required": "此字段为必填项",
@@ -623,9 +632,7 @@
     "editTextPlaceholder": "在此输入消息。",
     "editTextModalTitle": "编辑文本",
     "textDialogTitle": "编辑文本内容",
-    "passwordKeyPlaceholder": "密钥",
-    "flowBuildFailed": "流程构建失败",
-    "flowBuiltSuccessfully": "流程构建成功"
+    "passwordKeyPlaceholder": "密钥"
   },
   "time": {
     "now": "现在",
@@ -1471,6 +1478,7 @@
     "downloadedSuccessfully": "流程下载成功",
     "deletedSuccessfully": "流程删除成功",
     "duplicatedSuccessfully": "{{type}}克隆成功",
-    "andMessageHistory": "和{{possessive}}消息历史"
+    "andMessageHistory": "和{{possessive}}消息历史",
+    "saveFailedTitle": "保存流程失败"
   }
 }

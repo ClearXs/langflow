@@ -201,28 +201,57 @@ class ETLCDCStreamInputComponent(Component):
                 )
 
                 if datasource_id:
-                    self.status = i18n.t("components.input_output.cdc_input.status.loading_tables")
-                    # 提取纯UUID（移除可能的前缀）
-                    clean_datasource_id = self._extract_uuid_from_id(datasource_id)
-                    logger.info(
-                        f"[CDCInput] Loading tables for datasource: {datasource_id} (cleaned: {clean_datasource_id})"
-                    )
+                    # 获取数据源信息以判断是否为公共数据源
+                    datasource_info = None
+                    options_metadata = build_config.get("datasource_selector", {}).get("options_metadata", [])
+                    for metadata in options_metadata:
+                        # 使用 value 或 id 字段匹配，而不是 display_name
+                        if metadata.get("value") == field_value or metadata.get("id") == field_value:
+                            datasource_info = metadata
+                            break
 
-                    with httpx.Client(timeout=120.0) as client:
-                        response = client.get(f"{api_url}/api/v1/datasources/{clean_datasource_id}/tables")
-
-                        if response.status_code == 200:
-                            tables = response.json()
-                            logger.debug(f"[CDCInput] Loaded {len(tables)} tables")
-
-                            build_config["table_selector"]["options"] = tables
-                            self.status = i18n.t(
-                                "components.input_output.cdc_input.status.tables_loaded", count=len(tables)
-                            )
-                        else:
-                            logger.warning(f"[CDCInput] Failed to load tables, status: {response.status_code}")
+                    # 公共数据源：使用新的表加载接口
+                    if datasource_info and datasource_info.get("source") == "public":
+                        logger.info(f"[CDCInput] Loading tables for public datasource: {field_value}")
+                        try:
+                            tables = self._load_public_datasource_tables(datasource_info)
+                            if tables:
+                                build_config["table_selector"]["options"] = sorted(tables)
+                                logger.debug(f"[CDCInput] Loaded {len(tables)} tables from public datasource")
+                                self.status = i18n.t(
+                                    "components.input_output.cdc_input.status.tables_loaded", count=len(tables)
+                                )
+                            else:
+                                build_config["table_selector"]["options"] = []
+                                logger.warning(f"[CDCInput] No tables found for public datasource: {field_value}")
+                                self.status = i18n.t("components.input_output.cdc_input.status.no_tables_found")
+                        except Exception as e:
+                            logger.error(f"[CDCInput] Failed to load tables from public datasource: {e}")
                             build_config["table_selector"]["options"] = []
-                            self.status = i18n.t("components.input_output.cdc_input.status.no_tables_found")
+                            self.status = i18n.t("components.input_output.cdc_input.errors.load_tables_failed")
+                    else:
+                        self.status = i18n.t("components.input_output.cdc_input.status.loading_tables")
+                        # 提取纯UUID（移除可能的前缀）
+                        clean_datasource_id = self._extract_uuid_from_id(datasource_id)
+                        logger.info(
+                            f"[CDCInput] Loading tables for datasource: {datasource_id} (cleaned: {clean_datasource_id})"
+                        )
+
+                        with httpx.Client(timeout=120.0) as client:
+                            response = client.get(f"{api_url}/api/v1/datasources/{clean_datasource_id}/tables")
+
+                            if response.status_code == 200:
+                                tables = response.json()
+                                logger.debug(f"[CDCInput] Loaded {len(tables)} tables")
+
+                                build_config["table_selector"]["options"] = tables
+                                self.status = i18n.t(
+                                    "components.input_output.cdc_input.status.tables_loaded", count=len(tables)
+                                )
+                            else:
+                                logger.warning(f"[CDCInput] Failed to load tables, status: {response.status_code}")
+                                build_config["table_selector"]["options"] = []
+                                self.status = i18n.t("components.input_output.cdc_input.status.no_tables_found")
                 else:
                     logger.error(f"[CDCInput] Cannot find datasource ID for: {field_value}")
                     build_config["table_selector"]["options"] = []
@@ -344,32 +373,47 @@ class ETLCDCStreamInputComponent(Component):
 
     def _build_public_connection_string(self, raw_data: dict) -> str:
         """构建公共数据源连接字符串"""
-        ds_type = raw_data.get("type", "mysql").lower()
+        # 获取数据源参数
         params = raw_data.get("dataSourceParam", {})
+        if not params:
+            logger.warning("[CDCInput] No dataSourceParam found in raw_data")
+            params = {}
+
+        # ✅ 修复：优先从 dataSourceParam.type 获取类型（公共数据源的实际位置）
+        ds_type = params.get("type") if isinstance(params, dict) else None
+
+        # 如果 dataSourceParam.type 为空，再尝试其他字段（向后兼容）
+        if not ds_type:
+            ds_type = raw_data.get("type", "mysql")
+
+        ds_type = ds_type.lower()
+        logger.debug(f"[CDCInput] Using datasource type: {ds_type}")
 
         if ds_type == "hive":
-            # Hive连接字符串构建
-            host = params.get("host")
+            # Hive连接字符串构建 - 使用 SQLAlchemy 格式，不是 JDBC 格式
+            from urllib.parse import quote_plus
+
+            host = params.get("host", "localhost")
             port = params.get("port", 10000)
             database = params.get("database", "default")
             username = params.get("username", "hive")
             password = params.get("password", "")
 
-            # 构建Hive JDBC连接字符串
-            conn_str = f"jdbc:hive2://{host}:{port}/{database}"
+            # ✅ 修复：使用 SQLAlchemy + PyHive 格式：hive://[user[:password]@]host:port/database
+            # 不再使用 JDBC 格式 jdbc:hive2://
+            username_encoded = quote_plus(username) if username else ""
+            password_encoded = quote_plus(password) if password else ""
 
-            # 添加认证参数
-            if password:
-                from urllib.parse import quote_plus
+            if username and password:
+                conn_str = f"hive://{username_encoded}:{password_encoded}@{host}:{port}/{database}"
+            elif username:
+                conn_str = f"hive://{username_encoded}@{host}:{port}/{database}"
+            else:
+                conn_str = f"hive://{host}:{port}/{database}"
 
-                password_encoded = quote_plus(password)
-                conn_str += f"?user={username};password={password_encoded}"
-            elif username and username != "hive":
-                from urllib.parse import quote_plus
-
-                username_encoded = quote_plus(username)
-                conn_str += f"?user={username_encoded}"
-
+            logger.debug(
+                f"[CDCInput] Built Hive connection string (SQLAlchemy format): {conn_str.replace(password, '***')}"
+            )
             return conn_str
 
         # 其他数据源类型的连接字符串构建（MySQL, PostgreSQL等）
@@ -393,11 +437,11 @@ class ETLCDCStreamInputComponent(Component):
         if ds_type == "postgresql":
             return f"postgresql://{username_encoded}:{password_encoded}@{host}:{port}/{database}"
         if ds_type == "neo4j":
-            # Neo4j connection
+            # Neo4j connection - 使用 bolt:// 协议，不是 neo4j://
             neo4j_port = port if port != 3306 else 7687
             if username and password:
-                return f"neo4j://{username_encoded}:{password_encoded}@{host}:{neo4j_port}"
-            return f"neo4j://{host}:{neo4j_port}"
+                return f"bolt://{username_encoded}:{password_encoded}@{host}:{neo4j_port}"
+            return f"bolt://{host}:{neo4j_port}"
         raise ValueError(f"Unsupported database type: {ds_type}")
 
     def _extract_uuid_from_id(self, datasource_id: str) -> str:
@@ -1128,6 +1172,51 @@ class ETLCDCStreamInputComponent(Component):
             }
             return Data(data=error_summary)
 
+    def _load_public_datasource_tables(self, datasource_info: dict) -> list[str]:
+        """为公共数据源加载表列表，直接通过连接信息查询数据库"""
+        from sqlalchemy import create_engine, inspect
+        from sqlalchemy.pool import NullPool
+
+        try:
+            # 从datasource_info获取raw_data
+            raw_data = datasource_info.get("raw_data", datasource_info)
+
+            # 构建连接字符串
+            connection_string = self._build_public_connection_string(raw_data)
+            logger.debug("[CDCInput] Loading tables for public datasource with connection string")
+
+            # 获取数据源类型
+            params = raw_data.get("dataSourceParam", {})
+            ds_type = params.get("type") if isinstance(params, dict) else None
+            if not ds_type:
+                ds_type = raw_data.get("type") or raw_data.get("dataSourceType") or raw_data.get("dbType") or "mysql"
+            ds_type = ds_type.lower()
+            logger.debug(f"[CDCInput] Public datasource type: {ds_type}")
+
+            # CDC只支持MySQL和PostgreSQL，不支持Neo4j
+            if ds_type not in ["mysql", "postgresql", "postgres"]:
+                logger.warning(f"[CDCInput] CDC does not support datasource type: {ds_type}")
+                return []
+
+            # 使用SQLAlchemy获取表列表
+            engine = create_engine(connection_string, poolclass=NullPool)
+
+            with engine.connect() as conn:
+                inspector = inspect(engine)
+                tables = inspector.get_table_names()
+                logger.info(f"[CDCInput] Loaded {len(tables)} tables from public datasource")
+                return tables
+
+        except Exception as e:
+            logger.error(f"[CDCInput] Failed to load tables from public datasource: {e}")
+            import traceback
+
+            logger.error(f"[CDCInput] Traceback: {traceback.format_exc()}")
+            raise
+        finally:
+            if "engine" in locals():
+                engine.dispose()
+
     def _load_unified_datasources(self) -> list[dict]:
         """加载统一的数据源列表（内置 + 公共）"""
         import os
@@ -1178,13 +1267,21 @@ class ETLCDCStreamInputComponent(Component):
                     logger.debug(f"[CDCInput] Loaded {len(public_datasources)} public datasources from feign API")
 
                     for ds in public_datasources:
+                        # ✅ 修复：获取正确的数据源类型（优先从 dataSourceParam.type）
+                        params = ds.get("dataSourceParam", {})
+                        ds_type = params.get("type") if isinstance(params, dict) else None
+                        if not ds_type:
+                            ds_type = ds.get("type") or ds.get("dataSourceType") or ds.get("dbType") or "mysql"
+
                         # 构建丰富的显示名称
-                        display_name = self._build_display_name(ds, "public")
+                        # 使用修正后的type构建新的ds对象
+                        ds_with_type = {**ds, "type": ds_type}
+                        display_name = self._build_display_name(ds_with_type, "public")
                         all_datasources.append(
                             {
                                 "id": str(ds["id"]),
                                 "name": ds["name"],
-                                "type": ds["type"],
+                                "type": ds_type,  # ✅ 使用修正后的type
                                 "source": "public",
                                 "display_name": display_name,
                                 "raw_data": ds,
@@ -1196,10 +1293,7 @@ class ETLCDCStreamInputComponent(Component):
                 logger.error(f"[CDCInput] Error loading public datasources: {e}")
 
             # 过滤掉Neo4j和Hive数据源（CDC不支持这两种类型）
-            filtered_datasources = [
-                ds for ds in all_datasources
-                if ds["type"].lower() not in ["neo4j", "hive"]
-            ]
+            filtered_datasources = [ds for ds in all_datasources if ds["type"].lower() not in ["neo4j", "hive"]]
 
             logger.info(
                 f"[CDCInput] Loaded {len(filtered_datasources)} datasources "
@@ -1231,8 +1325,46 @@ class ETLCDCStreamInputComponent(Component):
             logger.error(f"[CDCInput] Failed to get public datasources: {e}")
             return []
 
+    def _get_datasource_type_for_display(self, datasource: dict, source: str) -> dict:
+        """获取用于显示的数据源类型和数据库信息"""
+        if source == "public":
+            # 公共数据源：从dataSourceParam获取信息
+            raw_data = datasource.get("raw_data", datasource)
+            params = raw_data.get("dataSourceParam", {})
+
+            # ✅ 优先从 dataSourceParam.type 获取类型
+            ds_type = params.get("type") if isinstance(params, dict) else None
+            if not ds_type:
+                ds_type = raw_data.get("type", "mysql")
+
+            # 获取数据库和连接信息
+            database = params.get("database", "default")
+            host = params.get("host", "localhost")
+            port = params.get("port", self._get_default_port(ds_type))
+
+        else:
+            # 内置数据源：使用现有逻辑
+            ds_type = datasource.get("type", "mysql")
+            database = datasource.get("database", "default")
+            host = datasource.get("host", "localhost")
+            port = datasource.get("port", self._get_default_port(ds_type))
+
+        return {"type": ds_type.lower(), "database": database, "host": host, "port": port}
+
+    def _get_default_port(self, ds_type: str) -> int:
+        """获取数据源的默认端口"""
+        default_ports = {
+            "mysql": 3306,
+            "postgresql": 5432,
+            "hive": 10000,
+            "neo4j": 7687,
+            "oracle": 1521,
+            "sqlserver": 1433,
+        }
+        return default_ports.get(ds_type.lower(), 3306)
+
     def _build_display_name(self, datasource: dict, source: str) -> str:
-        """构建丰富的显示名称"""
+        """构建丰富的显示名称 - 恢复原来的格式，信息在 option_metadata 中处理"""
         base_name = f"{datasource['name']} ({datasource['type']})"
 
         # 来源标识

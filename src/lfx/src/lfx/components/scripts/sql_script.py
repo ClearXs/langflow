@@ -1,5 +1,6 @@
 """SQL Script Component for executing SQL statements on selected datasource."""
 
+import asyncio
 import re
 from typing import Any
 from urllib.parse import unquote
@@ -18,9 +19,7 @@ from lfx.schema import Data
 
 # Neo4j数据序列化函数 (复制自table_input.py)
 def _serialize_neo4j_value(value):
-    """
-    Neo4j对象包装函数 - 把复杂对象包装成可序列化的结构。
-    """
+    """Neo4j对象包装函数 - 把复杂对象包装成可序列化的结构。"""
     # 如果已经是原始类型，包装成 {"value": 原始值}
     if isinstance(value, (str, int, float, bool)) or value is None:
         return {"value": value}
@@ -51,7 +50,7 @@ def _serialize_neo4j_value(value):
                 return {"value": node_data}
 
             # Neo4j Relationship对象
-            elif class_name == "Relationship" or (
+            if class_name == "Relationship" or (
                 hasattr(value, "type") and hasattr(value, "start_node") and hasattr(value, "end_node")
             ):
                 rel_data = {
@@ -69,20 +68,19 @@ def _serialize_neo4j_value(value):
                 return {"value": rel_data}
 
             # 其他Neo4j对象
-            else:
-                neo4j_data = {"_type": class_name}
-                for attr in dir(value):
-                    if not attr.startswith("_") and not callable(getattr(value, attr)):
-                        try:
-                            attr_value = getattr(value, attr)
-                            if isinstance(attr_value, (str, int, float, bool, list, dict)) or attr_value is None:
-                                if isinstance(attr_value, frozenset):
-                                    neo4j_data[attr] = list(attr_value)
-                                else:
-                                    neo4j_data[attr] = attr_value
-                        except Exception:
-                            continue
-                return {"value": neo4j_data}
+            neo4j_data = {"_type": class_name}
+            for attr in dir(value):
+                if not attr.startswith("_") and not callable(getattr(value, attr)):
+                    try:
+                        attr_value = getattr(value, attr)
+                        if isinstance(attr_value, (str, int, float, bool, list, dict)) or attr_value is None:
+                            if isinstance(attr_value, frozenset):
+                                neo4j_data[attr] = list(attr_value)
+                            else:
+                                neo4j_data[attr] = attr_value
+                    except Exception:
+                        continue
+            return {"value": neo4j_data}
 
         # 普通复杂对象，JSON序列化
         import json
@@ -262,50 +260,49 @@ class ETLSQLScriptComponent(Component):
 
         import os
 
-        import httpx
-
         api_url = os.getenv("LANGFLOW_API_URL", "http://localhost:7860")
 
         # Load datasources on initial load or refresh
         if field_name is None or (field_name == "datasource_selector" and not field_value):
             logger.debug(f"[SQLScript] Loading datasources (field_name={field_name})")
             try:
-                with httpx.Client(timeout=10.0) as client:
-                    response = client.get(f"{api_url}/api/v1/datasources")
+                # 加载统一的数据源列表（内置 + 公共）
+                all_datasources = self._load_unified_datasources()
 
-                    if response.status_code == 200:
-                        datasources = response.json()
-                        logger.debug(f"[SQLScript] Loaded {len(datasources)} datasources from API")
+                # 构建显示选项和元数据
+                options = []
+                options_metadata = []
 
-                        options = []
-                        options_metadata = []
+                for ds in all_datasources:
+                    # options 只包含ID (唯一值)
+                    options.append(ds["id"])
+                    # options_metadata 包含显示信息，使用 label 字段供前端显示
+                    options_metadata.append(
+                        {
+                            "value": ds["id"],  # 实际值
+                            "label": ds["display_name"],  # 显示名称
+                            "id": ds["id"],
+                            "name": ds["name"],
+                            "type": ds["type"],
+                            "source": ds["source"],
+                            "display_name": ds["display_name"],
+                            "database": ds.get("database"),  # 保留 database 字段
+                            "host": ds.get("host"),
+                            "port": ds.get("port"),
+                            "raw_data": ds.get("raw_data"),  # 公共数据源的原始数据
+                        }
+                    )
 
-                        for ds in datasources:
-                            display_name = f"{ds['name']} ({ds['type']})"
-                            # options 只包含ID (唯一值)
-                            options.append(ds["id"])
-                            # options_metadata 包含显示信息，使用 label 字段供前端显示
-                            options_metadata.append(
-                                {
-                                    "value": ds["id"],
-                                    "label": display_name,
-                                    "id": ds["id"],
-                                    "name": ds["name"],
-                                    "type": ds["type"],
-                                    "display_name": display_name,
-                                    "database": ds.get("database"),  # 保留 database 字段
-                                    "host": ds.get("host"),
-                                    "port": ds.get("port"),
-                                }
-                            )
+                build_config["datasource_selector"]["options"] = options
+                build_config["datasource_selector"]["options_metadata"] = options_metadata
+                logger.debug(f"[SQLScript] Set datasource_selector options: {options}")
+                logger.debug(f"[SQLScript] Set options_metadata with {len(options_metadata)} entries")
 
-                        build_config["datasource_selector"]["options"] = options
-                        build_config["datasource_selector"]["options_metadata"] = options_metadata
-                        logger.debug(f"[SQLScript] Set datasource_selector options: {options}")
-                    else:
-                        logger.warning(f"[SQLScript] Failed to load datasources, status: {response.status_code}")
             except Exception as e:
-                logger.error(f"[SQLScript] Error loading datasources: {e}")
+                logger.error(f"[SQLScript] Error loading unified datasources: {e}")
+                # 设置错误选项
+                build_config["datasource_selector"]["options"] = ["加载失败"]
+                build_config["datasource_selector"]["options_metadata"] = []
 
         # Handle execute script button click
         if field_name == "execution_results" and action == "execute_script":
@@ -335,6 +332,11 @@ class ETLSQLScriptComponent(Component):
                     self.status = i18n.t("components.scripts.sql_script.errors.no_datasource")
                     return build_config
 
+                # Get datasource info for connection string building
+                datasource_info = self._get_datasource_info_from_metadata(
+                    datasource_id, build_config.get("datasource_selector", {}).get("options_metadata", [])
+                )
+
                 # Execute the script
                 logger.info("[SQLScript] Starting script execution...")
                 self.status = i18n.t("components.scripts.sql_script.status.connecting")
@@ -351,6 +353,7 @@ class ETLSQLScriptComponent(Component):
                     enable_transaction=enable_transaction,
                     continue_on_error=continue_on_error,
                     statement_separator=statement_separator,
+                    datasource_info=datasource_info,
                 )
 
                 # Update execution results table
@@ -408,6 +411,24 @@ class ETLSQLScriptComponent(Component):
         logger.warning(f"[SQLScript] No metadata found for selector value: {selector_value}")
         return None
 
+    def _get_datasource_info_from_metadata(self, datasource_id: str, options_metadata: list[dict]) -> dict | None:
+        """从 options_metadata 中根据数据源ID获取完整的数据源信息
+
+        Args:
+            datasource_id: 数据源ID
+            options_metadata: 元数据列表
+
+        Returns:
+            数据源信息字典，如果未找到则返回None
+        """
+        for metadata in options_metadata:
+            if metadata.get("id") == datasource_id or metadata.get("value") == datasource_id:
+                logger.debug(f"[SQLScript] Found datasource info for ID: '{datasource_id}'")
+                return metadata
+
+        logger.warning(f"[SQLScript] No datasource info found for ID: {datasource_id}")
+        return None
+
     def _format_i18n(self, key: str, **kwargs) -> str:
         """Format i18n text with parameter substitution."""
         text = i18n.t(key)
@@ -415,8 +436,209 @@ class ETLSQLScriptComponent(Component):
             text = text.replace(f"{{{param_key}}}", str(param_value))
         return text
 
-    def _get_connection_string(self, datasource_id: str) -> str:
-        """Get connection string for datasource."""
+    def _load_unified_datasources(self) -> list[dict]:
+        """加载统一的数据源列表（内置数据源 + 公共数据源）"""
+        try:
+            # 获取内置数据源
+            builtin_datasources = self._get_builtin_datasources()
+
+            # 获取公共数据源
+            try:
+                public_datasources = asyncio.run(self._get_public_datasources())
+            except Exception as e:
+                logger.warning(f"[SQLScript] Failed to get public datasources: {e}")
+                public_datasources = []
+
+            # 合并数据源列表
+            all_datasources = []
+
+            # 添加内置数据源
+            for ds in builtin_datasources:
+                display_name = f"{ds['name']} ({ds['type']}) [自定义]"
+                all_datasources.append(
+                    {
+                        "id": str(ds["id"]),
+                        "name": ds["name"],
+                        "type": ds["type"],
+                        "source": "builtin",
+                        "display_name": display_name,
+                        "database": ds.get("database"),
+                        "host": ds.get("host"),
+                        "port": ds.get("port"),
+                    }
+                )
+
+            # 添加公共数据源
+            for ds in public_datasources:
+                # ✅ 修复：从 dataSourceParam.type 获取正确的类型
+                params = ds.get("dataSourceParam", {})
+                ds_type = params.get("type") if isinstance(params, dict) else None
+                if not ds_type:
+                    ds_type = (
+                        ds.get("type")
+                        or ds.get("dataSourceType")
+                        or ds.get("dbType")
+                        or "mysql"
+                    )
+
+                display_name = self._build_display_name(ds, "public")
+                all_datasources.append(
+                    {
+                        "id": str(ds["id"]),
+                        "name": ds["name"],
+                        "type": ds_type,  # ✅ 使用从 dataSourceParam 获取的正确类型
+                        "source": "public",
+                        "display_name": display_name,
+                        "raw_data": ds,
+                    }
+                )
+
+            logger.info(
+                f"[SQLScript] Loaded {len(all_datasources)} datasources ({len(builtin_datasources)} builtin, {len(public_datasources)} public)"
+            )
+            return all_datasources
+
+        except Exception as e:
+            logger.error(f"[SQLScript] Error loading unified datasources: {e}")
+            return []
+
+    def _get_builtin_datasources(self) -> list[dict]:
+        """获取内置数据源"""
+        try:
+            import os
+
+            import httpx
+
+            api_url = os.getenv("LANGFLOW_API_URL", "http://localhost:7860")
+
+            with httpx.Client(timeout=10.0) as client:
+                response = client.get(f"{api_url}/api/v1/datasources")
+
+                if response.status_code == 200:
+                    datasources = response.json()
+                    logger.debug(f"[SQLScript] Loaded {len(datasources)} builtin datasources from API")
+
+                    builtin_datasources = []
+                    for ds in datasources:
+                        builtin_datasources.append(
+                            {
+                                "id": str(ds["id"]),
+                                "name": ds["name"],
+                                "type": ds["type"],
+                                "source": "builtin",
+                                "database": ds.get("database"),
+                                "host": ds.get("host"),
+                                "port": ds.get("port"),
+                            }
+                        )
+                    return builtin_datasources
+                logger.warning(f"[SQLScript] Failed to load builtin datasources, status: {response.status_code}")
+                return []
+
+        except Exception as e:
+            logger.error(f"[SQLScript] Error getting builtin datasources: {e}")
+            return []
+
+    async def _get_public_datasources(self) -> list[dict]:
+        """通过feign接口获取公共数据源"""
+        try:
+            from lfx.services.deps import get_feign_service
+
+            feign_service = get_feign_service()
+            from lfx.services.feign.clients.data_construction import DataConstructionFeignClient
+
+            client = DataConstructionFeignClient(feign_service)
+
+            # 调用feign接口
+            datasource_list = await client.get_datasource_list()
+
+            logger.info(f"[SQLScript] Got {len(datasource_list)} public datasources from feign API")
+            return datasource_list if isinstance(datasource_list, list) else []
+
+        except Exception as e:
+            logger.error(f"[SQLScript] Error getting public datasources: {e}")
+            return []
+
+    def _get_datasource_type_for_display(self, datasource: dict, source: str) -> dict:
+        """获取用于显示的数据源类型和数据库信息"""
+        if source == "public":
+            # 公共数据源：从dataSourceParam获取信息
+            raw_data = datasource
+            params = raw_data.get("dataSourceParam", {})
+
+            # ✅ 优先从 dataSourceParam.type 获取类型
+            ds_type = params.get("type") if isinstance(params, dict) else None
+            if not ds_type:
+                ds_type = raw_data.get("type", "mysql")
+
+            # 获取数据库和连接信息
+            database = params.get("database", "default")
+            host = params.get("host", "localhost")
+            port = params.get("port", self._get_default_port(ds_type))
+
+        else:
+            # 内置数据源：使用现有逻辑
+            ds_type = datasource.get("type", "mysql")
+            database = datasource.get("database", "default")
+            host = datasource.get("host", "localhost")
+            port = datasource.get("port", self._get_default_port(ds_type))
+
+        return {
+            "type": ds_type.lower(),
+            "database": database,
+            "host": host,
+            "port": port
+        }
+
+    def _get_default_port(self, ds_type: str) -> int:
+        """获取数据源的默认端口"""
+        default_ports = {
+            "mysql": 3306,
+            "postgresql": 5432,
+            "hive": 10000,
+            "neo4j": 7687,
+            "oracle": 1521,
+            "sqlserver": 1433
+        }
+        return default_ports.get(ds_type.lower(), 3306)
+
+    def _build_display_name(self, datasource: dict, source: str) -> str:
+        """构建丰富的显示名称 - 恢复原来的格式，信息在 option_metadata 中处理"""
+        base_name = f"{datasource['name']} ({datasource['type']})"
+
+        # 来源标识
+        source_label = "[公共]" if source == "public" else "[自定义]"
+
+        # 附加信息标签
+        extra_labels = []
+
+        if source == "public":
+            # 公共数据源的额外信息
+            raw_data = datasource
+
+            # 环境信息
+            if raw_data.get("environment"):
+                extra_labels.append(f"[{raw_data['environment']}]")
+
+            # 描述信息
+            if raw_data.get("description"):
+                extra_labels.append(f"[{raw_data['description']}]")
+
+        # 组合显示名称
+        if extra_labels:
+            return f"{base_name} {source_label} {' '.join(extra_labels)}"
+        return f"{base_name} {source_label}"
+
+    def _get_connection_string(self, datasource_id: str, datasource_info: dict = None) -> str:
+        """获取数据源连接字符串，支持内置和公共数据源"""
+        if datasource_info and datasource_info.get("source") == "public":
+            # 公共数据源：从raw_data构建连接字符串
+            return self._build_public_connection_string(datasource_info["raw_data"])
+        # 内置数据源：使用现有逻辑
+        return self._get_builtin_connection_string(datasource_id)
+
+    def _get_builtin_connection_string(self, datasource_id: str) -> str:
+        """Get connection string for builtin datasource."""
         import os
 
         import httpx
@@ -438,8 +660,173 @@ class ETLSQLScriptComponent(Component):
 
                 return connection_string
         except Exception as e:
-            logger.error(f"[SQLScript] Error getting connection string: {e}")
+            logger.error(f"[SQLScript] Error getting builtin connection string: {e}")
             raise
+
+    def _build_public_connection_string(self, raw_data: dict) -> str:
+        """构建公共数据源连接字符串"""
+        # 记录原始数据以便调试
+        logger.debug(f"[SQLScript] Building connection string from raw_data with keys: {list(raw_data.keys())}")
+
+        # 获取数据源参数 - 修复：从正确的位置获取参数
+        params = raw_data.get("dataSourceParam", {})
+        if not params:
+            logger.warning(f"[SQLScript] No dataSourceParam found in raw_data, available keys: {list(raw_data.keys())}")
+            params = {}
+
+        # ✅ 修复：优先从 dataSourceParam.type 获取类型（公共数据源的实际位置）
+        ds_type = params.get("type") if isinstance(params, dict) else None
+
+        # 如果 dataSourceParam.type 为空，再尝试其他字段（向后兼容）
+        if not ds_type:
+            ds_type = (
+                raw_data.get("type")
+                or raw_data.get("dataSourceType")
+                or raw_data.get("dbType")
+                or raw_data.get("datasourceType")
+                or raw_data.get("databaseType")
+            )
+
+        # 记录找到的type值
+        logger.debug(
+            f"[SQLScript] Found type values - dataSourceParam.type: {params.get('type')}, "
+            f"type: {raw_data.get('type')}, "
+            f"dataSourceType: {raw_data.get('dataSourceType')}, "
+            f"dbType: {raw_data.get('dbType')}, "
+            f"final: {ds_type}"
+        )
+
+        # 如果是空字符串或None，尝试从名称推断
+        if not ds_type or (isinstance(ds_type, str) and ds_type.strip() == ""):
+            logger.warning(
+                f"[SQLScript] Public datasource type is empty, raw_data sample: {dict(list(raw_data.items())[:3])}"
+            )
+            # 尝试从datasource名称推断（作为最后的后备方案）
+            ds_name = raw_data.get("name", "").lower()
+            if "pg" in ds_name or "postgres" in ds_name:
+                ds_type = "postgresql"
+                logger.info(f"[SQLScript] Inferred type 'postgresql' from name: {ds_name}")
+            elif "mysql" in ds_name:
+                ds_type = "mysql"
+                logger.info(f"[SQLScript] Inferred type 'mysql' from name: {ds_name}")
+            elif "hive" in ds_name:
+                ds_type = "hive"
+                logger.info(f"[SQLScript] Inferred type 'hive' from name: {ds_name}")
+            elif "neo4j" in ds_name:
+                ds_type = "neo4j"
+                logger.info(f"[SQLScript] Inferred type 'neo4j' from name: {ds_name}")
+            else:
+                logger.warning(f"[SQLScript] Cannot infer datasource type from name: {ds_name}")
+                ds_type = "unknown"
+
+        ds_type = ds_type.lower() if ds_type else "unknown"
+        logger.debug(f"[SQLScript] Using datasource type: {ds_type}")
+
+        # 根据数据源类型构建连接字符串
+        if ds_type == "postgresql" or ds_type == "postgres":
+            return self._build_postgres_connection_string(params)
+        if ds_type == "mysql":
+            return self._build_mysql_connection_string(params)
+        if ds_type == "hive":
+            return self._build_hive_connection_string(params)
+        if ds_type == "neo4j":
+            return self._build_neo4j_connection_string(params)
+        raise ValueError(f"Unsupported public datasource type: {ds_type}")
+
+    def _build_postgres_connection_string(self, params: dict) -> str:
+        """构建PostgreSQL连接字符串"""
+        from urllib.parse import quote_plus
+
+        host = params.get("host", "localhost")
+        port = params.get("port", 5432)
+        database = params.get("database", "postgres")
+        username = params.get("username", "")
+        password = params.get("password", "")
+
+        username_encoded = quote_plus(username) if username else ""
+        password_encoded = quote_plus(password) if password else ""
+
+        connection_string = f"postgresql://{username_encoded}:{password_encoded}@{host}:{port}/{database}"
+        logger.debug(f"[SQLScript] Built PostgreSQL connection string: {connection_string.replace(password, '***')}")
+        return connection_string
+
+    def _build_mysql_connection_string(self, params: dict) -> str:
+        """构建MySQL连接字符串"""
+        from urllib.parse import quote_plus
+
+        host = params.get("host", "localhost")
+        port = params.get("port", 3306)
+        database = params.get("database", "mysql")
+        username = params.get("username", "")
+        password = params.get("password", "")
+
+        username_encoded = quote_plus(username) if username else ""
+        password_encoded = quote_plus(password) if password else ""
+
+        connection_string = f"mysql+pymysql://{username_encoded}:{password_encoded}@{host}:{port}/{database}"
+        logger.debug(f"[SQLScript] Built MySQL connection string: {connection_string.replace(password, '***')}")
+        return connection_string
+
+    def _build_hive_connection_string(self, params: dict) -> str:
+        """构建Hive连接字符串 - 使用 SQLAlchemy 格式，不是 JDBC 格式"""
+        from urllib.parse import quote_plus
+
+        host = params.get("host", "localhost")
+        port = params.get("port", 10000)
+        database = params.get("database", "default")
+        username = params.get("username", "hive")
+        password = params.get("password", "")
+
+        # ✅ 修复：使用 SQLAlchemy + PyHive 格式：hive://[user[:password]@]host:port/database
+        # 不再使用 JDBC 格式 jdbc:hive2://
+        username_encoded = quote_plus(username) if username else ""
+        password_encoded = quote_plus(password) if password else ""
+
+        if username and password:
+            conn_str = f"hive://{username_encoded}:{password_encoded}@{host}:{port}/{database}"
+        elif username:
+            conn_str = f"hive://{username_encoded}@{host}:{port}/{database}"
+        else:
+            conn_str = f"hive://{host}:{port}/{database}"
+
+        logger.debug(f"[SQLScript] Built Hive connection string (SQLAlchemy format): {conn_str.replace(password, '***')}")
+        return conn_str
+
+    def _build_neo4j_connection_string(self, params: dict) -> str:
+        """构建Neo4j连接字符串"""
+        from urllib.parse import quote_plus
+
+        # ✅ 修复：优先使用URL中的连接信息
+        url = params.get("url", "")
+        if url and url.startswith("bolt://"):
+            # 从URL解析连接信息：bolt://host:port
+            import re
+            match = re.match(r"bolt://([^:]+):(\d+)", url)
+            if match:
+                host = match.group(1)
+                port = int(match.group(2))
+                logger.debug(f"[SQLScript] Using Neo4j host:port from URL: {host}:{port}")
+            else:
+                # URL格式不符合预期，使用默认值
+                host = params.get("host", "localhost")
+                port = params.get("port", 7687)
+                logger.warning(f"[SQLScript] Invalid Neo4j URL format: {url}, using host: {host}, port: {port}")
+        else:
+            # 回退到参数中的host和port
+            host = params.get("host", "localhost")
+            port = params.get("port", 7687)
+            logger.debug(f"[SQLScript] Using Neo4j host:port from params: {host}:{port}")
+
+        username = params.get("username", "")
+        password = params.get("password", "")
+
+        # Neo4j bolt连接字符串
+        username_encoded = quote_plus(username) if username else ""
+        password_encoded = quote_plus(password) if password else ""
+
+        connection_string = f"bolt://{username_encoded}:{password_encoded}@{host}:{port}"
+        logger.debug(f"[SQLScript] Built Neo4j connection string: {connection_string.replace(password, '***')}")
+        return connection_string
 
     def _parse_sql_statements(self, sql_script: str, separator: str = ";") -> list[str]:
         """Parse SQL script into individual statements.
@@ -526,8 +913,15 @@ class ETLSQLScriptComponent(Component):
                 try:
                     # Fetch all rows from SELECT query
                     df = pd.DataFrame(result.fetchall(), columns=result.keys())
+
+                    # ✅ 清理 NaN 和 NaT 值，替换为 None（JSON 可序列化）
+                    import numpy as np
+
+                    df = df.replace({pd.NaT: None, pd.NA: None, np.nan: None, np.inf: None, -np.inf: None})
+                    df = df.where(pd.notna(df), None)  # 将所有 NaN 替换为 None
+
                     query_data = df.to_dict("records")  # Convert to list of dicts
-                    logger.debug(f"[SQLScript] Fetched {len(query_data)} rows from SELECT query")
+                    logger.debug(f"[SQLScript] Fetched {len(query_data)} rows from SELECT query (NaN/NaT cleaned)")
                 except Exception as fetch_error:
                     logger.warning(f"[SQLScript] Could not fetch query results: {fetch_error}")
                     query_data = []
@@ -561,6 +955,7 @@ class ETLSQLScriptComponent(Component):
         enable_transaction: bool,
         continue_on_error: bool,
         statement_separator: str,
+        datasource_info: dict = None,
     ) -> list[dict]:
         """Execute SQL script and return results for preview.
 
@@ -576,10 +971,16 @@ class ETLSQLScriptComponent(Component):
                 return []
 
             # Get connection
-            connection_string = self._get_connection_string(datasource_id)
+            connection_string = self._get_connection_string(datasource_id, datasource_info)
 
-            # 检测是否是Neo4j数据源
-            is_neo4j = "bolt://" in connection_string
+            # 获取数据源信息以检测类型
+            datasource_info = getattr(self, "_current_datasource_info", None)
+            is_neo4j = datasource_info and datasource_info.get("type", "").lower() == "neo4j"
+
+            logger.debug(
+                f"[SQLScript] Datasource type: {datasource_info.get('type') if datasource_info else 'unknown'}, "
+                f"is_neo4j={is_neo4j}"
+            )
 
             if is_neo4j:
                 # 使用Neo4j驱动执行Cypher
@@ -640,6 +1041,34 @@ class ETLSQLScriptComponent(Component):
         if not self.datasource_selector:
             raise ValueError(i18n.t("components.scripts.sql_script.errors.no_datasource_selected"))
 
+        # 尝试从统一的数据源列表中查找
+        try:
+            all_datasources = self._load_unified_datasources()
+            for ds in all_datasources:
+                if ds["id"] == self.datasource_selector or ds["display_name"] == self.datasource_selector:
+                    # 保存数据源信息供后续使用
+                    self._current_datasource_info = {
+                        "id": ds["id"],
+                        "name": ds["name"],
+                        "type": ds["type"],
+                        "source": ds["source"],
+                        "display_name": ds["display_name"],
+                        "raw_data": ds.get("raw_data"),
+                    }
+
+                    logger.debug(
+                        f"[SQLScript] Found datasource ID '{ds['id']}' for '{self.datasource_selector}', "
+                        f"type={ds['type']}, source={ds['source']}"
+                    )
+                    return ds["id"]
+
+            logger.warning(
+                f"[SQLScript] Datasource '{self.datasource_selector}' not found in unified list, trying legacy method"
+            )
+        except Exception as e:
+            logger.warning(f"[SQLScript] Failed to load unified datasources: {e}, falling back to legacy method")
+
+        # 回退到原有的逻辑（只适用于内置数据源）
         import os
 
         import httpx
@@ -656,8 +1085,19 @@ class ETLSQLScriptComponent(Component):
                         display_name = f"{ds['name']} ({ds['type']})"
                         if display_name == self.datasource_selector:
                             datasource_id = ds["id"]
+
+                            # 保存数据源信息供后续使用
+                            self._current_datasource_info = {
+                                "id": datasource_id,
+                                "name": ds["name"],
+                                "type": ds["type"],
+                                "source": "builtin",
+                                "display_name": display_name,
+                            }
+
                             logger.debug(
-                                f"[SQLScript] Found datasource ID '{datasource_id}' for '{self.datasource_selector}'"
+                                f"[SQLScript] Found datasource ID '{datasource_id}' for '{self.datasource_selector}', "
+                                f"type={ds['type']} (legacy)"
                             )
                             return datasource_id
 
@@ -713,10 +1153,17 @@ class ETLSQLScriptComponent(Component):
                 )
 
             # Get connection
-            connection_string = self._get_connection_string(datasource_id)
+            datasource_info = getattr(self, "_current_datasource_info", None)
+            connection_string = self._get_connection_string(datasource_id, datasource_info)
 
-            # 检测是否是Neo4j数据源
-            is_neo4j = "bolt://" in connection_string
+            # 获取数据源信息以检测类型
+            datasource_info = getattr(self, "_current_datasource_info", None)
+            is_neo4j = datasource_info and datasource_info.get("type", "").lower() == "neo4j"
+
+            logger.debug(
+                f"[SQLScript] Datasource type: {datasource_info.get('type') if datasource_info else 'unknown'}, "
+                f"is_neo4j={is_neo4j}"
+            )
 
             if is_neo4j:
                 # 使用Neo4j驱动执行Cypher
@@ -963,9 +1410,8 @@ class ETLSQLScriptComponent(Component):
 
         if stmt_upper.startswith(("MATCH", "RETURN", "WITH", "UNWIND")):
             return "DQL"  # 查询
-        elif stmt_upper.startswith(("CREATE", "MERGE", "SET", "DELETE", "REMOVE", "DETACH")):
+        if stmt_upper.startswith(("CREATE", "MERGE", "SET", "DELETE", "REMOVE", "DETACH")):
             return "DML"  # 数据操作
-        elif stmt_upper.startswith(("CREATE CONSTRAINT", "DROP CONSTRAINT", "CREATE INDEX", "DROP INDEX")):
+        if stmt_upper.startswith(("CREATE CONSTRAINT", "DROP CONSTRAINT", "CREATE INDEX", "DROP INDEX")):
             return "DDL"  # Schema操作
-        else:
-            return "OTHER"
+        return "OTHER"

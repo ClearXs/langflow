@@ -71,6 +71,7 @@ class ETLMultiStreamUnionComponent(Component):
                     "name": "keep_field",
                     "display_name": i18n.t("components.operations.multi_stream_union.union_field_config.keep_field"),
                     "type": "bool",
+                    "formatter": "boolean",
                 },
             ],
             value=[],
