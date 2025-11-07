@@ -50,6 +50,7 @@
     "language": "语言",
     "english": "English",
     "chinese": "中文",
+    "optional_connections": "可选上游连接",
     "folder": "文件夹",
     "file": "文件",
     "size": "大小",

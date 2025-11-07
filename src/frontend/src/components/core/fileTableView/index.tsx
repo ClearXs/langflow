@@ -24,6 +24,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useFileManagement } from "@/controllers/DATA_API/useFileManagement";
+import { useSystemParams } from "@/controllers/DATA_API/useSystemParams";
 import DeleteConfirmationModal from "@/modals/deleteConfirmationModal";
 import useAlertStore from "@/stores/alertStore";
 import { cn } from "@/utils/utils";
@@ -49,6 +50,10 @@ export const FileTableView = forwardRef<
   // Use file management hook for API operations
   const fileOps = useFileManagement();
 
+  // Use system params hook for preview server
+  const systemParams = useSystemParams();
+  const [previewServer, setPreviewServer] = useState<string>("");
+
   const {
     showSize = true,
     showUpdateTime = true,
@@ -71,6 +76,9 @@ export const FileTableView = forwardRef<
   const [isUploading, setIsUploading] = useState(false);
   const [isDraggingOver, setIsDraggingOver] = useState(false);
   const fileInputRef = useState<HTMLInputElement | null>(null)[0];
+  const [searchQuery, setSearchQuery] = useState("");
+  const [isSearching, setIsSearching] = useState(false);
+  const [searchResults, setSearchResults] = useState<FileItem[]>([]);
 
   const {
     fileList,
@@ -87,13 +95,13 @@ export const FileTableView = forwardRef<
     sortConfig,
     columns,
     fetchFiles,
-    navigateToFolder,
-    navigateToRoot,
-    navigateToPath,
+    navigateToFolder: originalNavigateToFolder,
+    navigateToRoot: originalNavigateToRoot,
+    navigateToPath: originalNavigateToPath,
     formatFileSize,
     isFileSelectable,
     handleRowClick,
-    handleRowDblClick,
+    handleRowDblClick: originalHandleRowDblClick,
     handleSelectionChange,
     handleSortChange,
     handleContextMenu,
@@ -122,6 +130,25 @@ export const FileTableView = forwardRef<
       setFileList(props.files);
     }
   }, [props.files, setFileList]);
+
+  // Fetch kkfileview preview server URL on component mount
+  useEffect(() => {
+    const fetchPreviewServer = async () => {
+      try {
+        const res = await systemParams.getList(1, 1000, {
+          paramKey: "kkfileview_url",
+        });
+        if (res.code === 200) {
+          if (res.data.records.length > 0) {
+            setPreviewServer(res.data.records[0].paramValue);
+          }
+        }
+      } catch (error) {
+        console.error("Failed to fetch preview server:", error);
+      }
+    };
+    fetchPreviewServer();
+  }, [systemParams]);
 
   // Path segments for breadcrumb
   const pathSegments = useMemo(() => {
@@ -197,7 +224,19 @@ export const FileTableView = forwardRef<
 
     // Open file in new tab for preview
     if (file.file?.link) {
-      window.open(file.file.link, "_blank");
+      // If previewServer is configured, use kkfileview for preview
+      if (previewServer) {
+        const previewUrl =
+          previewServer +
+          "/onlinePreview?url=" +
+          encodeURIComponent(
+            btoa(unescape(encodeURIComponent(file.file.link))),
+          );
+        window.open(previewUrl, "_blank");
+      } else {
+        // Fallback: directly open the file link
+        window.open(file.file.link, "_blank");
+      }
     } else {
       setErrorData({
         title: t("fileTableModal.previewNotAvailable"),
@@ -355,6 +394,61 @@ export const FileTableView = forwardRef<
         variant: "destructive",
       });
     }
+  };
+
+  // Clear search state
+  const clearSearch = () => {
+    setSearchQuery("");
+    setIsSearching(false);
+    setSearchResults([]);
+  };
+
+  // Handle search
+  const handleSearch = async (query: string) => {
+    setSearchQuery(query);
+
+    if (!query.trim()) {
+      clearSearch();
+      return;
+    }
+
+    setIsSearching(true);
+    try {
+      // Use fileOps.getFileList with name parameter for backend search
+      const results = await fileOps.getFileList(currentParentId, query);
+      setSearchResults(results);
+    } catch (error) {
+      console.error("Search failed:", error);
+      setSearchResults([]);
+      setErrorData({
+        title: t("fileTableModal.searchFailed"),
+        list: [error instanceof Error ? error.message : String(error)],
+      });
+    }
+  };
+
+  // Wrap navigation functions to clear search when navigating
+  const navigateToFolder = (folder: FileItem) => {
+    clearSearch();
+    originalNavigateToFolder(folder);
+  };
+
+  const navigateToRoot = () => {
+    clearSearch();
+    originalNavigateToRoot();
+  };
+
+  const navigateToPath = (index: number, pathSegments: string[]) => {
+    clearSearch();
+    originalNavigateToPath(index, pathSegments);
+  };
+
+  // Wrap double click to clear search when entering folder
+  const handleRowDblClick = (row: FileItem) => {
+    if (row.type === "folder") {
+      clearSearch();
+    }
+    originalHandleRowDblClick(row);
   };
 
   // Handle batch download
@@ -554,15 +648,20 @@ export const FileTableView = forwardRef<
     );
   };
 
+  // Determine which file list to display (search results or normal file list)
+  const displayFileList = isSearching ? searchResults : fileList;
+
   return (
     <div className="flex h-full w-full flex-col bg-background">
       {/* Navigation bar with actions */}
       <NavBar
+        searchQuery={searchQuery}
         selectedFile={selectedItems[0]}
         selectList={selectedItems}
         onCreate={handleCreateFolder}
         onUpload={handleUpload}
         onUploadFolder={handleUpload}
+        onSearch={handleSearch}
         onDownload={handleBatchDownload}
         onBatchDelete={handleBatchDelete}
       />
@@ -676,7 +775,7 @@ export const FileTableView = forwardRef<
         )}
 
         <CustomTable
-          data={fileList}
+          data={displayFileList}
           columns={columns}
           viewMode={viewMode}
           selectable={selectable}

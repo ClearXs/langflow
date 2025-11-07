@@ -22,6 +22,7 @@ class ETLAPIInputComponent(Component):
     description = i18n.t("components.input_output.api_input.description")
     icon = "globe"
     name = "ETLAPIInput"
+    include_universal_input = True  # Enable universal input for API Input
 
     inputs = [
         MessageTextInput(

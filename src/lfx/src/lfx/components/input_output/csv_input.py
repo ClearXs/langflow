@@ -48,6 +48,7 @@ class ETLCSVInputComponent(Component):
 
     display_name = i18n.t("components.input_output.csv_input.display_name")
     description = i18n.t("components.input_output.csv_input.description")
+    include_universal_input = True  # Enable universal input for CSV Input
     icon = "FileText"
     name = "ETLCSVInput"
 

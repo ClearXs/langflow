@@ -84,7 +84,9 @@ class Edge:
         # Check for permissive mode: Generator outputs can connect to any component
         if self._is_generator_output_permissive(source, target):
             self.valid_handles = True
-            logger.debug(f"Permissive mode: allowing Generator[{source.display_name}] -> {target.display_name} connection")
+            logger.debug(
+                f"Permissive mode: allowing Generator[{source.display_name}] -> {target.display_name} connection"
+            )
             return
 
         if self.target_handle.input_types is None:
@@ -103,7 +105,8 @@ class Edge:
 
         elif self.source_handle.output_types is not None:
             self.valid_handles = (
-                any(output_type in self.target_handle.input_types for output_type in self.source_handle.output_types)
+                not self.target_handle.input_types  # Empty list = accept any type (consistent with loop edges)
+                or any(output_type in self.target_handle.input_types for output_type in self.source_handle.output_types)
                 or self.target_handle.type in self.source_handle.output_types
             )
 
@@ -194,6 +197,25 @@ class Edge:
             self.matched_type = "Data"
             logger.debug(f"Permissive mode edge validation passed: {source.display_name} -> {target.display_name}")
             return
+
+        # Check if target input has accepts_any_type=True (universal input like upstream_data)
+        # If so, skip type validation entirely
+        target_field_name = self.target_handle.field_name
+        if hasattr(target, "data") and "node" in target.data:
+            template = target.data["node"].get("template", {})
+
+            if target_field_name in template:
+                field_template = template[target_field_name]
+                accepts_any = field_template.get("accepts_any_type", False)
+
+                if accepts_any:
+                    self.valid = True
+                    self.matched_type = "Data"  # Set a sensible default type
+                    logger.debug(
+                        f"Skipping type validation for universal input '{target_field_name}' "
+                        f"on {target.display_name} (accepts_any_type=True)"
+                    )
+                    return
 
         # Validate that the outputs of the source node are valid inputs
         # for the target node

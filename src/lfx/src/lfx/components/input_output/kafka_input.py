@@ -30,6 +30,7 @@ class ETLKafkaInputComponent(Component):
     icon = "activity"
     name = "ETLKafkaInput"
     is_streaming_component = True
+    include_universal_input = True  # Enable universal input for Kafka Input
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -41,6 +42,7 @@ class ETLKafkaInputComponent(Component):
         """检测是否在设计时上下文中（字段分析等）"""
         # 方法1: 检查调用栈 - 最可靠的检测方法
         import traceback
+
         stack = traceback.extract_stack()
 
         for i, frame in enumerate(stack):
@@ -61,11 +63,13 @@ class ETLKafkaInputComponent(Component):
         # 如果用户定义了schema，很可能是设计时配置
         if self.message_schema:
             # 检查是否使用了默认/示例配置
-            if (not self.bootstrap_servers or
-                self.bootstrap_servers.strip() == "" or
-                self.bootstrap_servers in ["localhost:9092", "localhost:9093"] or
-                self.bootstrap_servers.startswith("example") or
-                self.topics in ["test-topic", "example-topic", "sample-topic"]):
+            if (
+                not self.bootstrap_servers
+                or self.bootstrap_servers.strip() == ""
+                or self.bootstrap_servers in ["localhost:9092", "localhost:9093"]
+                or self.bootstrap_servers.startswith("example")
+                or self.topics in ["test-topic", "example-topic", "sample-topic"]
+            ):
                 logger.debug("[KafkaInput] Schema with example config detected, assuming design-time")
                 return True
 
@@ -79,9 +83,11 @@ class ETLKafkaInputComponent(Component):
     def _has_valid_runtime_config(self) -> bool:
         """检查是否有有效的运行时配置"""
         # 简单检查：如果有真实的服务器地址和topics，认为是运行时
-        has_server = (self.bootstrap_servers and
-                     self.bootstrap_servers.strip() != "" and
-                     self.bootstrap_servers != "localhost:9092")
+        has_server = (
+            self.bootstrap_servers
+            and self.bootstrap_servers.strip() != ""
+            and self.bootstrap_servers != "localhost:9092"
+        )
         has_topics = self.topics and self.topics.strip() != ""
         return has_server and has_topics
 
@@ -991,10 +997,34 @@ class ETLKafkaInputComponent(Component):
         if not self.message_schema:
             logger.info("[KafkaInput] No schema defined, creating example schema for field discovery")
             self.message_schema = [
-                {"field_name": "id", "field_type": "string", "required": True, "json_path": "", "description": "Unique identifier"},
-                {"field_name": "name", "field_type": "string", "required": True, "json_path": "", "description": "Entity name"},
-                {"field_name": "value", "field_type": "float", "required": False, "json_path": "", "description": "Numeric value"},
-                {"field_name": "timestamp", "field_type": "timestamp", "required": True, "json_path": "", "description": "Event timestamp"}
+                {
+                    "field_name": "id",
+                    "field_type": "string",
+                    "required": True,
+                    "json_path": "",
+                    "description": "Unique identifier",
+                },
+                {
+                    "field_name": "name",
+                    "field_type": "string",
+                    "required": True,
+                    "json_path": "",
+                    "description": "Entity name",
+                },
+                {
+                    "field_name": "value",
+                    "field_type": "float",
+                    "required": False,
+                    "json_path": "",
+                    "description": "Numeric value",
+                },
+                {
+                    "field_name": "timestamp",
+                    "field_type": "timestamp",
+                    "required": True,
+                    "json_path": "",
+                    "description": "Event timestamp",
+                },
             ]
             logger.info(f"[KafkaInput] Created example schema with {len(self.message_schema)} fields")
 
@@ -1023,7 +1053,9 @@ class ETLKafkaInputComponent(Component):
                         logger.debug("[KafkaInput] Skipping empty field name")
                         continue
 
-                logger.debug(f"[KafkaInput] Adding field '{field_name}' with type '{field_type}', required: {is_required}")
+                logger.debug(
+                    f"[KafkaInput] Adding field '{field_name}' with type '{field_type}', required: {is_required}"
+                )
 
                 # Generate sample value based on type
                 if field_type == "string":
@@ -1050,16 +1082,18 @@ class ETLKafkaInputComponent(Component):
                     "id": "sample_id",
                     "name": "sample_name",
                     "value": "sample_value",
-                    "timestamp": "2024-01-01T00:00:00Z"
+                    "timestamp": "2024-01-01T00:00:00Z",
                 }
 
             # Add Kafka metadata
-            sample_data.update({
-                "_kafka_topic": self.topics.split(",")[0] if self.topics else "sample_topic",
-                "_kafka_partition": 0,
-                "_kafka_offset": 0,
-                "_kafka_timestamp": "2024-01-01T00:00:00Z"
-            })
+            sample_data.update(
+                {
+                    "_kafka_topic": self.topics.split(",")[0] if self.topics else "sample_topic",
+                    "_kafka_partition": 0,
+                    "_kafka_offset": 0,
+                    "_kafka_timestamp": "2024-01-01T00:00:00Z",
+                }
+            )
 
             logger.info(f"[KafkaInput] Generated sample data: {sample_data}")
             return [Data(data=sample_data)]
@@ -1069,18 +1103,15 @@ class ETLKafkaInputComponent(Component):
             "_kafka_topic": self.topics.split(",")[0] if self.topics else "sample_topic",
             "_kafka_partition": 0,
             "_kafka_offset": 0,
-            "_kafka_timestamp": "2024-01-01T00:00:00Z"
+            "_kafka_timestamp": "2024-01-01T00:00:00Z",
         }
 
         # Adjust example based on output format
         if self.output_format == "flattened":
             # Flattened example with common fields
-            example_data.update({
-                "id": "sample_id",
-                "name": "sample_name",
-                "value": "sample_value",
-                "timestamp": "2024-01-01T00:00:00Z"
-            })
+            example_data.update(
+                {"id": "sample_id", "name": "sample_name", "value": "sample_value", "timestamp": "2024-01-01T00:00:00Z"}
+            )
             return [Data(data=example_data)]
 
         # Raw structure example

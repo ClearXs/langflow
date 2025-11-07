@@ -20,6 +20,7 @@ class ETLCDCStreamInputComponent(Component):
     icon = "database"
     name = "ETLCDCStreamInput"
     is_streaming_component = True
+    include_universal_input = True  # Enable universal input for CDC Input
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)

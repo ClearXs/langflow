@@ -1,0 +1,87 @@
+{
+  "display_name": "字段类型转换",
+  "description": "转换数据流中的字段数据类型（例如：字符串转整数、整数转浮点数）",
+
+  "data_input": {
+    "display_name": "数据输入",
+    "info": "要转换的输入数据流"
+  },
+
+  "type_conversions": {
+    "display_name": "类型转换配置",
+    "info": "配置字段类型转换规则。点击\"加载字段\"按钮自动分析上游字段。",
+    "field_name": {
+      "display_name": "字段名称",
+      "info": "要转换的字段名称"
+    },
+    "source_type": {
+      "display_name": "源类型",
+      "info": "检测到的字段数据类型"
+    },
+    "target_type": {
+      "display_name": "目标类型",
+      "info": "选择要转换到的目标数据类型"
+    },
+    "conversion_rule": {
+      "display_name": "转换规则",
+      "info": "类型特定规则(可选):\n• datetime: 格式字符串(yyyy-MM-dd、yyyy-MM-dd HH:mm:ss、ISO8601 等)\n• boolean: 逗号分隔的真值列表(如: true,1,yes)\n• integer/float: 留空使用默认转换\n• string: 留空"
+    }
+  },
+
+  "pass_through_unmapped": {
+    "display_name": "透传未配置字段",
+    "info": "将未配置转换的字段原样输出(默认: 是)"
+  },
+
+  "strict_validation": {
+    "display_name": "严格验证",
+    "info": "转换失败时报错。关闭后, 转换失败时保留原值(默认: 是)"
+  },
+
+  "actions": {
+    "load_fields": "加载字段"
+  },
+
+  "rules": {
+    "default": "默认（无转换规则）",
+    "datetime": {
+      "default": "自动检测格式",
+      "yyyy_mm_dd": "YYYY-MM-DD（例如：2024-01-15）",
+      "yyyy_mm_dd_hh_mm_ss": "YYYY-MM-DD HH:mm:ss（例如：2024-01-15 14:30:00）",
+      "yyyy_mm_dd_slash": "YYYY/MM/DD（例如：2024/01/15）",
+      "dd_mm_yyyy": "DD/MM/YYYY（例如：15/01/2024）",
+      "mm_dd_yyyy": "MM/DD/YYYY（例如：01/15/2024）",
+      "iso8601": "ISO8601（例如：2024-01-15T14:30:00）"
+    },
+    "boolean": {
+      "default": "标准（true/false、yes/no、1/0）",
+      "true_values": "真值：true、1、yes",
+      "false_values": "假值：false、0、no"
+    }
+  },
+
+  "outputs": {
+    "data": {
+      "display_name": "转换后数据"
+    }
+  },
+
+  "status": {
+    "detected": "检测到 {count} 个字段",
+    "success": "成功转换 {count} 条记录"
+  },
+
+  "errors": {
+    "no_input": "未提供输入数据",
+    "detection_failed": "类型检测失败: {error}",
+    "conversion_failed": "类型转换失败: {error}",
+    "field_conversion_failed": "第 {row} 行, 字段 '{field}': {error}"
+  },
+
+  "warnings": {
+    "decimal_loss": "可能丢失小数精度",
+    "parse_failure": "非数字字符串可能解析失败",
+    "timezone_loss": "可能丢失时区信息",
+    "information_loss": "转换过程可能丢失信息"
+  }
+}

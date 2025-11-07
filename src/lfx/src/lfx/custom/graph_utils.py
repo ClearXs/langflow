@@ -84,6 +84,15 @@ def find_upstream_node_id(graph_data: dict, target_node_id: str, input_name: str
             f"target={edge.get('target')}, targetHandle={target_handle}"
         )
 
+        # Skip upstream_data connections for field extraction
+        # upstream_data is a universal input for general data flow, not for field analysis
+        if target_handle == "upstream_data":
+            logger.debug(
+                f"[GraphUtils] Skipping upstream_data connection for field extraction. "
+                f"upstream_data is reserved for universal data flow, not field analysis."
+            )
+            continue
+
         # Check if this edge connects to our input
         if target_handle == input_name:
             source_node_id = edge.get("source")

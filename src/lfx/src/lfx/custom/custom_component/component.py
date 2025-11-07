@@ -100,6 +100,48 @@ class Component(CustomComponent):
     outputs: list[Output] = []
     selected_output: str | None = None
     code_class_base_inheritance: ClassVar[str] = "Component"
+    include_universal_input: ClassVar[bool] = False  # Subclasses can set this to True to opt-in
+
+    @classmethod
+    def __init_subclass__(cls, **kwargs):
+        """Automatically inject universal input for components that opt-in.
+
+        This method is called when a subclass of Component is defined. It automatically
+        injects a universal HandleInput that can accept any upstream data type to components
+        that explicitly opt-in by setting include_universal_input = True.
+
+        Subclasses must opt-in by setting include_universal_input = True.
+        """
+        super().__init_subclass__(**kwargs)
+
+        # Check if component opted in to universal input injection
+        if not getattr(cls, "include_universal_input", False):
+            return
+
+        # Process all components that have an inputs attribute
+        if hasattr(cls, "inputs") and isinstance(cls.inputs, list):
+            import i18n
+
+            from lfx.inputs.inputs import HandleInput
+
+            # Check if upstream_data already exists
+            has_upstream = any(hasattr(inp, "name") and inp.name == "upstream_data" for inp in cls.inputs)
+
+            if not has_upstream:
+                # Create a universal input that accepts any upstream type
+                universal_input = HandleInput(
+                    name="upstream_data",
+                    display_name=i18n.t("components.common.upstream_data.display_name"),
+                    info=i18n.t("components.common.upstream_data.info"),
+                    input_types=[],  # Empty list = accept any type
+                    required=False,
+                    show=True,
+                    advanced=False,
+                    accepts_any_type=True,  # Skip type validation for universal input
+                )
+
+                # Append to existing inputs (don't replace)
+                cls.inputs.append(universal_input)
 
     def __init__(self, **kwargs) -> None:
         # Initialize instance-specific attributes first

@@ -462,3 +462,23 @@
     --indigo-foreground: 234.5 89.5% 73.9%;
   }
 }
+
+/* Optional Connections Styles */
+.optional-connections-area {
+  animation: slideDown 0.2s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    max-height: 0;
+  }
+  to {
+    opacity: 1;
+    max-height: 100px;
+  }
+}
+
+.optional-connection-handle:hover {
+  cursor: crosshair;
+}

@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo } from 'react';
 
 /**
  * Simple hook to check if app is running in an iframe
@@ -10,10 +10,10 @@ import { useMemo } from "react";
  * }
  */
 export const useIsEmbedded = (): boolean => {
-  const ref = useUrlParam("ref");
+  const ref = useUrlParam('ref');
   return useMemo(() => {
     try {
-      return ref != undefined && ref === "datasense";
+      return ref != undefined && ref === 'datasense';
     } catch (e) {
       return false;
     }
@@ -31,7 +31,6 @@ export const useUrlParam = (paramName: string): string | null => {
   return useMemo(() => {
     const params = new URLSearchParams(window.location.search);
     const value = params.get(paramName);
-    console.log(`[useUrlParam] ${paramName} = ${value}`);
     return value;
   }, [paramName]);
 };

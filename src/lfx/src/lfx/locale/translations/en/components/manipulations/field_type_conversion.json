@@ -1,0 +1,87 @@
+{
+  "display_name": "Field Type Conversion",
+  "description": "Convert field data types in data streams (e.g., string to integer, integer to float)",
+
+  "data_input": {
+    "display_name": "Data Input",
+    "info": "Input data stream to convert"
+  },
+
+  "type_conversions": {
+    "display_name": "Type Conversions",
+    "info": "Configure field type conversion rules. Click 'Load Fields' to automatically analyze upstream fields.",
+    "field_name": {
+      "display_name": "Field Name",
+      "info": "The name of the field to convert"
+    },
+    "source_type": {
+      "display_name": "Source Type",
+      "info": "Detected data type of the field"
+    },
+    "target_type": {
+      "display_name": "Target Type",
+      "info": "Select the target data type to convert to"
+    },
+    "conversion_rule": {
+      "display_name": "Conversion Rule",
+      "info": "Type-specific rules (optional):\n• datetime: Format string (yyyy-MM-dd, yyyy-MM-dd HH:mm:ss, ISO8601, etc.)\n• boolean: Comma-separated true values (e.g., true,1,yes)\n• integer/float: Leave empty for default conversion\n• string: Leave empty"
+    }
+  },
+
+  "pass_through_unmapped": {
+    "display_name": "Pass Through Unmapped Fields",
+    "info": "Pass through fields not configured for conversion (default: true)"
+  },
+
+  "strict_validation": {
+    "display_name": "Strict Validation",
+    "info": "Fail on conversion errors. If disabled, keeps original value on error (default: true)"
+  },
+
+  "actions": {
+    "load_fields": "Load Fields"
+  },
+
+  "rules": {
+    "default": "Default (no conversion rule)",
+    "datetime": {
+      "default": "Auto-detect format",
+      "yyyy_mm_dd": "YYYY-MM-DD (e.g., 2024-01-15)",
+      "yyyy_mm_dd_hh_mm_ss": "YYYY-MM-DD HH:mm:ss (e.g., 2024-01-15 14:30:00)",
+      "yyyy_mm_dd_slash": "YYYY/MM/DD (e.g., 2024/01/15)",
+      "dd_mm_yyyy": "DD/MM/YYYY (e.g., 15/01/2024)",
+      "mm_dd_yyyy": "MM/DD/YYYY (e.g., 01/15/2024)",
+      "iso8601": "ISO8601 (e.g., 2024-01-15T14:30:00)"
+    },
+    "boolean": {
+      "default": "Standard (true/false, yes/no, 1/0)",
+      "true_values": "True values: true, 1, yes",
+      "false_values": "False values: false, 0, no"
+    }
+  },
+
+  "outputs": {
+    "data": {
+      "display_name": "Converted Data"
+    }
+  },
+
+  "status": {
+    "detected": "Detected {count} fields",
+    "success": "Successfully converted {count} records"
+  },
+
+  "errors": {
+    "no_input": "No input data provided",
+    "detection_failed": "Type detection failed: {error}",
+    "conversion_failed": "Type conversion failed: {error}",
+    "field_conversion_failed": "Row {row}, field '{field}': {error}"
+  },
+
+  "warnings": {
+    "decimal_loss": "May lose decimal precision",
+    "parse_failure": "May fail to parse non-numeric strings",
+    "timezone_loss": "May lose timezone information",
+    "information_loss": "May lose information during conversion"
+  }
+}

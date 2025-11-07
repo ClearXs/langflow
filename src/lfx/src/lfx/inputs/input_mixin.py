@@ -99,6 +99,12 @@ class BaseInputMixin(CrossModuleModel, validate_assignment=True):
     title_case: bool = False
     """Specifies if the field should be displayed in title case. Defaults to True."""
 
+    input_group: str = "default"
+    """Specifies the group this input belongs to for visual organization.
+    - 'default': Regular inputs shown in main area
+    - 'optional_connections': Optional upstream connections shown in compact area
+    Defaults to 'default'."""
+
     def to_dict(self):
         return self.model_dump(exclude_none=True, by_alias=True)
 
@@ -117,6 +123,79 @@ class BaseInputMixin(CrossModuleModel, validate_assignment=True):
             dump["type"] = dump.pop("field_type")
         dump["_input_type"] = self.__class__.__name__
         return dump
+
+    def enable_upstream_connection(
+        self,
+        types: list[str] | str | None = None,
+    ):
+        """Enable upstream connections for this input field.
+
+        This method allows any input field to optionally accept data from upstream components.
+        By default, many input types (like IntInput, DropdownInput) only accept manual input.
+        This method enables them to also receive data from upstream component outputs.
+
+        Args:
+            types: The type(s) to accept from upstream connections.
+                - None: Accept common types ["Data", "Message"] (default)
+                - "any": Accept ANY upstream type (sets input_types to empty list [])
+                - list[str]: Accept specific types (e.g., ["Data", "Message"])
+
+        Returns:
+            Self: Returns self for method chaining.
+
+        Examples:
+            # Accept any type from upstream
+            IntInput(name="count", value=10).enable_upstream_connection("any")
+
+            # Accept specific types
+            DropdownInput(name="model").enable_upstream_connection(["Data"])
+
+            # Accept common types (Data and Message)
+            FloatInput(name="temperature").enable_upstream_connection()
+        """
+        if types == "any":
+            # Empty list = accept any type (permissive mode)
+            self.input_types = []
+        elif types is None:
+            # Default: accept common types
+            self.input_types = ["Data", "Message"]
+        elif isinstance(types, str):
+            # Single type as string
+            self.input_types = [types]
+        else:
+            # Specific list of types
+            self.input_types = types
+        return self
+
+    def disable_upstream_connection(self):
+        """Disable upstream connections for this input field.
+
+        This method reverts the input to manual-only mode, removing the connection handle.
+        For fields that don't support None (like MessageTextInput), this method does nothing
+        to preserve type safety. Use the constructor with appropriate input_types instead.
+
+        Returns:
+            Self: Returns self for method chaining.
+
+        Examples:
+            # For fields that support None (IntInput, FloatInput, etc.)
+            my_input = IntInput(name="count", value=10, input_types=[])
+            my_input.disable_upstream_connection()  # Now manual-only (input_types=None)
+
+            # For fields with fixed input_types (MessageTextInput), use constructor instead
+            my_input = MessageTextInput(name="text")  # Uses default ["Message"]
+        """
+        # Check if the field's input_types annotation allows None
+        # Some classes like MessageTextInput define input_types as list[str] (not nullable)
+        # while BaseInputMixin defines it as list[str] | None
+        try:
+            self.input_types = None
+        except Exception:
+            # If setting to None fails (Pydantic validation error for non-nullable fields),
+            # we cannot disable upstream for this field type
+            # The field should use its constructor defaults instead
+            pass
+        return self
 
 
 class ToolModeMixin(BaseModel):

@@ -229,16 +229,19 @@ class ETLSQLScriptComponent(Component):
             name="execution_summary",
             display_name=i18n.t("components.scripts.sql_script.outputs.execution_summary"),
             method="execute_sql_script",
+            types=["Data"],  # Returns Data object with execution summary
         ),
         Output(
             name="query_results",
             display_name=i18n.t("components.scripts.sql_script.outputs.query_results"),
             method="get_query_results",
+            types=["Data"],  # Returns Data object with query results
         ),
         Output(
             name="total_rows_affected",
             display_name=i18n.t("components.scripts.sql_script.outputs.total_rows_affected"),
             method="get_total_rows_affected",
+            types=["Data"],  # Returns Data object with row count
         ),
     ]
 
@@ -474,12 +477,7 @@ class ETLSQLScriptComponent(Component):
                 params = ds.get("dataSourceParam", {})
                 ds_type = params.get("type") if isinstance(params, dict) else None
                 if not ds_type:
-                    ds_type = (
-                        ds.get("type")
-                        or ds.get("dataSourceType")
-                        or ds.get("dbType")
-                        or "mysql"
-                    )
+                    ds_type = ds.get("type") or ds.get("dataSourceType") or ds.get("dbType") or "mysql"
 
                 display_name = self._build_display_name(ds, "public")
                 all_datasources.append(
@@ -583,12 +581,7 @@ class ETLSQLScriptComponent(Component):
             host = datasource.get("host", "localhost")
             port = datasource.get("port", self._get_default_port(ds_type))
 
-        return {
-            "type": ds_type.lower(),
-            "database": database,
-            "host": host,
-            "port": port
-        }
+        return {"type": ds_type.lower(), "database": database, "host": host, "port": port}
 
     def _get_default_port(self, ds_type: str) -> int:
         """获取数据源的默认端口"""
@@ -598,7 +591,7 @@ class ETLSQLScriptComponent(Component):
             "hive": 10000,
             "neo4j": 7687,
             "oracle": 1521,
-            "sqlserver": 1433
+            "sqlserver": 1433,
         }
         return default_ports.get(ds_type.lower(), 3306)
 
@@ -789,7 +782,9 @@ class ETLSQLScriptComponent(Component):
         else:
             conn_str = f"hive://{host}:{port}/{database}"
 
-        logger.debug(f"[SQLScript] Built Hive connection string (SQLAlchemy format): {conn_str.replace(password, '***')}")
+        logger.debug(
+            f"[SQLScript] Built Hive connection string (SQLAlchemy format): {conn_str.replace(password, '***')}"
+        )
         return conn_str
 
     def _build_neo4j_connection_string(self, params: dict) -> str:
@@ -801,6 +796,7 @@ class ETLSQLScriptComponent(Component):
         if url and url.startswith("bolt://"):
             # 从URL解析连接信息：bolt://host:port
             import re
+
             match = re.match(r"bolt://([^:]+):(\d+)", url)
             if match:
                 host = match.group(1)

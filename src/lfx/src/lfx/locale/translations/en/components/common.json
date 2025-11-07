@@ -1,0 +1,7 @@
+{
+    "upstream_data": {
+        "display_name": "Hook",
+        "info": "Accepts any upstream output type (Message, Data, str, etc.)"
+    },
+    "optional_connections_title": "Optional Upstream Connections"
+}

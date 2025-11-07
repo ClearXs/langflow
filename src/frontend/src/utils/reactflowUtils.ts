@@ -411,7 +411,14 @@ export function isValidConnection(
     return null;
   };
 
+  // Check for universal input (empty input_types array accepts any upstream type)
+  const isUniversalInput =
+    targetHandleObject.inputTypes &&
+    Array.isArray(targetHandleObject.inputTypes) &&
+    targetHandleObject.inputTypes.length === 0;
+
   if (
+    isUniversalInput ||
     targetHandleObject.inputTypes?.some(
       (n) => n === sourceHandleObject.dataType,
     ) ||

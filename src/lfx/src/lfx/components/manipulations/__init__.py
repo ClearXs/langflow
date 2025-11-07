@@ -3,11 +3,12 @@
 from importlib import import_module
 
 _dynamic_imports = {
-    "ETLFieldNameMappingComponent": "field_name_mapping",
-    "ETLFieldValueMergeComponent": "field_value_merge",
-    "ETLFieldValueMappingComponent": "field_value_mapping",
     "ETLDataCleaningComponent": "data_cleaning",
+    "ETLFieldNameMappingComponent": "field_name_mapping",
     "ETLFieldSplitComponent": "field_split",
+    "ETLFieldTypeConversion": "field_type_conversion",
+    "ETLFieldValueMappingComponent": "field_value_mapping",
+    "ETLFieldValueMergeComponent": "field_value_merge",
 }
 
 

@@ -621,10 +621,25 @@ class Vertex:
                 if value == self:
                     del self.params[key]
                     continue
-                await self._build_vertex_and_update_params(
-                    key,
-                    value,
-                )
+
+                # Special handling for upstream_data: it's optional and may not be built yet
+                if key == "upstream_data":
+                    try:
+                        await self._build_vertex_and_update_params(key, value)
+                    except ValueError as e:
+                        if "has not been built yet" in str(e):
+                            # upstream_data is optional, set to None if dependency not built
+                            await logger.adebug(
+                                f"[BUILD] upstream_data dependency not built yet, setting to None (design-time context)"
+                            )
+                            self.params[key] = None
+                        else:
+                            raise
+                else:
+                    await self._build_vertex_and_update_params(
+                        key,
+                        value,
+                    )
             elif isinstance(value, list) and self._is_list_of_vertices(value):
                 await logger.adebug(f"[BUILD] {key} is a list of Vertices")
                 await self._build_list_of_vertices_and_update_params(key, value)

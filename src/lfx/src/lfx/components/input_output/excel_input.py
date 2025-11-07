@@ -39,6 +39,7 @@ class ETLExcelInputComponent(Component):
     description = i18n.t("components.input_output.excel_input.description")
     icon = "FileSpreadsheet"
     name = "ETLExcelInput"
+    include_universal_input = True  # Enable universal input for Excel Input
 
     inputs = [
         FileInput(

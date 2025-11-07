@@ -79,10 +79,12 @@ class HandleInput(BaseInputMixin, ListableInputMixin, MetadataTraceMixin):
     Attributes:
         input_types (list[str]): A list of input types.
         field_type (SerializableFieldTypes): The field type of the input.
+        accepts_any_type (bool): If True, this input accepts any type without validation.
     """
 
     input_types: list[str] = Field(default_factory=list)
     field_type: SerializableFieldTypes = FieldTypes.OTHER
+    accepts_any_type: bool = Field(default=False, description="Skip type validation for this input")
 
 
 class ToolsInput(BaseInputMixin, ListableInputMixin, MetadataTraceMixin, ToolModeMixin):
@@ -105,13 +107,77 @@ class DataInput(HandleInput, InputTraceMixin, ListableInputMixin, ToolModeMixin)
 
     Attributes:
         input_types (list[str]): A list of input types supported by this data input.
+            Defaults to ["Data"]. Can be overridden to accept other types or empty list for any type.
     """
 
     input_types: list[str] = ["Data"]
 
+    def __init__(
+        self,
+        name: str,
+        display_name: str | None = None,
+        input_types: list[str] | None = None,
+        **kwargs,
+    ):
+        """Initialize DataInput with optional input_types override.
+
+        Args:
+            name: The name of the input field.
+            display_name: The display name shown in the UI.
+            input_types: List of accepted input types. If None, defaults to ["Data"].
+                Use [] (empty list) to accept any upstream type.
+                Use specific types like ["Data", "Message"] to accept only those types.
+            **kwargs: Additional arguments passed to parent classes.
+        """
+        # Preserve default if not specified
+        if input_types is None:
+            input_types = ["Data"]
+
+        super().__init__(
+            name=name,
+            display_name=display_name,
+            input_types=input_types,
+            **kwargs,
+        )
+
 
 class DataFrameInput(HandleInput, InputTraceMixin, ListableInputMixin, ToolModeMixin):
+    """Represents an Input that has a Handle that receives a DataFrame object.
+
+    Attributes:
+        input_types (list[str]): A list of input types supported by this DataFrame input.
+            Defaults to ["DataFrame"]. Can be overridden to accept other types or empty list for any type.
+    """
+
     input_types: list[str] = ["DataFrame"]
+
+    def __init__(
+        self,
+        name: str,
+        display_name: str | None = None,
+        input_types: list[str] | None = None,
+        **kwargs,
+    ):
+        """Initialize DataFrameInput with optional input_types override.
+
+        Args:
+            name: The name of the input field.
+            display_name: The display name shown in the UI.
+            input_types: List of accepted input types. If None, defaults to ["DataFrame"].
+                Use [] (empty list) to accept any upstream type.
+                Use specific types like ["DataFrame", "Data"] to accept only those types.
+            **kwargs: Additional arguments passed to parent classes.
+        """
+        # Preserve default if not specified
+        if input_types is None:
+            input_types = ["DataFrame"]
+
+        super().__init__(
+            name=name,
+            display_name=display_name,
+            input_types=input_types,
+            **kwargs,
+        )
 
 
 class PromptInput(BaseInputMixin, ListableInputMixin, InputTraceMixin, ToolModeMixin):
@@ -196,7 +262,42 @@ class StrInput(
 
 
 class MessageInput(StrInput, InputTraceMixin):
+    """Represents an Input that receives a Message object.
+
+    Attributes:
+        input_types (list[str]): A list of input types supported by this Message input.
+            Defaults to ["Message"]. Can be overridden to accept other types or empty list for any type.
+    """
+
     input_types: list[str] = ["Message"]
+
+    def __init__(
+        self,
+        name: str,
+        display_name: str | None = None,
+        input_types: list[str] | None = None,
+        **kwargs,
+    ):
+        """Initialize MessageInput with optional input_types override.
+
+        Args:
+            name: The name of the input field.
+            display_name: The display name shown in the UI.
+            input_types: List of accepted input types. If None, defaults to ["Message"].
+                Use [] (empty list) to accept any upstream type.
+                Use specific types like ["Message", "Data"] to accept only those types.
+            **kwargs: Additional arguments passed to parent classes.
+        """
+        # Preserve default if not specified
+        if input_types is None:
+            input_types = ["Message"]
+
+        super().__init__(
+            name=name,
+            display_name=display_name,
+            input_types=input_types,
+            **kwargs,
+        )
 
     @staticmethod
     def _validate_value(v: Any, _info):
@@ -224,10 +325,38 @@ class MessageTextInput(StrInput, MetadataTraceMixin, InputTraceMixin, ToolModeMi
 
     Attributes:
         input_types (list[str]): A list of input types that this component supports.
-            In this case, it supports the "Message" input type.
+            Defaults to ["Message"]. Can be overridden to accept other types or empty list for any type.
     """
 
     input_types: list[str] = ["Message"]
+
+    def __init__(
+        self,
+        name: str,
+        display_name: str | None = None,
+        input_types: list[str] | None = None,
+        **kwargs,
+    ):
+        """Initialize MessageTextInput with optional input_types override.
+
+        Args:
+            name: The name of the input field.
+            display_name: The display name shown in the UI.
+            input_types: List of accepted input types. If None, defaults to ["Message"].
+                Use [] (empty list) to accept any upstream type.
+                Use specific types like ["Message", "Data"] to accept only those types.
+            **kwargs: Additional arguments passed to parent classes.
+        """
+        # Preserve default if not specified
+        if input_types is None:
+            input_types = ["Message"]
+
+        super().__init__(
+            name=name,
+            display_name=display_name,
+            input_types=input_types,
+            **kwargs,
+        )
 
     @staticmethod
     def _validate_value(v: Any, info):
@@ -304,13 +433,43 @@ class SecretStrInput(BaseInputMixin, DatabaseLoadMixin):
     Attributes:
         field_type (SerializableFieldTypes): The field type of the input. Defaults to `FieldTypes.PASSWORD`.
         password (CoalesceBool): A boolean indicating whether the input is a password. Defaults to `True`.
-        input_types (list[str]): A list of input types associated with this input. Defaults to an empty list.
+        input_types (list[str]): A list of input types associated with this input.
+            Defaults to [] (empty list, no upstream connections for security).
+            Can be overridden if needed, but use with caution for security-sensitive fields.
     """
 
     field_type: SerializableFieldTypes = FieldTypes.PASSWORD
     password: CoalesceBool = Field(default=True)
     input_types: list[str] = []
     load_from_db: CoalesceBool = True
+
+    def __init__(
+        self,
+        name: str,
+        display_name: str | None = None,
+        input_types: list[str] | None = None,
+        **kwargs,
+    ):
+        """Initialize SecretStrInput with optional input_types override.
+
+        Args:
+            name: The name of the input field.
+            display_name: The display name shown in the UI.
+            input_types: List of accepted input types. If None, defaults to [] (no upstream connections).
+                SECURITY WARNING: Allowing upstream connections to secret fields may expose sensitive data.
+                Only override if you understand the security implications.
+            **kwargs: Additional arguments passed to parent classes.
+        """
+        # Preserve default (empty list = no upstream) if not specified
+        if input_types is None:
+            input_types = []
+
+        super().__init__(
+            name=name,
+            display_name=display_name,
+            input_types=input_types,
+            **kwargs,
+        )
 
     @field_validator("value")
     @classmethod

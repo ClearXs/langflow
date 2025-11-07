@@ -13,6 +13,7 @@ class ETLQualityModelComponent(Component):
     description = i18n.t("components.quality.quality_model.description")
     icon = "shield-check"
     name = "ETLQualityModel"
+    include_universal_input = True  # Enable universal input for Quality Model
 
     inputs = [
         DropdownInput(
@@ -75,7 +76,8 @@ class ETLQualityModelComponent(Component):
                     return build_config
 
                 # Filter and transform manual execution mode models to dropdown options
-                manual_models = self._filter_manual_models(models)
+                # manual_models = self._filter_manual_models(models)
+                manual_models = models
 
                 if manual_models:
                     # Transform to dropdown options (simple string array for display)

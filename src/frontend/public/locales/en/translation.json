@@ -50,6 +50,7 @@
     "language": "Language",
     "english": "English",
     "chinese": "中文",
+    "optional_connections": "Optional Upstream Connections",
     "folder": "Folder",
     "file": "File",
     "size": "Size",

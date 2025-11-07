@@ -96,6 +96,8 @@ class ETLTableOutputComponent(Component):
                     "display_name": i18n.t("components.input_output.table_output.field_mappings.data_type"),
                     "type": "str",
                     "disable_edit": True,
+                    "formatter": "code",
+                    "translate_value": False,
                 },
                 {
                     "name": "update_option",
@@ -427,14 +429,33 @@ class ETLTableOutputComponent(Component):
                         # 获取数据源信息以判断是否为公共数据源
                         datasource_info = None
                         for metadata in options_metadata:
-                            if metadata.get("display_name") == current_datasource:
+                            # 使用 value 或 id 字段匹配，而不是 display_name
+                            if metadata.get("value") == current_datasource or metadata.get("id") == current_datasource:
                                 datasource_info = metadata
                                 break
 
-                        # 公共数据源不支持列加载，跳过
+                        # 公共数据源：直接通过连接字符串查询列
                         if datasource_info and datasource_info.get("source") == "public":
-                            logger.info("[TableOutput] Skipping column loading for public datasource")
+                            logger.info(f"[TableOutput] Loading columns for public datasource table: {current_table}")
+                            try:
+                                columns = self._load_public_datasource_columns(datasource_info, current_table)
+                                if columns:
+                                    target_field_names = [col["name"] for col in columns]
+
+                                    # Find the target_field column in table_schema
+                                    for schema_col in build_config["field_mappings"]["table_schema"]:
+                                        if schema_col["name"] == "target_field":
+                                            schema_col["options"] = target_field_names
+                                            logger.debug(
+                                                f"[TableOutput] Updated target_field options: {target_field_names[:5]}..."
+                                            )
+                                            break
+                                else:
+                                    logger.warning("[TableOutput] No columns found for public datasource table")
+                            except Exception as e:
+                                logger.error(f"[TableOutput] Failed to load columns from public datasource: {e}")
                         else:
+                            # 内置数据源：使用 UUID API
                             # Load columns for the target table
                             # 提取纯UUID（移除可能的前缀）
                             clean_datasource_id = self._extract_uuid_from_id(datasource_id)
@@ -785,6 +806,69 @@ class ETLTableOutputComponent(Component):
         finally:
             if "driver" in locals():
                 driver.close()
+
+    def _load_public_datasource_columns(self, datasource_info: dict, table_name: str) -> list[dict]:
+        """为公共数据源加载表的列信息，直接通过连接信息查询数据库"""
+        from sqlalchemy import create_engine, inspect
+        from sqlalchemy.pool import NullPool
+
+        raw_data = datasource_info.get("raw_data", datasource_info)
+        connection_string = self._build_public_connection_string(raw_data)
+
+        # Get datasource type
+        params = raw_data.get("dataSourceParam", {})
+        ds_type = params.get("type") if isinstance(params, dict) else None
+        if not ds_type:
+            ds_type = raw_data.get("type") or "mysql"
+        ds_type = ds_type.lower()
+
+        # Neo4j special handling - return property keys from sample nodes
+        if ds_type == "neo4j":
+            return self._load_neo4j_columns(raw_data, table_name)
+
+        # Other databases use SQLAlchemy
+        engine = create_engine(connection_string, poolclass=NullPool)
+        try:
+            inspector = inspect(engine)
+            columns = inspector.get_columns(table_name)
+            # Convert to format expected by frontend: [{"name": "col1", "type": "varchar"}, ...]
+            return [{"name": col["name"], "type": str(col["type"])} for col in columns]
+        finally:
+            engine.dispose()
+
+    def _load_neo4j_columns(self, raw_data: dict, label: str) -> list[dict]:
+        """为Neo4j公共数据源加载节点属性列表"""
+        from neo4j import GraphDatabase
+
+        params = raw_data.get("dataSourceParam", {})
+        url = params.get("url", "")
+        if url and url.startswith("bolt://"):
+            uri = url
+        else:
+            host = params.get("host", "localhost")
+            port = params.get("port", 7687)
+            uri = f"bolt://{host}:{port}"
+
+        username = params.get("username", "neo4j")
+        password = params.get("password", "")
+        database = params.get("database", "neo4j")
+
+        driver = GraphDatabase.driver(uri, auth=(username, password))
+        try:
+            with driver.session(database=database) as session:
+                # Get all property keys for nodes with this label
+                query = f"""
+                MATCH (n:{label})
+                UNWIND keys(n) AS key
+                RETURN DISTINCT key AS name, 'string' AS type
+                LIMIT 100
+                """
+                result = session.run(query)
+                columns = [{"name": record["name"], "type": record["type"]} for record in result]
+                logger.info(f"[TableOutput] Loaded {len(columns)} properties for Neo4j label '{label}'")
+                return columns
+        finally:
+            driver.close()
 
     def _extract_uuid_from_id(self, datasource_id: str) -> str:
         """从数据源ID中提取纯UUID，移除可能的前缀"""
@@ -1578,7 +1662,7 @@ class ETLTableOutputComponent(Component):
                 result_data = Data(data=result_info)
                 self._last_write_result = result_data
                 return result_data
-            elif is_hive:
+            if is_hive:
                 # 使用Hive专用写入方法
                 logger.info("[TableOutput] Detected Hive datasource, using Hive-specific write method")
                 rows_written = self._write_to_hive(connection_string, df)

@@ -51,25 +51,24 @@ def _serialize_neo4j_value(value):
         module_name = getattr(value.__class__, "__module__", "")
 
         # 检查是否是Neo4j对象（通过类名或模块名）
-        is_neo4j_object = ("neo4j" in module_name.lower() or
-                          class_name in ["Node", "Relationship", "Path", "Record"])
+        is_neo4j_object = "neo4j" in module_name.lower() or class_name in ["Node", "Relationship", "Path", "Record"]
 
         if is_neo4j_object:
             # Neo4j Node对象
-            if (class_name == "Node" or
-                (hasattr(value, "labels") and hasattr(value, "properties"))):
+            if class_name == "Node" or (hasattr(value, "labels") and hasattr(value, "properties")):
                 node_data = {
                     "_type": "Node",
                     "labels": list(value.labels) if hasattr(value, "labels") else [],
-                    "properties": dict(value.properties) if hasattr(value, "properties") else {}
+                    "properties": dict(value.properties) if hasattr(value, "properties") else {},
                 }
                 if hasattr(value, "element_id"):
                     node_data["_element_id"] = str(value.element_id)
                 return {"value": node_data}
 
             # Neo4j Relationship对象
-            if (class_name == "Relationship" or
-                  (hasattr(value, "type") and hasattr(value, "start_node") and hasattr(value, "end_node"))):
+            if class_name == "Relationship" or (
+                hasattr(value, "type") and hasattr(value, "start_node") and hasattr(value, "end_node")
+            ):
                 rel_data = {
                     "_type": "Relationship",
                     "type": str(value.type) if hasattr(value, "type") else "",
@@ -101,6 +100,7 @@ def _serialize_neo4j_value(value):
 
         # 普通复牚对象（字典、列表等），直接JSON序列化
         import json
+
         json_str = json.dumps(value, ensure_ascii=False)
         # 限制长度避免UI问题
         if len(json_str) > 500:
@@ -170,6 +170,7 @@ def _convert_neo4j_record_to_table_format(record):
     try:
         # Convert the entire record to JSON string
         import json
+
         json_str = json.dumps(record_dict, ensure_ascii=False, default=str)
 
         # Wrap in single-field format for table display
@@ -189,6 +190,7 @@ class ETLTableInputComponent(Component):
     description = i18n.t("components.input_output.table_input.description")
     icon = "database"
     name = "ETLTableInput"
+    include_universal_input = True  # Enable universal input for Table Input
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -234,6 +236,8 @@ class ETLTableInputComponent(Component):
                     "display_name": i18n.t("components.input_output.table_input.field_mappings.data_type"),
                     "type": "str",
                     "disable_edit": True,  # 只读
+                    "formatter": "code",
+                    "translate_value": False,
                 },
                 {
                     "name": "null_value",
@@ -729,12 +733,7 @@ class ETLTableInputComponent(Component):
                 params = ds.get("dataSourceParam", {})
                 ds_type = params.get("type") if isinstance(params, dict) else None
                 if not ds_type:
-                    ds_type = (
-                        ds.get("type")
-                        or ds.get("dataSourceType")
-                        or ds.get("dbType")
-                        or "mysql"
-                    )
+                    ds_type = ds.get("type") or ds.get("dataSourceType") or ds.get("dbType") or "mysql"
 
                 display_name = self._build_display_name(ds, "public")
                 all_datasources.append(
@@ -862,12 +861,7 @@ class ETLTableInputComponent(Component):
             host = datasource.get("host", "localhost")
             port = datasource.get("port", self._get_default_port(ds_type))
 
-        return {
-            "type": ds_type.lower(),
-            "database": database,
-            "host": host,
-            "port": port
-        }
+        return {"type": ds_type.lower(), "database": database, "host": host, "port": port}
 
     def _get_default_port(self, ds_type: str) -> int:
         """获取数据源的默认端口"""
@@ -877,7 +871,7 @@ class ETLTableInputComponent(Component):
             "hive": 10000,
             "neo4j": 7687,
             "oracle": 1521,
-            "sqlserver": 1433
+            "sqlserver": 1433,
         }
         return default_ports.get(ds_type.lower(), 3306)
 
@@ -1142,7 +1136,9 @@ class ETLTableInputComponent(Component):
             else:
                 conn_str = f"hive://{host}:{port}/{database}"
 
-            logger.debug(f"[TableInput] Built Hive connection string (SQLAlchemy format): {conn_str.replace(password, '***')}")
+            logger.debug(
+                f"[TableInput] Built Hive connection string (SQLAlchemy format): {conn_str.replace(password, '***')}"
+            )
             return conn_str
 
         # 其他数据源类型的连接字符串构建（MySQL, PostgreSQL等）
@@ -1181,6 +1177,7 @@ class ETLTableInputComponent(Component):
             url = params.get("url", "")
             if url and url.startswith("bolt://"):
                 import re
+
                 match = re.match(r"bolt://([^:]+):(\d+)", url)
                 if match:
                     host = match.group(1)
@@ -1345,10 +1342,11 @@ class ETLTableInputComponent(Component):
             # 查找匹配的数据源 - 支持display_name或直接的ID
             for ds in all_datasources:
                 # 尝试匹配display_name、id或value
-                if (ds["display_name"] == self.datasource_selector or
-                    ds["id"] == self.datasource_selector or
-                    ds.get("value") == self.datasource_selector):
-
+                if (
+                    ds["display_name"] == self.datasource_selector
+                    or ds["id"] == self.datasource_selector
+                    or ds.get("value") == self.datasource_selector
+                ):
                     datasource_id = ds["id"]
                     source = ds["source"]
 

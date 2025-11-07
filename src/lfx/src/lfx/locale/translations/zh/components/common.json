@@ -1,0 +1,7 @@
+{
+    "upstream_data": {
+        "display_name": "挂接",
+        "info": "可以接收任何类型的上游输出（Message、Data、str等）"
+    },
+    "optional_connections_title": "可选上游连接"
+}
