@@ -41,7 +41,10 @@ export const useGetRefreshFlowsQuery: useQueryFunctionType<
     params: GetFlowsParams,
   ): Promise<FlowType[] | PaginatedFlowsType> => {
     try {
-      const url = addQueryParams(`${getURL("FLOWS")}/`, params);
+      const url = addQueryParams(`${getURL("FLOWS")}/`, {
+        ...params,
+        header_flows: true,
+      });
       const { data: dbDataFlows } = await api.get<FlowType[]>(url);
 
       if (params.components_only) {
@@ -52,6 +55,7 @@ export const useGetRefreshFlowsQuery: useQueryFunctionType<
         addQueryParams(`${getURL("FLOWS")}/`, {
           components_only: true,
           get_all: true,
+          header_flows: true,
         }),
       );
 

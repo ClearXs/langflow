@@ -309,18 +309,40 @@ const useFlowStore = create<FlowStoreType>((set, get) => ({
   setNodes: (change) => {
     const newChange =
       typeof change === "function" ? change(get().nodes) : change;
-    const newEdges = cleanEdges(newChange, get().edges);
-    const { inputs, outputs } = getInputsAndOutputs(newChange);
-    get().updateComponentsToUpdate(newChange);
+
+    // Immediately update nodes for fast UI response
     set({
-      edges: newEdges,
       nodes: newChange,
       flowState: undefined,
-      inputs,
-      outputs,
-      hasIO: inputs.length > 0 || outputs.length > 0,
     });
-    get().updateCurrentFlow({ nodes: newChange, edges: newEdges });
+
+    // Defer expensive computations to idle time
+    if (typeof requestIdleCallback !== 'undefined') {
+      requestIdleCallback(() => {
+        const newEdges = cleanEdges(newChange, get().edges);
+        const { inputs, outputs } = getInputsAndOutputs(newChange);
+        get().updateComponentsToUpdate(newChange);
+        set({
+          edges: newEdges,
+          inputs,
+          outputs,
+          hasIO: inputs.length > 0 || outputs.length > 0,
+        });
+      });
+    } else {
+      // Fallback for browsers without requestIdleCallback (e.g., Safari)
+      const newEdges = cleanEdges(newChange, get().edges);
+      const { inputs, outputs } = getInputsAndOutputs(newChange);
+      get().updateComponentsToUpdate(newChange);
+      set({
+        edges: newEdges,
+        inputs,
+        outputs,
+        hasIO: inputs.length > 0 || outputs.length > 0,
+      });
+    }
+
+    get().updateCurrentFlow({ nodes: newChange });
     if (get().autoSaveFlow) {
       get().autoSaveFlow!();
     }
