@@ -80,42 +80,59 @@ class ETLFlinkJobComponent(Component):
             required=True,
             advanced=False,
             language="python",
-            value="""from pyflink.datastream import StreamExecutionEnvironment
-from pyflink.table import StreamTableEnvironment
+            value="""# Word Count Example - PyFlink 1.9.3 (Batch Processing)
+from pyflink.dataset import ExecutionEnvironment
+from pyflink.table import TableConfig, BatchTableEnvironment
 
-# Create execution environment
-env = StreamExecutionEnvironment.get_execution_environment()
-env.set_parallelism(1)
-t_env = StreamTableEnvironment.create(env)
+# 创建批处理环境
+exec_env = ExecutionEnvironment.get_execution_environment()
+exec_env.set_parallelism(1)
+t_config = TableConfig()
+t_env = BatchTableEnvironment.create(exec_env, t_config)
 
-# Create source table
-t_env.execute_sql('''
-    CREATE TABLE source_table (
-        id BIGINT,
-        data STRING
-    ) WITH (
-        'connector' = 'datagen',
-        'number-of-rows' = '10'
+# 创建源表（文件系统 CSV）- 需要预先创建 /tmp/input.csv 文件
+# 文件内容示例（每行一个单词）：
+# hello
+# world
+# hello
+# flink
+# world
+my_source_ddl = \"\"\"
+    create table mySource (
+        word VARCHAR
+    ) with (
+        'connector.type' = 'filesystem',
+        'format.type' = 'csv',
+        'connector.path' = '/tmp/input.csv'
     )
-''')
+\"\"\"
 
-# Create sink table
-t_env.execute_sql('''
-    CREATE TABLE sink_table (
-        id BIGINT,
-        data STRING
-    ) WITH (
-        'connector' = 'print'
+# 创建目标表（文件系统 CSV）
+my_sink_ddl = \"\"\"
+    create table mySink (
+        word VARCHAR,
+        `count` BIGINT
+    ) with (
+        'connector.type' = 'filesystem',
+        'format.type' = 'csv',
+        'connector.path' = '/tmp/output.csv'
     )
-''')
+\"\"\"
 
-# Execute query
-t_env.execute_sql('''
-    INSERT INTO sink_table
-    SELECT * FROM source_table
-''').wait()
+# 注册表
+t_env.sql_update(my_source_ddl)
+t_env.sql_update(my_sink_ddl)
 
-print("Job completed successfully!")
+# 执行 word count：扫描源表，按单词分组，统计数量
+t_env.scan('mySource') \\
+    .group_by('word') \\
+    .select('word, count(1) as count') \\
+    .insert_into('mySink')
+
+# 执行作业
+t_env.execute("word_count_job")
+
+print("Word count job completed! Check /tmp/output.csv for results.")
 """,
         ),
         IntInput(
@@ -338,7 +355,7 @@ print("Job completed successfully!")
         return "".join(parts)
 
     def _find_datasource_by_id(self, datasource_id: str) -> dict | None:
-        """Find datasource in cached options_metadata by id, value, label, or display_name."""
+        """Find datasource in cached options_metadata."""
         try:
             # Access cached metadata from update_build_config
             if hasattr(self, "_input_dict") and self._input_dict:
@@ -347,12 +364,7 @@ print("Job completed successfully!")
                     options_metadata = flink_datasource_input.options_metadata
                     if options_metadata:
                         for ds in options_metadata:
-                            # Try to match by id, value, label, or display_name
-                            if (str(ds.get("id")) == str(datasource_id) or
-                                str(ds.get("value")) == str(datasource_id) or
-                                str(ds.get("label")) == str(datasource_id) or
-                                str(ds.get("display_name")) == str(datasource_id)):
-                                logger.debug(f"[FlinkJob] Found datasource by matching: {datasource_id}")
+                            if str(ds.get("id")) == str(datasource_id):
                                 return ds
         except Exception as e:
             logger.error(f"[FlinkJob] Failed to find datasource in metadata: {e}")
@@ -599,10 +611,11 @@ print("Job completed successfully!")
 
             # Try to use PyFlink with remote cluster configuration
             import os
+            import tempfile
             from pyflink.datastream import StreamExecutionEnvironment
             from pyflink.table import EnvironmentSettings, StreamTableEnvironment
 
-            # 配置远程集群（通过环境变量）
+            # 配置远程集群（创建临时配置文件）
             has_remote_config = conn_info.get("jobmanager_host") and (
                 conn_info.get("jobmanager_port") or conn_info.get("rest_port")
             )
@@ -612,35 +625,57 @@ print("Job completed successfully!")
                 jobmanager_port = conn_info.get("jobmanager_port", 6123)
                 rest_port = conn_info.get("rest_port", 8081)
 
-                # 设置环境变量配置远程集群（PyFlink 1.9.3 方式）
-                os.environ["FLINK_CONF_DIR"] = "/tmp"  # Placeholder
-                os.environ["jobmanager.rpc.address"] = jobmanager_host
-                os.environ["jobmanager.rpc.port"] = str(jobmanager_port)
-                os.environ["rest.address"] = jobmanager_host
-                os.environ["rest.port"] = str(rest_port)
+                # 创建临时配置目录
+                flink_conf_dir = tempfile.mkdtemp(prefix="flink_conf_")
+
+                # 创建 flink-conf.yaml
+                flink_conf_content = f"""jobmanager.rpc.address: {jobmanager_host}
+jobmanager.rpc.port: {jobmanager_port}
+rest.address: {jobmanager_host}
+rest.port: {rest_port}
+"""
+                flink_conf_path = os.path.join(flink_conf_dir, "flink-conf.yaml")
+                with open(flink_conf_path, 'w') as f:
+                    f.write(flink_conf_content)
+
+                # 创建简单的 log4j.properties 以避免警告
+                log4j_content = """log4j.rootLogger=WARN, console
+log4j.appender.console=org.apache.log4j.ConsoleAppender
+log4j.appender.console.layout=org.apache.log4j.PatternLayout
+log4j.appender.console.layout.ConversionPattern=%d{yyyy-MM-dd HH:mm:ss} %-5p %c{1}:%L - %m%n
+"""
+                log4j_path = os.path.join(flink_conf_dir, "log4j-cli.properties")
+                with open(log4j_path, 'w') as f:
+                    f.write(log4j_content)
+
+                # 设置环境变量
+                os.environ["FLINK_CONF_DIR"] = flink_conf_dir
 
                 logger.info(
                     f"[FlinkJob] Configured remote Flink cluster: "
-                    f"rpc={jobmanager_host}:{jobmanager_port}, rest={jobmanager_host}:{rest_port}"
+                    f"rpc={jobmanager_host}:{jobmanager_port}, rest={jobmanager_host}:{rest_port}, conf_dir={flink_conf_dir}"
                 )
             else:
                 logger.info("[FlinkJob] No remote cluster configuration, using local execution mode")
 
-            # 创建 StreamExecutionEnvironment
-            env = StreamExecutionEnvironment.get_execution_environment()
-            env.set_parallelism(parallelism)
+            # 不预先创建环境，让用户脚本完全控制
+            # 只提供必要的导入和类，让用户脚本自己决定使用 Batch 还是 Streaming
 
-            # 创建 TableEnvironment
-            env_settings = EnvironmentSettings.new_instance().in_streaming_mode().build()
-            t_env = StreamTableEnvironment.create(stream_execution_environment=env, environment_settings=env_settings)
+            # Import all necessary PyFlink modules for user script
+            from pyflink.dataset import ExecutionEnvironment
+            from pyflink.table import TableConfig, BatchTableEnvironment, EnvironmentSettings
 
             # 6. Execute Python script in a controlled environment
-            # Make env and t_env available to user script
+            # Provide all PyFlink classes and modules to user script
             exec_globals = {
-                "env": env,
-                "t_env": t_env,
+                # DataStream API
                 "StreamExecutionEnvironment": StreamExecutionEnvironment,
                 "StreamTableEnvironment": StreamTableEnvironment,
+                "EnvironmentSettings": EnvironmentSettings,
+                # Batch API
+                "ExecutionEnvironment": ExecutionEnvironment,
+                "BatchTableEnvironment": BatchTableEnvironment,
+                "TableConfig": TableConfig,
             }
 
             # Capture output

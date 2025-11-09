@@ -87,9 +87,20 @@ function GenericNode({
   const updateNodeInternals = useUpdateNodeInternals();
   const setErrorData = useAlertStore((state) => state.setErrorData);
   const takeSnapshot = useFlowsManagerStore((state) => state.takeSnapshot);
-  const edges = useFlowStore((state) => state.edges);
+
+  // Get all edges from store
+  const allEdges = useFlowStore((state) => state.edges);
+
+  // Filter edges related to this node using useMemo to avoid creating new array on every render
+  const edges = useMemo(
+    () => allEdges.filter(
+      (edge) => edge.source === data.id || edge.target === data.id,
+    ),
+    [allEdges, data.id]
+  );
+
   const setEdges = useFlowStore((state) => state.setEdges);
-  const shortcuts = useShortcutsStore((state) => state.shortcuts);
+  const shortcuts = useShortcutsStore(useShallow((state) => state.shortcuts));
   const buildStatus = useBuildStatus(data, data.id);
   const dismissedNodes = useFlowStore((state) => state.dismissedNodes);
   const addDismissedNodes = useFlowStore((state) => state.addDismissedNodes);

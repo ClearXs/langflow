@@ -16,6 +16,14 @@ const defaultOptions: UseUndoRedoOptions = {
 const past = {};
 const future = {};
 
+// Fast hash function for quick state comparison
+const fastHash = (nodes: any[], edges: any[]) => {
+  return `${nodes.length}-${edges.length}-${nodes.map(n => n.id).join(',')}-${edges.map(e => e.id).join(',')}`;
+};
+
+// Store last hash to avoid redundant snapshots
+const lastSnapshotHash: Record<string, string> = {};
+
 const useFlowsManagerStore = create<FlowsManagerStoreType>((set, get) => ({
   IOModalOpen: false,
   setIOModalOpen: (IOModalOpen: boolean) => {
@@ -60,17 +68,32 @@ const useFlowsManagerStore = create<FlowsManagerStoreType>((set, get) => ({
     const currentFlowId = get().currentFlowId;
     // push the current graph to the past state
     const flowStore = useFlowStore.getState();
+
+    // Fast hash-based early exit - avoid expensive cloneDeep if state hasn't changed
+    const currentHash = fastHash(flowStore.nodes, flowStore.edges);
+    if (lastSnapshotHash[currentFlowId] === currentHash) {
+      return; // Skip snapshot if state is identical
+    }
+
     const newState = {
       nodes: cloneDeep(flowStore.nodes),
       edges: cloneDeep(flowStore.edges),
     };
     const pastLength = past[currentFlowId]?.length ?? 0;
-    if (
-      pastLength > 0 &&
-      JSON.stringify(past[currentFlowId][pastLength - 1]) ===
-        JSON.stringify(newState)
-    )
-      return;
+
+    // Deep comparison only if hash is different but we have history
+    if (pastLength > 0) {
+      // Use faster comparison - check node/edge counts first
+      const lastState = past[currentFlowId][pastLength - 1];
+      if (
+        lastState.nodes.length === newState.nodes.length &&
+        lastState.edges.length === newState.edges.length &&
+        JSON.stringify(lastState) === JSON.stringify(newState)
+      ) {
+        return;
+      }
+    }
+
     if (pastLength > 0) {
       past[currentFlowId] = past[currentFlowId].slice(
         pastLength - defaultOptions.maxHistorySize + 1,
@@ -82,6 +105,8 @@ const useFlowsManagerStore = create<FlowsManagerStoreType>((set, get) => ({
       past[currentFlowId] = [newState];
     }
 
+    // Update the hash after successful snapshot
+    lastSnapshotHash[currentFlowId] = currentHash;
     future[currentFlowId] = [];
   },
   undo: () => {

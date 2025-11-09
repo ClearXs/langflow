@@ -50,26 +50,33 @@ class ETLFlinkSQLComponent(Component):
             info=i18n.t("components.computations.flink_sql.sql_script.info"),
             required=True,
             language="sql",
-            value="""-- Flink SQL Script
-CREATE TABLE source_table (
-    id BIGINT,
-    name STRING,
-    age INT
+            value="""-- Word Count Example - Flink SQL (Batch Mode)
+-- 注意：需要预先创建 /tmp/input.csv 文件，每行一个单词
+
+-- 创建源表（从 CSV 文件读取单词）
+CREATE TABLE word_source (
+    word STRING
 ) WITH (
-    'connector' = 'datagen',
-    'number-of-rows' = '10'
+    'connector.type' = 'filesystem',
+    'format.type' = 'csv',
+    'connector.path' = '/tmp/input.csv'
 );
 
-CREATE TABLE sink_table (
-    id BIGINT,
-    name STRING,
-    age INT
+-- 创建目标表（将统计结果写入 CSV）
+CREATE TABLE word_count_sink (
+    word STRING,
+    count_value BIGINT
 ) WITH (
-    'connector' = 'print'
+    'connector.type' = 'filesystem',
+    'format.type' = 'csv',
+    'connector.path' = '/tmp/wordcount_output.csv'
 );
 
-INSERT INTO sink_table
-SELECT * FROM source_table WHERE age > 18;""",
+-- Word Count 查询（注意：Flink 1.9 中此语句只会被注册，不会立即执行）
+INSERT INTO word_count_sink
+SELECT word, COUNT(*) as count_value
+FROM word_source
+GROUP BY word;""",
         ),
         IntInput(
             name="parallelism",
@@ -329,7 +336,7 @@ SELECT * FROM source_table WHERE age > 18;""",
         return "".join(parts)
 
     def _find_datasource_by_id(self, datasource_id: str) -> dict | None:
-        """Find datasource in cached options_metadata by id, value, label, or display_name."""
+        """Find datasource in cached options_metadata."""
         try:
             # Access cached metadata from update_build_config
             if hasattr(self, "_input_dict") and self._input_dict:
@@ -338,12 +345,7 @@ SELECT * FROM source_table WHERE age > 18;""",
                     options_metadata = flink_datasource_input.options_metadata
                     if options_metadata:
                         for ds in options_metadata:
-                            # Try to match by id, value, label, or display_name
-                            if (str(ds.get("id")) == str(datasource_id) or
-                                str(ds.get("value")) == str(datasource_id) or
-                                str(ds.get("label")) == str(datasource_id) or
-                                str(ds.get("display_name")) == str(datasource_id)):
-                                logger.debug(f"[FlinkSQL] Found datasource by matching: {datasource_id}")
+                            if str(ds.get("id")) == str(datasource_id):
                                 return ds
         except Exception as e:
             logger.error(f"[FlinkSQL] Failed to find datasource in metadata: {e}")
@@ -515,10 +517,11 @@ SELECT * FROM source_table WHERE age > 18;""",
                     setattr(collections, name, getattr(collections.abc, name))
 
             import os
+            import tempfile
             from pyflink.datastream import StreamExecutionEnvironment
             from pyflink.table import EnvironmentSettings, StreamTableEnvironment
 
-            # ===== 配置远程集群（通过环境变量）=====
+            # ===== 配置远程集群（创建临时配置文件）=====
             has_remote_config = conn_info.get("jobmanager_host") and (
                 conn_info.get("jobmanager_port") or conn_info.get("rest_port")
             )
@@ -528,16 +531,35 @@ SELECT * FROM source_table WHERE age > 18;""",
                 jobmanager_port = conn_info.get("jobmanager_port", 6123)
                 rest_port = conn_info.get("rest_port", 8081)
 
-                # 设置环境变量配置远程集群（PyFlink 1.9.3 方式）
-                os.environ["FLINK_CONF_DIR"] = "/tmp"  # Placeholder
-                os.environ["jobmanager.rpc.address"] = jobmanager_host
-                os.environ["jobmanager.rpc.port"] = str(jobmanager_port)
-                os.environ["rest.address"] = jobmanager_host
-                os.environ["rest.port"] = str(rest_port)
+                # 创建临时配置目录
+                flink_conf_dir = tempfile.mkdtemp(prefix="flink_conf_")
+
+                # 创建 flink-conf.yaml
+                flink_conf_content = f"""jobmanager.rpc.address: {jobmanager_host}
+jobmanager.rpc.port: {jobmanager_port}
+rest.address: {jobmanager_host}
+rest.port: {rest_port}
+"""
+                flink_conf_path = os.path.join(flink_conf_dir, "flink-conf.yaml")
+                with open(flink_conf_path, 'w') as f:
+                    f.write(flink_conf_content)
+
+                # 创建简单的 log4j.properties 以避免警告
+                log4j_content = """log4j.rootLogger=WARN, console
+log4j.appender.console=org.apache.log4j.ConsoleAppender
+log4j.appender.console.layout=org.apache.log4j.PatternLayout
+log4j.appender.console.layout.ConversionPattern=%d{yyyy-MM-dd HH:mm:ss} %-5p %c{1}:%L - %m%n
+"""
+                log4j_path = os.path.join(flink_conf_dir, "log4j-cli.properties")
+                with open(log4j_path, 'w') as f:
+                    f.write(log4j_content)
+
+                # 设置环境变量
+                os.environ["FLINK_CONF_DIR"] = flink_conf_dir
 
                 logger.info(
                     f"[FlinkSQL] Configured remote Flink cluster: "
-                    f"rpc={jobmanager_host}:{jobmanager_port}, rest={jobmanager_host}:{rest_port}"
+                    f"rpc={jobmanager_host}:{jobmanager_port}, rest={jobmanager_host}:{rest_port}, conf_dir={flink_conf_dir}"
                 )
             else:
                 logger.info("[FlinkSQL] No remote cluster configuration, using local execution mode")
@@ -560,37 +582,41 @@ SELECT * FROM source_table WHERE age > 18;""",
             if execution_mode == "streaming":
                 env.get_checkpoint_config().set_checkpoint_interval(checkpoint_interval)
 
-            # Execute statements
+            # Execute statements using Flink 1.9.3 API
+            # Note: In Flink 1.9, sql_update() only registers DDL/DML, doesn't execute immediately
             results = []
             for idx, stmt in enumerate(statements):
                 try:
                     stmt_type = self._get_statement_type(stmt)
                     start_time = datetime.datetime.now()
 
-                    # Execute SQL
-                    table_result = table_env.execute_sql(stmt)
-
-                    # Collect results based on statement type
-                    if stmt_type == "SELECT":
-                        # For SELECT, try to collect results
-                        try:
-                            rows = []
-                            with table_result.collect() as iterator:
-                                for i, row in enumerate(iterator):
-                                    if i >= 100:  # Limit to 100 rows for preview
-                                        break
-                                    rows.append(str(row))
-                            rows_affected = f"{len(rows)} rows" + (" (limited to 100)" if len(rows) >= 100 else "")
-                        except Exception:
-                            # If collection fails, just mark as executed
-                            rows_affected = "Query executed"
+                    # Flink 1.9 API: sql_update() for DDL and DML
+                    if stmt_type in ["SELECT"]:
+                        # SELECT queries not supported in Flink 1.9 PyFlink
+                        rows_affected = "不支持"
+                        results.append({
+                            "statement_index": idx + 1,
+                            "statement_type": stmt_type,
+                            "sql_statement": stmt[:100] + "..." if len(stmt) > 100 else stmt,
+                            "execution_status": "跳过",
+                            "rows_affected": rows_affected,
+                            "error_message": "Flink 1.9 不支持直接执行 SELECT 查询，请使用 INSERT INTO 将结果写入 sink 表",
+                        })
+                        continue
+                    elif stmt_type in ["CREATE", "DROP", "ALTER"]:
+                        # DDL statements: register table definitions
+                        table_env.sql_update(stmt)
+                        rows_affected = "已注册"
+                        logger.debug(f"[FlinkSQL] Registered {stmt_type} statement")
+                    elif stmt_type in ["INSERT"]:
+                        # DML statements: register data transformations
+                        table_env.sql_update(stmt)
+                        rows_affected = "已注册 (需调用 execute 执行)"
+                        logger.debug(f"[FlinkSQL] Registered INSERT statement")
                     else:
-                        # For DDL/DML, wait for completion
-                        try:
-                            table_result.wait()
-                            rows_affected = "Completed"
-                        except Exception:
-                            rows_affected = "Submitted"
+                        # Unknown statement type
+                        table_env.sql_update(stmt)
+                        rows_affected = "已注册"
 
                     duration = (datetime.datetime.now() - start_time).total_seconds()
 
@@ -606,6 +632,7 @@ SELECT * FROM source_table WHERE age > 18;""",
                     )
 
                 except Exception as e:
+                    logger.error(f"[FlinkSQL] Failed to process statement {idx + 1}: {e}")
                     results.append(
                         {
                             "statement_index": idx + 1,
@@ -617,6 +644,7 @@ SELECT * FROM source_table WHERE age > 18;""",
                         }
                     )
 
+            logger.info(f"[FlinkSQL] Processed {len(results)} SQL statements (注意: Flink 1.9 中 sql_update 只注册语句，不会立即执行)")
             return results
 
         except ImportError as e:
@@ -652,14 +680,21 @@ SELECT * FROM source_table WHERE age > 18;""",
             statements = []
             for statement in parsed:
                 sql = statement.value.strip()
+                # Remove trailing semicolon (Flink sql_update doesn't support it)
+                if sql.endswith(";"):
+                    sql = sql[:-1].strip()
                 # Skip empty statements and comments
-                if sql and not sql.startswith("--") and sql != ";":
+                if sql and not sql.startswith("--"):
                     statements.append(sql)
             return statements
         except Exception as e:
             logger.warning(f"[FlinkSQL] Failed to parse SQL: {e}")
-            # Fallback: split by semicolon
-            statements = [s.strip() for s in sql_script.split(";") if s.strip()]
+            # Fallback: split by semicolon and remove trailing semicolons
+            statements = []
+            for s in sql_script.split(";"):
+                s = s.strip()
+                if s:
+                    statements.append(s)
             return statements
 
     def _get_statement_type(self, sql: str) -> str:

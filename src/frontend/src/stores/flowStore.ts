@@ -369,9 +369,10 @@ const useFlowStore = create<FlowStoreType>((set, get) => ({
       throw new Error("Node not found");
     }
 
+    const oldNode = get().nodes.find((node) => node.id === id)!;
     const newChange =
       typeof change === "function"
-        ? change(get().nodes.find((node) => node.id === id)!)
+        ? change(oldNode)
         : change;
 
     const newNodes = get().nodes.map((node) => {
@@ -386,6 +387,8 @@ const useFlowStore = create<FlowStoreType>((set, get) => ({
       return node;
     });
 
+    // Always validate edges to ensure correctness
+    // The debounced state updates in use-handle-new-value.ts will prevent excessive calls
     const newEdges = cleanEdges(newNodes, get().edges);
 
     set((state) => {

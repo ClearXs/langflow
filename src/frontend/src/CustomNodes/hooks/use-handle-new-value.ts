@@ -59,11 +59,14 @@ const useHandleOnNewValue = ({
       setNode(
         nodeId,
         (oldNode) => {
-          const newData = cloneDeep(oldNode.data);
-          newData.node = newNode;
+          // Performance: Use shallow copy instead of cloneDeep for better performance
+          // Only the node property needs to be updated, other data properties can be reused
           return {
             ...oldNode,
-            data: newData,
+            data: {
+              ...oldNode.data,
+              node: newNode,
+            },
           };
         },
         true,
@@ -76,10 +79,22 @@ const useHandleOnNewValue = ({
   );
 
   const debouncedMutateRef = useRef<any>(null);
+  const debouncedSnapshotRef = useRef<any>(null);
+  const debouncedUpdateStateRef = useRef<any>(null);
 
   const handleOnNewValue: handleOnNewValueType = useCallback(
     async (changes, options?) => {
-      const newNode = cloneDeep(node);
+      // Performance: Use shallow copy with structural sharing instead of cloneDeep
+      // Only clone the template and the specific parameter being changed
+      const newNode = {
+        ...node,
+        template: {
+          ...node.template,
+          [name]: {
+            ...node.template[name],
+          },
+        },
+      };
       const template = newNode.template;
 
       // Debounced tracking
@@ -105,7 +120,13 @@ const useHandleOnNewValue = ({
         parameter?._input_type,
       );
 
-      if (!options?.skipSnapshot) takeSnapshot();
+      // Use debounced snapshot to avoid freezing UI on every keystroke
+      if (!options?.skipSnapshot) {
+        if (!debouncedSnapshotRef.current) {
+          debouncedSnapshotRef.current = debounce(takeSnapshot, 500);
+        }
+        debouncedSnapshotRef.current();
+      }
 
       Object.entries(changes).forEach(([key, value]) => {
         if (value !== undefined) parameter[key] = value;
@@ -149,7 +170,15 @@ const useHandleOnNewValue = ({
         );
       }
 
-      updateNodeState(newNode);
+      // CRITICAL FIX: Debounce the state update to prevent UI freezing
+      // This is the main cause of input lag - every keystroke was triggering immediate store update
+      if (!debouncedUpdateStateRef.current) {
+        debouncedUpdateStateRef.current = debounce(
+          (node) => updateNodeState(node),
+          150, // Fast enough to feel responsive, but prevents cascading re-renders
+        );
+      }
+      debouncedUpdateStateRef.current(newNode);
     },
     [
       node,

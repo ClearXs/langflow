@@ -642,8 +642,41 @@ class ETLKafkaOutputComponent(Component):
 
         return datasource_id
 
+    def _find_datasource_info(self, datasource_id: str) -> dict | None:
+        """Find datasource info from options_metadata."""
+        # Get datasource info from build_config options_metadata
+        # This should be populated by update_build_config
+        try:
+            # Access the component's build_config if available
+            if hasattr(self, '_build_config') and self._build_config:
+                datasource_selector_config = self._build_config.get('datasource_selector', {})
+                options_metadata = datasource_selector_config.get('options_metadata', [])
+
+                for option in options_metadata:
+                    if option.get('id') == datasource_id or option.get('value') == datasource_id:
+                        return option
+
+            # Fallback: reload datasources if not in cache
+            logger.debug(f"[KafkaOutput] Datasource info not in cache, reloading")
+            all_datasources = self._load_kafka_datasources()
+            for ds in all_datasources:
+                if ds['id'] == datasource_id:
+                    return {
+                        'id': ds['id'],
+                        'name': ds['name'],
+                        'type': ds['type'],
+                        'source': ds['source'],
+                        'display_name': ds['display_name'],
+                        'raw_data': ds.get('raw_data'),
+                    }
+
+            return None
+        except Exception as e:
+            logger.error(f"[KafkaOutput] Error finding datasource info: {e}")
+            return None
+
     def _get_kafka_config_from_datasource(self) -> dict:
-        """Get Kafka configuration from selected datasource."""
+        """Get Kafka configuration from selected datasource (builtin or public)."""
         import os
         import httpx
 
@@ -651,10 +684,56 @@ class ETLKafkaOutputComponent(Component):
             return {}
 
         try:
-            api_url = os.getenv("LANGFLOW_API_URL", "http://localhost:7860")
             datasource_id = self._extract_uuid_from_id(self.datasource_selector)
-
             logger.info(f"[KafkaOutput] Fetching Kafka datasource configuration for ID: {datasource_id}")
+
+            # Find datasource info to determine if it's public or builtin
+            datasource_info = self._find_datasource_info(self.datasource_selector)
+
+            kafka_config = {}
+
+            # Check if it's a public datasource
+            if datasource_info and datasource_info.get("source") == "public":
+                logger.info(f"[KafkaOutput] Using public datasource: {datasource_info.get('name')}")
+                raw_data = datasource_info.get("raw_data", {})
+                params = raw_data.get("dataSourceParam", {})
+
+                # Extract bootstrap servers from public datasource
+                if params.get("host"):
+                    kafka_config["bootstrap.servers"] = params["host"]
+
+                # Extract authentication config
+                if params.get("sasl_username"):
+                    kafka_config["sasl.username"] = params["sasl_username"]
+                if params.get("sasl_password"):
+                    kafka_config["sasl.password"] = params["sasl_password"]
+                if params.get("security_protocol"):
+                    kafka_config["security.protocol"] = params["security_protocol"]
+                else:
+                    # Default SASL protocol if username is provided
+                    if params.get("sasl_username"):
+                        kafka_config["security.protocol"] = "SASL_PLAINTEXT"
+                if params.get("sasl_mechanism"):
+                    kafka_config["sasl.mechanism"] = params["sasl_mechanism"]
+                else:
+                    if params.get("sasl_username"):
+                        kafka_config["sasl.mechanism"] = "PLAIN"
+
+                # Extract other Kafka producer configs from public datasource
+                if params.get("compression_type"):
+                    kafka_config["compression.type"] = params["compression_type"]
+                if params.get("batch_size"):
+                    kafka_config["batch.size"] = params["batch_size"]
+                if params.get("linger_ms"):
+                    kafka_config["linger.ms"] = params["linger_ms"]
+                if params.get("acks"):
+                    kafka_config["acks"] = params["acks"]
+
+                logger.debug(f"[KafkaOutput] Built Kafka config from public datasource: {kafka_config}")
+                return kafka_config
+
+            # Builtin datasource: fetch via API
+            api_url = os.getenv("LANGFLOW_API_URL", "http://localhost:7860")
 
             with httpx.Client(timeout=120.0) as client:
                 response = client.get(f"{api_url}/api/v1/datasources/{datasource_id}")
@@ -664,9 +743,7 @@ class ETLKafkaOutputComponent(Component):
                     return {}
 
                 datasource = response.json()
-
-                # Build Kafka configuration
-                kafka_config = {}
+                logger.info(f"[KafkaOutput] Using builtin datasource: {datasource.get('name')}")
 
                 # Bootstrap servers
                 if datasource.get("host"):
@@ -695,7 +772,7 @@ class ETLKafkaOutputComponent(Component):
                 if advanced_config.get("acks"):
                     kafka_config["acks"] = advanced_config["acks"]
 
-                logger.debug(f"[KafkaOutput] Built Kafka config from datasource: {kafka_config}")
+                logger.debug(f"[KafkaOutput] Built Kafka config from builtin datasource: {kafka_config}")
                 return kafka_config
 
         except Exception as e:
@@ -705,7 +782,7 @@ class ETLKafkaOutputComponent(Component):
     def get_producer_info(self) -> Data:
         """Get Kafka producer configuration information."""
         info = {
-            "bootstrap_servers": self.bootstrap_servers,
+            "datasource_id": self.datasource_selector,
             "topic": self.topic,
             "key_field": self.key_field if self.key_field else None,
             "value_serializer": self.value_serializer,
@@ -717,7 +794,6 @@ class ETLKafkaOutputComponent(Component):
             "retries": self.retries,
             "send_as_batch": self.send_as_batch,
             "headers_count": len(self.headers) if self.headers else 0,
-            "sasl_enabled": bool(self.sasl_username and self.sasl_password),
             "producer_active": self._producer is not None,
         }
         return Data(data=info)

@@ -7,11 +7,7 @@
   },
   "datasource_selector": {
     "display_name": "Kafka数据源",
-    "info": "选择Kafka数据源（可选，使用数据源或Kafka服务地址二选一）"
-  },
-  "bootstrap_servers": {
-    "display_name": "Kafka服务地址",
-    "info": "Kafka 服务地址的逗号分隔列表（例如：'localhost:9092,localhost:9093'，使用数据源时可选）"
+    "info": "选择Kafka数据源（必填，支持自定义数据源和公共数据源）"
   },
   "topic": {
     "display_name": "主题",

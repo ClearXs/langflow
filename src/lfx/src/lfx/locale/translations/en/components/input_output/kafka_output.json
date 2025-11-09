@@ -7,11 +7,7 @@
   },
   "datasource_selector": {
     "display_name": "Kafka Datasource",
-    "info": "Select a Kafka datasource (optional, use this OR Bootstrap Servers)"
-  },
-  "bootstrap_servers": {
-    "display_name": "Bootstrap Servers",
-    "info": "Comma-separated list of Kafka broker addresses (e.g., 'localhost:9092,localhost:9093', optional if using datasource)"
+    "info": "Select a Kafka datasource (required, supports both custom and public datasources)"
   },
   "topic": {
     "display_name": "Topic",
