@@ -38,6 +38,17 @@ class ETLFieldNameMappingComponent(Component):
                     ),
                 },
                 {
+                    "name": "source_type",
+                    "display_name": i18n.t("components.manipulations.field_name_mapping.field_mappings.source_type"),
+                    "type": "str",
+                    "disable_edit": True,  # Read-only, auto-populated
+                    "formatter": "code",
+                    "translate_value": False,
+                    "description": i18n.t(
+                        "components.manipulations.field_name_mapping.field_mappings.source_type_desc"
+                    ),
+                },
+                {
                     "name": "target_field",
                     "display_name": i18n.t("components.manipulations.field_name_mapping.field_mappings.target_field"),
                     "type": "str",
@@ -133,7 +144,7 @@ class ETLFieldNameMappingComponent(Component):
                 for attempt in range(max_retries):
                     try:
                         upstream_data = await self.get_upstream_data(
-                            input_name="data_input", graph_data=graph_data, sample_size=10, vertex_id=node_id
+                            input_name="data_input", graph_data=graph_data, sample_size=100, vertex_id=node_id
                         )
 
                         if upstream_data:
@@ -161,22 +172,23 @@ class ETLFieldNameMappingComponent(Component):
                     try:
                         from lfx.components.helpers.field_extraction import find_and_extract_upstream_fields
 
-                        field_names = find_and_extract_upstream_fields(
+                        fields = find_and_extract_upstream_fields(
                             graph_data, node_id, "data_input", "FieldNameMapping"
                         )
 
-                        if field_names:
-                            # Generate field mappings from field names
+                        if fields:
+                            # Generate field mappings from field info (with types)
                             field_mappings = [
                                 {
-                                    "source_field": field_name,
-                                    "target_field": field_name,  # Default: same as source
+                                    "source_field": field["name"],
+                                    "target_field": field["name"],  # Default: same as source
+                                    "source_type": field.get("type", "string"),  # Include type info
                                     "description": "",  # Empty description by default
                                 }
-                                for field_name in field_names
+                                for field in fields
                             ]
                             logger.info(
-                                f"[FieldNameMapping] Extracted {len(field_mappings)} field mappings from static config"
+                                f"[FieldNameMapping] Extracted {len(field_mappings)} field mappings with types from static config"
                             )
                         else:
                             logger.warning("[FieldNameMapping] Static analysis returned no fields")
@@ -229,11 +241,15 @@ class ETLFieldNameMappingComponent(Component):
                 logger.warning(f"[FieldNameMapping] Expected dict, got {type(data_dict)}")
                 return []
 
-            # Generate field mappings from field names
+            # Import type inference helper
+            from lfx.components.helpers.field_extraction import _infer_type_from_value
+
+            # Generate field mappings from field names with type inference
             field_mappings = [
                 {
                     "source_field": field_name,
                     "target_field": field_name,  # Default: same as source
+                    "source_type": _infer_type_from_value(data_dict[field_name]),  # Infer type from value
                     "description": "",  # Empty description by default
                 }
                 for field_name in data_dict

@@ -230,15 +230,17 @@ class ETLDualStreamJoinComponent(Component):
                         from lfx.components.helpers.field_extraction import find_and_extract_upstream_fields
 
                         # Extract from both inputs
-                        left_fields = find_and_extract_upstream_fields(
+                        left_fields_dicts = find_and_extract_upstream_fields(
                             graph_data, node_id, "left_stream", "DualStreamJoin"
                         )
 
-                        right_fields = find_and_extract_upstream_fields(
+                        right_fields_dicts = find_and_extract_upstream_fields(
                             graph_data, node_id, "right_stream", "DualStreamJoin"
                         )
 
-                        if left_fields or right_fields:
+                        if left_fields_dicts or right_fields_dicts:
+                            left_fields = [field["name"] for field in left_fields_dicts] if left_fields_dicts else []
+                            right_fields = [field["name"] for field in right_fields_dicts] if right_fields_dicts else []
                             logger.info(
                                 f"[DualStreamJoin] Extracted fields from static config - left: {len(left_fields)}, right: {len(right_fields)}"
                             )
@@ -317,30 +319,30 @@ class ETLDualStreamJoinComponent(Component):
                         from lfx.components.helpers.field_extraction import find_and_extract_upstream_fields
 
                         # Extract field names from both inputs
-                        left_fields = find_and_extract_upstream_fields(
+                        left_fields_dicts = find_and_extract_upstream_fields(
                             graph_data, node_id, "left_stream", "DualStreamJoin"
                         )
-                        right_fields = find_and_extract_upstream_fields(
+                        right_fields_dicts = find_and_extract_upstream_fields(
                             graph_data, node_id, "right_stream", "DualStreamJoin"
                         )
 
                         # Generate simple preview without data types
-                        if left_fields or right_fields:
+                        if left_fields_dicts or right_fields_dicts:
                             output_fields = []
-                            for field in left_fields:
+                            for field_dict in (left_fields_dicts or []):
                                 output_fields.append(
                                     {
-                                        "field_name": field,
+                                        "field_name": field_dict["name"],
                                         "source": "left",
-                                        "data_type": "unknown",  # Cannot infer without data
+                                        "data_type": field_dict.get("type", "unknown"),
                                     }
                                 )
-                            for field in right_fields:
+                            for field_dict in (right_fields_dicts or []):
                                 output_fields.append(
                                     {
-                                        "field_name": field,
+                                        "field_name": field_dict["name"],
                                         "source": "right",
-                                        "data_type": "unknown",
+                                        "data_type": field_dict.get("type", "unknown"),
                                     }
                                 )
 

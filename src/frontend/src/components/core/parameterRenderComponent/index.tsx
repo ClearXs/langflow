@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import type { handleOnNewValueType } from "@/CustomNodes/hooks/use-handle-new-value";
 import AggregationConfigComponent from "@/components/core/parameterRenderComponent/components/aggregationConfigComponent";
 import CodeAreaComponent from "@/components/core/parameterRenderComponent/components/codeAreaComponent";
@@ -60,6 +61,8 @@ export function ParameterRenderComponent({
   isToolMode?: boolean;
   nodeInformationMetadata?: NodeInfoType;
 }) {
+  const { t } = useTranslation();
+
   const id = (
     templateData.type +
     "_" +
@@ -208,7 +211,7 @@ export function ParameterRenderComponent({
           <TableNodeComponent
             {...baseInputProps}
             componentName={name}
-            description={templateData.info || "Add or edit data"}
+            description={templateData.info || t("common.addOrEditData")}
             columns={
               templateData?.table_schema?.columns ?? templateData?.table_schema
             }
@@ -223,7 +226,7 @@ export function ParameterRenderComponent({
         return (
           <ToolsComponent
             {...baseInputProps}
-            description={templateData.info || "Add or edit data"}
+            description={templateData.info || t("common.addOrEditData")}
             title={nodeClass?.display_name ?? "Tools"}
             icon={nodeClass?.icon ?? ""}
             template={nodeClass?.template}

@@ -55,6 +55,15 @@ class ETLFieldValueMappingComponent(Component):
                     "description": i18n.t("components.manipulations.field_value_mapping.input_field_desc"),
                 },
                 {
+                    "name": "field_type",
+                    "display_name": i18n.t("components.manipulations.field_value_mapping.field_type"),
+                    "type": "str",
+                    "disable_edit": True,
+                    "formatter": "code",
+                    "translate_value": False,
+                    "description": i18n.t("components.manipulations.field_value_mapping.field_type_desc"),
+                },
+                {
                     "name": "operator",
                     "display_name": i18n.t("components.manipulations.field_value_mapping.operator"),
                     "type": "str",
@@ -232,7 +241,7 @@ class ETLFieldValueMappingComponent(Component):
                 for attempt in range(max_retries):
                     try:
                         upstream_data = await self.get_upstream_data(
-                            input_name="data_input", graph_data=graph_data, sample_size=10, vertex_id=node_id
+                            input_name="data_input", graph_data=graph_data, sample_size=100, vertex_id=node_id
                         )
 
                         if upstream_data:
@@ -270,24 +279,25 @@ class ETLFieldValueMappingComponent(Component):
                     try:
                         from lfx.components.helpers.field_extraction import find_and_extract_upstream_fields
 
-                        field_names = find_and_extract_upstream_fields(
+                        fields = find_and_extract_upstream_fields(
                             graph_data, node_id, "data_input", "FieldValueMapping"
                         )
 
-                        if field_names:
-                            # Generate mapping rules from field names (without sample values)
+                        if fields:
+                            # Generate mapping rules from field info (with types)
                             mapping_rules = [
                                 {
-                                    "input_field": field_name,
+                                    "input_field": field["name"],
+                                    "field_type": field.get("type", "string"),  # Include type info
                                     "operator": "=",  # Default operator
                                     "compare_value": "",
                                     "replacement_value": "",
-                                    "output_field": field_name,  # Default: same as input
+                                    "output_field": field["name"],  # Default: same as input
                                 }
-                                for field_name in field_names
+                                for field in fields
                             ]
                             logger.info(
-                                f"[FieldValueMapping] Extracted {len(mapping_rules)} mapping rules from static config"
+                                f"[FieldValueMapping] Extracted {len(mapping_rules)} mapping rules with types from static config"
                             )
                         else:
                             logger.warning("[FieldValueMapping] Static analysis returned no fields")
@@ -353,18 +363,28 @@ class ETLFieldValueMappingComponent(Component):
                 logger.warning(f"[FieldValueMapping] Expected dict, got {type(data_dict)}")
                 return []
 
+            # Import type inference helper
+            from lfx.components.helpers.field_extraction import _infer_type_from_value
+
             # Generate mapping rules with sample values
             mapping_rules = []
             for field_name in data_dict:
                 # Collect sample values from multiple records
                 sample_values = []
+                first_value = None
                 for record in sample_records:
                     if hasattr(record, "data"):
                         value = record.data.get(field_name)
                     else:
                         value = record.get(field_name) if isinstance(record, dict) else None
-                    if value is not None and value not in sample_values:
-                        sample_values.append(str(value))
+                    if value is not None:
+                        if first_value is None:
+                            first_value = value
+                        if value not in sample_values:
+                            sample_values.append(str(value))
+
+                # Infer field type from first non-None value
+                field_type = _infer_type_from_value(first_value) if first_value is not None else "string"
 
                 # Create a comment with sample values for user reference
                 sample_comment = f"Samples: {', '.join(sample_values[:3])}" if sample_values else ""
@@ -372,6 +392,7 @@ class ETLFieldValueMappingComponent(Component):
                 mapping_rules.append(
                     {
                         "input_field": field_name,
+                        "field_type": field_type,
                         "operator": "=",  # Default operator
                         "compare_value": sample_values[0] if sample_values else "",  # Pre-fill with first sample
                         "replacement_value": "",

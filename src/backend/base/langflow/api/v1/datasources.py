@@ -1,5 +1,6 @@
 """Data source API routes."""
 
+import json
 from datetime import datetime, timezone
 from uuid import UUID
 
@@ -14,6 +15,7 @@ from langflow.services.database.models.datasource import (
     DataSourceRead,
     DataSourceUpdate,
 )
+from langflow.services.database.models.datasource.schemas import validate_advanced_config
 from langflow.services.deps import get_session
 
 router = APIRouter(prefix="/api/v1/datasources", tags=["datasources"])
@@ -67,8 +69,8 @@ async def create_datasource(data: DataSourceCreate, session: AsyncSession = Depe
         Created data source (without password)
     """
     try:
-        # Validate database type - only support MySQL, PostgreSQL, Hive, Neo4j
-        allowed_types = ["mysql", "postgresql", "hive", "neo4j"]
+        # Validate database type - support MySQL, PostgreSQL, Hive, Neo4j, Kafka, Flink
+        allowed_types = ["mysql", "postgresql", "hive", "neo4j", "kafka", "flink"]
         db_type_lower = data.type.lower()
         if db_type_lower not in allowed_types:
             raise HTTPException(
@@ -77,14 +79,26 @@ async def create_datasource(data: DataSourceCreate, session: AsyncSession = Depe
             )
 
         # Validate username and password requirements
-        # For Hive, username and password are optional
+        # For Hive, Kafka, and Flink, username and password are optional
         # For other types (MySQL, PostgreSQL, Neo4j), they are required
-        if db_type_lower != "hive":
+        if db_type_lower not in ["hive", "kafka", "flink"]:
             if not data.username or not data.password:
                 raise HTTPException(
                     status_code=400,
                     detail=f"Username and password are required for {data.type} database type"
                 )
+
+        # Validate advanced_config if provided
+        if data.advanced_config:
+            is_valid, errors = validate_advanced_config(db_type_lower, data.advanced_config)
+            if not is_valid:
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"Invalid advanced configuration: {'; '.join(errors)}"
+                )
+
+        # Convert advanced_config dict to JSON string for storage
+        advanced_config_str = json.dumps(data.advanced_config) if data.advanced_config else "{}"
 
         # Create datasource with plain password
         db_datasource = DataSource(
@@ -96,6 +110,7 @@ async def create_datasource(data: DataSourceCreate, session: AsyncSession = Depe
             username=data.username,
             password=data.password,
             status="inactive",
+            advanced_config=advanced_config_str,
         )
 
         session.add(db_datasource)
@@ -131,7 +146,7 @@ async def update_datasource(
 
         # Validate database type if being updated
         if data.type is not None:
-            allowed_types = ["mysql", "postgresql", "hive", "neo4j"]
+            allowed_types = ["mysql", "postgresql", "hive", "neo4j", "kafka", "flink"]
             db_type_lower = data.type.lower()
             if db_type_lower not in allowed_types:
                 raise HTTPException(
@@ -139,6 +154,17 @@ async def update_datasource(
                     detail=f"Unsupported database type: {data.type}. Supported types: {', '.join(allowed_types)}"
                 )
             datasource.type = db_type_lower
+
+        # Validate advanced_config if being updated
+        if data.advanced_config is not None:
+            # Use current type or updated type for validation
+            validate_type = data.type.lower() if data.type else datasource.type
+            is_valid, errors = validate_advanced_config(validate_type, data.advanced_config)
+            if not is_valid:
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"Invalid advanced configuration: {'; '.join(errors)}"
+                )
 
         # Update fields
         if data.name is not None:
@@ -157,6 +183,8 @@ async def update_datasource(
             datasource.status = data.status
         if data.last_tested_at is not None:
             datasource.last_tested_at = data.last_tested_at
+        if data.advanced_config is not None:
+            datasource.advanced_config = json.dumps(data.advanced_config)
 
         session.add(datasource)
         await session.commit()
@@ -213,6 +241,14 @@ async def test_connection(data: dict, session: AsyncSession = Depends(get_sessio
             if not datasource:
                 raise HTTPException(status_code=404, detail="Data source not found")
 
+            # Parse advanced_config from JSON string
+            advanced_config = {}
+            if datasource.advanced_config:
+                try:
+                    advanced_config = json.loads(datasource.advanced_config)
+                except (json.JSONDecodeError, TypeError):
+                    advanced_config = {}
+
             # Use plain password from database
             connection_info = {
                 "type": datasource.type,
@@ -221,6 +257,7 @@ async def test_connection(data: dict, session: AsyncSession = Depends(get_sessio
                 "database": datasource.database,
                 "username": datasource.username,
                 "password": datasource.password,
+                "advanced_config": advanced_config,
             }
         else:
             # Use provided connection parameters
@@ -232,6 +269,7 @@ async def test_connection(data: dict, session: AsyncSession = Depends(get_sessio
                 "username": data.get("username"),
                 # Password must be provided for test
                 "password": data.get("password"),
+                "advanced_config": data.get("advanced_config", {}),
             }
 
         # Test connection using DataSourceManager
@@ -267,7 +305,15 @@ async def get_connection_string(datasource_id: UUID, session: AsyncSession = Dep
         if not datasource:
             raise HTTPException(status_code=404, detail="Data source not found")
 
-        # Build connection info with password
+        # Parse advanced_config from JSON string
+        advanced_config = {}
+        if datasource.advanced_config:
+            try:
+                advanced_config = json.loads(datasource.advanced_config)
+            except (json.JSONDecodeError, TypeError):
+                advanced_config = {}
+
+        # Build connection info with password and advanced_config
         connection_info = {
             "type": datasource.type,
             "host": datasource.host,
@@ -275,6 +321,7 @@ async def get_connection_string(datasource_id: UUID, session: AsyncSession = Dep
             "database": datasource.database,
             "username": datasource.username,
             "password": datasource.password,
+            "advanced_config": advanced_config,
         }
 
         # Use DataSourceManager to build connection string
@@ -303,7 +350,15 @@ async def get_tables(datasource_id: UUID, session: AsyncSession = Depends(get_se
         if not datasource:
             raise HTTPException(status_code=404, detail="Data source not found")
 
-        # Build connection info with plain password
+        # Parse advanced_config from JSON string
+        advanced_config = {}
+        if datasource.advanced_config:
+            try:
+                advanced_config = json.loads(datasource.advanced_config)
+            except (json.JSONDecodeError, TypeError):
+                advanced_config = {}
+
+        # Build connection info with plain password and advanced_config
         connection_info = {
             "type": datasource.type,
             "host": datasource.host,
@@ -311,6 +366,7 @@ async def get_tables(datasource_id: UUID, session: AsyncSession = Depends(get_se
             "database": datasource.database,
             "username": datasource.username,
             "password": datasource.password,
+            "advanced_config": advanced_config,
         }
 
         manager = DataSourceManager()
@@ -338,7 +394,15 @@ async def get_columns(datasource_id: UUID, table_name: str, session: AsyncSessio
         if not datasource:
             raise HTTPException(status_code=404, detail="Data source not found")
 
-        # Build connection info with plain password
+        # Parse advanced_config from JSON string
+        advanced_config = {}
+        if datasource.advanced_config:
+            try:
+                advanced_config = json.loads(datasource.advanced_config)
+            except (json.JSONDecodeError, TypeError):
+                advanced_config = {}
+
+        # Build connection info with plain password and advanced_config
         connection_info = {
             "type": datasource.type,
             "host": datasource.host,
@@ -346,6 +410,7 @@ async def get_columns(datasource_id: UUID, table_name: str, session: AsyncSessio
             "database": datasource.database,
             "username": datasource.username,
             "password": datasource.password,
+            "advanced_config": advanced_config,
         }
 
         manager = DataSourceManager()

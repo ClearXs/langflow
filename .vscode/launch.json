@@ -22,9 +22,9 @@
         "--workers",
         "1",
         "--reload-include",
-        "./src/backend/*",
-        "--reload-include",
-        "./src/lfx/*"
+        "./src/backend/*"
+        // "--reload-include",
+        // "./src/lfx/*"
       ],
       "jinja": true,
       "justMyCode": false,

@@ -11,6 +11,8 @@
   },
   "input_field": "Input Field",
   "input_field_desc": "The field name to read the value from for comparison",
+  "field_type": "Field Type",
+  "field_type_desc": "Data type of the input field (auto-detected)",
   "operator": "Operator",
   "operator_desc": "Comparison operator to use (=, !=, >, <, contains, etc.)",
   "compare_value": "Compare Value",

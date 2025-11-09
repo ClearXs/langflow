@@ -11,10 +11,111 @@ This is the fallback mechanism used when get_upstream_data() fails with
 from lfx.log.logger import logger
 
 
+def normalize_type(type_str: str | None) -> str:
+    """Normalize database/SQL types to standard component types.
+
+    Args:
+        type_str: Database type (e.g., 'VARCHAR', 'INT', 'TIMESTAMP', 'integer', 'string')
+
+    Returns:
+        Normalized type: 'string', 'integer', 'float', 'boolean', 'datetime'
+    """
+    if not type_str:
+        return "string"
+
+    type_lower = str(type_str).lower()
+
+    # Integer types
+    if any(t in type_lower for t in ["int", "serial", "bigint", "smallint", "tinyint", "mediumint"]):
+        return "integer"
+
+    # Float types
+    if any(t in type_lower for t in ["float", "double", "decimal", "numeric", "real", "money"]):
+        return "float"
+
+    # Boolean types
+    if any(t in type_lower for t in ["bool", "bit"]):
+        return "boolean"
+
+    # Datetime types
+    if any(t in type_lower for t in ["date", "time", "timestamp", "datetime", "interval"]):
+        return "datetime"
+
+    # Default to string for text types and unknown types
+    return "string"
+
+
+def _infer_type_from_value(value: any) -> str:
+    """Infer field type from a sample value.
+
+    This function can infer types from both Python objects and string representations.
+    For strings, it attempts to parse them as int, float, or datetime.
+
+    Args:
+        value: Sample value to infer type from
+
+    Returns:
+        Inferred type: 'string', 'integer', 'float', 'boolean', 'datetime'
+    """
+    if value is None:
+        return "string"
+
+    # Check Python native types first (most accurate)
+    if isinstance(value, bool):
+        return "boolean"
+
+    if isinstance(value, int):
+        return "integer"
+
+    if isinstance(value, float):
+        return "float"
+
+    # For string values, try to infer the actual data type by parsing
+    if isinstance(value, str):
+        # Empty string defaults to string
+        if not value or value.strip() == "":
+            return "string"
+
+        value_lower = value.lower().strip()
+
+        # Check for boolean strings
+        if value_lower in ("true", "false", "yes", "no", "1", "0"):
+            return "boolean"
+
+        # Try parsing as integer
+        try:
+            int(value)
+            return "integer"
+        except ValueError:
+            pass
+
+        # Try parsing as float
+        try:
+            float(value)
+            return "float"
+        except ValueError:
+            pass
+
+        # Try detecting datetime patterns
+        import re
+
+        datetime_patterns = [
+            r"^\d{4}-\d{2}-\d{2}$",  # 2024-01-01
+            r"^\d{2}/\d{2}/\d{4}$",  # 01/01/2024
+            r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}",  # ISO 8601
+            r"^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}",  # 2024-01-01 10:30:00
+        ]
+        for pattern in datetime_patterns:
+            if re.match(pattern, value):
+                return "datetime"
+
+    return "string"
+
+
 def find_and_extract_upstream_fields(
     graph_data: dict, node_id: str, input_name: str, component_name: str = "Component"
-) -> list[str]:
-    """Find upstream node and extract field names from its configuration.
+) -> list[dict]:
+    """Find upstream node and extract field information (names and types) from its configuration.
 
     This is a convenience function that combines finding the upstream node
     and extracting fields in one call.
@@ -26,12 +127,19 @@ def find_and_extract_upstream_fields(
         component_name: Name of the calling component (for logging)
 
     Returns:
-        List of field names extracted from upstream node config, or empty list if not found
+        List of field information dicts with structure:
+        [
+            {"name": "field1", "type": "string"},
+            {"name": "field2", "type": "integer"},
+            ...
+        ]
+        Returns empty list if no fields found.
 
     Example:
-        field_names = find_and_extract_upstream_fields(
+        fields = find_and_extract_upstream_fields(
             graph_data, "my-node-id", "data_input", "MyComponent"
         )
+        # fields = [{"name": "user_id", "type": "integer"}, {"name": "name", "type": "string"}]
     """
     try:
         from lfx.custom.graph_utils import find_upstream_node_id
@@ -64,8 +172,8 @@ def find_and_extract_upstream_fields(
 
 def extract_fields_from_node_template(
     upstream_node: dict, component_name: str = "Component", graph_data: dict | None = None
-) -> list[str]:
-    """Extract field names from upstream node template configuration.
+) -> list[dict]:
+    """Extract field information (names and types) from upstream node template configuration.
 
     This is a fallback method when upstream node cannot be executed.
     It tries to extract field information from the upstream node's template configuration.
@@ -76,15 +184,21 @@ def extract_fields_from_node_template(
         graph_data: The complete graph data (nodes and edges) for recursive lookups
 
     Returns:
-        List of field names extracted from upstream config
+        List of field information dicts with structure:
+        [
+            {"name": "field1", "type": "string"},
+            {"name": "field2", "type": "integer"},
+            ...
+        ]
 
     Supported upstream node types:
         - ETLDataEncryption: Extracts from field_configs
         - ETLDataMasking: Extracts from masking_rules
-        - ETLTableInput: Extracts from table_schema or table_data
-        - ETLCustomInput: Extracts from table_schema or table_data
+        - ETLTableInput: Extracts from table_schema or table_data (with types from data_type)
+        - ETLCustomInput: Extracts from field_schema (with types from data_type)
         - ETLCSVInput: Extracts from schema or data
         - ETLExcelInput: Extracts from schema or data
+        - ETLKafkaInput: Extracts from message_schema (with types from field_type)
         - Other data manipulation components: Extracts from their table configurations
     """
     try:
@@ -94,7 +208,8 @@ def extract_fields_from_node_template(
         logger.debug(f"[{component_name}] Extracting fields from upstream node type: {upstream_node_type}")
 
         # Extract fields based on upstream node type
-        field_names = []
+        # Changed from field_names to fields to store field info dicts
+        fields = []
 
         node_config = upstream_node_data.get("node", {})
         # The actual config values are stored in the 'template' section
@@ -108,61 +223,112 @@ def extract_fields_from_node_template(
                 if isinstance(field_configs, dict):
                     config_value = field_configs.get("value", [])
                     if isinstance(config_value, list):
-                        field_names = [
-                            config.get("field")
+                        fields = [
+                            {
+                                "name": config.get("field"),
+                                "type": config.get("field_type", "string"),  # Extract type if available
+                            }
                             for config in config_value
                             if isinstance(config, dict) and config.get("field")
                         ]
 
             # Try masking_rules (masking component)
-            if not field_names and "masking_rules" in template:
+            if not fields and "masking_rules" in template:
                 masking_rules = template.get("masking_rules", {})
                 if isinstance(masking_rules, dict):
                     config_value = masking_rules.get("value", [])
                     if isinstance(config_value, list):
-                        field_names = [
-                            config.get("field")
+                        fields = [
+                            {
+                                "name": config.get("field"),
+                                "type": config.get("field_type", "string"),  # Extract type if available
+                            }
                             for config in config_value
                             if isinstance(config, dict) and config.get("field")
                         ]
 
         # For table input components
         elif upstream_node_type in ["ETLTableInput", "ETLCustomInput", "ETLCSVInput", "ETLExcelInput"]:
-            # Try to get from table_schema first
-            if "table_schema" in template:
+            # Try to get from field_mappings first (TableInput uses this)
+            if "field_mappings" in template:
+                field_mappings = template.get("field_mappings", {})
+                if isinstance(field_mappings, dict):
+                    mappings_value = field_mappings.get("value", [])
+                    if isinstance(mappings_value, list):
+                        fields = [
+                            {
+                                "name": mapping.get("source_field"),
+                                "type": normalize_type(mapping.get("data_type")),  # Extract and normalize type
+                            }
+                            for mapping in mappings_value
+                            if isinstance(mapping, dict) and mapping.get("source_field")
+                        ]
+                        if fields:
+                            logger.info(
+                                f"[{component_name}] Extracted {len(fields)} fields with types from field_mappings"
+                            )
+
+            # Try to get from table_schema
+            if not fields and "table_schema" in template:
                 table_schema = template.get("table_schema", {})
                 if isinstance(table_schema, dict):
                     schema_value = table_schema.get("value", [])
                     if isinstance(schema_value, list):
-                        field_names = [
-                            schema.get("field_name")
+                        fields = [
+                            {
+                                "name": schema.get("field_name"),
+                                "type": normalize_type(schema.get("data_type")),  # Extract and normalize type
+                            }
                             for schema in schema_value
                             if isinstance(schema, dict) and schema.get("field_name")
                         ]
 
-            # Try to get from table_data
-            if not field_names and "table_data" in template:
+            # Try to get from field_schema (CustomInput uses this)
+            if not fields and "field_schema" in template:
+                field_schema_config = template.get("field_schema", {})
+                if isinstance(field_schema_config, dict):
+                    schema_value = field_schema_config.get("value", [])
+                    if isinstance(schema_value, list):
+                        fields = [
+                            {
+                                "name": schema.get("field_name"),
+                                "type": normalize_type(schema.get("data_type")),  # Extract and normalize type
+                            }
+                            for schema in schema_value
+                            if isinstance(schema, dict) and schema.get("field_name")
+                        ]
+
+            # Try to get from table_data (infer types from data)
+            if not fields and "table_data" in template:
                 table_data = template.get("table_data", {})
                 if isinstance(table_data, dict):
                     data_value = table_data.get("value", [])
                     if isinstance(data_value, list) and len(data_value) > 0:
-                        # Extract keys from first row
+                        # Extract keys from first row and infer types
                         first_row = data_value[0]
                         if isinstance(first_row, dict):
-                            field_names = list(first_row.keys())
+                            fields = [
+                                {
+                                    "name": key,
+                                    "type": _infer_type_from_value(first_row[key]),  # Infer type from value
+                                }
+                                for key in first_row.keys()
+                            ]
 
             # Special handling for ETLCustomInput - if no schema or data, provide common defaults
-            if not field_names and upstream_node_type == "ETLCustomInput":
+            if not fields and upstream_node_type == "ETLCustomInput":
                 logger.info(
                     f"[{component_name}] ETLCustomInput has no schema or data configured, providing default fields"
                 )
-                # Check if there are any generation rules that might give us hints about field types
-                field_schema = template.get("field_schema", {}).get("value", [])
-                if isinstance(field_schema, list) and field_schema:
-                    field_names = [schema.get("field_name", f"field_{i + 1}") for i, schema in enumerate(field_schema)]
-                else:
-                    # Provide sensible default field names
-                    field_names = ["id", "name", "value", "type", "description", "created_at"]
+                # Provide sensible default fields
+                fields = [
+                    {"name": "id", "type": "integer"},
+                    {"name": "name", "type": "string"},
+                    {"name": "value", "type": "string"},
+                    {"name": "type", "type": "string"},
+                    {"name": "description", "type": "string"},
+                    {"name": "created_at", "type": "datetime"},
+                ]
 
         # For field value merge - extracts both upstream fields AND new merged fields
         # MUST be before the generic "Field" check below
@@ -171,7 +337,7 @@ def extract_fields_from_node_template(
             logger.debug(f"[{component_name}] Template keys: {list(template.keys()) if template else 'N/A'}")
 
             # First, get upstream fields
-            upstream_field_names = []
+            upstream_fields = []
             if graph_data:
                 try:
                     from lfx.custom.graph_utils import find_upstream_node_id
@@ -186,12 +352,12 @@ def extract_fields_from_node_template(
                                 break
 
                         if merge_upstream_node:
-                            upstream_field_names = extract_fields_from_node_template(
+                            upstream_fields = extract_fields_from_node_template(
                                 merge_upstream_node, component_name, graph_data
                             )
                             logger.info(
-                                f"[{component_name}] Extracted {len(upstream_field_names)} fields from "
-                                f"ETLFieldValueMerge's upstream: {upstream_field_names}"
+                                f"[{component_name}] Extracted {len(upstream_fields)} fields from "
+                                f"ETLFieldValueMerge's upstream"
                             )
                 except Exception as e:
                     logger.debug(f"[{component_name}] Failed to get upstream fields for ETLFieldValueMerge: {e}")
@@ -210,16 +376,18 @@ def extract_fields_from_node_template(
 
                     if isinstance(config_value, list):
                         new_merged_fields = [
-                            merge.get("new_field")
+                            {
+                                "name": merge.get("new_field"),
+                                "type": "string",  # Merged fields are typically string concatenations
+                            }
                             for merge in config_value
                             if isinstance(merge, dict) and merge.get("new_field")
                         ]
-                        logger.debug(f"[{component_name}] Extracted new_merged_fields: {new_merged_fields}")
+                        logger.debug(f"[{component_name}] Extracted {len(new_merged_fields)} new_merged_fields")
 
                         if new_merged_fields:
                             logger.info(
-                                f"[{component_name}] Extracted {len(new_merged_fields)} new merged fields: "
-                                f"{new_merged_fields}"
+                                f"[{component_name}] Extracted {len(new_merged_fields)} new merged fields"
                             )
                         else:
                             logger.warning(
@@ -238,17 +406,21 @@ def extract_fields_from_node_template(
 
             if drop_source:
                 # Only return new merged fields if dropping source fields
-                field_names = new_merged_fields
+                fields = new_merged_fields
                 logger.info(
                     f"[{component_name}] ETLFieldValueMerge with drop_source_fields=True, "
-                    f"returning only {len(field_names)} new fields"
+                    f"returning only {len(fields)} new fields"
                 )
             else:
                 # Include both upstream and new merged fields
-                field_names = list(set(upstream_field_names + new_merged_fields))
+                # Merge by field name, keeping unique fields
+                field_map = {f["name"]: f for f in upstream_fields}
+                for f in new_merged_fields:
+                    field_map[f["name"]] = f
+                fields = list(field_map.values())
                 logger.info(
-                    f"[{component_name}] ETLFieldValueMerge returning {len(field_names)} total fields "
-                    f"({len(upstream_field_names)} upstream + {len(new_merged_fields)} merged)"
+                    f"[{component_name}] ETLFieldValueMerge returning {len(fields)} total fields "
+                    f"({len(upstream_fields)} upstream + {len(new_merged_fields)} merged)"
                 )
 
         # For field manipulation components (field_split, field_pivot, etc.)
@@ -261,10 +433,11 @@ def extract_fields_from_node_template(
                     if isinstance(field_config, dict):
                         config_value = field_config.get("value", [])
                         if isinstance(config_value, list):
-                            # Try to extract field names from various possible structures
+                            # Try to extract field info from various possible structures
                             for item in config_value:
                                 if isinstance(item, dict):
                                     # Try common field name keys
+                                    field_name = None
                                     for key in [
                                         "target_field",
                                         "new_field",
@@ -273,8 +446,15 @@ def extract_fields_from_node_template(
                                         "field",
                                     ]:
                                         if item.get(key):
-                                            field_names.append(item[key])
-                            if field_names:
+                                            field_name = item[key]
+                                            break
+
+                                    if field_name:
+                                        fields.append({
+                                            "name": field_name,
+                                            "type": normalize_type(item.get("field_type") or item.get("data_type") or item.get("source_type")),
+                                        })
+                            if fields:
                                 break
 
         # For join/union operations
@@ -286,14 +466,17 @@ def extract_fields_from_node_template(
 
         # For group_by operations
         elif upstream_node_type == "ETLGroupBy":
-            # group_by outputs aggregation fields
+            # group_by outputs group columns + aggregation fields
             if "group_by_columns" in template:
                 group_by_config = template.get("group_by_columns", {})
                 if isinstance(group_by_config, dict):
                     config_value = group_by_config.get("value", [])
                     if isinstance(config_value, list):
-                        field_names = [
-                            col.get("field_name")
+                        fields = [
+                            {
+                                "name": col.get("field_name"),
+                                "type": col.get("field_type", "string"),  # Group by preserves type
+                            }
                             for col in config_value
                             if isinstance(col, dict) and col.get("field_name")
                         ]
@@ -306,7 +489,19 @@ def extract_fields_from_node_template(
                     if isinstance(config_value, list):
                         for agg in config_value:
                             if isinstance(agg, dict) and agg.get("output_field"):
-                                field_names.append(agg["output_field"])
+                                # Aggregation type depends on function
+                                agg_func = agg.get("function", "").lower()
+                                if agg_func in ["count", "count_distinct"]:
+                                    agg_type = "integer"
+                                elif agg_func in ["sum", "avg", "mean", "stddev", "variance"]:
+                                    agg_type = "float"
+                                else:
+                                    agg_type = "string"  # min/max preserve type, default to string
+
+                                fields.append({
+                                    "name": agg["output_field"],
+                                    "type": agg_type,
+                                })
 
         # For field name mapping
         elif upstream_node_type == "ETLFieldNameMapping":
@@ -316,14 +511,17 @@ def extract_fields_from_node_template(
                 if isinstance(mappings_config, dict):
                     config_value = mappings_config.get("value", [])
                     if isinstance(config_value, list):
-                        field_names = [
-                            mapping.get("target_field")
+                        fields = [
+                            {
+                                "name": mapping.get("target_field"),
+                                "type": normalize_type(mapping.get("source_type")),  # Extract type from mapping
+                            }
                             for mapping in config_value
                             if isinstance(mapping, dict) and mapping.get("target_field")
                         ]
 
             # If no field mappings configured, try to get fields from upstream of field name mapping
-            if not field_names:
+            if not fields:
                 logger.info(
                     f"[{component_name}] ETLFieldNameMapping has no field_mappings, trying to get fields from its upstream"
                 )
@@ -344,11 +542,11 @@ def extract_fields_from_node_template(
 
                         if field_mapping_upstream_node:
                             # Extract fields from the upstream of field name mapping
-                            field_names = extract_fields_from_node_template(
+                            fields = extract_fields_from_node_template(
                                 field_mapping_upstream_node, component_name, graph_data
                             )
                             logger.info(
-                                f"[{component_name}] Extracted {len(field_names)} fields from ETLFieldNameMapping's upstream: {field_names}"
+                                f"[{component_name}] Extracted {len(fields)} fields from ETLFieldNameMapping's upstream"
                             )
                 except Exception as e:
                     logger.debug(
@@ -356,9 +554,15 @@ def extract_fields_from_node_template(
                     )
 
             # If still no fields, provide some common default fields
-            if not field_names:
+            if not fields:
                 logger.info(f"[{component_name}] ETLFieldNameMapping has no configured fields, using common defaults")
-                field_names = ["id", "name", "value", "created_at", "updated_at"]
+                fields = [
+                    {"name": "id", "type": "integer"},
+                    {"name": "name", "type": "string"},
+                    {"name": "value", "type": "string"},
+                    {"name": "created_at", "type": "datetime"},
+                    {"name": "updated_at", "type": "datetime"},
+                ]
 
         # For field value mapping
         elif upstream_node_type == "ETLFieldValueMapping":
@@ -369,8 +573,11 @@ def extract_fields_from_node_template(
                 if isinstance(rules_config, dict):
                     config_value = rules_config.get("value", [])
                     if isinstance(config_value, list):
-                        field_names = [
-                            rule.get("field_name")
+                        fields = [
+                            {
+                                "name": rule.get("field_name"),
+                                "type": rule.get("field_type", "string"),
+                            }
                             for rule in config_value
                             if isinstance(rule, dict) and rule.get("field_name")
                         ]
@@ -385,8 +592,11 @@ def extract_fields_from_node_template(
                 if isinstance(output_config, dict):
                     config_value = output_config.get("value", [])
                     if isinstance(config_value, list):
-                        field_names = [
-                            field.get("field_name")
+                        fields = [
+                            {
+                                "name": field.get("field_name"),
+                                "type": field.get("field_type", "string"),
+                            }
                             for field in config_value
                             if isinstance(field, dict) and field.get("field_name")
                         ]
@@ -397,11 +607,11 @@ def extract_fields_from_node_template(
             if "indicator_column" in template:
                 indicator = template.get("indicator_column", {}).get("value")
                 if indicator:
-                    field_names.append(indicator)
+                    fields.append({"name": indicator, "type": "string"})  # Indicator is string
             if "value_column" in template:
                 value_col = template.get("value_column", {}).get("value")
                 if value_col:
-                    field_names.append(value_col)
+                    fields.append({"name": value_col, "type": "string"})  # Value column type varies, default string
             # Also include any preserved columns
             if "preserve_columns" in template:
                 preserve_config = template.get("preserve_columns", {})
@@ -410,7 +620,10 @@ def extract_fields_from_node_template(
                     if isinstance(config_value, list):
                         for col in config_value:
                             if isinstance(col, dict) and col.get("column_name"):
-                                field_names.append(col["column_name"])
+                                fields.append({
+                                    "name": col["column_name"],
+                                    "type": col.get("column_type", "string"),
+                                })
 
         # For field split to columns
         elif upstream_node_type == "ETLFieldSplitToColumns":
@@ -420,8 +633,11 @@ def extract_fields_from_node_template(
                 if isinstance(output_config, dict):
                     config_value = output_config.get("value", [])
                     if isinstance(config_value, list):
-                        field_names = [
-                            col.get("column_name")
+                        fields = [
+                            {
+                                "name": col.get("column_name"),
+                                "type": "string",  # Split columns are strings
+                            }
                             for col in config_value
                             if isinstance(col, dict) and col.get("column_name")
                         ]
@@ -435,8 +651,11 @@ def extract_fields_from_node_template(
                 if isinstance(dedup_config, dict):
                     config_value = dedup_config.get("value", [])
                     if isinstance(config_value, list):
-                        field_names = [
-                            field.get("field_name")
+                        fields = [
+                            {
+                                "name": field.get("field_name"),
+                                "type": field.get("field_type", "string"),
+                            }
                             for field in config_value
                             if isinstance(field, dict) and field.get("field_name")
                         ]
@@ -450,26 +669,32 @@ def extract_fields_from_node_template(
                 if isinstance(cleaning_config, dict):
                     config_value = cleaning_config.get("value", [])
                     if isinstance(config_value, list):
-                        field_names = [
-                            rule.get("field_name")
+                        fields = [
+                            {
+                                "name": rule.get("field_name"),
+                                "type": rule.get("field_type", "string"),
+                            }
                             for rule in config_value
                             if isinstance(rule, dict) and rule.get("field_name")
                         ]
 
             # If cleaning_rules is empty, try to extract from filter_conditions
-            if not field_names and "filter_conditions" in template:
+            if not fields and "filter_conditions" in template:
                 filter_config = template.get("filter_conditions", {})
                 if isinstance(filter_config, dict):
                     filter_value = filter_config.get("value", [])
                     if isinstance(filter_value, list):
-                        field_names = [
-                            cond.get("field_name")
+                        fields = [
+                            {
+                                "name": cond.get("field_name"),
+                                "type": cond.get("field_type", "string"),
+                            }
                             for cond in filter_value
                             if isinstance(cond, dict) and cond.get("field_name")
                         ]
 
             # If still no fields found, try to get from upstream of data cleaning
-            if not field_names:
+            if not fields:
                 logger.info(
                     f"[{component_name}] ETLDataCleaning has no cleaning_rules or filter_conditions, trying to get fields from its upstream"
                 )
@@ -490,19 +715,25 @@ def extract_fields_from_node_template(
 
                         if data_cleaning_upstream_node:
                             # Extract fields from the upstream of data cleaning
-                            field_names = extract_fields_from_node_template(
+                            fields = extract_fields_from_node_template(
                                 data_cleaning_upstream_node, component_name, graph_data
                             )
                             logger.info(
-                                f"[{component_name}] Extracted {len(field_names)} fields from ETLDataCleaning's upstream: {field_names}"
+                                f"[{component_name}] Extracted {len(fields)} fields from ETLDataCleaning's upstream"
                             )
                 except Exception as e:
                     logger.debug(f"[{component_name}] Failed to extract fields from ETLDataCleaning's upstream: {e}")
 
             # If still no fields, provide some common default fields
-            if not field_names:
+            if not fields:
                 logger.info(f"[{component_name}] ETLDataCleaning has no configured fields, using common defaults")
-                field_names = ["id", "name", "value", "created_at", "updated_at"]
+                fields = [
+                    {"name": "id", "type": "integer"},
+                    {"name": "name", "type": "string"},
+                    {"name": "value", "type": "string"},
+                    {"name": "created_at", "type": "datetime"},
+                    {"name": "updated_at", "type": "datetime"},
+                ]
 
         # For Kafka Input
         elif upstream_node_type == "ETLKafkaInput":
@@ -511,11 +742,18 @@ def extract_fields_from_node_template(
                 schema_config = template.get("message_schema", {})
                 schema_value = schema_config.get("value", [])
                 if schema_value:
-                    field_names = [row.get("field_name") for row in schema_value if row.get("field_name")]
+                    fields = [
+                        {
+                            "name": row.get("field_name"),
+                            "type": normalize_type(row.get("field_type")),  # Kafka uses field_type
+                        }
+                        for row in schema_value
+                        if row.get("field_name")
+                    ]
                     logger.info(
-                        f"[{component_name}] Extracted {len(field_names)} fields from Kafka schema: {field_names}"
+                        f"[{component_name}] Extracted {len(fields)} fields from Kafka schema"
                     )
-                    return field_names
+                    return fields
 
             # Priority 2: Try to get sample data from sample_data output
             try:
@@ -527,16 +765,24 @@ def extract_fields_from_node_template(
                     sample_data = sample_output["value"]
                     if sample_data and len(sample_data) > 0:
                         first_sample = sample_data[0]
+                        sample_dict = None
                         if hasattr(first_sample, "data"):
-                            field_names = list(first_sample.data.keys())
+                            sample_dict = first_sample.data
                         elif isinstance(first_sample, dict):
-                            field_names = list(first_sample.keys())
+                            sample_dict = first_sample
 
-                        if field_names:
+                        if sample_dict:
+                            fields = [
+                                {
+                                    "name": key,
+                                    "type": _infer_type_from_value(value),
+                                }
+                                for key, value in sample_dict.items()
+                            ]
                             logger.info(
-                                f"[{component_name}] Extracted {len(field_names)} fields from Kafka sample data: {field_names}"
+                                f"[{component_name}] Extracted {len(fields)} fields from Kafka sample data"
                             )
-                            return field_names
+                            return fields
             except Exception as e:
                 logger.debug(f"[{component_name}] Failed to extract fields from Kafka sample data: {e}")
 
@@ -546,16 +792,28 @@ def extract_fields_from_node_template(
 
             if field_extraction_mode == "schema_only":
                 # Schema mode but no schema defined - return empty
-                field_names = []
-                logger.info(f"[{component_name}] Schema mode enabled but no schema defined: {field_names}")
+                fields = []
+                logger.info(f"[{component_name}] Schema mode enabled but no schema defined")
             elif field_extraction_mode == "flatten_all" or output_format == "flattened":
                 # Default flattened fields for Kafka messages
-                field_names = ["user_id", "event_type", "timestamp", "source", "payload"]
-                logger.info(f"[{component_name}] Using default flattened Kafka fields: {field_names}")
+                fields = [
+                    {"name": "user_id", "type": "string"},
+                    {"name": "event_type", "type": "string"},
+                    {"name": "timestamp", "type": "datetime"},
+                    {"name": "source", "type": "string"},
+                    {"name": "payload", "type": "string"},
+                ]
+                logger.info(f"[{component_name}] Using default flattened Kafka fields")
             else:
                 # Default raw structure fields for Kafka messages
-                field_names = ["value", "topic", "partition", "offset", "timestamp"]
-                logger.info(f"[{component_name}] Using default raw Kafka fields: {field_names}")
+                fields = [
+                    {"name": "value", "type": "string"},
+                    {"name": "topic", "type": "string"},
+                    {"name": "partition", "type": "integer"},
+                    {"name": "offset", "type": "integer"},
+                    {"name": "timestamp", "type": "datetime"},
+                ]
+                logger.info(f"[{component_name}] Using default raw Kafka fields")
 
         # For ConditionalRouter - passthrough fields from upstream
         elif upstream_node_type == "ConditionalRouter":
@@ -576,17 +834,17 @@ def extract_fields_from_node_template(
                                 break
 
                         if router_upstream_node:
-                            field_names = extract_fields_from_node_template(
+                            fields = extract_fields_from_node_template(
                                 router_upstream_node, component_name, graph_data
                             )
                             logger.info(
-                                f"[{component_name}] Extracted {len(field_names)} fields from ConditionalRouter's upstream: {field_names}"
+                                f"[{component_name}] Extracted {len(fields)} fields from ConditionalRouter's upstream"
                             )
                 except Exception as e:
                     logger.debug(f"[{component_name}] Failed to extract fields from ConditionalRouter's upstream: {e}")
 
-        if field_names:
-            logger.info(f"[{component_name}] Extracted {len(field_names)} fields from upstream config: {field_names}")
+        if fields:
+            logger.info(f"[{component_name}] Extracted {len(fields)} fields from upstream config")
         else:
             logger.debug(
                 f"[{component_name}] No fields found in upstream config. Node type: {upstream_node_type}, "
@@ -595,7 +853,7 @@ def extract_fields_from_node_template(
 
         # ============ 通用递归fallback机制 ============
         # 对于任何未明确处理的ETL组件，自动递归向上游查找字段
-        if not field_names and upstream_node_type and upstream_node_type.startswith("ETL"):
+        if not fields and upstream_node_type and upstream_node_type.startswith("ETL"):
             if graph_data:
                 logger.info(
                     f"[{component_name}] No specific field extraction logic for '{upstream_node_type}', "
@@ -617,18 +875,18 @@ def extract_fields_from_node_template(
 
                         if next_upstream_node:
                             # 递归提取上游节点的字段
-                            field_names = extract_fields_from_node_template(
+                            fields = extract_fields_from_node_template(
                                 next_upstream_node, component_name, graph_data
                             )
-                            if field_names:
+                            if fields:
                                 logger.info(
-                                    f"[{component_name}] Successfully extracted {len(field_names)} fields "
-                                    f"from upstream of '{upstream_node_type}': {field_names}"
+                                    f"[{component_name}] Successfully extracted {len(fields)} fields "
+                                    f"from upstream of '{upstream_node_type}'"
                                 )
                 except Exception as e:
                     logger.debug(f"[{component_name}] Recursive lookup failed for '{upstream_node_type}': {e}")
 
-        return field_names
+        return fields
 
     except Exception:  # noqa: BLE001
         logger.exception(f"[{component_name}] Failed to extract fields from upstream config")

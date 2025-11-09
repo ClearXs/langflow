@@ -4,6 +4,7 @@ from typing import Any
 
 import i18n
 
+from lfx.base.datasource.manager import DataSourceManager
 from lfx.custom.custom_component.component import Component
 from lfx.io import (
     BoolInput,
@@ -27,6 +28,7 @@ class ETLKafkaOutputComponent(Component):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.datasource_manager = DataSourceManager()
         self._producer = None
 
     def __del__(self):
@@ -47,12 +49,19 @@ class ETLKafkaOutputComponent(Component):
             is_list=True,
             required=True,
         ),
-        MessageTextInput(
-            name="bootstrap_servers",
-            display_name=i18n.t("components.input_output.kafka_output.bootstrap_servers.display_name"),
-            info=i18n.t("components.input_output.kafka_output.bootstrap_servers.info"),
+        DropdownInput(
+            name="datasource_selector",
+            display_name=i18n.t("components.input_output.kafka_output.datasource_selector.display_name"),
+            info=i18n.t("components.input_output.kafka_output.datasource_selector.info"),
             required=True,
-            placeholder="localhost:9092",
+            refresh_button=True,
+            options=[],  # Will be loaded dynamically
+            real_time_refresh=True,
+            action_button={
+                "label": i18n.t("base.dataSource.addDataSource"),
+                "icon": "plus",
+                "action": "open_datasource_dialog",
+            },
         ),
         MessageTextInput(
             name="topic",
@@ -173,9 +182,8 @@ class ETLKafkaOutputComponent(Component):
             logger.error(error_msg)
             raise ImportError(error_msg) from import_err
 
-        # Configure producer
+        # Start with basic producer config
         producer_config = {
-            "bootstrap.servers": self.bootstrap_servers,
             "acks": self.acks,
             "retries": self.retries,
             "delivery.timeout.ms": self.timeout_ms,
@@ -186,22 +194,28 @@ class ETLKafkaOutputComponent(Component):
             "socket.send.buffer.bytes": 102400,
         }
 
-        # Add compression
-        if self.compression_type != "none":
+        # Get Kafka config from datasource (required)
+        if not self.datasource_selector:
+            raise ValueError("Datasource selector is required")
+
+        logger.info(f"[KafkaOutput] Using datasource: {self.datasource_selector}")
+        datasource_config = self._get_kafka_config_from_datasource()
+
+        # Merge datasource config
+        producer_config.update(datasource_config)
+
+        # Validate bootstrap.servers is present
+        if "bootstrap.servers" not in producer_config:
+            raise ValueError("Datasource does not provide bootstrap.servers configuration")
+
+        logger.debug(f"[KafkaOutput] Using Kafka config from datasource")
+
+        # Add compression if not from datasource or override
+        if self.compression_type != "none" and "compression.type" not in producer_config:
             producer_config["compression.type"] = self.compression_type
 
-        # Add SASL authentication
-        if self.sasl_username and self.sasl_password:
-            producer_config.update(
-                {
-                    "security.protocol": "SASL_PLAINTEXT",
-                    "sasl.mechanism": "PLAIN",
-                    "sasl.username": self.sasl_username,
-                    "sasl.password": self.sasl_password,
-                }
-            )
-
-        logger.debug(f"Producer config: servers={self.bootstrap_servers}, topic={self.topic}")
+        bootstrap_servers = producer_config.get("bootstrap.servers", "unknown")
+        logger.debug(f"Producer config: servers={bootstrap_servers}, topic={self.topic}")
 
         producer = Producer(producer_config)
         logger.info("Kafka producer created successfully")
@@ -292,7 +306,7 @@ class ETLKafkaOutputComponent(Component):
 
             result_info = {
                 "topic": self.topic,
-                "bootstrap_servers": self.bootstrap_servers,
+                "datasource_id": self.datasource_selector,
                 "total_messages": total_messages,
                 "success_count": success_count,
                 "error_count": error_count,
@@ -403,10 +417,14 @@ class ETLKafkaOutputComponent(Component):
                     "details": str(import_err),
                 }
 
+            # Get Kafka config from datasource for diagnostic info
+            kafka_config = self._get_kafka_config_from_datasource() if self.datasource_selector else {}
+
             diagnostic_info = {
-                "bootstrap_servers": self.bootstrap_servers,
+                "datasource_id": self.datasource_selector,
+                "bootstrap_servers": kafka_config.get("bootstrap.servers", "unknown"),
                 "topic": self.topic,
-                "sasl_enabled": bool(self.sasl_username and self.sasl_password),
+                "sasl_enabled": kafka_config.get("security.protocol") in ["SASL_PLAINTEXT", "SASL_SSL"],
                 "compression_type": self.compression_type,
                 "acks": self.acks,
             }
@@ -480,6 +498,209 @@ class ETLKafkaOutputComponent(Component):
             recommendations.append("Ensure all replicas are healthy for 'all' acknowledgment level")
 
         return recommendations
+
+    def update_build_config(
+        self, build_config: dict[str, Any], field_value: Any, field_name: str | None = None, action: str | None = None
+    ) -> dict[str, Any]:
+        """Update build config to load Kafka datasources dynamically."""
+        logger.info(
+            f"[KafkaOutput] update_build_config called - field_name: {field_name}, field_value: {field_value}"
+        )
+
+        # Load Kafka datasources for initial load or refresh
+        if field_name is None or (field_name == "datasource_selector" and not field_value):
+            logger.debug(f"[KafkaOutput] Loading Kafka datasources")
+            try:
+                datasources = self._load_kafka_datasources()
+
+                # Build options and metadata
+                options = []
+                options_metadata = []
+
+                for ds in datasources:
+                    options.append(ds["id"])
+                    options_metadata.append({
+                        "value": ds["id"],
+                        "label": ds["display_name"],
+                        "id": ds["id"],
+                        "name": ds["name"],
+                        "type": ds["type"],
+                        "source": ds["source"],
+                        "display_name": ds["display_name"],
+                        "raw_data": ds.get("raw_data"),
+                    })
+
+                build_config["datasource_selector"]["options"] = options
+                build_config["datasource_selector"]["options_metadata"] = options_metadata
+                logger.debug(f"[KafkaOutput] Loaded {len(options)} Kafka datasources")
+
+            except Exception as e:
+                logger.error(f"[KafkaOutput] Error loading Kafka datasources: {e}")
+                build_config["datasource_selector"]["options"] = []
+                build_config["datasource_selector"]["options_metadata"] = []
+
+        return build_config
+
+    def _load_kafka_datasources(self) -> list[dict]:
+        """Load Kafka datasources (both builtin and public), filtered by type='kafka'."""
+        import os
+        import asyncio
+
+        import httpx
+
+        all_datasources = []
+        api_url = os.getenv("LANGFLOW_API_URL", "http://localhost:7860")
+
+        try:
+            # 1. Load builtin Kafka datasources
+            try:
+                with httpx.Client(timeout=120.0) as client:
+                    response = client.get(f"{api_url}/api/v1/datasources")
+
+                    if response.status_code == 200:
+                        datasources = response.json()
+                        kafka_datasources = [ds for ds in datasources if ds.get("type", "").lower() == "kafka"]
+                        logger.debug(f"[KafkaOutput] Found {len(kafka_datasources)} builtin Kafka datasources")
+
+                        for ds in kafka_datasources:
+                            datasource_id = self._extract_uuid_from_id(str(ds["id"]))
+                            display_name = f"{ds['name']} (Kafka) [自定义]"
+                            all_datasources.append({
+                                "id": datasource_id,
+                                "name": ds["name"],
+                                "type": "kafka",
+                                "source": "builtin",
+                                "display_name": display_name,
+                            })
+            except Exception as e:
+                logger.error(f"[KafkaOutput] Error loading builtin Kafka datasources: {e}")
+
+            # 2. Load public Kafka datasources
+            try:
+                public_datasources = asyncio.run(self._get_public_datasources())
+                if public_datasources:
+                    kafka_public = [ds for ds in public_datasources if self._get_datasource_type(ds).lower() == "kafka"]
+                    logger.debug(f"[KafkaOutput] Found {len(kafka_public)} public Kafka datasources")
+
+                    for ds in kafka_public:
+                        display_name = f"{ds['name']} (Kafka) [公共]"
+                        all_datasources.append({
+                            "id": str(ds["id"]),
+                            "name": ds["name"],
+                            "type": "kafka",
+                            "source": "public",
+                            "display_name": display_name,
+                            "raw_data": ds,
+                        })
+            except Exception as e:
+                logger.error(f"[KafkaOutput] Error loading public Kafka datasources: {e}")
+
+            logger.info(f"[KafkaOutput] Loaded {len(all_datasources)} total Kafka datasources")
+            return all_datasources
+
+        except Exception as e:
+            logger.error(f"[KafkaOutput] Error in _load_kafka_datasources: {e}")
+            return []
+
+    async def _get_public_datasources(self) -> list[dict]:
+        """Get public datasources via feign API."""
+        try:
+            from lfx.services.deps import get_feign_service
+            from lfx.services.feign.clients.data_construction import DataConstructionFeignClient
+
+            feign_service = get_feign_service()
+            client = DataConstructionFeignClient(feign_service)
+            datasource_list = await client.get_datasource_list()
+
+            logger.debug(f"[KafkaOutput] Got {len(datasource_list)} public datasources from feign API")
+            return datasource_list if isinstance(datasource_list, list) else []
+
+        except Exception as e:
+            logger.error(f"[KafkaOutput] Failed to get public datasources: {e}")
+            return []
+
+    def _get_datasource_type(self, datasource: dict) -> str:
+        """Extract datasource type from public datasource dict."""
+        params = datasource.get("dataSourceParam", {})
+        ds_type = params.get("type") if isinstance(params, dict) else None
+        if not ds_type:
+            ds_type = datasource.get("type") or datasource.get("dataSourceType") or datasource.get("dbType") or "mysql"
+        return ds_type
+
+    def _extract_uuid_from_id(self, datasource_id: str) -> str:
+        """Extract pure UUID from datasource ID, removing any prefix."""
+        if not datasource_id:
+            return datasource_id
+
+        if "_" in datasource_id:
+            parts = datasource_id.split("_", 1)
+            if len(parts) == 2:
+                prefix, uuid_part = parts
+                if "-" in uuid_part and len(uuid_part) == 36:
+                    logger.debug(f"[KafkaOutput] Extracting UUID from datasource ID: {datasource_id} -> {uuid_part}")
+                    return uuid_part
+
+        return datasource_id
+
+    def _get_kafka_config_from_datasource(self) -> dict:
+        """Get Kafka configuration from selected datasource."""
+        import os
+        import httpx
+
+        if not self.datasource_selector:
+            return {}
+
+        try:
+            api_url = os.getenv("LANGFLOW_API_URL", "http://localhost:7860")
+            datasource_id = self._extract_uuid_from_id(self.datasource_selector)
+
+            logger.info(f"[KafkaOutput] Fetching Kafka datasource configuration for ID: {datasource_id}")
+
+            with httpx.Client(timeout=120.0) as client:
+                response = client.get(f"{api_url}/api/v1/datasources/{datasource_id}")
+
+                if response.status_code != 200:
+                    logger.error(f"[KafkaOutput] Failed to get datasource, status: {response.status_code}")
+                    return {}
+
+                datasource = response.json()
+
+                # Build Kafka configuration
+                kafka_config = {}
+
+                # Bootstrap servers
+                if datasource.get("host"):
+                    kafka_config["bootstrap.servers"] = datasource["host"]
+
+                # Parse advanced_config
+                advanced_config = datasource.get("advanced_config", {})
+                if isinstance(advanced_config, str):
+                    advanced_config = json.loads(advanced_config)
+
+                # Map advanced_config to Kafka producer config
+                if advanced_config.get("security_protocol"):
+                    kafka_config["security.protocol"] = advanced_config["security_protocol"]
+                if advanced_config.get("sasl_mechanism"):
+                    kafka_config["sasl.mechanism"] = advanced_config["sasl_mechanism"]
+                if advanced_config.get("sasl_username"):
+                    kafka_config["sasl.username"] = advanced_config["sasl_username"]
+                if advanced_config.get("sasl_password"):
+                    kafka_config["sasl.password"] = advanced_config["sasl_password"]
+                if advanced_config.get("compression_type"):
+                    kafka_config["compression.type"] = advanced_config["compression_type"]
+                if advanced_config.get("batch_size"):
+                    kafka_config["batch.size"] = advanced_config["batch_size"]
+                if advanced_config.get("linger_ms"):
+                    kafka_config["linger.ms"] = advanced_config["linger_ms"]
+                if advanced_config.get("acks"):
+                    kafka_config["acks"] = advanced_config["acks"]
+
+                logger.debug(f"[KafkaOutput] Built Kafka config from datasource: {kafka_config}")
+                return kafka_config
+
+        except Exception as e:
+            logger.error(f"[KafkaOutput] Error getting Kafka config from datasource: {e}")
+            return {}
 
     def get_producer_info(self) -> Data:
         """Get Kafka producer configuration information."""

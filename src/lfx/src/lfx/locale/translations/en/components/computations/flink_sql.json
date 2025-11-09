@@ -1,0 +1,40 @@
+{
+  "display_name": "Flink SQL",
+  "description": "Execute Flink SQL statements for data processing",
+  "flink_datasource": {
+    "display_name": "Flink Datasource",
+    "info": "Select a Flink cluster datasource"
+  },
+  "execution_mode": {
+    "display_name": "Execution Mode",
+    "info": "Choose between streaming or batch execution mode"
+  },
+  "sql_script": {
+    "display_name": "SQL Script",
+    "info": "Enter Flink SQL statements (supports multiple statements separated by semicolons)"
+  },
+  "parallelism": {
+    "display_name": "Parallelism",
+    "info": "Set the parallelism for job execution"
+  },
+  "checkpoint_interval": {
+    "display_name": "Checkpoint Interval",
+    "info": "Checkpoint interval in milliseconds (for streaming mode)"
+  },
+  "execution_results": {
+    "display_name": "Execution Results"
+  },
+  "execute_button": "Execute SQL",
+  "output": {
+    "display_name": "Execution Results"
+  },
+  "status": {
+    "success": "Successfully executed {success}/{total} statements",
+    "error": "Execution failed"
+  },
+  "error": {
+    "no_datasource": "Please select a Flink datasource",
+    "no_sql": "Please enter SQL statements",
+    "no_valid_sql": "No valid SQL statements found"
+  }
+}

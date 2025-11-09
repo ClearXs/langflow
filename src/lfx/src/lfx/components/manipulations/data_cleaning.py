@@ -462,20 +462,20 @@ class ETLDataCleaningComponent(Component):
                     try:
                         from lfx.components.helpers.field_extraction import find_and_extract_upstream_fields
 
-                        field_names = find_and_extract_upstream_fields(
+                        fields = find_and_extract_upstream_fields(
                             graph_data, node_id, "data_input", "DataCleaning"
                         )
 
-                        if field_names:
+                        if fields:
                             # Generate filter conditions from field names
                             filter_fields = [
                                 {
-                                    "field_name": field_name,
+                                    "field_name": field["name"],
                                     "operator": "=",  # Default operator
                                     "compare_value": "",
                                     "logic_operator": "AND",  # Default logic
                                 }
-                                for field_name in field_names
+                                for field in fields
                             ]
                             logger.info(
                                 f"[DataCleaning] Extracted {len(filter_fields)} filter fields from static config"
@@ -545,19 +545,19 @@ class ETLDataCleaningComponent(Component):
                     try:
                         from lfx.components.helpers.field_extraction import find_and_extract_upstream_fields
 
-                        field_names = find_and_extract_upstream_fields(
+                        fields = find_and_extract_upstream_fields(
                             graph_data, node_id, "data_input", "DataCleaning"
                         )
 
-                        if field_names:
+                        if fields:
                             # Generate cleaning rules from field names
                             cleaning_rules = [
                                 {
-                                    "field_name": field_name,
+                                    "field_name": field["name"],
                                     "transformation_rule": "none",  # Default: no transformation
                                     "custom_expression": "",
                                 }
-                                for field_name in field_names
+                                for field in fields
                             ]
                             logger.info(
                                 f"[DataCleaning] Extracted {len(cleaning_rules)} cleaning rules from static config"

@@ -1,33 +1,33 @@
-import { useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import { useBlocker, useParams } from 'react-router-dom';
-import { SidebarProvider } from '@/components/ui/sidebar';
-import { useGetFlow } from '@/controllers/API/queries/flows/use-get-flow';
-import { useGetTypes } from '@/controllers/API/queries/flows/use-get-types';
-import { ENABLE_NEW_SIDEBAR } from '@/customization/feature-flags';
-import { useCustomNavigate } from '@/customization/hooks/use-custom-navigate';
-import useSaveFlow from '@/hooks/flows/use-save-flow';
-import { useUrlParam } from '@/hooks/use-iframe-params';
-import { useIsMobile } from '@/hooks/use-mobile';
-import { SaveChangesModal } from '@/modals/saveChangesModal';
-import useAlertStore from '@/stores/alertStore';
-import { useTypesStore } from '@/stores/typesStore';
-import { customStringify } from '@/utils/reactflowUtils';
-import useFlowStore from '../../stores/flowStore';
-import useFlowsManagerStore from '../../stores/flowsManagerStore';
+import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { useBlocker, useParams } from "react-router-dom";
+import { SidebarProvider } from "@/components/ui/sidebar";
+import { useGetFlow } from "@/controllers/API/queries/flows/use-get-flow";
+import { useGetTypes } from "@/controllers/API/queries/flows/use-get-types";
+import { ENABLE_NEW_SIDEBAR } from "@/customization/feature-flags";
+import { useCustomNavigate } from "@/customization/hooks/use-custom-navigate";
+import useSaveFlow from "@/hooks/flows/use-save-flow";
+import { useUrlParam } from "@/hooks/use-iframe-params";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { SaveChangesModal } from "@/modals/saveChangesModal";
+import useAlertStore from "@/stores/alertStore";
+import { useTypesStore } from "@/stores/typesStore";
+import { customStringify } from "@/utils/reactflowUtils";
+import useFlowStore from "../../stores/flowStore";
+import useFlowsManagerStore from "../../stores/flowsManagerStore";
 import {
   FlowSearchProvider,
   FlowSidebarComponent,
-} from './components/flowSidebarComponent';
-import Page from './components/PageComponent';
+} from "./components/flowSidebarComponent";
+import Page from "./components/PageComponent";
 
 export default function FlowPage({ view }: { view?: boolean }): JSX.Element {
   const { t } = useTranslation();
   const types = useTypesStore((state) => state.types);
 
   // Detect stream parameter from URL
-  const streamParam = useUrlParam('stream');
-  const isPersistentStream = streamParam === 'true';
+  const streamParam = useUrlParam("stream");
+  const isPersistentStream = streamParam === "true";
 
   useGetTypes({
     enabled: Object.keys(types).length <= 0,
@@ -38,7 +38,7 @@ export default function FlowPage({ view }: { view?: boolean }): JSX.Element {
   const currentSavedFlow = useFlowsManagerStore((state) => state.currentFlow);
   const setSuccessData = useAlertStore((state) => state.setSuccessData);
   const setIsPersistentStream = useFlowStore(
-    (state) => state.setIsPersistentStream
+    (state) => state.setIsPersistentStream,
   );
   const setIsBuilding = useFlowStore((state) => state.setIsBuilding);
   const setStreamingJobId = useFlowStore((state) => state.setStreamingJobId);
@@ -63,7 +63,7 @@ export default function FlowPage({ view }: { view?: boolean }): JSX.Element {
         const response = await fetch(`/api/v1/flows/${id}/status`);
 
         if (!response.ok) {
-          console.error('Failed to check flow status');
+          console.error("Failed to check flow status");
           return;
         }
 
@@ -72,7 +72,7 @@ export default function FlowPage({ view }: { view?: boolean }): JSX.Element {
 
         if (is_running && job_id) {
           console.log(
-            `Restoring streaming status for flow ${id}, job ${job_id}`
+            `Restoring streaming status for flow ${id}, job ${job_id}`,
           );
 
           // Restore running state
@@ -83,7 +83,7 @@ export default function FlowPage({ view }: { view?: boolean }): JSX.Element {
           // This would require additional implementation
         }
       } catch (error) {
-        console.error('Error checking flow status:', error);
+        console.error("Error checking flow status:", error);
       }
     };
 
@@ -99,10 +99,10 @@ export default function FlowPage({ view }: { view?: boolean }): JSX.Element {
 
   const isBuilding = useFlowStore((state) => state.isBuilding);
   const isPersistentStreamStore = useFlowStore(
-    (state) => state.isPersistentStream
+    (state) => state.isPersistentStream,
   );
   const blocker = useBlocker(
-    (isPersistentStreamStore ? false : changesNotSaved) || isBuilding
+    (isPersistentStreamStore ? false : changesNotSaved) || isBuilding,
   );
 
   const setOnFlowPage = useFlowStore((state) => state.setOnFlowPage);
@@ -126,7 +126,7 @@ export default function FlowPage({ view }: { view?: boolean }): JSX.Element {
       if (proceed) {
         blocker.proceed && blocker.proceed();
         setSuccessData({
-          title: t('common.flowSavedSuccessfully'),
+          title: t("common.flowSavedSuccessfully"),
         });
       }
     }, 1200);
@@ -134,7 +134,7 @@ export default function FlowPage({ view }: { view?: boolean }): JSX.Element {
       if (!autoSaving || saving === false) {
         blocker.proceed && blocker.proceed();
         setSuccessData({
-          title: t('common.flowSavedSuccessfully'),
+          title: t("common.flowSavedSuccessfully"),
         });
       }
       proceed = true;
@@ -147,7 +147,7 @@ export default function FlowPage({ view }: { view?: boolean }): JSX.Element {
     } else if (changesNotSaved) {
       if (blocker.proceed) blocker.proceed();
     } else {
-      navigate('/all');
+      navigate("/all");
     }
   };
 
@@ -156,25 +156,25 @@ export default function FlowPage({ view }: { view?: boolean }): JSX.Element {
       // Persistent streaming flows don't block page exit
       if (!isPersistentStreamStore && (changesNotSaved || isBuilding)) {
         event.preventDefault();
-        event.returnValue = ''; // Required for Chrome
+        event.returnValue = ""; // Required for Chrome
       }
     };
 
-    window.addEventListener('beforeunload', handleBeforeUnload);
+    window.addEventListener("beforeunload", handleBeforeUnload);
 
     return () => {
-      window.removeEventListener('beforeunload', handleBeforeUnload);
+      window.removeEventListener("beforeunload", handleBeforeUnload);
     };
   }, [changesNotSaved, isBuilding, isPersistentStreamStore]);
 
   // Set flow tab id
   useEffect(() => {
     const awaitgetTypes = async () => {
-      if (flows && currentFlowId === '' && Object.keys(types).length > 0) {
+      if (flows && currentFlowId === "" && Object.keys(types).length > 0) {
         const isAnExistingFlow = flows.find((flow) => flow.id === id);
 
         if (!isAnExistingFlow) {
-          navigate('/all');
+          navigate("/all");
           return;
         }
 
@@ -191,7 +191,7 @@ export default function FlowPage({ view }: { view?: boolean }): JSX.Element {
 
     return () => {
       setOnFlowPage(false);
-      console.warn(t('common.unmounting'));
+      console.warn(t("common.unmounting"));
 
       // Don't stop building in cleanup - this causes race conditions
       // Building should be stopped explicitly by user or handled by beforeunload
@@ -202,7 +202,7 @@ export default function FlowPage({ view }: { view?: boolean }): JSX.Element {
 
   useEffect(() => {
     if (
-      blocker.state === 'blocked' &&
+      blocker.state === "blocked" &&
       autoSaving &&
       changesNotSaved &&
       !isBuilding
@@ -212,10 +212,10 @@ export default function FlowPage({ view }: { view?: boolean }): JSX.Element {
   }, [blocker.state, isBuilding]);
 
   useEffect(() => {
-    if (blocker.state === 'blocked') {
+    if (blocker.state === "blocked") {
       if (isBuilding) {
         stopBuilding().catch((error) => {
-          console.error('Error stopping building:', error);
+          console.error("Error stopping building:", error);
         });
       } else if (!changesNotSaved) {
         blocker.proceed && blocker.proceed();
@@ -232,18 +232,18 @@ export default function FlowPage({ view }: { view?: boolean }): JSX.Element {
 
   return (
     <>
-      <div className='flow-page-positioning'>
+      <div className="flow-page-positioning">
         {currentFlow && (
-          <div className='flex h-full overflow-hidden'>
+          <div className="flex h-full overflow-hidden">
             <SidebarProvider
-              width='17.5rem'
+              width="17.5rem"
               defaultOpen={!isMobile}
               segmentedSidebar={ENABLE_NEW_SIDEBAR}
             >
               <FlowSearchProvider>
                 {!view && <FlowSidebarComponent isLoading={isLoading} />}
-                <main className='flex w-full overflow-hidden'>
-                  <div className='h-full w-full'>
+                <main className="flex w-full overflow-hidden">
+                  <div className="h-full w-full">
                     <Page setIsLoading={setIsLoading} />
                   </div>
                 </main>
@@ -252,7 +252,7 @@ export default function FlowPage({ view }: { view?: boolean }): JSX.Element {
           </div>
         )}
       </div>
-      {blocker.state === 'blocked' && (
+      {blocker.state === "blocked" && (
         <>
           {!isBuilding && currentSavedFlow && (
             <SaveChangesModal
@@ -262,12 +262,12 @@ export default function FlowPage({ view }: { view?: boolean }): JSX.Element {
               flowName={currentSavedFlow.name}
               lastSaved={
                 updatedAt
-                  ? new Date(updatedAt).toLocaleString('en-US', {
-                      hour: 'numeric',
-                      minute: 'numeric',
-                      second: 'numeric',
-                      month: 'numeric',
-                      day: 'numeric',
+                  ? new Date(updatedAt).toLocaleString("en-US", {
+                      hour: "numeric",
+                      minute: "numeric",
+                      second: "numeric",
+                      month: "numeric",
+                      day: "numeric",
                     })
                   : undefined
               }

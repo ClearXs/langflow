@@ -193,26 +193,17 @@ class DataSourceManager:
 
             db_type = connection_info.get("type", "").lower()
 
+            # Kafka requires special handling
+            if db_type == "kafka":
+                return await self._test_kafka_connection(connection_info)
+
+            # Flink requires special handling
+            if db_type == "flink":
+                return await self._test_flink_connection(connection_info)
+
             # Neo4j requires special handling with native driver
             if db_type == "neo4j":
-                from neo4j import GraphDatabase
-
-                host = connection_info.get("host", "localhost")
-                port = connection_info.get("port", 7687)
-                username = connection_info.get("username", "")
-                password = connection_info.get("password", "")
-
-                # Build Neo4j bolt URI
-                uri = f"bolt://{host}:{port}"
-
-                # Create driver and test connection
-                driver = GraphDatabase.driver(uri, auth=(username, password) if username else None)
-                try:
-                    # Verify connectivity
-                    driver.verify_connectivity()
-                    return {"status": "success", "message": "Connection successful"}
-                finally:
-                    driver.close()
+                return await self._test_neo4j_connection(connection_info)
 
             # For other databases, use SQLAlchemy
             if connection_info.get("connection_string"):
@@ -389,46 +380,120 @@ class DataSourceManager:
             return []
 
     def _build_connection_string(self, datasource: dict) -> str:
-        """Build connection string from datasource config."""
+        """Build connection string from datasource config with advanced_config support."""
         db_type = datasource.get("type") or "mysql"
         host = datasource.get("host") or "localhost"
         port = datasource.get("port") or 3306
         database = datasource.get("database") or ""
         username = datasource.get("username") or ""
         password = datasource.get("password") or ""
+        advanced_config = datasource.get("advanced_config", {})
+
+        # Parse advanced_config if it's a JSON string
+        if isinstance(advanced_config, str):
+            try:
+                advanced_config = json.loads(advanced_config)
+            except (json.JSONDecodeError, TypeError):
+                advanced_config = {}
 
         # URL encode username and password to handle special characters
         username_encoded = quote_plus(username) if username else ""
         password_encoded = quote_plus(password) if password else ""
 
         if db_type == "mysql":
-            return f"mysql+pymysql://{username_encoded}:{password_encoded}@{host}:{port}/{database}"
+            base_url = f"mysql+pymysql://{username_encoded}:{password_encoded}@{host}:{port}/{database}"
+            # Add advanced config parameters
+            params = []
+            if advanced_config.get("connect_timeout"):
+                params.append(f"connect_timeout={advanced_config['connect_timeout']}")
+            if advanced_config.get("read_timeout"):
+                params.append(f"read_timeout={advanced_config['read_timeout']}")
+            if advanced_config.get("write_timeout"):
+                params.append(f"write_timeout={advanced_config['write_timeout']}")
+            if advanced_config.get("charset"):
+                params.append(f"charset={advanced_config['charset']}")
+            if advanced_config.get("ssl_ca"):
+                params.append(f"ssl_ca={quote_plus(advanced_config['ssl_ca'])}")
+            if advanced_config.get("ssl_cert"):
+                params.append(f"ssl_cert={quote_plus(advanced_config['ssl_cert'])}")
+            if advanced_config.get("ssl_key"):
+                params.append(f"ssl_key={quote_plus(advanced_config['ssl_key'])}")
+            if advanced_config.get("ssl_disabled"):
+                params.append("ssl_disabled=true")
+            return base_url + ("?" + "&".join(params) if params else "")
+
         if db_type == "postgresql":
-            return f"postgresql://{username_encoded}:{password_encoded}@{host}:{port}/{database}"
+            base_url = f"postgresql://{username_encoded}:{password_encoded}@{host}:{port}/{database}"
+            # Add advanced config parameters
+            params = []
+            if advanced_config.get("connect_timeout"):
+                params.append(f"connect_timeout={advanced_config['connect_timeout']}")
+            if advanced_config.get("statement_timeout"):
+                params.append(f"options=-c%20statement_timeout%3D{advanced_config['statement_timeout']}")
+            if advanced_config.get("sslmode"):
+                params.append(f"sslmode={advanced_config['sslmode']}")
+            if advanced_config.get("sslcert"):
+                params.append(f"sslcert={quote_plus(advanced_config['sslcert'])}")
+            if advanced_config.get("sslkey"):
+                params.append(f"sslkey={quote_plus(advanced_config['sslkey'])}")
+            if advanced_config.get("sslrootcert"):
+                params.append(f"sslrootcert={quote_plus(advanced_config['sslrootcert'])}")
+            if advanced_config.get("application_name"):
+                params.append(f"application_name={quote_plus(advanced_config['application_name'])}")
+            return base_url + ("?" + "&".join(params) if params else "")
+
         if db_type == "hive":
             # Hive connection string - use PyHive SQLAlchemy format
             # Default port for Hive is 10000, database is 'default'
             hive_port = port if port != 3306 else 10000
             hive_database = database or "default"
 
-            # Build Hive connection string for SQLAlchemy + PyHive
-            # Format: hive://[user[:password]@]host:port/database
+            # Build base Hive connection string for SQLAlchemy + PyHive
+            # Format: hive://[user[:password]@]host:port/database[;param=value;...]
             if username and password:
-                # With authentication (LDAP mode)
-                return f"hive://{username_encoded}:{password_encoded}@{host}:{hive_port}/{hive_database}"
-            if username:
-                # Username only (no password)
-                return f"hive://{username_encoded}@{host}:{hive_port}/{hive_database}"
-            # No authentication (NOSASL mode)
-            return f"hive://{host}:{hive_port}/{hive_database}"
+                base_url = f"hive://{username_encoded}:{password_encoded}@{host}:{hive_port}/{hive_database}"
+            elif username:
+                base_url = f"hive://{username_encoded}@{host}:{hive_port}/{hive_database}"
+            else:
+                base_url = f"hive://{host}:{hive_port}/{hive_database}"
+
+            # Add advanced config parameters
+            params = []
+            if advanced_config.get("auth_mechanism"):
+                params.append(f"auth={advanced_config['auth_mechanism']}")
+            if advanced_config.get("transport_mode"):
+                params.append(f"transportMode={advanced_config['transport_mode']}")
+            if advanced_config.get("http_path"):
+                params.append(f"httpPath={advanced_config['http_path']}")
+            if advanced_config.get("kerberos_principal"):
+                params.append(f"kerberos_service_name={advanced_config['kerberos_principal']}")
+            if advanced_config.get("sasl_qop"):
+                params.append(f"sasl_qop={advanced_config['sasl_qop']}")
+
+            return base_url + (";" + ";".join(params) if params else "")
+
         if db_type == "neo4j":
             # Neo4j connection string - use bolt protocol (native driver)
             # Default port for Neo4j is 7687
             neo4j_port = port if port != 3306 else 7687
             # Neo4j uses bolt:// protocol for native driver, not neo4j://
+            # Note: Neo4j advanced config is handled in _test_neo4j_connection via driver config
             if username and password:
                 return f"bolt://{username_encoded}:{password_encoded}@{host}:{neo4j_port}"
             return f"bolt://{host}:{neo4j_port}"
+
+        if db_type == "kafka":
+            # Kafka doesn't use a connection string like SQL databases
+            # Return bootstrap servers for reference
+            return f"kafka://{host}"
+
+        if db_type == "flink":
+            # Flink doesn't use a traditional connection string
+            # Return REST API endpoint for reference
+            rest_port = advanced_config.get("rest_port", 8081)
+            ssl_enabled = advanced_config.get("ssl_enabled", False)
+            protocol = "https" if ssl_enabled else "http"
+            return f"{protocol}://{host}:{rest_port}"
 
         raise ValueError(f"Unsupported database type: {db_type}")
 
@@ -615,3 +680,185 @@ class DataSourceManager:
         print(f"Clearing cache after deleting datasource {datasource_id}")
         self._cache = {}
         self._last_cache_time = None
+
+    async def _test_kafka_connection(self, connection_info: dict) -> dict:
+        """Test Kafka connection.
+
+        Args:
+            connection_info: Kafka connection parameters
+
+        Returns:
+            Test result with status
+        """
+        try:
+            from confluent_kafka.admin import AdminClient
+
+            # Get connection parameters
+            bootstrap_servers = connection_info.get("host", "")
+            advanced_config = connection_info.get("advanced_config", {})
+
+            if isinstance(advanced_config, str):
+                advanced_config = json.loads(advanced_config)
+
+            # Build Kafka config
+            kafka_config = {
+                "bootstrap.servers": bootstrap_servers,
+            }
+
+            # Add advanced config parameters
+            if advanced_config.get("security_protocol"):
+                kafka_config["security.protocol"] = advanced_config["security_protocol"]
+            if advanced_config.get("sasl_mechanism"):
+                kafka_config["sasl.mechanism"] = advanced_config["sasl_mechanism"]
+            if advanced_config.get("sasl_username"):
+                kafka_config["sasl.username"] = advanced_config["sasl_username"]
+            if advanced_config.get("sasl_password"):
+                kafka_config["sasl.password"] = advanced_config["sasl_password"]
+
+            # Create AdminClient and test connection
+            admin_client = AdminClient(kafka_config)
+
+            # Get cluster metadata (this will test connection)
+            metadata = admin_client.list_topics(timeout=10)
+
+            broker_count = len(metadata.brokers)
+            topic_count = len(metadata.topics)
+
+            return {
+                "status": "success",
+                "message": f"Connection successful. Found {broker_count} brokers and {topic_count} topics.",
+                "metadata": {"brokers": broker_count, "topics": topic_count},
+            }
+        except ImportError:
+            return {
+                "status": "failed",
+                "message": "confluent-kafka library not installed. Please install it with: pip install confluent-kafka",
+            }
+        except Exception as e:
+            print(f"Kafka connection test failed: {e!s}")
+            return {"status": "failed", "message": str(e)}
+
+    async def _test_flink_connection(self, connection_info: dict) -> dict:
+        """Test Flink JobManager connection via REST API.
+
+        Args:
+            connection_info: Flink connection parameters
+
+        Returns:
+            Test result with status
+        """
+        try:
+            # Get connection parameters
+            jobmanager_address = connection_info.get("host", "")
+            advanced_config = connection_info.get("advanced_config", {})
+
+            if isinstance(advanced_config, str):
+                advanced_config = json.loads(advanced_config)
+
+            # Get REST port (default 8081)
+            rest_port = advanced_config.get("rest_port", 8081)
+            connection_timeout = advanced_config.get("connection_timeout", 30)
+            ssl_enabled = advanced_config.get("ssl_enabled", False)
+            ssl_verify_cert = advanced_config.get("ssl_verify_cert", True)
+
+            # Parse multiple jobmanager addresses (e.g., "host1:8081,host2:8081")
+            addresses = [addr.strip() for addr in jobmanager_address.split(",")]
+
+            # Try to connect to each address
+            protocol = "https" if ssl_enabled else "http"
+            last_error = None
+
+            for addr in addresses:
+                # Parse address (might include port)
+                if ":" in addr:
+                    host, port = addr.rsplit(":", 1)
+                    try:
+                        port = int(port)
+                    except ValueError:
+                        host = addr
+                        port = rest_port
+                else:
+                    host = addr
+                    port = rest_port
+
+                url = f"{protocol}://{host}:{port}/v1/overview"
+
+                try:
+                    async with httpx.AsyncClient(timeout=connection_timeout, verify=ssl_verify_cert if ssl_enabled else True) as client:
+                        response = await client.get(url)
+
+                        if response.status_code == 200:
+                            data = response.json()
+                            return {
+                                "status": "success",
+                                "message": f"Connection successful to {host}:{port}",
+                                "metadata": {
+                                    "version": data.get("flink-version"),
+                                    "taskmanagers": data.get("taskmanagers"),
+                                    "slots-total": data.get("slots-total"),
+                                    "slots-available": data.get("slots-available"),
+                                },
+                            }
+                except Exception as e:
+                    last_error = str(e)
+                    continue
+
+            return {"status": "failed", "message": f"Failed to connect to any JobManager. Last error: {last_error}"}
+        except Exception as e:
+            print(f"Flink connection test failed: {e!s}")
+            return {"status": "failed", "message": str(e)}
+
+    async def _test_neo4j_connection(self, connection_info: dict) -> dict:
+        """Test Neo4j connection with advanced config support.
+
+        Args:
+            connection_info: Neo4j connection parameters
+
+        Returns:
+            Test result with status
+        """
+        try:
+            from neo4j import GraphDatabase
+
+            host = connection_info.get("host", "localhost")
+            port = connection_info.get("port", 7687)
+            username = connection_info.get("username", "")
+            password = connection_info.get("password", "")
+            advanced_config = connection_info.get("advanced_config", {})
+
+            if isinstance(advanced_config, str):
+                advanced_config = json.loads(advanced_config)
+
+            # Build Neo4j bolt URI
+            uri = f"bolt://{host}:{port}"
+
+            # Build driver config from advanced_config
+            driver_config = {}
+            if advanced_config.get("max_connection_pool_size"):
+                driver_config["max_connection_pool_size"] = advanced_config["max_connection_pool_size"]
+            if advanced_config.get("max_connection_lifetime"):
+                driver_config["max_connection_lifetime"] = advanced_config["max_connection_lifetime"]
+            if advanced_config.get("connection_acquisition_timeout"):
+                driver_config["connection_acquisition_timeout"] = advanced_config["connection_acquisition_timeout"]
+            if advanced_config.get("connection_timeout"):
+                driver_config["connection_timeout"] = advanced_config["connection_timeout"]
+            if advanced_config.get("encrypted") is not None:
+                driver_config["encrypted"] = advanced_config["encrypted"]
+            if advanced_config.get("trust"):
+                driver_config["trust"] = advanced_config["trust"]
+            if advanced_config.get("max_retry_time"):
+                driver_config["max_retry_time"] = advanced_config["max_retry_time"]
+
+            # Create driver and test connection
+            driver = GraphDatabase.driver(uri, auth=(username, password) if username else None, **driver_config)
+            try:
+                # Verify connectivity
+                driver.verify_connectivity()
+                return {"status": "success", "message": "Connection successful"}
+            finally:
+                driver.close()
+        except ImportError:
+            return {"status": "failed", "message": "neo4j library not installed. Please install it with: pip install neo4j"}
+        except Exception as e:
+            print(f"Neo4j connection test failed: {e!s}")
+            return {"status": "failed", "message": str(e)}

@@ -10,6 +10,8 @@
     "info": "Define source to target field name mappings",
     "source_field": "Source Field",
     "source_field_desc": "Original field name from input data",
+    "source_type": "Source Type",
+    "source_type_desc": "Data type of the source field (auto-detected)",
     "target_field": "Target Field",
     "target_field_desc": "New field name in output data",
     "description": "Description",

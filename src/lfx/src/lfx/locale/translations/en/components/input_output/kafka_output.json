@@ -5,9 +5,13 @@
     "display_name": "Data Input",
     "info": "The data to send to Kafka. Accepts list of Data objects from upstream components."
   },
+  "datasource_selector": {
+    "display_name": "Kafka Datasource",
+    "info": "Select a Kafka datasource (optional, use this OR Bootstrap Servers)"
+  },
   "bootstrap_servers": {
     "display_name": "Bootstrap Servers",
-    "info": "Comma-separated list of Kafka broker addresses (e.g., 'localhost:9092,localhost:9093')"
+    "info": "Comma-separated list of Kafka broker addresses (e.g., 'localhost:9092,localhost:9093', optional if using datasource)"
   },
   "topic": {
     "display_name": "Topic",

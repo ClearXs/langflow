@@ -11,6 +11,8 @@
   },
   "input_field": "输入字段",
   "input_field_desc": "要读取值进行比较的字段名称",
+  "field_type": "字段类型",
+  "field_type_desc": "输入字段的数据类型（自动检测）",
   "operator": "运算符",
   "operator_desc": "使用的比较运算符（=, !=, >, <, contains等）",
   "compare_value": "比较值",

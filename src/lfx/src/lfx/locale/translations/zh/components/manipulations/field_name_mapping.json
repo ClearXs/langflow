@@ -10,6 +10,8 @@
     "info": "定义源字段到目标字段的名称映射",
     "source_field": "源字段",
     "source_field_desc": "输入数据中的原始字段名",
+    "source_type": "源字段类型",
+    "source_type_desc": "源字段的数据类型（自动检测）",
     "target_field": "目标字段",
     "target_field_desc": "输出数据中的新字段名",
     "description": "备注",

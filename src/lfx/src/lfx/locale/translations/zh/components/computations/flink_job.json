@@ -1,0 +1,49 @@
+{
+  "display_name": "Flink 作业",
+  "description": "通过上传 JAR 文件或编写 Python 脚本提交 Flink 作业",
+  "flink_datasource": {
+    "display_name": "Flink 数据源",
+    "info": "选择 Flink 集群数据源"
+  },
+  "job_mode": {
+    "display_name": "作业模式",
+    "info": "选择 JAR 文件或 Python 脚本模式"
+  },
+  "jar_file": {
+    "display_name": "JAR 文件",
+    "info": "选择要提交的 Flink JAR 文件"
+  },
+  "entry_class": {
+    "display_name": "主类名称",
+    "info": "主类全限定名(例如: com.example.MyFlinkJob)"
+  },
+  "program_args": {
+    "display_name": "程序参数",
+    "info": "程序的命令行参数"
+  },
+  "python_script": {
+    "display_name": "Python 脚本",
+    "info": "输入 PyFlink 脚本代码"
+  },
+  "parallelism": {
+    "display_name": "并行度",
+    "info": "设置作业执行的并行度"
+  },
+  "job_status": {
+    "display_name": "作业状态"
+  },
+  "submit_button": "提交作业",
+  "output": {
+    "display_name": "作业信息"
+  },
+  "status": {
+    "success": "作业提交成功",
+    "error": "作业提交失败"
+  },
+  "error": {
+    "no_datasource": "请选择 Flink 数据源",
+    "no_jar": "请选择 JAR 文件",
+    "no_entry_class": "请输入主类名称",
+    "no_python_script": "请输入 Python 脚本代码"
+  }
+}

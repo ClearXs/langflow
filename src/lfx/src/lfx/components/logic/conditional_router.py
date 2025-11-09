@@ -663,12 +663,12 @@ class ConditionalRouterComponent(Component):
                 try:
                     from lfx.components.helpers.field_extraction import find_and_extract_upstream_fields
 
-                    field_names = find_and_extract_upstream_fields(
+                    fields = find_and_extract_upstream_fields(
                         graph_data, node_id, "data_input", "ConditionalRouter"
                     )
 
-                    if field_names:
-                        field_options = field_names
+                    if fields:
+                        field_options = [field["name"] for field in fields]
                         logger.debug(
                             i18n.t(
                                 "components.logic.conditional_router.logs.fields_from_template",
@@ -805,9 +805,10 @@ class ConditionalRouterComponent(Component):
             # Fallback to field extraction from template configuration
             from lfx.components.helpers.field_extraction import find_and_extract_upstream_fields
 
-            field_names = find_and_extract_upstream_fields(graph_data, self._id, "data_input", "ConditionalRouter")
+            fields = find_and_extract_upstream_fields(graph_data, self._id, "data_input", "ConditionalRouter")
 
-            if field_names:
+            if fields:
+                field_names = [field["name"] for field in fields]
                 logger.info(
                     i18n.t("components.logic.conditional_router.logs.fields_from_template", count=len(field_names))
                 )

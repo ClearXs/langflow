@@ -317,7 +317,7 @@ const useFlowStore = create<FlowStoreType>((set, get) => ({
     });
 
     // Defer expensive computations to idle time
-    if (typeof requestIdleCallback !== 'undefined') {
+    if (typeof requestIdleCallback !== "undefined") {
       requestIdleCallback(() => {
         const newEdges = cleanEdges(newChange, get().edges);
         const { inputs, outputs } = getInputsAndOutputs(newChange);

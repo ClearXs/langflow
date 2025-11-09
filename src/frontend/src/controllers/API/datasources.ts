@@ -7,10 +7,18 @@ interface ErrorResponse {
   message?: string;
 }
 
+export type DataSourceType =
+  | "mysql"
+  | "postgresql"
+  | "hive"
+  | "neo4j"
+  | "kafka"
+  | "flink";
+
 export interface DataSource {
   id: string;
   name: string;
-  type: string;
+  type: DataSourceType;
   host?: string;
   port?: number;
   database?: string;
@@ -18,6 +26,7 @@ export interface DataSource {
   password?: string;
   status?: "active" | "inactive" | "error";
   lastTested?: string;
+  advanced_config?: Record<string, any>; // Advanced configuration as object
   metadata?: {
     created_at: string;
     updated_at?: string;
@@ -26,12 +35,13 @@ export interface DataSource {
 
 export interface DataSourceCreateInput {
   name: string;
-  type: string;
+  type: DataSourceType;
   host: string;
   port: number;
   database: string;
-  username: string;
-  password: string;
+  username?: string; // Optional for Hive, Kafka, Flink
+  password?: string; // Optional for Hive, Kafka, Flink
+  advanced_config?: Record<string, any>; // Optional advanced configuration
 }
 
 export interface DataSourceTestInput {

@@ -617,9 +617,25 @@ export function FormatColumns(columns: ColumnField[]): ColDef<any>[] {
           newCol.cellEditorParams = {
             values: col.options,
             optionsMetadata: col.options_metadata, // Pass metadata for i18n support
+            optionsMap: col.options_map, // Pass options_map for dynamic options
+            dependOn: col.depend_on, // Pass depend_on field name
           };
           // Add value formatter to display i18n labels
-          if (col.options_metadata && col.options_metadata.length > 0) {
+          // For dynamic options (options_map), we need to look up the dependent field value
+          if (col.options_map && col.depend_on) {
+            newCol.valueFormatter = (params) => {
+              const cellValue = params.value;
+              const dependentValue = params.data?.[col.depend_on];
+
+              if (dependentValue && col.options_map![dependentValue]) {
+                const options = col.options_map![dependentValue];
+                const option = options.find(opt => opt.value === cellValue);
+                return option?.label || cellValue;
+              }
+              return cellValue;
+            };
+          } else if (col.options_metadata && col.options_metadata.length > 0) {
+            // Static options with metadata
             const valueToLabelMap: Record<string, string> = {};
             col.options_metadata.forEach((meta: any) => {
               valueToLabelMap[meta.value] = meta.label;

@@ -1,0 +1,40 @@
+{
+  "display_name": "Flink SQL",
+  "description": "通过编写 Flink SQL 语句进行数据处理",
+  "flink_datasource": {
+    "display_name": "Flink 数据源",
+    "info": "选择 Flink 集群数据源"
+  },
+  "execution_mode": {
+    "display_name": "执行模式",
+    "info": "选择流式(streaming)或批处理(batch)执行模式"
+  },
+  "sql_script": {
+    "display_name": "SQL 脚本",
+    "info": "输入 Flink SQL 语句(支持多条语句，用分号分隔)"
+  },
+  "parallelism": {
+    "display_name": "并行度",
+    "info": "设置作业执行的并行度"
+  },
+  "checkpoint_interval": {
+    "display_name": "Checkpoint 间隔",
+    "info": "Checkpoint 间隔时间(毫秒)，仅流式模式有效"
+  },
+  "execution_results": {
+    "display_name": "执行结果"
+  },
+  "execute_button": "执行 SQL",
+  "output": {
+    "display_name": "执行结果"
+  },
+  "status": {
+    "success": "成功执行 {success}/{total} 条语句",
+    "error": "执行失败"
+  },
+  "error": {
+    "no_datasource": "请选择 Flink 数据源",
+    "no_sql": "请输入 SQL 语句",
+    "no_valid_sql": "未找到有效的 SQL 语句"
+  }
+}

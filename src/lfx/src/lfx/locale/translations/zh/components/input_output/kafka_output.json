@@ -5,9 +5,13 @@
     "display_name": "数据输入",
     "info": "要发送到 Kafka 的数据。接受来自上游组件的 Data 对象列表。"
   },
+  "datasource_selector": {
+    "display_name": "Kafka数据源",
+    "info": "选择Kafka数据源（可选，使用数据源或Kafka服务地址二选一）"
+  },
   "bootstrap_servers": {
     "display_name": "Kafka服务地址",
-    "info": "Kafka 服务地址的逗号分隔列表（例如：'localhost:9092,localhost:9093'）"
+    "info": "Kafka 服务地址的逗号分隔列表（例如：'localhost:9092,localhost:9093'，使用数据源时可选）"
   },
   "topic": {
     "display_name": "主题",

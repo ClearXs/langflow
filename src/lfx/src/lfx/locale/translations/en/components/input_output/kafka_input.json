@@ -1,9 +1,13 @@
 {
   "display_name": "Kafka Input",
   "description": "Consume messages from Kafka topics with authentication",
+  "datasource_selector": {
+    "display_name": "Kafka Datasource",
+    "info": "Select a Kafka datasource (optional, use this OR Bootstrap Servers)"
+  },
   "bootstrap_servers": {
     "display_name": "Bootstrap Servers",
-    "info": "Kafka bootstrap servers (comma-separated)"
+    "info": "Kafka bootstrap servers (comma-separated, optional if using datasource)"
   },
   "topics": {
     "display_name": "Topics",

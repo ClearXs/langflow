@@ -12,17 +12,39 @@ export default function TableDropdownCellEditor({
   value,
   values,
   optionsMetadata,
+  optionsMap,
+  dependOn,
+  data,
   onValueChange,
   colDef,
   eGridCell,
 }: CustomCellEditorProps & {
   values: string[];
   optionsMetadata?: OptionMetadata[];
+  optionsMap?: Record<string, OptionMetadata[]>;
+  dependOn?: string;
+  data?: any;
 }) {
   const { t } = useTranslation();
+
+  // Determine which options to use based on optionsMap and dependOn
+  const effectiveOptionsMetadata = useMemo(() => {
+    // If optionsMap and dependOn are configured, use dynamic options
+    if (optionsMap && dependOn && data) {
+      const dependentValue = data[dependOn];
+      if (dependentValue && optionsMap[dependentValue]) {
+        return optionsMap[dependentValue];
+      }
+      // If dependent value not found, return empty options
+      return [];
+    }
+    // Otherwise use static options
+    return optionsMetadata;
+  }, [optionsMap, dependOn, data, optionsMetadata]);
+
   // Create mapping from value to label and vice versa
   const { valueToLabel, labelToValue, displayOptions } = useMemo(() => {
-    if (!optionsMetadata || optionsMetadata.length === 0) {
+    if (!effectiveOptionsMetadata || effectiveOptionsMetadata.length === 0) {
       // No metadata, use values as-is
       return {
         valueToLabel: {},
@@ -35,7 +57,7 @@ export default function TableDropdownCellEditor({
     const labelToValueMap: Record<string, string> = {};
     const labels: string[] = [];
 
-    optionsMetadata.forEach((meta) => {
+    effectiveOptionsMetadata.forEach((meta) => {
       valueToLabelMap[meta.value] = meta.label;
       labelToValueMap[meta.label] = meta.value;
       labels.push(meta.label);
@@ -46,20 +68,20 @@ export default function TableDropdownCellEditor({
       labelToValue: labelToValueMap,
       displayOptions: labels,
     };
-  }, [optionsMetadata, values]);
+  }, [effectiveOptionsMetadata, values]);
 
   // Convert internal value to display label
   const displayValue = useMemo(() => {
-    if (optionsMetadata && optionsMetadata.length > 0) {
+    if (effectiveOptionsMetadata && effectiveOptionsMetadata.length > 0) {
       return valueToLabel[value] || value;
     }
     return value;
-  }, [value, valueToLabel, optionsMetadata]);
+  }, [value, valueToLabel, effectiveOptionsMetadata]);
 
   // Handle selection change
   const handleChange = (selectedLabel: string) => {
     // Convert display label back to internal value
-    if (optionsMetadata && optionsMetadata.length > 0) {
+    if (effectiveOptionsMetadata && effectiveOptionsMetadata.length > 0) {
       const internalValue = labelToValue[selectedLabel] || selectedLabel;
       onValueChange(internalValue);
     } else {

@@ -146,6 +146,11 @@ export const useSidebarCategories = () => {
         name: "security",
         icon: "Shield",
       },
+      {
+        display_name: t("flow.sidebar.components.computations"),
+        name: "computations",
+        icon: "Cpu",
+      },
     ],
     [],
   );

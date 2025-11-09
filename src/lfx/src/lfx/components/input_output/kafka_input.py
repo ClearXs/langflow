@@ -5,6 +5,7 @@ from typing import Any
 
 import i18n
 
+from lfx.base.datasource.manager import DataSourceManager
 from lfx.custom.custom_component.component import Component
 from lfx.io import (
     BoolInput,
@@ -34,6 +35,7 @@ class ETLKafkaInputComponent(Component):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.datasource_manager = DataSourceManager()
         self._sample_data_cache = []  # 缓存样本数据
         self._current_consumer = None  # Track current consumer instance
         self._should_stop = False  # 停止标志
@@ -62,14 +64,8 @@ class ETLKafkaInputComponent(Component):
         # 方法2: 检查是否有schema定义但没有活跃的Kafka连接配置
         # 如果用户定义了schema，很可能是设计时配置
         if self.message_schema:
-            # 检查是否使用了默认/示例配置
-            if (
-                not self.bootstrap_servers
-                or self.bootstrap_servers.strip() == ""
-                or self.bootstrap_servers in ["localhost:9092", "localhost:9093"]
-                or self.bootstrap_servers.startswith("example")
-                or self.topics in ["test-topic", "example-topic", "sample-topic"]
-            ):
+            # 检查是否使用了示例配置
+            if self.topics in ["test-topic", "example-topic", "sample-topic"]:
                 logger.debug("[KafkaInput] Schema with example config detected, assuming design-time")
                 return True
 
@@ -82,14 +78,10 @@ class ETLKafkaInputComponent(Component):
 
     def _has_valid_runtime_config(self) -> bool:
         """检查是否有有效的运行时配置"""
-        # 简单检查：如果有真实的服务器地址和topics，认为是运行时
-        has_server = (
-            self.bootstrap_servers
-            and self.bootstrap_servers.strip() != ""
-            and self.bootstrap_servers != "localhost:9092"
-        )
+        # 简单检查：如果有数据源选择器和topics，认为是运行时
+        has_datasource = self.datasource_selector and self.datasource_selector.strip() != ""
         has_topics = self.topics and self.topics.strip() != ""
-        return has_server and has_topics
+        return has_datasource and has_topics
 
     def __del__(self):
         """Cleanup when component is destroyed."""
@@ -108,12 +100,19 @@ class ETLKafkaInputComponent(Component):
         self._close_current_consumer()
 
     inputs = [
-        MessageTextInput(
-            name="bootstrap_servers",
-            display_name=i18n.t("components.input_output.kafka_input.bootstrap_servers.display_name"),
-            info=i18n.t("components.input_output.kafka_input.bootstrap_servers.info"),
+        DropdownInput(
+            name="datasource_selector",
+            display_name=i18n.t("components.input_output.kafka_input.datasource_selector.display_name"),
+            info=i18n.t("components.input_output.kafka_input.datasource_selector.info"),
             required=True,
-            placeholder="localhost:9092",
+            refresh_button=True,
+            options=[],  # Will be loaded dynamically
+            real_time_refresh=True,
+            action_button={
+                "label": i18n.t("base.dataSource.addDataSource"),
+                "icon": "plus",
+                "action": "open_datasource_dialog",
+            },
         ),
         MessageTextInput(
             name="topics",
@@ -336,9 +335,8 @@ class ETLKafkaInputComponent(Component):
             effective_group_id = f"{self.group_id}-{timestamp}-{unique_id}"
             logger.debug(f"Using unique group_id: {effective_group_id}")
 
-        # 配置 consumer
+        # Start with basic consumer config
         consumer_config = {
-            "bootstrap.servers": self.bootstrap_servers,
             "group.id": effective_group_id,
             "auto.offset.reset": self.auto_offset_reset,
             "enable.auto.commit": self.auto_commit,
@@ -347,18 +345,24 @@ class ETLKafkaInputComponent(Component):
             "heartbeat.interval.ms": 3000,
         }
 
-        # 添加 SASL 认证
-        if self.sasl_username and self.sasl_password:
-            consumer_config.update(
-                {
-                    "security.protocol": "SASL_PLAINTEXT",
-                    "sasl.mechanism": "PLAIN",
-                    "sasl.username": self.sasl_username,
-                    "sasl.password": self.sasl_password,
-                }
-            )
+        # Get Kafka config from datasource (required)
+        if not self.datasource_selector:
+            raise ValueError("Datasource selector is required")
 
-        logger.debug(f"Consumer config: servers={self.bootstrap_servers}, group={effective_group_id}")
+        logger.info(f"[KafkaInput] Using datasource: {self.datasource_selector}")
+        datasource_config = self._get_kafka_config_from_datasource()
+
+        # Merge datasource config
+        consumer_config.update(datasource_config)
+
+        # Validate bootstrap.servers is present
+        if "bootstrap.servers" not in consumer_config:
+            raise ValueError("Datasource does not provide bootstrap.servers configuration")
+
+        logger.debug(f"[KafkaInput] Using Kafka config from datasource")
+
+        bootstrap_servers = consumer_config.get("bootstrap.servers", "unknown")
+        logger.debug(f"Consumer config: servers={bootstrap_servers}, group={effective_group_id}")
 
         consumer = Consumer(consumer_config)
         logger.info("Consumer created successfully")
@@ -825,9 +829,8 @@ class ETLKafkaInputComponent(Component):
             # Parse topics
             topics = [t.strip() for t in self.topics.split(",")]
 
-            # Configure consumer for testing
+            # Configure consumer for testing - use datasource (required)
             consumer_config = {
-                "bootstrap.servers": self.bootstrap_servers,
                 "group.id": f"{self.group_id}_test",
                 "auto.offset.reset": "earliest",
                 "enable.auto.commit": False,
@@ -835,22 +838,29 @@ class ETLKafkaInputComponent(Component):
                 "request.timeout.ms": 10000,
             }
 
-            # Add SASL authentication if provided
-            if self.sasl_username and self.sasl_password:
-                consumer_config.update(
-                    {
-                        "security.protocol": "SASL_PLAINTEXT",
-                        "sasl.mechanism": "PLAIN",
-                        "sasl.username": self.sasl_username,
-                        "sasl.password": self.sasl_password,
-                    }
-                )
+            # Get Kafka config from datasource
+            if not self.datasource_selector:
+                return {
+                    "success": False,
+                    "error": "Datasource selector is required",
+                    "diagnostic": {},
+                }
+
+            datasource_config = self._get_kafka_config_from_datasource()
+            consumer_config.update(datasource_config)
+            if "bootstrap.servers" not in consumer_config:
+                return {
+                    "success": False,
+                    "error": "Datasource does not provide bootstrap.servers configuration",
+                    "diagnostic": {},
+                }
 
             diagnostic_info = {
-                "bootstrap_servers": self.bootstrap_servers,
+                "bootstrap_servers": consumer_config.get("bootstrap.servers", "unknown"),
                 "topics": topics,
                 "group_id": self.group_id,
-                "sasl_enabled": bool(self.sasl_username and self.sasl_password),
+                "datasource_id": self.datasource_selector,
+                "sasl_enabled": consumer_config.get("security.protocol") in ["SASL_PLAINTEXT", "SASL_SSL"],
             }
 
             # Test 1: Create consumer
@@ -1120,7 +1130,7 @@ class ETLKafkaInputComponent(Component):
     def get_consumer_info(self) -> Data:
         """Get Kafka consumer information."""
         info = {
-            "bootstrap_servers": self.bootstrap_servers,
+            "datasource_id": self.datasource_selector,
             "topics": self.topics,
             "group_id": self.group_id,
             "max_messages": self.max_messages,
@@ -1132,7 +1142,6 @@ class ETLKafkaInputComponent(Component):
             "auto_commit": self.auto_commit,
             "value_deserializer": self.value_deserializer,
             "json_path": self.json_path if self.json_path else None,
-            "sasl_enabled": bool(self.sasl_username and self.sasl_password),
             "schema_defined": bool(self.message_schema),
             "schema_fields": len(self.message_schema) if self.message_schema else 0,
             "debug_mode": self.debug_mode,
@@ -1170,22 +1179,17 @@ class ETLKafkaInputComponent(Component):
                 # Create a temporary consumer to fetch samples
                 from confluent_kafka import Consumer, KafkaError
 
+                # Get Kafka config from datasource
+                datasource_config = self._get_kafka_config_from_datasource()
+
                 consumer_config = {
-                    "bootstrap.servers": self.bootstrap_servers,
                     "group.id": f"{self.group_id}_schema_detection",
                     "auto.offset.reset": "latest",
                     "enable.auto.commit": False,
                 }
 
-                if self.sasl_username and self.sasl_password:
-                    consumer_config.update(
-                        {
-                            "security.protocol": "SASL_PLAINTEXT",
-                            "sasl.mechanism": "PLAIN",
-                            "sasl.username": self.sasl_username,
-                            "sasl.password": self.sasl_password,
-                        }
-                    )
+                # Merge datasource config
+                consumer_config.update(datasource_config)
 
                 consumer = Consumer(consumer_config)
                 topics = [t.strip() for t in self.topics.split(",")]
@@ -1306,6 +1310,293 @@ class ETLKafkaInputComponent(Component):
         schema.sort(key=lambda x: (-field_info[x["field_name"]]["count"], x["field_name"]))
 
         return schema
+
+    def update_build_config(
+        self, build_config: dict[str, Any], field_value: Any, field_name: str | None = None, action: str | None = None
+    ) -> dict[str, Any]:
+        """Update build config to load Kafka datasources dynamically."""
+        logger.info(
+            f"[KafkaInput] update_build_config called - field_name: {field_name}, field_value: {field_value}"
+        )
+
+        # Load Kafka datasources for initial load or refresh
+        if field_name is None or (field_name == "datasource_selector" and not field_value):
+            logger.debug(f"[KafkaInput] Loading Kafka datasources")
+            try:
+                datasources = self._load_kafka_datasources()
+
+                # Build options and metadata
+                options = []
+                options_metadata = []
+
+                for ds in datasources:
+                    options.append(ds["id"])
+                    options_metadata.append({
+                        "value": ds["id"],
+                        "label": ds["display_name"],
+                        "id": ds["id"],
+                        "name": ds["name"],
+                        "type": ds["type"],
+                        "source": ds["source"],
+                        "display_name": ds["display_name"],
+                        "raw_data": ds.get("raw_data"),
+                    })
+
+                build_config["datasource_selector"]["options"] = options
+                build_config["datasource_selector"]["options_metadata"] = options_metadata
+                logger.debug(f"[KafkaInput] Loaded {len(options)} Kafka datasources")
+
+            except Exception as e:
+                logger.error(f"[KafkaInput] Error loading Kafka datasources: {e}")
+                build_config["datasource_selector"]["options"] = []
+                build_config["datasource_selector"]["options_metadata"] = []
+
+        return build_config
+
+    def _load_kafka_datasources(self) -> list[dict]:
+        """Load Kafka datasources (both builtin and public), filtered by type='kafka'."""
+        import os
+        import asyncio
+
+        import httpx
+
+        all_datasources = []
+        api_url = os.getenv("LANGFLOW_API_URL", "http://localhost:7860")
+
+        try:
+            # 1. Load builtin Kafka datasources
+            try:
+                with httpx.Client(timeout=120.0) as client:
+                    response = client.get(f"{api_url}/api/v1/datasources")
+
+                    if response.status_code == 200:
+                        datasources = response.json()
+                        # Filter for Kafka type only
+                        kafka_datasources = [ds for ds in datasources if ds.get("type", "").lower() == "kafka"]
+                        logger.debug(f"[KafkaInput] Found {len(kafka_datasources)} builtin Kafka datasources")
+
+                        for ds in kafka_datasources:
+                            datasource_id = self._extract_uuid_from_id(str(ds["id"]))
+                            display_name = f"{ds['name']} (Kafka) [自定义]"
+                            all_datasources.append({
+                                "id": datasource_id,
+                                "name": ds["name"],
+                                "type": "kafka",
+                                "source": "builtin",
+                                "display_name": display_name,
+                            })
+            except Exception as e:
+                logger.error(f"[KafkaInput] Error loading builtin Kafka datasources: {e}")
+
+            # 2. Load public Kafka datasources
+            try:
+                public_datasources = asyncio.run(self._get_public_datasources())
+                if public_datasources:
+                    # Filter for Kafka type only
+                    kafka_public = [ds for ds in public_datasources if self._get_datasource_type(ds).lower() == "kafka"]
+                    logger.debug(f"[KafkaInput] Found {len(kafka_public)} public Kafka datasources")
+
+                    for ds in kafka_public:
+                        display_name = f"{ds['name']} (Kafka) [公共]"
+                        all_datasources.append({
+                            "id": str(ds["id"]),
+                            "name": ds["name"],
+                            "type": "kafka",
+                            "source": "public",
+                            "display_name": display_name,
+                            "raw_data": ds,
+                        })
+            except Exception as e:
+                logger.error(f"[KafkaInput] Error loading public Kafka datasources: {e}")
+
+            logger.info(f"[KafkaInput] Loaded {len(all_datasources)} total Kafka datasources")
+            return all_datasources
+
+        except Exception as e:
+            logger.error(f"[KafkaInput] Error in _load_kafka_datasources: {e}")
+            return []
+
+    async def _get_public_datasources(self) -> list[dict]:
+        """Get public datasources via feign API."""
+        try:
+            from lfx.services.deps import get_feign_service
+            from lfx.services.feign.clients.data_construction import DataConstructionFeignClient
+
+            feign_service = get_feign_service()
+            client = DataConstructionFeignClient(feign_service)
+            datasource_list = await client.get_datasource_list()
+
+            logger.debug(f"[KafkaInput] Got {len(datasource_list)} public datasources from feign API")
+            return datasource_list if isinstance(datasource_list, list) else []
+
+        except Exception as e:
+            logger.error(f"[KafkaInput] Failed to get public datasources: {e}")
+            return []
+
+    def _get_datasource_type(self, datasource: dict) -> str:
+        """Extract datasource type from public datasource dict."""
+        params = datasource.get("dataSourceParam", {})
+        ds_type = params.get("type") if isinstance(params, dict) else None
+        if not ds_type:
+            ds_type = datasource.get("type") or datasource.get("dataSourceType") or datasource.get("dbType") or "mysql"
+        return ds_type
+
+    def _extract_uuid_from_id(self, datasource_id: str) -> str:
+        """Extract pure UUID from datasource ID, removing any prefix."""
+        if not datasource_id:
+            return datasource_id
+
+        if "_" in datasource_id:
+            parts = datasource_id.split("_", 1)
+            if len(parts) == 2:
+                prefix, uuid_part = parts
+                if "-" in uuid_part and len(uuid_part) == 36:
+                    logger.debug(f"[KafkaInput] Extracting UUID from datasource ID: {datasource_id} -> {uuid_part}")
+                    return uuid_part
+
+        return datasource_id
+
+    def _find_datasource_info(self, datasource_id: str) -> dict | None:
+        """Find datasource info from options_metadata."""
+        # Get datasource info from build_config options_metadata
+        # This should be populated by update_build_config
+        try:
+            # Access the component's build_config if available
+            if hasattr(self, '_build_config') and self._build_config:
+                datasource_selector_config = self._build_config.get('datasource_selector', {})
+                options_metadata = datasource_selector_config.get('options_metadata', [])
+
+                for option in options_metadata:
+                    if option.get('id') == datasource_id or option.get('value') == datasource_id:
+                        return option
+
+            # Fallback: reload datasources if not in cache
+            logger.debug(f"[KafkaInput] Datasource info not in cache, reloading")
+            all_datasources = self._load_kafka_datasources()
+            for ds in all_datasources:
+                if ds['id'] == datasource_id:
+                    return {
+                        'id': ds['id'],
+                        'name': ds['name'],
+                        'type': ds['type'],
+                        'source': ds['source'],
+                        'display_name': ds['display_name'],
+                        'raw_data': ds.get('raw_data'),
+                    }
+
+            return None
+        except Exception as e:
+            logger.error(f"[KafkaInput] Error finding datasource info: {e}")
+            return None
+
+    def _get_kafka_config_from_datasource(self) -> dict:
+        """Get Kafka configuration from selected datasource (builtin or public)."""
+        import os
+        import httpx
+
+        if not self.datasource_selector:
+            return {}
+
+        try:
+            datasource_id = self._extract_uuid_from_id(self.datasource_selector)
+            logger.info(f"[KafkaInput] Fetching Kafka datasource configuration for ID: {datasource_id}")
+
+            # Find datasource info to determine if it's public or builtin
+            datasource_info = self._find_datasource_info(self.datasource_selector)
+
+            kafka_config = {}
+
+            # Check if it's a public datasource
+            if datasource_info and datasource_info.get("source") == "public":
+                logger.info(f"[KafkaInput] Using public datasource: {datasource_info.get('name')}")
+                raw_data = datasource_info.get("raw_data", {})
+                params = raw_data.get("dataSourceParam", {})
+
+                # Extract bootstrap servers from public datasource
+                if params.get("host"):
+                    kafka_config["bootstrap.servers"] = params["host"]
+
+                # Extract authentication config
+                if params.get("sasl_username"):
+                    kafka_config["sasl.username"] = params["sasl_username"]
+                if params.get("sasl_password"):
+                    kafka_config["sasl.password"] = params["sasl_password"]
+                if params.get("security_protocol"):
+                    kafka_config["security.protocol"] = params["security_protocol"]
+                else:
+                    # Default SASL protocol if username is provided
+                    if params.get("sasl_username"):
+                        kafka_config["security.protocol"] = "SASL_PLAINTEXT"
+                if params.get("sasl_mechanism"):
+                    kafka_config["sasl.mechanism"] = params["sasl_mechanism"]
+                else:
+                    if params.get("sasl_username"):
+                        kafka_config["sasl.mechanism"] = "PLAIN"
+
+                # Extract other Kafka consumer configs from public datasource
+                if params.get("session_timeout_ms"):
+                    kafka_config["session.timeout.ms"] = params["session_timeout_ms"]
+                if params.get("request_timeout_ms"):
+                    kafka_config["request.timeout.ms"] = params["request_timeout_ms"]
+                if params.get("heartbeat_interval_ms"):
+                    kafka_config["heartbeat.interval.ms"] = params["heartbeat_interval_ms"]
+                if params.get("enable_auto_commit") is not None:
+                    kafka_config["enable.auto.commit"] = params["enable_auto_commit"]
+                if params.get("auto_offset_reset"):
+                    kafka_config["auto.offset.reset"] = params["auto_offset_reset"]
+
+                logger.debug(f"[KafkaInput] Built Kafka config from public datasource: {kafka_config}")
+                return kafka_config
+
+            # Builtin datasource: fetch via API
+            api_url = os.getenv("LANGFLOW_API_URL", "http://localhost:7860")
+
+            with httpx.Client(timeout=120.0) as client:
+                # Get datasource details
+                response = client.get(f"{api_url}/api/v1/datasources/{datasource_id}")
+
+                if response.status_code != 200:
+                    logger.error(f"[KafkaInput] Failed to get datasource, status: {response.status_code}")
+                    return {}
+
+                datasource = response.json()
+                logger.info(f"[KafkaInput] Using builtin datasource: {datasource.get('name')}")
+
+                # Bootstrap servers (host field contains cluster addresses)
+                if datasource.get("host"):
+                    kafka_config["bootstrap.servers"] = datasource["host"]
+
+                # Parse advanced_config
+                advanced_config = datasource.get("advanced_config", {})
+                if isinstance(advanced_config, str):
+                    advanced_config = json.loads(advanced_config)
+
+                # Map advanced_config to Kafka consumer config
+                if advanced_config.get("security_protocol"):
+                    kafka_config["security.protocol"] = advanced_config["security_protocol"]
+                if advanced_config.get("sasl_mechanism"):
+                    kafka_config["sasl.mechanism"] = advanced_config["sasl_mechanism"]
+                if advanced_config.get("sasl_username"):
+                    kafka_config["sasl.username"] = advanced_config["sasl_username"]
+                if advanced_config.get("sasl_password"):
+                    kafka_config["sasl.password"] = advanced_config["sasl_password"]
+                if advanced_config.get("session_timeout_ms"):
+                    kafka_config["session.timeout.ms"] = advanced_config["session_timeout_ms"]
+                if advanced_config.get("request_timeout_ms"):
+                    kafka_config["request.timeout.ms"] = advanced_config["request_timeout_ms"]
+                if advanced_config.get("heartbeat_interval_ms"):
+                    kafka_config["heartbeat.interval.ms"] = advanced_config["heartbeat_interval_ms"]
+                if advanced_config.get("enable_auto_commit") is not None:
+                    kafka_config["enable.auto.commit"] = advanced_config["enable_auto_commit"]
+                if advanced_config.get("auto_offset_reset"):
+                    kafka_config["auto.offset.reset"] = advanced_config["auto_offset_reset"]
+
+                logger.debug(f"[KafkaInput] Built Kafka config from builtin datasource: {kafka_config}")
+                return kafka_config
+
+        except Exception as e:
+            logger.error(f"[KafkaInput] Error getting Kafka config from datasource: {e}")
+            return {}
 
     def _consume_messages_batch(self) -> list[Data]:
         """批量消费 Kafka 消息（原有逻辑）"""

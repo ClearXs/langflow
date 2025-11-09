@@ -166,13 +166,14 @@ class ETLFieldUnpivotComponent(Component):
 
                 # Update build_config with results
                 if fields:
+                    field_names = [field["name"] for field in fields]
                     # 1. Update source_field dropdown options in table schema
-                    build_config["field_mapping"]["table_schema"][0]["options"] = fields
+                    build_config["field_mapping"]["table_schema"][0]["options"] = field_names
 
                     # 2. Auto-fill field_mapping table with default mappings
                     default_mappings = []
-                    for field in fields:
-                        default_mappings.append({"source_field": field, "key_value": field})
+                    for field_name in field_names:
+                        default_mappings.append({"source_field": field_name, "key_value": field_name})
 
                     build_config["field_mapping"]["value"] = default_mappings
                     self.status = f"Successfully loaded {len(fields)} fields from upstream data source"

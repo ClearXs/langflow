@@ -31,4 +31,6 @@ export interface ColumnField {
   hidden?: boolean;
   options?: string[];
   options_metadata?: Array<{ value: string; label: string }>;
+  options_map?: Record<string, Array<{ value: string; label: string }>>;
+  depend_on?: string;
 }

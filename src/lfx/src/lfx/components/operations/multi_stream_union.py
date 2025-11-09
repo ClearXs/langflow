@@ -213,10 +213,11 @@ class ETLMultiStreamUnionComponent(Component):
 
                     # Collect fields found by either strategy
                     if fields:
-                        for field in fields:
-                            if field not in field_seen:
-                                field_seen[field] = []
-                            field_seen[field].append(input_name)
+                        for field_dict in fields:
+                            field_name = field_dict["name"]
+                            if field_name not in field_seen:
+                                field_seen[field_name] = []
+                            field_seen[field_name].append(input_name)
 
                 if not field_seen:
                     logger.warning("[MultiStreamUnion] No fields found from any upstream node")

@@ -260,11 +260,12 @@ class ETLGroupByComponent(Component):
                     try:
                         from lfx.components.helpers.field_extraction import find_and_extract_upstream_fields
 
-                        field_names = find_and_extract_upstream_fields(
+                        fields = find_and_extract_upstream_fields(
                             graph_data, node_id, "data_input", "GroupBy"
                         )
 
-                        if field_names:
+                        if fields:
+                            field_names = [field["name"] for field in fields]
                             logger.info(f"[GroupBy] Extracted {len(field_names)} fields from static config")
                         else:
                             logger.warning("[GroupBy] Static analysis returned no fields")

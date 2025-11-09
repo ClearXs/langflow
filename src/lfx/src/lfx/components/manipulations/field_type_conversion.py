@@ -174,21 +174,21 @@ class ETLFieldTypeConversion(Component):
                 if upstream_data:
                     field_info = self._analyze_field_types(upstream_data)
                 else:
-                    # 策略2: 静态分析上游节点配置
+                    # 策略2: 静态分析上游节点配置（现在支持类型提取）
                     from lfx.components.helpers.field_extraction import find_and_extract_upstream_fields
 
-                    field_info = find_and_extract_upstream_fields(
+                    fields = find_and_extract_upstream_fields(
                         graph_data, node_id, "data_input", "ETLFieldTypeConversion"
                     )
-                    # 静态分析无法获取类型，默认为 string
-                    field_info = dict.fromkeys(field_info, "string")
+                    # Convert list[dict] to dict for compatibility
+                    field_info = {field["name"]: field.get("type", "string") for field in fields}
 
                 # 生成类型转换配置行
                 conversions = []
                 for field_name_item, detected_type in field_info.items():
                     conversions.append({
                         "field_name": field_name_item,
-                        "source_type": detected_type,
+                        "source_type": detected_type,  # Now has real type from upstream!
                         "target_type": detected_type,
                         "conversion_rule": "",
                     })

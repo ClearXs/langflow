@@ -76,13 +76,20 @@ export function checkWebhookInput(nodes: Node[]) {
 }
 
 export function cleanEdges(nodes: AllNodeType[], edges: EdgeType[]) {
-  let newEdges: EdgeType[] = cloneDeep(
-    edges.map((edge) => ({ ...edge, selected: false, animated: false })),
-  );
+  // Performance optimization: Use Map for O(1) lookups instead of O(n) find
+  const nodeMap = new Map(nodes.map((node) => [node.id, node]));
+
+  // Shallow copy is sufficient - avoid expensive cloneDeep
+  let newEdges: EdgeType[] = edges.map((edge) => ({
+    ...edge,
+    selected: false,
+    animated: false,
+  }));
+
   edges.forEach((edge) => {
     // check if the source and target node still exists
-    const sourceNode = nodes.find((node) => node.id === edge.source);
-    const targetNode = nodes.find((node) => node.id === edge.target);
+    const sourceNode = nodeMap.get(edge.source);
+    const targetNode = nodeMap.get(edge.target);
     if (!sourceNode || !targetNode) {
       newEdges = newEdges.filter((edg) => edg.id !== edge.id);
       return;

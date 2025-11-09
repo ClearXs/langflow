@@ -8,12 +8,13 @@ import {
   reconnectEdge,
   type SelectionDragHandler,
 } from "@xyflow/react";
-import _, { cloneDeep } from "lodash";
+import _, { cloneDeep, throttle } from "lodash";
 import {
   type KeyboardEvent,
   type MouseEvent,
   useCallback,
   useEffect,
+  useMemo,
   useRef,
   useState,
 } from "react";
@@ -383,14 +384,23 @@ export default function Page({
   const [isDragging, setIsDragging] = useState(false);
   const helperLineEnabled = useFlowStore((state) => state.helperLineEnabled);
 
+  // Performance optimization: Throttle onNodeDrag to reduce computation frequency
+  const throttledGetHelperLines = useMemo(
+    () =>
+      throttle((node: any, nodes: any) => {
+        const currentHelperLines = getHelperLines(node, nodes);
+        setHelperLines(currentHelperLines);
+      }, 16), // 16ms throttle (60fps)
+    [],
+  );
+
   const onNodeDrag: OnNodeDrag = useCallback(
     (_, node) => {
       if (helperLineEnabled) {
-        const currentHelperLines = getHelperLines(node, nodes);
-        setHelperLines(currentHelperLines);
+        throttledGetHelperLines(node, nodes);
       }
     },
-    [helperLineEnabled, nodes],
+    [helperLineEnabled, nodes, throttledGetHelperLines],
   );
 
   const onNodeDragStart: OnNodeDrag = useCallback(
@@ -749,7 +759,7 @@ export default function Page({
               elevateEdgesOnSelect={false}
               onSelectionEnd={onSelectionEnd}
               onSelectionStart={onSelectionStart}
-              connectionRadius={30}
+              connectionRadius={20}
               edgeTypes={edgeTypes}
               connectionLineComponent={ConnectionLineComponent}
               onDragOver={onDragOver}
@@ -771,6 +781,9 @@ export default function Page({
               onPaneClick={onPaneClick}
               onEdgeClick={handleEdgeClick}
               onKeyDown={handleKeyDown}
+              selectNodesOnDrag={false}
+              nodesDraggable={!isLocked}
+              nodesConnectable={!isLocked}
             >
               <FlowBuildingComponent />
               <UpdateAllComponents />

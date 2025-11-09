@@ -228,7 +228,12 @@ async def read_flows(
 
         if get_all:
             flows = (await session.exec(stmt)).all()
-            flows = validate_is_component(flows)
+
+            # Skip expensive validation when returning headers only
+            # FlowHeader.validate_flow_header will correctly handle is_component field
+            if not header_flows:
+                flows = validate_is_component(flows)
+
             if components_only:
                 flows = [flow for flow in flows if flow.is_component]
             if remove_example_flows and starter_folder_id:
