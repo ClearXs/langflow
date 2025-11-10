@@ -454,50 +454,60 @@ print("Word count job completed! Check /tmp/output.csv for results.")
             raw_data = datasource.get("raw_data", {})
 
             # Extract connection information from RegistryClusterVO
-            # RegistryCluster has: address, jobManagerAddress
             address = raw_data.get("address", "")
             job_manager_address = raw_data.get("jobManagerAddress", "")
 
-            # Parse address (format might be "host:port")
+            logger.debug(f"[FlinkJob] Parsing address: {address}, jobManagerAddress: {job_manager_address}")
+
+            # Parse address (format might be "http://host:port" or "host:port")
             jobmanager_host = "localhost"
             rest_port = 8081
 
+            # Helper function to parse URL
+            def parse_url(url: str) -> tuple[str, int]:
+                """Parse URL and extract host and port."""
+                # Remove protocol if present
+                if "://" in url:
+                    url = url.split("://", 1)[1]
+
+                # Split by colon to get host and port
+                if ":" in url:
+                    parts = url.split(":")
+                    host = parts[0]
+                    try:
+                        port = int(parts[1].split("/")[0])  # Remove trailing path if any
+                    except (ValueError, IndexError):
+                        port = 8081
+                    return host, port
+                else:
+                    return url, 8081
+
             # Try to parse from address first
             if address:
-                if ":" in address:
-                    parts = address.split(":")
-                    jobmanager_host = parts[0]
-                    try:
-                        rest_port = int(parts[1])
-                    except (ValueError, IndexError):
-                        rest_port = 8081
-                else:
-                    jobmanager_host = address
+                jobmanager_host, rest_port = parse_url(address)
+                logger.debug(f"[FlinkJob] Parsed from address: host={jobmanager_host}, port={rest_port}")
 
             # Override with jobManagerAddress if available
             if job_manager_address:
-                if ":" in job_manager_address:
-                    parts = job_manager_address.split(":")
-                    jobmanager_host = parts[0]
-                    try:
-                        rest_port = int(parts[1])
-                    except (ValueError, IndexError):
-                        rest_port = 8081
-                else:
-                    jobmanager_host = job_manager_address
+                jobmanager_host, rest_port = parse_url(job_manager_address)
+                logger.debug(f"[FlinkJob] Parsed from jobManagerAddress: host={jobmanager_host}, port={rest_port}")
+
+            logger.debug(f"[FlinkJob] Connection info: host={jobmanager_host}, rest={rest_port}")
 
             return {
                 "jobmanager_host": jobmanager_host,
                 "jobmanager_port": 6123,  # Default RPC port
                 "rest_port": rest_port,
+                "connection_string": address or job_manager_address,
             }
 
         except Exception as e:
-            logger.error(f"[FlinkJob] Failed to build public Flink connection info: {e}")
+            logger.error(f"[FlinkJob] Failed to build public Flink connection info: {e}", exc_info=True)
             return {
                 "jobmanager_host": "localhost",
                 "jobmanager_port": 6123,
                 "rest_port": 8081,
+                "connection_string": "",
             }
 
     async def _submit_jar_job(
@@ -591,143 +601,42 @@ print("Word count job completed! Check /tmp/output.csv for results.")
             cleanup_temp_file(temp_jar_path)
 
     def _submit_python_job(self, datasource_id: str, python_script: str, parallelism: int) -> dict:
-        """Submit Python script job to remote Flink cluster."""
-        # Get connection information
-        conn_info = self._get_flink_connection_info(datasource_id)
+        """Submit Python script job to remote Flink cluster.
 
+        Note: Flink REST API does not support direct Python script submission.
+        This method returns an informative error message directing users to alternatives.
+        """
         start_time = datetime.datetime.now()
+        duration = (datetime.datetime.now() - start_time).total_seconds()
 
-        try:
-            # Monkey patch for py4j 0.10.8.1 compatibility with Python 3.10+
-            # py4j 0.10.8.1 tries to import MutableMapping from collections, but it's moved to collections.abc
-            import collections
-            import collections.abc
-            for name in ["MutableMapping", "MutableSequence", "MutableSet", "Sequence", "Set"]:
-                if not hasattr(collections, name):
-                    setattr(collections, name, getattr(collections.abc, name))
+        # Get connection information for display
+        conn_info = self._get_flink_connection_info(datasource_id)
+        rest_url = f"http://{conn_info['jobmanager_host']}:{conn_info['rest_port']}"
 
-            # Try to use PyFlink with remote cluster configuration
-            import os
-            import tempfile
+        logger.warning(
+            "[FlinkJob] Python job submission via REST API is not directly supported. "
+            "Please use one of the following alternatives:\n"
+            "1. Use Flink SQL component with SQL Gateway for SQL-based jobs\n"
+            "2. Package your Python script as a JAR and use JAR mode\n"
+            "3. Use Flink CLI (flink run -py script.py) on the cluster"
+        )
 
-            from pyflink.datastream import StreamExecutionEnvironment
-            from pyflink.table import EnvironmentSettings, StreamTableEnvironment
-
-            # 配置远程集群（创建临时配置文件）
-            has_remote_config = conn_info.get("jobmanager_host") and (
-                conn_info.get("jobmanager_port") or conn_info.get("rest_port")
-            )
-
-            if has_remote_config:
-                jobmanager_host = conn_info["jobmanager_host"]
-                jobmanager_port = conn_info.get("jobmanager_port", 6123)
-                rest_port = conn_info.get("rest_port", 8081)
-
-                # 创建临时配置目录
-                flink_conf_dir = tempfile.mkdtemp(prefix="flink_conf_")
-
-                # 创建 flink-conf.yaml
-                flink_conf_content = f"""jobmanager.rpc.address: {jobmanager_host}
-jobmanager.rpc.port: {jobmanager_port}
-rest.address: {jobmanager_host}
-rest.port: {rest_port}
-"""
-                flink_conf_path = os.path.join(flink_conf_dir, "flink-conf.yaml")
-                with open(flink_conf_path, "w") as f:
-                    f.write(flink_conf_content)
-
-                # 创建简单的 log4j.properties 以避免警告
-                log4j_content = """log4j.rootLogger=WARN, console
-log4j.appender.console=org.apache.log4j.ConsoleAppender
-log4j.appender.console.layout=org.apache.log4j.PatternLayout
-log4j.appender.console.layout.ConversionPattern=%d{yyyy-MM-dd HH:mm:ss} %-5p %c{1}:%L - %m%n
-"""
-                log4j_path = os.path.join(flink_conf_dir, "log4j-cli.properties")
-                with open(log4j_path, "w") as f:
-                    f.write(log4j_content)
-
-                # 设置环境变量
-                os.environ["FLINK_CONF_DIR"] = flink_conf_dir
-
-                logger.info(
-                    f"[FlinkJob] Configured remote Flink cluster: "
-                    f"rpc={jobmanager_host}:{jobmanager_port}, rest={jobmanager_host}:{rest_port}, conf_dir={flink_conf_dir}"
-                )
-            else:
-                logger.info("[FlinkJob] No remote cluster configuration, using local execution mode")
-
-            # 不预先创建环境，让用户脚本完全控制
-            # 只提供必要的导入和类，让用户脚本自己决定使用 Batch 还是 Streaming
-
-            # Import all necessary PyFlink modules for user script
-            from pyflink.dataset import ExecutionEnvironment
-            from pyflink.table import BatchTableEnvironment, TableConfig
-
-            # 6. Execute Python script in a controlled environment
-            # Provide all PyFlink classes and modules to user script
-            exec_globals = {
-                # DataStream API
-                "StreamExecutionEnvironment": StreamExecutionEnvironment,
-                "StreamTableEnvironment": StreamTableEnvironment,
-                "EnvironmentSettings": EnvironmentSettings,
-                # Batch API
-                "ExecutionEnvironment": ExecutionEnvironment,
-                "BatchTableEnvironment": BatchTableEnvironment,
-                "TableConfig": TableConfig,
-            }
-
-            # Capture output
-            import io
-            import sys
-
-            old_stdout = sys.stdout
-            sys.stdout = captured_output = io.StringIO()
-
-            try:
-                exec(python_script, exec_globals)
-                output = captured_output.getvalue()
-            finally:
-                sys.stdout = old_stdout
-
-            duration = (datetime.datetime.now() - start_time).total_seconds()
-
-            # Extract job info if available
-            job_id = "local-python-job"
-            message = "Python 脚本执行成功"
-            if output:
-                message += f"\n输出: {output[:200]}"
-
-            return {
-                "job_id": job_id,
-                "job_name": "PyFlink Script",
-                "status": "完成",
-                "start_time": start_time.strftime("%Y-%m-%d %H:%M:%S"),
-                "duration": f"{duration:.2f}s",
-                "message": message,
-            }
-
-        except ImportError:
-            # PyFlink not installed
-            duration = (datetime.datetime.now() - start_time).total_seconds()
-            return {
-                "job_id": "N/A",
-                "job_name": "PyFlink Script",
-                "status": "失败",
-                "start_time": start_time.strftime("%Y-%m-%d %H:%M:%S"),
-                "duration": f"{duration:.2f}s",
-                "message": "PyFlink 未安装，无法执行 Python 脚本",
-            }
-
-        except Exception as e:
-            duration = (datetime.datetime.now() - start_time).total_seconds()
-            return {
-                "job_id": "N/A",
-                "job_name": "PyFlink Script",
-                "status": "失败",
-                "start_time": start_time.strftime("%Y-%m-%d %H:%M:%S"),
-                "duration": f"{duration:.2f}s",
-                "message": f"执行失败: {e!s}",
-            }
+        return {
+            "job_id": "N/A",
+            "job_name": "Python Script Job",
+            "status": "不支持",
+            "start_time": start_time.strftime("%Y-%m-%d %H:%M:%S"),
+            "duration": f"{duration:.2f}s",
+            "message": (
+                f"Flink REST API ({rest_url}) 不支持直接提交 Python 脚本。\n\n"
+                "请使用以下替代方案:\n"
+                "1. 使用 Flink SQL 组件通过 SQL Gateway 提交 SQL 作业\n"
+                "2. 将 Python 脚本打包为 JAR 并使用 JAR 模式提交\n"
+                "3. 在 Flink 集群上使用命令行: flink run -py your_script.py\n"
+                "4. 使用 PyFlink 的 RemoteStreamEnvironment (需要本地安装 PyFlink)\n\n"
+                "推荐使用 Flink SQL 组件,它通过 SQL Gateway REST API 提供完整的远程执行支持。"
+            ),
+        }
 
     def submit_flink_job(self) -> Data:
         """Main execution method - submit Flink job and return result."""

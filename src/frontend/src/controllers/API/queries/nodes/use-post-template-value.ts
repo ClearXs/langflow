@@ -1,13 +1,13 @@
-import type { UseMutationResult } from "@tanstack/react-query";
-import useFlowStore from "@/stores/flowStore";
+import type { UseMutationResult } from '@tanstack/react-query';
+import useFlowStore from '@/stores/flowStore';
 import type {
   APIClassType,
   ResponseErrorDetailAPI,
   useMutationFunctionType,
-} from "@/types/api";
-import { api } from "../../api";
-import { getURL } from "../../helpers/constants";
-import { UseRequestProcessor } from "../../services/request-processor";
+} from '@/types/api';
+import { api } from '../../api';
+import { getURL } from '../../helpers/constants';
+import { UseRequestProcessor } from '../../services/request-processor';
 
 interface IPostTemplateValue {
   value: any;
@@ -56,7 +56,7 @@ const optimizeGraphDataForBackend = (graphData: any): any => {
                 ...nodeData.template,
                 code: {
                   ...nodeData.template.code,
-                  value: "", // Clear code value for built-in components
+                  value: '', // Clear code value for built-in components
                 },
               },
             },
@@ -81,7 +81,7 @@ export const usePostTemplateValue: useMutationFunctionType<
   const edges = useFlowStore((state) => state.edges);
 
   const postTemplateValueFn = async (
-    payload: IPostTemplateValue,
+    payload: IPostTemplateValue
   ): Promise<APIClassType | undefined> => {
     const template = node.template;
 
@@ -129,23 +129,14 @@ export const usePostTemplateValue: useMutationFunctionType<
       template.type?.value;
 
     // If still "Component" (base class) or empty, use display_name as last resort
-    if (!vertexType || vertexType === "Component") {
+    if (!vertexType || vertexType === 'Component') {
       vertexType = node.display_name;
     }
 
-    console.log('[usePostTemplateValue] Vertex type extraction:', {
-      nodeId,
-      reactFlowNodeType: reactFlowNode?.data?.type,
-      nodeType: node.type,
-      templateType: template._type?.value || template.type?.value,
-      displayName: node.display_name,
-      finalVertexType: vertexType,
-    });
-
     const response = await api.post<APIClassType>(
-      getURL("CUSTOM_COMPONENT", { update: "update" }),
+      getURL('CUSTOM_COMPONENT', { update: 'update' }),
       {
-        code: isBuiltInComponent ? "" : (template.code?.value ?? ""),
+        code: isBuiltInComponent ? '' : template.code?.value ?? '',
         template: template,
         field: payload.field_name || parameterId,
         field_value: payload.value,
@@ -154,7 +145,7 @@ export const usePostTemplateValue: useMutationFunctionType<
         graph_data: graphData,
         node_id: payload.action ? nodeId : undefined, // Send nodeId when action is present
         vertex_type: isBuiltInComponent ? vertexType : undefined, // Send component type for built-in components
-      },
+      }
     );
     const newTemplate = response.data;
     newTemplate.last_updated = lastUpdated;
@@ -176,12 +167,12 @@ export const usePostTemplateValue: useMutationFunctionType<
     ResponseErrorDetailAPI,
     IPostTemplateValue
   > = mutate(
-    ["usePostTemplateValue", { parameterId, nodeId }],
+    ['usePostTemplateValue', { parameterId, nodeId }],
     postTemplateValueFn,
     {
       ...options,
       retry: 0,
-    },
+    }
   );
 
   return mutation;
