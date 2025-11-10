@@ -88,8 +88,8 @@ def find_upstream_node_id(graph_data: dict, target_node_id: str, input_name: str
         # upstream_data is a universal input for general data flow, not for field analysis
         if target_handle == "upstream_data":
             logger.debug(
-                f"[GraphUtils] Skipping upstream_data connection for field extraction. "
-                f"upstream_data is reserved for universal data flow, not field analysis."
+                "[GraphUtils] Skipping upstream_data connection for field extraction. "
+                "upstream_data is reserved for universal data flow, not field analysis."
             )
             continue
 

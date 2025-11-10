@@ -5,6 +5,7 @@ from typing import Any
 
 import i18n
 import requests
+
 from lfx.custom.custom_component.component import Component
 from lfx.io import CodeInput, DropdownInput, FileInput, IntInput, Output, StrInput
 from lfx.log.logger import logger
@@ -160,7 +161,6 @@ print("Word count job completed! Check /tmp/output.csv for results.")
         action: str | None = None,
     ):
         """Handle field changes and dynamic field visibility."""
-
         # Load Flink datasources
         if field_name is None or (field_name == "flink_datasource" and not field_value):
             datasources = self._load_flink_datasources()
@@ -398,19 +398,18 @@ print("Word count job completed! Check /tmp/output.csv for results.")
             if source == "public":
                 # Extract from public datasource (raw_data)
                 return self._build_public_flink_connection_info(datasource)
-            else:
-                # Extract from builtin datasource using DataSourceManager
-                from lfx.base.datasource.manager import DataSourceManager
+            # Extract from builtin datasource using DataSourceManager
+            from lfx.base.datasource.manager import DataSourceManager
 
-                manager = DataSourceManager()
-                # Use async method correctly
-                builtin_ds = asyncio.run(manager._get_datasource_by_id(datasource_id))
+            manager = DataSourceManager()
+            # Use async method correctly
+            builtin_ds = asyncio.run(manager._get_datasource_by_id(datasource_id))
 
-                if not builtin_ds:
-                    raise ValueError(f"Builtin datasource not found: {datasource_id}")
+            if not builtin_ds:
+                raise ValueError(f"Builtin datasource not found: {datasource_id}")
 
-                # Extract connection info from datasource
-                return self._extract_connection_info_from_datasource(builtin_ds)
+            # Extract connection info from datasource
+            return self._extract_connection_info_from_datasource(builtin_ds)
 
         except Exception as e:
             logger.error(f"[FlinkJob] Failed to get Flink connection info: {e}")
@@ -505,7 +504,6 @@ print("Word count job completed! Check /tmp/output.csv for results.")
         self, datasource_id: str, jar_file: str, entry_class: str, program_args: str, parallelism: int
     ) -> dict:
         """Submit JAR job to Flink cluster."""
-
         # Get connection information
         conn_info = self._get_flink_connection_info(datasource_id)
         rest_url = f"http://{conn_info['jobmanager_host']}:{conn_info['rest_port']}"
@@ -585,7 +583,7 @@ print("Word count job completed! Check /tmp/output.csv for results.")
                     "status": "SUBMITTED",
                     "start_time": start_time.strftime("%Y-%m-%d %H:%M:%S"),
                     "duration": f"{duration:.2f}s",
-                    "message": f"作业已提交 (无法获取详细状态: {str(e)})",
+                    "message": f"作业已提交 (无法获取详细状态: {e!s})",
                 }
 
         finally:
@@ -594,7 +592,6 @@ print("Word count job completed! Check /tmp/output.csv for results.")
 
     def _submit_python_job(self, datasource_id: str, python_script: str, parallelism: int) -> dict:
         """Submit Python script job to remote Flink cluster."""
-
         # Get connection information
         conn_info = self._get_flink_connection_info(datasource_id)
 
@@ -605,13 +602,14 @@ print("Word count job completed! Check /tmp/output.csv for results.")
             # py4j 0.10.8.1 tries to import MutableMapping from collections, but it's moved to collections.abc
             import collections
             import collections.abc
-            for name in ['MutableMapping', 'MutableSequence', 'MutableSet', 'Sequence', 'Set']:
+            for name in ["MutableMapping", "MutableSequence", "MutableSet", "Sequence", "Set"]:
                 if not hasattr(collections, name):
                     setattr(collections, name, getattr(collections.abc, name))
 
             # Try to use PyFlink with remote cluster configuration
             import os
             import tempfile
+
             from pyflink.datastream import StreamExecutionEnvironment
             from pyflink.table import EnvironmentSettings, StreamTableEnvironment
 
@@ -635,7 +633,7 @@ rest.address: {jobmanager_host}
 rest.port: {rest_port}
 """
                 flink_conf_path = os.path.join(flink_conf_dir, "flink-conf.yaml")
-                with open(flink_conf_path, 'w') as f:
+                with open(flink_conf_path, "w") as f:
                     f.write(flink_conf_content)
 
                 # 创建简单的 log4j.properties 以避免警告
@@ -645,7 +643,7 @@ log4j.appender.console.layout=org.apache.log4j.PatternLayout
 log4j.appender.console.layout.ConversionPattern=%d{yyyy-MM-dd HH:mm:ss} %-5p %c{1}:%L - %m%n
 """
                 log4j_path = os.path.join(flink_conf_dir, "log4j-cli.properties")
-                with open(log4j_path, 'w') as f:
+                with open(log4j_path, "w") as f:
                     f.write(log4j_content)
 
                 # 设置环境变量
@@ -663,7 +661,7 @@ log4j.appender.console.layout.ConversionPattern=%d{yyyy-MM-dd HH:mm:ss} %-5p %c{
 
             # Import all necessary PyFlink modules for user script
             from pyflink.dataset import ExecutionEnvironment
-            from pyflink.table import TableConfig, BatchTableEnvironment, EnvironmentSettings
+            from pyflink.table import BatchTableEnvironment, TableConfig
 
             # 6. Execute Python script in a controlled environment
             # Provide all PyFlink classes and modules to user script
@@ -728,7 +726,7 @@ log4j.appender.console.layout.ConversionPattern=%d{yyyy-MM-dd HH:mm:ss} %-5p %c{
                 "status": "失败",
                 "start_time": start_time.strftime("%Y-%m-%d %H:%M:%S"),
                 "duration": f"{duration:.2f}s",
-                "message": f"执行失败: {str(e)}",
+                "message": f"执行失败: {e!s}",
             }
 
     def submit_flink_job(self) -> Data:

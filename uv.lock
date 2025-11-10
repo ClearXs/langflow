@@ -437,16 +437,6 @@ wheels = [
 ]
 
 [[package]]
-name = "apache-flink"
-version = "1.9.3"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "py4j" },
-    { name = "python-dateutil" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/66/d6/0795a8bedeb0b5154b334cb6a50b1bea8963eef5613fd1f667537aecdf47/apache-flink-1.9.3.tar.gz", hash = "sha256:65ad0188a6a028265add28f45680cd89ab6928ea7f34dcaaa4cb9fa878de3cd3", size = 251175230, upload-time = "2020-04-24T02:08:45.359Z" }
-
-[[package]]
 name = "apify-client"
 version = "1.12.2"
 source = { registry = "https://pypi.org/simple" }
@@ -5283,7 +5273,6 @@ source = { editable = "." }
 dependencies = [
     { name = "aiofile" },
     { name = "aiosqlite" },
-    { name = "apache-flink" },
     { name = "apify-client" },
     { name = "arize-phoenix-otel" },
     { name = "assemblyai" },
@@ -5591,7 +5580,6 @@ dev = [
 requires-dist = [
     { name = "aiofile", specifier = ">=3.9.0,<4.0.0" },
     { name = "aiosqlite", specifier = "==0.21.0" },
-    { name = "apache-flink", specifier = ">=1.9.3" },
     { name = "apify-client", specifier = ">=1.8.1,<2.0.0" },
     { name = "arize-phoenix-otel", specifier = ">=0.6.1,<1.0.0" },
     { name = "assemblyai", specifier = "==0.35.1" },
@@ -9619,15 +9607,6 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/37/a8/d832f7293ebb21690860d2e01d8115e5ff6f2ae8bbdc953f0eb0fa4bd2c7/py-cpuinfo-9.0.0.tar.gz", hash = "sha256:3cdbbf3fac90dc6f118bfd64384f309edeadd902d7c8fb17f02ffa1fc3f49690", size = 104716, upload-time = "2022-10-25T20:38:06.303Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/e0/a9/023730ba63db1e494a271cb018dcd361bd2c917ba7004c3e49d5daf795a2/py_cpuinfo-9.0.0-py3-none-any.whl", hash = "sha256:859625bc251f64e21f077d099d4162689c762b5d6a4c3c97553d56241c9674d5", size = 22335, upload-time = "2022-10-25T20:38:27.636Z" },
-]
-
-[[package]]
-name = "py4j"
-version = "0.10.8.1"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/c0/e3/1f110e6c069522ba7a8dc215ff1c343b6bc1f98d84e6d627ca2708426eaa/py4j-0.10.8.1.zip", hash = "sha256:8329bb156a0cf37be9642a2a060dbdb627b5fcb827919be65d95102daccca274", size = 1102033, upload-time = "2018-10-21T10:36:47.852Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/04/de/2d314a921ef4c20b283e1de94e0780273678caac901564df06b948e4ba9b/py4j-0.10.8.1-py2.py3-none-any.whl", hash = "sha256:51d994ae19a3eb35eaa45851081e25922500d59875606bf27ac0d40929724939", size = 196501, upload-time = "2018-10-21T10:36:45.851Z" },
 ]
 
 [[package]]

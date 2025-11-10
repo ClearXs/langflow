@@ -319,8 +319,7 @@ def get_schema_for_type(datasource_type: str) -> dict | None:
 
 
 def validate_advanced_config(datasource_type: str, config: dict) -> tuple[bool, list[str]]:
-    """
-    Validate advanced configuration against schema.
+    """Validate advanced configuration against schema.
 
     Args:
         datasource_type: Type of datasource (mysql, postgresql, etc.)
@@ -348,4 +347,4 @@ def validate_advanced_config(datasource_type: str, config: dict) -> tuple[bool, 
         # If jsonschema is not installed, skip validation
         return True, []
     except Exception as e:
-        return False, [f"Validation error: {str(e)}"]
+        return False, [f"Validation error: {e!s}"]

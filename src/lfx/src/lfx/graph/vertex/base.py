@@ -630,7 +630,7 @@ class Vertex:
                         if "has not been built yet" in str(e):
                             # upstream_data is optional, set to None if dependency not built
                             await logger.adebug(
-                                f"[BUILD] upstream_data dependency not built yet, setting to None (design-time context)"
+                                "[BUILD] upstream_data dependency not built yet, setting to None (design-time context)"
                             )
                             self.params[key] = None
                         else:

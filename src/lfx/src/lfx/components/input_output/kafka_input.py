@@ -359,7 +359,7 @@ class ETLKafkaInputComponent(Component):
         if "bootstrap.servers" not in consumer_config:
             raise ValueError("Datasource does not provide bootstrap.servers configuration")
 
-        logger.debug(f"[KafkaInput] Using Kafka config from datasource")
+        logger.debug("[KafkaInput] Using Kafka config from datasource")
 
         bootstrap_servers = consumer_config.get("bootstrap.servers", "unknown")
         logger.debug(f"Consumer config: servers={bootstrap_servers}, group={effective_group_id}")
@@ -1321,7 +1321,7 @@ class ETLKafkaInputComponent(Component):
 
         # Load Kafka datasources for initial load or refresh
         if field_name is None or (field_name == "datasource_selector" and not field_value):
-            logger.debug(f"[KafkaInput] Loading Kafka datasources")
+            logger.debug("[KafkaInput] Loading Kafka datasources")
             try:
                 datasources = self._load_kafka_datasources()
 
@@ -1355,8 +1355,8 @@ class ETLKafkaInputComponent(Component):
 
     def _load_kafka_datasources(self) -> list[dict]:
         """Load Kafka datasources (both builtin and public), filtered by type='kafka'."""
-        import os
         import asyncio
+        import os
 
         import httpx
 
@@ -1462,26 +1462,26 @@ class ETLKafkaInputComponent(Component):
         # This should be populated by update_build_config
         try:
             # Access the component's build_config if available
-            if hasattr(self, '_build_config') and self._build_config:
-                datasource_selector_config = self._build_config.get('datasource_selector', {})
-                options_metadata = datasource_selector_config.get('options_metadata', [])
+            if hasattr(self, "_build_config") and self._build_config:
+                datasource_selector_config = self._build_config.get("datasource_selector", {})
+                options_metadata = datasource_selector_config.get("options_metadata", [])
 
                 for option in options_metadata:
-                    if option.get('id') == datasource_id or option.get('value') == datasource_id:
+                    if option.get("id") == datasource_id or option.get("value") == datasource_id:
                         return option
 
             # Fallback: reload datasources if not in cache
-            logger.debug(f"[KafkaInput] Datasource info not in cache, reloading")
+            logger.debug("[KafkaInput] Datasource info not in cache, reloading")
             all_datasources = self._load_kafka_datasources()
             for ds in all_datasources:
-                if ds['id'] == datasource_id:
+                if ds["id"] == datasource_id:
                     return {
-                        'id': ds['id'],
-                        'name': ds['name'],
-                        'type': ds['type'],
-                        'source': ds['source'],
-                        'display_name': ds['display_name'],
-                        'raw_data': ds.get('raw_data'),
+                        "id": ds["id"],
+                        "name": ds["name"],
+                        "type": ds["type"],
+                        "source": ds["source"],
+                        "display_name": ds["display_name"],
+                        "raw_data": ds.get("raw_data"),
                     }
 
             return None
@@ -1492,6 +1492,7 @@ class ETLKafkaInputComponent(Component):
     def _get_kafka_config_from_datasource(self) -> dict:
         """Get Kafka configuration from selected datasource (builtin or public)."""
         import os
+
         import httpx
 
         if not self.datasource_selector:
@@ -1523,15 +1524,13 @@ class ETLKafkaInputComponent(Component):
                     kafka_config["sasl.password"] = params["sasl_password"]
                 if params.get("security_protocol"):
                     kafka_config["security.protocol"] = params["security_protocol"]
-                else:
-                    # Default SASL protocol if username is provided
-                    if params.get("sasl_username"):
-                        kafka_config["security.protocol"] = "SASL_PLAINTEXT"
+                # Default SASL protocol if username is provided
+                elif params.get("sasl_username"):
+                    kafka_config["security.protocol"] = "SASL_PLAINTEXT"
                 if params.get("sasl_mechanism"):
                     kafka_config["sasl.mechanism"] = params["sasl_mechanism"]
-                else:
-                    if params.get("sasl_username"):
-                        kafka_config["sasl.mechanism"] = "PLAIN"
+                elif params.get("sasl_username"):
+                    kafka_config["sasl.mechanism"] = "PLAIN"
 
                 # Extract other Kafka consumer configs from public datasource
                 if params.get("session_timeout_ms"):

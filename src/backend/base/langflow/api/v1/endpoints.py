@@ -62,6 +62,44 @@ if TYPE_CHECKING:
 router = APIRouter(tags=["Base"])
 
 
+def _remove_code_from_graph_data(graph_data: dict) -> dict:
+    """Remove code.value from all nodes in graph_data.
+
+    Rationale:
+    - Built-in components: loaded from module, don't need code
+    - Custom components: loaded from module during temp graph execution
+    - Reduces _graph_data size by ~88%
+
+    Args:
+        graph_data: Original graph data with code
+
+    Returns:
+        Optimized graph data without code values
+    """
+    import copy
+
+    if not graph_data or not isinstance(graph_data, dict):
+        return graph_data
+
+    optimized = copy.deepcopy(graph_data)
+
+    for node in optimized.get("nodes", []):
+        if not isinstance(node, dict):
+            continue
+
+        # Navigate to template
+        template = node.get("data", {}).get("node", {}).get("template", {})
+
+        # Remove code.value (keep structure for compatibility)
+        if "code" in template and isinstance(template["code"], dict):
+            if "value" in template["code"]:
+                template["code"]["value"] = ""
+                # Add marker for debugging
+                template["code"]["_removed"] = True
+
+    return optimized
+
+
 async def parse_input_request_from_body(http_request: Request) -> SimplifiedAPIRequest:
     """Parse SimplifiedAPIRequest from HTTP request body.
 
@@ -899,12 +937,86 @@ async def custom_component_update(
     database), updates the component's build configuration, and validates outputs. Returns the updated component node as
     a JSON-serializable dictionary.
 
+    For built-in components (code is empty), loads the component from the module registry.
+    For custom components (code is provided), evaluates the code to create the component.
+
     Raises:
         HTTPException: If an error occurs during component building or updating.
         SerializationError: If serialization of the updated component node fails.
     """
     try:
-        component = Component(_code=code_request.code)
+        # Check if code is empty (built-in component) or provided (custom component)
+        if not code_request.code or code_request.code.strip() == "":
+            # Built-in component: instantiate directly from module registry
+            # Get component type from the request's vertex_type, graph_data, template, or frontend_node
+            template = code_request.get_template()
+
+            # Try multiple ways to get the component type (in priority order)
+            vertex_type = None
+
+            # Method 0: Check if vertex_type is directly provided (highest priority)
+            if code_request.vertex_type:
+                vertex_type = code_request.vertex_type
+
+            # Method 1: Check graph_data for node type
+            if not vertex_type and code_request.graph_data and code_request.node_id:
+                nodes = code_request.graph_data.get("nodes", [])
+                for node in nodes:
+                    if node.get("id") == code_request.node_id:
+                        # Try different locations for type in node data
+                        node_data = node.get("data", {})
+                        vertex_type = (
+                            node_data.get("type")
+                            or node_data.get("node", {}).get("type")
+                            or node_data.get("node", {}).get("display_name")
+                        )
+                        break
+
+            # Method 2: Check frontend_node for type
+            if not vertex_type and code_request.frontend_node:
+                vertex_type = (
+                    code_request.frontend_node.get("type")
+                    or code_request.frontend_node.get("display_name")
+                )
+
+            # Method 3: Check template metadata
+            if not vertex_type:
+                vertex_type = (
+                    template.get("_type")
+                    or template.get("type")
+                    or template.get("display_name")
+                    or template.get("_display_name")
+                )
+
+            # Method 4: Try to extract from template code field metadata (legacy)
+            if not vertex_type and "code" in template:
+                code_field = template.get("code", {})
+                if isinstance(code_field, dict):
+                    vertex_type = code_field.get("_type") or code_field.get("type")
+
+            if not vertex_type:
+                raise HTTPException(
+                    status_code=400,
+                    detail="Cannot determine component type: code is empty and no vertex_type found in request, graph_data, frontend_node, or template",
+                )
+
+            # Import and instantiate the built-in component
+            from lfx.interface.initialize.loading import _get_component_class_from_registry
+
+            try:
+                component_class = _get_component_class_from_registry(vertex_type)
+                # Instantiate the component directly
+                component = component_class(_parameters={}, _user_id=user.id)
+                logger.debug(f"✓ Loaded built-in component '{vertex_type}' from module for update")
+            except (ImportError, AttributeError) as e:
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"Built-in component '{vertex_type}' not found in registry: {e}",
+                ) from e
+        else:
+            # Custom component: use provided code
+            component = Component(_code=code_request.code)
+
         component_node, cc_instance = build_custom_component_template(
             component,
             user_id=user.id,
@@ -934,7 +1046,9 @@ async def custom_component_update(
 
         # Add graph_data and node_id to build_config if provided (for preview operations)
         if code_request.graph_data:
-            updated_build_config["_graph_data"] = code_request.graph_data
+            # Remove code from graph_data to reduce size (~88% reduction)
+            optimized_graph_data = _remove_code_from_graph_data(code_request.graph_data)
+            updated_build_config["_graph_data"] = optimized_graph_data
         if code_request.node_id:
             updated_build_config["_node_id"] = code_request.node_id
 

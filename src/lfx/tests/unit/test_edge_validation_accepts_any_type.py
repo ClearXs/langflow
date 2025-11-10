@@ -5,7 +5,6 @@ import pytest
 from lfx.custom.custom_component.component import Component
 from lfx.graph.edge.base import Edge
 from lfx.graph.edge.schema import EdgeData
-from lfx.graph.vertex.base import Vertex
 from lfx.inputs.inputs import HandleInput
 from lfx.template.field.base import Output
 

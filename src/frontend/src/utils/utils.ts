@@ -629,7 +629,7 @@ export function FormatColumns(columns: ColumnField[]): ColDef<any>[] {
 
               if (dependentValue && col.options_map![dependentValue]) {
                 const options = col.options_map![dependentValue];
-                const option = options.find(opt => opt.value === cellValue);
+                const option = options.find((opt) => opt.value === cellValue);
                 return option?.label || cellValue;
               }
               return cellValue;

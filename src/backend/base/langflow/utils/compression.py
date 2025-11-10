@@ -1,5 +1,4 @@
 import gzip
-import json
 from typing import Any
 
 import orjson

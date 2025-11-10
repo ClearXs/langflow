@@ -119,7 +119,6 @@ dependencies = [
     "thrift-sasl>=0.4.3",
     "hmsclient>=0.1.0",
     "openpyxl>=3.0.0",
-    "apache-flink>=1.9.3",
 ]
 
 [dependency-groups]

@@ -1,10 +1,9 @@
-"""
-Unit tests for Kafka Input and Output components with datasource integration.
+"""Unit tests for Kafka Input and Output components with datasource integration.
 Tests the removal of bootstrap_servers and support for public datasources.
 """
 
 import json
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import MagicMock, patch
 
 import pytest
 

@@ -1,6 +1,6 @@
+import json
 from datetime import datetime, timezone
 from uuid import uuid4
-import json
 
 from sqlmodel import Column, DateTime, Field, SQLModel, Text, func
 
@@ -91,33 +91,33 @@ class DataSourceRead(SQLModel):
     def model_validate(cls, obj, **kwargs):
         """Override model_validate to parse advanced_config JSON string to dict."""
         # If obj is a DataSource instance, parse advanced_config
-        if hasattr(obj, 'advanced_config'):
+        if hasattr(obj, "advanced_config"):
             # Create a dict from the ORM object
             data_dict = {
-                'id': obj.id,
-                'name': obj.name,
-                'type': obj.type,
-                'host': obj.host,
-                'port': obj.port,
-                'database': obj.database,
-                'username': obj.username,
-                'status': obj.status,
-                'last_tested_at': obj.last_tested_at,
-                'created_at': obj.created_at,
-                'updated_at': obj.updated_at,
+                "id": obj.id,
+                "name": obj.name,
+                "type": obj.type,
+                "host": obj.host,
+                "port": obj.port,
+                "database": obj.database,
+                "username": obj.username,
+                "status": obj.status,
+                "last_tested_at": obj.last_tested_at,
+                "created_at": obj.created_at,
+                "updated_at": obj.updated_at,
             }
 
             # Parse advanced_config from JSON string to dict
             if obj.advanced_config:
                 try:
                     if isinstance(obj.advanced_config, str):
-                        data_dict['advanced_config'] = json.loads(obj.advanced_config)
+                        data_dict["advanced_config"] = json.loads(obj.advanced_config)
                     else:
-                        data_dict['advanced_config'] = obj.advanced_config
+                        data_dict["advanced_config"] = obj.advanced_config
                 except (json.JSONDecodeError, TypeError):
-                    data_dict['advanced_config'] = {}
+                    data_dict["advanced_config"] = {}
             else:
-                data_dict['advanced_config'] = {}
+                data_dict["advanced_config"] = {}
 
             # Call parent model_validate with the dict
             return super().model_validate(data_dict, **kwargs)

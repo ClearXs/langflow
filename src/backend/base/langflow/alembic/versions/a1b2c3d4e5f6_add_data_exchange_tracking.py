@@ -29,10 +29,11 @@ def upgrade() -> None:
     # Create data_exchange table if it doesn't exist
     if "data_exchange" not in table_names:
         # Determine JSON and UUID column types based on database dialect
+        # Use sa.JSON() for consistency with other tables (avoids JSONB mismatch)
         if dialect_name == "postgresql":
-            json_type = postgresql.JSONB()
+            json_type = sa.JSON()  # Use JSON instead of JSONB for consistency
             uuid_type = sa.UUID()
-            timestamp_type = sa.DateTime(timezone=True)
+            timestamp_type = sa.DateTime()  # Use simple DateTime without timezone
         else:
             # SQLite: use TEXT for UUID and JSON compatibility
             json_type = sa.JSON()
@@ -87,8 +88,8 @@ def upgrade() -> None:
 
         # Add downstream_vertices column if it doesn't exist
         if "downstream_vertices" not in columns:
-            json_type = postgresql.JSONB() if dialect_name == "postgresql" else sa.JSON()
-            op.add_column("transaction", sa.Column("downstream_vertices", json_type, nullable=True))
+            # Use sa.JSON() for consistency with other tables
+            op.add_column("transaction", sa.Column("downstream_vertices", sa.JSON(), nullable=True))
 
 
 def downgrade() -> None:

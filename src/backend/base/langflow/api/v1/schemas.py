@@ -209,6 +209,7 @@ class UpdateCustomComponentRequest(CustomComponentRequest):
     action: str | None = None  # Optional action name for action buttons
     graph_data: dict | None = None  # Optional flow graph data for preview operations
     node_id: str | None = None  # Optional node ID for identifying the current node in graph
+    vertex_type: str | None = None  # Optional component type for built-in components (when code is empty)
 
     def get_template(self):
         return dotdict(self.template)

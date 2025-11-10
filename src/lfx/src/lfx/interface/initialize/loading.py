@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import importlib
 import inspect
 import os
 import warnings
@@ -25,12 +26,94 @@ if TYPE_CHECKING:
         pass
 
 
+def _get_component_class_from_registry(vertex_type: str) -> type:
+    """Get component class from lfx.components registry.
+
+    Tries multiple strategies:
+    1. Direct import: components.{VertexType}
+    2. With suffix: components.{VertexType}Component
+    3. Cache lookup by type name (exact match)
+    4. Cache lookup by display_name (handles localized names like "Kafka输入")
+
+    Args:
+        vertex_type: Component type name or display name (e.g., "ETLKafkaInput" or "Kafka输入")
+
+    Returns:
+        Component class
+
+    Raises:
+        AttributeError: Component not found
+    """
+    from lfx import components
+
+    # Strategy 1 & 2: Try direct import with and without "Component" suffix
+    for name_variant in [vertex_type, vertex_type + "Component"]:
+        try:
+            component_class = getattr(components, name_variant)
+            logger.debug(f"Found component '{vertex_type}' as '{name_variant}'")
+            return component_class
+        except AttributeError:
+            continue
+
+    # Strategy 3 & 4: Search in component cache
+    from lfx.interface.components import component_cache
+
+    if component_cache.all_types_dict:
+        # First pass: search by type name (exact match)
+        for category_components in component_cache.all_types_dict.values():
+            if vertex_type in category_components:
+                component_data = category_components[vertex_type]
+                # Try to import from module path
+                module_path = component_data.get("metadata", {}).get("module")
+                if module_path:
+                    try:
+                        parts = module_path.rsplit(".", 1)
+                        if len(parts) == 2:
+                            module_name, class_name = parts
+                            module = importlib.import_module(module_name)
+                            component_class = getattr(module, class_name)
+                            logger.debug(f"Found component '{vertex_type}' via cache (exact match)")
+                            return component_class
+                    except (ImportError, AttributeError) as e:
+                        logger.warning(f"Failed to import from module_path: {e}")
+
+        # Second pass: search by display_name (handles localized names like "Kafka输入")
+        logger.debug(f"Trying to find component by display_name: '{vertex_type}'")
+        for category_components in component_cache.all_types_dict.values():
+            for comp_type, component_data in category_components.items():
+                # Check if display_name matches vertex_type
+                display_name = component_data.get("display_name")
+                if display_name == vertex_type:
+                    module_path = component_data.get("metadata", {}).get("module")
+                    if module_path:
+                        try:
+                            parts = module_path.rsplit(".", 1)
+                            if len(parts) == 2:
+                                module_name, class_name = parts
+                                module = importlib.import_module(module_name)
+                                component_class = getattr(module, class_name)
+                                logger.info(
+                                    f"✓ Found component by display_name '{vertex_type}' → type '{comp_type}'"
+                                )
+                                return component_class
+                        except (ImportError, AttributeError) as e:
+                            logger.warning(f"Failed to import from module_path: {e}")
+
+    # Not found
+    msg = f"Component class for type '{vertex_type}' not found in lfx.components"
+    raise AttributeError(msg)
+
+
 def instantiate_class(
     vertex: Vertex,
     user_id=None,
     event_manager: EventManager | None = None,
 ) -> Any:
-    """Instantiate class from module type and key, and params."""
+    """Instantiate component class.
+
+    - Built-in components: load from lfx.components module
+    - Custom components: eval from stored code
+    """
     vertex_type = vertex.vertex_type
     base_type = vertex.base_type
     logger.debug(f"Instantiating {vertex_type} of type {base_type}")
@@ -40,8 +123,23 @@ def instantiate_class(
         raise ValueError(msg)
 
     custom_params = get_params(vertex.params)
-    code = custom_params.pop("code")
-    class_object: type[CustomComponent | Component] = eval_custom_component_code(code)
+    code = custom_params.pop("code", None)
+
+    # Strategy: try module import first, fallback to code eval
+    if not code or code.strip() == "":
+        # No code provided → must be built-in component
+        try:
+            class_object: type[CustomComponent | Component] = _get_component_class_from_registry(vertex_type)
+            logger.debug(f"✓ Loaded built-in component '{vertex_type}' from module")
+        except (ImportError, AttributeError) as e:
+            msg = f"Component '{vertex_type}' not found in registry and no code provided"
+            logger.error(msg)
+            raise ValueError(msg) from e
+    else:
+        # Code provided → custom component or legacy data
+        class_object = eval_custom_component_code(code)
+        logger.debug(f"✓ Loaded component '{vertex_type}' from code")
+
     custom_component: CustomComponent | Component = class_object(
         _user_id=user_id,
         _parameters=custom_params,

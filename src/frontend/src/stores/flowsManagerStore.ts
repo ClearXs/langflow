@@ -18,7 +18,7 @@ const future = {};
 
 // Fast hash function for quick state comparison
 const fastHash = (nodes: any[], edges: any[]) => {
-  return `${nodes.length}-${edges.length}-${nodes.map(n => n.id).join(',')}-${edges.map(e => e.id).join(',')}`;
+  return `${nodes.length}-${edges.length}-${nodes.map((n) => n.id).join(",")}-${edges.map((e) => e.id).join(",")}`;
 };
 
 // Store last hash to avoid redundant snapshots

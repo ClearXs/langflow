@@ -1256,7 +1256,9 @@ export default function DataSourceDialog() {
                           <Input
                             id="request_timeout"
                             type="number"
-                            value={formData.advanced_config.request_timeout || ""}
+                            value={
+                              formData.advanced_config.request_timeout || ""
+                            }
                             onChange={(e) =>
                               handleAdvancedConfigChange(
                                 "request_timeout",

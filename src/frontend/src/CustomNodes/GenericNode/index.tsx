@@ -93,10 +93,11 @@ function GenericNode({
 
   // Filter edges related to this node using useMemo to avoid creating new array on every render
   const edges = useMemo(
-    () => allEdges.filter(
-      (edge) => edge.source === data.id || edge.target === data.id,
-    ),
-    [allEdges, data.id]
+    () =>
+      allEdges.filter(
+        (edge) => edge.source === data.id || edge.target === data.id,
+      ),
+    [allEdges, data.id],
   );
 
   const setEdges = useFlowStore((state) => state.setEdges);

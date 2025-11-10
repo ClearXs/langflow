@@ -994,6 +994,19 @@ class Component(CustomComponent):
     def _update_template(self, frontend_node: dict):
         return frontend_node
 
+    def _is_builtin_component(self) -> bool:
+        """Check if this component is built-in (from lfx.components).
+
+        Returns:
+            True if built-in, False if custom
+        """
+        module_name = self.__class__.__module__
+        return module_name.startswith("lfx.components.")
+
+    def _is_custom_component(self) -> bool:
+        """Check if this is a custom (user-defined) component."""
+        return not self._is_builtin_component()
+
     def to_frontend_node(self):
         # ! This part here is clunky but we need it like this for
         # ! backwards compatibility. We can change how prompt component
@@ -1009,21 +1022,28 @@ class Component(CustomComponent):
         self._map_parameters_on_template(frontend_node_dict["template"])
 
         frontend_node = ComponentFrontendNode.from_dict(frontend_node_dict)
-        if not self._code:
-            self.set_class_code()
-        code_field = Input(
-            dynamic=True,
-            required=True,
-            placeholder="",
-            multiline=True,
-            value=self._code,
-            password=False,
-            name="code",
-            advanced=True,
-            field_type="code",
-            is_list=False,
-        )
-        frontend_node.template.add_field(code_field)
+
+        # Only add code field for custom components
+        # Built-in components will be loaded from module at runtime
+        if self._is_custom_component():
+            if not self._code:
+                self.set_class_code()
+            code_field = Input(
+                dynamic=True,
+                required=True,
+                placeholder="",
+                multiline=True,
+                value=self._code,
+                password=False,
+                name="code",
+                advanced=True,
+                field_type="code",
+                is_list=False,
+            )
+            frontend_node.template.add_field(code_field)
+            logger.debug(f"Added code field for custom component '{self.display_name}'")
+        else:
+            logger.debug(f"Skipped code field for built-in component '{self.display_name}'")
 
         for output in frontend_node.outputs:
             if output.types:
@@ -1038,6 +1058,11 @@ class Component(CustomComponent):
         node_dict = frontend_node.to_dict(keep_name=False)
         if self.selected_output is not None:
             node_dict["selected_output"] = self.selected_output
+
+        # Add component name to template for accurate type identification
+        # This helps frontend to send correct vertex_type when code is empty
+        if "template" in node_dict:
+            node_dict["template"]["_type"] = self.name or self.__class__.__name__
 
         return {
             "data": {
