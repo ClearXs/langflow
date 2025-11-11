@@ -302,8 +302,8 @@ class Component(CustomComponent):
             set[str]: Set of names that overlap between inputs and outputs.
         """
         # Create sets of input and output names for O(1) lookup
-        input_names = {input_.name for input_ in self.inputs if input_.name is not None}
-        output_names = {output.name for output in self.outputs}
+        input_names = {input_.name for input_ in (self.inputs or []) if input_.name is not None}
+        output_names = {output.name for output in (self.outputs or [])}
 
         # Return the intersection of the sets
         return input_names & output_names
@@ -453,7 +453,7 @@ class Component(CustomComponent):
 
     def list_inputs(self):
         """Returns a list of input names."""
-        return [_input.name for _input in self.inputs]
+        return [_input.name for _input in (self.inputs or [])]
 
     def list_outputs(self):
         """Returns a list of output names."""
@@ -570,6 +570,10 @@ class Component(CustomComponent):
             ValueError: If the input name is None.
 
         """
+        # Defensive check: if inputs is None, treat as empty list
+        if inputs is None:
+            return
+
         for input_ in inputs:
             if input_.name is None:
                 msg = self.build_component_error_message("Input name cannot be None")
@@ -1121,7 +1125,7 @@ class Component(CustomComponent):
     def get_trace_as_inputs(self):
         predefined_inputs = {
             input_.name: input_.value
-            for input_ in self.inputs
+            for input_ in (self.inputs or [])
             if hasattr(input_, "trace_as_input") and input_.trace_as_input
         }
         # Runtime inputs
@@ -1131,7 +1135,7 @@ class Component(CustomComponent):
     def get_trace_as_metadata(self):
         return {
             input_.name: input_.value
-            for input_ in self.inputs
+            for input_ in (self.inputs or [])
             if hasattr(input_, "trace_as_metadata") and input_.trace_as_metadata
         }
 
@@ -1198,7 +1202,7 @@ class Component(CustomComponent):
 
     def _handle_tool_mode(self):
         if (
-            hasattr(self, "outputs") and any(getattr(_input, "tool_mode", False) for _input in self.inputs)
+            hasattr(self, "outputs") and any(getattr(_input, "tool_mode", False) for _input in (self.inputs or []))
         ) or self.add_tool_output:
             self._append_tool_to_outputs_map()
 
@@ -1383,7 +1387,8 @@ class Component(CustomComponent):
         """
         # This function is similar to build_config, but it will process the inputs
         # and return them as a dict with keys being the Input.name and values being the Input.model_dump()
-        self.inputs = self.template_config.get("inputs", [])
+        # Ensure inputs is always a list, even if template_config returns None
+        self.inputs = self.template_config.get("inputs", []) or []
         if not self.inputs:
             return {}
         return {_input.name: _input.model_dump(by_alias=True, exclude_none=True) for _input in self.inputs}

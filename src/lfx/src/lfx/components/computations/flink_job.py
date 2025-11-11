@@ -1,20 +1,21 @@
 import asyncio
 import datetime
 import json
+import os
 from typing import Any
 
 import i18n
 import requests
 
 from lfx.custom.custom_component.component import Component
-from lfx.io import CodeInput, DropdownInput, FileInput, IntInput, Output, StrInput
+from lfx.io import DropdownInput, FileInput, IntInput, Output, StrInput
 from lfx.log.logger import logger
 from lfx.schema import Data
 from lfx.services.feign.clients.data_construction import cleanup_temp_file, download_file_by_id
 
 
 class ETLFlinkJobComponent(Component):
-    """Flink Job component for submitting JAR or Python jobs."""
+    """Flink Job component for submitting JAR jobs to Flink cluster."""
 
     display_name = i18n.t("components.computations.flink_job.display_name")
     description = i18n.t("components.computations.flink_job.description")
@@ -39,16 +40,6 @@ class ETLFlinkJobComponent(Component):
                 "action": "open_datasource_dialog",
             },
         ),
-        DropdownInput(
-            name="job_mode",
-            display_name=i18n.t("components.computations.flink_job.job_mode.display_name"),
-            info=i18n.t("components.computations.flink_job.job_mode.info"),
-            options=["jar", "python"],
-            value="python",
-            required=True,
-            real_time_refresh=True,
-        ),
-        # JAR mode inputs (hidden by default since default mode is python)
         FileInput(
             name="jar_file",
             display_name=i18n.t("components.computations.flink_job.jar_file.display_name"),
@@ -56,85 +47,19 @@ class ETLFlinkJobComponent(Component):
             file_types=["jar"],
             is_list=False,
             temp_file=False,
-            required=False,
-            advanced=False,
+            required=True,
         ),
         StrInput(
             name="entry_class",
             display_name=i18n.t("components.computations.flink_job.entry_class.display_name"),
             info=i18n.t("components.computations.flink_job.entry_class.info"),
-            required=False,
-            advanced=False,
+            required=True,
         ),
         StrInput(
             name="program_args",
             display_name=i18n.t("components.computations.flink_job.program_args.display_name"),
             info=i18n.t("components.computations.flink_job.program_args.info"),
             required=False,
-            advanced=True,
-        ),
-        # Python mode input (shown by default)
-        CodeInput(
-            name="python_script",
-            display_name=i18n.t("components.computations.flink_job.python_script.display_name"),
-            info=i18n.t("components.computations.flink_job.python_script.info"),
-            required=True,
-            advanced=False,
-            language="python",
-            value="""# Word Count Example - PyFlink 1.9.3 (Batch Processing)
-from pyflink.dataset import ExecutionEnvironment
-from pyflink.table import TableConfig, BatchTableEnvironment
-
-# 创建批处理环境
-exec_env = ExecutionEnvironment.get_execution_environment()
-exec_env.set_parallelism(1)
-t_config = TableConfig()
-t_env = BatchTableEnvironment.create(exec_env, t_config)
-
-# 创建源表（文件系统 CSV）- 需要预先创建 /tmp/input.csv 文件
-# 文件内容示例（每行一个单词）：
-# hello
-# world
-# hello
-# flink
-# world
-my_source_ddl = \"\"\"
-    create table mySource (
-        word VARCHAR
-    ) with (
-        'connector.type' = 'filesystem',
-        'format.type' = 'csv',
-        'connector.path' = '/tmp/input.csv'
-    )
-\"\"\"
-
-# 创建目标表（文件系统 CSV）
-my_sink_ddl = \"\"\"
-    create table mySink (
-        word VARCHAR,
-        `count` BIGINT
-    ) with (
-        'connector.type' = 'filesystem',
-        'format.type' = 'csv',
-        'connector.path' = '/tmp/output.csv'
-    )
-\"\"\"
-
-# 注册表
-t_env.sql_update(my_source_ddl)
-t_env.sql_update(my_sink_ddl)
-
-# 执行 word count：扫描源表，按单词分组，统计数量
-t_env.scan('mySource') \\
-    .group_by('word') \\
-    .select('word, count(1) as count') \\
-    .insert_into('mySink')
-
-# 执行作业
-t_env.execute("word_count_job")
-
-print("Word count job completed! Check /tmp/output.csv for results.")
-""",
         ),
         IntInput(
             name="parallelism",
@@ -160,50 +85,12 @@ print("Word count job completed! Check /tmp/output.csv for results.")
         field_name: str | None = None,
         action: str | None = None,
     ):
-        """Handle field changes and dynamic field visibility."""
-        # Load Flink datasources
-        if field_name is None or (field_name == "flink_datasource" and not field_value):
+        """Handle field changes - load Flink datasources."""
+        # Load Flink datasources for initial load or when flink_datasource is accessed
+        if field_name is None or field_name == "flink_datasource":
             datasources = self._load_flink_datasources()
             build_config["flink_datasource"]["options"] = [ds["display_name"] for ds in datasources]
             build_config["flink_datasource"]["options_metadata"] = datasources
-
-        # Adjust field visibility based on job_mode
-        if field_name == "job_mode" or field_name is None:
-            # Get current mode from field_value, build_config, or default to python
-            if field_name == "job_mode":
-                current_mode = field_value
-            elif hasattr(self, "job_mode"):
-                current_mode = self.job_mode
-            else:
-                # First render: get from build_config
-                current_mode = build_config.get("job_mode", {}).get("value", "python")
-
-            if current_mode == "jar":
-                # Show JAR-related fields, hide Python fields
-                build_config["jar_file"]["show"] = True
-                build_config["jar_file"]["required"] = True
-                build_config["jar_file"]["advanced"] = False
-                build_config["entry_class"]["show"] = True
-                build_config["entry_class"]["required"] = True
-                build_config["entry_class"]["advanced"] = False
-                build_config["program_args"]["show"] = True
-                build_config["program_args"]["advanced"] = True
-                build_config["python_script"]["show"] = False
-                build_config["python_script"]["required"] = False
-                build_config["python_script"]["advanced"] = True
-            else:
-                # Show Python fields, hide JAR-related fields
-                build_config["jar_file"]["show"] = False
-                build_config["jar_file"]["required"] = False
-                build_config["jar_file"]["advanced"] = True
-                build_config["entry_class"]["show"] = False
-                build_config["entry_class"]["required"] = False
-                build_config["entry_class"]["advanced"] = True
-                build_config["program_args"]["show"] = False
-                build_config["program_args"]["advanced"] = True
-                build_config["python_script"]["show"] = True
-                build_config["python_script"]["required"] = True
-                build_config["python_script"]["advanced"] = False
 
         return build_config
 
@@ -258,7 +145,8 @@ print("Word count job completed! Check /tmp/output.csv for results.")
 
             # Merge enterprise and custom datasources
             for ds in datasources.get("enterprise", []) + datasources.get("custom", []):
-                datasource_id = self._extract_uuid_from_id(ds["id"])
+                # Keep the full ID with prefix (custom_ or enterprise_) for DataSourceManager
+                datasource_id = ds["id"]  # Don't strip prefix
                 ds_name = ds.get("name", "Unknown")
                 ds_type = ds.get("type", "")
 
@@ -311,9 +199,7 @@ print("Word count job completed! Check /tmp/output.csv for results.")
                 status = "Active" if cluster.get("status") == 1 else "Inactive"
 
                 # Build display name with version, mode, and status
-                display_name = self._build_flink_cluster_display_name(
-                    cluster_name, version, execution_mode, status
-                )
+                display_name = self._build_flink_cluster_display_name(cluster_name, version, execution_mode, status)
 
                 public_datasources.append(
                     {
@@ -335,9 +221,7 @@ print("Word count job completed! Check /tmp/output.csv for results.")
             logger.error(f"[FlinkJob] Failed to load public Flink clusters: {e}")
             return []
 
-    def _build_flink_cluster_display_name(
-        self, name: str, version: str, execution_mode: str, status: str
-    ) -> str:
+    def _build_flink_cluster_display_name(self, name: str, version: str, execution_mode: str, status: str) -> str:
         """Build display name for public Flink cluster."""
         parts = [f"{name} (Flink"]
 
@@ -402,11 +286,16 @@ print("Word count job completed! Check /tmp/output.csv for results.")
             from lfx.base.datasource.manager import DataSourceManager
 
             manager = DataSourceManager()
+
+            # Use the ID from cached datasource (already has correct prefix: custom_ or enterprise_)
+            actual_id = datasource.get("id", datasource_id)
+            logger.debug(f"[FlinkJob] Looking up builtin datasource with ID: {actual_id}")
+
             # Use async method correctly
-            builtin_ds = asyncio.run(manager._get_datasource_by_id(datasource_id))
+            builtin_ds = asyncio.run(manager._get_datasource_by_id(actual_id))
 
             if not builtin_ds:
-                raise ValueError(f"Builtin datasource not found: {datasource_id}")
+                raise ValueError(f"Builtin datasource not found: {actual_id} (original input: {datasource_id})")
 
             # Extract connection info from datasource
             return self._extract_connection_info_from_datasource(builtin_ds)
@@ -433,14 +322,54 @@ print("Word count job completed! Check /tmp/output.csv for results.")
         if isinstance(advanced_config, str):
             try:
                 import json
+
                 advanced_config = json.loads(advanced_config)
             except (json.JSONDecodeError, ValueError):
                 advanced_config = {}
 
+        # Helper function to parse URL
+        def parse_url(url: str) -> tuple[str, int]:
+            """Parse URL and extract host and port."""
+            # Remove protocol if present
+            if "://" in url:
+                url = url.split("://", 1)[1]
+
+            # Split by colon to get host and port
+            if ":" in url:
+                parts = url.split(":")
+                host = parts[0]
+                try:
+                    port = int(parts[1].split("/")[0])  # Remove trailing path if any
+                except (ValueError, IndexError):
+                    port = 8081
+                return host, port
+            else:
+                return url, 8081
+
         # Try to extract Flink-specific config
-        jobmanager_host = advanced_config.get("jobmanager_host") or advanced_config.get("host") or datasource.get("host", "localhost")
+        jobmanager_host = None
+        rest_port = None
+
+        # First try advanced_config
+        if advanced_config.get("jobmanager_host"):
+            jobmanager_host = advanced_config.get("jobmanager_host")
+            rest_port = advanced_config.get("rest_port") or 8081
+        elif advanced_config.get("host"):
+            # Parse host which might contain URL with port
+            jobmanager_host, rest_port = parse_url(advanced_config.get("host"))
+        elif datasource.get("host"):
+            # Parse datasource host which might contain URL with port
+            jobmanager_host, rest_port = parse_url(datasource.get("host"))
+        else:
+            jobmanager_host = "localhost"
+            rest_port = 8081
+
         jobmanager_port = advanced_config.get("jobmanager_port") or 6123
-        rest_port = advanced_config.get("rest_port") or 8081
+
+        logger.debug(
+            f"[FlinkJob] Extracted connection info: host={jobmanager_host}, "
+            f"rest_port={rest_port}"
+        )
 
         return {
             "jobmanager_host": jobmanager_host,
@@ -479,8 +408,7 @@ print("Word count job completed! Check /tmp/output.csv for results.")
                     except (ValueError, IndexError):
                         port = 8081
                     return host, port
-                else:
-                    return url, 8081
+                return url, 8081
 
             # Try to parse from address first
             if address:
@@ -511,52 +439,65 @@ print("Word count job completed! Check /tmp/output.csv for results.")
             }
 
     async def _submit_jar_job(
-        self, datasource_id: str, jar_file: str, entry_class: str, program_args: str, parallelism: int
+        self, datasource_id: str, jar_file_input: str, entry_class: str, program_args: str, parallelism: int
     ) -> dict:
-        """Submit JAR job to Flink cluster."""
-        # Get connection information
+        """Submit JAR job to Flink cluster with datasource file download."""
+        # Get Flink connection info
         conn_info = self._get_flink_connection_info(datasource_id)
         rest_url = f"http://{conn_info['jobmanager_host']}:{conn_info['rest_port']}"
 
-        # Parse jar_file (format: {"value": "filename", "file_path": "file_id"})
-        try:
-            jar_data = json.loads(jar_file) if isinstance(jar_file, str) else jar_file
-        except json.JSONDecodeError:
-            jar_data = {"file_path": jar_file}
-
-        file_id = jar_data.get("file_path")
+        # Extract file ID using CSV/Excel pattern
+        file_id = self._extract_jar_file_id(jar_file_input)
         if not file_id:
-            raise ValueError("Invalid JAR file data")
+            raise ValueError(i18n.t("components.computations.flink_job.errors.invalid_jar_file"))
 
-        # Download JAR file
-        temp_jar_path = await download_file_by_id(file_id)
+        # Check if it's a file ID (numeric) or actual path
+        is_file_id = file_id.isdigit() if isinstance(file_id, str) else False
 
+        temp_jar_path = None
         try:
             start_time = datetime.datetime.now()
 
-            # Upload JAR to Flink
-            with open(temp_jar_path, "rb") as f:
-                files = {"jarfile": (jar_data.get("value", "job.jar"), f, "application/x-java-archive")}
+            # Download from datasource if it's a file ID
+            if is_file_id:
+                logger.info(f"[FlinkJob] Downloading JAR file ID: {file_id}")
+                temp_jar_path = await download_file_by_id(file_id)
+                actual_jar_path = temp_jar_path
+                logger.info(f"[FlinkJob] Downloaded to: {temp_jar_path}")
+            else:
+                # Use file path directly (for local files)
+                actual_jar_path = file_id
+                logger.info(f"[FlinkJob] Using local JAR: {actual_jar_path}")
+
+            # Upload JAR to Flink cluster
+            logger.info(f"[FlinkJob] Uploading JAR to Flink: {rest_url}")
+            with open(actual_jar_path, "rb") as f:
+                filename = os.path.basename(actual_jar_path)
+                files = {"jarfile": (filename, f, "application/x-java-archive")}
                 upload_resp = requests.post(f"{rest_url}/jars/upload", files=files, timeout=60)
 
             upload_resp.raise_for_status()
             jar_id = upload_resp.json().get("filename", "").split("/")[-1]
 
             if not jar_id:
-                raise ValueError("Failed to get JAR ID from upload response")
+                raise ValueError("Failed to get JAR ID from Flink upload response")
+
+            logger.info(f"[FlinkJob] JAR uploaded, ID: {jar_id}")
 
             # Submit job
             submit_data = {
                 "entryClass": entry_class,
                 "parallelism": parallelism,
             }
-
             if program_args:
                 submit_data["programArgs"] = program_args
 
+            logger.info(f"[FlinkJob] Submitting job with entry class: {entry_class}")
             submit_resp = requests.post(f"{rest_url}/jars/{jar_id}/run", json=submit_data, timeout=30)
             submit_resp.raise_for_status()
             job_id = submit_resp.json().get("jobid", "unknown")
+
+            logger.info(f"[FlinkJob] Job submitted: {job_id}")
 
             # Query job status
             try:
@@ -567,7 +508,6 @@ print("Word count job completed! Check /tmp/output.csv for results.")
                 job_name = job_info.get("name", "Unknown")
                 job_state = job_info.get("state", "UNKNOWN")
                 job_start_time = job_info.get("start-time", 0)
-                job_duration = job_info.get("duration", 0)
 
                 duration = (datetime.datetime.now() - start_time).total_seconds()
 
@@ -581,103 +521,96 @@ print("Word count job completed! Check /tmp/output.csv for results.")
                         else start_time.strftime("%Y-%m-%d %H:%M:%S")
                     ),
                     "duration": f"{duration:.2f}s",
-                    "message": "作业已提交到 Flink 集群",
+                    "message": i18n.t("components.computations.flink_job.success.job_submitted"),
                 }
 
             except Exception as e:
-                # If status query fails, still return success with job_id
+                # Status query failed, but job was submitted
                 duration = (datetime.datetime.now() - start_time).total_seconds()
+                logger.warning(f"[FlinkJob] Job status unavailable: {e}")
                 return {
                     "job_id": job_id,
                     "job_name": entry_class.split(".")[-1],
                     "status": "SUBMITTED",
                     "start_time": start_time.strftime("%Y-%m-%d %H:%M:%S"),
                     "duration": f"{duration:.2f}s",
-                    "message": f"作业已提交 (无法获取详细状态: {e!s})",
+                    "message": i18n.t("components.computations.flink_job.success.job_submitted"),
                 }
 
         finally:
-            # Cleanup temporary file
-            cleanup_temp_file(temp_jar_path)
+            # Always cleanup temporary file
+            if temp_jar_path:
+                cleanup_temp_file(temp_jar_path)
+                logger.info(f"[FlinkJob] Cleaned up temp file: {temp_jar_path}")
 
-    def _submit_python_job(self, datasource_id: str, python_script: str, parallelism: int) -> dict:
-        """Submit Python script job to remote Flink cluster.
+    def _extract_jar_file_id(self, jar_file_input: Any) -> str | None:
+        """Extract file ID from JAR file input (same pattern as CSV/Excel components).
 
-        Note: Flink REST API does not support direct Python script submission.
-        This method returns an informative error message directing users to alternatives.
+        Args:
+            jar_file_input: JAR file input from component
+
+        Returns:
+            File ID (numeric string) or file path
         """
-        start_time = datetime.datetime.now()
-        duration = (datetime.datetime.now() - start_time).total_seconds()
+        # Parse JSON string if needed
+        if isinstance(jar_file_input, str):
+            try:
+                jar_data = json.loads(jar_file_input)
+                file_id = jar_data.get("file_path") or jar_data.get("value")
+                logger.debug(f"[FlinkJob] Extracted from JSON: {file_id}")
+                return file_id
+            except json.JSONDecodeError:
+                # Not JSON, might be direct file ID or path
+                logger.debug(f"[FlinkJob] Using string directly: {jar_file_input}")
+                return jar_file_input
 
-        # Get connection information for display
-        conn_info = self._get_flink_connection_info(datasource_id)
-        rest_url = f"http://{conn_info['jobmanager_host']}:{conn_info['rest_port']}"
+        # Already a dict
+        elif isinstance(jar_file_input, dict):
+            file_id = jar_file_input.get("file_path") or jar_file_input.get("value")
+            logger.debug(f"[FlinkJob] Extracted from dict: {file_id}")
+            return file_id
 
-        logger.warning(
-            "[FlinkJob] Python job submission via REST API is not directly supported. "
-            "Please use one of the following alternatives:\n"
-            "1. Use Flink SQL component with SQL Gateway for SQL-based jobs\n"
-            "2. Package your Python script as a JAR and use JAR mode\n"
-            "3. Use Flink CLI (flink run -py script.py) on the cluster"
-        )
-
-        return {
-            "job_id": "N/A",
-            "job_name": "Python Script Job",
-            "status": "不支持",
-            "start_time": start_time.strftime("%Y-%m-%d %H:%M:%S"),
-            "duration": f"{duration:.2f}s",
-            "message": (
-                f"Flink REST API ({rest_url}) 不支持直接提交 Python 脚本。\n\n"
-                "请使用以下替代方案:\n"
-                "1. 使用 Flink SQL 组件通过 SQL Gateway 提交 SQL 作业\n"
-                "2. 将 Python 脚本打包为 JAR 并使用 JAR 模式提交\n"
-                "3. 在 Flink 集群上使用命令行: flink run -py your_script.py\n"
-                "4. 使用 PyFlink 的 RemoteStreamEnvironment (需要本地安装 PyFlink)\n\n"
-                "推荐使用 Flink SQL 组件,它通过 SQL Gateway REST API 提供完整的远程执行支持。"
-            ),
-        }
+        logger.warning(f"[FlinkJob] Unexpected input type: {type(jar_file_input)}")
+        return None
 
     def submit_flink_job(self) -> Data:
-        """Main execution method - submit Flink job and return result."""
+        """Submit JAR job to Flink cluster."""
         try:
             datasource_id = self.flink_datasource
-            job_mode = self.job_mode
-
             if not datasource_id:
-                raise ValueError(i18n.t("components.computations.flink_job.error.no_datasource"))
+                raise ValueError(i18n.t("components.computations.flink_job.errors.no_datasource"))
 
-            if job_mode == "jar":
-                # JAR mode submission
-                if not self.jar_file:
-                    raise ValueError(i18n.t("components.computations.flink_job.error.no_jar"))
-                if not self.entry_class:
-                    raise ValueError(i18n.t("components.computations.flink_job.error.no_entry_class"))
+            # Validate inputs
+            if not self.jar_file:
+                raise ValueError(i18n.t("components.computations.flink_job.errors.no_jar_file"))
+            if not self.entry_class:
+                raise ValueError(i18n.t("components.computations.flink_job.errors.no_entry_class"))
 
-                result = asyncio.run(
-                    self._submit_jar_job(
-                        datasource_id, self.jar_file, self.entry_class, self.program_args or "", self.parallelism
-                    )
+            # Submit JAR job
+            result = asyncio.run(
+                self._submit_jar_job(
+                    datasource_id,
+                    self.jar_file,
+                    self.entry_class,
+                    self.program_args or "",
+                    self.parallelism,
                 )
-            else:
-                # Python mode submission
-                if not self.python_script or not self.python_script.strip():
-                    raise ValueError(i18n.t("components.computations.flink_job.error.no_python_script"))
+            )
 
-                result = self._submit_python_job(datasource_id, self.python_script, self.parallelism)
-
-            # Set status and return result
+            # Update status
             self.status = f"Job {result['job_id']}: {result['status']}"
             return Data(data=result)
 
         except Exception as e:
             error_msg = str(e)
+            logger.error(f"[FlinkJob] Job submission failed: {error_msg}", exc_info=True)
             self.status = f"{i18n.t('components.computations.flink_job.status.error')}: {error_msg}"
+
             return Data(
                 data={
                     "job_id": "N/A",
                     "job_name": "N/A",
-                    "status": "失败",
+                    "status": i18n.t("components.computations.flink_job.status.failed"),
                     "start_time": "",
                     "duration": "",
                     "message": error_msg,

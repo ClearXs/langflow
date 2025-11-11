@@ -10,11 +10,12 @@ import { customStringify } from "@/utils/reactflowUtils";
 
 /**
  * Optimize flow data by removing code from built-in components
- * before saving to reduce database storage and network payload
+ * and removing temporary metadata fields before saving
  *
  * Benefits:
  * - PATCH /flows: ~93% size reduction (1500KB → 100KB)
  * - Database storage: ~1MB reduction per 10-node flow
+ * - Prevents exponential nesting of _graph_data (8x size after 20 operations)
  * - Always uses latest component version from module
  */
 const optimizeFlowDataForSave = (
@@ -37,8 +38,12 @@ const optimizeFlowDataForSave = (
       // Check if this is a built-in component (official !== false)
       const isBuiltInComponent = nodeData.official !== false;
 
-      // For built-in components, remove code value to reduce storage
-      if (isBuiltInComponent && nodeData.template.code) {
+      // Remove temporary metadata fields (_graph_data, _node_id) to prevent data bloat
+      // These fields are only needed during API requests, not for persistence
+      const { _graph_data, _node_id, ...cleanTemplate } = nodeData.template;
+
+      // For built-in components, also remove code value to reduce storage
+      if (isBuiltInComponent && cleanTemplate.code) {
         return {
           ...node,
           data: {
@@ -46,9 +51,9 @@ const optimizeFlowDataForSave = (
             node: {
               ...nodeData,
               template: {
-                ...nodeData.template,
+                ...cleanTemplate,
                 code: {
-                  ...nodeData.template.code,
+                  ...cleanTemplate.code,
                   value: "", // Clear code value for built-in components
                 },
               },
@@ -57,7 +62,17 @@ const optimizeFlowDataForSave = (
         } as AllNodeType;
       }
 
-      return node;
+      // For custom components or components without code field, just remove metadata
+      return {
+        ...node,
+        data: {
+          ...node.data,
+          node: {
+            ...nodeData,
+            template: cleanTemplate,
+          },
+        },
+      } as AllNodeType;
     }),
   } as ReactFlowJsonObject<AllNodeType, EdgeType>;
 };

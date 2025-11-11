@@ -649,11 +649,20 @@ export function validateNode(node: AllNodeType, edges: Edge[]): Array<string> {
   } = node.data;
 
   const displayName = node.data.node.display_name;
+  const isBuiltInComponent = node.data.node.official !== false;
 
   return Object.keys(template).reduce((errors: Array<string>, t) => {
+    // Skip validation for code field of built-in components
+    // Built-in components don't store code (loaded from module at runtime)
+    const isCodeField = t === "code";
+    const isCodeFieldRemoved = template[t]?._removed === true;
+    const shouldSkipCodeValidation =
+      isCodeField && (isBuiltInComponent || isCodeFieldRemoved);
+
     if (
       node.type === "genericNode" &&
       template[t].required &&
+      !shouldSkipCodeValidation && // Skip code field validation for built-in components
       !(template[t].tool_mode && node?.data?.node?.tool_mode) &&
       template[t].show &&
       (template[t].value === undefined ||

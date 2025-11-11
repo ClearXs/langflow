@@ -384,9 +384,19 @@ const useFlowStore = create<FlowStoreType>((set, get) => ({
       return node;
     });
 
-    // Always validate edges to ensure correctness
-    // The debounced state updates in use-handle-new-value.ts will prevent excessive calls
-    const newEdges = cleanEdges(newNodes, get().edges);
+    // Conditional edge validation: only validate when node structure changes
+    // This prevents expensive O(n*m) validation on every keystroke
+    const needsEdgeValidation =
+      JSON.stringify(oldNode?.data?.node?.template) !==
+        JSON.stringify(newChange.data?.node?.template) ||
+      JSON.stringify(oldNode?.data?.node?.outputs) !==
+        JSON.stringify(newChange.data?.node?.outputs) ||
+      JSON.stringify(oldNode?.data?.node?.base_classes) !==
+        JSON.stringify(newChange.data?.node?.base_classes);
+
+    const newEdges = needsEdgeValidation
+      ? cleanEdges(newNodes, get().edges) // Validate edges when structure changes
+      : get().edges; // Reuse existing edges when only field values change
 
     set((state) => {
       if (callback) {

@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useGetGlobalVariables } from "@/controllers/API/queries/variables";
 import GeneralDeleteConfirmationModal from "@/shared/components/delete-confirmation-modal";
@@ -34,9 +34,17 @@ export default function InputGlobalComponent({
 
   const { t } = useTranslation();
 
+  // Local state for immediate UI feedback (0ms input delay)
+  const [localValue, setLocalValue] = useState(value ?? "");
+
+  // Sync prop changes to local state
+  useEffect(() => {
+    setLocalValue(value ?? "");
+  }, [value]);
+
   // // Safely cast the data to our typed interface
   const typedGlobalVariables: GlobalVariable[] = globalVariables ?? [];
-  const currentValue = value ?? "";
+  const currentValue = localValue; // Use local value instead of prop value
   const isDisabled = disabled ?? false;
   const loadFromDb = load_from_db ?? false;
 
@@ -88,6 +96,10 @@ export default function InputGlobalComponent({
 
     // Handler for input changes
     handleInputChange: (inputValue: string, skipSnapshot?: boolean) => {
+      // Update local state immediately for 0ms input feedback
+      setLocalValue(inputValue);
+
+      // Still trigger debounced store update
       handleOnNewValue(
         { value: inputValue, load_from_db: false },
         { skipSnapshot },

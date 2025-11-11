@@ -218,7 +218,29 @@ async def read_flows(
             folder_id = default_folder_id
 
         # Query all flows without user_id filtering
-        stmt = select(Flow)
+        # Exclude data field for better performance in list queries
+        # Use explicit column selection to avoid lazy loading issues
+        stmt = select(
+            Flow.id,
+            Flow.name,
+            Flow.description,
+            Flow.icon,
+            Flow.icon_bg_color,
+            Flow.gradient,
+            Flow.is_component,
+            Flow.updated_at,
+            Flow.webhook,
+            Flow.endpoint_name,
+            Flow.tags,
+            Flow.locked,
+            Flow.mcp_enabled,
+            Flow.action_name,
+            Flow.action_description,
+            Flow.access_type,
+            Flow.user_id,
+            Flow.folder_id,
+            Flow.fs_path,
+        ).select_from(Flow)
 
         if remove_example_flows:
             stmt = stmt.where(Flow.folder_id != starter_folder_id)
@@ -227,7 +249,34 @@ async def read_flows(
             stmt = stmt.where(Flow.is_component == True)  # noqa: E712
 
         if get_all:
-            flows = (await session.exec(stmt)).all()
+            results = (await session.exec(stmt)).all()
+
+            # Convert tuple results to Flow objects (without data field)
+            flows = []
+            for row in results:
+                flow = Flow(
+                    id=row[0],
+                    name=row[1],
+                    description=row[2],
+                    icon=row[3],
+                    icon_bg_color=row[4],
+                    gradient=row[5],
+                    is_component=row[6],
+                    updated_at=row[7],
+                    webhook=row[8],
+                    endpoint_name=row[9],
+                    tags=row[10],
+                    locked=row[11],
+                    mcp_enabled=row[12],
+                    action_name=row[13],
+                    action_description=row[14],
+                    access_type=row[15],
+                    user_id=row[16],
+                    folder_id=row[17],
+                    fs_path=row[18],
+                    data=None,  # Explicitly set to None
+                )
+                flows.append(flow)
 
             # Skip expensive validation when returning headers only
             # FlowHeader.validate_flow_header will correctly handle is_component field
@@ -362,6 +411,7 @@ async def update_put_flow(
         raise HTTPException(status_code=500, detail=str(e)) from e
 
     return db_flow
+
 
 @router.patch("/{flow_id}", response_model=FlowRead, status_code=200)
 async def update_flow(
@@ -599,28 +649,30 @@ async def read_basic_examples(
     Returns:
         list[FlowRead]: A list of basic example flows.
     """
-    try:
-        global all_starter_folder_flows_response  # noqa: PLW0603
+    return []
+    # TODO temporary remove get examples code
+    # try:
+    #     global all_starter_folder_flows_response
 
-        if all_starter_folder_flows_response:
-            return all_starter_folder_flows_response
-        # Get the starter folder
-        starter_folder = (await session.exec(select(Folder).where(Folder.name == STARTER_FOLDER_NAME))).first()
+    #     if all_starter_folder_flows_response:
+    #         return all_starter_folder_flows_response
+    #     # Get the starter folder
+    #     starter_folder = (await session.exec(select(Folder).where(Folder.name == STARTER_FOLDER_NAME))).first()
 
-        if not starter_folder:
-            return []
+    #     if not starter_folder:
+    #         return []
 
-        # Get all flows in the starter folder
-        all_starter_folder_flows = (await session.exec(select(Flow).where(Flow.folder_id == starter_folder.id))).all()
+    #     # Get all flows in the starter folder
+    #     all_starter_folder_flows = (await session.exec(select(Flow).where(Flow.folder_id == starter_folder.id))).all()
 
-        flow_reads = [FlowRead.model_validate(flow, from_attributes=True) for flow in all_starter_folder_flows]
-        all_starter_folder_flows_response = compress_response(flow_reads)
+    #     flow_reads = [FlowRead.model_validate(flow, from_attributes=True) for flow in all_starter_folder_flows]
+    #     all_starter_folder_flows_response = compress_response(flow_reads)
 
-        # Return compressed response using our utility function
-        return all_starter_folder_flows_response  # noqa: TRY300
+    #     # Return compressed response using our utility function
+    #     return all_starter_folder_flows_response
 
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e)) from e
+    # except Exception as e:
+    #     raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 @router.get("/{flow_id}/logs", response_model=list[TransactionReadResponse], status_code=200)
@@ -744,12 +796,9 @@ async def get_flow_stats(
                 "running_executions": 0,
                 "success_rate": 0.0,
                 "component_types": {},
-                "performance_metrics": {
-                    "avg_duration_ms": 0,
-                    "total_duration_ms": 0
-                },
+                "performance_metrics": {"avg_duration_ms": 0, "total_duration_ms": 0},
                 "latest_execution": None,
-                "earliest_execution": None
+                "earliest_execution": None,
             }
 
         # Initialize statistics
@@ -759,12 +808,9 @@ async def get_flow_stats(
             "failed_executions": 0,
             "running_executions": 0,
             "component_types": {},
-            "performance_metrics": {
-                "total_duration_ms": 0,
-                "avg_duration_ms": 0
-            },
+            "performance_metrics": {"total_duration_ms": 0, "avg_duration_ms": 0},
             "latest_execution": None,
-            "earliest_execution": None
+            "earliest_execution": None,
         }
 
         # Process transactions
@@ -802,9 +848,7 @@ async def get_flow_stats(
 
         # Calculate success rate
         total_completed = stats["successful_executions"] + stats["failed_executions"]
-        stats["success_rate"] = (
-            (stats["successful_executions"] / total_completed) * 100 if total_completed > 0 else 0.0
-        )
+        stats["success_rate"] = (stats["successful_executions"] / total_completed) * 100 if total_completed > 0 else 0.0
 
         # Calculate performance metrics
         if durations:
@@ -852,8 +896,7 @@ async def get_transaction_log(
 
         # Get the specific transaction
         stmt = select(TransactionTable).where(
-            TransactionTable.id == transaction_id,
-            TransactionTable.flow_id == flow_id
+            TransactionTable.id == transaction_id, TransactionTable.flow_id == flow_id
         )
         transaction = (await session.exec(stmt)).first()
 

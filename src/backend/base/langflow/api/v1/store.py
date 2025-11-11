@@ -144,7 +144,9 @@ async def download_component(
 @router.get("/tags", response_model=list[TagResponse])
 async def get_tags():
     try:
-        return await get_store_service().get_tags()
+        return []
+        # TODO temporary remove share tags
+        # return await get_store_service().get_tags()
     except CustomError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
     except Exception as exc:

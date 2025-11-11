@@ -237,6 +237,120 @@ class TestKafkaInputDatasourceIntegration:
         assert "[公共]" in public_ds["display_name"]
         assert "raw_data" in public_ds
 
+    def test_find_datasource_from_vertex_template(self, kafka_input_component):
+        """Test finding datasource info from vertex.data template (runtime persistence)."""
+        # Simulate runtime scenario: _build_config is not available
+        if hasattr(kafka_input_component, "_build_config"):
+            delattr(kafka_input_component, "_build_config")
+
+        # Mock vertex with template data (simulating runtime persistence)
+        mock_vertex = MagicMock()
+        mock_vertex.data = {
+            "node": {
+                "template": {
+                    "datasource_selector": {
+                        "options_metadata": [
+                            {
+                                "id": "vertex-datasource-id",
+                                "name": "Vertex Kafka",
+                                "type": "kafka",
+                                "source": "builtin",
+                                "display_name": "Vertex Kafka (Kafka) [自定义]",
+                            }
+                        ]
+                    }
+                }
+            }
+        }
+        kafka_input_component._vertex = mock_vertex
+
+        result = kafka_input_component._find_datasource_info("vertex-datasource-id")
+
+        assert result is not None
+        assert result["id"] == "vertex-datasource-id"
+        assert result["source"] == "builtin"
+        assert result["type"] == "kafka"
+
+    def test_find_datasource_fallback_priority(self, kafka_input_component):
+        """Test that _build_config has priority over vertex.data."""
+        # Set up _build_config with one datasource
+        kafka_input_component._build_config = {
+            "datasource_selector": {
+                "options_metadata": [
+                    {
+                        "id": "build-config-id",
+                        "name": "Build Config Kafka",
+                        "type": "kafka",
+                        "source": "builtin",
+                        "display_name": "Build Config (Kafka)",
+                    }
+                ]
+            }
+        }
+
+        # Set up vertex with different datasource
+        mock_vertex = MagicMock()
+        mock_vertex.data = {
+            "node": {
+                "template": {
+                    "datasource_selector": {
+                        "options_metadata": [
+                            {
+                                "id": "vertex-id",
+                                "name": "Vertex Kafka",
+                                "type": "kafka",
+                                "source": "builtin",
+                                "display_name": "Vertex (Kafka)",
+                            }
+                        ]
+                    }
+                }
+            }
+        }
+        kafka_input_component._vertex = mock_vertex
+
+        # Should find from _build_config first
+        result = kafka_input_component._find_datasource_info("build-config-id")
+        assert result is not None
+        assert result["id"] == "build-config-id"
+
+        # Should fallback to vertex when not in _build_config
+        result = kafka_input_component._find_datasource_info("vertex-id")
+        assert result is not None
+        assert result["id"] == "vertex-id"
+
+    def test_get_kafka_config_with_bootstrap_servers_field(self, kafka_input_component):
+        """Test getting Kafka config from public datasource with bootstrapServers field."""
+        public_raw_data = {
+            "id": "1987773600610652161",
+            "name": "kafka",
+            "dataSourceParam": {
+                "bootstrapServers": "192.110.100.120:9092",
+                "pool": {"minIdle": 1, "maxIdle": 2, "maxTotal": 5, "properties": []},
+                "type": "kafka",
+            },
+        }
+
+        kafka_input_component.datasource_selector = "1987773600610652161"
+        kafka_input_component._build_config = {
+            "datasource_selector": {
+                "options_metadata": [
+                    {
+                        "id": "1987773600610652161",
+                        "name": "kafka",
+                        "type": "kafka",
+                        "source": "public",
+                        "display_name": "kafka (Kafka) [公共]",
+                        "raw_data": public_raw_data,
+                    }
+                ]
+            }
+        }
+
+        config = kafka_input_component._get_kafka_config_from_datasource()
+
+        assert config["bootstrap.servers"] == "192.110.100.120:9092"
+
 
 class TestKafkaOutputDatasourceIntegration:
     """Test Kafka Output component datasource integration."""

@@ -416,10 +416,18 @@ def run_build_config(
     )
 
 
-def add_code_field(frontend_node: CustomComponentFrontendNode, raw_code):
+def add_code_field(frontend_node: CustomComponentFrontendNode, raw_code, is_builtin: bool = False):
+    """Add code field to frontend node.
+
+    Args:
+        frontend_node: Frontend node to add code field to
+        raw_code: Code content
+        is_builtin: Whether this is a built-in component (default: False)
+                   Built-in components have required=False since code is loaded from module
+    """
     code_field = Input(
         dynamic=True,
-        required=True,
+        required=not is_builtin,  # Built-in components: code is optional (loaded from module)
         placeholder="",
         multiline=True,
         value=raw_code,
@@ -434,10 +442,18 @@ def add_code_field(frontend_node: CustomComponentFrontendNode, raw_code):
     return frontend_node
 
 
-def add_code_field_to_build_config(build_config: dict, raw_code: str):
+def add_code_field_to_build_config(build_config: dict, raw_code: str, is_builtin: bool = False):
+    """Add code field to build config.
+
+    Args:
+        build_config: Build configuration dict
+        raw_code: Code content
+        is_builtin: Whether this is a built-in component (default: False)
+                   Built-in components have required=False since code is loaded from module
+    """
     build_config["code"] = Input(
         dynamic=True,
-        required=True,
+        required=not is_builtin,  # Built-in components: code is optional (loaded from module)
         placeholder="",
         multiline=True,
         value=raw_code,
@@ -486,7 +502,10 @@ def build_custom_component_template_from_inputs(
     else:
         frontend_node = ComponentFrontendNode.from_inputs(**custom_component.template_config)
         cc_instance = custom_component
-    frontend_node = add_code_field(frontend_node, custom_component._code)
+
+    # Check if this is a built-in component
+    is_builtin = hasattr(custom_component, "_is_builtin_component") and custom_component._is_builtin_component()
+    frontend_node = add_code_field(frontend_node, custom_component._code, is_builtin=is_builtin)
     # But we now need to calculate the return_type of the methods in the outputs
     for output in frontend_node.outputs:
         if output.types:
@@ -587,7 +606,9 @@ def build_custom_component_template(
 
         add_extra_fields(frontend_node, field_config, entrypoint_args)
 
-        frontend_node = add_code_field(frontend_node, custom_component._code)
+        # Check if this is a built-in component
+        is_builtin = hasattr(custom_component, "_is_builtin_component") and custom_component._is_builtin_component()
+        frontend_node = add_code_field(frontend_node, custom_component._code, is_builtin=is_builtin)
 
         add_base_classes(frontend_node, custom_component._get_function_entrypoint_return_type)
         add_output_types(frontend_node, custom_component._get_function_entrypoint_return_type)

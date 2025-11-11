@@ -13,7 +13,7 @@ from unittest.mock import MagicMock, patch
 import pandas as pd
 import pytest
 
-from lfx.components.input_output.table_input import TableInputComponent
+from lfx.components.input_output.table_input import ETLTableInputComponent
 from lfx.schema.data import Data
 from lfx.schema.dataframe import DataFrame
 
@@ -27,7 +27,7 @@ class TestTableInputComponent:
         self.i18n_patcher = patch("lfx.components.input_output.table_input.i18n.t", side_effect=self._mock_translation)
         self.i18n_patcher.start()
 
-        self.component = TableInputComponent()
+        self.component = ETLTableInputComponent()
 
         # Set default attributes
         self.component.database_connection = "test_db"
@@ -403,8 +403,8 @@ class TestTableInputComponent:
 
     # ===== Load Data Tests =====
 
-    @patch.object(TableInputComponent, "_get_connection")
-    @patch.object(TableInputComponent, "_validate_query_safety")
+    @patch.object(ETLTableInputComponent, "_get_connection")
+    @patch.object(ETLTableInputComponent, "_validate_query_safety")
     @patch("pandas.read_sql_query")
     def test_load_data_success(self, mock_read_sql, mock_validate, mock_get_conn):
         """Test successful data loading."""
@@ -433,8 +433,8 @@ class TestTableInputComponent:
         mock_get_conn.assert_called_once()
         mock_connection.close.assert_called_once()
 
-    @patch.object(TableInputComponent, "_get_connection")
-    @patch.object(TableInputComponent, "_validate_query_safety")
+    @patch.object(ETLTableInputComponent, "_get_connection")
+    @patch.object(ETLTableInputComponent, "_validate_query_safety")
     @patch("pandas.read_sql_query")
     def test_load_data_empty_result(self, mock_read_sql, mock_validate, mock_get_conn):
         """Test loading data with empty query result."""
@@ -459,8 +459,8 @@ class TestTableInputComponent:
         with pytest.raises(ValueError, match="empty"):
             self.component.load_data()
 
-    @patch.object(TableInputComponent, "_get_connection")
-    @patch.object(TableInputComponent, "_validate_query_safety")
+    @patch.object(ETLTableInputComponent, "_get_connection")
+    @patch.object(ETLTableInputComponent, "_validate_query_safety")
     @patch("pandas.read_sql_query")
     def test_load_data_execution_error(self, mock_read_sql, mock_validate, mock_get_conn):
         """Test that query execution error is properly handled."""
@@ -475,8 +475,8 @@ class TestTableInputComponent:
 
         mock_connection.close.assert_called_once()
 
-    @patch.object(TableInputComponent, "_get_connection")
-    @patch.object(TableInputComponent, "_validate_query_safety")
+    @patch.object(ETLTableInputComponent, "_get_connection")
+    @patch.object(ETLTableInputComponent, "_validate_query_safety")
     @patch("pandas.read_sql_query")
     def test_load_data_text_generation(self, mock_read_sql, mock_validate, mock_get_conn):
         """Test that text field is properly generated from row data."""
@@ -500,8 +500,8 @@ class TestTableInputComponent:
 
     # ===== Load DataFrame Tests =====
 
-    @patch.object(TableInputComponent, "_get_connection")
-    @patch.object(TableInputComponent, "_validate_query_safety")
+    @patch.object(ETLTableInputComponent, "_get_connection")
+    @patch.object(ETLTableInputComponent, "_validate_query_safety")
     @patch("pandas.read_sql_query")
     def test_load_dataframe_success(self, mock_read_sql, mock_validate, mock_get_conn):
         """Test successful DataFrame loading."""
@@ -530,8 +530,8 @@ class TestTableInputComponent:
         with pytest.raises(ValueError, match="empty"):
             self.component.load_dataframe()
 
-    @patch.object(TableInputComponent, "_get_connection")
-    @patch.object(TableInputComponent, "_validate_query_safety")
+    @patch.object(ETLTableInputComponent, "_get_connection")
+    @patch.object(ETLTableInputComponent, "_validate_query_safety")
     @patch("pandas.read_sql_query")
     def test_load_dataframe_execution_error(self, mock_read_sql, mock_validate, mock_get_conn):
         """Test that DataFrame execution error is properly handled."""
@@ -548,8 +548,8 @@ class TestTableInputComponent:
 
     # ===== Integration Tests =====
 
-    @patch.object(TableInputComponent, "_get_connection")
-    @patch.object(TableInputComponent, "_validate_query_safety")
+    @patch.object(ETLTableInputComponent, "_get_connection")
+    @patch.object(ETLTableInputComponent, "_validate_query_safety")
     @patch("pandas.read_sql_query")
     def test_safe_mode_integration(self, mock_read_sql, mock_validate, mock_get_conn):
         """Test safe mode validation during data loading."""
@@ -565,7 +565,7 @@ class TestTableInputComponent:
         # Connection should not be attempted
         mock_get_conn.assert_not_called()
 
-    @patch.object(TableInputComponent, "_get_connection")
+    @patch.object(ETLTableInputComponent, "_get_connection")
     @patch("pandas.read_sql_query")
     def test_load_data_with_special_characters(self, mock_read_sql, mock_get_conn):
         """Test loading data with special characters in values."""
@@ -587,7 +587,7 @@ class TestTableInputComponent:
 
         mock_connection.close.assert_called_once()
 
-    @patch.object(TableInputComponent, "_get_connection")
+    @patch.object(ETLTableInputComponent, "_get_connection")
     @patch("pandas.read_sql_query")
     def test_load_data_with_null_values(self, mock_read_sql, mock_get_conn):
         """Test loading data with NULL/None values."""
@@ -609,7 +609,7 @@ class TestTableInputComponent:
 
         mock_connection.close.assert_called_once()
 
-    @patch.object(TableInputComponent, "_get_connection")
+    @patch.object(ETLTableInputComponent, "_get_connection")
     @patch("pandas.read_sql_query")
     def test_status_messages(self, mock_read_sql, mock_get_conn):
         """Test that status messages are properly set during execution."""
@@ -680,7 +680,7 @@ class TestTableInputEdgeCases:
         # Should not raise for safe query
         self.component._validate_query_safety(query)
 
-    @patch.object(TableInputComponent, "_get_connection")
+    @patch.object(ETLTableInputComponent, "_get_connection")
     @patch("pandas.read_sql_query")
     def test_large_result_set(self, mock_read_sql, mock_get_conn):
         """Test loading large result sets."""

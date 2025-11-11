@@ -7,8 +7,6 @@ This test validates that the custom_component_update endpoint can handle:
 
 from __future__ import annotations
 
-import pytest
-
 
 class TestEmptyCodeFix:
     """Test custom_component_update with empty code for built-in components."""

@@ -132,7 +132,17 @@ const useHandleOnNewValue = ({
         if (value !== undefined) parameter[key] = value;
       });
 
-      const shouldUpdate = parameter.real_time_refresh;
+      // Check if this is a simple text field that doesn't need backend validation
+      const isSimpleTextField =
+        (parameter.field_type === "str" ||
+          parameter._input_type === "MessageTextInput" ||
+          parameter._input_type === "MultilineInput" ||
+          parameter._input_type === "TextInput") &&
+        !parameter.options && // No dropdown options
+        !parameter.dynamic && // Not a dynamic field
+        !parameter.refresh_button; // No refresh button
+
+      const shouldUpdate = parameter.real_time_refresh && !isSimpleTextField;
 
       const setNodeClass = (newNodeClass: APIClassType) => {
         options?.setNodeClass?.(newNodeClass);
@@ -175,7 +185,7 @@ const useHandleOnNewValue = ({
       if (!debouncedUpdateStateRef.current) {
         debouncedUpdateStateRef.current = debounce(
           (node) => updateNodeState(node),
-          150, // Fast enough to feel responsive, but prevents cascading re-renders
+          150, // Restored to 150ms - combined with local state pattern for immediate UI feedback
         );
       }
       debouncedUpdateStateRef.current(newNode);

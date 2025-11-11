@@ -89,7 +89,6 @@ class ETLTableOutputComponent(Component):
                     "name": "target_field",
                     "display_name": i18n.t("components.input_output.table_output.field_mappings.target_field"),
                     "type": "str",
-                    "options": [],  # Will be populated dynamically
                 },
                 {
                     "name": "data_type",
@@ -129,12 +128,6 @@ class ETLTableOutputComponent(Component):
                         "name": "analyze_schema",
                         "label": i18n.t("components.input_output.table_output.field_mappings.analyze_schema_button"),
                         "icon": "Search",
-                        "position": "top",
-                    },
-                    {
-                        "name": "auto_map_fields",
-                        "label": i18n.t("components.input_output.table_output.field_mappings.auto_map_button"),
-                        "icon": "Link",
                         "position": "top",
                     },
                 ],
@@ -413,79 +406,6 @@ class ETLTableOutputComponent(Component):
                 logger.error(f"[TableOutput] Traceback: {traceback.format_exc()}")
                 self.status = i18n.t("components.input_output.table_output.errors.load_tables_failed")
 
-        # 3. When table is selected, load target field list for dropdown
-        if field_name == "table_selector" and field_value:
-            current_table = field_value
-            current_datasource = build_config.get("datasource_selector", {}).get("value")
-
-            logger.debug(f"[TableOutput] Table selected: {current_table}")
-
-            if current_datasource:
-                try:
-                    options_metadata = build_config.get("datasource_selector", {}).get("options_metadata", [])
-                    datasource_id = self._get_datasource_id_from_metadata(current_datasource, options_metadata)
-
-                    if datasource_id:
-                        # 获取数据源信息以判断是否为公共数据源
-                        datasource_info = None
-                        for metadata in options_metadata:
-                            # 使用 value 或 id 字段匹配，而不是 display_name
-                            if metadata.get("value") == current_datasource or metadata.get("id") == current_datasource:
-                                datasource_info = metadata
-                                break
-
-                        # 公共数据源：直接通过连接字符串查询列
-                        if datasource_info and datasource_info.get("source") == "public":
-                            logger.info(f"[TableOutput] Loading columns for public datasource table: {current_table}")
-                            try:
-                                columns = self._load_public_datasource_columns(datasource_info, current_table)
-                                if columns:
-                                    target_field_names = [col["name"] for col in columns]
-
-                                    # Find the target_field column in table_schema
-                                    for schema_col in build_config["field_mappings"]["table_schema"]:
-                                        if schema_col["name"] == "target_field":
-                                            schema_col["options"] = target_field_names
-                                            logger.debug(
-                                                f"[TableOutput] Updated target_field options: {target_field_names[:5]}..."
-                                            )
-                                            break
-                                else:
-                                    logger.warning("[TableOutput] No columns found for public datasource table")
-                            except Exception as e:
-                                logger.error(f"[TableOutput] Failed to load columns from public datasource: {e}")
-                        else:
-                            # 内置数据源：使用 UUID API
-                            # Load columns for the target table
-                            # 提取纯UUID（移除可能的前缀）
-                            clean_datasource_id = self._extract_uuid_from_id(datasource_id)
-                            with httpx.Client(timeout=10.0) as client:
-                                response = client.get(
-                                    f"{api_url}/api/v1/datasources/{clean_datasource_id}/tables/{current_table}/columns"
-                                )
-
-                                if response.status_code == 200:
-                                    columns = response.json()
-                                    logger.debug(f"[TableOutput] Loaded {len(columns)} columns for table")
-
-                                    # Update target_field dropdown options in field_mappings
-                                    target_field_names = [col["name"] for col in columns]
-
-                                    # Find the target_field column in table_schema
-                                    for schema_col in build_config["field_mappings"]["table_schema"]:
-                                        if schema_col["name"] == "target_field":
-                                            schema_col["options"] = target_field_names
-                                            logger.debug(
-                                                f"[TableOutput] Updated target_field options: {target_field_names[:5]}..."
-                                            )
-                                            break
-                                else:
-                                    logger.warning(
-                                        f"[TableOutput] Failed to load columns, status: {response.status_code}"
-                                    )
-                except Exception as e:
-                    logger.error(f"[TableOutput] Error loading columns: {e}")
-
         # 4. Handle "Analyze Schema" button - analyze input data structure using static field extraction
         if field_name == "field_mappings" and action == "analyze_schema":
             logger.info("[TableOutput] Schema analysis triggered by action button")
@@ -546,15 +466,24 @@ class ETLTableOutputComponent(Component):
 
                     logger.info(f"[TableOutput] Extracted {len(field_names)} fields from upstream: {field_names}")
 
-                    # Convert field names to field mapping format
+                    # Convert field info (dict format) to field mapping format
                     field_info = []
-                    for field_name in field_names:
+                    for field_item in field_names:
+                        # Handle new dict format: {"name": "field1", "type": "string"}
+                        if isinstance(field_item, dict):
+                            field_name = field_item.get("name")
+                            data_type = field_item.get("type", "string")
+                        else:
+                            # Backward compatibility: if still a string
+                            field_name = field_item
+                            data_type = "string"
+
                         field_info.append(
                             {
                                 "source_field": field_name,
                                 "target_field": field_name,  # Default to same name
-                                "data_type": "string",  # Default type
-                                "update_option": "sync_update",
+                                "data_type": data_type,  # Use extracted type
+                                "update_option": UPDATE_OPTIONS[0],  # Use localized default
                                 "is_key_field": False,
                                 "null_value": "",
                             }
@@ -584,61 +513,6 @@ class ETLTableOutputComponent(Component):
 
                 logger.error(f"[TableOutput] Traceback: {traceback.format_exc()}")
                 self.status = i18n.t("components.input_output.table_output.errors.analysis_failed", error=error_msg)
-
-        # 5. Handle "Auto Map Fields" button - auto-match source to target fields
-        if field_name == "field_mappings" and action == "auto_map_fields":
-            logger.info("[TableOutput] Auto field mapping triggered by action button")
-
-            try:
-                self.status = _format_i18n("components.input_output.table_output.status.mapping_fields")
-
-                current_mappings = build_config.get("field_mappings", {}).get("value", [])
-
-                if not current_mappings:
-                    logger.warning("[TableOutput] No field mappings to auto-map")
-                    self.status = i18n.t("components.input_output.table_output.status.no_fields_to_map")
-                    return build_config
-
-                # Get target field options
-                target_field_options = []
-                for schema_col in build_config["field_mappings"]["table_schema"]:
-                    if schema_col["name"] == "target_field":
-                        target_field_options = schema_col.get("options", [])
-                        break
-
-                if not target_field_options:
-                    logger.warning("[TableOutput] No target fields available for auto-mapping")
-                    self.status = i18n.t("components.input_output.table_output.status.no_target_fields")
-                    return build_config
-
-                # Auto-map: match source field to target field by name (case-insensitive)
-                mapped_count = 0
-                for mapping in current_mappings:
-                    source_field = mapping.get("source_field", "").lower()
-
-                    # Try exact match first
-                    for target_field in target_field_options:
-                        if target_field.lower() == source_field:
-                            mapping["target_field"] = target_field
-                            mapped_count += 1
-                            break
-                    else:
-                        # If no exact match, leave as is or set to first option
-                        if not mapping.get("target_field"):
-                            mapping["target_field"] = mapping.get("source_field", "")
-
-                build_config["field_mappings"]["value"] = current_mappings
-                logger.info(f"[TableOutput] Auto-mapping completed, mapped {mapped_count} fields")
-                self.status = _format_i18n(
-                    "components.input_output.table_output.status.mapping_success", count=mapped_count
-                )
-
-            except Exception as e:
-                error_msg = str(e)
-                logger.error(f"[TableOutput] Auto field mapping failed: {error_msg}")
-                self.status = _format_i18n(
-                    "components.input_output.table_output.errors.mapping_failed", error=error_msg
-                )
 
         # 6. Handle "Preview Output Data" button - generate sample preview data from field structure
         if field_name == "preview_table" and action == "preview_target_data":

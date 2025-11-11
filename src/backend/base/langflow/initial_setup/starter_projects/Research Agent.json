@@ -1694,7 +1694,7 @@
                 "name": "code",
                 "password": false,
                 "placeholder": "",
-                "required": true,
+                "required": false,
                 "show": true,
                 "title_case": false,
                 "type": "code",

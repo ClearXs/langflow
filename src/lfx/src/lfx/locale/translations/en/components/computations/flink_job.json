@@ -1,49 +1,40 @@
 {
   "display_name": "Flink Job",
-  "description": "Submit Flink jobs via JAR upload or Python script",
+  "description": "Submit JAR job to Flink cluster via REST API",
   "flink_datasource": {
     "display_name": "Flink Datasource",
     "info": "Select a Flink cluster datasource"
   },
-  "job_mode": {
-    "display_name": "Job Mode",
-    "info": "Choose between JAR file or Python script mode"
-  },
   "jar_file": {
     "display_name": "JAR File",
-    "info": "Select a Flink JAR file to submit"
+    "info": "Select JAR file from datasource to submit to Flink cluster"
   },
   "entry_class": {
     "display_name": "Entry Class",
-    "info": "Main class name (e.g., com.example.MyFlinkJob)"
+    "info": "Fully qualified name of the main class (e.g., com.example.MyJob)"
   },
   "program_args": {
     "display_name": "Program Arguments",
-    "info": "Command line arguments for the program"
-  },
-  "python_script": {
-    "display_name": "Python Script",
-    "info": "Enter PyFlink script code"
+    "info": "Command-line arguments passed to the main method"
   },
   "parallelism": {
     "display_name": "Parallelism",
     "info": "Set the parallelism for job execution"
   },
-  "job_status": {
-    "display_name": "Job Status"
-  },
-  "submit_button": "Submit Job",
   "output": {
     "display_name": "Job Information"
   },
-  "status": {
-    "success": "Job submitted successfully",
-    "error": "Job submission failed"
-  },
-  "error": {
+  "errors": {
     "no_datasource": "Please select a Flink datasource",
-    "no_jar": "Please select a JAR file",
-    "no_entry_class": "Please enter the entry class name",
-    "no_python_script": "Please enter Python script code"
+    "no_jar_file": "Please select a JAR file",
+    "no_entry_class": "Please provide entry class name",
+    "invalid_jar_file": "Invalid JAR file. Please select a JAR file from datasource."
+  },
+  "success": {
+    "job_submitted": "Job submitted to Flink cluster successfully"
+  },
+  "status": {
+    "error": "Error",
+    "failed": "Failed"
   }
 }

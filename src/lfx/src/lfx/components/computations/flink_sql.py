@@ -148,8 +148,9 @@ FROM user_behavior;""",
         action: str | None = None,
     ):
         """Handle field changes and action button clicks."""
-        # Load Flink datasources
-        if field_name is None or (field_name == "flink_datasource" and not field_value):
+        # Load Flink datasources for initial load or when flink_datasource is accessed
+        # This ensures clicking refresh button always reloads the datasource list
+        if field_name is None or field_name == "flink_datasource":
             datasources = self._load_flink_datasources()
             build_config["flink_datasource"]["options"] = [ds["display_name"] for ds in datasources]
             build_config["flink_datasource"]["options_metadata"] = datasources
@@ -249,7 +250,8 @@ FROM user_behavior;""",
 
             # Merge enterprise and custom datasources
             for ds in datasources.get("enterprise", []) + datasources.get("custom", []):
-                datasource_id = self._extract_uuid_from_id(ds["id"])
+                # Keep the full ID with prefix (custom_ or enterprise_) for DataSourceManager
+                datasource_id = ds["id"]  # Don't strip prefix
                 ds_name = ds.get("name", "Unknown")
                 ds_type = ds.get("type", "")
 
@@ -302,9 +304,7 @@ FROM user_behavior;""",
                 status = "Active" if cluster.get("status") == 1 else "Inactive"
 
                 # Build display name with version, mode, and status
-                display_name = self._build_flink_cluster_display_name(
-                    cluster_name, version, execution_mode, status
-                )
+                display_name = self._build_flink_cluster_display_name(cluster_name, version, execution_mode, status)
 
                 public_datasources.append(
                     {
@@ -326,9 +326,7 @@ FROM user_behavior;""",
             logger.error(f"[FlinkSQL] Failed to load public Flink clusters: {e}")
             return []
 
-    def _build_flink_cluster_display_name(
-        self, name: str, version: str, execution_mode: str, status: str
-    ) -> str:
+    def _build_flink_cluster_display_name(self, name: str, version: str, execution_mode: str, status: str) -> str:
         """Build display name for public Flink cluster."""
         parts = [f"{name} (Flink"]
 
@@ -364,11 +362,15 @@ FROM user_behavior;""",
 
                 if flink_datasource_input and hasattr(flink_datasource_input, "options_metadata"):
                     options_metadata = flink_datasource_input.options_metadata
-                    logger.debug(f"[FlinkSQL] options_metadata count: {len(options_metadata) if options_metadata else 0}")
+                    logger.debug(
+                        f"[FlinkSQL] options_metadata count: {len(options_metadata) if options_metadata else 0}"
+                    )
 
                     if options_metadata:
                         for idx, ds in enumerate(options_metadata):
-                            logger.debug(f"[FlinkSQL] Checking datasource {idx}: id={ds.get('id')}, display_name={ds.get('display_name')}")
+                            logger.debug(
+                                f"[FlinkSQL] Checking datasource {idx}: id={ds.get('id')}, display_name={ds.get('display_name')}"
+                            )
 
                             if (
                                 str(ds.get("id")) == str(datasource_id)
@@ -376,7 +378,9 @@ FROM user_behavior;""",
                                 or ds.get("display_name") == datasource_id
                                 or ds.get("label") == datasource_id
                             ):
-                                logger.info(f"[FlinkSQL] Found datasource in cache: id={ds.get('id')}, display_name={ds.get('display_name')}")
+                                logger.info(
+                                    f"[FlinkSQL] Found datasource in cache: id={ds.get('id')}, display_name={ds.get('display_name')}"
+                                )
                                 return ds
 
             # If not found in cache, reload datasources
@@ -385,7 +389,9 @@ FROM user_behavior;""",
             logger.debug(f"[FlinkSQL] Reloaded {len(all_datasources)} datasources")
 
             for idx, ds in enumerate(all_datasources):
-                logger.debug(f"[FlinkSQL] Checking reloaded datasource {idx}: id={ds.get('id')}, display_name={ds.get('display_name')}")
+                logger.debug(
+                    f"[FlinkSQL] Checking reloaded datasource {idx}: id={ds.get('id')}, display_name={ds.get('display_name')}"
+                )
 
                 if (
                     str(ds.get("id")) == str(datasource_id)
@@ -393,7 +399,9 @@ FROM user_behavior;""",
                     or ds.get("display_name") == datasource_id
                     or ds.get("label") == datasource_id
                 ):
-                    logger.info(f"[FlinkSQL] Found datasource after reload: id={ds.get('id')}, display_name={ds.get('display_name')}")
+                    logger.info(
+                        f"[FlinkSQL] Found datasource after reload: id={ds.get('id')}, display_name={ds.get('display_name')}"
+                    )
                     return ds
 
         except Exception as e:
@@ -433,11 +441,16 @@ FROM user_behavior;""",
             from lfx.base.datasource.manager import DataSourceManager
 
             manager = DataSourceManager()
+
+            # Use the ID from cached datasource (already has correct prefix: custom_ or enterprise_)
+            actual_id = datasource.get("id", datasource_id)
+            logger.debug(f"[FlinkSQL] Looking up builtin datasource with ID: {actual_id}")
+
             # Use async method correctly
-            builtin_ds = asyncio.run(manager._get_datasource_by_id(datasource_id))
+            builtin_ds = asyncio.run(manager._get_datasource_by_id(actual_id))
 
             if not builtin_ds:
-                raise ValueError(f"Builtin datasource not found: {datasource_id}")
+                raise ValueError(f"Builtin datasource not found: {actual_id} (original input: {datasource_id})")
 
             # Extract connection info from datasource
             return self._extract_connection_info_from_datasource(builtin_ds)
@@ -466,15 +479,55 @@ FROM user_behavior;""",
         if isinstance(advanced_config, str):
             try:
                 import json
+
                 advanced_config = json.loads(advanced_config)
             except (json.JSONDecodeError, ValueError):
                 advanced_config = {}
 
+        # Helper function to parse URL
+        def parse_url(url: str) -> tuple[str, int]:
+            """Parse URL and extract host and port."""
+            # Remove protocol if present
+            if "://" in url:
+                url = url.split("://", 1)[1]
+
+            # Split by colon to get host and port
+            if ":" in url:
+                parts = url.split(":")
+                host = parts[0]
+                try:
+                    port = int(parts[1].split("/")[0])  # Remove trailing path if any
+                except (ValueError, IndexError):
+                    port = 8081
+                return host, port
+            else:
+                return url, 8081
+
         # Try to extract Flink-specific config
-        jobmanager_host = advanced_config.get("jobmanager_host") or advanced_config.get("host") or datasource.get("host", "localhost")
+        jobmanager_host = None
+        rest_port = None
+
+        # First try advanced_config
+        if advanced_config.get("jobmanager_host"):
+            jobmanager_host = advanced_config.get("jobmanager_host")
+            rest_port = advanced_config.get("rest_port") or 8081
+        elif advanced_config.get("host"):
+            # Parse host which might contain URL with port
+            jobmanager_host, rest_port = parse_url(advanced_config.get("host"))
+        elif datasource.get("host"):
+            # Parse datasource host which might contain URL with port
+            jobmanager_host, rest_port = parse_url(datasource.get("host"))
+        else:
+            jobmanager_host = "localhost"
+            rest_port = 8081
+
         jobmanager_port = advanced_config.get("jobmanager_port") or 6123
-        rest_port = advanced_config.get("rest_port") or 8081
         sql_gateway_port = advanced_config.get("sql_gateway_port") or 8083
+
+        logger.debug(
+            f"[FlinkSQL] Extracted connection info: host={jobmanager_host}, "
+            f"rest_port={rest_port}, sql_gateway_port={sql_gateway_port}"
+        )
 
         return {
             "jobmanager_host": jobmanager_host,
@@ -531,7 +584,9 @@ FROM user_behavior;""",
             # SQL Gateway port is typically 8083 (same host as JobManager)
             sql_gateway_port = 8083
 
-            logger.debug(f"[FlinkSQL] Connection info: host={jobmanager_host}, rest={rest_port}, sql_gateway={sql_gateway_port}")
+            logger.debug(
+                f"[FlinkSQL] Connection info: host={jobmanager_host}, rest={rest_port}, sql_gateway={sql_gateway_port}"
+            )
 
             return {
                 "jobmanager_host": jobmanager_host,
@@ -701,25 +756,29 @@ FROM user_behavior;""",
                     duration = (datetime.datetime.now() - start_time).total_seconds()
 
                     if operation_status == "FINISHED":
-                        results.append({
-                            "statement_index": idx + 1,
-                            "statement_type": stmt_type,
-                            "sql_statement": stmt[:100] + "..." if len(stmt) > 100 else stmt,
-                            "execution_status": "成功",
-                            "rows_affected": f"完成 ({duration:.2f}s)",
-                            "error_message": "",
-                        })
+                        results.append(
+                            {
+                                "statement_index": idx + 1,
+                                "statement_type": stmt_type,
+                                "sql_statement": stmt[:100] + "..." if len(stmt) > 100 else stmt,
+                                "execution_status": "成功",
+                                "rows_affected": f"完成 ({duration:.2f}s)",
+                                "error_message": "",
+                            }
+                        )
                         logger.info(f"[FlinkSQL] Statement {idx + 1} completed successfully in {duration:.2f}s")
                     elif operation_status == "RUNNING" and stmt_type == "INSERT":
                         # INSERT job is running - this is success for streaming jobs
-                        results.append({
-                            "statement_index": idx + 1,
-                            "statement_type": stmt_type,
-                            "sql_statement": stmt[:100] + "..." if len(stmt) > 100 else stmt,
-                            "execution_status": "运行中",
-                            "rows_affected": f"作业已启动 ({duration:.2f}s)",
-                            "error_message": "",
-                        })
+                        results.append(
+                            {
+                                "statement_index": idx + 1,
+                                "statement_type": stmt_type,
+                                "sql_statement": stmt[:100] + "..." if len(stmt) > 100 else stmt,
+                                "execution_status": "运行中",
+                                "rows_affected": f"作业已启动 ({duration:.2f}s)",
+                                "error_message": "",
+                            }
+                        )
                         logger.info(f"[FlinkSQL] Statement {idx + 1} job started and running in {duration:.2f}s")
                     elif operation_status == "ERROR":
                         # Try to get error message from different possible locations
@@ -729,7 +788,9 @@ FROM user_behavior;""",
                         error_msg = None
                         if "error" in status_data:
                             if isinstance(status_data["error"], dict):
-                                error_msg = status_data["error"].get("message") or status_data["error"].get("errorMessage")
+                                error_msg = status_data["error"].get("message") or status_data["error"].get(
+                                    "errorMessage"
+                                )
                             elif isinstance(status_data["error"], str):
                                 error_msg = status_data["error"]
 
@@ -737,37 +798,45 @@ FROM user_behavior;""",
                         if not error_msg:
                             error_msg = status_data.get("errorMessage") or status_data.get("message") or "Unknown error"
 
-                        results.append({
-                            "statement_index": idx + 1,
-                            "statement_type": stmt_type,
-                            "sql_statement": stmt[:100] + "..." if len(stmt) > 100 else stmt,
-                            "execution_status": "失败",
-                            "rows_affected": "",
-                            "error_message": error_msg,
-                        })
+                        results.append(
+                            {
+                                "statement_index": idx + 1,
+                                "statement_type": stmt_type,
+                                "sql_statement": stmt[:100] + "..." if len(stmt) > 100 else stmt,
+                                "execution_status": "失败",
+                                "rows_affected": "",
+                                "error_message": error_msg,
+                            }
+                        )
                         logger.error(f"[FlinkSQL] Statement {idx + 1} failed: {error_msg}")
                     else:
                         # Timeout or other status
-                        results.append({
-                            "statement_index": idx + 1,
-                            "statement_type": stmt_type,
-                            "sql_statement": stmt[:100] + "..." if len(stmt) > 100 else stmt,
-                            "execution_status": "超时",
-                            "rows_affected": "",
-                            "error_message": f"Operation status: {operation_status}",
-                        })
-                        logger.warning(f"[FlinkSQL] Statement {idx + 1} timed out or unexpected status: {operation_status}")
+                        results.append(
+                            {
+                                "statement_index": idx + 1,
+                                "statement_type": stmt_type,
+                                "sql_statement": stmt[:100] + "..." if len(stmt) > 100 else stmt,
+                                "execution_status": "超时",
+                                "rows_affected": "",
+                                "error_message": f"Operation status: {operation_status}",
+                            }
+                        )
+                        logger.warning(
+                            f"[FlinkSQL] Statement {idx + 1} timed out or unexpected status: {operation_status}"
+                        )
 
                 except Exception as e:
                     logger.error(f"[FlinkSQL] Failed to process statement {idx + 1}: {e}")
-                    results.append({
-                        "statement_index": idx + 1,
-                        "statement_type": self._get_statement_type(stmt),
-                        "sql_statement": stmt[:100] + "..." if len(stmt) > 100 else stmt,
-                        "execution_status": "失败",
-                        "rows_affected": "",
-                        "error_message": str(e),
-                    })
+                    results.append(
+                        {
+                            "statement_index": idx + 1,
+                            "statement_type": self._get_statement_type(stmt),
+                            "sql_statement": stmt[:100] + "..." if len(stmt) > 100 else stmt,
+                            "execution_status": "失败",
+                            "rows_affected": "",
+                            "error_message": str(e),
+                        }
+                    )
 
             logger.info(f"[FlinkSQL] Processed {len(results)} SQL statements via SQL Gateway")
             return results

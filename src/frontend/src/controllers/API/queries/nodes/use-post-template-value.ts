@@ -1,13 +1,13 @@
-import type { UseMutationResult } from '@tanstack/react-query';
-import useFlowStore from '@/stores/flowStore';
+import type { UseMutationResult } from "@tanstack/react-query";
+import useFlowStore from "@/stores/flowStore";
 import type {
   APIClassType,
   ResponseErrorDetailAPI,
   useMutationFunctionType,
-} from '@/types/api';
-import { api } from '../../api';
-import { getURL } from '../../helpers/constants';
-import { UseRequestProcessor } from '../../services/request-processor';
+} from "@/types/api";
+import { api } from "../../api";
+import { getURL } from "../../helpers/constants";
+import { UseRequestProcessor } from "../../services/request-processor";
 
 interface IPostTemplateValue {
   value: any;
@@ -24,7 +24,9 @@ interface IPostTemplateValueParams {
 
 /**
  * Optimize graph_data by removing code from built-in components
- * to reduce network payload size (~88% reduction)
+ * and removing temporary metadata fields to prevent data bloat
+ * This reduces network payload size (~88% reduction) and prevents
+ * exponential nesting of _graph_data in database
  */
 const optimizeGraphDataForBackend = (graphData: any): any => {
   if (!graphData || !graphData.nodes) {
@@ -44,8 +46,12 @@ const optimizeGraphDataForBackend = (graphData: any): any => {
       // Check if this is a built-in component (official === true or undefined defaults to true)
       const isBuiltInComponent = nodeData.official !== false;
 
-      // For built-in components, remove code value to reduce payload
-      if (isBuiltInComponent && nodeData.template.code) {
+      // Remove temporary metadata fields from template to prevent nesting
+      // These fields (_graph_data, _node_id) are only needed during API request, not for persistence
+      const { _graph_data, _node_id, ...cleanTemplate } = nodeData.template;
+
+      // For built-in components, also remove code value to reduce payload
+      if (isBuiltInComponent && cleanTemplate.code) {
         return {
           ...n,
           data: {
@@ -53,10 +59,11 @@ const optimizeGraphDataForBackend = (graphData: any): any => {
             node: {
               ...nodeData,
               template: {
-                ...nodeData.template,
+                ...cleanTemplate,
                 code: {
-                  ...nodeData.template.code,
-                  value: '', // Clear code value for built-in components
+                  ...cleanTemplate.code,
+                  value: "", // Clear code value for built-in components
+                  _removed: true, // Mark as removed for validation skip
                 },
               },
             },
@@ -64,7 +71,17 @@ const optimizeGraphDataForBackend = (graphData: any): any => {
         };
       }
 
-      return n;
+      // For custom components or components without code field, just remove metadata
+      return {
+        ...n,
+        data: {
+          ...n.data,
+          node: {
+            ...nodeData,
+            template: cleanTemplate, // Template without _graph_data and _node_id
+          },
+        },
+      };
     }),
   };
 };
@@ -81,7 +98,7 @@ export const usePostTemplateValue: useMutationFunctionType<
   const edges = useFlowStore((state) => state.edges);
 
   const postTemplateValueFn = async (
-    payload: IPostTemplateValue
+    payload: IPostTemplateValue,
   ): Promise<APIClassType | undefined> => {
     const template = node.template;
 
@@ -129,14 +146,14 @@ export const usePostTemplateValue: useMutationFunctionType<
       template.type?.value;
 
     // If still "Component" (base class) or empty, use display_name as last resort
-    if (!vertexType || vertexType === 'Component') {
+    if (!vertexType || vertexType === "Component") {
       vertexType = node.display_name;
     }
 
     const response = await api.post<APIClassType>(
-      getURL('CUSTOM_COMPONENT', { update: 'update' }),
+      getURL("CUSTOM_COMPONENT", { update: "update" }),
       {
-        code: isBuiltInComponent ? '' : template.code?.value ?? '',
+        code: isBuiltInComponent ? "" : (template.code?.value ?? ""),
         template: template,
         field: payload.field_name || parameterId,
         field_value: payload.value,
@@ -145,7 +162,7 @@ export const usePostTemplateValue: useMutationFunctionType<
         graph_data: graphData,
         node_id: payload.action ? nodeId : undefined, // Send nodeId when action is present
         vertex_type: isBuiltInComponent ? vertexType : undefined, // Send component type for built-in components
-      }
+      },
     );
     const newTemplate = response.data;
     newTemplate.last_updated = lastUpdated;
@@ -167,12 +184,12 @@ export const usePostTemplateValue: useMutationFunctionType<
     ResponseErrorDetailAPI,
     IPostTemplateValue
   > = mutate(
-    ['usePostTemplateValue', { parameterId, nodeId }],
+    ["usePostTemplateValue", { parameterId, nodeId }],
     postTemplateValueFn,
     {
       ...options,
       retry: 0,
-    }
+    },
   );
 
   return mutation;

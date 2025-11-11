@@ -280,9 +280,12 @@ class ETLKafkaOutputComponent(Component):
 
             # Create producer
             if self._producer is None:
-                self._producer = self._create_producer()
-
-            producer = self._producer
+                # Run synchronous _create_producer in a thread to avoid blocking event loop
+                logger.debug("[KafkaOutput] Creating new producer in thread pool (async context)")
+                producer = await asyncio.to_thread(self._create_producer)
+                self._producer = producer
+            else:
+                producer = self._producer
 
             if self.send_as_batch:
                 # Send in batches
@@ -503,13 +506,12 @@ class ETLKafkaOutputComponent(Component):
         self, build_config: dict[str, Any], field_value: Any, field_name: str | None = None, action: str | None = None
     ) -> dict[str, Any]:
         """Update build config to load Kafka datasources dynamically."""
-        logger.info(
-            f"[KafkaOutput] update_build_config called - field_name: {field_name}, field_value: {field_value}"
-        )
+        logger.info(f"[KafkaOutput] update_build_config called - field_name: {field_name}, field_value: {field_value}")
 
-        # Load Kafka datasources for initial load or refresh
-        if field_name is None or (field_name == "datasource_selector" and not field_value):
-            logger.debug("[KafkaOutput] Loading Kafka datasources")
+        # Load Kafka datasources for initial load or when datasource_selector is accessed
+        # This ensures clicking refresh button always reloads the datasource list
+        if field_name is None or field_name == "datasource_selector":
+            logger.debug(f"[KafkaOutput] Loading Kafka datasources (field_name={field_name})")
             try:
                 datasources = self._load_kafka_datasources()
 
@@ -519,20 +521,26 @@ class ETLKafkaOutputComponent(Component):
 
                 for ds in datasources:
                     options.append(ds["id"])
-                    options_metadata.append({
-                        "value": ds["id"],
-                        "label": ds["display_name"],
-                        "id": ds["id"],
-                        "name": ds["name"],
-                        "type": ds["type"],
-                        "source": ds["source"],
-                        "display_name": ds["display_name"],
-                        "raw_data": ds.get("raw_data"),
-                    })
+                    options_metadata.append(
+                        {
+                            "value": ds["id"],
+                            "label": ds["display_name"],
+                            "id": ds["id"],
+                            "name": ds["name"],
+                            "type": ds["type"],
+                            "source": ds["source"],
+                            "display_name": ds["display_name"],
+                            "raw_data": ds.get("raw_data"),
+                        }
+                    )
 
                 build_config["datasource_selector"]["options"] = options
                 build_config["datasource_selector"]["options_metadata"] = options_metadata
                 logger.debug(f"[KafkaOutput] Loaded {len(options)} Kafka datasources")
+
+                # Save build_config to instance for later access in _find_datasource_info()
+                self._build_config = build_config
+                logger.debug(f"[KafkaOutput] Saved build_config with {len(options)} datasources to instance")
 
             except Exception as e:
                 logger.error(f"[KafkaOutput] Error loading Kafka datasources: {e}")
@@ -565,13 +573,15 @@ class ETLKafkaOutputComponent(Component):
                         for ds in kafka_datasources:
                             datasource_id = self._extract_uuid_from_id(str(ds["id"]))
                             display_name = f"{ds['name']} (Kafka) [自定义]"
-                            all_datasources.append({
-                                "id": datasource_id,
-                                "name": ds["name"],
-                                "type": "kafka",
-                                "source": "builtin",
-                                "display_name": display_name,
-                            })
+                            all_datasources.append(
+                                {
+                                    "id": datasource_id,
+                                    "name": ds["name"],
+                                    "type": "kafka",
+                                    "source": "builtin",
+                                    "display_name": display_name,
+                                }
+                            )
             except Exception as e:
                 logger.error(f"[KafkaOutput] Error loading builtin Kafka datasources: {e}")
 
@@ -584,14 +594,16 @@ class ETLKafkaOutputComponent(Component):
 
                     for ds in kafka_public:
                         display_name = f"{ds['name']} (Kafka) [公共]"
-                        all_datasources.append({
-                            "id": str(ds["id"]),
-                            "name": ds["name"],
-                            "type": "kafka",
-                            "source": "public",
-                            "display_name": display_name,
-                            "raw_data": ds,
-                        })
+                        all_datasources.append(
+                            {
+                                "id": str(ds["id"]),
+                                "name": ds["name"],
+                                "type": "kafka",
+                                "source": "public",
+                                "display_name": display_name,
+                                "raw_data": ds,
+                            }
+                        )
             except Exception as e:
                 logger.error(f"[KafkaOutput] Error loading public Kafka datasources: {e}")
 
@@ -643,36 +655,49 @@ class ETLKafkaOutputComponent(Component):
         return datasource_id
 
     def _find_datasource_info(self, datasource_id: str) -> dict | None:
-        """Find datasource info from options_metadata."""
-        # Get datasource info from build_config options_metadata
-        # This should be populated by update_build_config
+        """Find datasource info from options_metadata.
+
+        Searches in priority order:
+        1. _build_config (design-time or cached)
+        2. _vertex.data template (runtime persistence)
+        """
         try:
-            # Access the component's build_config if available
+            # Priority 1: Check _build_config (design-time or cached)
             if hasattr(self, "_build_config") and self._build_config:
                 datasource_selector_config = self._build_config.get("datasource_selector", {})
                 options_metadata = datasource_selector_config.get("options_metadata", [])
 
                 for option in options_metadata:
                     if option.get("id") == datasource_id or option.get("value") == datasource_id:
+                        logger.debug(f"[KafkaOutput] Found datasource info from _build_config for {datasource_id}")
                         return option
 
-            # Fallback: reload datasources if not in cache
-            logger.debug("[KafkaOutput] Datasource info not in cache, reloading")
-            all_datasources = self._load_kafka_datasources()
-            for ds in all_datasources:
-                if ds["id"] == datasource_id:
-                    return {
-                        "id": ds["id"],
-                        "name": ds["name"],
-                        "type": ds["type"],
-                        "source": ds["source"],
-                        "display_name": ds["display_name"],
-                        "raw_data": ds.get("raw_data"),
-                    }
+            # Priority 2: Check vertex.data template (runtime)
+            if hasattr(self, "_vertex") and self._vertex:
+                try:
+                    template = self._vertex.data.get("node", {}).get("template", {})
+                    field_config = template.get("datasource_selector", {})
+                    options_metadata = field_config.get("options_metadata", [])
 
+                    for option in options_metadata:
+                        if option.get("id") == datasource_id or option.get("value") == datasource_id:
+                            logger.debug(
+                                f"[KafkaOutput] Found datasource info from vertex template for {datasource_id}"
+                            )
+                            return option
+                except Exception as e:
+                    logger.warning(f"[KafkaOutput] Error accessing vertex template: {e}")
+
+            # Log detailed info when not found
+            logger.warning(
+                f"[KafkaOutput] Datasource {datasource_id} not found. "
+                f"_build_config exists: {hasattr(self, '_build_config')}, "
+                f"_vertex exists: {hasattr(self, '_vertex')}"
+            )
             return None
+
         except Exception as e:
-            logger.error(f"[KafkaOutput] Error finding datasource info: {e}")
+            logger.error(f"[KafkaOutput] Error finding datasource info: {e}", exc_info=True)
             return None
 
     def _get_kafka_config_from_datasource(self) -> dict:
@@ -691,16 +716,35 @@ class ETLKafkaOutputComponent(Component):
             # Find datasource info to determine if it's public or builtin
             datasource_info = self._find_datasource_info(self.datasource_selector)
 
+            # Check if datasource info was found
+            if not datasource_info:
+                error_msg = (
+                    f"Datasource {datasource_id} not found in configuration. "
+                    f"Please refresh the component or reselect the datasource."
+                )
+                logger.error(f"[KafkaOutput] {error_msg}")
+                raise ValueError(error_msg)
+
             kafka_config = {}
 
+            # Log datasource info for debugging
+            logger.debug(
+                f"[KafkaOutput] Datasource info: source={datasource_info.get('source')}, "
+                f"name={datasource_info.get('name')}, "
+                f"has_raw_data={('raw_data' in datasource_info)}"
+            )
+
             # Check if it's a public datasource
-            if datasource_info and datasource_info.get("source") == "public":
+            if datasource_info.get("source") == "public":
                 logger.info(f"[KafkaOutput] Using public datasource: {datasource_info.get('name')}")
                 raw_data = datasource_info.get("raw_data", {})
                 params = raw_data.get("dataSourceParam", {})
 
                 # Extract bootstrap servers from public datasource
-                if params.get("host"):
+                # Support both 'bootstrapServers' (Kafka standard) and 'host' (legacy)
+                if params.get("bootstrapServers"):
+                    kafka_config["bootstrap.servers"] = params["bootstrapServers"]
+                elif params.get("host"):
                     kafka_config["bootstrap.servers"] = params["host"]
 
                 # Extract authentication config
@@ -732,7 +776,9 @@ class ETLKafkaOutputComponent(Component):
                 return kafka_config
 
             # Builtin datasource: fetch via API
+            logger.info(f"[KafkaOutput] Fetching builtin datasource via API for ID: {datasource_id}")
             api_url = os.getenv("LANGFLOW_API_URL", "http://localhost:7860")
+            logger.debug(f"[KafkaOutput] API URL: {api_url}/api/v1/datasources/{datasource_id}")
 
             with httpx.Client(timeout=120.0) as client:
                 response = client.get(f"{api_url}/api/v1/datasources/{datasource_id}")

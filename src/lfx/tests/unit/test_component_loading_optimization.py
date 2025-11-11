@@ -57,8 +57,6 @@ class TestInstantiateClassWithoutCode:
 
     def test_empty_code_triggers_module_import(self):
         """Test that empty code parameter triggers module import strategy."""
-        from lfx.interface.initialize.loading import instantiate_class
-
         # This test documents the expected behavior:
         # When code is empty or missing, instantiate_class should:
         # 1. Call _get_component_class_from_registry(vertex_type)

@@ -56,7 +56,11 @@ export const mutateTemplate = async (
               action: action,
             });
             if (newTemplate) {
-              newNode.template = newTemplate.template;
+              // Remove temporary metadata before persisting to prevent data bloat
+              // _graph_data and _node_id are only needed during API requests, not for storage
+              const { _graph_data, _node_id, ...cleanTemplate } =
+                newTemplate.template;
+              newNode.template = cleanTemplate;
               newNode.outputs = updateHiddenOutputs(
                 newNode.outputs ?? [],
                 newTemplate.outputs ?? [],
