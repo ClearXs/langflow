@@ -71,7 +71,10 @@ RUN apt-get update \
     && apt-get install -y nodejs \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* \
-    && useradd user -u 1000 -g 0 --no-create-home --home-dir /app/data
+    && useradd user -u 1000 -g 0 --no-create-home --home-dir /app/data \
+    && mkdir -p /app/data/.cache/langflow \
+    && mkdir -p /app/logs \
+    && chown -R 1000:0 /app/data /app/logs
 
 COPY --from=builder --chown=1000 /app/.venv /app/.venv
 
@@ -89,6 +92,9 @@ WORKDIR /app
 
 ENV LANGFLOW_HOST=0.0.0.0
 ENV LANGFLOW_PORT=7860
+ENV LANGFLOW_LOG_FILE=/app/logs/langflow.log
+ENV LANGFLOW_LOG_LEVEL=INFO
+ENV LANGFLOW_LOG_ROTATION=50 MB
 
 EXPOSE 7860
 

@@ -313,9 +313,33 @@ def configure(
 
     # Set up file logging if needed
     if log_file:
+        # Ensure parent directory exists with multi-layer fallback mechanism
         if not log_file.parent.exists():
-            cache_dir = Path(user_cache_dir("langflow"))
-            log_file = cache_dir / "langflow.log"
+            try:
+                # Try to create the specified directory
+                log_file.parent.mkdir(parents=True, exist_ok=True)
+            except (PermissionError, OSError):
+                # If creation fails, try using cache directory
+                try:
+                    cache_dir = Path(user_cache_dir("langflow"))
+                    cache_dir.mkdir(parents=True, exist_ok=True)
+                    log_file = cache_dir / "langflow.log"
+                except (PermissionError, OSError):
+                    # If cache directory also fails, use /tmp as last resort
+                    log_file = Path("/tmp/langflow.log")
+
+        # Test if directory is writable
+        try:
+            # Ensure directory exists
+            log_file.parent.mkdir(parents=True, exist_ok=True)
+
+            # Test write permission
+            test_file = log_file.parent / ".write_test"
+            test_file.touch()
+            test_file.unlink()
+        except (PermissionError, OSError):
+            # Final fallback to /tmp
+            log_file = Path("/tmp/langflow.log")
 
         # Parse rotation settings
         if log_rotation:
@@ -335,17 +359,36 @@ def configure(
         else:
             max_bytes = 10 * 1024 * 1024  # Default 10MB
 
-        # Since structlog doesn't have built-in rotation, we'll use stdlib logging for file output
-        file_handler = logging.handlers.RotatingFileHandler(
-            log_file,
-            maxBytes=max_bytes,
-            backupCount=5,
-        )
-        file_handler.setFormatter(logging.Formatter("%(message)s"))
+        # Create file and console handlers (dual output)
+        try:
+            # File handler for persistent logging
+            file_handler = logging.handlers.RotatingFileHandler(
+                log_file,
+                maxBytes=max_bytes,
+                backupCount=5,
+            )
+            file_handler.setFormatter(logging.Formatter("%(message)s"))
+            file_handler.setLevel(numeric_level)
+            logging.root.addHandler(file_handler)
 
-        # Add file handler to root logger
-        logging.root.addHandler(file_handler)
-        logging.root.setLevel(numeric_level)
+            # Console handler for real-time stdout output
+            console_handler = logging.StreamHandler(sys.stdout)
+            console_handler.setFormatter(logging.Formatter("%(message)s"))
+            console_handler.setLevel(numeric_level)
+            logging.root.addHandler(console_handler)
+
+            logging.root.setLevel(numeric_level)
+        except Exception as e:
+            # If file handler creation fails, at least keep console output
+            import warnings
+
+            warnings.warn(f"Failed to create file handler for {log_file}: {e}. Logging to console only.")
+
+            console_handler = logging.StreamHandler(sys.stdout)
+            console_handler.setFormatter(logging.Formatter("%(message)s"))
+            console_handler.setLevel(numeric_level)
+            logging.root.addHandler(console_handler)
+            logging.root.setLevel(numeric_level)
 
     # Set up interceptors for uvicorn and gunicorn
     setup_uvicorn_logger()

@@ -343,8 +343,7 @@ class ETLFlinkJobComponent(Component):
                 except (ValueError, IndexError):
                     port = 8081
                 return host, port
-            else:
-                return url, 8081
+            return url, 8081
 
         # Try to extract Flink-specific config
         jobmanager_host = None
