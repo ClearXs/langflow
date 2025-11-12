@@ -386,9 +386,7 @@ def extract_fields_from_node_template(
                         logger.debug(f"[{component_name}] Extracted {len(new_merged_fields)} new_merged_fields")
 
                         if new_merged_fields:
-                            logger.info(
-                                f"[{component_name}] Extracted {len(new_merged_fields)} new merged fields"
-                            )
+                            logger.info(f"[{component_name}] Extracted {len(new_merged_fields)} new merged fields")
                         else:
                             logger.warning(
                                 f"[{component_name}] merge_configs has {len(config_value)} items but no valid new_field found"
@@ -423,6 +421,42 @@ def extract_fields_from_node_template(
                     f"({len(upstream_fields)} upstream + {len(new_merged_fields)} merged)"
                 )
 
+        # For type conversion operations
+        elif upstream_node_type == "ETLFieldTypeConversion":
+            # Extract fields with their converted (target) types from type_conversions TableInput
+            if "type_conversions" in template:
+                type_conversions_config = template.get("type_conversions", {})
+                if isinstance(type_conversions_config, dict):
+                    conversions = type_conversions_config.get("value", [])
+                    if isinstance(conversions, list) and conversions:
+                        # Build fields list from conversion rules using target_type
+                        for conversion in conversions:
+                            if isinstance(conversion, dict):
+                                field_name = conversion.get("field_name")
+                                # Use target_type (converted type), not source_type
+                                target_type = conversion.get("target_type")
+                                if field_name and target_type:
+                                    fields.append(
+                                        {
+                                            "name": field_name,
+                                            "type": normalize_type(target_type),
+                                        }
+                                    )
+
+                        if fields:
+                            logger.info(
+                                f"[{component_name}] Extracted {len(fields)} fields with converted types "
+                                f"from ETLFieldTypeConversion"
+                            )
+
+                    # If type_conversions is empty or no valid conversions found,
+                    # need to get fields from upstream and apply partial conversions
+                    if not fields:
+                        logger.debug(
+                            f"[{component_name}] No type conversions configured in ETLFieldTypeConversion, "
+                            f"will attempt to get fields from upstream"
+                        )
+
         # For field manipulation components (field_split, field_pivot, etc.)
         elif upstream_node_type and "Field" in upstream_node_type:
             # These components often have field_mappings or similar configurations
@@ -450,10 +484,16 @@ def extract_fields_from_node_template(
                                             break
 
                                     if field_name:
-                                        fields.append({
-                                            "name": field_name,
-                                            "type": normalize_type(item.get("field_type") or item.get("data_type") or item.get("source_type")),
-                                        })
+                                        fields.append(
+                                            {
+                                                "name": field_name,
+                                                "type": normalize_type(
+                                                    item.get("field_type")
+                                                    or item.get("data_type")
+                                                    or item.get("source_type")
+                                                ),
+                                            }
+                                        )
                             if fields:
                                 break
 
@@ -498,10 +538,12 @@ def extract_fields_from_node_template(
                                 else:
                                     agg_type = "string"  # min/max preserve type, default to string
 
-                                fields.append({
-                                    "name": agg["output_field"],
-                                    "type": agg_type,
-                                })
+                                fields.append(
+                                    {
+                                        "name": agg["output_field"],
+                                        "type": agg_type,
+                                    }
+                                )
 
         # For field name mapping
         elif upstream_node_type == "ETLFieldNameMapping":
@@ -620,10 +662,12 @@ def extract_fields_from_node_template(
                     if isinstance(config_value, list):
                         for col in config_value:
                             if isinstance(col, dict) and col.get("column_name"):
-                                fields.append({
-                                    "name": col["column_name"],
-                                    "type": col.get("column_type", "string"),
-                                })
+                                fields.append(
+                                    {
+                                        "name": col["column_name"],
+                                        "type": col.get("column_type", "string"),
+                                    }
+                                )
 
         # For field split to columns
         elif upstream_node_type == "ETLFieldSplitToColumns":
@@ -750,9 +794,7 @@ def extract_fields_from_node_template(
                         for row in schema_value
                         if row.get("field_name")
                     ]
-                    logger.info(
-                        f"[{component_name}] Extracted {len(fields)} fields from Kafka schema"
-                    )
+                    logger.info(f"[{component_name}] Extracted {len(fields)} fields from Kafka schema")
                     return fields
 
             # Priority 2: Try to get sample data from sample_data output
@@ -779,9 +821,7 @@ def extract_fields_from_node_template(
                                 }
                                 for key, value in sample_dict.items()
                             ]
-                            logger.info(
-                                f"[{component_name}] Extracted {len(fields)} fields from Kafka sample data"
-                            )
+                            logger.info(f"[{component_name}] Extracted {len(fields)} fields from Kafka sample data")
                             return fields
             except Exception as e:
                 logger.debug(f"[{component_name}] Failed to extract fields from Kafka sample data: {e}")
@@ -834,9 +874,7 @@ def extract_fields_from_node_template(
                                 break
 
                         if router_upstream_node:
-                            fields = extract_fields_from_node_template(
-                                router_upstream_node, component_name, graph_data
-                            )
+                            fields = extract_fields_from_node_template(router_upstream_node, component_name, graph_data)
                             logger.info(
                                 f"[{component_name}] Extracted {len(fields)} fields from ConditionalRouter's upstream"
                             )
@@ -875,9 +913,7 @@ def extract_fields_from_node_template(
 
                         if next_upstream_node:
                             # 递归提取上游节点的字段
-                            fields = extract_fields_from_node_template(
-                                next_upstream_node, component_name, graph_data
-                            )
+                            fields = extract_fields_from_node_template(next_upstream_node, component_name, graph_data)
                             if fields:
                                 logger.info(
                                     f"[{component_name}] Successfully extracted {len(fields)} fields "

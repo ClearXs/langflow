@@ -103,11 +103,9 @@ class ETLDataMaskingComponent(Component):
                 # 2. Load masking rules from data security service
                 masking_rules = await self._load_masking_rules()
                 if masking_rules:
-                    build_config["masking_rules"]["table_schema"][1]["options"] = [
-                        int(rule["id"]) for rule in masking_rules
-                    ]
+                    build_config["masking_rules"]["table_schema"][1]["options"] = [rule["id"] for rule in masking_rules]
                     build_config["masking_rules"]["table_schema"][1]["options_metadata"] = [
-                        {"value": int(rule["id"]), "label": rule["ruleName"]} for rule in masking_rules
+                        {"value": rule["id"], "label": rule["ruleName"]} for rule in masking_rules
                     ]
                 else:
                     build_config["masking_rules"]["table_schema"][1]["options"] = []
@@ -544,10 +542,10 @@ class ETLDataMaskingComponent(Component):
             self.status = error_msg
             raise ValueError(error_msg) from e
 
-    def get_masking_stats(self) -> Data:
+    async def get_masking_stats(self) -> Data:
         """Get statistics about the masking operation."""
         try:
-            masked_data = self.mask_data()
+            masked_data = await self.mask_data()
 
             stats = {
                 "total_records": len(self.data_input) if self.data_input else 0,

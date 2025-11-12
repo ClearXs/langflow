@@ -14,13 +14,20 @@ http {
     }
 
     server {
-        gzip on;
+        gzip off;
         gzip_comp_level 2;
         gzip_min_length 1000;
         gzip_types text/xml text/css;
         gzip_http_version 1.1;
         gzip_vary on;
         gzip_disable "MSIE [4-6] \.";
+
+        keepalive_timeout 3600s;
+        keepalive_requests 1000;
+        send_timeout 3600s;
+
+        client_body_timeout 3600s;
+        client_header_timeout 3600s;
 
         listen ${FRONTEND_PORT};
 
@@ -38,6 +45,15 @@ http {
         }
 
         location /api {
+            proxy_buffering off;                    # 禁用缓冲，立即传输数据
+            proxy_request_buffering off;            # 禁用请求缓冲
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+
+            proxy_set_header X-Accel-Buffering no;  # 完全禁用加速缓冲
+            proxy_set_header Cache-Control "no-cache, no-store, must-revalidate";
             proxy_pass ${BACKEND_URL};
         }
         location /health_check {

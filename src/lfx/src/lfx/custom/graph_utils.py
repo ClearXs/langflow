@@ -194,6 +194,11 @@ async def execute_node_and_get_result(graph: "Graph", node_id: str, sample_size:
 
         logger.debug(f"[GraphUtils] Extracted {len(data_list)} data records from vertex execution")
 
+        # Apply sample size limit BEFORE processing to avoid iterating through unnecessary items
+        if sample_size is not None and len(data_list) > sample_size:
+            data_list = data_list[:sample_size]
+            logger.debug(f"[GraphUtils] Limited to {sample_size} records")
+
         # Convert to Data objects if needed
         result_data = []
         for i, item in enumerate(data_list):
@@ -208,11 +213,6 @@ async def execute_node_and_get_result(graph: "Graph", node_id: str, sample_size:
             else:
                 logger.warning(f"[GraphUtils] Item {i} unexpected type: {type(item)}, wrapping as dict")
                 result_data.append(Data(data={"value": item}))
-
-        # Apply sample size limit if specified
-        if sample_size is not None and len(result_data) > sample_size:
-            result_data = result_data[:sample_size]
-            logger.debug(f"[GraphUtils] Limited to {sample_size} records")
 
         logger.debug(f"[GraphUtils] Returning {len(result_data)} data records")
         return result_data

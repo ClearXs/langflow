@@ -104,10 +104,10 @@ class ETLDataEncryptionComponent(Component):
                 encryption_rules = await self._load_encryption_rules()
                 if encryption_rules:
                     build_config["field_configs"]["table_schema"][1]["options"] = [
-                        int(rule["id"]) for rule in encryption_rules
+                        rule["id"] for rule in encryption_rules
                     ]
                     build_config["field_configs"]["table_schema"][1]["options_metadata"] = [
-                        {"value": int(rule["id"]), "label": rule["ruleName"]} for rule in encryption_rules
+                        {"value": rule["id"], "label": rule["ruleName"]} for rule in encryption_rules
                     ]
                 else:
                     build_config["field_configs"]["table_schema"][1]["options"] = []
@@ -531,10 +531,10 @@ class ETLDataEncryptionComponent(Component):
             self.status = error_msg
             raise ValueError(error_msg) from e
 
-    def get_encryption_stats(self) -> Data:
+    async def get_encryption_stats(self) -> Data:
         """Get statistics about the encryption operation."""
         try:
-            processed_data = self.process_encryption()
+            processed_data = await self.process_encryption()
 
             stats = {
                 "total_records": len(self.data_input) if self.data_input else 0,

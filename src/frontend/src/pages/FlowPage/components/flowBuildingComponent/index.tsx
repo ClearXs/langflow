@@ -1,24 +1,24 @@
-import { AnimatePresence, motion } from "framer-motion";
-import { useEffect, useMemo, useRef, useState } from "react";
-import { useTranslation } from "react-i18next";
-import Markdown from "react-markdown";
-import remarkGfm from "remark-gfm";
-import { normalizeTimeString } from "@/CustomNodes/GenericNode/components/NodeStatus/utils/format-run-time";
-import ForwardedIconComponent from "@/components/common/genericIconComponent";
-import { BorderTrail } from "@/components/core/border-trail";
-import { Button } from "@/components/ui/button";
-import { TextShimmer } from "@/components/ui/TextShimmer";
-import { BuildStatus } from "@/constants/enums";
-import { useMessageLocale } from "@/i18n/locale";
-import useFlowStore from "@/stores/flowStore";
-import { cn } from "@/utils/utils";
+import { AnimatePresence, motion } from 'framer-motion';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import Markdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import { normalizeTimeString } from '@/CustomNodes/GenericNode/components/NodeStatus/utils/format-run-time';
+import ForwardedIconComponent from '@/components/common/genericIconComponent';
+import { BorderTrail } from '@/components/core/border-trail';
+import { Button } from '@/components/ui/button';
+import { TextShimmer } from '@/components/ui/TextShimmer';
+import { BuildStatus } from '@/constants/enums';
+import { useMessageLocale } from '@/i18n/locale';
+import useFlowStore from '@/stores/flowStore';
+import { cn } from '@/utils/utils';
 import {
   CONTAINER_VARIANTS,
   DISMISS_BUTTON_VARIANTS,
   getTimeVariants,
   RETRY_BUTTON_VARIANTS,
   STOP_BUTTON_VARIANTS,
-} from "./helpers/visual-variants";
+} from './helpers/visual-variants';
 
 export default function FlowBuildingComponent() {
   const isBuilding = useFlowStore((state) => state.isBuilding);
@@ -34,7 +34,7 @@ export default function FlowBuildingComponent() {
   const stopBuilding = useFlowStore((state) => state.stopBuilding);
   const prevIsBuilding = useRef(isBuilding);
   const pastBuildFlowParams = useFlowStore(
-    (state) => state.pastBuildFlowParams,
+    (state) => state.pastBuildFlowParams
   );
   const messageLocale = useMessageLocale();
 
@@ -49,29 +49,29 @@ export default function FlowBuildingComponent() {
           id,
           ...s,
         })),
-    [flowBuildStatus],
+    [flowBuildStatus]
   );
 
   useEffect(() => {
     let intervalId: NodeJS.Timeout;
 
-    if (isBuilding && !prevIsBuilding.current) {
-      setDismissed(false);
-      setDuration(0);
-    }
+    // if (isBuilding && !prevIsBuilding.current) {
+    //   setDismissed(false);
+    //   setDuration(0);
+    // }
 
-    if (isBuilding) {
-      intervalId = setInterval(() => {
-        setDuration((prev) => prev + 10);
-      }, 10);
-    }
+    // if (isBuilding) {
+    //   intervalId = setInterval(() => {
+    //     setDuration((prev) => prev + 10);
+    //   }, 10);
+    // }
 
-    prevIsBuilding.current = isBuilding;
+    // prevIsBuilding.current = isBuilding;
 
     return () => {
-      if (intervalId) {
-        clearInterval(intervalId);
-      }
+      // if (intervalId) {
+      //   clearInterval(intervalId);
+      // }
     };
   }, [isBuilding]);
 
@@ -87,7 +87,7 @@ export default function FlowBuildingComponent() {
     // For persistent streams, show different message
     if (isPersistentStream && streamingJobId) {
       return (
-        <div className="flex items-center gap-2">
+        <div className='flex items-center gap-2'>
           <TextShimmer duration={1}>实时流运行中</TextShimmer>
         </div>
       );
@@ -96,8 +96,8 @@ export default function FlowBuildingComponent() {
     return (
       <TextShimmer duration={1}>
         {statusBuilding.length > 0
-          ? `${t("flow.running")} ${statusBuilding[0]?.id}`
-          : t("flow.runningFlow")}
+          ? `${t('flow.running')} ${statusBuilding[0]?.id}`
+          : t('flow.runningFlow')}
       </TextShimmer>
     );
   }, [isBuilding, isPersistentStream, streamingJobId, statusBuilding, t]);
@@ -120,7 +120,7 @@ export default function FlowBuildingComponent() {
 
   const handleStop = () => {
     stopBuilding().catch((error) => {
-      console.error("Error stopping building:", error);
+      console.error('Error stopping building:', error);
     });
   };
 
@@ -131,26 +131,26 @@ export default function FlowBuildingComponent() {
   };
 
   return (
-    <AnimatePresence mode="wait">
+    <AnimatePresence mode='wait'>
       {(isBuilding || buildInfo?.error || buildInfo?.success) && !dismissed && (
-        <div className="absolute bottom-2 left-1/2 z-50 w-[530px] -translate-x-1/2">
+        <div className='absolute bottom-2 left-1/2 z-50 w-[530px] -translate-x-1/2'>
           <motion.div
-            initial="hidden"
-            animate="visible"
-            exit="exit"
+            initial='hidden'
+            animate='visible'
+            exit='exit'
             variants={CONTAINER_VARIANTS}
-            transition={{ duration: 0.2, delay: 0.2, ease: "easeOut" }}
+            transition={{ duration: 0.2, delay: 0.2, ease: 'easeOut' }}
             className={cn(
-              "flex flex-col justify-center overflow-hidden rounded-lg border bg-background px-4 py-2 text-sm shadow-md transition-colors duration-200",
+              'flex flex-col justify-center overflow-hidden rounded-lg border bg-background px-4 py-2 text-sm shadow-md transition-colors duration-200',
               !isBuilding &&
                 buildInfo?.error &&
-                "border-accent-red-foreground text-accent-red-foreground",
+                'border-accent-red-foreground text-accent-red-foreground',
               !isBuilding &&
                 buildInfo?.success &&
-                "border-accent-emerald-foreground text-accent-emerald-foreground",
+                'border-accent-emerald-foreground text-accent-emerald-foreground'
             )}
           >
-            <AnimatePresence mode="wait">
+            <AnimatePresence mode='wait'>
               {(isBuilding || buildInfo?.error || buildInfo?.success) && (
                 <>
                   {isBuilding && (
@@ -159,30 +159,30 @@ export default function FlowBuildingComponent() {
                       transition={{
                         repeat: Infinity,
                         duration: 10,
-                        ease: "linear",
+                        ease: 'linear',
                       }}
                     />
                   )}
-                  <div className="flex min-h-10 w-full items-center justify-between gap-2">
-                    <AnimatePresence mode="wait">
+                  <div className='flex min-h-10 w-full items-center justify-between gap-2'>
+                    <AnimatePresence mode='wait'>
                       <div>
                         {buildingContent ? (
                           buildingContent
                         ) : buildInfo?.success ? (
                           messageLocale.FLOW_BUILT_SUCCESSFULLY
                         ) : (
-                          <div className="flex items-center gap-2">
+                          <div className='flex items-center gap-2'>
                             <ForwardedIconComponent
-                              name="CircleAlert"
-                              className="h-5 w-5"
+                              name='CircleAlert'
+                              className='h-5 w-5'
                             />
                             {messageLocale.FLOW_BUILT_FAILED}
                           </div>
                         )}
                       </div>
                     </AnimatePresence>
-                    <div className="relative flex items-center gap-4">
-                      <motion.div
+                    <div className='relative flex items-center gap-4'>
+                      {/* <motion.div
                         variants={getTimeVariants(
                           buildInfo?.error ? errorButtonsRef : stopButtonRef,
                         )}
@@ -194,63 +194,63 @@ export default function FlowBuildingComponent() {
                         className="absolute right-0 font-mono text-xs"
                       >
                         {humanizedTime}
-                      </motion.div>
-                      <AnimatePresence mode="sync">
+                      </motion.div> */}
+                      <AnimatePresence mode='sync'>
                         {!buildInfo?.success && (
-                          <div className="absolute right-0">
+                          <div className='absolute right-0'>
                             {buildInfo?.error ? (
                               <motion.div
-                                key="error-buttons"
+                                key='error-buttons'
                                 ref={errorButtonsRef}
-                                className="flex items-center gap-2"
+                                className='flex items-center gap-2'
                               >
                                 <motion.div
                                   variants={RETRY_BUTTON_VARIANTS}
-                                  initial="hidden"
-                                  animate="visible"
-                                  exit="exit"
+                                  initial='hidden'
+                                  animate='visible'
+                                  exit='exit'
                                   transition={{ duration: 0.2 }}
                                 >
-                                  <Button size="sm" onClick={handleRetry}>
-                                    {t("components.button.retry")}
+                                  <Button size='sm' onClick={handleRetry}>
+                                    {t('components.button.retry')}
                                   </Button>
                                 </motion.div>
                                 <motion.div
                                   variants={DISMISS_BUTTON_VARIANTS}
-                                  initial="hidden"
-                                  animate="visible"
-                                  exit="exit"
+                                  initial='hidden'
+                                  animate='visible'
+                                  exit='exit'
                                   transition={{ duration: 0.2 }}
                                 >
                                   <Button
-                                    size="sm"
-                                    variant="outline"
-                                    className="text-primary"
+                                    size='sm'
+                                    variant='outline'
+                                    className='text-primary'
                                     onClick={handleDismiss}
                                   >
-                                    {t("components.button.dismiss")}
+                                    {t('components.button.dismiss')}
                                   </Button>
                                 </motion.div>
                               </motion.div>
                             ) : (
                               <motion.div
-                                key="stop-button"
+                                key='stop-button'
                                 variants={STOP_BUTTON_VARIANTS}
                                 ref={stopButtonRef}
-                                initial="hidden"
-                                animate="visible"
-                                className=""
-                                exit="exit"
+                                initial='hidden'
+                                animate='visible'
+                                className=''
+                                exit='exit'
                                 transition={{ duration: 0.2 }}
                               >
                                 <Button
-                                  data-testid="stop_building_button"
-                                  size="sm"
+                                  data-testid='stop_building_button'
+                                  size='sm'
                                   onClick={handleStop}
                                 >
                                   {isPersistentStream
-                                    ? "停止流"
-                                    : t("components.button.stop")}
+                                    ? '停止流'
+                                    : t('components.button.stop')}
                                 </Button>
                               </motion.div>
                             )}
@@ -263,35 +263,35 @@ export default function FlowBuildingComponent() {
                     {buildInfo?.error && (
                       <motion.div
                         initial={{ opacity: 0, height: 0 }}
-                        animate={{ opacity: 1, height: "auto" }}
+                        animate={{ opacity: 1, height: 'auto' }}
                         exit={{ opacity: 0, height: 0 }}
                         transition={{ duration: 0.2 }}
                       >
                         <Markdown
-                          linkTarget="_blank"
+                          linkTarget='_blank'
                           remarkPlugins={[remarkGfm]}
-                          className="my-1.5 align-text-top truncate-doubleline"
+                          className='my-1.5 align-text-top truncate-doubleline'
                           components={{
                             a: ({ node, ...props }) => (
                               <a
                                 href={props.href}
-                                target="_blank"
-                                className="underline"
-                                rel="noopener noreferrer"
+                                target='_blank'
+                                className='underline'
+                                rel='noopener noreferrer'
                               >
                                 {props.children}
                               </a>
                             ),
                             p({ node, ...props }) {
                               return (
-                                <span className="inline-block w-fit max-w-full align-text-top truncate-doubleline">
+                                <span className='inline-block w-fit max-w-full align-text-top truncate-doubleline'>
                                   {props.children}
                                 </span>
                               );
                             },
                           }}
                         >
-                          {buildInfo?.error?.join("\n")}
+                          {buildInfo?.error?.join('\n')}
                         </Markdown>
                       </motion.div>
                     )}
