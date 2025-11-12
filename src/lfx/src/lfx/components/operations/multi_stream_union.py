@@ -183,7 +183,9 @@ class ETLMultiStreamUnionComponent(Component):
                         if upstream_data:
                             # Extract field names from upstream data
                             fields = self._extract_field_names(upstream_data)
-                            logger.debug(f"[MultiStreamUnion] {input_name}: found {len(fields)} fields from upstream data")
+                            logger.debug(
+                                f"[MultiStreamUnion] {input_name}: found {len(fields)} fields from upstream data"
+                            )
 
                     except ValueError as e:
                         # Fallback strategy: Extract from upstream node configuration
@@ -248,19 +250,43 @@ class ETLMultiStreamUnionComponent(Component):
 
         return build_config
 
-    def _extract_field_names(self, data_list: list[Data]) -> list[str]:
-        """从数据流中提取字段名列表"""
+    def _extract_field_names(self, data_list: list[Data]) -> list[dict]:
+        """从数据流中提取字段名列表，返回包含name和type的字典列表"""
         if not data_list or len(data_list) == 0:
             return []
 
         # 取第一条数据获取字段
         first_record = data_list[0]
-        if hasattr(first_record, "data") and isinstance(first_record.data, dict):
-            return list(first_record.data.keys())
-        if isinstance(first_record, dict):
-            return list(first_record.keys())
+        field_dict = None
 
-        return []
+        if hasattr(first_record, "data") and isinstance(first_record.data, dict):
+            field_dict = first_record.data
+        elif isinstance(first_record, dict):
+            field_dict = first_record
+        else:
+            return []
+
+        # Return list of dicts with name and inferred type
+        fields = []
+        for field_name, field_value in field_dict.items():
+            field_type = self._infer_type_from_value(field_value)
+            fields.append({"name": field_name, "type": field_type})
+
+        return fields
+
+    def _infer_type_from_value(self, value: any) -> str:
+        """Infer field type from a sample value"""
+        if value is None or value == "":
+            return "string"
+
+        if isinstance(value, bool):
+            return "boolean"
+        if isinstance(value, int):
+            return "integer"
+        if isinstance(value, float):
+            return "float"
+
+        return "string"
 
     def union_streams(self) -> list[Data]:
         """Merge multiple data streams with schema alignment and field filtering."""

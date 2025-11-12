@@ -220,9 +220,11 @@ class ETLFieldSplitToColumnsComponent(Component):
                     )
 
                     if upstream_data:
-                        # Extract field names
+                        # Extract field names (now returns list[dict])
                         field_names = self._extract_field_names(upstream_data)
-                        logger.debug(f"[FieldSplitToColumns] Extracted {len(field_names)} fields from upstream data: {field_names}")
+                        logger.debug(
+                            f"[FieldSplitToColumns] Extracted {len(field_names)} fields from upstream data: {field_names}"
+                        )
                     else:
                         logger.warning("[FieldSplitToColumns] No data returned from upstream node")
 
@@ -233,12 +235,11 @@ class ETLFieldSplitToColumnsComponent(Component):
                     try:
                         from lfx.components.helpers.field_extraction import find_and_extract_upstream_fields
 
-                        fields = find_and_extract_upstream_fields(
+                        field_names = find_and_extract_upstream_fields(
                             graph_data, node_id, "data_input", "FieldSplitToColumns"
                         )
 
-                        if fields:
-                            field_names = [field["name"] for field in fields]
+                        if field_names:
                             logger.info(f"[FieldSplitToColumns] Extracted {len(field_names)} fields from static config")
                         else:
                             logger.warning("[FieldSplitToColumns] Static analysis returned no fields")
@@ -247,8 +248,9 @@ class ETLFieldSplitToColumnsComponent(Component):
                         logger.exception("[FieldSplitToColumns] Static analysis also failed")
 
                 # Update build_config with results
+                # field_names is now list[dict], extract just the names for dropdown options
                 if field_names:
-                    build_config["source_field"]["options"] = field_names
+                    build_config["source_field"]["options"] = [f["name"] for f in field_names]
                     self.status = f"Successfully loaded {len(field_names)} fields from upstream data source"
                     logger.info(f"[FieldSplitToColumns] Successfully loaded {len(field_names)} field options")
                 else:
@@ -269,18 +271,42 @@ class ETLFieldSplitToColumnsComponent(Component):
 
         return build_config
 
-    def _extract_field_names(self, data_list: list[Data]) -> list[str]:
-        """从数据流中提取字段名列表"""
+    def _extract_field_names(self, data_list: list[Data]) -> list[dict]:
+        """从数据流中提取字段名列表，返回包含name和type的字典列表"""
         if not data_list or len(data_list) == 0:
             return []
 
         first_record = data_list[0]
-        if hasattr(first_record, "data") and isinstance(first_record.data, dict):
-            return list(first_record.data.keys())
-        if isinstance(first_record, dict):
-            return list(first_record.keys())
+        field_dict = None
 
-        return []
+        if hasattr(first_record, "data") and isinstance(first_record.data, dict):
+            field_dict = first_record.data
+        elif isinstance(first_record, dict):
+            field_dict = first_record
+        else:
+            return []
+
+        # Return list of dicts with name and inferred type
+        fields = []
+        for field_name, field_value in field_dict.items():
+            field_type = self._infer_type_from_value(field_value)
+            fields.append({"name": field_name, "type": field_type})
+
+        return fields
+
+    def _infer_type_from_value(self, value: any) -> str:
+        """Infer field type from a sample value"""
+        if value is None or value == "":
+            return "string"
+
+        if isinstance(value, bool):
+            return "boolean"
+        if isinstance(value, int):
+            return "integer"
+        if isinstance(value, float):
+            return "float"
+
+        return "string"
 
     def _get_delimiter(self) -> str:
         """Get the actual delimiter to use"""
