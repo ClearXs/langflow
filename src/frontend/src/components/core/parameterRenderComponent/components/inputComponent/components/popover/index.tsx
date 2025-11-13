@@ -196,6 +196,14 @@ const CustomInputPopover = ({
   const [cursor, setCursor] = useState<number | null>(null);
   const memoizedOptions = useMemo(() => new Set<string>(options), [options]);
 
+  // Local state for immediate UI feedback (0ms input delay)
+  const [localValue, setLocalValue] = useState<string>(value || "");
+
+  // Sync external value changes to local state
+  useEffect(() => {
+    setLocalValue(value || "");
+  }, [value]);
+
   const PopoverContentInput = editNode
     ? PopoverContent
     : PopoverContentWithoutPortal;
@@ -205,7 +213,7 @@ const CustomInputPopover = ({
     if (cursor !== null && refInput.current) {
       refInput.current.setSelectionRange(cursor, cursor);
     }
-  }, [cursor, value]);
+  }, [cursor, localValue]); // Changed to use localValue for cursor tracking
 
   const handleRemoveOption = (
     optionToRemove: string,
@@ -300,7 +308,8 @@ const CustomInputPopover = ({
                 onInputLostFocus?.();
                 setIsFocused(false);
               }}
-              value={disabled ? "" : value || ""}
+              // Use local state for immediate feedback
+              value={disabled ? "" : localValue}
               disabled={disabled}
               required={required}
               className={getInputClassName(
@@ -316,8 +325,15 @@ const CustomInputPopover = ({
                   : placeholder
               }
               onChange={(e) => {
-                setCursor(e.target.selectionStart);
-                onChange?.(e.target.value);
+                const newValue = e.target.value;
+                const cursorPosition = e.target.selectionStart;
+
+                // Immediately update local state for 0ms input feedback
+                setLocalValue(newValue);
+                setCursor(cursorPosition);
+
+                // Debounced update to store (handled by onChange callback)
+                onChange?.(newValue);
               }}
               onKeyDown={(e) => {
                 handleKeyDown?.(e);

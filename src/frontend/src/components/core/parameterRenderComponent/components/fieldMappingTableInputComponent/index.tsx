@@ -1,5 +1,6 @@
+import { debounce } from "lodash";
 import { ArrowRight, Plus, X } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -34,6 +35,26 @@ export default function FieldMappingTableInputComponent({
 }: InputProps<string | string[], any>): JSX.Element {
   const { t } = useTranslation();
   const [mappings, setMappings] = useState<FieldMapping[]>([]);
+
+  // Create debounced version of updateValue for better performance
+  const debouncedUpdateValueRef = useRef<ReturnType<typeof debounce> | null>(
+    null,
+  );
+
+  // Initialize debounced function
+  useEffect(() => {
+    debouncedUpdateValueRef.current = debounce(
+      (newMappings: FieldMapping[]) => {
+        handleOnNewValue({ value: JSON.stringify(newMappings) });
+      },
+      300,
+    ); // 300ms debounce for table edits
+
+    // Cleanup on unmount
+    return () => {
+      debouncedUpdateValueRef.current?.cancel();
+    };
+  }, [handleOnNewValue]);
 
   useEffect(() => {
     if (!value) {
@@ -71,14 +92,19 @@ export default function FieldMappingTableInputComponent({
     };
 
     const newMappings = [...mappings, newMapping];
+    // Immediately update local state for instant UI feedback
     setMappings(newMappings);
-    updateValue(newMappings);
+    // Debounced update to store
+    debouncedUpdateValueRef.current?.(newMappings);
   };
 
   const handleRemoveMapping = (id: string) => {
     const newMappings = mappings.filter((m) => m.id !== id);
+    // Immediately update local state
     setMappings(newMappings);
-    updateValue(newMappings);
+    // Delete operations should happen immediately, so cancel debounce and update now
+    debouncedUpdateValueRef.current?.cancel();
+    handleOnNewValue({ value: JSON.stringify(newMappings) });
   };
 
   const handleUpdateMapping = (
@@ -89,12 +115,10 @@ export default function FieldMappingTableInputComponent({
     const newMappings = mappings.map((m) =>
       m.id === id ? { ...m, [field]: value } : m,
     );
+    // Immediately update local state for instant UI feedback
     setMappings(newMappings);
-    updateValue(newMappings);
-  };
-
-  const updateValue = (newMappings: FieldMapping[]) => {
-    handleOnNewValue({ value: JSON.stringify(newMappings) });
+    // Debounced update to store to reduce update frequency
+    debouncedUpdateValueRef.current?.(newMappings);
   };
 
   const isDisabled = disabled;

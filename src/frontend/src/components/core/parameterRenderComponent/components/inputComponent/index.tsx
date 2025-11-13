@@ -52,6 +52,14 @@ export default function InputComponent({
   const refInput = useRef<HTMLInputElement>(null);
   const [showOptions, setShowOptions] = useState<boolean>(false);
 
+  // Local state for immediate UI feedback (0ms input delay) - Form mode only
+  const [localValue, setLocalValue] = useState<string>(value || "");
+
+  // Sync external value changes to local state
+  useEffect(() => {
+    setLocalValue(value || "");
+  }, [value]);
+
   // Use translated placeholder if not provided
   const finalOptionsPlaceholder =
     optionsPlaceholder || t("dropdown.searchOptions");
@@ -67,7 +75,7 @@ export default function InputComponent({
     if (cursor !== null && refInput.current) {
       refInput.current.setSelectionRange(cursor, cursor);
     }
-  }, [cursor, value]);
+  }, [cursor, localValue]); // Changed to use localValue for cursor tracking
 
   function onInputLostFocus(event): void {
     if (onBlur) onBlur(event);
@@ -84,7 +92,8 @@ export default function InputComponent({
             onBlur={onInputLostFocus}
             autoFocus={autoFocus}
             type={password && !pwdVisible ? "password" : "text"}
-            value={value}
+            // Use local state for immediate feedback
+            value={localValue}
             disabled={disabled}
             required={required}
             className={classNames(
@@ -102,11 +111,18 @@ export default function InputComponent({
                 : placeholder
             }
             onChange={(e) => {
-              setCursor(e.target.selectionStart);
+              const newValue = e.target.value;
+              const cursorPosition = e.target.selectionStart;
+
+              // Immediately update local state for 0ms input feedback
+              setLocalValue(newValue);
+              setCursor(cursorPosition);
+
+              // Debounced update to parent (handled by onChange callback)
               if (onChangeFolderName) {
                 return onChangeFolderName(e);
               }
-              onChange && onChange(e.target.value);
+              onChange && onChange(newValue);
             }}
             onCopy={(e) => {
               e.preventDefault();

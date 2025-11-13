@@ -78,6 +78,9 @@ export default function TextAreaComponent({
   const webhookAuthEnable = useUtilityStore((state) => state.webhookAuthEnable);
   const [cursor, setCursor] = useState<number | null>(null);
 
+  // Local state for immediate UI feedback (0ms input delay)
+  const [localValue, setLocalValue] = useState<string>(value ?? "");
+
   const isWebhook = useMemo(
     () => nodeInformationMetadata?.nodeType === "webhook",
     [nodeInformationMetadata?.nodeType],
@@ -87,6 +90,11 @@ export default function TextAreaComponent({
     () => nodeInformationMetadata?.nodeType === "mcp_sse",
     [nodeInformationMetadata?.nodeType],
   );
+
+  // Sync external value changes to local state
+  useEffect(() => {
+    setLocalValue(value ?? "");
+  }, [value]);
 
   useEffect(() => {
     if (isWebhook && value === WEBHOOK_VALUE) {
@@ -114,7 +122,7 @@ export default function TextAreaComponent({
     if (cursor !== null && inputRef.current) {
       inputRef.current.setSelectionRange(cursor, cursor);
     }
-  }, [cursor, value]);
+  }, [cursor, localValue]); // Changed to use localValue for cursor tracking
 
   const getInputClassName = () => {
     return cn(
@@ -127,8 +135,15 @@ export default function TextAreaComponent({
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setCursor(e.target.selectionStart);
-    handleOnNewValue({ value: e.target.value });
+    const newValue = e.target.value;
+    const cursorPosition = e.target.selectionStart;
+
+    // Immediately update local state for 0ms input feedback
+    setLocalValue(newValue);
+    setCursor(cursorPosition);
+
+    // Debounced update to store (handled by handleOnNewValue)
+    handleOnNewValue({ value: newValue });
   };
 
   const changeWebhookFormat = (format: "multiline" | "singleline") => {
@@ -193,7 +208,8 @@ export default function TextAreaComponent({
         onBlur={() => setIsFocused(false)}
         id={id}
         data-testid={id}
-        value={disabled ? "" : value}
+        // Use local state for immediate feedback
+        value={disabled ? "" : localValue}
         onChange={handleInputChange}
         disabled={disabled}
         className={getInputClassName()}

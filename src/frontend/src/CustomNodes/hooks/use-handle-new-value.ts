@@ -13,6 +13,57 @@ import { mutateTemplate } from "../helpers/mutate-template";
 
 const DEBOUNCE_TIME_1_SECOND = 1000;
 
+/**
+ * Check if only the value of a parameter changed (not its structure)
+ * This helps optimize updateNodeInternals calls - we only need to update
+ * React Flow internals when the node structure changes (handles, connections),
+ * not when just values change.
+ */
+const hasOnlyValueChanged = (
+  oldNode: APIClassType,
+  newNode: APIClassType,
+): boolean => {
+  const oldTemplate = oldNode.template;
+  const newTemplate = newNode.template;
+
+  if (!oldTemplate || !newTemplate) return false;
+
+  const oldKeys = Object.keys(oldTemplate);
+  const newKeys = Object.keys(newTemplate);
+
+  // If number of fields changed, structure changed
+  if (oldKeys.length !== newKeys.length) return false;
+
+  // Check each field's structure (excluding value)
+  for (const key of oldKeys) {
+    const oldField = oldTemplate[key];
+    const newField = newTemplate[key];
+
+    if (!newField) return false;
+
+    // Compare structural properties (not value)
+    const structuralProps = [
+      "field_type",
+      "input_types",
+      "required",
+      "show",
+      "advanced",
+      "list",
+      "display_name",
+      "options", // dropdown options change = structure change
+    ];
+
+    for (const prop of structuralProps) {
+      // Use JSON.stringify for deep comparison of arrays/objects
+      if (JSON.stringify(oldField[prop]) !== JSON.stringify(newField[prop])) {
+        return false; // Structure changed
+      }
+    }
+  }
+
+  return true; // Only values changed
+};
+
 export type handleOnNewValueType = (
   changes: Partial<InputFieldType>,
   options?: {
@@ -37,6 +88,7 @@ const useHandleOnNewValue = ({
 }) => {
   const takeSnapshot = useFlowsManagerStore((state) => state.takeSnapshot);
   const setNode = setNodeExternal ?? useFlowStore((state) => state.setNode);
+  const getNode = useFlowStore((state) => state.getNode); // Add getNode to fetch old node
   const updateNodeInternals = useUpdateNodeInternals();
   const setErrorData = useAlertStore((state) => state.setErrorData);
 
@@ -55,23 +107,32 @@ const useHandleOnNewValue = ({
 
   // Memoize the node update function
   const updateNodeState = useCallback(
-    (newNode: APIClassType) => {
+    (newNode: APIClassType, oldNode?: APIClassType) => {
+      // Performance: Check if only values changed (not structure)
+      // Only call updateNodeInternals when structure changes (handles, connections, etc.)
+      const onlyValueChanged = oldNode && hasOnlyValueChanged(oldNode, newNode);
+
       setNode(
         nodeId,
-        (oldNode) => {
+        (oldNodeData) => {
           // Performance: Use shallow copy instead of cloneDeep for better performance
           // Only the node property needs to be updated, other data properties can be reused
           return {
-            ...oldNode,
+            ...oldNodeData,
             data: {
-              ...oldNode.data,
+              ...oldNodeData.data,
               node: newNode,
             },
           };
         },
         true,
         () => {
-          updateNodeInternals(nodeId);
+          // OPTIMIZATION: Only update React Flow internals when structure changes
+          // This significantly improves performance by avoiding expensive layout recalculations
+          // on every keystroke
+          if (!onlyValueChanged) {
+            updateNodeInternals(nodeId);
+          }
         },
       );
     },
@@ -146,7 +207,10 @@ const useHandleOnNewValue = ({
 
       const setNodeClass = (newNodeClass: APIClassType) => {
         options?.setNodeClass?.(newNodeClass);
-        updateNodeState(newNodeClass);
+        // Get old node for comparison
+        const oldFlowNode = getNode(nodeId);
+        const oldNode = oldFlowNode?.data?.node;
+        updateNodeState(newNodeClass, oldNode);
       };
 
       if (shouldUpdate && changes.value !== undefined) {
@@ -184,11 +248,15 @@ const useHandleOnNewValue = ({
       // This is the main cause of input lag - every keystroke was triggering immediate store update
       if (!debouncedUpdateStateRef.current) {
         debouncedUpdateStateRef.current = debounce(
-          (node) => updateNodeState(node),
+          (newNode, oldNode) => updateNodeState(newNode, oldNode),
           150, // Restored to 150ms - combined with local state pattern for immediate UI feedback
         );
       }
-      debouncedUpdateStateRef.current(newNode);
+
+      // Get old node for comparison before update
+      const oldFlowNode = getNode(nodeId);
+      const oldNode = oldFlowNode?.data?.node;
+      debouncedUpdateStateRef.current(newNode, oldNode);
     },
     [
       node,
@@ -198,6 +266,7 @@ const useHandleOnNewValue = ({
       postTemplateValue,
       setErrorData,
       updateNodeState,
+      getNode, // Add getNode to dependencies
     ],
   );
 
