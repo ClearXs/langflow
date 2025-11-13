@@ -159,7 +159,7 @@
   },
   "settings": {
     "displayName": "设置",
-    "description": "管理 Langflow 的通用设置。",
+    "description": "管理的通用设置。",
     "version": "版本",
     "general": "通用",
     "apiKeys": "API 密钥",
