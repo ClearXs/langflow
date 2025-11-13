@@ -131,7 +131,9 @@ class DataConstructionFeignClient:
         except ValueError as e:
             # 特殊处理Nacos服务未找到的情况
             if "No healthy instances found" in str(e):
-                logger.warning(f"[DataConstructionClient] Service {self.SERVICE_NAME} not found in Nacos. This might be normal if the service is not deployed.")
+                logger.warning(
+                    f"[DataConstructionClient] Service {self.SERVICE_NAME} not found in Nacos. This might be normal if the service is not deployed."
+                )
                 return []
             error_msg = f"Failed to get datasource list: {e}"
             logger.exception(f"[DataConstructionClient] {error_msg}")

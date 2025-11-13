@@ -1,0 +1,10 @@
+{
+    "build_failure": "Flow build failed: {error}",
+    "execution_failure": "Component execution failed: {error}",
+    "alarm_sent": "Alarm notification sent successfully for flow {flow_id}",
+    "alarm_failed": "Failed to send alarm notification: {error}",
+    "context": {
+        "graph_build_failed": "Graph structure parsing failed",
+        "component_execution_failed": "Component '{component}' execution failed"
+    }
+}

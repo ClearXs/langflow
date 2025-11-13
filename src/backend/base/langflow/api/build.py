@@ -35,6 +35,73 @@ from langflow.services.job_queue.service import JobQueueNotFoundError, JobQueueS
 from langflow.services.telemetry.schema import ComponentPayload, PlaygroundPayload
 
 
+async def _trigger_alarm_safe(
+    flow_id: str,
+    condition: str,
+    exception: Exception,
+    context: str = "",
+    extra_data: dict | None = None,
+) -> None:
+    """Trigger process alarm notification safely (never raises exceptions).
+
+    Args:
+        flow_id: Flow ID
+        condition: Alarm condition ("PROCESS_BUILD_FAILURE" or "PROCESS_EXECUTION_FAILURE")
+        exception: The exception that occurred
+        context: Additional context description
+        extra_data: Additional metadata (optional)
+    """
+    try:
+        from lfx.locale import get_lang
+        from lfx.services.deps import get_feign_service
+        from lfx.services.feign.clients.data_task import DataTaskFeignClient
+
+        # Get current language
+        current_lang = get_lang()
+
+        # Get full stack trace
+        full_traceback = traceback.format_exc()
+
+        # Generate detailed error message with stack trace
+        if condition == "PROCESS_BUILD_FAILURE":
+            error_title = i18n.t("services.alarm.build_failure", error=str(exception))
+        else:
+            error_title = i18n.t("services.alarm.execution_failure", error=str(exception))
+
+        # Combine title and full traceback for detailed error message
+        detailed_error_message = f"{error_title}\n\n{context}\n\nTraceback:\n{full_traceback}"
+
+        # Build complete extra_data with all available information
+        complete_extra_data = {
+            "exception_type": type(exception).__name__,
+            "exception_message": str(exception),
+            "stack_trace": full_traceback,
+            "context": context,
+            "language": current_lang,
+        }
+
+        # Merge provided extra_data
+        if extra_data:
+            complete_extra_data.update(extra_data)
+
+        # Get feign service and trigger alarm
+        feign_service = get_feign_service()
+        client = DataTaskFeignClient(feign_service)
+
+        await client.trigger_process_alarm(
+            langflow_flow_id=flow_id,
+            trigger_condition=condition,
+            error_message=detailed_error_message,
+            extra_data=complete_extra_data,
+        )
+
+        await logger.ainfo(f"[Alarm] Triggered {condition} alarm for flow {flow_id}")
+
+    except Exception as e:  # noqa: BLE001
+        # Never let alarm failures affect the main flow
+        await logger.awarning(f"[Alarm] Failed to trigger alarm for flow {flow_id}: {e}")
+
+
 async def start_flow_build(
     *,
     flow_id: uuid.UUID,
@@ -333,6 +400,22 @@ async def generate_flow_events(
                 artifacts = {}
                 background_tasks.add_task(graph.end_all_traces_in_context(error=exc))
 
+                # Trigger alarm asynchronously (non-blocking)
+                component_name = getattr(vertex, "display_name", vertex_id)
+                _ = asyncio.create_task(  # noqa: RUF006
+                    _trigger_alarm_safe(
+                        flow_id=str(flow_id),
+                        condition="PROCESS_EXECUTION_FAILURE",
+                        exception=exc,
+                        context=i18n.t("services.alarm.context.component_execution_failed", component=component_name),
+                        extra_data={
+                            "vertex_id": str(vertex_id),
+                            "vertex_display_name": component_name,
+                            "component_name": getattr(vertex, "name", "Unknown"),
+                        },
+                    )
+                )
+
             result_data_response.message = artifacts
 
             # Log the vertex build
@@ -457,6 +540,17 @@ async def generate_flow_events(
             exception=e,
         )
         event_manager.on_error(data=error_message.data)
+
+        # Trigger alarm asynchronously (non-blocking)
+        _ = asyncio.create_task(  # noqa: RUF006
+            _trigger_alarm_safe(
+                flow_id=str(flow_id),
+                condition="PROCESS_BUILD_FAILURE",
+                exception=e,
+                context=i18n.t("services.alarm.context.graph_build_failed"),
+            )
+        )
+
         raise
 
     event_manager.on_vertices_sorted(data={"ids": ids, "to_run": vertices_to_run})
@@ -481,6 +575,18 @@ async def generate_flow_events(
             trace_name=trace_name,
         )
         event_manager.on_error(data=error_message.data)
+
+        # Trigger alarm asynchronously (non-blocking)
+        _ = asyncio.create_task(  # noqa: RUF006
+            _trigger_alarm_safe(
+                flow_id=str(flow_id),
+                condition="PROCESS_BUILD_FAILURE",
+                exception=e,
+                context=i18n.t("services.alarm.context.graph_build_failed"),
+                extra_data={"vertex_id": vertex_id, "trace_name": trace_name},
+            )
+        )
+
         raise
 
     event_manager.on_end(data={})

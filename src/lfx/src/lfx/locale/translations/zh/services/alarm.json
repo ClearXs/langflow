@@ -1,0 +1,10 @@
+{
+    "build_failure": "流程构建失败: {error}",
+    "execution_failure": "组件执行失败: {error}",
+    "alarm_sent": "流程 {flow_id} 的告警通知发送成功",
+    "alarm_failed": "发送告警通知失败: {error}",
+    "context": {
+        "graph_build_failed": "图结构解析失败",
+        "component_execution_failed": "组件 '{component}' 执行失败"
+    }
+}
