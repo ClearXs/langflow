@@ -143,10 +143,10 @@ class ETLDataMaskingComponent(Component):
                             masking_rules = await self._load_masking_rules()
                             if masking_rules:
                                 build_config["masking_rules"]["table_schema"][1]["options"] = [
-                                    int(rule["id"]) for rule in masking_rules
+                                    rule["id"] for rule in masking_rules
                                 ]
                                 build_config["masking_rules"]["table_schema"][1]["options_metadata"] = [
-                                    {"value": int(rule["id"]), "label": rule["ruleName"]} for rule in masking_rules
+                                    {"value": rule["id"], "label": rule["ruleName"]} for rule in masking_rules
                                 ]
                                 logger.info(f"[DataMasking] Loaded {len(masking_rules)} masking rules in fallback mode")
                             else:

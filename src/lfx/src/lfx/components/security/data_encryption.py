@@ -145,10 +145,10 @@ class ETLDataEncryptionComponent(Component):
                             encryption_rules = await self._load_encryption_rules()
                             if encryption_rules:
                                 build_config["field_configs"]["table_schema"][1]["options"] = [
-                                    int(rule["id"]) for rule in encryption_rules
+                                    rule["id"] for rule in encryption_rules
                                 ]
                                 build_config["field_configs"]["table_schema"][1]["options_metadata"] = [
-                                    {"value": int(rule["id"]), "label": rule["ruleName"]} for rule in encryption_rules
+                                    {"value": rule["id"], "label": rule["ruleName"]} for rule in encryption_rules
                                 ]
                                 logger.info(
                                     f"[DataEncryption] Loaded {len(encryption_rules)} encryption rules in fallback mode"
