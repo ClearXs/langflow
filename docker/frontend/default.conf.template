@@ -6,6 +6,21 @@ http {
     include /etc/nginx/mime.types;
     default_type text/plain;
     client_max_body_size ${LANGFLOW_MAX_FILE_SIZE_UPLOAD}M;
+    
+    gzip on;
+    gzip_comp_level 2;
+    gzip_min_length 1000;
+    gzip_types text/xml text/css;
+    gzip_http_version 1.1;
+    gzip_vary on;
+    gzip_disable "MSIE [4-6] \.";
+
+    keepalive_timeout 3600s;
+    keepalive_requests 1000;
+    send_timeout 3600s;
+
+    client_body_timeout 3600s;
+    client_header_timeout 3600s;
 
     types {
         text/html html;
@@ -14,21 +29,6 @@ http {
     }
 
     server {
-        gzip off;
-        gzip_comp_level 2;
-        gzip_min_length 1000;
-        gzip_types text/xml text/css;
-        gzip_http_version 1.1;
-        gzip_vary on;
-        gzip_disable "MSIE [4-6] \.";
-
-        keepalive_timeout 3600s;
-        keepalive_requests 1000;
-        send_timeout 3600s;
-
-        client_body_timeout 3600s;
-        client_header_timeout 3600s;
-
         listen ${FRONTEND_PORT};
 
         location / {
