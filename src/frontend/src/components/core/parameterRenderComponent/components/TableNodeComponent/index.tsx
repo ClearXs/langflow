@@ -97,14 +97,33 @@ export default function TableNodeComponent({
   const [selectedNodes, setSelectedNodes] = useState<Array<any>>([]);
   const [tempValue, setTempValue] = useState<any[]>(cloneDeep(value));
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [actionButtonLoading, setActionButtonLoading] = useState<string | null>(
+  const [clickedActionButton, setClickedActionButton] = useState<string | null>(
     null,
   );
+  // Use postTemplateValue.isPending as the source of truth for loading state
+  const actionButtonLoading = postTemplateValue.isPending
+    ? clickedActionButton
+    : null;
+
   const agGrid = useRef<AgGridReact>(null);
+  const prevIsPending = useRef<boolean>(false);
+
   // Add useEffect to sync with incoming value changes
   useEffect(() => {
     setTempValue(cloneDeep(value));
   }, [value]);
+
+  // Clear clicked action button when API call completes (isPending goes from true to false)
+  useEffect(() => {
+    if (
+      prevIsPending.current &&
+      !postTemplateValue.isPending &&
+      clickedActionButton
+    ) {
+      setClickedActionButton(null);
+    }
+    prevIsPending.current = postTemplateValue.isPending;
+  }, [postTemplateValue.isPending, clickedActionButton]);
 
   const componentColumns = columns
     ? columns
@@ -166,8 +185,8 @@ export default function TableNodeComponent({
       return;
     }
 
-    // Set loading state for the clicked action button
-    setActionButtonLoading(actionName);
+    // Track which action button was clicked
+    setClickedActionButton(actionName);
 
     try {
       // Check if this action requires preview upstream data
@@ -184,6 +203,7 @@ export default function TableNodeComponent({
             title: t("errors.flowNotFound"),
             list: [t("errors.saveFlowFirst")],
           });
+          setClickedActionButton(null);
           return;
         }
 
@@ -201,6 +221,7 @@ export default function TableNodeComponent({
             title: t("errors.previewFailed"),
             list: [previewResponse.error || t("errors.unknownError")],
           });
+          setClickedActionButton(null);
           return;
         }
 
@@ -252,10 +273,10 @@ export default function TableNodeComponent({
           error instanceof Error ? error.message : t("errors.unknownError"),
         ],
       });
-    } finally {
-      // Clear loading state after action completes (success or error)
-      setActionButtonLoading(null);
+      setClickedActionButton(null);
     }
+    // Note: We don't clear clickedActionButton in finally block
+    // It will be cleared automatically when postTemplateValue.isPending becomes false
   }
 
   function updateComponent() {

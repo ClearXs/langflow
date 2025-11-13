@@ -15,6 +15,7 @@ class ETLShellScriptComponent(Component):
     description = i18n.t("components.scripts.shell_script.description")
     icon = "terminal"
     name = "ETLShellScript"
+    include_universal_input = True
 
     inputs = [
         DataInput(

@@ -124,6 +124,7 @@ class ETLSQLScriptComponent(Component):
     description = i18n.t("components.scripts.sql_script.description")
     icon = "database"
     name = "ETLSQLScript"
+    include_universal_input = True
 
     inputs = [
         DropdownInput(

@@ -16,6 +16,7 @@ class ETLPythonScriptComponent(Component):
     description = i18n.t("components.scripts.python_script.description")
     icon = "code"
     name = "ETLPythonScript"
+    include_universal_input = True
 
     inputs = [
         DataInput(

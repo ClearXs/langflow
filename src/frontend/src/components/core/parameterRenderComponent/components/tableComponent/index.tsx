@@ -429,22 +429,28 @@ const TableComponent = forwardRef<
       {/* Render top action buttons */}
       {props.tableOptions?.action_buttons
         ?.filter((btn) => btn.position === "top")
-        .map((button) => (
-          <div key={button.name} className="mb-3 px-1">
-            <Button
-              onClick={() => props.onActionButton?.(button.name)}
-              variant="outline"
-              size="sm"
-              data-testid={`table-action-button-${button.name}`}
-            >
-              <ForwardedIconComponent
-                name={button.icon}
-                className="mr-2 h-4 w-4"
-              />
-              {button.label}
-            </Button>
-          </div>
-        ))}
+        .map((button) => {
+          const isLoading = props.actionButtonLoading === button.name;
+          const isAnyLoading = props.actionButtonLoading !== null;
+
+          return (
+            <div key={button.name} className="mb-3 px-1">
+              <Button
+                onClick={() => props.onActionButton?.(button.name)}
+                variant="outline"
+                size="sm"
+                disabled={isAnyLoading}
+                data-testid={`table-action-button-${button.name}`}
+              >
+                <ForwardedIconComponent
+                  name={isLoading ? "Loader2" : button.icon}
+                  className={cn("mr-2 h-4 w-4", isLoading && "animate-spin")}
+                />
+                {button.label}
+              </Button>
+            </div>
+          );
+        })}
       <AgGridReact
         {...props}
         overlayNoRowsTemplate={t("table.noRowsToShow")}
