@@ -13,6 +13,7 @@ import { usePostTemplateValue } from "@/controllers/API/queries/nodes/use-post-t
 import { usePostRetrieveVertexOrder } from "@/controllers/API/queries/vertex";
 import { customOpenNewTab } from "@/customization/utils/custom-open-new-tab";
 import useAddFlow from "@/hooks/flows/use-add-flow";
+import { useIsEmbedded } from "@/hooks/use-iframe-params";
 import type { APIClassType } from "@/types/api";
 import IconComponent from "../../../../components/common/genericIconComponent";
 import {
@@ -59,6 +60,7 @@ const NodeToolbarComponent = memo(
     setOpenShowMoreOptions,
   }: nodeToolbarPropsType): JSX.Element => {
     const { t } = useTranslation();
+    const isEmbedded = useIsEmbedded();
     const version = useDarkStore((state) => state.version);
     const [showModalAdvanced, setShowModalAdvanced] = useState(false);
     const [showconfirmShare, setShowconfirmShare] = useState(false);
@@ -647,19 +649,21 @@ const NodeToolbarComponent = memo(
                   </SelectItem>
                 )}
 
-                <SelectItem
-                  value={"documentation"}
-                  disabled={data.node?.documentation === ""}
-                >
-                  <ToolbarSelectItem
-                    shortcut={
-                      shortcuts.find((obj) => obj.name === "Docs")?.shortcut!
-                    }
-                    value={t("common.docs")}
-                    icon={"FileText"}
-                    dataTestId="docs-button-modal"
-                  />
-                </SelectItem>
+                {!isEmbedded && (
+                  <SelectItem
+                    value={"documentation"}
+                    disabled={data.node?.documentation === ""}
+                  >
+                    <ToolbarSelectItem
+                      shortcut={
+                        shortcuts.find((obj) => obj.name === "Docs")?.shortcut!
+                      }
+                      value={t("common.docs")}
+                      icon={"FileText"}
+                      dataTestId="docs-button-modal"
+                    />
+                  </SelectItem>
+                )}
                 {(isMinimal || !showNode) && (
                   <SelectItem
                     value={"show"}
@@ -709,17 +713,19 @@ const NodeToolbarComponent = memo(
                     />
                   </SelectItem>
                 )}
-                <SelectItem value="Download">
-                  <ToolbarSelectItem
-                    shortcut={
-                      shortcuts.find((obj) => obj.name === "Download")
-                        ?.shortcut!
-                    }
-                    value={t("common.download")}
-                    icon={"Download"}
-                    dataTestId="download-button-modal"
-                  />
-                </SelectItem>
+                {!isEmbedded && (
+                  <SelectItem value="Download">
+                    <ToolbarSelectItem
+                      shortcut={
+                        shortcuts.find((obj) => obj.name === "Download")
+                          ?.shortcut!
+                      }
+                      value={t("common.download")}
+                      icon={"Download"}
+                      dataTestId="download-button-modal"
+                    />
+                  </SelectItem>
+                )}
                 <SelectItem value={"delete"} className="focus:bg-red-400/[.20]">
                   <div className="font-red flex text-status-red">
                     <IconComponent

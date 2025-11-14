@@ -459,7 +459,12 @@ class ETLTableInputComponent(Component):
                 # 获取数据源详细信息（用于区分公共和内置数据源）
                 datasource_info = None
                 for metadata in options_metadata:
-                    if metadata.get("display_name") == current_datasource:
+                    # 优先按 id/value 匹配（公共数据源传递ID），向后兼容 display_name
+                    if (
+                        metadata.get("id") == current_datasource
+                        or metadata.get("value") == current_datasource
+                        or metadata.get("display_name") == current_datasource
+                    ):
                         datasource_info = metadata
                         break
 
@@ -468,7 +473,8 @@ class ETLTableInputComponent(Component):
                     logger.warning("[TableInput] Datasource info not found in options_metadata, reloading datasources")
                     all_datasources = self._load_unified_datasources()
                     for ds in all_datasources:
-                        if ds["display_name"] == current_datasource:
+                        # 优先按 id 匹配，向后兼容 display_name
+                        if ds["id"] == current_datasource or ds["display_name"] == current_datasource:
                             datasource_info = {
                                 "id": ds["id"],
                                 "name": ds["name"],
