@@ -15,6 +15,9 @@ http {
     gzip_vary on;
     gzip_disable "MSIE [4-6] \.";
 
+    client_max_body_size 1000M;  # 关键指令
+    client_body_buffer_size 1000M;  # 可选，优化内存使用
+
     types {
         text/html html;
         text/css css;
