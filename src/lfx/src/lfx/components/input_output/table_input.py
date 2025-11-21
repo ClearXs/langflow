@@ -978,7 +978,7 @@ class ETLTableInputComponent(Component):
 
                     with concurrent.futures.ThreadPoolExecutor() as executor:
                         future = executor.submit(asyncio.run, self._get_public_datasources())
-                        public_datasources = future.result(timeout=10)
+                        public_datasources = future.result(timeout=5)
                 except RuntimeError:
                     # No running event loop, use asyncio.run()
                     public_datasources = asyncio.run(self._get_public_datasources())
@@ -1099,7 +1099,7 @@ class ETLTableInputComponent(Component):
                 # 在事件循环中，使用ThreadPoolExecutor
                 with concurrent.futures.ThreadPoolExecutor() as executor:
                     future = executor.submit(asyncio.run, fetch_datasources())
-                    builtin_datasources = future.result(timeout=10)
+                    builtin_datasources = future.result(timeout=5)
             except RuntimeError:
                 # 没有运行中的事件循环，直接使用asyncio.run
                 builtin_datasources = asyncio.run(fetch_datasources())
@@ -1123,7 +1123,7 @@ class ETLTableInputComponent(Component):
                 # Already in event loop, use ThreadPoolExecutor
                 with concurrent.futures.ThreadPoolExecutor() as executor:
                     future = executor.submit(asyncio.run, self.datasource_manager.get_datasources())
-                    datasources = future.result(timeout=10)
+                    datasources = future.result(timeout=5)
             except RuntimeError:
                 # No running event loop, use asyncio.run()
                 datasources = asyncio.run(self.datasource_manager.get_datasources())
@@ -1592,7 +1592,7 @@ class ETLTableInputComponent(Component):
             )
             logger.debug(f"[TableInput] Using API URL: {api_url}")
 
-            with httpx.Client(timeout=10.0) as client:
+            with httpx.Client(timeout=5.0) as client:
                 url = f"{api_url}/api/v1/datasources/{clean_datasource_id}/connection-string"
                 logger.debug(f"[TableInput] Making request to: {url}")
 

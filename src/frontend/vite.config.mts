@@ -50,6 +50,12 @@ export default defineConfig(({ mode }) => {
     build: {
       outDir: "build",
     },
+    resolve: {
+      alias: {
+        "@": path.resolve(__dirname, "./src"),
+        "@queries": path.resolve(__dirname, "./src/controllers/API/queries"),
+      },
+    },
     define: {
       "process.env.BACKEND_URL": JSON.stringify(
         envLangflow.BACKEND_URL ?? "http://localhost:7860",
