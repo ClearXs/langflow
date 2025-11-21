@@ -1,3 +1,5 @@
+import os
+
 import i18n
 
 from lfx.custom import Component
@@ -12,6 +14,8 @@ class ListenComponent(Component):
     name = "Listen"
     beta: bool = True
     icon = "Radio"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     inputs = [
         StrInput(

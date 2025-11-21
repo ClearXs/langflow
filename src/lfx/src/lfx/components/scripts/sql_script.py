@@ -277,7 +277,16 @@ class ETLSQLScriptComponent(Component):
                 options = []
                 options_metadata = []
 
+                # SQL Script 排除 Kafka（Kafka 不支持 SQL）
+                excluded_types = {"kafka"}
+
                 for ds in all_datasources:
+                    # 过滤：排除 Kafka
+                    ds_type = ds.get("type", "").lower()
+                    if ds_type in excluded_types:
+                        logger.debug(f"[SQLScript] Skipping excluded datasource type: {ds_type} (name={ds['name']})")
+                        continue
+
                     # options 只包含ID (唯一值)
                     options.append(ds["id"])
                     # options_metadata 包含显示信息，使用 label 字段供前端显示
@@ -290,16 +299,13 @@ class ETLSQLScriptComponent(Component):
                             "type": ds["type"],
                             "source": ds["source"],
                             "display_name": ds["display_name"],
-                            "database": ds.get("database"),  # 保留 database 字段
-                            "host": ds.get("host"),
-                            "port": ds.get("port"),
                             "raw_data": ds.get("raw_data"),  # 公共数据源的原始数据
                         }
                     )
 
                 build_config["datasource_selector"]["options"] = options
                 build_config["datasource_selector"]["options_metadata"] = options_metadata
-                logger.debug(f"[SQLScript] Set datasource_selector options: {options}")
+                logger.debug(f"[SQLScript] Set datasource_selector options: {options} (excluded Kafka)")
                 logger.debug(f"[SQLScript] Set options_metadata with {len(options_metadata)} entries")
 
             except Exception as e:
@@ -591,6 +597,9 @@ class ETLSQLScriptComponent(Component):
             "postgresql": 5432,
             "hive": 10000,
             "neo4j": 7687,
+            "mongodb": 27017,
+            "clickhouse": 8123,
+            "doris": 9030,
             "oracle": 1521,
             "sqlserver": 1433,
         }
@@ -725,6 +734,12 @@ class ETLSQLScriptComponent(Component):
             return self._build_hive_connection_string(params)
         if ds_type == "neo4j":
             return self._build_neo4j_connection_string(params)
+        if ds_type == "mongodb":
+            return self._build_mongodb_connection_string(params)
+        if ds_type == "clickhouse":
+            return self._build_clickhouse_connection_string(params)
+        if ds_type == "doris":
+            return self._build_doris_connection_string(params)
         raise ValueError(f"Unsupported public datasource type: {ds_type}")
 
     def _build_postgres_connection_string(self, params: dict) -> str:
@@ -823,6 +838,61 @@ class ETLSQLScriptComponent(Component):
 
         connection_string = f"bolt://{username_encoded}:{password_encoded}@{host}:{port}"
         logger.debug(f"[SQLScript] Built Neo4j connection string: {connection_string.replace(password, '***')}")
+        return connection_string
+
+    def _build_mongodb_connection_string(self, params: dict) -> str:
+        """构建MongoDB连接字符串"""
+        from urllib.parse import quote_plus
+
+        host = params.get("host", "localhost")
+        port = params.get("port", 27017)
+        database = params.get("database", "admin")
+        username = params.get("username", "")
+        password = params.get("password", "")
+
+        username_encoded = quote_plus(username) if username else ""
+        password_encoded = quote_plus(password) if password else ""
+
+        if username and password:
+            connection_string = f"mongodb://{username_encoded}:{password_encoded}@{host}:{port}/{database}"
+        else:
+            connection_string = f"mongodb://{host}:{port}/{database}"
+
+        logger.debug(f"[SQLScript] Built MongoDB connection string: {connection_string.replace(password, '***')}")
+        return connection_string
+
+    def _build_clickhouse_connection_string(self, params: dict) -> str:
+        """构建ClickHouse连接字符串 - 使用 clickhouse-connect 驱动"""
+        from urllib.parse import quote_plus
+
+        host = params.get("host", "localhost")
+        port = params.get("port", 8123)
+        database = params.get("database", "default")
+        username = params.get("username", "default")
+        password = params.get("password", "")
+
+        username_encoded = quote_plus(username) if username else ""
+        password_encoded = quote_plus(password) if password else ""
+
+        connection_string = f"clickhouse+connect://{username_encoded}:{password_encoded}@{host}:{port}/{database}"
+        logger.debug(f"[SQLScript] Built ClickHouse connection string: {connection_string.replace(password, '***')}")
+        return connection_string
+
+    def _build_doris_connection_string(self, params: dict) -> str:
+        """构建Apache Doris连接字符串 - 使用 MySQL 协议 (pymysql)"""
+        from urllib.parse import quote_plus
+
+        host = params.get("host", "localhost")
+        port = params.get("port", 9030)
+        database = params.get("database", "")
+        username = params.get("username", "root")
+        password = params.get("password", "")
+
+        username_encoded = quote_plus(username) if username else ""
+        password_encoded = quote_plus(password) if password else ""
+
+        connection_string = f"mysql+pymysql://{username_encoded}:{password_encoded}@{host}:{port}/{database}"
+        logger.debug(f"[SQLScript] Built Doris connection string: {connection_string.replace(password, '***')}")
         return connection_string
 
     def _parse_sql_statements(self, sql_script: str, separator: str = ";") -> list[str]:
@@ -959,9 +1029,15 @@ class ETLSQLScriptComponent(Component):
         This is called during configuration to preview execution results.
         """
         try:
+            # Resolve variables in SQL script using base Component method
+            import asyncio
+
+            resolved_sql = asyncio.run(self.resolve_variables_in_template(sql_script, "sql_script"))
+            logger.debug(f"[SQLScript] SQL after variable resolution (preview): {resolved_sql[:100]}...")
+
             # Parse statements
             self.status = i18n.t("components.scripts.sql_script.status.parsing")
-            statements = self._parse_sql_statements(sql_script, statement_separator)
+            statements = self._parse_sql_statements(resolved_sql, statement_separator)
 
             if not statements:
                 logger.warning("[SQLScript] No statements to execute")
@@ -973,16 +1049,30 @@ class ETLSQLScriptComponent(Component):
             # 获取数据源信息以检测类型
             datasource_info = getattr(self, "_current_datasource_info", None)
             is_neo4j = datasource_info and datasource_info.get("type", "").lower() == "neo4j"
+            is_mongodb = datasource_info and datasource_info.get("type", "").lower() == "mongodb"
+            is_clickhouse = datasource_info and datasource_info.get("type", "").lower() == "clickhouse"
 
             logger.debug(
                 f"[SQLScript] Datasource type: {datasource_info.get('type') if datasource_info else 'unknown'}, "
-                f"is_neo4j={is_neo4j}"
+                f"is_neo4j={is_neo4j}, is_mongodb={is_mongodb}, is_clickhouse={is_clickhouse}"
             )
 
             if is_neo4j:
                 # 使用Neo4j驱动执行Cypher
                 logger.info("[SQLScript] Detected Neo4j datasource, using Neo4j driver")
                 results = self._execute_neo4j_script(connection_string, statements, enable_transaction)
+                return results
+
+            if is_mongodb:
+                # 使用pymongo驱动执行MongoDB命令
+                logger.info("[SQLScript] Detected MongoDB datasource, using pymongo driver")
+                results = self._execute_mongodb_script(connection_string, statements, enable_transaction)
+                return results
+
+            if is_clickhouse:
+                # 使用clickhouse-connect驱动执行ClickHouse查询
+                logger.info("[SQLScript] Detected ClickHouse datasource, using clickhouse-connect driver")
+                results = self._execute_clickhouse_script(connection_string, statements, enable_transaction)
                 return results
 
             # 原有的SQLAlchemy逻辑
@@ -1129,13 +1219,19 @@ class ETLSQLScriptComponent(Component):
                 logger.warning("[SQLScript] Missing datasource or SQL script")
                 raise ValueError(i18n.t("components.scripts.sql_script.errors.no_datasource"))
 
+            # Resolve variables in SQL script using base Component method
+            import asyncio
+
+            resolved_sql = asyncio.run(self.resolve_variables_in_template(self.sql_script, "sql_script"))
+            logger.debug(f"[SQLScript] SQL after variable resolution: {resolved_sql[:100]}...")
+
             # Get datasource ID
             datasource_id = self._get_datasource_id()
             logger.debug(f"[SQLScript] Using datasource ID: {datasource_id}")
 
             # Parse statements
             self.status = i18n.t("components.scripts.sql_script.status.parsing")
-            statements = self._parse_sql_statements(self.sql_script, self.statement_separator)
+            statements = self._parse_sql_statements(resolved_sql, self.statement_separator)
 
             if not statements:
                 logger.warning("[SQLScript] No statements to execute")
@@ -1156,16 +1252,62 @@ class ETLSQLScriptComponent(Component):
             # 获取数据源信息以检测类型
             datasource_info = getattr(self, "_current_datasource_info", None)
             is_neo4j = datasource_info and datasource_info.get("type", "").lower() == "neo4j"
+            is_mongodb = datasource_info and datasource_info.get("type", "").lower() == "mongodb"
+            is_clickhouse = datasource_info and datasource_info.get("type", "").lower() == "clickhouse"
 
             logger.debug(
                 f"[SQLScript] Datasource type: {datasource_info.get('type') if datasource_info else 'unknown'}, "
-                f"is_neo4j={is_neo4j}"
+                f"is_neo4j={is_neo4j}, is_mongodb={is_mongodb}, is_clickhouse={is_clickhouse}"
             )
 
             if is_neo4j:
                 # 使用Neo4j驱动执行Cypher
                 logger.info("[SQLScript] Detected Neo4j datasource, using Neo4j driver")
                 results = self._execute_neo4j_script(connection_string, statements, self.enable_transaction)
+
+                # 构建summary
+                successful_count = sum(1 for r in results if r["execution_status"] == "success")
+                failed_count = len(results) - successful_count
+                total_rows_affected = sum(r["rows_affected"] for r in results)
+
+                summary_data = {
+                    "total_statements": len(statements),
+                    "successful_statements": successful_count,
+                    "failed_statements": failed_count,
+                    "total_rows_affected": total_rows_affected,
+                    "results": results,
+                }
+
+                self.status = i18n.t("components.scripts.sql_script.status.completed", count=len(statements))
+                logger.info(f"[SQLScript] Execution complete: {successful_count} success, {failed_count} failed")
+                return Data(data=summary_data)
+
+            if is_mongodb:
+                # 使用pymongo驱动执行MongoDB命令
+                logger.info("[SQLScript] Detected MongoDB datasource, using pymongo driver")
+                results = self._execute_mongodb_script(connection_string, statements, self.enable_transaction)
+
+                # 构建summary
+                successful_count = sum(1 for r in results if r["execution_status"] == "success")
+                failed_count = len(results) - successful_count
+                total_rows_affected = sum(r["rows_affected"] for r in results)
+
+                summary_data = {
+                    "total_statements": len(statements),
+                    "successful_statements": successful_count,
+                    "failed_statements": failed_count,
+                    "total_rows_affected": total_rows_affected,
+                    "results": results,
+                }
+
+                self.status = i18n.t("components.scripts.sql_script.status.completed", count=len(statements))
+                logger.info(f"[SQLScript] Execution complete: {successful_count} success, {failed_count} failed")
+                return Data(data=summary_data)
+
+            if is_clickhouse:
+                # 使用clickhouse-connect驱动执行ClickHouse查询
+                logger.info("[SQLScript] Detected ClickHouse datasource, using clickhouse-connect driver")
+                results = self._execute_clickhouse_script(connection_string, statements, self.enable_transaction)
 
                 # 构建summary
                 successful_count = sum(1 for r in results if r["execution_status"] == "success")
@@ -1412,3 +1554,303 @@ class ETLSQLScriptComponent(Component):
         if stmt_upper.startswith(("CREATE CONSTRAINT", "DROP CONSTRAINT", "CREATE INDEX", "DROP INDEX")):
             return "DDL"  # Schema操作
         return "OTHER"
+
+    def _execute_mongodb_script(
+        self, connection_string: str, statements: list[str], enable_transaction: bool
+    ) -> list[dict]:
+        """执行MongoDB脚本"""
+        # 解析MongoDB连接字符串
+        # Format: mongodb://[username:password@]host:port/database
+        import re
+
+        from pymongo import MongoClient
+
+        match = re.match(r"mongodb://(?:([^:]+):([^@]+)@)?([^:]+):(\d+)/(.+)", connection_string)
+        if not match:
+            raise ValueError(f"Invalid MongoDB connection string: {connection_string}")
+
+        username, password, host, port, database = match.groups()
+        if username:
+            username = unquote(username)
+        if password:
+            password = unquote(password)
+
+        # 构建连接参数
+        mongo_params = {
+            "host": host,
+            "port": int(port),
+        }
+        if username and password:
+            mongo_params["username"] = username
+            mongo_params["password"] = password
+
+        client = MongoClient(**mongo_params)
+
+        results = []
+        try:
+            db = client[database]
+
+            # MongoDB不支持传统事务（仅在副本集/分片集群中支持），这里简化处理
+            for idx, stmt in enumerate(statements, 1):
+                result = self._execute_mongodb_statement(db, stmt, idx, len(statements))
+                results.append(result)
+                if result["execution_status"] == "failed" and not self.continue_on_error:
+                    break
+        finally:
+            client.close()
+
+        return results
+
+    def _execute_mongodb_statement(self, db, statement: str, index: int, total: int) -> dict:
+        """执行单条MongoDB命令
+
+        支持的MongoDB命令格式:
+        1. JSON格式查询: {"collection": "users", "operation": "find", "filter": {"age": {"$gt": 18}}}
+        2. JSON格式插入: {"collection": "users", "operation": "insertOne", "document": {"name": "John", "age": 30}}
+        3. JSON格式更新: {"collection": "users", "operation": "updateMany", "filter": {}, "update": {"$set": {"status": "active"}}}
+        4. JSON格式删除: {"collection": "users", "operation": "deleteMany", "filter": {"age": {"$lt": 18}}}
+        5. 聚合查询: {"collection": "users", "operation": "aggregate", "pipeline": [{"$match": {"age": {"$gt": 18}}}, {"$group": {"_id": "$city", "count": {"$sum": 1}}}]}
+        """
+        try:
+            import json
+
+            stmt_type = self._classify_mongodb_statement(statement)
+            logger.debug(f"[SQLScript] Executing MongoDB statement {index}/{total} ({stmt_type})")
+
+            # 解析 JSON 格式的 MongoDB 命令
+            try:
+                cmd = json.loads(statement)
+            except json.JSONDecodeError as e:
+                raise ValueError(f"Invalid JSON format for MongoDB command: {e}") from e
+
+            collection_name = cmd.get("collection")
+            if not collection_name:
+                raise ValueError("MongoDB command must specify 'collection' field")
+
+            operation = cmd.get("operation", "find")
+            collection = db[collection_name]
+
+            query_data = []
+            rows_affected = 0
+
+            # 执行不同的操作
+            if operation == "find":
+                # 查询操作
+                mongo_filter = cmd.get("filter", {})
+                projection = cmd.get("projection")
+                sort = cmd.get("sort")
+                limit = cmd.get("limit", 1000)
+
+                cursor = collection.find(mongo_filter, projection)
+                if sort:
+                    cursor = cursor.sort(list(sort.items()))
+                cursor = cursor.limit(limit)
+
+                # 转换为可序列化的格式
+                for doc in cursor:
+                    # 转换 ObjectId 为字符串
+                    if "_id" in doc:
+                        doc["_id"] = str(doc["_id"])
+                    query_data.append(doc)
+                rows_affected = len(query_data)
+
+            elif operation == "insertOne":
+                # 插入单个文档
+                document = cmd.get("document", {})
+                result = collection.insert_one(document)
+                rows_affected = 1 if result.inserted_id else 0
+
+            elif operation == "insertMany":
+                # 插入多个文档
+                documents = cmd.get("documents", [])
+                result = collection.insert_many(documents)
+                rows_affected = len(result.inserted_ids)
+
+            elif operation == "updateOne":
+                # 更新单个文档
+                mongo_filter = cmd.get("filter", {})
+                update = cmd.get("update", {})
+                result = collection.update_one(mongo_filter, update)
+                rows_affected = result.modified_count
+
+            elif operation == "updateMany":
+                # 更新多个文档
+                mongo_filter = cmd.get("filter", {})
+                update = cmd.get("update", {})
+                result = collection.update_many(mongo_filter, update)
+                rows_affected = result.modified_count
+
+            elif operation == "replaceOne":
+                # 替换单个文档
+                mongo_filter = cmd.get("filter", {})
+                replacement = cmd.get("replacement", {})
+                result = collection.replace_one(mongo_filter, replacement)
+                rows_affected = result.modified_count
+
+            elif operation == "deleteOne":
+                # 删除单个文档
+                mongo_filter = cmd.get("filter", {})
+                result = collection.delete_one(mongo_filter)
+                rows_affected = result.deleted_count
+
+            elif operation == "deleteMany":
+                # 删除多个文档
+                mongo_filter = cmd.get("filter", {})
+                result = collection.delete_many(mongo_filter)
+                rows_affected = result.deleted_count
+
+            elif operation == "aggregate":
+                # 聚合查询
+                pipeline = cmd.get("pipeline", [])
+                cursor = collection.aggregate(pipeline)
+                for doc in cursor:
+                    # 转换 ObjectId 为字符串
+                    if "_id" in doc and hasattr(doc["_id"], "__str__"):
+                        doc["_id"] = str(doc["_id"])
+                    query_data.append(doc)
+                rows_affected = len(query_data)
+
+            elif operation == "countDocuments":
+                # 计数文档
+                mongo_filter = cmd.get("filter", {})
+                count = collection.count_documents(mongo_filter)
+                rows_affected = count
+                query_data = [{"count": count}]
+
+            else:
+                raise ValueError(f"Unsupported MongoDB operation: {operation}")
+
+            return {
+                "statement_index": index,
+                "statement_type": stmt_type,
+                "rows_affected": rows_affected,
+                "execution_status": "success",
+                "error_message": "",
+                "query_data": query_data,
+            }
+        except Exception as e:
+            logger.error(f"[SQLScript] MongoDB statement {index} failed: {e}")
+            return {
+                "statement_index": index,
+                "statement_type": self._classify_mongodb_statement(statement),
+                "rows_affected": 0,
+                "execution_status": "failed",
+                "error_message": str(e),
+                "query_data": [],
+            }
+
+    def _classify_mongodb_statement(self, statement: str) -> str:
+        """分类MongoDB语句类型"""
+        try:
+            import json
+
+            cmd = json.loads(statement.strip())
+            operation = cmd.get("operation", "find")
+
+            # 查询操作
+            if operation in ["find", "aggregate", "countDocuments"]:
+                return "DQL"
+            # 数据操作
+            if operation in [
+                "insertOne",
+                "insertMany",
+                "updateOne",
+                "updateMany",
+                "replaceOne",
+                "deleteOne",
+                "deleteMany",
+            ]:
+                return "DML"
+            # Schema操作
+            if operation in ["createCollection", "dropCollection", "createIndex", "dropIndex"]:
+                return "DDL"
+            return "OTHER"
+        except (json.JSONDecodeError, KeyError):
+            # 如果不是有效的JSON或缺少operation字段，尝试从文本判断
+            stmt = statement.strip().lower()
+            if "find" in stmt or "aggregate" in stmt:
+                return "DQL"
+            if "insert" in stmt or "update" in stmt or "delete" in stmt or "replace" in stmt:
+                return "DML"
+            if "createcollection" in stmt or "dropcollection" in stmt or "createindex" in stmt:
+                return "DDL"
+            return "OTHER"
+
+    def _execute_clickhouse_script(
+        self, connection_string: str, statements: list[str], enable_transaction: bool
+    ) -> list[dict]:
+        """执行ClickHouse脚本"""
+        import clickhouse_connect
+
+        # 解析ClickHouse连接字符串
+        # Format: clickhouse+connect://username:password@host:port/database
+        # 密码可以为空：clickhouse+connect://username:@host:port/database
+        match = re.match(r"clickhouse\+connect://([^:]+):([^@]*)@([^:]+):(\d+)/(.+)", connection_string)
+        if not match:
+            raise ValueError(f"Invalid ClickHouse connection string: {connection_string}")
+
+        username, password, host, port, database = match.groups()
+        username = unquote(username)
+        password = unquote(password) if password else ""  # 空密码处理
+
+        # 创建ClickHouse客户端
+        client = clickhouse_connect.get_client(
+            host=host, port=int(port), username=username, password=password, database=database
+        )
+
+        results = []
+        try:
+            # ClickHouse不支持传统ACID事务，这里简化处理
+            for idx, stmt in enumerate(statements, 1):
+                result = self._execute_clickhouse_statement(client, stmt, idx, len(statements))
+                results.append(result)
+                if result["execution_status"] == "failed" and not self.continue_on_error:
+                    break
+        finally:
+            client.close()
+
+        return results
+
+    def _execute_clickhouse_statement(self, client, statement: str, index: int, total: int) -> dict:
+        """执行单条ClickHouse语句"""
+        try:
+            stmt_type = self._classify_statement_type(statement)  # 使用通用SQL分类
+            logger.debug(f"[SQLScript] Executing ClickHouse statement {index}/{total} ({stmt_type})")
+
+            # 执行查询
+            result = client.query(statement)
+
+            query_data = []
+            rows_affected = 0
+
+            if stmt_type == "DQL":
+                # SELECT查询 - 获取结果数据
+                if result.result_rows:
+                    # 转换为字典列表
+                    column_names = result.column_names
+                    for row in result.result_rows:
+                        row_dict = dict(zip(column_names, row, strict=False))
+                        query_data.append(row_dict)
+                    rows_affected = len(query_data)
+            else:
+                # DML/DDL - 获取影响行数
+                rows_affected = result.summary.get("written_rows", 0) if hasattr(result, "summary") else 0
+
+            return {
+                "statement_index": index,
+                "statement_type": stmt_type,
+                "rows_affected": rows_affected,
+                "execution_status": "success",
+                "error_message": "",
+                "query_data": query_data,
+            }
+        except Exception as e:
+            logger.error(f"[SQLScript] ClickHouse statement {index} failed: {e}")
+            return {
+                "statement_index": index,
+                "statement_type": self._classify_statement_type(statement),
+                "rows_affected": 0,
+                "execution_status": "failed",
+                "error_message": str(e),
+                "query_data": [],
+            }

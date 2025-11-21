@@ -446,8 +446,20 @@ class CustomComponent(BaseComponent):
         async with session_scope() as session:
             return await self.get_variable(name, field, session)
 
-    async def get_variable(self, name: str, field: str, session):
+    async def get_variable(self, name: str, field: str, session, flow_id: str | None = None):
         """Returns the variable for the current user with the specified name.
+
+        Variable resolution priority (highest to lowest):
+        1. Runtime variables (from graph context)
+        2. Request variables (from HTTP headers)
+        3. System variables
+        4. User global variables (from database)
+
+        Args:
+            name: Variable name to retrieve
+            field: Field name where the variable is used
+            session: Database session
+            flow_id: Optional flow ID for flow-specific system variables
 
         Raises:
             ValueError: If the user id is not set.
@@ -459,14 +471,20 @@ class CustomComponent(BaseComponent):
             msg = f"User id is not set for {self.__class__.__name__}"
             raise ValueError(msg)
 
-        # Check graph context for request-level variable overrides first
+        # Extract runtime_variables from graph context
+        runtime_variables = None
         if hasattr(self, "graph") and self.graph and hasattr(self.graph, "context"):
             context = self.graph.context
-            if context and "request_variables" in context:
-                request_variables = context["request_variables"]
-                if name in request_variables:
-                    logger.debug(f"Found context override for variable '{name}': {request_variables[name]}")
-                    return request_variables[name]
+            if context:
+                # Check for runtime_variables (highest priority)
+                runtime_variables = context.get("runtime_variables")
+
+                # Backward compatibility: check for request_variables from HTTP headers
+                if not runtime_variables and "request_variables" in context:
+                    request_variables = context["request_variables"]
+                    if name in request_variables:
+                        logger.debug(f"Found context override for variable '{name}': {request_variables[name]}")
+                        return request_variables[name]
 
         variable_service = get_variable_service()  # Get service instance
         # Retrieve and decrypt the variable by name for the current user
@@ -477,7 +495,14 @@ class CustomComponent(BaseComponent):
         else:
             msg = f"Invalid user id: {self.user_id}"
             raise TypeError(msg)
-        return await variable_service.get_variable(user_id=user_id, name=name, field=field, session=session)
+        return await variable_service.get_variable(
+            user_id=user_id,
+            name=name,
+            field=field,
+            session=session,
+            flow_id=flow_id,
+            runtime_variables=runtime_variables,
+        )
 
     async def list_key_names(self):
         """Lists the names of the variables for the current user.

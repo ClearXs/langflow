@@ -1,0 +1,26 @@
+{
+  "tasks": {
+    "task_created": "任务创建成功",
+    "task_updated": "任务更新成功",
+    "task_deleted": "任务删除成功",
+    "task_not_found": "任务不存在",
+    "flow_not_found": "流程不存在或无权访问",
+    "access_denied": "无权访问此任务",
+    "status": {
+      "running": "运行中",
+      "success": "成功",
+      "error": "失败",
+      "pending": "待处理"
+    },
+    "labels": {
+      "total_components": "总组件数",
+      "success_components": "成功",
+      "error_components": "失败",
+      "data_rows": "数据行数",
+      "data_size": "数据大小 (MB)",
+      "duration": "执行时长 (ms)",
+      "memory": "内存使用 (MB)",
+      "exchanges": "数据交换次数"
+    }
+  }
+}

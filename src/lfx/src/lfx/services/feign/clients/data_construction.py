@@ -177,6 +177,117 @@ class DataConstructionFeignClient:
             logger.exception(f"[DataConstructionClient] {error_msg}")
             raise ValueError(error_msg) from e
 
+    async def get_metadata_task_list(self, query: dict | None = None) -> list[dict]:
+        """Get metadata collection task list.
+
+        Args:
+            query: Optional query parameters
+                - datasourceId (int): Datasource ID
+                - taskName (str): Task name
+                - scheduleType (str): Schedule type
+                - status (int): Task status
+
+        Returns:
+            List of metadata task dictionaries
+
+        Raises:
+            ValueError: Failed to get metadata task list
+        """
+        try:
+            params = query or {}
+
+            logger.info(f"[DataConstructionClient] Getting metadata task list with params: {params}")
+
+            response = await self.feign_service.get(
+                service_name=self.SERVICE_NAME,
+                path="/metadata-task/getList",
+                params=params,
+            )
+
+            response_data = response.json()
+            logger.debug(f"[DataConstructionClient] Metadata task list response: {response_data}")
+
+            # Handle R<List<MetadataTaskVO>> response structure
+            if isinstance(response_data, dict):
+                if "data" in response_data:
+                    task_list = response_data["data"]
+                    logger.info(f"[DataConstructionClient] Got {len(task_list)} metadata tasks")
+                    return task_list if isinstance(task_list, list) else []
+                if isinstance(response_data, list):
+                    logger.info(f"[DataConstructionClient] Got {len(response_data)} metadata tasks")
+                    return response_data
+                logger.warning(f"[DataConstructionClient] Unexpected response format: {response_data}")
+                return []
+            if isinstance(response_data, list):
+                logger.info(f"[DataConstructionClient] Got {len(response_data)} metadata tasks")
+                return response_data
+            logger.warning(f"[DataConstructionClient] Unexpected response type: {type(response_data)}")
+            return []
+
+        except ValueError as e:
+            # Handle Nacos service not found
+            if "No healthy instances found" in str(e):
+                logger.warning(
+                    f"[DataConstructionClient] Service {self.SERVICE_NAME} not found in Nacos. "
+                    "This might be normal if the service is not deployed."
+                )
+                return []
+            error_msg = f"Failed to get metadata task list: {e}"
+            logger.exception(f"[DataConstructionClient] {error_msg}")
+            raise ValueError(error_msg) from e
+        except Exception as e:
+            error_msg = f"Failed to get metadata task list: {e}"
+            logger.exception(f"[DataConstructionClient] {error_msg}")
+            raise ValueError(error_msg) from e
+
+    async def execute_metadata_task_immediately(self, task_id: int) -> dict:
+        """Execute metadata collection task immediately.
+
+        Args:
+            task_id: Metadata task ID to execute
+
+        Returns:
+            Execution result dictionary with keys:
+                - success (bool): True if execution succeeded
+                - message (str): Result message from API
+
+        Raises:
+            ValueError: Execution failed
+        """
+        try:
+            logger.info(f"[DataConstructionClient] Executing metadata task immediately: {task_id}")
+
+            response = await self.feign_service.get(
+                service_name=self.SERVICE_NAME,
+                path="/metadata-task/executeImmediately",
+                params={"id": task_id},
+            )
+
+            response_data = response.json()
+
+            # Handle R<Boolean> response structure
+            if isinstance(response_data, dict):
+                success = response_data.get("success", False)
+                message = response_data.get("msg", "Unknown response")
+
+                if success:
+                    logger.info(f"[DataConstructionClient] Metadata task {task_id} executed: {message}")
+                    return {"success": True, "message": message}
+
+                logger.warning(f"[DataConstructionClient] Metadata task {task_id} execution failed: {message}")
+                return {"success": False, "message": message}
+
+            # Unexpected response format
+            msg = f"Unexpected response format: {response_data}"
+            raise ValueError(msg)
+
+        except Exception as e:
+            if isinstance(e, ValueError):
+                raise
+            error_msg = f"Failed to execute metadata task {task_id}: {e}"
+            logger.exception(f"[DataConstructionClient] {error_msg}")
+            raise ValueError(error_msg) from e
+
 
 # ============= Convenience Functions =============
 

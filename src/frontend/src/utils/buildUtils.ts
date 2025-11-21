@@ -46,6 +46,7 @@ type BuildVerticesParams = {
   session?: string;
   playgroundPage?: boolean;
   eventDelivery: EventDeliveryType;
+  runtimeVariables?: Record<string, string>;
 };
 
 function getInactiveVertexData(vertexId: string): VertexBuildTypeAPI {
@@ -270,6 +271,7 @@ export async function buildFlowVertices({
   session,
   playgroundPage,
   eventDelivery,
+  runtimeVariables,
 }: BuildVerticesParams) {
   const inputs = {};
 
@@ -328,6 +330,13 @@ export async function buildFlowVertices({
   if (session) {
     inputs["session"] = session;
   }
+
+  // Add runtime_variables to inputs if provided
+  if (runtimeVariables && Object.keys(runtimeVariables).length > 0) {
+    inputs["runtime_variables"] = runtimeVariables;
+    console.log("[buildUtils] Adding runtime variables:", runtimeVariables);
+  }
+
   if (Object.keys(inputs).length > 0) {
     postData["inputs"] = inputs;
   }

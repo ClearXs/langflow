@@ -1,3 +1,4 @@
+import os
 from typing import cast
 
 import i18n
@@ -12,7 +13,8 @@ class NotifyComponent(Component):
     description = i18n.t("components.logic.notify.description")
     icon = "Notify"
     name = "Notify"
-    beta: bool = True
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     inputs = [
         StrInput(

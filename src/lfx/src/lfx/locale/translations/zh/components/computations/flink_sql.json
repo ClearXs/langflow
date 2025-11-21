@@ -9,6 +9,10 @@
     "display_name": "执行模式",
     "info": "选择流式(streaming)或批处理(batch)执行模式"
   },
+  "custom_functions": {
+    "display_name": "自定义函数",
+    "info": "选择需要在 SQL 中使用的自定义函数 (UDF/UDTF/UDAF)"
+  },
   "sql_script": {
     "display_name": "SQL 脚本",
     "info": "输入 Flink SQL 语句(支持多条语句，用分号分隔)"

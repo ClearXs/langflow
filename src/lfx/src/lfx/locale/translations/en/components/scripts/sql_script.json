@@ -7,7 +7,7 @@
   },
   "sql_script": {
     "display_name": "SQL Script",
-    "info": "Enter SQL statements (DDL, DML, or DQL). Multiple statements can be separated by semicolons."
+    "info": "Enter SQL statements (DDL, DML, or DQL). Multiple statements can be separated by semicolons.\n\nFor MongoDB datasources, use JSON format:\n• Query: {\"collection\": \"users\", \"operation\": \"find\", \"filter\": {\"age\": {\"$gt\": 18}}}\n• Insert: {\"collection\": \"users\", \"operation\": \"insertOne\", \"document\": {\"name\": \"John\"}}\n• Update: {\"collection\": \"users\", \"operation\": \"updateMany\", \"filter\": {}, \"update\": {\"$set\": {\"status\": \"active\"}}}\n• Delete: {\"collection\": \"users\", \"operation\": \"deleteMany\", \"filter\": {\"age\": {\"$lt\": 18}}}"
   },
   "enable_transaction": {
     "display_name": "Enable Transaction",

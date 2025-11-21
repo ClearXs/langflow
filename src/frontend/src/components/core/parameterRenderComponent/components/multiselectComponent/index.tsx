@@ -1,6 +1,9 @@
 import Fuse from "fuse.js";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { mutateTemplate } from "../../../../../CustomNodes/helpers/mutate-template";
+import { usePostTemplateValue } from "../../../../../controllers/API/queries/nodes/use-post-template-value";
+import useAlertStore from "../../../../../stores/alertStore";
 import { cn } from "../../../../../utils/utils";
 import { default as ForwardedIconComponent } from "../../../../common/genericIconComponent";
 import ShadTooltip from "../../../../common/shadTooltipComponent";
@@ -28,6 +31,13 @@ export default function MultiselectComponent({
   combobox,
   editNode = false,
   id = "",
+  hasRefreshButton,
+  actionButton,
+  name = "",
+  nodeId,
+  nodeClass,
+  handleNodeClass,
+  ...baseInputProps
 }: InputProps<string[], MultiselectComponentType>): JSX.Element {
   const { t } = useTranslation();
 
@@ -50,6 +60,14 @@ export default function MultiselectComponent({
   const fuseOptions = new Fuse(options, { keys: ["name", "value"] });
   const fuseValues = new Fuse(treatedValue, { keys: ["name", "value"] });
 
+  // API hooks for refresh button
+  const postTemplateValue = usePostTemplateValue({
+    parameterId: name,
+    nodeId: nodeId,
+    node: nodeClass,
+  });
+  const setErrorData = useAlertStore((state) => state.setErrorData);
+
   const searchRoleByTerm = async (v: string) => {
     const fuse = onlySelected ? fuseValues : fuseOptions;
     const searchValues = fuse.search(v);
@@ -61,6 +79,41 @@ export default function MultiselectComponent({
         : onlySelected
           ? options.filter((x) => treatedValue.includes(x))
           : options,
+    );
+  };
+
+  const handleRefreshButtonPress = async () => {
+    if (!nodeId || !nodeClass || !handleNodeClass) return;
+
+    await mutateTemplate(
+      value,
+      nodeId,
+      nodeClass,
+      handleNodeClass,
+      postTemplateValue,
+      setErrorData,
+      name,
+      undefined,
+      undefined,
+      "refresh",
+    );
+  };
+
+  const handleActionButtonPress = async () => {
+    if (!actionButton || !actionButton.action) return;
+    if (!nodeId || !nodeClass || !handleNodeClass) return;
+
+    await mutateTemplate(
+      value,
+      nodeId,
+      nodeClass,
+      handleNodeClass,
+      postTemplateValue,
+      setErrorData,
+      name,
+      undefined,
+      undefined,
+      actionButton.action,
     );
   };
 
@@ -220,6 +273,50 @@ export default function MultiselectComponent({
         <Command>
           {renderSearchInput()}
           {renderOptionsList()}
+          {(hasRefreshButton || actionButton) && (
+            <div className="sticky bottom-0 border-t bg-background">
+              {hasRefreshButton && (
+                <CommandItem className="flex cursor-pointer items-center justify-start gap-2 truncate rounded-b-md py-3 text-xs font-semibold text-muted-foreground">
+                  <Button
+                    className="w-full"
+                    unstyled
+                    data-testid={`refresh-multiselect-list-${name}`}
+                    onClick={() => {
+                      handleRefreshButtonPress();
+                    }}
+                  >
+                    <div className="flex items-center gap-2 pl-1">
+                      <ForwardedIconComponent
+                        name="RefreshCcw"
+                        className={cn("refresh-icon h-3 w-3 text-primary")}
+                      />
+                      {t("dropdown.refreshList")}
+                    </div>
+                  </Button>
+                </CommandItem>
+              )}
+              {actionButton && (
+                <CommandItem className="flex cursor-pointer items-center justify-start gap-2 truncate rounded-b-md py-3 text-xs font-semibold text-muted-foreground">
+                  <Button
+                    className="w-full"
+                    unstyled
+                    data-testid={`action-multiselect-${name}`}
+                    onClick={() => {
+                      handleActionButtonPress();
+                    }}
+                  >
+                    <div className="flex items-center gap-2 pl-1">
+                      <ForwardedIconComponent
+                        name={actionButton.icon || "Plus"}
+                        className={cn("h-3 w-3")}
+                      />
+                      {actionButton.label}
+                    </div>
+                  </Button>
+                </CommandItem>
+              )}
+            </div>
+          )}
         </Command>
       </PopoverContentDropdown>
     </Popover>

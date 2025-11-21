@@ -1,0 +1,27 @@
+{
+  "flow_name_selected": {
+    "display_name": "流程名称",
+    "info": "要运行的流程名称。"
+  },
+  "session_id": {
+    "display_name": "会话ID",
+    "info": "运行流程的会话ID。"
+  },
+  "outputs": {
+    "flow_outputs_data": {
+      "display_name": "流程数据输出"
+    },
+    "flow_outputs_dataframe": {
+      "display_name": "流程数据框输出"
+    },
+    "flow_outputs_message": {
+      "display_name": "流程消息输出"
+    }
+  },
+  "errors": {
+    "flow_not_found": "未找到流程'%{flow}'",
+    "no_valid_flow": "未选择有效的流程JSON或流程名称。",
+    "update_build_config_failed": "从图形更新构建配置时出错：%{error}"
+  },
+  "tool_description": "用于执行流程'%{flow}'的工具。流程详情：%{description}。"
+}

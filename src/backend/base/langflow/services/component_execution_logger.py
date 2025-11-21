@@ -31,6 +31,7 @@ if TYPE_CHECKING:
 # 全局信号量，限制并发数据库连接数（避免连接池耗尽）
 _db_semaphore = asyncio.Semaphore(10)
 
+
 class ComponentExecutionLogger:
     """通用组件执行日志记录器
 
@@ -72,20 +73,20 @@ class ComponentExecutionLogger:
 
         # 导入MetadataExtractor（延迟导入避免循环依赖）
         from langflow.services.metadata_extractors import get_metadata_extractor
+
         self.metadata_extractor = get_metadata_extractor(vertex)
 
     async def log_pre_execution(self) -> None:
-        """执行前钩子：记录开始状态（完全非阻塞）
+        """执行前钩子：记录开始状态（同步保存，后台丰富）
 
         在组件执行前调用，记录：
         - 组件基本信息（名称、类型、类名）
         - 执行开始时间
         - 初始内存使用
 
-        完全非阻塞策略：
-        - 使用预生成的UUID作为transaction_id
-        - 所有数据库操作都在后台执行
-        - 立即返回，不等待任何数据库操作
+        策略改进：
+        - 立即保存基础transaction（确保run_id被记录）
+        - 后台异步丰富metadata（不阻塞主流程）
         """
         # 如果 flow_id 无效，跳过日志记录
         if self.flow_id is None:
@@ -98,6 +99,7 @@ class ComponentExecutionLogger:
 
             # 🔵 关键改进：预生成transaction_id，不依赖数据库
             from uuid import uuid4
+
             self.transaction_id = uuid4()
 
             # 提取组件参数（同步操作，不耗时）
@@ -112,14 +114,38 @@ class ComponentExecutionLogger:
                     "component_class": self.vertex.vertex_type,
                     "execution_start_time": self.start_time.isoformat(),
                     "flow_id": str(self.flow_id),
-                }
+                },
             }
 
             # 创建transaction记录（使用预生成的ID）
             from langflow.services.database.models.transactions.model import TransactionTable
+
+            # Get run_id from graph if available
+            run_id = None
+            if self.vertex.graph:
+                try:
+                    # Access _run_id directly to avoid ValueError if not set
+                    run_id = getattr(self.vertex.graph, "_run_id", None)
+                    if run_id:
+                        logger.debug(f"[ComponentLogger] Got run_id from graph._run_id: {run_id}")
+                except Exception as e:
+                    logger.warning(f"[ComponentLogger] Failed to get _run_id: {e}")
+                    # Fallback: try the property (may raise ValueError)
+                    try:
+                        run_id = self.vertex.graph.run_id
+                        logger.debug(f"[ComponentLogger] Got run_id from graph.run_id property: {run_id}")
+                    except (ValueError, AttributeError) as e2:
+                        logger.warning(f"[ComponentLogger] Failed to get run_id property: {e2}")
+
+            if not run_id:
+                logger.warning(
+                    f"[ComponentLogger] run_id is None for vertex {self.vertex.id}, graph: {self.vertex.graph}"
+                )
+
             transaction = TransactionTable(
                 id=self.transaction_id,  # 使用预生成的ID
                 flow_id=self.flow_id,
+                run_id=run_id,  # 添加 run_id
                 vertex_id=self.vertex.id,
                 target_id=None,
                 inputs=inputs_json,
@@ -127,13 +153,14 @@ class ComponentExecutionLogger:
                 status="running",
             )
 
-            # 🔵 完全非阻塞：所有操作都在后台执行
-            task = asyncio.create_task(
-                self._save_and_enrich_transaction_background(transaction, component_params)
-            )
-            task.add_done_callback(self._task_error_handler)
+            # 🔵 策略改进：立即保存transaction（同步），后台丰富metadata（异步）
+            # Step 1: Immediately save basic transaction to ensure run_id is recorded
+            await self._save_transaction_immediately(transaction)
+            logger.debug(f"[ComponentLogger] Saved transaction {self.transaction_id} with run_id={run_id}")
 
-            logger.debug(f"Created transaction {self.transaction_id} for {self.vertex.display_name} (non-blocking)")
+            # Step 2: Enrich metadata in background (non-blocking)
+            task = asyncio.create_task(self._enrich_input_metadata_background(self.transaction_id, component_params))
+            task.add_done_callback(self._task_error_handler)
 
         except Exception as e:
             # 日志记录失败不应阻断组件执行
@@ -146,7 +173,7 @@ class ComponentExecutionLogger:
         artifacts: dict | None = None,
         error: Exception | None = None,
     ) -> None:
-        """执行后钩子：记录结果和性能指标（完全非阻塞）
+        """执行后钩子：记录结果和性能指标（同步更新，后台丰富）
 
         在组件执行后调用，记录：
         - 执行结束时间和时长
@@ -154,9 +181,9 @@ class ComponentExecutionLogger:
         - 输出数据元信息（根据组件类型）
         - 错误信息（如果失败）
 
-        完全非阻塞策略：
-        - 所有数据库操作都在后台执行
-        - 立即返回，不等待任何数据库操作
+        策略改进：
+        - 立即更新transaction状态（确保状态被记录）
+        - 后台异步丰富metadata（不阻塞主流程）
 
         Args:
             status: 执行状态 ("success" | "error")
@@ -187,7 +214,7 @@ class ComponentExecutionLogger:
                     "execution_duration_ms": duration_ms,
                     "memory_usage_mb": memory_delta_mb,
                     "status_detail": status,
-                }
+                },
             }
 
             update_data = {
@@ -196,15 +223,16 @@ class ComponentExecutionLogger:
                 "error": str(error) if error else None,
             }
 
-            # 🔵 完全非阻塞：所有操作都在后台执行（包括状态更新）
+            # 🔵 策略改进：立即更新transaction状态（同步），后台丰富metadata（异步）
+            # Step 1: Immediately update transaction status
+            await self._update_transaction_status_immediately(self.transaction_id, update_data)
+            logger.debug(f"[ComponentLogger] Updated transaction {self.transaction_id} status to {status}")
+
+            # Step 2: Enrich metadata in background (non-blocking)
             task = asyncio.create_task(
-                self._update_and_enrich_transaction_background(
-                    self.transaction_id, update_data, results, artifacts
-                )
+                self._enrich_transaction_metadata_background(self.transaction_id, results, artifacts)
             )
             task.add_done_callback(self._task_error_handler)
-
-            logger.debug(f"Updating transaction {self.transaction_id} for {self.vertex.display_name} (non-blocking)")
 
         except Exception as e:
             # 日志记录失败不应阻断组件执行
@@ -324,7 +352,7 @@ class ComponentExecutionLogger:
                     "_metadata": {
                         **transaction.inputs["_metadata"],
                         **input_metadata,  # 添加提取的输入元信息
-                    }
+                    },
                 }
                 transaction.inputs = enriched_inputs
 
@@ -416,7 +444,9 @@ class ComponentExecutionLogger:
                                     value = {"error": "Serialization failed", "original_type": str(type(value))}
                             setattr(transaction, key, value)
                         await session.commit()
-                        logger.debug(f"Immediately updated transaction {transaction_id} status for {self.vertex.display_name}")
+                        logger.debug(
+                            f"Immediately updated transaction {transaction_id} status for {self.vertex.display_name}"
+                        )
             except Exception as e:
                 logger.error(f"Failed to immediately update transaction {transaction_id}: {e}")
 
@@ -506,6 +536,7 @@ class ComponentExecutionLogger:
                 except Exception as e:
                     logger.error(f"[METADATA_DEBUG] Failed to extract output metadata in background: {e}")
                     import traceback
+
                     logger.error(f"[METADATA_DEBUG] Traceback: {traceback.format_exc()}")
 
                 # 🔵 后台操作2：丰富outputs JSON
@@ -540,12 +571,17 @@ class ComponentExecutionLogger:
                                     # Recursively convert non-serializable objects
                                     value = self._make_json_serializable(value)
                                 except Exception as serialization_error:
-                                    logger.warning(f"Failed to serialize {key} for transaction {transaction_id}: {serialization_error}")
+                                    logger.warning(
+                                        f"Failed to serialize {key} for transaction {transaction_id}: "
+                                        f"{serialization_error}"
+                                    )
                                     # Set a safe fallback value
                                     value = {"error": "Serialization failed", "original_type": str(type(value))}
                             setattr(transaction, key, value)
                         await session.commit()
-                        logger.debug(f"Background task updated transaction {transaction_id} for {self.vertex.display_name}")
+                        logger.debug(
+                            f"Background task updated transaction {transaction_id} for {self.vertex.display_name}"
+                        )
             except Exception as e:
                 logger.error(f"Failed to update and enrich transaction {transaction_id}: {e}")
 
@@ -580,7 +616,10 @@ class ComponentExecutionLogger:
                                     # Recursively convert non-serializable objects
                                     value = self._make_json_serializable(value)
                                 except Exception as serialization_error:
-                                    logger.warning(f"Failed to serialize {key} for transaction {transaction_id}: {serialization_error}")
+                                    logger.warning(
+                                        f"Failed to serialize {key} for transaction {transaction_id}: "
+                                        f"{serialization_error}"
+                                    )
                                     # Set a safe fallback value
                                     value = {"error": "Serialization failed", "original_type": str(type(value))}
                             setattr(transaction, key, value)
@@ -618,7 +657,12 @@ class ComponentExecutionLogger:
             return "etl_operation"
 
         # Langflow原生组件判断
-        if "model" in component_class or "llm" in component_class or "openai" in component_class or "anthropic" in component_class:
+        if (
+            "model" in component_class
+            or "llm" in component_class
+            or "openai" in component_class
+            or "anthropic" in component_class
+        ):
             return "model"
         if "agent" in component_class:
             return "agent"
@@ -702,29 +746,23 @@ class ComponentExecutionLogger:
         if isinstance(obj, (list, tuple)):
             return [self._make_json_serializable(item) for item in obj]
         if isinstance(obj, dict):
-            return {
-                str(key): self._make_json_serializable(value)
-                for key, value in obj.items()
-            }
+            return {str(key): self._make_json_serializable(value) for key, value in obj.items()}
         if hasattr(obj, "__dict__"):
             # 尝试序列化有__dict__的对象
             try:
                 return {
                     "_type": type(obj).__name__,
                     "_module": type(obj).__module__,
-                    "_data": self._make_json_serializable(obj.__dict__)
+                    "_data": self._make_json_serializable(obj.__dict__),
                 }
             except Exception:
-                return {
-                    "_type": type(obj).__name__,
-                    "_module": type(obj).__module__,
-                    "_repr": str(obj)
-                }
+                return {"_type": type(obj).__name__, "_module": type(obj).__module__, "_repr": str(obj)}
         else:
             # 对于其他类型，尝试转换为字符串
             try:
                 # 尝试JSON序列化来测试
                 import json
+
                 json.dumps(obj)
                 return obj
             except (TypeError, ValueError):

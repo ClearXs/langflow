@@ -3,7 +3,9 @@ import { useIsEmbedded } from "@/hooks/use-iframe-params";
 import useFlowStore from "@/stores/flowStore";
 import BackButton from "./back-button";
 import PublishDropdown from "./deploy-dropdown";
+import LineageButton from "./lineage-button";
 import PlaygroundButton from "./playground-button";
+import TasksButton from "./tasks-button";
 
 type FlowToolbarOptionsProps = {
   open: boolean;
@@ -25,6 +27,8 @@ const FlowToolbarOptions = ({
     <div className="flex items-center gap-1.5">
       <div className="flex h-full w-full gap-1.5 rounded-sm transition-all">
         {isEmbedded && <BackButton />}
+        <TasksButton />
+        <LineageButton />
         <PlaygroundButton
           hasIO={hasIO}
           open={open}

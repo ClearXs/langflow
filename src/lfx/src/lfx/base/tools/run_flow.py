@@ -1,6 +1,8 @@
 from abc import abstractmethod
 from typing import TYPE_CHECKING
 
+import i18n
+
 from lfx.custom.custom_component.component import Component, get_component_toolkit
 from lfx.field_typing import Tool
 from lfx.graph.graph.base import Graph
@@ -26,23 +28,23 @@ class RunFlowBaseComponent(Component):
     _base_inputs: list[InputTypes] = [
         DropdownInput(
             name="flow_name_selected",
-            display_name="Flow Name",
-            info="The name of the flow to run.",
+            display_name=i18n.t("components.base.tools.run_flow.flow_name_selected.display_name"),
+            info=i18n.t("components.base.tools.run_flow.flow_name_selected.info"),
             options=[],
             real_time_refresh=True,
             value=None,
         ),
         MessageInput(
             name="session_id",
-            display_name="Session ID",
-            info="The session ID to run the flow in.",
+            display_name=i18n.t("components.base.tools.run_flow.session_id.display_name"),
+            info=i18n.t("components.base.tools.run_flow.session_id.info"),
             advanced=True,
         ),
     ]
     _base_outputs: list[Output] = [
         Output(
             name="flow_outputs_data",
-            display_name="Flow Data Output",
+            display_name=i18n.t("components.base.tools.run_flow.outputs.flow_outputs_data.display_name"),
             method="data_output",
             hidden=True,
             group_outputs=True,
@@ -50,7 +52,7 @@ class RunFlowBaseComponent(Component):
         ),
         Output(
             name="flow_outputs_dataframe",
-            display_name="Flow Dataframe Output",
+            display_name=i18n.t("components.base.tools.run_flow.outputs.flow_outputs_dataframe.display_name"),
             method="dataframe_output",
             hidden=True,
             group_outputs=True,
@@ -59,7 +61,7 @@ class RunFlowBaseComponent(Component):
         Output(
             name="flow_outputs_message",
             group_outputs=True,
-            display_name="Flow Message Output",
+            display_name=i18n.t("components.base.tools.run_flow.outputs.flow_outputs_message.display_name"),
             method="message_output",
         ),
     ]
@@ -125,10 +127,10 @@ class RunFlowBaseComponent(Component):
             flow_data = await self.get_flow(flow_name_selected)
             if flow_data:
                 return Graph.from_payload(flow_data.data["data"])
-            msg = "Flow not found"
+            msg = i18n.t("components.base.tools.run_flow.errors.flow_not_found", flow=flow_name_selected)
             raise ValueError(msg)
         # Ensure a Graph is always returned or an exception is raised
-        msg = "No valid flow JSON or flow name selected."
+        msg = i18n.t("components.base.tools.run_flow.errors.no_valid_flow")
         raise ValueError(msg)
 
     def get_new_fields_from_graph(self, graph: Graph) -> list[dotdict]:
@@ -144,7 +146,7 @@ class RunFlowBaseComponent(Component):
             build_config = self.add_new_fields(build_config, new_fields)
 
         except Exception as e:
-            msg = "Error updating build config from graph"
+            msg = i18n.t("components.base.tools.run_flow.errors.update_build_config_failed", error=str(e))
             logger.exception(msg)
             raise RuntimeError(msg) from e
 
@@ -218,8 +220,10 @@ class RunFlowBaseComponent(Component):
         tool_mode_inputs = [dotdict(field) for field in tool_mode_inputs]
         return component_toolkit(component=self).get_tools(
             tool_name=f"{self.flow_name_selected}_tool",
-            tool_description=(
-                f"Tool designed to execute the flow '{self.flow_name_selected}'. Flow details: {flow_description}."
+            tool_description=i18n.t(
+                "components.base.tools.run_flow.tool_description",
+                flow=self.flow_name_selected,
+                description=flow_description,
             ),
             callbacks=self.get_langchain_callbacks(),
             flow_mode_inputs=tool_mode_inputs,

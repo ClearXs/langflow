@@ -42,23 +42,28 @@ const config = {
         "3xl": "1500px",
       },
       keyframes: {
-        // Overlay animations
         overlayShow: {
-          from: { opacity: 0 },
-          to: { opacity: 1 },
+          from: {
+            opacity: 0,
+          },
+          to: {
+            opacity: 1,
+          },
         },
         overlayHide: {
-          from: { opacity: 1 },
-          to: { opacity: 0 },
+          from: {
+            opacity: 1,
+          },
+          to: {
+            opacity: 0,
+          },
         },
-
-        // Content animations - now including both scale and clip in one animation
         contentShow: {
           from: {
             opacity: 0,
             transform: "translate(-50%, -50%) scale(0.95)",
             clipPath: "inset(50% 0)",
-            boxShadow: "0 4px 8px -2px rgba(0, 0, 0, 0.1)", // Smaller shadow
+            boxShadow: "0 4px 8px -2px rgba(0, 0, 0, 0.1)",
           },
           to: {
             opacity: 1,
@@ -84,8 +89,12 @@ const config = {
           },
         },
         wiggle: {
-          "0%, 100%": { transform: "scale(100%)" },
-          "50%": { transform: "scale(120%)" },
+          "0%, 100%": {
+            transform: "scale(100%)",
+          },
+          "50%": {
+            transform: "scale(120%)",
+          },
         },
         "border-beam": {
           "100%": {
@@ -93,12 +102,15 @@ const config = {
           },
         },
         "pulse-pink": {
-          "0%, 100%": { backgroundColor: "hsla(var(--accent-pink), 1)" },
-          "50%": { backgroundColor: "hsla(var(--accent-pink), 0.4)" },
+          "0%, 100%": {
+            backgroundColor: "hsla(var(--accent-pink), 1)",
+          },
+          "50%": {
+            backgroundColor: "hsla(var(--accent-pink), 0.4)",
+          },
         },
       },
       animation: {
-        // Animation definitions
         overlayShow: "overlayShow 400ms cubic-bezier(0.16, 1, 0.3, 1)",
         overlayHide: "overlayHide 500ms cubic-bezier(0.16, 1, 0.3, 1)",
         contentShow: "contentShow 400ms cubic-bezier(0.16, 1, 0.3, 1)",
@@ -109,8 +121,8 @@ const config = {
         "border-beam": "border-beam calc(var(--duration)*1s) infinite linear",
       },
       colors: {
-        "frozen-blue": "rgba(128, 190, 219, 0.86)", // Custom blue color for the frozen effect
-        "frosted-glass": "rgba(255, 255, 255, 0.8)", // Custom frosted glass effect
+        "frozen-blue": "rgba(128, 190, 219, 0.86)",
+        "frosted-glass": "rgba(255, 255, 255, 0.8)",
         "component-icon": "var(--component-icon)",
         "flow-icon": "var(--flow-icon)",
         "low-indigo": "var(--low-indigo)",
@@ -318,10 +330,17 @@ const config = {
         "red-foreground": "hsl(var(--red-foreground))",
         "indigo-foreground": "hsl(var(--indigo-foreground))",
         "discord-color": "var(--discord-color)",
+        chart: {
+          1: "hsl(var(--chart-1))",
+          2: "hsl(var(--chart-2))",
+          3: "hsl(var(--chart-3))",
+          4: "hsl(var(--chart-4))",
+          5: "hsl(var(--chart-5))",
+        },
       },
       borderRadius: {
-        lg: `var(--radius)`,
-        md: `calc(var(--radius) - 2px)`,
+        lg: "var(--radius)",
+        md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
       },
       borderWidth: {
@@ -518,6 +537,7 @@ const config = {
       addVariant("group-increment-hover", ":merge(.group-increment):hover &");
       addVariant("group-decrement-hover", ":merge(.group-decrement):hover &");
     }),
+    require("tailwindcss-animate"),
   ],
 };
 

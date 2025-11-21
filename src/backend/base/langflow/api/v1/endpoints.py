@@ -451,12 +451,25 @@ async def simplified_run_flow(
     # Extract request-level variables from headers with prefix X-LANGFLOW-GLOBAL-VAR-*
     request_variables = extract_global_variables_from_headers(http_request.headers)
 
-    # Merge request variables with existing context
-    if request_variables:
+    # Extract runtime_variables from input_request (highest priority)
+    runtime_variables = None
+    if input_request and hasattr(input_request, "runtime_variables") and input_request.runtime_variables:
+        runtime_variables = input_request.runtime_variables
+        await logger.adebug(f"Using runtime variables in run: {list(runtime_variables.keys())}")
+
+    # Merge runtime variables and request variables with existing context
+    if runtime_variables or request_variables:
         if context is None:
-            context = {"request_variables": request_variables}
+            context = {}
         else:
             context = context.copy()  # Don't modify the original context
+
+        # Add runtime_variables (highest priority)
+        if runtime_variables:
+            context["runtime_variables"] = runtime_variables
+
+        # Add request_variables (from headers, lower priority)
+        if request_variables:
             context["request_variables"] = request_variables
 
     start_time = time.perf_counter()
@@ -974,10 +987,7 @@ async def custom_component_update(
 
             # Method 2: Check frontend_node for type
             if not vertex_type and code_request.frontend_node:
-                vertex_type = (
-                    code_request.frontend_node.get("type")
-                    or code_request.frontend_node.get("display_name")
-                )
+                vertex_type = code_request.frontend_node.get("type") or code_request.frontend_node.get("display_name")
 
             # Method 3: Check template metadata
             if not vertex_type:
@@ -1124,6 +1134,7 @@ async def get_flow_streaming_status(
 
         # Convert string flow_id to UUID for matching with internal mappings
         from uuid import UUID
+
         try:
             flow_id_uuid = UUID(flow_id)
         except ValueError:

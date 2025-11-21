@@ -9,6 +9,10 @@
     "display_name": "Execution Mode",
     "info": "Choose between streaming or batch execution mode"
   },
+  "custom_functions": {
+    "display_name": "Custom Functions",
+    "info": "Select custom functions (UDF/UDTF/UDAF) to use in your SQL"
+  },
   "sql_script": {
     "display_name": "SQL Script",
     "info": "Enter Flink SQL statements (supports multiple statements separated by semicolons)"

@@ -80,6 +80,7 @@ export function ParameterRenderComponent({
       nodeClass,
       handleNodeClass,
       nodeId,
+      name,
       helperText: templateData?.helper_text,
       readonly: templateData.readonly,
       placeholder,
@@ -110,6 +111,8 @@ export function ParameterRenderComponent({
                   ? templateData.options
                   : [templateData.options]) || []
               }
+              hasRefreshButton={templateData.refresh_button}
+              actionButton={templateData.action_button}
               id={`multiselect_${id}`}
             />
           );

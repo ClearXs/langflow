@@ -1,0 +1,27 @@
+{
+  "flow_name_selected": {
+    "display_name": "Flow Name",
+    "info": "The name of the flow to run."
+  },
+  "session_id": {
+    "display_name": "Session ID",
+    "info": "The session ID to run the flow in."
+  },
+  "outputs": {
+    "flow_outputs_data": {
+      "display_name": "Flow Data Output"
+    },
+    "flow_outputs_dataframe": {
+      "display_name": "Flow Dataframe Output"
+    },
+    "flow_outputs_message": {
+      "display_name": "Flow Message Output"
+    }
+  },
+  "errors": {
+    "flow_not_found": "Flow '%{flow}' not found",
+    "no_valid_flow": "No valid flow JSON or flow name selected.",
+    "update_build_config_failed": "Error updating build config from graph: %{error}"
+  },
+  "tool_description": "Tool designed to execute the flow '%{flow}'. Flow details: %{description}."
+}

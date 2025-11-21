@@ -299,4 +299,7 @@ export type FlowStoreType = {
   setNewChatOnPlayground: (newChat: boolean) => void;
   stopNodeId: string | undefined;
   setStopNodeId: (nodeId: string | undefined) => void;
+  runtimeVariables: Record<string, string>;
+  setRuntimeVariables: (variables: Record<string, string>) => void;
+  clearRuntimeVariables: () => void;
 };

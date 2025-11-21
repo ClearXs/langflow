@@ -248,7 +248,16 @@ class ETLTableOutputComponent(Component):
                 options = []
                 options_metadata = []
 
+                # Table Output 排除 Kafka（Kafka 使用专门的 kafka_output 组件）
+                excluded_types = {"kafka"}
+
                 for ds in all_datasources:
+                    # 过滤：排除 Kafka
+                    ds_type = ds.get("type", "").lower()
+                    if ds_type in excluded_types:
+                        logger.debug(f"[TableOutput] Skipping excluded datasource type: {ds_type} (name={ds['name']})")
+                        continue
+
                     # options 只包含ID (唯一值)
                     options.append(ds["id"])
                     # options_metadata 包含显示信息，使用 label 字段供前端显示
@@ -267,7 +276,7 @@ class ETLTableOutputComponent(Component):
 
                 build_config["datasource_selector"]["options"] = options
                 build_config["datasource_selector"]["options_metadata"] = options_metadata
-                logger.debug(f"[TableOutput] Set datasource_selector options: {options}")
+                logger.debug(f"[TableOutput] Set datasource_selector options: {options} (excluded Kafka)")
                 logger.debug(f"[TableOutput] Set options_metadata with {len(options_metadata)} entries")
 
             except Exception as e:
@@ -378,7 +387,7 @@ class ETLTableOutputComponent(Component):
                             f"[TableOutput] Loading tables for datasource ID: {datasource_id} (cleaned: {clean_datasource_id})"
                         )
                         # Load tables for this datasource
-                        with httpx.Client(timeout=10.0) as client:
+                        with httpx.Client(timeout=120.0) as client:
                             response = client.get(f"{api_url}/api/v1/datasources/{clean_datasource_id}/tables")
                             logger.debug(f"[TableOutput] Tables API response status: {response.status_code}")
 
@@ -625,6 +634,14 @@ class ETLTableOutputComponent(Component):
             if ds_type == "neo4j":
                 return self._load_neo4j_labels(raw_data)
 
+            # MongoDB特殊处理：使用pymongo驱动而不是SQLAlchemy
+            if ds_type == "mongodb":
+                return self._load_mongodb_collections(raw_data)
+
+            # ClickHouse特殊处理：使用clickhouse-connect驱动而不是SQLAlchemy
+            if ds_type == "clickhouse":
+                return self._load_clickhouse_tables(raw_data)
+
             # 其他数据库使用SQLAlchemy
             engine = create_engine(connection_string, poolclass=NullPool)
 
@@ -700,6 +717,14 @@ class ETLTableOutputComponent(Component):
         if ds_type == "neo4j":
             return self._load_neo4j_columns(raw_data, table_name)
 
+        # MongoDB special handling - return field names from sample documents
+        if ds_type == "mongodb":
+            return self._load_mongodb_columns(raw_data, table_name)
+
+        # ClickHouse special handling - use clickhouse-connect
+        if ds_type == "clickhouse":
+            return self._load_clickhouse_columns(raw_data, table_name)
+
         # Other databases use SQLAlchemy
         engine = create_engine(connection_string, poolclass=NullPool)
         try:
@@ -743,6 +768,145 @@ class ETLTableOutputComponent(Component):
                 return columns
         finally:
             driver.close()
+
+    def _load_mongodb_collections(self, raw_data: dict) -> list[str]:
+        """为MongoDB公共数据源加载集合列表"""
+        from pymongo import MongoClient
+
+        try:
+            params = raw_data.get("dataSourceParam", {})
+            host = params.get("host", "localhost")
+            port = params.get("port", 27017)
+            database = params.get("database", "admin")
+            username = params.get("username", "")
+            password = params.get("password", "")
+
+            # Build MongoDB connection parameters
+            mongo_params = {
+                "host": host,
+                "port": port,
+                "serverSelectionTimeoutMS": 10000,
+                "connectTimeoutMS": 20000,
+            }
+
+            if username and password:
+                mongo_params["username"] = username
+                mongo_params["password"] = password
+
+            # Create MongoDB client
+            client = MongoClient(**mongo_params)
+
+            try:
+                db = client[database]
+                collections = db.list_collection_names()
+                logger.info(f"[TableOutput] Loaded {len(collections)} collections from MongoDB")
+                return sorted(collections)
+            finally:
+                client.close()
+
+        except Exception as e:
+            logger.error(f"[TableOutput] Failed to load MongoDB collections: {e}")
+            raise
+
+    def _load_mongodb_columns(self, raw_data: dict, collection_name: str) -> list[dict]:
+        """为MongoDB公共数据源加载集合的字段列表（从样本文档推断）"""
+        from pymongo import MongoClient
+
+        params = raw_data.get("dataSourceParam", {})
+        host = params.get("host", "localhost")
+        port = params.get("port", 27017)
+        database = params.get("database", "admin")
+        username = params.get("username", "")
+        password = params.get("password", "")
+
+        # Build MongoDB connection parameters
+        mongo_params = {
+            "host": host,
+            "port": port,
+            "serverSelectionTimeoutMS": 10000,
+            "connectTimeoutMS": 20000,
+        }
+
+        if username and password:
+            mongo_params["username"] = username
+            mongo_params["password"] = password
+
+        # Create MongoDB client
+        client = MongoClient(**mongo_params)
+
+        try:
+            db = client[database]
+            collection = db[collection_name]
+
+            # Get sample documents to infer schema
+            sample_docs = list(collection.find().limit(100))
+
+            # Extract all unique field names
+            fields = set()
+            for doc in sample_docs:
+                fields.update(doc.keys())
+
+            # Convert to expected format
+            columns = [{"name": field, "type": "string"} for field in sorted(fields)]
+            logger.info(f"[TableOutput] Inferred {len(columns)} fields from MongoDB collection '{collection_name}'")
+            return columns
+        finally:
+            client.close()
+
+    def _load_clickhouse_tables(self, raw_data: dict) -> list[str]:
+        """为ClickHouse公共数据源加载表列表"""
+        import clickhouse_connect
+
+        try:
+            params = raw_data.get("dataSourceParam", {})
+            host = params.get("host", "localhost")
+            port = params.get("port", 8123)
+            database = params.get("database", "default")
+            username = params.get("username", "default")
+            password = params.get("password", "")
+
+            # Create ClickHouse client
+            client = clickhouse_connect.get_client(
+                host=host, port=port, username=username, password=password, database=database
+            )
+
+            try:
+                # Get table list
+                result = client.query("SHOW TABLES")
+                tables = [row[0] for row in result.result_rows]
+                logger.info(f"[TableOutput] Loaded {len(tables)} tables from ClickHouse")
+                return sorted(tables)
+            finally:
+                client.close()
+
+        except Exception as e:
+            logger.error(f"[TableOutput] Failed to load ClickHouse tables: {e}")
+            raise
+
+    def _load_clickhouse_columns(self, raw_data: dict, table_name: str) -> list[dict]:
+        """为ClickHouse公共数据源加载表的列信息"""
+        import clickhouse_connect
+
+        params = raw_data.get("dataSourceParam", {})
+        host = params.get("host", "localhost")
+        port = params.get("port", 8123)
+        database = params.get("database", "default")
+        username = params.get("username", "default")
+        password = params.get("password", "")
+
+        # Create ClickHouse client
+        client = clickhouse_connect.get_client(
+            host=host, port=port, username=username, password=password, database=database
+        )
+
+        try:
+            # Get column information
+            result = client.query(f"DESCRIBE TABLE {table_name}")
+            columns = [{"name": row[0], "type": row[1]} for row in result.result_rows]
+            logger.info(f"[TableOutput] Loaded {len(columns)} columns from ClickHouse table '{table_name}'")
+            return columns
+        finally:
+            client.close()
 
     def _extract_uuid_from_id(self, datasource_id: str) -> str:
         """从数据源ID中提取纯UUID，移除可能的前缀"""
@@ -834,7 +998,7 @@ class ETLTableOutputComponent(Component):
             # 合并数据源列表
             all_datasources = []
 
-            # 添加内置数据源
+            # 添加内置数据源 - 不包含 connection_string，通过 API 动态获取
             for ds in builtin_datasources:
                 display_name = f"{ds['name']} ({ds['type']}) [自定义]"
                 all_datasources.append(
@@ -844,6 +1008,7 @@ class ETLTableOutputComponent(Component):
                         "type": ds["type"],
                         "source": "builtin",
                         "display_name": display_name,
+                        # ❌ 移除预构建的 connection_string，改为通过 API 动态获取
                     }
                 )
 
@@ -882,61 +1047,63 @@ class ETLTableOutputComponent(Component):
             return []
 
     def _get_builtin_datasources(self) -> list[dict]:
-        """获取内置数据源"""
+        """获取内置数据源 - 直接从数据库读取，包含完整连接信息"""
         try:
-            logger.debug("[TableOutput] Calling datasource_manager.get_datasources()...")
-            datasources = asyncio.run(self.datasource_manager.get_datasources())
-            logger.debug(f"[TableOutput] Got raw datasources: {datasources}")
+            # 直接从数据库读取数据源，避免API调用导致的死锁
+            import concurrent.futures
 
-            builtin_datasources = []
+            from langflow.services.database.models.datasource import DataSource
+            from langflow.services.deps import session_scope
+            from sqlmodel import select
 
-            # 合并企业和自定义数据源
-            enterprise_list = datasources.get("enterprise", [])
-            custom_list = datasources.get("custom", [])
+            async def fetch_datasources():
+                """异步获取数据源列表"""
+                try:
+                    async with session_scope() as session:
+                        statement = select(DataSource)
+                        result = await session.exec(statement)
+                        datasources = result.all()
 
-            logger.debug(f"[TableOutput] Enterprise datasources: {len(enterprise_list)} items")
-            logger.debug(f"[TableOutput] Custom datasources: {len(custom_list)} items")
+                        logger.debug(f"[TableOutput] Fetched {len(datasources)} datasources from database")
 
-            for ds in enterprise_list:
-                # 企业数据源ID通常不需要前缀，直接使用
-                datasource_id = self._extract_uuid_from_id(ds["id"])
-                builtin_datasources.append(
-                    {
-                        "id": datasource_id,
-                        "name": ds["name"],
-                        "type": ds["type"],
-                        "source": "enterprise",
-                        "database": ds.get("database"),  # 保留 database 字段
-                        "host": ds.get("host"),
-                        "port": ds.get("port"),
-                    }
-                )
-                logger.debug(f"[TableOutput] Added enterprise datasource: {ds['name']} -> {datasource_id}")
+                        builtin_list = []
+                        for ds in datasources:
+                            # 构建包含所有连接参数的字典（包括密码）
+                            ds_dict = {
+                                "id": str(ds.id),
+                                "name": ds.name,
+                                "type": ds.type.lower(),
+                                "host": ds.host,
+                                "port": ds.port,
+                                "database": ds.database,
+                                "username": ds.username,
+                                "password": ds.password,  # 包含密码用于构建连接字符串
+                                "source": "builtin",
+                                "advanced_config": ds.advanced_config,
+                            }
+                            builtin_list.append(ds_dict)
 
-            for ds in custom_list:
-                # 自定义数据源ID可能包含前缀，需要提取纯UUID
-                datasource_id = self._extract_uuid_from_id(ds["id"])
-                builtin_datasources.append(
-                    {
-                        "id": datasource_id,
-                        "name": ds["name"],
-                        "type": ds["type"],
-                        "source": "custom",
-                        "database": ds.get("database"),  # 保留 database 字段
-                        "host": ds.get("host"),
-                        "port": ds.get("port"),
-                    }
-                )
-                logger.debug(f"[TableOutput] Added custom datasource: {ds['name']} -> {datasource_id}")
+                        return builtin_list
+                except Exception as e:
+                    logger.error(f"[TableOutput] Error fetching datasources from database: {e}")
+                    return []
 
-            logger.info(f"[TableOutput] Total builtin datasources processed: {len(builtin_datasources)}")
+            # 执行异步操作
+            try:
+                loop = asyncio.get_running_loop()
+                # 在事件循环中，使用ThreadPoolExecutor
+                with concurrent.futures.ThreadPoolExecutor() as executor:
+                    future = executor.submit(asyncio.run, fetch_datasources())
+                    builtin_datasources = future.result(timeout=10)
+            except RuntimeError:
+                # 没有运行中的事件循环，直接使用asyncio.run
+                builtin_datasources = asyncio.run(fetch_datasources())
+
+            logger.debug(f"[TableOutput] Got {len(builtin_datasources)} builtin datasources from database")
             return builtin_datasources
 
         except Exception as e:
             logger.error(f"[TableOutput] Error getting builtin datasources: {e}")
-            import traceback
-
-            logger.error(f"[TableOutput] Builtin datasource error traceback: {traceback.format_exc()}")
             return []
 
     async def _get_public_datasources(self) -> list[dict]:
@@ -1053,10 +1220,46 @@ class ETLTableOutputComponent(Component):
 
     def _get_connection_string(self, datasource_id: str, datasource_info: dict = None) -> str:
         """获取数据源连接字符串，支持内置和公共数据源"""
+        # 调试日志：检查 datasource_info 内容
+        logger.info(f"[TableOutput] _get_connection_string called for datasource_id={datasource_id}")
+        if datasource_info:
+            logger.info(f"[TableOutput] datasource_info keys: {list(datasource_info.keys())}")
+            logger.info(
+                f"[TableOutput] datasource_info values: name={datasource_info.get('name')}, "
+                f"type={datasource_info.get('type')}, host={datasource_info.get('host')}, "
+                f"port={datasource_info.get('port')}, database={datasource_info.get('database')}, "
+                f"source={datasource_info.get('source')}, connection_string={datasource_info.get('connection_string')}"
+            )
+        else:
+            logger.warning("[TableOutput] datasource_info is None!")
+
+        # 优先使用datasource_info中预先构建的connection_string（避免API调用死锁）
+        if datasource_info and datasource_info.get("connection_string"):
+            logger.debug("[TableOutput] Using pre-built connection string from datasource_info")
+            return datasource_info["connection_string"]
+
+        # 公共数据源：从raw_data构建连接字符串
         if datasource_info and datasource_info.get("source") == "public":
-            # 公共数据源：从raw_data构建连接字符串
             return self._build_public_connection_string(datasource_info["raw_data"])
-        # 内置数据源：使用现有逻辑
+
+        # 内置数据源且有完整参数：直接构建连接字符串（避免API调用）
+        if datasource_info and datasource_info.get("source") == "builtin":
+            required_fields = ["host", "port", "database", "type"]
+            missing_fields = [field for field in required_fields if datasource_info.get(field) is None]
+            if missing_fields:
+                logger.error(
+                    f"[TableOutput] Missing required fields in datasource_info: {missing_fields}, "
+                    f"available fields: {datasource_info}"
+                )
+            else:
+                logger.debug("[TableOutput] Building connection string from datasource_info parameters")
+                return self._build_connection_string_from_params(datasource_info["type"], datasource_info)
+
+        # 后备方案：使用API调用（可能导致死锁，应避免）
+        logger.warning(
+            f"[TableOutput] Falling back to API call for connection string (datasource_id={datasource_id}, "
+            f"reason: connection_string is None or missing required fields)"
+        )
         return self._get_builtin_connection_string(datasource_id)
 
     def _build_public_connection_string(self, raw_data: dict) -> str:
@@ -1108,7 +1311,7 @@ class ETLTableOutputComponent(Component):
         return self._build_connection_string_from_params(ds_type, params)
 
     def _build_connection_string_from_params(self, ds_type: str, params: dict) -> str:
-        """从参数构建连接字符串 - Support MySQL, PostgreSQL, Hive, Neo4j"""
+        """从参数构建连接字符串 - Support MySQL, PostgreSQL, Hive, Neo4j, MongoDB, ClickHouse, Doris"""
         from urllib.parse import quote_plus, unquote
 
         host = params.get("host", "localhost")
@@ -1162,6 +1365,20 @@ class ETLTableOutputComponent(Component):
             if username and password:
                 return f"bolt://{username_encoded}:{password_encoded}@{host}:{port}"
             return f"bolt://{host}:{port}"
+        if ds_type == "mongodb":
+            # MongoDB connection string
+            mongo_port = port if port != 3306 else 27017
+            if username and password:
+                return f"mongodb://{username_encoded}:{password_encoded}@{host}:{mongo_port}/{database}"
+            return f"mongodb://{host}:{mongo_port}/{database}"
+        if ds_type == "clickhouse":
+            # ClickHouse connection using clickhouse-connect driver
+            ch_port = port if port != 3306 else 8123
+            return f"clickhouse+connect://{username_encoded}:{password_encoded}@{host}:{ch_port}/{database}"
+        if ds_type == "doris":
+            # Doris connection using MySQL protocol (compatible with MySQL driver)
+            doris_port = port if port != 3306 else 9030
+            return f"mysql+pymysql://{username_encoded}:{password_encoded}@{host}:{doris_port}/{database}"
         raise ValueError(f"Unsupported database type: {ds_type}")
 
     def _get_builtin_connection_string(self, datasource_id: str) -> str:
@@ -1179,7 +1396,7 @@ class ETLTableOutputComponent(Component):
                 f"[TableOutput] Getting connection string for datasource ID: {datasource_id} (cleaned: {clean_datasource_id})"
             )
 
-            with httpx.Client(timeout=10.0) as client:
+            with httpx.Client(timeout=120.0) as client:
                 response = client.get(f"{api_url}/api/v1/datasources/{clean_datasource_id}/connection-string")
 
                 if response.status_code != 200:
@@ -1198,10 +1415,20 @@ class ETLTableOutputComponent(Component):
 
     def _get_connection_string_sync(self, datasource_id: str, datasource_info: dict = None) -> str:
         """获取数据源连接字符串，支持内置和公共数据源"""
+        # 公共数据源：从raw_data构建连接字符串
         if datasource_info and datasource_info.get("source") == "public":
-            # 公共数据源：从raw_data构建连接字符串
+            logger.info("[TableOutput] Building connection string for public datasource")
             return self._build_public_connection_string(datasource_info["raw_data"])
-        # 内置数据源：使用现有逻辑
+
+        # 内置数据源：通过 API 调用获取连接字符串（包含最新密码）
+        if datasource_info and datasource_info.get("source") == "builtin":
+            logger.info(
+                f"[TableOutput] Getting connection string from API for builtin datasource (datasource_id={datasource_id})"
+            )
+            return self._get_builtin_connection_string_sync(datasource_id)
+
+        # 后备方案：通过 API 获取
+        logger.warning(f"[TableOutput] Falling back to API call for connection string (datasource_id={datasource_id})")
         return self._get_builtin_connection_string_sync(datasource_id)
 
     def _get_builtin_connection_string_sync(self, datasource_id: str) -> str:
@@ -1219,7 +1446,7 @@ class ETLTableOutputComponent(Component):
                 f"[TableOutput] Getting connection string (sync) for datasource ID: {datasource_id} (cleaned: {clean_datasource_id})"
             )
 
-            with httpx.Client(timeout=10.0) as client:
+            with httpx.Client(timeout=120.0) as client:
                 response = client.get(f"{api_url}/api/v1/datasources/{clean_datasource_id}/connection-string")
 
                 if response.status_code != 200:
@@ -1329,6 +1556,7 @@ class ETLTableOutputComponent(Component):
                         "source": source,
                         "display_name": ds["display_name"],
                         "raw_data": ds.get("raw_data"),
+                        # ✅ 移除预构建的连接字符串和参数，改为通过 API 动态获取
                     }
 
                     logger.info(
@@ -1351,6 +1579,7 @@ class ETLTableOutputComponent(Component):
                         "source": source,
                         "display_name": ds["display_name"],
                         "raw_data": ds.get("raw_data"),
+                        # ✅ 移除预构建的连接字符串和参数，改为通过 API 动态获取
                     }
 
                     logger.info(
@@ -1504,11 +1733,15 @@ class ETLTableOutputComponent(Component):
             if self.field_mappings:
                 df = self._apply_field_mappings(df)
 
-            # 5. 检测是否是Neo4j或Hive数据源
+            # 5. 检测数据源类型并路由到相应的写入方法
             # 使用之前已经检查过的数据源类型变量（在步骤2中已经设置）
-            is_hive = (
-                datasource_type.strip().lower() == "hive" if datasource_type and datasource_type.strip() else False
-            )
+            db_type = datasource_type.strip().lower() if datasource_type and datasource_type.strip() else ""
+
+            is_neo4j = db_type == "neo4j"
+            is_hive = db_type == "hive"
+            is_clickhouse = db_type == "clickhouse"
+            is_doris = db_type == "doris"
+            is_mongodb = db_type == "mongodb"
 
             if is_neo4j:
                 # 使用Neo4j驱动写入
@@ -1563,7 +1796,85 @@ class ETLTableOutputComponent(Component):
                 self._last_write_result = result_data
                 return result_data
 
-            # 原有的SQLAlchemy逻辑
+            if is_clickhouse:
+                # 使用ClickHouse原生驱动写入
+                logger.info("[TableOutput] Detected ClickHouse datasource, using ClickHouse native driver")
+                rows_written = self._write_to_clickhouse(connection_string, df)
+
+                # Build result
+                result_info = {
+                    "success": True,
+                    "table": self.table_selector,
+                    "rows_written": rows_written,
+                    "write_mode": self.write_mode,
+                    "datasource": self.datasource_selector,
+                }
+
+                success_msg = _format_i18n(
+                    "components.input_output.table_output.status.success",
+                    rows=rows_written,
+                    table=self.table_selector,
+                )
+                self.status = success_msg
+                logger.info(f"[TableOutput] {success_msg}")
+
+                result_data = Data(data=result_info)
+                self._last_write_result = result_data
+                return result_data
+
+            if is_doris:
+                # 使用Doris (pymysql) 写入
+                logger.info("[TableOutput] Detected Doris datasource, using pymysql driver")
+                rows_written = self._write_to_doris(connection_string, df)
+
+                # Build result
+                result_info = {
+                    "success": True,
+                    "table": self.table_selector,
+                    "rows_written": rows_written,
+                    "write_mode": self.write_mode,
+                    "datasource": self.datasource_selector,
+                }
+
+                success_msg = _format_i18n(
+                    "components.input_output.table_output.status.success",
+                    rows=rows_written,
+                    table=self.table_selector,
+                )
+                self.status = success_msg
+                logger.info(f"[TableOutput] {success_msg}")
+
+                result_data = Data(data=result_info)
+                self._last_write_result = result_data
+                return result_data
+
+            if is_mongodb:
+                # 使用MongoDB原生驱动写入
+                logger.info("[TableOutput] Detected MongoDB datasource, using pymongo driver")
+                rows_written = self._write_to_mongodb(connection_string, df)
+
+                # Build result
+                result_info = {
+                    "success": True,
+                    "table": self.table_selector,
+                    "rows_written": rows_written,
+                    "write_mode": self.write_mode,
+                    "datasource": self.datasource_selector,
+                }
+
+                success_msg = _format_i18n(
+                    "components.input_output.table_output.status.success",
+                    rows=rows_written,
+                    table=self.table_selector,
+                )
+                self.status = success_msg
+                logger.info(f"[TableOutput] {success_msg}")
+
+                result_data = Data(data=result_info)
+                self._last_write_result = result_data
+                return result_data
+
+            # 原有的SQLAlchemy逻辑 (MySQL, PostgreSQL等)
             # 5. Create database engine
             engine = create_engine(
                 connection_string,
@@ -2353,3 +2664,221 @@ class ETLTableOutputComponent(Component):
             rows_written = 0
 
         return Data(data={"row_count": rows_written, "table": self.table_selector})
+
+    def _write_to_clickhouse(self, connection_string: str, df: pd.DataFrame) -> int:
+        """Write data to ClickHouse using native driver.
+
+        Args:
+            connection_string: ClickHouse connection string (clickhouse+connect://username:password@host:port/database)
+            df: DataFrame to write
+
+        Returns:
+            Number of rows written
+        """
+        import re
+        from urllib.parse import unquote
+
+        import clickhouse_connect
+
+        # Parse ClickHouse connection string
+        # Format: clickhouse+connect://username:password@host:port/database
+        match = re.match(r"clickhouse\+connect://([^:]+):([^@]*)@([^:]+):(\d+)/(.+)", connection_string)
+        if not match:
+            raise ValueError(f"Invalid ClickHouse connection string format")
+
+        username, password, host, port, database = match.groups()
+        username = unquote(username)
+        password = unquote(password) if password else ""
+        port = int(port)
+
+        logger.info(f"[TableOutput] Connecting to ClickHouse: {host}:{port}/{database}")
+
+        # Build client parameters
+        client_params = {
+            "host": host,
+            "port": port,
+            "username": username,
+            "password": password,
+            "database": database,
+        }
+
+        # Create ClickHouse client
+        client = clickhouse_connect.get_client(**client_params)
+
+        try:
+            table_name = self.table_selector
+
+            # Handle write modes
+            if self.write_mode == "replace":
+                # Truncate table
+                client.command(f"TRUNCATE TABLE IF EXISTS {table_name}")
+                logger.info(f"[TableOutput] ClickHouse table '{table_name}' truncated")
+
+            # Insert data
+            # Convert DataFrame to list of lists for ClickHouse
+            data = df.values.tolist()
+            column_names = df.columns.tolist()
+
+            client.insert(table_name, data, column_names=column_names)
+
+            rows_written = len(df)
+            logger.info(f"[TableOutput] Successfully wrote {rows_written} rows to ClickHouse table '{table_name}'")
+            return rows_written
+
+        finally:
+            client.close()
+
+    def _write_to_doris(self, connection_string: str, df: pd.DataFrame) -> int:
+        """Write data to Apache Doris using pymysql.
+
+        Args:
+            connection_string: Doris connection string (mysql://username:password@host:port/database)
+            df: DataFrame to write
+
+        Returns:
+            Number of rows written
+        """
+        import re
+        from urllib.parse import unquote
+
+        import pymysql
+
+        # Parse Doris/MySQL connection string
+        # Format: mysql://username:password@host:port/database or mysql+pymysql://...
+        match = re.match(r"mysql(?:\+pymysql)?://([^:]+):([^@]*)@([^:]+):(\d+)/(.+)", connection_string)
+        if not match:
+            raise ValueError(f"Invalid Doris/MySQL connection string format")
+
+        username, password, host, port, database = match.groups()
+        username = unquote(username)
+        password = unquote(password) if password else ""
+        port = int(port)
+
+        logger.info(f"[TableOutput] Connecting to Doris: {host}:{port}/{database}")
+
+        # Build connection parameters
+        conn_params = {
+            "host": host,
+            "port": port,
+            "user": username,
+            "password": password,
+            "database": database,
+            "charset": "utf8",
+        }
+
+        # Create Doris connection
+        connection = pymysql.connect(**conn_params)
+
+        try:
+            with connection.cursor() as cursor:
+                table_name = self.table_selector
+
+                # Handle write modes
+                if self.write_mode == "replace":
+                    # Truncate table
+                    cursor.execute(f"TRUNCATE TABLE {table_name}")
+                    connection.commit()
+                    logger.info(f"[TableOutput] Doris table '{table_name}' truncated")
+
+                # Prepare INSERT statement
+                columns = df.columns.tolist()
+                placeholders = ", ".join(["%s"] * len(columns))
+                column_names = ", ".join(columns)
+                insert_sql = f"INSERT INTO {table_name} ({column_names}) VALUES ({placeholders})"
+
+                # Convert DataFrame to list of tuples
+                data = [tuple(row) for row in df.values]
+
+                # Batch insert
+                cursor.executemany(insert_sql, data)
+                connection.commit()
+
+                rows_written = len(df)
+                logger.info(f"[TableOutput] Successfully wrote {rows_written} rows to Doris table '{table_name}'")
+                return rows_written
+
+        finally:
+            connection.close()
+
+    def _write_to_mongodb(self, connection_string: str, df: pd.DataFrame) -> int:
+        """Write data to MongoDB using pymongo.
+
+        Args:
+            connection_string: MongoDB connection string (mongodb://username:password@host:port/database)
+            df: DataFrame to write
+
+        Returns:
+            Number of documents written
+        """
+        import re
+        from urllib.parse import unquote
+
+        from pymongo import MongoClient
+
+        # Parse MongoDB connection string
+        # Format: mongodb://[username:password@]host:port/database
+        match = re.match(r"mongodb://(?:([^:]+):([^@]*)@)?([^:]+):(\d+)/(.+)", connection_string)
+        if not match:
+            raise ValueError(f"Invalid MongoDB connection string format")
+
+        username, password, host, port, database = match.groups()
+        if username:
+            username = unquote(username)
+        if password:
+            password = unquote(password)
+        port = int(port)
+
+        logger.info(f"[TableOutput] Connecting to MongoDB: {host}:{port}/{database}")
+
+        # Build MongoDB connection parameters
+        mongo_params = {
+            "host": host,
+            "port": port,
+            "serverSelectionTimeoutMS": 10000,
+            "connectTimeoutMS": 20000,
+        }
+
+        # Add authentication if provided
+        if username and password:
+            mongo_params["username"] = username
+            mongo_params["password"] = password
+
+        # Create MongoDB client
+        client = MongoClient(**mongo_params)
+
+        try:
+            # Access database and collection
+            db = client[database]
+            collection_name = self.table_selector
+            collection = db[collection_name]
+
+            # Handle write modes
+            if self.write_mode == "replace":
+                # Delete all documents
+                collection.delete_many({})
+                logger.info(f"[TableOutput] MongoDB collection '{collection_name}' cleared")
+
+            # Convert DataFrame to list of dicts
+            # Replace NaN with None for JSON compatibility
+            df_clean = df.replace({pd.NA: None, pd.NaT: None})
+            import numpy as np
+
+            df_clean = df_clean.replace({np.nan: None, np.inf: None, -np.inf: None})
+
+            documents = df_clean.to_dict("records")
+
+            # Insert documents
+            if documents:
+                result = collection.insert_many(documents)
+                rows_written = len(result.inserted_ids)
+                logger.info(
+                    f"[TableOutput] Successfully wrote {rows_written} documents to MongoDB collection '{collection_name}'"
+                )
+            else:
+                rows_written = 0
+                logger.warning("[TableOutput] No documents to insert")
+
+            return rows_written
+
+        finally:
+            client.close()

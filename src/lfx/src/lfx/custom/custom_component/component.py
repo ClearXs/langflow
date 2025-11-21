@@ -1320,6 +1320,62 @@ class Component(CustomComponent):
             return output.value
         return await self._get_output_result(output)
 
+    async def resolve_variables_in_template(self, text: str, field_name: str = "template") -> str:
+        """Resolve {variableName} patterns in text with actual variable values.
+
+        This method finds all {variableName} patterns in the text and replaces them
+        with the actual values from runtime variables, system variables, or global variables.
+
+        Args:
+            text: Text containing {variableName} patterns
+            field_name: Name of the field using this template (for logging)
+
+        Returns:
+            Text with variables resolved to their actual values
+
+        Example:
+            Input:  "select * from {tableName} where id = '{uuid32}'"
+            Output: "select * from users where id = 'a1b2c3d4e5f6...'"
+        """
+        import re
+
+        from langflow.services.deps import session_scope
+
+        # Find all {variableName} patterns
+        pattern = r"\{([a-zA-Z_][a-zA-Z0-9_]*)\}"
+        matches = re.findall(pattern, text)
+
+        if not matches:
+            return text
+
+        # Remove duplicates while preserving order
+        unique_vars = []
+        seen = set()
+        for var in matches:
+            if var not in seen:
+                unique_vars.append(var)
+                seen.add(var)
+
+        # Resolve each variable
+        resolved_text = text
+        async with session_scope() as session:
+            for var_name in unique_vars:
+                try:
+                    # Try to get the variable value
+                    var_value = await self.get_variable(
+                        name=var_name, field=field_name, session=session, flow_id=getattr(self, "flow_id", None)
+                    )
+                    # Replace all occurrences of {variableName} with actual value
+                    resolved_text = resolved_text.replace(f"{{{var_name}}}", str(var_value))
+                    await logger.adebug(f"[{self.__class__.__name__}] Resolved variable '{var_name}' in {field_name}")
+                except Exception as e:
+                    await logger.awarning(
+                        f"[{self.__class__.__name__}] Could not resolve variable '{var_name}' in {field_name}: {e}"
+                    )
+                    # Keep the original {variableName} if resolution fails
+
+        return resolved_text
+
     def _build_artifact(self, result):
         """Builds an artifact dictionary containing a string representation, raw data, and type for a result.
 

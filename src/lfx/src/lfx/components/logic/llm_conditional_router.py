@@ -1,3 +1,4 @@
+import os
 from typing import Any
 
 import i18n
@@ -17,6 +18,8 @@ class SmartRouterComponent(Component):
     description = i18n.t("components.logic.llm_conditional_router.description")
     icon = "equal"
     name = "SmartRouter"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)

@@ -1,3 +1,5 @@
+import os
+
 import i18n
 
 from lfx.custom.custom_component.component import Component
@@ -13,6 +15,7 @@ class PassMessageComponent(Component):
     icon = "arrow-right"
     legacy: bool = True
     replacement = ["logic.ConditionalRouter"]
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     inputs = [
         MessageInput(

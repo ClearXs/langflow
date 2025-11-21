@@ -1,8 +1,11 @@
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import ForwardedIconComponent from "@/components/common/genericIconComponent";
 import ShadTooltip from "@/components/common/shadTooltipComponent";
 import { CustomIOModal } from "@/customization/components/custom-new-modal";
 import { ENABLE_PUBLISH } from "@/customization/feature-flags";
+import RuntimeVariablesModal from "@/modals/runtimeVariablesModal";
+import useFlowStore from "@/stores/flowStore";
 
 interface PlaygroundButtonProps {
   hasIO: boolean;
@@ -28,10 +31,11 @@ const ButtonLabel = () => {
   );
 };
 
-const ActiveButton = () => (
+const ActiveButton = ({ onClick }: { onClick?: () => void }) => (
   <div
     data-testid="playground-btn-flow-io"
     className="playground-btn-flow-toolbar hover:bg-accent"
+    onClick={onClick}
   >
     <PlayIcon />
     <ButtonLabel />
@@ -55,16 +59,39 @@ const PlaygroundButton = ({
   canvasOpen,
 }: PlaygroundButtonProps) => {
   const { t } = useTranslation();
+  const [runtimeVarsOpen, setRuntimeVarsOpen] = useState(false);
+  const setRuntimeVariables = useFlowStore(
+    (state) => state.setRuntimeVariables,
+  );
+
+  const handlePlaygroundClick = () => {
+    // First open runtime variables modal
+    setRuntimeVarsOpen(true);
+  };
+
+  const handleRuntimeVariablesConfirm = (variables: Record<string, string>) => {
+    // Store runtime variables
+    setRuntimeVariables(variables);
+    // Then open playground modal
+    setOpen(true);
+  };
 
   return hasIO ? (
-    <CustomIOModal
-      open={open}
-      setOpen={setOpen}
-      disable={!hasIO}
-      canvasOpen={canvasOpen}
-    >
-      <ActiveButton />
-    </CustomIOModal>
+    <>
+      <RuntimeVariablesModal
+        open={runtimeVarsOpen}
+        setOpen={setRuntimeVarsOpen}
+        onConfirm={handleRuntimeVariablesConfirm}
+      />
+      <CustomIOModal
+        open={open}
+        setOpen={setOpen}
+        disable={!hasIO}
+        canvasOpen={canvasOpen}
+      >
+        <ActiveButton onClick={handlePlaygroundClick} />
+      </CustomIOModal>
+    </>
   ) : (
     <ShadTooltip side="bottom" content={t("flow.panel.playground.tooltip")}>
       <div>

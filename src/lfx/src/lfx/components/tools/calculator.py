@@ -18,7 +18,6 @@ class CalculatorToolComponent(LCToolComponent):
     description = i18n.t("components.tools.calculator.description")
     icon = "calculator"
     name = "CalculatorTool"
-    legacy = True
     replacement = ["helpers.CalculatorComponent"]
 
     inputs = [

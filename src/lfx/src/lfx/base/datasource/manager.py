@@ -10,6 +10,8 @@ from cryptography.fernet import Fernet
 from sqlalchemy import create_engine, inspect, text
 from sqlalchemy.pool import NullPool
 
+from lfx.log.logger import logger
+
 
 class DataSourceManager:
     """Manage data sources for ETL operations."""
@@ -35,19 +37,28 @@ class DataSourceManager:
         """
         # Check cache
         if self._use_cache():
-            print(f"Using cached datasources (cached at {self._last_cache_time})")
+            logger.debug(f"[DataSourceManager] Using cached datasources (cached at {self._last_cache_time})")
+            logger.debug(
+                f"[DataSourceManager] Cache contains: enterprise={len(self._cache.get('enterprise', []))}, custom={len(self._cache.get('custom', []))}"
+            )
             return self._cache
 
-        print("Fetching fresh datasources from storage")
+        logger.info("[DataSourceManager] Fetching fresh datasources from storage")
         enterprise_sources = await self.fetch_enterprise_datasources()
+        logger.info(f"[DataSourceManager] Fetched {len(enterprise_sources)} enterprise datasources")
+
         custom_sources = await self.get_custom_datasources()
+        logger.info(f"[DataSourceManager] Fetched {len(custom_sources)} custom datasources")
 
         result = {"enterprise": enterprise_sources, "custom": custom_sources}
 
         # Update cache
         self._cache = result
         self._last_cache_time = datetime.now()
-        print(f"Datasources cached at {self._last_cache_time}, total custom: {len(custom_sources)}")
+        logger.debug(f"[DataSourceManager] Datasources cached at {self._last_cache_time}")
+        logger.debug(
+            f"[DataSourceManager] Cache now contains: enterprise={len(enterprise_sources)}, custom={len(custom_sources)}"
+        )
 
         return result
 
@@ -79,7 +90,7 @@ class DataSourceManager:
                         for source in sources
                     ]
         except Exception as e:
-            print(f"Error fetching enterprise datasources: {e}")
+            logger.error(f"[DataSourceManager] Error fetching enterprise datasources: {e}")
 
         return []
 
@@ -91,41 +102,56 @@ class DataSourceManager:
         """
         try:
             # Import here to avoid circular dependencies
-            import httpx
+            from langflow.services.database.models.datasource import DataSource
+            from langflow.services.deps import session_scope
+            from sqlmodel import select
 
-            # Get datasources from the API
-            api_url = os.getenv("LANGFLOW_API_URL", "http://localhost:7860")
-            async with httpx.AsyncClient(timeout=10.0) as client:
-                response = await client.get(f"{api_url}/api/v1/datasources")
+            logger.info("[DataSourceManager] Fetching custom datasources from database directly")
 
-                if response.status_code == 200:
-                    datasources = response.json()
-                    # Format for UI - add custom prefix and source field
-                    return [
-                        {
-                            "id": f"custom_{ds.get('id')}",
-                            "name": ds.get("name"),
-                            "type": ds.get("type", "mysql").lower(),
-                            "source": "custom",
-                            "host": ds.get("host"),
-                            "port": ds.get("port"),
-                            "database": ds.get("database"),
-                            "username": ds.get("username"),
-                            # Note: password is not returned from API for security
-                            "status": ds.get("status", "inactive"),
-                            "metadata": {
-                                "created_at": ds.get("created_at"),
-                                "updated_at": ds.get("updated_at"),
-                                "status": ds.get("status", "inactive"),
-                            },
-                        }
-                        for ds in datasources
-                    ]
+            # Get database session using async context manager
+            async with session_scope() as session:
+                # Query all datasources
+                statement = select(DataSource)
+                result = await session.exec(statement)
+                datasources = result.all()
+
+                logger.info(f"[DataSourceManager] Found {len(datasources)} datasources in database")
+                if datasources:
+                    logger.debug(f"[DataSourceManager] Sample datasource IDs: {[str(ds.id) for ds in datasources[:3]]}")
+
+                # Format for UI - don't add prefix, use raw UUID
+                result_list = [
+                    {
+                        "id": str(ds.id),  # Use raw UUID without prefix
+                        "name": ds.name,
+                        "type": ds.type.lower(),
+                        "source": "custom",
+                        "host": ds.host,
+                        "port": ds.port,
+                        "database": ds.database,
+                        "username": ds.username,
+                        # Note: password is not included for security
+                        "status": ds.status or "inactive",
+                        "metadata": {
+                            "created_at": ds.created_at.isoformat() if ds.created_at else None,
+                            "updated_at": ds.updated_at.isoformat() if ds.updated_at else None,
+                            "status": ds.status or "inactive",
+                        },
+                    }
+                    for ds in datasources
+                ]
+                logger.debug(f"[DataSourceManager] Formatted {len(result_list)} custom datasources")
+                return result_list
+
         except Exception as e:
-            print(f"Error fetching custom datasources from database: {e}")
+            logger.error(f"[DataSourceManager] Error fetching custom datasources from database: {e}")
+            import traceback
+
+            logger.error(f"[DataSourceManager] Traceback: {traceback.format_exc()}")
             # Fallback to file-based storage if database is unavailable
             return await self._get_custom_datasources_from_file()
 
+        logger.warning("[DataSourceManager] Returning empty list (no datasources found)")
         return []
 
     async def _get_custom_datasources_from_file(self) -> list[dict]:
@@ -146,7 +172,7 @@ class DataSourceManager:
                             source["password"] = self._decrypt(source["encrypted_password"])
                     return sources
             except Exception as e:
-                print(f"Error loading custom datasources from file: {e}")
+                logger.error(f"[DataSourceManager] Error loading custom datasources from file: {e}")
 
         return []
 
@@ -173,7 +199,7 @@ class DataSourceManager:
         await self._save_custom_datasource(datasource)
 
         # Clear cache to force reload
-        print(f"Clearing cache after creating datasource {datasource['id']}")
+        logger.debug(f"[DataSourceManager] Clearing cache after creating datasource {datasource['id']}")
         self._cache = {}
         self._last_cache_time = None
 
@@ -189,7 +215,7 @@ class DataSourceManager:
             Test result with status
         """
         try:
-            print(f"Testing connection with params: {connection_info}")
+            logger.debug(f"[DataSourceManager] Testing connection with params: {connection_info}")
 
             db_type = connection_info.get("type", "").lower()
 
@@ -205,13 +231,25 @@ class DataSourceManager:
             if db_type == "neo4j":
                 return await self._test_neo4j_connection(connection_info)
 
-            # For other databases, use SQLAlchemy
+            # MongoDB requires special handling with pymongo
+            if db_type == "mongodb":
+                return await self._test_mongodb_connection(connection_info)
+
+            # ClickHouse requires special handling with clickhouse-connect
+            if db_type == "clickhouse":
+                return await self._test_clickhouse_connection(connection_info)
+
+            # Doris uses pymysql directly (not SQLAlchemy)
+            if db_type == "doris":
+                return await self._test_doris_connection(connection_info)
+
+            # For other databases (MySQL, PostgreSQL, Hive), use SQLAlchemy
             if connection_info.get("connection_string"):
                 conn_str = connection_info["connection_string"]
             else:
                 conn_str = self._build_connection_string(connection_info)
 
-            print("Connection string built successfully")
+            logger.debug("[DataSourceManager] Connection string built successfully")
 
             engine = create_engine(conn_str, poolclass=NullPool)
             with engine.connect() as conn:
@@ -219,7 +257,7 @@ class DataSourceManager:
 
             return {"status": "success", "message": "Connection successful"}
         except Exception as e:
-            print(f"Connection test failed: {e!s}")
+            logger.error(f"[DataSourceManager] Connection test failed: {e!s}")
             return {"status": "failed", "message": str(e)}
 
     async def get_tables(self, datasource_id: str) -> list[str]:
@@ -229,7 +267,7 @@ class DataSourceManager:
             datasource_id: Data source ID
 
         Returns:
-            List of table names
+            List of table names (or collections for MongoDB, labels for Neo4j)
         """
         try:
             datasource = await self._get_datasource_by_id(datasource_id)
@@ -241,7 +279,26 @@ class DataSourceManager:
                 db_id = datasource_id.replace("custom_", "", 1)
                 return await self._get_tables_from_api(db_id)
 
-            # Otherwise use direct connection (for enterprise datasources)
+            # Get database type
+            db_type = datasource.get("type", "").lower()
+
+            # MongoDB requires special handling with pymongo
+            if db_type == "mongodb":
+                return await self._get_mongodb_collections(datasource)
+
+            # Neo4j requires special handling with neo4j driver
+            if db_type == "neo4j":
+                return await self._get_neo4j_labels(datasource)
+
+            # ClickHouse requires special handling
+            if db_type == "clickhouse":
+                return await self._get_clickhouse_tables(datasource)
+
+            # Doris requires special handling
+            if db_type == "doris":
+                return await self._get_doris_tables(datasource)
+
+            # For other databases (MySQL, PostgreSQL, Hive), use SQLAlchemy
             conn_str = datasource.get("connection_string")
             if not conn_str:
                 conn_str = self._build_connection_string(datasource)
@@ -252,7 +309,7 @@ class DataSourceManager:
 
             return sorted(tables)
         except Exception as e:
-            print(f"Error getting tables: {e}")
+            logger.error(f"[DataSourceManager] Error getting tables: {e}")
             return []
 
     async def _get_tables_from_api(self, datasource_id: str) -> list[str]:
@@ -267,7 +324,7 @@ class DataSourceManager:
                 if response.status_code == 200:
                     return response.json()
         except Exception as e:
-            print(f"Error getting tables from API: {e}")
+            logger.error(f"[DataSourceManager] Error getting tables from API: {e}")
 
         return []
 
@@ -311,7 +368,7 @@ class DataSourceManager:
                 for col in columns
             ]
         except Exception as e:
-            print(f"Error getting columns: {e}")
+            logger.error(f"[DataSourceManager] Error getting columns: {e}")
             return []
 
     async def _get_columns_from_api(self, datasource_id: str, table_name: str) -> list[dict]:
@@ -326,7 +383,7 @@ class DataSourceManager:
                 if response.status_code == 200:
                     return response.json()
         except Exception as e:
-            print(f"Error getting columns from API: {e}")
+            logger.error(f"[DataSourceManager] Error getting columns from API: {e}")
 
         return []
 
@@ -337,16 +394,36 @@ class DataSourceManager:
             connection_info: Connection parameters
 
         Returns:
-            List of table names
+            List of table names (or collections for MongoDB, labels for Neo4j)
         """
         try:
+            # Get database type
+            db_type = connection_info.get("type", "").lower()
+
+            # MongoDB requires special handling with pymongo
+            if db_type == "mongodb":
+                return await self._get_mongodb_collections(connection_info)
+
+            # Neo4j requires special handling with neo4j driver
+            if db_type == "neo4j":
+                return await self._get_neo4j_labels(connection_info)
+
+            # ClickHouse requires special handling
+            if db_type == "clickhouse":
+                return await self._get_clickhouse_tables(connection_info)
+
+            # Doris requires special handling
+            if db_type == "doris":
+                return await self._get_doris_tables(connection_info)
+
+            # For other databases (MySQL, PostgreSQL, Hive), use SQLAlchemy
             conn_str = self._build_connection_string(connection_info)
             engine = create_engine(conn_str, poolclass=NullPool)
             inspector = inspect(engine)
             tables = inspector.get_table_names()
             return sorted(tables)
         except Exception as e:
-            print(f"Error getting tables: {e}")
+            logger.error(f"[DataSourceManager] Error getting tables: {e}")
             return []
 
     async def get_columns_from_connection(self, connection_info: dict, table_name: str) -> list[dict]:
@@ -376,7 +453,7 @@ class DataSourceManager:
                 for col in columns
             ]
         except Exception as e:
-            print(f"Error getting columns: {e}")
+            logger.error(f"[DataSourceManager] Error getting columns: {e}")
             return []
 
     def _build_connection_string(self, datasource: dict) -> str:
@@ -495,6 +572,78 @@ class DataSourceManager:
             protocol = "https" if ssl_enabled else "http"
             return f"{protocol}://{host}:{rest_port}"
 
+        if db_type == "mongodb":
+            # MongoDB connection string
+            # Default port for MongoDB is 27017
+            mongo_port = port if port != 3306 else 27017
+
+            # Build base MongoDB connection string
+            if username and password:
+                base_url = f"mongodb://{username_encoded}:{password_encoded}@{host}:{mongo_port}/{database}"
+            else:
+                base_url = f"mongodb://{host}:{mongo_port}/{database}"
+
+            # Add advanced config parameters
+            params = []
+            if advanced_config.get("serverSelectionTimeoutMS"):
+                params.append(f"serverSelectionTimeoutMS={advanced_config['serverSelectionTimeoutMS']}")
+            if advanced_config.get("connectTimeoutMS"):
+                params.append(f"connectTimeoutMS={advanced_config['connectTimeoutMS']}")
+            if advanced_config.get("maxPoolSize"):
+                params.append(f"maxPoolSize={advanced_config['maxPoolSize']}")
+            if advanced_config.get("tls"):
+                params.append(f"tls={'true' if advanced_config['tls'] else 'false'}")
+            if advanced_config.get("authSource"):
+                params.append(f"authSource={advanced_config['authSource']}")
+
+            return base_url + ("?" + "&".join(params) if params else "")
+
+        if db_type == "clickhouse":
+            # ClickHouse connection string using clickhouse-connect driver
+            # Default port for ClickHouse HTTP interface is 8123
+            ch_port = port if port != 3306 else 8123
+
+            # Build base ClickHouse connection string for clickhouse-connect
+            base_url = f"clickhouse+connect://{username_encoded}:{password_encoded}@{host}:{ch_port}/{database}"
+
+            # Add advanced config parameters
+            params = []
+            if advanced_config.get("connect_timeout"):
+                params.append(f"connect_timeout={advanced_config['connect_timeout']}")
+            if advanced_config.get("send_receive_timeout"):
+                params.append(f"send_receive_timeout={advanced_config['send_receive_timeout']}")
+            if advanced_config.get("compress"):
+                params.append(f"compress={'true' if advanced_config['compress'] else 'false'}")
+            if advanced_config.get("secure"):
+                params.append(f"secure={'true' if advanced_config['secure'] else 'false'}")
+            if advanced_config.get("verify"):
+                params.append(f"verify={'true' if advanced_config['verify'] else 'false'}")
+
+            return base_url + ("?" + "&".join(params) if params else "")
+
+        if db_type == "doris":
+            # Apache Doris connection string using MySQL protocol (pymysql)
+            # Default port for Doris is 9030
+            doris_port = port if port != 3306 else 9030
+
+            # Build base Doris connection string (uses MySQL protocol)
+            base_url = f"mysql+pymysql://{username_encoded}:{password_encoded}@{host}:{doris_port}/{database}"
+
+            # Add advanced config parameters
+            params = []
+            if advanced_config.get("connect_timeout"):
+                params.append(f"connect_timeout={advanced_config['connect_timeout']}")
+            if advanced_config.get("read_timeout"):
+                params.append(f"read_timeout={advanced_config['read_timeout']}")
+            if advanced_config.get("write_timeout"):
+                params.append(f"write_timeout={advanced_config['write_timeout']}")
+            if advanced_config.get("charset"):
+                params.append(f"charset={advanced_config['charset']}")
+            if advanced_config.get("ssl_enabled"):
+                params.append("ssl=true")
+
+            return base_url + ("?" + "&".join(params) if params else "")
+
         raise ValueError(f"Unsupported database type: {db_type}")
 
     def _encrypt(self, text: str) -> str:
@@ -580,7 +729,7 @@ class DataSourceManager:
                         },
                     }
         except Exception as e:
-            print(f"Error fetching datasource {datasource_id}: {e}")
+            logger.error(f"[DataSourceManager] Error fetching datasource {datasource_id}: {e}")
 
         return None
 
@@ -646,7 +795,7 @@ class DataSourceManager:
             json.dump(save_sources, f, indent=2)
 
         # Clear cache to force reload
-        print(f"Clearing cache after updating datasource {datasource_id}")
+        logger.debug(f"[DataSourceManager] Clearing cache after updating datasource {datasource_id}")
         self._cache = {}
         self._last_cache_time = None
 
@@ -677,7 +826,7 @@ class DataSourceManager:
             json.dump(save_sources, f, indent=2)
 
         # Clear cache to force reload
-        print(f"Clearing cache after deleting datasource {datasource_id}")
+        logger.debug(f"[DataSourceManager] Clearing cache after deleting datasource {datasource_id}")
         self._cache = {}
         self._last_cache_time = None
 
@@ -735,7 +884,7 @@ class DataSourceManager:
                 "message": "confluent-kafka library not installed. Please install it with: pip install confluent-kafka",
             }
         except Exception as e:
-            print(f"Kafka connection test failed: {e!s}")
+            logger.error(f"[DataSourceManager] Kafka connection test failed: {e!s}")
             return {"status": "failed", "message": str(e)}
 
     async def _test_flink_connection(self, connection_info: dict) -> dict:
@@ -784,7 +933,9 @@ class DataSourceManager:
                 url = f"{protocol}://{host}:{port}/v1/overview"
 
                 try:
-                    async with httpx.AsyncClient(timeout=connection_timeout, verify=ssl_verify_cert if ssl_enabled else True) as client:
+                    async with httpx.AsyncClient(
+                        timeout=connection_timeout, verify=ssl_verify_cert if ssl_enabled else True
+                    ) as client:
                         response = await client.get(url)
 
                         if response.status_code == 200:
@@ -805,7 +956,7 @@ class DataSourceManager:
 
             return {"status": "failed", "message": f"Failed to connect to any JobManager. Last error: {last_error}"}
         except Exception as e:
-            print(f"Flink connection test failed: {e!s}")
+            logger.error(f"[DataSourceManager] Flink connection test failed: {e!s}")
             return {"status": "failed", "message": str(e)}
 
     async def _test_neo4j_connection(self, connection_info: dict) -> dict:
@@ -858,7 +1009,492 @@ class DataSourceManager:
             finally:
                 driver.close()
         except ImportError:
-            return {"status": "failed", "message": "neo4j library not installed. Please install it with: pip install neo4j"}
+            return {
+                "status": "failed",
+                "message": "neo4j library not installed. Please install it with: pip install neo4j",
+            }
         except Exception as e:
-            print(f"Neo4j connection test failed: {e!s}")
+            logger.error(f"[DataSourceManager] Neo4j connection test failed: {e!s}")
             return {"status": "failed", "message": str(e)}
+
+    async def _test_mongodb_connection(self, connection_info: dict) -> dict:
+        """Test MongoDB connection with pymongo.
+
+        Args:
+            connection_info: MongoDB connection parameters
+
+        Returns:
+            Test result with status
+        """
+        try:
+            from pymongo import MongoClient
+            from pymongo.errors import ServerSelectionTimeoutError
+
+            host = connection_info.get("host", "localhost")
+            port = connection_info.get("port", 27017)
+            database = connection_info.get("database", "admin")
+            username = connection_info.get("username", "")
+            password = connection_info.get("password", "")
+            advanced_config = connection_info.get("advanced_config", {})
+
+            if isinstance(advanced_config, str):
+                advanced_config = json.loads(advanced_config)
+
+            # Build MongoDB connection parameters
+            mongo_params = {
+                "host": host,
+                "port": port,
+                "serverSelectionTimeoutMS": advanced_config.get("serverSelectionTimeoutMS", 10000),
+                "connectTimeoutMS": advanced_config.get("connectTimeoutMS", 20000),
+            }
+
+            if advanced_config.get("maxPoolSize"):
+                mongo_params["maxPoolSize"] = advanced_config["maxPoolSize"]
+            if advanced_config.get("tls"):
+                mongo_params["tls"] = advanced_config["tls"]
+            if advanced_config.get("authSource"):
+                mongo_params["authSource"] = advanced_config["authSource"]
+
+            # Add authentication if provided
+            if username and password:
+                mongo_params["username"] = username
+                mongo_params["password"] = password
+
+            # Create MongoDB client
+            client = MongoClient(**mongo_params)
+
+            try:
+                # Test connection by getting server info
+                info = client.server_info()
+                db_list = client.list_database_names()
+
+                return {
+                    "status": "success",
+                    "message": f"Connection successful. MongoDB version: {info.get('version')}",
+                    "metadata": {
+                        "version": info.get("version"),
+                        "databases": len(db_list),
+                    },
+                }
+            finally:
+                client.close()
+
+        except ServerSelectionTimeoutError:
+            return {"status": "failed", "message": "Connection timeout. MongoDB server is not reachable."}
+        except ImportError:
+            return {
+                "status": "failed",
+                "message": "pymongo library not installed. Please install it with: pip install pymongo",
+            }
+        except Exception as e:
+            logger.error(f"[DataSourceManager] MongoDB connection test failed: {e!s}")
+            return {"status": "failed", "message": str(e)}
+
+    async def _test_clickhouse_connection(self, connection_info: dict) -> dict:
+        """Test ClickHouse connection with clickhouse-connect.
+
+        Args:
+            connection_info: ClickHouse connection parameters
+
+        Returns:
+            Test result with status
+        """
+        try:
+            import clickhouse_connect
+
+            host = connection_info.get("host", "localhost")
+            port = connection_info.get("port", 8123)
+            database = connection_info.get("database", "default")
+            username = connection_info.get("username", "default")
+            password = connection_info.get("password", "")
+            advanced_config = connection_info.get("advanced_config", {})
+
+            if isinstance(advanced_config, str):
+                advanced_config = json.loads(advanced_config)
+
+            # Build clickhouse-connect client parameters
+            client_params = {
+                "host": host,
+                "port": port,
+                "username": username,
+                "password": password,
+                "database": database,
+            }
+
+            if advanced_config.get("connect_timeout"):
+                client_params["connect_timeout"] = advanced_config["connect_timeout"]
+            if advanced_config.get("send_receive_timeout"):
+                client_params["send_receive_timeout"] = advanced_config["send_receive_timeout"]
+            if advanced_config.get("compress"):
+                client_params["compress"] = advanced_config["compress"]
+            if advanced_config.get("secure"):
+                client_params["secure"] = advanced_config["secure"]
+            if advanced_config.get("verify"):
+                client_params["verify"] = advanced_config["verify"]
+
+            # Create ClickHouse client
+            client = clickhouse_connect.get_client(**client_params)
+
+            try:
+                # Test connection with a simple query
+                result = client.query("SELECT version()")
+                version = result.result_rows[0][0] if result.result_rows else "Unknown"
+
+                # Get database list
+                databases_result = client.query("SHOW DATABASES")
+                db_count = len(databases_result.result_rows)
+
+                return {
+                    "status": "success",
+                    "message": f"Connection successful. ClickHouse version: {version}",
+                    "metadata": {
+                        "version": version,
+                        "databases": db_count,
+                    },
+                }
+            finally:
+                client.close()
+
+        except ImportError:
+            return {
+                "status": "failed",
+                "message": "clickhouse-connect library not installed. Please install it with: pip install clickhouse-connect",
+            }
+        except Exception as e:
+            logger.error(f"[DataSourceManager] ClickHouse connection test failed: {e!s}")
+            return {"status": "failed", "message": str(e)}
+
+    async def _test_doris_connection(self, connection_info: dict) -> dict:
+        """Test Apache Doris connection with pymysql.
+
+        Args:
+            connection_info: Doris connection parameters
+
+        Returns:
+            Test result with status
+        """
+        try:
+            import pymysql
+
+            host = connection_info.get("host", "localhost")
+            port = connection_info.get("port", 9030)
+            database = connection_info.get("database", "")
+            username = connection_info.get("username", "root")
+            password = connection_info.get("password", "")
+            advanced_config = connection_info.get("advanced_config", {})
+
+            if isinstance(advanced_config, str):
+                advanced_config = json.loads(advanced_config)
+
+            # Build pymysql connection parameters
+            conn_params = {
+                "host": host,
+                "port": port,
+                "user": username,
+                "password": password,
+                "database": database,
+                "charset": advanced_config.get("charset", "utf8"),
+            }
+
+            if advanced_config.get("connect_timeout"):
+                conn_params["connect_timeout"] = advanced_config["connect_timeout"]
+            if advanced_config.get("read_timeout"):
+                conn_params["read_timeout"] = advanced_config["read_timeout"]
+            if advanced_config.get("write_timeout"):
+                conn_params["write_timeout"] = advanced_config["write_timeout"]
+
+            # SSL configuration
+            if advanced_config.get("ssl_enabled"):
+                conn_params["ssl"] = {"ssl": True}
+
+            # Create Doris connection
+            connection = pymysql.connect(**conn_params)
+
+            try:
+                with connection.cursor() as cursor:
+                    # Test connection with version query
+                    cursor.execute("SELECT VERSION()")
+                    version_result = cursor.fetchone()
+                    version = version_result[0] if version_result else "Unknown"
+
+                    # Get database list
+                    cursor.execute("SHOW DATABASES")
+                    db_count = len(cursor.fetchall())
+
+                    return {
+                        "status": "success",
+                        "message": f"Connection successful. Doris version: {version}",
+                        "metadata": {
+                            "version": version,
+                            "databases": db_count,
+                        },
+                    }
+            finally:
+                connection.close()
+
+        except ImportError:
+            return {
+                "status": "failed",
+                "message": "pymysql library not installed. Please install it with: pip install pymysql",
+            }
+        except Exception as e:
+            logger.error(f"[DataSourceManager] Doris connection test failed: {e!s}")
+            return {"status": "failed", "message": str(e)}
+
+    async def _get_mongodb_collections(self, datasource: dict) -> list[str]:
+        """Get list of collections from MongoDB database.
+
+        Args:
+            datasource: MongoDB datasource configuration
+
+        Returns:
+            List of collection names
+        """
+        try:
+            from pymongo import MongoClient
+            from pymongo.errors import ServerSelectionTimeoutError
+
+            host = datasource.get("host", "localhost")
+            port = datasource.get("port", 27017)
+            database = datasource.get("database", "")
+            username = datasource.get("username", "")
+            password = datasource.get("password", "")
+            advanced_config = datasource.get("advanced_config", {})
+
+            # Parse advanced_config if it's a JSON string
+            if isinstance(advanced_config, str):
+                try:
+                    advanced_config = json.loads(advanced_config)
+                except (json.JSONDecodeError, TypeError):
+                    advanced_config = {}
+
+            # Build MongoDB connection parameters
+            mongo_params = {
+                "host": host,
+                "port": port,
+                "serverSelectionTimeoutMS": advanced_config.get("serverSelectionTimeoutMS", 10000),
+                "connectTimeoutMS": advanced_config.get("connectTimeoutMS", 20000),
+            }
+
+            if advanced_config.get("maxPoolSize"):
+                mongo_params["maxPoolSize"] = advanced_config["maxPoolSize"]
+            if advanced_config.get("tls"):
+                mongo_params["tls"] = advanced_config["tls"]
+
+            # Set authSource from advanced_config or use intelligent defaults
+            if advanced_config.get("authSource"):
+                mongo_params["authSource"] = advanced_config["authSource"]
+                logger.debug(
+                    f"[DataSourceManager] Using authSource from advanced_config: {advanced_config['authSource']}"
+                )
+            elif username and password:
+                # If authentication is used but no authSource specified:
+                # Default to 'admin' (most common setup in MongoDB)
+                # Users can override via advanced_config if their user is in a different database
+                mongo_params["authSource"] = "admin"
+                logger.debug("[DataSourceManager] Using default authSource='admin' for MongoDB authentication")
+
+            # Add authentication if provided
+            if username and password:
+                mongo_params["username"] = username
+                mongo_params["password"] = password
+
+            # Create MongoDB client
+            client = MongoClient(**mongo_params)
+
+            try:
+                if not database:
+                    logger.warning("[DataSourceManager] No database specified for MongoDB, returning empty list")
+                    return []
+
+                # Get collections from the specified database
+                db = client[database]
+                collections = db.list_collection_names()
+                logger.info(
+                    f"[DataSourceManager] Found {len(collections)} collections in MongoDB database '{database}'"
+                )
+                return sorted(collections)
+            finally:
+                client.close()
+
+        except ServerSelectionTimeoutError:
+            logger.error("[DataSourceManager] MongoDB connection timeout")
+            return []
+        except ImportError:
+            logger.error("[DataSourceManager] pymongo library not installed")
+            return []
+        except Exception as e:
+            logger.error(f"[DataSourceManager] Error getting MongoDB collections: {e}")
+            return []
+
+    async def _get_neo4j_labels(self, datasource: dict) -> list[str]:
+        """Get list of node labels from Neo4j database.
+
+        Args:
+            datasource: Neo4j datasource configuration
+
+        Returns:
+            List of node labels
+        """
+        try:
+            from neo4j import GraphDatabase
+
+            host = datasource.get("host", "localhost")
+            port = datasource.get("port", 7687)
+            username = datasource.get("username", "")
+            password = datasource.get("password", "")
+
+            uri = f"bolt://{host}:{port}"
+            driver = GraphDatabase.driver(uri, auth=(username, password))
+
+            try:
+                with driver.session() as session:
+                    result = session.run("CALL db.labels()")
+                    labels = [record["label"] for record in result]
+                    logger.info(f"[DataSourceManager] Found {len(labels)} labels in Neo4j database")
+                    return sorted(labels)
+            finally:
+                driver.close()
+
+        except ImportError:
+            logger.error("[DataSourceManager] neo4j library not installed")
+            return []
+        except Exception as e:
+            logger.error(f"[DataSourceManager] Error getting Neo4j labels: {e}")
+            return []
+
+    async def _get_clickhouse_tables(self, datasource: dict) -> list[str]:
+        """Get list of tables from ClickHouse database.
+
+        Args:
+            datasource: ClickHouse datasource configuration
+
+        Returns:
+            List of table names
+        """
+        try:
+            import clickhouse_connect
+
+            host = datasource.get("host", "localhost")
+            port = datasource.get("port", 8123)
+            database = datasource.get("database", "default")
+            username = datasource.get("username", "default")
+            password = datasource.get("password", "")
+            advanced_config = datasource.get("advanced_config", {})
+
+            # Parse advanced_config if it's a JSON string
+            if isinstance(advanced_config, str):
+                try:
+                    advanced_config = json.loads(advanced_config)
+                except (json.JSONDecodeError, TypeError):
+                    advanced_config = {}
+
+            # Build clickhouse-connect client parameters
+            client_params = {
+                "host": host,
+                "port": port,
+                "username": username,
+                "password": password,
+                "database": database,
+            }
+
+            # Add advanced config parameters
+            if advanced_config.get("connect_timeout"):
+                client_params["connect_timeout"] = advanced_config["connect_timeout"]
+            if advanced_config.get("send_receive_timeout"):
+                client_params["send_receive_timeout"] = advanced_config["send_receive_timeout"]
+            if advanced_config.get("compress"):
+                client_params["compress"] = advanced_config["compress"]
+            if advanced_config.get("secure"):
+                client_params["secure"] = advanced_config["secure"]
+            if advanced_config.get("verify"):
+                client_params["verify"] = advanced_config["verify"]
+
+            # Create ClickHouse client
+            client = clickhouse_connect.get_client(**client_params)
+
+            try:
+                # Get tables from current database
+                result = client.query("SHOW TABLES")
+                tables = [row[0] for row in result.result_rows]
+                logger.info(f"[DataSourceManager] Found {len(tables)} tables in ClickHouse database '{database}'")
+                return sorted(tables)
+            finally:
+                client.close()
+
+        except ImportError:
+            logger.error("[DataSourceManager] clickhouse-connect library not installed")
+            return []
+        except Exception as e:
+            logger.error(f"[DataSourceManager] Error getting ClickHouse tables: {e}")
+            return []
+
+    async def _get_doris_tables(self, datasource: dict) -> list[str]:
+        """Get list of tables from Doris database.
+
+        Args:
+            datasource: Doris datasource configuration
+
+        Returns:
+            List of table names
+        """
+        try:
+            import pymysql
+
+            host = datasource.get("host", "localhost")
+            port = datasource.get("port", 9030)
+            database = datasource.get("database", "")
+            username = datasource.get("username", "root")
+            password = datasource.get("password", "")
+            advanced_config = datasource.get("advanced_config", {})
+
+            # Parse advanced_config if it's a JSON string
+            if isinstance(advanced_config, str):
+                try:
+                    advanced_config = json.loads(advanced_config)
+                except (json.JSONDecodeError, TypeError):
+                    advanced_config = {}
+
+            # Build pymysql connection parameters
+            conn_params = {
+                "host": host,
+                "port": port,
+                "user": username,
+                "password": password,
+                "database": database,
+                "charset": advanced_config.get("charset", "utf8"),
+            }
+
+            # Add advanced config parameters
+            if advanced_config.get("connect_timeout"):
+                conn_params["connect_timeout"] = advanced_config["connect_timeout"]
+            else:
+                conn_params["connect_timeout"] = 10  # Default timeout
+
+            if advanced_config.get("read_timeout"):
+                conn_params["read_timeout"] = advanced_config["read_timeout"]
+            if advanced_config.get("write_timeout"):
+                conn_params["write_timeout"] = advanced_config["write_timeout"]
+
+            # SSL configuration
+            if advanced_config.get("ssl_enabled"):
+                conn_params["ssl"] = {"ssl": True}
+
+            # Create Doris connection
+            connection = pymysql.connect(**conn_params)
+
+            try:
+                with connection.cursor() as cursor:
+                    cursor.execute("SHOW TABLES")
+                    tables = [row[0] for row in cursor.fetchall()]
+                    logger.info(f"[DataSourceManager] Found {len(tables)} tables in Doris database '{database}'")
+                    return sorted(tables)
+            finally:
+                connection.close()
+
+        except ImportError:
+            logger.error("[DataSourceManager] pymysql library not installed")
+            return []
+        except Exception as e:
+            logger.error(f"[DataSourceManager] Error getting Doris tables: {e}")
+            return []

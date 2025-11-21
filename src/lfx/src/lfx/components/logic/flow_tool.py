@@ -1,3 +1,4 @@
+import os
 from typing import Any
 
 import i18n
@@ -23,6 +24,8 @@ class FlowToolComponent(LCToolComponent):
     legacy: bool = True
     replacement = ["logic.RunFlow"]
     icon = "hammer"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     async def get_flow_names(self) -> list[str]:
         logger.debug(i18n.t("components.logic.flow_tool.logs.fetching_flow_names"))

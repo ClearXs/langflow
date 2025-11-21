@@ -6,7 +6,7 @@ import i18n
 import sqlparse
 
 from lfx.custom.custom_component.component import Component
-from lfx.io import CodeInput, DropdownInput, IntInput, Output, TableInput
+from lfx.io import CodeInput, DropdownInput, IntInput, MultiselectInput, Output, TableInput
 from lfx.log.logger import logger
 from lfx.schema import Data
 
@@ -44,6 +44,16 @@ class ETLFlinkSQLComponent(Component):
             options=["batch", "streaming"],
             value="batch",
             required=True,
+        ),
+        MultiselectInput(
+            name="custom_functions",
+            display_name=i18n.t("components.computations.flink_sql.custom_functions.display_name"),
+            info=i18n.t("components.computations.flink_sql.custom_functions.info"),
+            options=[],
+            refresh_button=True,
+            real_time_refresh=True,
+            value=[],
+            combobox=True,  # Allow manual input when no options
         ),
         CodeInput(
             name="sql_script",
@@ -148,12 +158,64 @@ FROM user_behavior;""",
         action: str | None = None,
     ):
         """Handle field changes and action button clicks."""
-        # Load Flink datasources for initial load or when flink_datasource is accessed
-        # This ensures clicking refresh button always reloads the datasource list
-        if field_name is None or field_name == "flink_datasource":
+        logger.info(f"[FlinkSQL] update_build_config called: field_name={field_name}, action={action}, field_value type={type(field_value)}")
+
+        # Handle refresh action for specific fields
+        if action == "refresh":
+            if field_name == "flink_datasource":
+                logger.info("[FlinkSQL] Refresh button clicked for flink_datasource, reloading datasources...")
+                datasources = self._load_flink_datasources()
+                build_config["flink_datasource"]["options"] = [ds["display_name"] for ds in datasources]
+                build_config["flink_datasource"]["options_metadata"] = datasources
+                logger.info(f"[FlinkSQL] ✓ Reloaded {len(datasources)} Flink datasources")
+                return build_config
+            if field_name == "custom_functions":
+                logger.info("[FlinkSQL] Refresh button clicked for custom_functions, reloading functions...")
+                custom_functions = self._load_custom_functions()
+                build_config["custom_functions"]["options"] = [func["value"] for func in custom_functions]
+                build_config["custom_functions"]["options_metadata"] = custom_functions
+                logger.info(f"[FlinkSQL] ✓ Reloaded {len(custom_functions)} custom functions")
+                return build_config
+
+        # Handle custom_functions field value change - update SQL script
+        if field_name == "custom_functions" and action is None:
+            logger.info(f"[FlinkSQL] Custom functions changed: {field_value}")
+
+            # Get current SQL script value
+            current_sql = build_config.get("sql_script", {}).get("value", "")
+
+            # Remove existing UDF statements from SQL script
+            user_sql = self._extract_user_sql(current_sql)
+
+            # Build new UDF statements for selected functions
+            if field_value and len(field_value) > 0:
+                logger.info(f"[FlinkSQL] Building UDF statements for {len(field_value)} selected functions")
+                udf_sql = self._build_udf_statements(field_value)
+                if udf_sql:
+                    # Prepend UDF SQL to user's SQL
+                    new_sql = f"{udf_sql}\n\n-- User SQL script\n{user_sql}"
+                    build_config["sql_script"]["value"] = new_sql
+                    logger.info("[FlinkSQL] ✓ Updated SQL script with UDF statements")
+                else:
+                    build_config["sql_script"]["value"] = user_sql
+            else:
+                # No functions selected, just use user SQL
+                logger.info("[FlinkSQL] No custom functions selected, removing UDF statements")
+                build_config["sql_script"]["value"] = user_sql
+
+            return build_config
+
+        # Load Flink datasources for initial load
+        if field_name is None:
+            logger.info("[FlinkSQL] Initial load, loading all datasources and functions...")
             datasources = self._load_flink_datasources()
             build_config["flink_datasource"]["options"] = [ds["display_name"] for ds in datasources]
             build_config["flink_datasource"]["options_metadata"] = datasources
+
+            custom_functions = self._load_custom_functions()
+            build_config["custom_functions"]["options"] = [func["value"] for func in custom_functions]
+            build_config["custom_functions"]["options_metadata"] = custom_functions
+            logger.info(f"[FlinkSQL] ✓ Initial load: {len(datasources)} datasources, {len(custom_functions)} functions")
 
         # Handle "Execute SQL" button click
         if field_name == "execution_results" and action == "execute_sql":
@@ -342,6 +404,215 @@ FROM user_behavior;""",
             parts.append(f" [{status}]")
 
         return "".join(parts)
+
+    def _extract_user_sql(self, sql_script: str) -> str:
+        """Extract user SQL from SQL script by removing auto-generated UDF statements.
+
+        Args:
+            sql_script: Full SQL script that may contain auto-generated UDF statements
+
+        Returns:
+            User SQL without UDF statements
+        """
+        if not sql_script or not sql_script.strip():
+            return ""
+
+        # Look for the marker comment that separates UDF statements from user SQL
+        marker = "-- User SQL script"
+        if marker in sql_script:
+            # Split by marker and take everything after it
+            parts = sql_script.split(marker, 1)
+            if len(parts) == 2:
+                user_sql = parts[1].strip()
+                logger.debug(f"[FlinkSQL] Extracted user SQL (length: {len(user_sql)})")
+                return user_sql
+
+        # If marker not found, check if script starts with auto-generated UDF marker
+        udf_marker = "-- Auto-generated UDF statements"
+        if sql_script.strip().startswith(udf_marker):
+            # This looks like it has UDF statements but no user SQL marker
+            # Try to find where UDF statements end
+            lines = sql_script.split("\n")
+            user_sql_start = 0
+
+            for i, line in enumerate(lines):
+                # Skip auto-generated content
+                if line.strip().startswith("-- Function:") or \
+                   line.strip().startswith("ADD JAR") or \
+                   line.strip().startswith("CREATE TEMPORARY FUNCTION") or \
+                   line.strip() == udf_marker or \
+                   line.strip() == "":
+                    continue
+                # Found first line that's not UDF-related
+                user_sql_start = i
+                break
+
+            if user_sql_start > 0:
+                user_sql = "\n".join(lines[user_sql_start:]).strip()
+                logger.debug(f"[FlinkSQL] Extracted user SQL without marker (length: {len(user_sql)})")
+                return user_sql
+
+        # If no UDF statements found, return entire script
+        logger.debug("[FlinkSQL] No UDF statements found, returning entire script")
+        return sql_script.strip()
+
+    def _load_custom_functions(self) -> list[dict]:
+        """Load custom functions (UDF/UDTF/UDAF) from data-stream service."""
+        try:
+            from lfx.services.deps import get_feign_service
+            from lfx.services.feign.clients.data_stream import DataStreamFeignClient
+
+            feign_service = get_feign_service()
+            client = DataStreamFeignClient(feign_service)
+
+            # Async call to get function list
+            function_list = asyncio.run(client.get_registry_function_list())
+
+            custom_functions = []
+            for func in function_list:
+                func_id = func.get("id")
+                func_identifier = func.get("functionIdentifier", "Unknown")
+                func_name = func.get("functionName", "")
+                func_type = func.get("functionType", "")
+                func_class = func.get("functionClass", "")
+
+                # Build display name
+                display_name = f"{func_identifier}"
+                if func_name and func_name != func_identifier:
+                    display_name += f" ({func_name})"
+                if func_type:
+                    display_name += f" [{func_type}]"
+
+                custom_functions.append(
+                    {
+                        "value": func_identifier,  # Use identifier as value
+                        "label": display_name,
+                        "display_name": display_name,
+                        "id": str(func_id),
+                        "function_identifier": func_identifier,
+                        "function_name": func_name,
+                        "function_class": func_class,
+                        "function_type": func_type,
+                        "raw_data": func,  # Store full function data
+                    }
+                )
+
+            logger.info(f"[FlinkSQL] Loaded {len(custom_functions)} custom functions")
+            return custom_functions
+
+        except Exception as e:
+            logger.error(f"[FlinkSQL] Failed to load custom functions: {e}")
+            return []
+
+    def _transform_url_to_s3(self, url: str) -> str:
+        """Transform HTTP URL to S3 URL.
+
+        Args:
+            url: HTTP URL (e.g., http://192.168.110.185:8800/bladex/word-count-1.0.0.jar)
+
+        Returns:
+            S3 URL (e.g., s3://bladex/word-count-1.0.0.jar)
+        """
+        try:
+            # Remove protocol if present
+            if "://" in url:
+                url = url.split("://", 1)[1]
+
+            # Split by first slash to separate host:port from path
+            # Example: "192.168.110.185:8800/bladex/word-count-1.0.0.jar"
+            if "/" in url:
+                parts = url.split("/", 1)
+                if len(parts) == 2:
+                    path = parts[1]  # "bladex/word-count-1.0.0.jar"
+                    s3_url = f"s3://{path}"
+                    logger.debug(f"[FlinkSQL] Transformed URL: {url} -> {s3_url}")
+                    return s3_url
+
+            # If no slash found, return as-is
+            logger.warning(f"[FlinkSQL] Could not transform URL to S3 format: {url}")
+            return url
+
+        except Exception as e:
+            logger.error(f"[FlinkSQL] Failed to transform URL to S3: {e}")
+            return url
+
+    def _build_udf_statements(self, selected_function_identifiers: list[str]) -> str:
+        """Build UDF SQL statements for selected functions.
+
+        Args:
+            selected_function_identifiers: List of selected function identifiers
+
+        Returns:
+            SQL statements for ADD JAR and CREATE TEMPORARY FUNCTION
+        """
+        if not selected_function_identifiers:
+            return ""
+
+        try:
+            # Get function metadata from options_metadata
+            function_metadata_list = []
+            if hasattr(self, "_input_dict") and self._input_dict:
+                custom_functions_input = self._input_dict.get("custom_functions")
+                if custom_functions_input and hasattr(custom_functions_input, "options_metadata"):
+                    options_metadata = custom_functions_input.options_metadata
+                    if options_metadata:
+                        for func_meta in options_metadata:
+                            if func_meta.get("function_identifier") in selected_function_identifiers:
+                                function_metadata_list.append(func_meta)
+
+            # If not found in cache, reload functions
+            if not function_metadata_list:
+                logger.info("[FlinkSQL] Function metadata not in cache, reloading custom functions")
+                all_functions = self._load_custom_functions()
+                for func_meta in all_functions:
+                    if func_meta.get("function_identifier") in selected_function_identifiers:
+                        function_metadata_list.append(func_meta)
+
+            if not function_metadata_list:
+                logger.warning(f"[FlinkSQL] No function metadata found for: {selected_function_identifiers}")
+                return ""
+
+            # Build SQL statements
+            sql_statements = []
+            sql_statements.append("-- Auto-generated UDF statements")
+
+            for func_meta in function_metadata_list:
+                raw_data = func_meta.get("raw_data", {})
+                function_identifier = func_meta.get("function_identifier")
+                function_class = func_meta.get("function_class")
+                resource_files = raw_data.get("resourceFile", [])
+
+                if not function_identifier or not function_class:
+                    logger.warning(f"[FlinkSQL] Skipping function with missing identifier or class: {func_meta}")
+                    continue
+
+                # Add comment for this function
+                sql_statements.append(f"\n-- Function: {function_identifier}")
+
+                # Add JAR statements for each resource file
+                if resource_files:
+                    for resource in resource_files:
+                        if isinstance(resource, dict) and "file" in resource:
+                            file_info = resource["file"]
+                            if isinstance(file_info, dict) and "link" in file_info:
+                                jar_url = file_info["link"]
+                                # Transform to S3 URL
+                                s3_url = self._transform_url_to_s3(jar_url)
+                                sql_statements.append(f"ADD JAR '{s3_url}';")
+                else:
+                    logger.warning(f"[FlinkSQL] No resource files found for function: {function_identifier}")
+
+                # Add CREATE TEMPORARY FUNCTION statement
+                sql_statements.append(f"CREATE TEMPORARY FUNCTION {function_identifier} AS '{function_class}';")
+
+            # Join all statements with newline
+            udf_sql = "\n".join(sql_statements)
+            logger.info(f"[FlinkSQL] Built UDF SQL for {len(function_metadata_list)} functions:\n{udf_sql}")
+            return udf_sql
+
+        except Exception as e:
+            logger.error(f"[FlinkSQL] Failed to build UDF statements: {e}")
+            return ""
 
     def _find_datasource_by_id(self, datasource_id: str) -> dict | None:
         """Find datasource by reloading datasource list.
@@ -621,6 +892,16 @@ FROM user_behavior;""",
         # Log full SQL for debugging
         if sql_script and len(sql_script) > 200:
             logger.info(f"[FlinkSQL] Full SQL script:\n{sql_script}")
+
+        # Build UDF statements if custom functions are selected
+        udf_sql = ""
+        if hasattr(self, "custom_functions") and self.custom_functions:
+            logger.info(f"[FlinkSQL] Building UDF statements for selected functions: {self.custom_functions}")
+            udf_sql = self._build_udf_statements(self.custom_functions)
+            if udf_sql:
+                # Prepend UDF SQL to user's SQL script
+                sql_script = f"{udf_sql}\n\n-- User SQL script\n{sql_script}"
+                logger.info(f"[FlinkSQL] Prepended UDF SQL to script. New length: {len(sql_script)}")
 
         # Parse SQL statements
         statements = self._parse_sql_statements(sql_script)

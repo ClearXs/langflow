@@ -302,6 +302,108 @@ FLINK_ADVANCED_CONFIG_SCHEMA = {
     "additionalProperties": False
 }
 
+# MongoDB Advanced Configuration Schema
+MONGODB_ADVANCED_CONFIG_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "serverSelectionTimeoutMS": {
+            "type": "integer",
+            "minimum": 1000,
+            "maximum": 300000,
+            "description": "Server selection timeout in milliseconds"
+        },
+        "connectTimeoutMS": {
+            "type": "integer",
+            "minimum": 1000,
+            "maximum": 300000,
+            "description": "Connection timeout in milliseconds"
+        },
+        "maxPoolSize": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 1000,
+            "description": "Maximum connection pool size"
+        },
+        "tls": {
+            "type": "boolean",
+            "description": "Enable TLS/SSL connection"
+        },
+        "authSource": {
+            "type": "string",
+            "maxLength": 64,
+            "description": "Authentication database name"
+        }
+    },
+    "additionalProperties": False
+}
+
+# ClickHouse Advanced Configuration Schema
+CLICKHOUSE_ADVANCED_CONFIG_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "connect_timeout": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 300,
+            "description": "Connection timeout in seconds"
+        },
+        "send_receive_timeout": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 3600,
+            "description": "Send/receive timeout in seconds"
+        },
+        "compress": {
+            "type": "boolean",
+            "description": "Enable compression"
+        },
+        "secure": {
+            "type": "boolean",
+            "description": "Use HTTPS protocol"
+        },
+        "verify": {
+            "type": "boolean",
+            "description": "Verify SSL certificate"
+        }
+    },
+    "additionalProperties": False
+}
+
+# Doris Advanced Configuration Schema
+DORIS_ADVANCED_CONFIG_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "connect_timeout": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 300,
+            "description": "Connection timeout in seconds"
+        },
+        "read_timeout": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 3600,
+            "description": "Read timeout in seconds"
+        },
+        "write_timeout": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 3600,
+            "description": "Write timeout in seconds"
+        },
+        "charset": {
+            "type": "string",
+            "enum": ["utf8", "utf8mb4"],
+            "description": "Character set"
+        },
+        "ssl_enabled": {
+            "type": "boolean",
+            "description": "Enable SSL connection"
+        }
+    },
+    "additionalProperties": False
+}
+
 # Map datasource type to schema
 DATASOURCE_SCHEMA_MAP = {
     "mysql": MYSQL_ADVANCED_CONFIG_SCHEMA,
@@ -310,6 +412,9 @@ DATASOURCE_SCHEMA_MAP = {
     "neo4j": NEO4J_ADVANCED_CONFIG_SCHEMA,
     "kafka": KAFKA_ADVANCED_CONFIG_SCHEMA,
     "flink": FLINK_ADVANCED_CONFIG_SCHEMA,
+    "mongodb": MONGODB_ADVANCED_CONFIG_SCHEMA,
+    "clickhouse": CLICKHOUSE_ADVANCED_CONFIG_SCHEMA,
+    "doris": DORIS_ADVANCED_CONFIG_SCHEMA,
 }
 
 

@@ -349,6 +349,11 @@ class SimplifiedAPIRequest(BaseModel):
     )
     tweaks: Tweaks | None = Field(default=None, description="The tweaks")
     session_id: str | None = Field(default=None, description="The session id")
+    runtime_variables: dict[str, str] | None = Field(
+        default=None,
+        description="Runtime variables to use during this execution. "
+        "These variables have the highest priority and will override system and global variables.",
+    )
 
 
 # (alias) type ReactFlowJsonObject<NodeData = any, EdgeData = any> = {

@@ -1,0 +1,18 @@
+{
+  "flow_not_found": "流程 %{flow_id} 不存在",
+  "flow_unauthorized": "您没有权限访问此流程",
+  "flow_no_data": "流程没有可分析的数据",
+  "analysis_failed": "血缘分析失败：%{error}",
+  "extraction_failed": "提取表失败：%{error}",
+  "analysis_complete": "血缘分析成功完成",
+  "tables_extracted": "成功提取了 %{count} 个表",
+  "search_started": "血缘搜索已启动",
+  "search_processing": "正在搜索流程...",
+  "search_completed": "搜索完成",
+  "search_failed": "搜索失败",
+  "job_not_found": "任务 {job_id} 不存在或已过期",
+  "no_flows_found": "未找到用户的流程",
+  "no_matches": "未找到匹配的表",
+  "table_name_required": "表名是必填项",
+  "invalid_job_id": "无效的任务ID格式"
+}

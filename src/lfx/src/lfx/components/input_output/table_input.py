@@ -1,4 +1,3 @@
-import asyncio
 from typing import Any
 
 import i18n
@@ -35,14 +34,20 @@ TRANSFORMATION_RULE_VALUES = [
 ]
 
 
-def _serialize_neo4j_value(value):
-    """Neo4j对象包装函数 - 把复杂对象包装成React可以渲染的简单结构。
+def _serialize_value_for_table(value):
+    """通用对象包装函数 - 把各种数据库对象包装成React可以渲染的简单结构。
 
     核心原则：保持原始数据结构不变，只是在表格显示时包装成 {"value": ""} 格式。
+    支持：Neo4j, MongoDB, ClickHouse等数据库的复杂对象。
     """
     # 如果已经是原始类型，包装成 {"value": 原始值}
     if isinstance(value, (str, int, float, bool)) or value is None:
         return {"value": value}
+
+
+def _serialize_neo4j_value(value):
+    """Neo4j对象包装函数 - 调用通用序列化函数。"""
+    return _serialize_value_for_table(value)
 
     # 处理Neo4j特殊对象
     try:
@@ -147,6 +152,53 @@ def _convert_neo4j_record_to_dict(record):
 
     logger.debug(f"[TableInput] Final converted record: {result}")
     return result
+
+
+def _convert_mongodb_doc_to_table_format(doc: dict) -> dict:
+    """Convert a MongoDB document to single-field table format.
+
+    This function takes a MongoDB document and converts it to a single-field
+    format suitable for table display, where the entire document is JSON-serialized
+    and wrapped in a {"value": "..."} structure.
+
+    Args:
+        doc: A MongoDB document (dict)
+
+    Returns:
+        A dictionary with single "value" key containing JSON-serialized document
+    """
+    try:
+        # Convert ObjectId and other MongoDB-specific types to strings
+        import json
+
+        # Deep copy to avoid modifying original
+        doc_copy = {}
+        for key, value in doc.items():
+            if key == "_id":
+                # Convert ObjectId to string
+                doc_copy[key] = str(value)
+            elif isinstance(value, (str, int, float, bool)) or value is None:
+                doc_copy[key] = value
+            else:
+                # For complex types, convert to string
+                try:
+                    doc_copy[key] = json.dumps(value, ensure_ascii=False, default=str)
+                except Exception:
+                    doc_copy[key] = str(value)
+
+        # Convert the entire document to JSON string
+        json_str = json.dumps(doc_copy, ensure_ascii=False, default=str)
+
+        # Wrap in single-field format for table display
+        table_format = {"value": json_str}
+
+        logger.debug(f"[TableInput] MongoDB document converted to table format: {table_format}")
+        return table_format
+
+    except Exception as e:
+        error_msg = f"<Error converting MongoDB document to table format: {e!s}>"
+        logger.error(f"[TableInput] Error in MongoDB table format conversion: {error_msg}")
+        return {"value": error_msg}
 
 
 def _convert_neo4j_record_to_table_format(record):
@@ -374,7 +426,16 @@ class ETLTableInputComponent(Component):
                 options = []
                 options_metadata = []
 
+                # Table Input 排除 Kafka（Kafka 不支持 SQL 查询）
+                excluded_types = {"kafka"}
+
                 for ds in all_datasources:
+                    # 过滤：排除 Kafka
+                    ds_type = ds.get("type", "").lower()
+                    if ds_type in excluded_types:
+                        logger.debug(f"[TableInput] Skipping excluded datasource type: {ds_type} (name={ds['name']})")
+                        continue
+
                     # options 只包含ID (唯一值)
                     options.append(ds["id"])
                     # options_metadata 包含显示信息，使用 label 字段供前端显示
@@ -393,7 +454,7 @@ class ETLTableInputComponent(Component):
 
                 build_config["datasource_selector"]["options"] = options
                 build_config["datasource_selector"]["options_metadata"] = options_metadata
-                logger.debug(f"[TableInput] Set datasource_selector options: {options}")
+                logger.debug(f"[TableInput] Set datasource_selector options: {options} (excluded Kafka)")
                 logger.debug(f"[TableInput] Set options_metadata with {len(options_metadata)} entries")
 
             except Exception as e:
@@ -482,6 +543,14 @@ class ETLTableInputComponent(Component):
                                 "source": ds["source"],
                                 "display_name": ds["display_name"],
                                 "raw_data": ds.get("raw_data"),
+                                # ✅ 包含预构建的连接字符串和参数，避免API调用
+                                "connection_string": ds.get("connection_string"),
+                                "host": ds.get("host"),
+                                "port": ds.get("port"),
+                                "database": ds.get("database"),
+                                "username": ds.get("username"),
+                                "password": ds.get("password"),
+                                "advanced_config": ds.get("advanced_config"),
                             }
                             # 更新 options_metadata
                             if ds["display_name"] not in [m.get("display_name") for m in options_metadata]:
@@ -586,6 +655,14 @@ class ETLTableInputComponent(Component):
                                 "source": ds["source"],
                                 "display_name": ds["display_name"],
                                 "raw_data": ds.get("raw_data"),
+                                # ✅ 包含预构建的连接字符串和参数，避免API调用
+                                "connection_string": ds.get("connection_string"),
+                                "host": ds.get("host"),
+                                "port": ds.get("port"),
+                                "database": ds.get("database"),
+                                "username": ds.get("username"),
+                                "password": ds.get("password"),
+                                "advanced_config": ds.get("advanced_config"),
                             }
                             break
 
@@ -603,10 +680,14 @@ class ETLTableInputComponent(Component):
 
                 connection_string = self._get_connection_string(datasource_id, datasource_info)
 
-                # Check if this is a Neo4j datasource
+                # Check datasource type
                 is_neo4j = datasource_info and datasource_info.get("type", "").lower() == "neo4j"
+                is_mongodb = datasource_info and datasource_info.get("type", "").lower() == "mongodb"
+                is_clickhouse = datasource_info and datasource_info.get("type", "").lower() == "clickhouse"
+
                 logger.debug(
-                    f"[TableInput] is_neo4j={is_neo4j}, datasource type={datasource_info.get('type') if datasource_info else 'N/A'}"
+                    f"[TableInput] Datasource type check: is_neo4j={is_neo4j}, is_mongodb={is_mongodb}, "
+                    f"is_clickhouse={is_clickhouse}, type={datasource_info.get('type') if datasource_info else 'N/A'}"
                 )
 
                 if is_neo4j:
@@ -650,6 +731,162 @@ class ETLTableInputComponent(Component):
                             df = pd.DataFrame(records)
                     finally:
                         driver.close()
+                elif is_mongodb:
+                    # MongoDB requires pymongo, not SQLAlchemy
+                    import json
+                    import re
+                    from urllib.parse import unquote
+
+                    from pymongo import MongoClient
+
+                    logger.info("[TableInput] Detected MongoDB datasource, using pymongo driver")
+
+                    # Parse MongoDB query JSON
+                    try:
+                        query_dict = json.loads(current_sql)
+                    except json.JSONDecodeError as e:
+                        raise ValueError(
+                            f'Invalid MongoDB query JSON: {e}. Expected format: {{"collection": "name", "operation": "find", "filter": {{}}}}'
+                        ) from e
+
+                    collection_name = query_dict.get("collection")
+                    if not collection_name:
+                        raise ValueError("MongoDB query must specify 'collection' field")
+
+                    operation = query_dict.get("operation", "find")
+                    mongo_filter = query_dict.get("filter", {})
+                    projection = query_dict.get("projection")
+                    sort = query_dict.get("sort")
+                    limit = query_dict.get("limit", 100)  # Default 100 for preview
+
+                    # Parse MongoDB connection string to get correct parameters
+                    # Format: mongodb://[username:password@]host:port/database
+                    match = re.match(r"mongodb://(?:([^:]+):([^@]+)@)?([^:]+):(\d+)/(.+)", connection_string)
+                    if not match:
+                        raise ValueError(f"Invalid MongoDB connection string: {connection_string}")
+
+                    username, password, host, port, database = match.groups()
+                    if username:
+                        username = unquote(username)
+                    if password:
+                        password = unquote(password)
+
+                    logger.debug(f"[TableInput] MongoDB connection: host={host}, port={port}, database={database}")
+
+                    # Build MongoDB connection parameters
+                    mongo_params = {
+                        "host": host,
+                        "port": int(port),
+                        "serverSelectionTimeoutMS": 10000,
+                        "connectTimeoutMS": 20000,
+                    }
+
+                    if username and password:
+                        mongo_params["username"] = username
+                        mongo_params["password"] = password
+
+                    # Create MongoDB client
+                    client = MongoClient(**mongo_params)
+
+                    try:
+                        db = client[database]
+                        collection = db[collection_name]
+
+                        if operation == "find":
+                            # Build find query
+                            cursor = collection.find(mongo_filter, projection)
+                            if sort:
+                                cursor = cursor.sort(list(sort.items()))
+                            cursor = cursor.limit(limit)
+
+                            # Fetch data and serialize for table display
+                            records = []
+                            for doc in cursor:
+                                # Convert entire MongoDB document to table format (like Neo4j)
+                                # Wrap whole document as {"value": "JSON string"}
+                                table_row = _convert_mongodb_doc_to_table_format(doc)
+                                logger.debug(f"[TableInput] MongoDB table row: {table_row}")
+                                records.append(table_row)
+
+                            logger.debug(f"[TableInput] MongoDB records count: {len(records)}")
+                            if records:
+                                logger.debug(f"[TableInput] First MongoDB record: {records[0]}")
+
+                            df = pd.DataFrame(records)
+                            logger.debug(f"[TableInput] DataFrame columns: {df.columns.tolist()}")
+                            logger.debug(f"[TableInput] DataFrame shape: {df.shape}")
+                        elif operation == "aggregate":
+                            # Aggregation pipeline
+                            pipeline = query_dict.get("pipeline", [])
+                            cursor = collection.aggregate(pipeline)
+
+                            records = []
+                            for doc in cursor:
+                                # Convert entire MongoDB document to table format (like Neo4j)
+                                # Wrap whole document as {"value": "JSON string"}
+                                table_row = _convert_mongodb_doc_to_table_format(doc)
+                                logger.debug(f"[TableInput] MongoDB aggregate table row: {table_row}")
+                                records.append(table_row)
+
+                            logger.debug(f"[TableInput] MongoDB aggregate records count: {len(records)}")
+                            if records:
+                                logger.debug(f"[TableInput] First MongoDB aggregate record: {records[0]}")
+
+                            df = pd.DataFrame(records)
+                            logger.debug(f"[TableInput] Aggregate DataFrame columns: {df.columns.tolist()}")
+                            logger.debug(f"[TableInput] Aggregate DataFrame shape: {df.shape}")
+                        else:
+                            raise ValueError(f"Unsupported MongoDB operation: {operation}")
+
+                        logger.debug(f"[TableInput] MongoDB query returned {len(df)} rows")
+                    finally:
+                        client.close()
+                elif is_clickhouse:
+                    # ClickHouse requires clickhouse-connect, not SQLAlchemy
+                    import re
+                    from urllib.parse import unquote
+
+                    import clickhouse_connect
+
+                    logger.info("[TableInput] Detected ClickHouse datasource, using clickhouse-connect driver")
+
+                    # Parse ClickHouse connection string
+                    # Format: clickhouse+connect://username:password@host:port/database
+                    match = re.match(r"clickhouse\+connect://([^:]+):([^@]+)@([^:]+):(\d+)/(.+)", connection_string)
+                    if not match:
+                        raise ValueError(f"Invalid ClickHouse connection string format: {connection_string}")
+
+                    username, password, host, port, database = match.groups()
+                    username = unquote(username)
+                    password = unquote(password)
+
+                    # Create ClickHouse client
+                    client = clickhouse_connect.get_client(
+                        host=host, port=int(port), username=username, password=password, database=database
+                    )
+
+                    try:
+                        # Add LIMIT to query if not present
+                        query_upper = current_sql.upper().strip()
+                        if "LIMIT" not in query_upper:
+                            preview_sql = f"{current_sql} LIMIT 100"
+                        else:
+                            preview_sql = current_sql
+
+                        # Execute query
+                        result = client.query(preview_sql)
+
+                        # Convert to DataFrame
+                        if result.result_rows:
+                            column_names = result.column_names
+                            records = [dict(zip(column_names, row, strict=False)) for row in result.result_rows]
+                            df = pd.DataFrame(records)
+                        else:
+                            df = pd.DataFrame()
+
+                        logger.debug(f"[TableInput] ClickHouse query returned {len(df)} rows")
+                    finally:
+                        client.close()
                 else:
                     # For SQL databases, use SQLAlchemy
                     engine = create_engine(connection_string, poolclass=NullPool)
@@ -671,18 +908,37 @@ class ETLTableInputComponent(Component):
                     return build_config
 
                 # Generate table schema
-                table_schema = [
-                    {
-                        "name": str(col),
-                        "display_name": str(col),
-                        "type": "str",
-                        "disable_edit": True,
-                    }
-                    for col in df.columns
-                ]
+                # For MongoDB/Neo4j single-column format, use "json" type for better frontend rendering
+                table_schema = []
+                for col in df.columns:
+                    col_type = "str"  # Default type
+                    # If this is MongoDB/Neo4j format (single "value" column), use "json" type
+                    if str(col) == "value" and len(df.columns) == 1:
+                        col_type = "json"
+                        logger.debug("[TableInput] Using 'json' type for single 'value' column (MongoDB/Neo4j format)")
+
+                    table_schema.append(
+                        {
+                            "name": str(col),
+                            "display_name": str(col),
+                            "type": col_type,
+                            "disable_edit": True,
+                        }
+                    )
 
                 # Convert DataFrame to list of dicts
                 preview_data = df.fillna("").to_dict("records")
+
+                logger.debug(f"[TableInput] Preview table schema: {table_schema}")
+                logger.debug(f"[TableInput] Preview data count: {len(preview_data)}")
+                if preview_data:
+                    logger.debug(f"[TableInput] First preview data row: {preview_data[0]}")
+                    logger.debug(f"[TableInput] First preview data row type: {type(preview_data[0])}")
+                    if preview_data[0]:
+                        for key, val in preview_data[0].items():
+                            logger.debug(
+                                f"[TableInput] Preview data field '{key}': {type(val).__name__} = {str(val)[:200]}"
+                            )
 
                 # Update preview table config
                 build_config["preview_table"]["table_schema"] = table_schema
@@ -712,7 +968,20 @@ class ETLTableInputComponent(Component):
 
             # 获取公共数据源
             try:
-                public_datasources = asyncio.run(self._get_public_datasources())
+                # Use asyncio.get_event_loop().run_until_complete() to handle nested event loops
+                import asyncio
+
+                try:
+                    loop = asyncio.get_running_loop()
+                    # Already in event loop, use ThreadPoolExecutor
+                    import concurrent.futures
+
+                    with concurrent.futures.ThreadPoolExecutor() as executor:
+                        future = executor.submit(asyncio.run, self._get_public_datasources())
+                        public_datasources = future.result(timeout=10)
+                except RuntimeError:
+                    # No running event loop, use asyncio.run()
+                    public_datasources = asyncio.run(self._get_public_datasources())
             except Exception as e:
                 logger.warning(f"[TableInput] Failed to get public datasources: {e}")
                 public_datasources = []
@@ -720,7 +989,7 @@ class ETLTableInputComponent(Component):
             # 合并数据源列表
             all_datasources = []
 
-            # 添加内置数据源
+            # 添加内置数据源 - 不包含 connection_string，通过 API 动态获取
             for ds in builtin_datasources:
                 display_name = f"{ds['name']} ({ds['type']}) [自定义]"
                 all_datasources.append(
@@ -730,6 +999,7 @@ class ETLTableInputComponent(Component):
                         "type": ds["type"],
                         "source": "builtin",
                         "display_name": display_name,
+                        # ❌ 移除预构建的 connection_string，改为通过 API 动态获取
                     }
                 )
 
@@ -781,9 +1051,87 @@ class ETLTableInputComponent(Component):
         return datasource_id
 
     def _get_builtin_datasources(self) -> list[dict]:
-        """获取内置数据源"""
+        """获取内置数据源 - 直接从数据库读取，包含完整连接信息"""
         try:
-            datasources = asyncio.run(self.datasource_manager.get_datasources())
+            # 直接从数据库读取数据源，避免API调用导致的死锁
+            import asyncio
+            import concurrent.futures
+
+            from langflow.services.database.models.datasource import DataSource
+            from langflow.services.deps import session_scope
+            from sqlmodel import select
+
+            async def fetch_datasources():
+                """异步获取数据源列表"""
+                try:
+                    async with session_scope() as session:
+                        statement = select(DataSource)
+                        result = await session.exec(statement)
+                        datasources = result.all()
+
+                        logger.debug(f"[TableInput] Fetched {len(datasources)} datasources from database")
+
+                        builtin_list = []
+                        for ds in datasources:
+                            # 构建包含所有连接参数的字典（包括密码）
+                            ds_dict = {
+                                "id": str(ds.id),
+                                "name": ds.name,
+                                "type": ds.type.lower(),
+                                "host": ds.host,
+                                "port": ds.port,
+                                "database": ds.database,
+                                "username": ds.username,
+                                "password": ds.password,  # 包含密码用于构建连接字符串
+                                "source": "builtin",
+                                "advanced_config": ds.advanced_config,
+                            }
+                            builtin_list.append(ds_dict)
+
+                        return builtin_list
+                except Exception as e:
+                    logger.error(f"[TableInput] Error fetching datasources from database: {e}")
+                    return []
+
+            # 执行异步操作
+            try:
+                loop = asyncio.get_running_loop()
+                # 在事件循环中，使用ThreadPoolExecutor
+                with concurrent.futures.ThreadPoolExecutor() as executor:
+                    future = executor.submit(asyncio.run, fetch_datasources())
+                    builtin_datasources = future.result(timeout=10)
+            except RuntimeError:
+                # 没有运行中的事件循环，直接使用asyncio.run
+                builtin_datasources = asyncio.run(fetch_datasources())
+
+            logger.debug(f"[TableInput] Got {len(builtin_datasources)} builtin datasources from database")
+            return builtin_datasources
+
+        except Exception as e:
+            logger.error(f"[TableInput] Error getting builtin datasources: {e}")
+            return []
+
+    def _get_builtin_datasources_legacy(self) -> list[dict]:
+        """获取内置数据源 - 旧方法（通过DataSourceManager）"""
+        try:
+            # Use ThreadPoolExecutor to handle nested event loops
+            import asyncio
+            import concurrent.futures
+
+            try:
+                loop = asyncio.get_running_loop()
+                # Already in event loop, use ThreadPoolExecutor
+                with concurrent.futures.ThreadPoolExecutor() as executor:
+                    future = executor.submit(asyncio.run, self.datasource_manager.get_datasources())
+                    datasources = future.result(timeout=10)
+            except RuntimeError:
+                # No running event loop, use asyncio.run()
+                datasources = asyncio.run(self.datasource_manager.get_datasources())
+
+            logger.debug(
+                f"[TableInput] Got datasources from manager: enterprise={len(datasources.get('enterprise', []))}, custom={len(datasources.get('custom', []))}"
+            )
+
             builtin_datasources = []
 
             # 合并企业和自定义数据源
@@ -801,6 +1149,7 @@ class ETLTableInputComponent(Component):
                         "port": ds.get("port"),
                     }
                 )
+                logger.debug(f"[TableInput] Added enterprise datasource: {ds['name']} (ID: {datasource_id})")
 
             for ds in datasources.get("custom", []):
                 # 自定义数据源ID可能包含前缀，需要提取纯UUID
@@ -816,11 +1165,16 @@ class ETLTableInputComponent(Component):
                         "port": ds.get("port"),
                     }
                 )
+                logger.debug(f"[TableInput] Added custom datasource: {ds['name']} (ID: {datasource_id})")
 
+            logger.info(f"[TableInput] Total builtin datasources loaded: {len(builtin_datasources)}")
             return builtin_datasources
 
         except Exception as e:
             logger.error(f"[TableInput] Error getting builtin datasources: {e}")
+            import traceback
+
+            logger.error(f"[TableInput] Traceback: {traceback.format_exc()}")
             return []
 
     async def _get_public_datasources(self) -> list[dict]:
@@ -1057,10 +1411,20 @@ class ETLTableInputComponent(Component):
 
     def _get_connection_string(self, datasource_id: str, datasource_info: dict = None) -> str:
         """获取数据源连接字符串，支持内置和公共数据源"""
+        # 公共数据源：从raw_data构建连接字符串
         if datasource_info and datasource_info.get("source") == "public":
-            # 公共数据源：从raw_data构建连接字符串
+            logger.info("[TableInput] Building connection string for public datasource")
             return self._build_public_connection_string(datasource_info["raw_data"])
-        # 内置数据源：使用现有逻辑
+
+        # 内置数据源：通过 API 调用获取连接字符串（包含最新密码）
+        if datasource_info and datasource_info.get("source") == "builtin":
+            logger.info(
+                f"[TableInput] Getting connection string from API for builtin datasource (datasource_id={datasource_id})"
+            )
+            return self._get_builtin_connection_string(datasource_id)
+
+        # 后备方案：通过 API 获取
+        logger.warning(f"[TableInput] Falling back to API call for connection string (datasource_id={datasource_id})")
         return self._get_builtin_connection_string(datasource_id)
 
     def _build_public_connection_string(self, raw_data: dict) -> str:
@@ -1151,7 +1515,7 @@ class ETLTableInputComponent(Component):
         return self._build_connection_string_from_params(ds_type, params)
 
     def _build_connection_string_from_params(self, ds_type: str, params: dict) -> str:
-        """从参数构建连接字符串 - Only support MySQL, PostgreSQL, Hive, Neo4j"""
+        """从参数构建连接字符串 - Support MySQL, PostgreSQL, Hive, Neo4j, MongoDB, ClickHouse, Doris"""
         from urllib.parse import quote_plus
 
         host = params.get("host", "localhost")
@@ -1196,6 +1560,20 @@ class ETLTableInputComponent(Component):
             if username and password:
                 return f"bolt://{username_encoded}:{password_encoded}@{host}:{port}"
             return f"bolt://{host}:{port}"
+        if ds_type == "mongodb":
+            # MongoDB connection string
+            mongo_port = port if port != 3306 else 27017
+            if username and password:
+                return f"mongodb://{username_encoded}:{password_encoded}@{host}:{mongo_port}/{database}"
+            return f"mongodb://{host}:{mongo_port}/{database}"
+        if ds_type == "clickhouse":
+            # ClickHouse connection using clickhouse-connect driver
+            ch_port = port if port != 3306 else 8123
+            return f"clickhouse+connect://{username_encoded}:{password_encoded}@{host}:{ch_port}/{database}"
+        if ds_type == "doris":
+            # Doris connection using MySQL protocol (compatible with MySQL driver)
+            doris_port = port if port != 3306 else 9030
+            return f"mysql+pymysql://{username_encoded}:{password_encoded}@{host}:{doris_port}/{database}"
         raise ValueError(f"Unsupported database type: {ds_type}")
 
     def _get_builtin_connection_string(self, datasource_id: str) -> str:
@@ -1273,6 +1651,80 @@ class ETLTableInputComponent(Component):
             return "string"
         return "string"
 
+    def _infer_clickhouse_fields(self, connection_string: str, sql: str, fields: list[str]) -> list[dict]:
+        """使用ClickHouse原生驱动推断字段信息"""
+        import re
+        from urllib.parse import unquote
+
+        import clickhouse_connect
+
+        # Parse ClickHouse connection string
+        # Format: clickhouse+connect://username:password@host:port/database
+        match = re.match(r"clickhouse\+connect://([^:]+):([^@]*)@([^:]+):(\d+)/(.+)", connection_string)
+        if not match:
+            raise ValueError(f"Invalid ClickHouse connection string format")
+
+        username, password, host, port, database = match.groups()
+        username = unquote(username)
+        password = unquote(password) if password else ""
+        port = int(port)
+
+        logger.debug(f"[TableInput] Connecting to ClickHouse: {host}:{port}/{database}")
+
+        # Create ClickHouse client
+        client = clickhouse_connect.get_client(
+            host=host, port=port, username=username, password=password, database=database
+        )
+
+        try:
+            # Execute query with LIMIT 1 to get sample data
+            logger.debug(f"[TableInput] Executing ClickHouse query with LIMIT 1: {sql[:100]}...")
+            result = client.query(f"{sql} LIMIT 1")
+
+            # Get column names and types
+            column_names = result.column_names
+            column_types = result.column_types
+
+            logger.debug(f"[TableInput] ClickHouse query returned {len(column_names)} columns")
+
+            # If fields is ["*"], use all columns from result
+            if fields == ["*"]:
+                fields = column_names
+                logger.debug(f"[TableInput] Wildcard detected, using columns: {fields}")
+
+            # Map ClickHouse types to standard types
+            field_info = []
+            for i, field in enumerate(fields):
+                if i < len(column_types):
+                    ch_type = str(column_types[i]).lower()
+                    # Map ClickHouse types to our standard types
+                    if "int" in ch_type or "uint" in ch_type:
+                        data_type = "integer"
+                    elif "float" in ch_type or "decimal" in ch_type:
+                        data_type = "float"
+                    elif "bool" in ch_type:
+                        data_type = "boolean"
+                    elif "date" in ch_type or "time" in ch_type:
+                        data_type = "datetime"
+                    else:
+                        data_type = "string"
+                else:
+                    data_type = "string"
+
+                field_info.append(
+                    {
+                        "source_field": field,
+                        "data_type": data_type,
+                        "null_value": "",
+                        "transformation_rule": "none",
+                    }
+                )
+
+            return field_info
+
+        finally:
+            client.close()
+
     def _infer_field_info(self, datasource_id: str, sql: str) -> list[dict]:
         """解析SQL并推断字段信息（执行LIMIT 1查询）"""
         try:
@@ -1291,9 +1743,38 @@ class ETLTableInputComponent(Component):
                 datasource_info = self._current_datasource_info
 
             connection_string = self._get_connection_string(datasource_id, datasource_info)
-            engine = create_engine(connection_string, poolclass=NullPool)
+
+            # Check datasource type for special handling
+            is_clickhouse = datasource_info and datasource_info.get("type", "").lower() == "clickhouse"
+            is_mongodb = datasource_info and datasource_info.get("type", "").lower() == "mongodb"
+            is_neo4j = datasource_info and datasource_info.get("type", "").lower() == "neo4j"
+
+            logger.debug(
+                f"[TableInput] Field inference - datasource type: {datasource_info.get('type') if datasource_info else 'N/A'}, "
+                f"is_clickhouse={is_clickhouse}, is_mongodb={is_mongodb}, is_neo4j={is_neo4j}"
+            )
 
             field_info = []
+
+            # Handle ClickHouse using native driver
+            if is_clickhouse:
+                logger.info("[TableInput] Using ClickHouse native driver for field inference")
+                field_info = self._infer_clickhouse_fields(connection_string, sql, fields)
+                logger.info(f"[TableInput] Inferred {len(field_info)} fields from ClickHouse")
+                return field_info
+
+            # Handle MongoDB - not applicable for SQL inference
+            if is_mongodb:
+                logger.warning("[TableInput] MongoDB does not support SQL - skipping field inference")
+                raise ValueError("MongoDB does not support SQL queries. Please use MongoDB query syntax.")
+
+            # Handle Neo4j - not applicable for SQL inference
+            if is_neo4j:
+                logger.warning("[TableInput] Neo4j uses Cypher, not SQL - skipping field inference")
+                raise ValueError("Neo4j uses Cypher query language, not SQL. Please use Cypher syntax.")
+
+            # For other databases, use SQLAlchemy
+            engine = create_engine(connection_string, poolclass=NullPool)
 
             try:
                 with engine.connect() as conn:
@@ -1448,7 +1929,7 @@ class ETLTableInputComponent(Component):
 
         return result
 
-    def load_data(self) -> list[Data]:
+    async def load_data(self) -> list[Data]:
         """Extract data from database table with SQL support, pagination, and transaction handling."""
         try:
             logger.info("[TableInput] load_data called")
@@ -1503,49 +1984,27 @@ class ETLTableInputComponent(Component):
             # Build SQL query - use as provided by user
             sql_query = self.sql_query.strip()
 
-            # Check if this is a Neo4j datasource
+            # Check datasource type for special handling
             datasource_info = getattr(self, "_current_datasource_info", None)
-            is_neo4j = datasource_info and datasource_info.get("type", "").lower() == "neo4j"
+            db_type = datasource_info.get("type", "").lower() if datasource_info else ""
 
-            if is_neo4j:
-                # Neo4j-specific handling
-                import re
-                from urllib.parse import unquote
+            # Neo4j-specific handling
+            if db_type == "neo4j":
+                return await self._fetch_neo4j_data(connection_string, sql_query)
 
-                from neo4j import GraphDatabase
+            # ClickHouse-specific handling
+            if db_type == "clickhouse":
+                return await self._fetch_clickhouse_data(datasource_info, sql_query)
 
-                # Parse bolt URI
-                match = re.match(r"bolt://(?:([^:]+):([^@]+)@)?([^:]+):(\d+)", connection_string)
-                if not match:
-                    raise ValueError(f"Invalid Neo4j connection string format: {connection_string}")
+            # Doris-specific handling
+            if db_type == "doris":
+                return await self._fetch_doris_data(datasource_info, sql_query)
 
-                username, password, host, port = match.groups()
+            # MongoDB-specific handling
+            if db_type == "mongodb":
+                return await self._fetch_mongodb_data(datasource_info, sql_query)
 
-                # URL decode username and password (they are URL-encoded in the connection string)
-                if username:
-                    username = unquote(username)
-                if password:
-                    password = unquote(password)
-
-                uri = f"bolt://{host}:{port}"
-
-                driver = GraphDatabase.driver(uri, auth=(username, password) if username else None)
-                try:
-                    with driver.session() as session:
-                        # Execute Cypher query
-                        result = session.run(sql_query)
-                        result_data = []
-                        for record in result:
-                            result_data.append(Data(data=_convert_neo4j_record_to_table_format(record)))
-                        total_records = len(result_data)
-                finally:
-                    driver.close()
-
-                logger.info(f"[TableInput] Returning {len(result_data)} data records from Neo4j")
-                self.status = i18n.t("components.input_output.table_input.status.success", records=total_records)
-                return result_data
-
-            # For SQL databases, use SQLAlchemy
+            # For SQL databases (MySQL, PostgreSQL, Hive), use SQLAlchemy
             # Create database engine
             engine = create_engine(
                 connection_string,
@@ -1672,9 +2131,9 @@ class ETLTableInputComponent(Component):
 
         return result_data
 
-    def get_row_count(self) -> Data:
+    async def get_row_count(self) -> Data:
         """Get the count of extracted rows."""
-        data = self.load_data()
+        data = await self.load_data()
         count = len(data)
         return Data(data={"row_count": count, "datasource": self.datasource_selector})
 
@@ -1752,3 +2211,337 @@ class ETLTableInputComponent(Component):
             logger.error(f"[TableInput] Failed to get fields schema: {e}")
             # Return empty schema rather than failing
             return Data(data={"fields": [], "field_names": []})
+
+    async def _fetch_neo4j_data(self, connection_string: str, cypher_query: str) -> list[Data]:
+        """Fetch data from Neo4j using native driver.
+
+        Args:
+            connection_string: Neo4j bolt:// connection string
+            cypher_query: Cypher query to execute
+
+        Returns:
+            List of Data objects
+        """
+        import re
+        from urllib.parse import unquote
+
+        from neo4j import GraphDatabase
+
+        # Parse bolt URI
+        match = re.match(r"bolt://(?:([^:]+):([^@]+)@)?([^:]+):(\d+)", connection_string)
+        if not match:
+            raise ValueError(f"Invalid Neo4j connection string format: {connection_string}")
+
+        username, password, host, port = match.groups()
+
+        # URL decode username and password
+        if username:
+            username = unquote(username)
+        if password:
+            password = unquote(password)
+
+        uri = f"bolt://{host}:{port}"
+
+        driver = GraphDatabase.driver(uri, auth=(username, password) if username else None)
+        try:
+            with driver.session() as session:
+                # Execute Cypher query
+                result = session.run(cypher_query)
+                result_data = []
+                for record in result:
+                    result_data.append(Data(data=_convert_neo4j_record_to_table_format(record)))
+                total_records = len(result_data)
+        finally:
+            driver.close()
+
+        logger.info(f"[TableInput] Returning {len(result_data)} data records from Neo4j")
+        self.status = i18n.t("components.input_output.table_input.status.success", records=total_records)
+        return result_data
+
+    async def _fetch_clickhouse_data(self, datasource_info: dict, sql_query: str) -> list[Data]:
+        """Fetch data from ClickHouse using native driver.
+
+        Args:
+            datasource_info: Datasource configuration
+            sql_query: SQL query to execute
+
+        Returns:
+            List of Data objects
+        """
+        import clickhouse_connect
+
+        host = datasource_info.get("host", "localhost")
+        port = datasource_info.get("port", 8123)
+        database = datasource_info.get("database", "default")
+        username = datasource_info.get("username", "default")
+        password = datasource_info.get("password", "")
+        advanced_config = datasource_info.get("advanced_config", {})
+
+        if isinstance(advanced_config, str):
+            import json
+
+            advanced_config = json.loads(advanced_config)
+
+        # Build client parameters
+        client_params = {
+            "host": host,
+            "port": port,
+            "username": username,
+            "password": password,
+            "database": database,
+        }
+
+        if advanced_config.get("connect_timeout"):
+            client_params["connect_timeout"] = advanced_config["connect_timeout"]
+        if advanced_config.get("send_receive_timeout"):
+            client_params["send_receive_timeout"] = advanced_config["send_receive_timeout"]
+        if advanced_config.get("compress"):
+            client_params["compress"] = advanced_config["compress"]
+        if advanced_config.get("secure"):
+            client_params["secure"] = advanced_config["secure"]
+        if advanced_config.get("verify"):
+            client_params["verify"] = advanced_config["verify"]
+
+        # Create ClickHouse client
+        client = clickhouse_connect.get_client(**client_params)
+
+        try:
+            # Execute query
+            result = client.query(sql_query)
+
+            # Convert to Data objects
+            result_data = []
+            column_names = result.column_names
+
+            for row in result.result_rows:
+                row_dict = dict(zip(column_names, row, strict=False))
+
+                # Apply null values
+                if self.field_mappings:
+                    row_dict = self._apply_null_values(row_dict)
+
+                # Apply transformations
+                if self.field_mappings:
+                    row_dict = self._apply_field_transformations(row_dict)
+
+                result_data.append(Data(data=row_dict))
+
+                # Check max records limit
+                if self.max_records > 0 and len(result_data) >= self.max_records:
+                    break
+
+            total_records = len(result_data)
+            logger.info(f"[TableInput] Returning {total_records} data records from ClickHouse")
+            self.status = i18n.t("components.input_output.table_input.status.success", records=total_records)
+            return result_data
+
+        finally:
+            client.close()
+
+    async def _fetch_doris_data(self, datasource_info: dict, sql_query: str) -> list[Data]:
+        """Fetch data from Apache Doris using pymysql.
+
+        Args:
+            datasource_info: Datasource configuration
+            sql_query: SQL query to execute
+
+        Returns:
+            List of Data objects
+        """
+        import pymysql
+
+        host = datasource_info.get("host", "localhost")
+        port = datasource_info.get("port", 9030)
+        database = datasource_info.get("database", "")
+        username = datasource_info.get("username", "root")
+        password = datasource_info.get("password", "")
+        advanced_config = datasource_info.get("advanced_config", {})
+
+        if isinstance(advanced_config, str):
+            import json
+
+            advanced_config = json.loads(advanced_config)
+
+        # Build connection parameters
+        conn_params = {
+            "host": host,
+            "port": port,
+            "user": username,
+            "password": password,
+            "database": database,
+            "charset": advanced_config.get("charset", "utf8"),
+            "cursorclass": pymysql.cursors.DictCursor,  # Use DictCursor for dict results
+        }
+
+        if advanced_config.get("connect_timeout"):
+            conn_params["connect_timeout"] = advanced_config["connect_timeout"]
+        if advanced_config.get("read_timeout"):
+            conn_params["read_timeout"] = advanced_config["read_timeout"]
+        if advanced_config.get("write_timeout"):
+            conn_params["write_timeout"] = advanced_config["write_timeout"]
+
+        # SSL configuration
+        if advanced_config.get("ssl_enabled"):
+            conn_params["ssl"] = {"ssl": True}
+
+        # Create Doris connection
+        connection = pymysql.connect(**conn_params)
+
+        try:
+            with connection.cursor() as cursor:
+                # Execute query with pagination if enabled
+                if self.use_pagination:
+                    result_data = []
+                    offset = 0
+                    while True:
+                        paginated_query = f"{sql_query} LIMIT {self.page_size} OFFSET {offset}"
+                        cursor.execute(paginated_query)
+                        rows = cursor.fetchall()
+
+                        if not rows:
+                            break
+
+                        for row in rows:
+                            # Apply null values
+                            if self.field_mappings:
+                                row = self._apply_null_values(row)
+
+                            # Apply transformations
+                            if self.field_mappings:
+                                row = self._apply_field_transformations(row)
+
+                            result_data.append(Data(data=row))
+
+                        offset += self.page_size
+
+                        # Check max records limit
+                        if self.max_records > 0 and len(result_data) >= self.max_records:
+                            result_data = result_data[: self.max_records]
+                            break
+                else:
+                    # Fetch all data at once
+                    cursor.execute(sql_query)
+                    rows = cursor.fetchall()
+
+                    result_data = []
+                    for row in rows:
+                        # Apply null values
+                        if self.field_mappings:
+                            row = self._apply_null_values(row)
+
+                        # Apply transformations
+                        if self.field_mappings:
+                            row = self._apply_field_transformations(row)
+
+                        result_data.append(Data(data=row))
+
+                        if self.max_records > 0 and len(result_data) >= self.max_records:
+                            break
+
+                total_records = len(result_data)
+                logger.info(f"[TableInput] Returning {total_records} data records from Doris")
+                self.status = i18n.t("components.input_output.table_input.status.success", records=total_records)
+                return result_data
+
+        finally:
+            connection.close()
+
+    async def _fetch_mongodb_data(self, datasource_info: dict, query_json: str) -> list[Data]:
+        """Fetch data from MongoDB using pymongo.
+
+        Args:
+            datasource_info: Datasource configuration
+            query_json: MongoDB query in JSON format (e.g., '{"collection": "users", "filter": {"age": {"$gt": 18}}}')
+
+        Returns:
+            List of Data objects
+        """
+        import json
+
+        from pymongo import MongoClient
+
+        # Parse query JSON
+        try:
+            query_dict = json.loads(query_json)
+        except json.JSONDecodeError as e:
+            raise ValueError(f"Invalid MongoDB query JSON: {e}") from e
+
+        collection_name = query_dict.get("collection")
+        if not collection_name:
+            raise ValueError("MongoDB query must specify 'collection' field")
+
+        mongo_filter = query_dict.get("filter", {})
+        projection = query_dict.get("projection")
+        sort = query_dict.get("sort")
+        limit = query_dict.get("limit", max(0, self.max_records))
+
+        host = datasource_info.get("host", "localhost")
+        port = datasource_info.get("port", 27017)
+        database = datasource_info.get("database", "admin")
+        username = datasource_info.get("username", "")
+        password = datasource_info.get("password", "")
+        advanced_config = datasource_info.get("advanced_config", {})
+
+        if isinstance(advanced_config, str):
+            advanced_config = json.loads(advanced_config)
+
+        # Build MongoDB connection parameters
+        mongo_params = {
+            "host": host,
+            "port": port,
+            "serverSelectionTimeoutMS": advanced_config.get("serverSelectionTimeoutMS", 10000),
+            "connectTimeoutMS": advanced_config.get("connectTimeoutMS", 20000),
+        }
+
+        if advanced_config.get("maxPoolSize"):
+            mongo_params["maxPoolSize"] = advanced_config["maxPoolSize"]
+        if advanced_config.get("tls"):
+            mongo_params["tls"] = advanced_config["tls"]
+        if advanced_config.get("authSource"):
+            mongo_params["authSource"] = advanced_config["authSource"]
+
+        # Add authentication if provided
+        if username and password:
+            mongo_params["username"] = username
+            mongo_params["password"] = password
+
+        # Create MongoDB client
+        client = MongoClient(**mongo_params)
+
+        try:
+            # Access database and collection
+            db = client[database]
+            collection = db[collection_name]
+
+            # Build find query
+            cursor = collection.find(mongo_filter, projection)
+
+            if sort:
+                cursor = cursor.sort(sort)
+            if limit:
+                cursor = cursor.limit(limit)
+
+            # Fetch data
+            result_data = []
+            for doc in cursor:
+                # Convert ObjectId to string
+                if "_id" in doc:
+                    doc["_id"] = str(doc["_id"])
+
+                # Apply null values
+                if self.field_mappings:
+                    doc = self._apply_null_values(doc)
+
+                # Apply transformations
+                if self.field_mappings:
+                    doc = self._apply_field_transformations(doc)
+
+                result_data.append(Data(data=doc))
+
+            total_records = len(result_data)
+            logger.info(f"[TableInput] Returning {total_records} data records from MongoDB")
+            self.status = i18n.t("components.input_output.table_input.status.success", records=total_records)
+            return result_data
+
+        finally:
+            client.close()

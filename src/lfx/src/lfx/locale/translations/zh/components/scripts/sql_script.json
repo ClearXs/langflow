@@ -7,7 +7,7 @@
   },
   "sql_script": {
     "display_name": "SQL脚本",
-    "info": "输入SQL语句(DDL、DML或DQL)。多条语句可用分号分隔。"
+    "info": "输入SQL语句(DDL、DML或DQL)。多条语句可用分号分隔。\n\n对于MongoDB数据源,请使用JSON格式:\n• 查询: {\"collection\": \"users\", \"operation\": \"find\", \"filter\": {\"age\": {\"$gt\": 18}}}\n• 插入: {\"collection\": \"users\", \"operation\": \"insertOne\", \"document\": {\"name\": \"张三\"}}\n• 更新: {\"collection\": \"users\", \"operation\": \"updateMany\", \"filter\": {}, \"update\": {\"$set\": {\"status\": \"active\"}}}\n• 删除: {\"collection\": \"users\", \"operation\": \"deleteMany\", \"filter\": {\"age\": {\"$lt\": 18}}}"
   },
   "enable_transaction": {
     "display_name": "启用事务",

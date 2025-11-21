@@ -24,6 +24,7 @@ _consumer_task: asyncio.Task | None = None
 
 class LogTask:
     """日志任务"""
+
     def __init__(self, task_type: str, data: dict):
         self.task_type = task_type  # 'create' | 'update'
         self.data = data
@@ -65,7 +66,9 @@ async def _log_consumer():
                         transaction = TransactionTable(**task.data)
                         session.add(transaction)
                         await session.commit()
-                        logger.debug(f"Created transaction {transaction.id}")
+                        logger.debug(
+                            f"[QueueConsumer] Created transaction {transaction.id} with run_id={transaction.run_id}"
+                        )
 
                 elif task.task_type == "update":
                     # 更新existing transaction
@@ -79,7 +82,9 @@ async def _log_consumer():
                             for key, value in task.data.items():
                                 setattr(transaction, key, value)
                             await session.commit()
-                            logger.debug(f"Updated transaction {transaction_id}")
+                            logger.debug(
+                                f"[QueueConsumer] Updated transaction {transaction_id} to status={transaction.status}"
+                            )
                         else:
                             logger.warning(f"Transaction {transaction_id} not found")
 
@@ -92,7 +97,7 @@ async def _log_consumer():
                         "flow_id": task.data.get("flow_id"),
                         "flow_id_type": type(task.data.get("flow_id")).__name__,
                         "transaction_id": task.data.get("id"),
-                    }
+                    },
                 )
             finally:
                 _log_queue.task_done()
@@ -139,6 +144,7 @@ class ComponentExecutionLogger:
 
         # 导入MetadataExtractor（延迟导入避免循环依赖）
         from langflow.services.metadata_extractors import get_metadata_extractor
+
         self.metadata_extractor = get_metadata_extractor(vertex)
 
     async def log_pre_execution(self) -> None:
@@ -164,26 +170,51 @@ class ComponentExecutionLogger:
                     "component_class": self.vertex.vertex_type,
                     "execution_start_time": self.start_time.isoformat(),
                     "flow_id": str(self.flow_id),
-                }
+                },
             }
 
             # 序列化数据
             inputs_json = self._make_json_serializable(inputs_json)
 
+            # Get run_id from graph if available
+            run_id = None
+            if self.vertex.graph:
+                try:
+                    # Access _run_id directly to avoid ValueError if not set
+                    run_id = getattr(self.vertex.graph, "_run_id", None)
+                    if run_id:
+                        logger.debug(f"[QueueLogger] Got run_id from graph._run_id: {run_id}")
+                except Exception as e:
+                    logger.warning(f"[QueueLogger] Failed to get _run_id: {e}")
+                    # Fallback: try the property (may raise ValueError)
+                    try:
+                        run_id = self.vertex.graph.run_id
+                        logger.debug(f"[QueueLogger] Got run_id from graph.run_id property: {run_id}")
+                    except (ValueError, AttributeError) as e2:
+                        logger.warning(f"[QueueLogger] Failed to get run_id property: {e2}")
+
+            if not run_id:
+                logger.warning(f"[QueueLogger] run_id is None for vertex {self.vertex.id}, graph: {self.vertex.graph}")
+
             # 创建日志任务并放入队列（非阻塞）
             queue = await _get_log_queue()
-            task = LogTask("create", {
-                "id": self.transaction_id,
-                "flow_id": self.flow_id,
-                "vertex_id": self.vertex.id,
-                "target_id": None,
-                "inputs": inputs_json,
-                "outputs": None,
-                "status": "running",
-            })
+            task = LogTask(
+                "create",
+                {
+                    "id": self.transaction_id,
+                    "flow_id": self.flow_id,
+                    "run_id": run_id,  # 添加 run_id
+                    "vertex_id": self.vertex.id,
+                    "target_id": None,
+                    "inputs": inputs_json,
+                    "outputs": None,
+                    "status": "running",
+                },
+            )
+
+            logger.debug(f"[QueueLogger] Queued transaction {self.transaction_id} with run_id={run_id}")
 
             queue.put_nowait(task)  # 非阻塞放入队列
-            logger.debug(f"Queued pre-execution log for {self.vertex.display_name}")
 
         except Exception as e:
             logger.warning(f"Failed to queue pre-execution log: {e}")
@@ -214,7 +245,9 @@ class ComponentExecutionLogger:
             # 🔴 提取输出元信息（关键步骤）
             output_metadata = {}
             try:
-                logger.info(f"[METADATA_DEBUG] Starting metadata extraction in queue for component: {self.vertex.vertex_type}")
+                logger.info(
+                    f"[METADATA_DEBUG] Starting metadata extraction in queue for component: {self.vertex.vertex_type}"
+                )
                 logger.info(f"[METADATA_DEBUG] Results available in queue: {results is not None}")
                 logger.info(f"[METADATA_DEBUG] Results keys in queue: {list(results.keys()) if results else 'None'}")
 
@@ -227,6 +260,7 @@ class ComponentExecutionLogger:
             except Exception as e:
                 logger.error(f"[METADATA_DEBUG] Failed to extract output metadata in queue: {e}")
                 import traceback
+
                 logger.error(f"[METADATA_DEBUG] Traceback: {traceback.format_exc()}")
 
             # 构建outputs JSON
@@ -238,7 +272,7 @@ class ComponentExecutionLogger:
                     "memory_usage_mb": memory_delta_mb,
                     "status_detail": status,
                     **output_metadata,  # 🔴 合并提取的输出元信息（包含data_metrics）
-                }
+                },
             }
 
             # 序列化数据
@@ -246,12 +280,15 @@ class ComponentExecutionLogger:
 
             # 创建更新任务并放入队列（非阻塞）
             queue = await _get_log_queue()
-            task = LogTask("update", {
-                "id": self.transaction_id,
-                "status": status,
-                "outputs": outputs_json,
-                "error": str(error) if error else None,
-            })
+            task = LogTask(
+                "update",
+                {
+                    "id": self.transaction_id,
+                    "status": status,
+                    "outputs": outputs_json,
+                    "error": str(error) if error else None,
+                },
+            )
 
             queue.put_nowait(task)  # 非阻塞放入队列
             logger.debug(f"Queued post-execution log for {self.vertex.display_name}")
@@ -268,13 +305,34 @@ class ComponentExecutionLogger:
             return 0.0
 
     def _extract_component_params(self) -> dict:
-        """提取组件参数"""
+        """提取组件参数（排除大型字段）."""
+        # Fields to exclude from logging (large content fields)
+        excluded_fields = {
+            "code",  # Python/SQL/Shell script code
+            "sql_script",  # SQL script content
+            "script",  # Generic script content
+            "prompt_template",  # Large prompt templates
+            "system_message",  # Large system messages
+        }
+        max_field_size = 5000  # Maximum size for string fields
+
         params = {}
         if hasattr(self.vertex, "params") and self.vertex.params:
             for key, value in self.vertex.params.items():
+                # Skip excluded large fields
+                if key in excluded_fields:
+                    # Store a placeholder indicating the field was excluded
+                    params[key] = f"<excluded: {key}>"
+                    continue
+
                 # 提取参数值
                 if hasattr(value, "value"):
-                    params[key] = value.value
+                    extracted_value = value.value
+                    # Additional check: exclude if value is a very large string
+                    if isinstance(extracted_value, str) and len(extracted_value) > max_field_size:
+                        params[key] = f"<large content excluded: {len(extracted_value)} chars>"
+                    else:
+                        params[key] = extracted_value
                 else:
                     params[key] = value
         return params
@@ -320,11 +378,14 @@ class ComponentExecutionLogger:
         return "other"
 
     def _make_json_serializable(self, obj: Any) -> Any:
-        """递归转换对象为JSON可序列化格式"""
+        """递归转换对象为JSON可序列化格式."""
         if obj is None:
             return None
 
         if isinstance(obj, (str, int, float, bool)):
+            # Check if string is too large
+            if isinstance(obj, str) and len(obj) > 5000:
+                return f"<large string: {len(obj)} chars>"
             return obj
 
         if isinstance(obj, (datetime,)):
@@ -333,14 +394,38 @@ class ComponentExecutionLogger:
         if isinstance(obj, UUID):
             return str(obj)
 
+        # Special handling for Vertex objects to exclude large fields
+        if hasattr(obj, "__class__") and obj.__class__.__name__ == "Vertex":
+            return self._serialize_vertex(obj)
+
         if isinstance(obj, dict):
             return {k: self._make_json_serializable(v) for k, v in obj.items()}
 
         if isinstance(obj, (list, tuple)):
             return [self._make_json_serializable(item) for item in obj]
 
-        # 其他对象转为字符串
+        # 其他对象转为字符串（但限制长度）
         try:
-            return str(obj)
-        except Exception:
+            obj_str = str(obj)
+            if len(obj_str) > 1000:  # Limit object string representation
+                return f"<{type(obj).__name__}: {len(obj_str)} chars>"
+            return obj_str
+        except Exception:  # noqa: BLE001
             return f"<{type(obj).__name__}>"
+
+    def _serialize_vertex(self, vertex) -> dict:
+        """序列化 Vertex 对象，排除大型字段."""
+        try:
+            return {
+                "vertex_type": "Vertex",
+                "display_name": getattr(vertex, "display_name", "Unknown"),
+                "id": getattr(vertex, "id", "Unknown"),
+                "vertex_class": getattr(vertex, "vertex_type", "Unknown"),
+                # Exclude: data, params (which contain code), and other large fields
+                "_note": "Large fields excluded (code, params, data)",
+            }
+        except Exception:  # noqa: BLE001
+            return {
+                "vertex_type": "Vertex",
+                "_note": "Failed to serialize vertex details",
+            }

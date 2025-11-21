@@ -7,6 +7,7 @@ import useFlowStore from "@/stores/flowStore";
 import CanvasControlsDropdown from "./CanvasControlsDropdown";
 import HelpDropdown from "./HelpDropdown";
 import SettingsButton from "./SettingsButton";
+import VariablesButton from "./VariablesButton";
 
 const CanvasControls = ({ children }: { children?: ReactNode }) => {
   const reactFlowStoreApi = useStoreApi();
@@ -35,6 +36,10 @@ const CanvasControls = ({ children }: { children?: ReactNode }) => {
           <Separator orientation="vertical" />
         </span>
       )}
+      <VariablesButton />
+      <span>
+        <Separator orientation="vertical" />
+      </span>
       <CanvasControlsDropdown />
       <span>
         <Separator orientation="vertical" />

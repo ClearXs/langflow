@@ -13,7 +13,10 @@ export type DataSourceType =
   | "hive"
   | "neo4j"
   | "kafka"
-  | "flink";
+  | "flink"
+  | "mongodb"
+  | "clickhouse"
+  | "doris";
 
 export interface DataSource {
   id: string;

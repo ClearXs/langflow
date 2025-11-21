@@ -149,6 +149,11 @@ class InputValueRequest(BaseModel):
         description="Defines on which components the input value should be applied. "
         "'any' applies to all input components.",
     )
+    runtime_variables: dict[str, str] | None = Field(
+        None,
+        description="Runtime variables to use during this execution. "
+        "These variables have the highest priority and will override system and global variables.",
+    )
 
     # add an example
     model_config = ConfigDict(

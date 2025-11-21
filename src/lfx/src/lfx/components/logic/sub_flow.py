@@ -1,3 +1,4 @@
+import os
 from typing import Any
 
 import i18n
@@ -20,6 +21,8 @@ class SubFlowComponent(Component):
     legacy: bool = True
     replacement = ["logic.RunFlow"]
     icon = "Workflow"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     async def get_flow_names(self) -> list[str]:
         try:

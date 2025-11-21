@@ -1,6 +1,9 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useGetGlobalVariables } from "@/controllers/API/queries/variables";
+import {
+  useGetGlobalVariables,
+  useGetSystemVariables,
+} from "@/controllers/API/queries/variables";
 import GeneralDeleteConfirmationModal from "@/shared/components/delete-confirmation-modal";
 import { cn } from "../../../../../utils/utils";
 import ForwardedIconComponent from "../../../../common/genericIconComponent";
@@ -9,11 +12,7 @@ import GlobalVariableModal from "../../../GlobalVariableModal/GlobalVariableModa
 import { getPlaceholder } from "../../helpers/get-placeholder-disabled";
 import type { InputGlobalComponentType, InputProps } from "../../types";
 import InputComponent from "../inputComponent";
-import {
-  useGlobalVariableValue,
-  useInitialLoad,
-  useUnavailableField,
-} from "./hooks";
+import { useInitialLoad, useUnavailableField } from "./hooks";
 import type { GlobalVariable, GlobalVariableHandlers } from "./types";
 
 export default function InputGlobalComponent({
@@ -31,6 +30,7 @@ export default function InputGlobalComponent({
   hasRefreshButton = false,
 }: InputProps<string, InputGlobalComponentType>): JSX.Element {
   const { data: globalVariables } = useGetGlobalVariables();
+  const { data: systemVariables } = useGetSystemVariables();
 
   const { t } = useTranslation();
 
@@ -42,29 +42,56 @@ export default function InputGlobalComponent({
     setLocalValue(value ?? "");
   }, [value]);
 
+  // Merge global and system variables with type labels
+  const allVariables = useMemo(() => {
+    const global = (globalVariables || []).map((v) => ({
+      ...v,
+      displayName: `${v.name} [${t("variable.globalTag")}]`,
+      originalName: v.name,
+      isSystem: false,
+    }));
+
+    const system = (systemVariables || []).map((v) => ({
+      ...v,
+      displayName: `${v.name} [${t("variable.systemTag")}]`,
+      originalName: v.name,
+      isSystem: true,
+    }));
+
+    return [...global, ...system];
+  }, [globalVariables, systemVariables, t]);
+
   // // Safely cast the data to our typed interface
   const typedGlobalVariables: GlobalVariable[] = globalVariables ?? [];
   const currentValue = localValue; // Use local value instead of prop value
   const isDisabled = disabled ?? false;
   const loadFromDb = load_from_db ?? false;
 
-  // // Extract complex logic into custom hooks
-  const valueExists = useGlobalVariableValue(
-    currentValue,
-    typedGlobalVariables,
-  );
+  // Check if value exists in either global or system variables
+  const valueExists = useMemo(() => {
+    return allVariables.some((v) => v.originalName === currentValue);
+  }, [allVariables, currentValue]);
+
   const unavailableField = useUnavailableField(display_name, currentValue);
+
+  // For initial load, only check global variables (not system variables)
+  // System variables don't need database loading
+  const valueExistsInGlobalOnly = useMemo(() => {
+    return typedGlobalVariables.some((v) => v.name === currentValue);
+  }, [typedGlobalVariables, currentValue]);
 
   useInitialLoad(
     isDisabled,
     loadFromDb,
     typedGlobalVariables,
-    valueExists,
+    valueExistsInGlobalOnly, // Use global-only check for initial load
     unavailableField,
     handleOnNewValue,
+    currentValue, // Pass current value to prevent clearing valid selections
   );
 
   // Clean up when selected variable no longer exists
+  // Only clear if it's supposed to be from DB and doesn't exist in either global or system
   useEffect(() => {
     if (loadFromDb && currentValue && !valueExists && !isDisabled) {
       handleOnNewValue(
@@ -86,12 +113,28 @@ export default function InputGlobalComponent({
       }
     },
 
-    // Handler for selecting a global variable
-    handleVariableSelect: (selectedValue: string) => {
-      handleOnNewValue({
-        value: selectedValue,
-        load_from_db: selectedValue !== "",
-      });
+    // Handler for selecting a global variable or system variable
+    handleVariableSelect: (selectedDisplayName: string) => {
+      // Find the variable by display name
+      const selected = allVariables.find(
+        (v) => v.displayName === selectedDisplayName,
+      );
+
+      if (selected) {
+        // Insert variable reference into current value
+        // Use {variableName} format for template substitution
+        const variableRef = `{${selected.originalName}}`;
+        const newValue = currentValue
+          ? `${currentValue} ${variableRef}`
+          : variableRef;
+
+        // Update with load_from_db: false to keep input editable
+        // The backend will still resolve {variableName} patterns
+        handleOnNewValue({
+          value: newValue,
+          load_from_db: false,
+        });
+      }
     },
 
     // Handler for input changes
@@ -124,17 +167,36 @@ export default function InputGlobalComponent({
     );
   };
 
-  // Render delete button for each option
-  const renderDeleteButton = (option: string) => (
-    <GeneralDeleteConfirmationModal
-      option={option}
-      onConfirmDelete={() => handlers.handleVariableDelete(option)}
-    />
-  );
+  // Render delete button for each option (only for global variables, not system variables)
+  const renderDeleteButton = (option: string) => {
+    // Check if this is a global variable (contains globalTag)
+    const isGlobalVariable = option.includes(`[${t("variable.globalTag")}]`);
 
-  // // Extract options list for better readability
-  const variableOptions = typedGlobalVariables.map((variable) => variable.name);
-  const selectedOption = loadFromDb && valueExists ? currentValue : "";
+    if (!isGlobalVariable) {
+      // Don't show delete button for system variables
+      return null;
+    }
+
+    // Extract the original name from display name for deletion
+    const variable = allVariables.find((v) => v.displayName === option);
+    if (!variable || variable.isSystem) return null;
+
+    return (
+      <GeneralDeleteConfirmationModal
+        option={variable.originalName}
+        onConfirmDelete={() =>
+          handlers.handleVariableDelete(variable.originalName)
+        }
+      />
+    );
+  };
+
+  // Extract options list with display names
+  const variableOptions = allVariables.map((v) => v.displayName);
+
+  // Don't use selectedOption - keep input always editable
+  // Variables are inserted as {variableName} in the text
+  const selectedOption = "";
 
   return (
     <InputComponent
@@ -147,8 +209,8 @@ export default function InputGlobalComponent({
       password={password ?? false}
       value={currentValue}
       options={variableOptions}
-      optionsPlaceholder={t("variable.globalVariables")}
-      optionsIcon="Globe"
+      optionsPlaceholder={t("variable.variableList")}
+      optionsIcon="Variable"
       optionsButton={renderAddVariableButton()}
       optionButton={renderDeleteButton}
       selectedOption={selectedOption}

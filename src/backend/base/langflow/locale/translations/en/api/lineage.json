@@ -1,0 +1,18 @@
+{
+  "flow_not_found": "Flow %{flow_id} not found",
+  "flow_unauthorized": "You don't have permission to access this flow",
+  "flow_no_data": "Flow has no data to analyze",
+  "analysis_failed": "Failed to analyze lineage: %{error}",
+  "extraction_failed": "Failed to extract tables: %{error}",
+  "analysis_complete": "Lineage analysis completed successfully",
+  "tables_extracted": "Successfully extracted %{count} tables",
+  "search_started": "Lineage search started",
+  "search_processing": "Searching flows...",
+  "search_completed": "Search completed",
+  "search_failed": "Search failed",
+  "job_not_found": "Job {job_id} not found or expired",
+  "no_flows_found": "No flows found for user",
+  "no_matches": "No matching tables found",
+  "table_name_required": "Table name is required",
+  "invalid_job_id": "Invalid job ID format"
+}

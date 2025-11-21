@@ -15,7 +15,7 @@ class DataSourceBase(SQLModel):
     """Base model for data source."""
 
     name: str = Field(index=True, nullable=False)
-    type: str = Field(nullable=False)  # mysql, postgresql, hive, neo4j, kafka, flink
+    type: str = Field(nullable=False)  # mysql, postgresql, hive, neo4j, kafka, flink, mongodb, clickhouse, doris
     host: str = Field(nullable=False)
     port: int = Field(nullable=False)
     database: str = Field(nullable=False)

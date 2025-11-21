@@ -169,7 +169,19 @@ export function FlowSidebarComponent({ isLoading }: FlowSidebarComponentProps) {
     })),
   );
 
-  const { activeSection, setOpen, setActiveSection } = useSidebar();
+  // Safe usage of useSidebar with error handling
+  let sidebarContext;
+  try {
+    sidebarContext = useSidebar();
+  } catch (error) {
+    console.error(
+      "FlowSidebarComponent must be used within SidebarProvider",
+      error,
+    );
+    return null;
+  }
+
+  const { activeSection, setOpen, setActiveSection } = sidebarContext;
   const addComponent = useAddComponent();
 
   // Get MCP servers for search functionality (only when new sidebar is enabled)

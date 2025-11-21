@@ -163,7 +163,16 @@ class ETLCDCStreamInputComponent(Component):
                 options = []
                 options_metadata = []
 
+                # CDC Input 只支持 MySQL 和 PostgreSQL
+                supported_types = {"mysql", "postgresql", "postgres"}
+
                 for ds in all_datasources:
+                    # 过滤：只接受 MySQL 和 PostgreSQL
+                    ds_type = ds.get("type", "").lower()
+                    if ds_type not in supported_types:
+                        logger.debug(f"[CDCInput] Skipping unsupported datasource type: {ds_type} (name={ds['name']})")
+                        continue
+
                     # options 只包含ID (唯一值)
                     options.append(ds["id"])
                     # options_metadata 包含显示信息，使用 label 字段供前端显示
@@ -182,7 +191,9 @@ class ETLCDCStreamInputComponent(Component):
 
                 build_config["datasource_selector"]["options"] = options
                 build_config["datasource_selector"]["options_metadata"] = options_metadata
-                logger.debug(f"[CDCInput] Set unified datasource_selector options: {options}")
+                logger.debug(
+                    f"[CDCInput] Set unified datasource_selector options: {options} (filtered for MySQL/PostgreSQL)"
+                )
                 logger.debug(f"[CDCInput] Set options_metadata with {len(options_metadata)} entries")
 
             except Exception as e:

@@ -1,0 +1,28 @@
+{
+  "display_name": "Metadata Collection",
+  "description": "Execute metadata collection task",
+  "metadata_task_id": {
+    "display_name": "Metadata Task",
+    "info": "Select metadata collection task to execute"
+  },
+  "outputs": {
+    "execution_result": {
+      "display_name": "Execution Result"
+    }
+  },
+  "status": {
+    "loading_tasks": "Loading metadata tasks...",
+    "tasks_loaded": "Loaded {count} metadata tasks",
+    "executing_task": "Executing metadata collection task {task_id}...",
+    "execution_success": "Execution successful: {message}"
+  },
+  "errors": {
+    "no_task_selected": "Please select a metadata collection task",
+    "task_id_not_found": "Cannot find task ID for: {name}",
+    "execution_failed": "Execution failed: {error}",
+    "api_call_failed": "API call failed: {error}",
+    "no_tasks_found": "No metadata tasks found",
+    "load_failed": "Failed to load metadata tasks: {error}",
+    "graph_not_available": "Service unavailable"
+  }
+}

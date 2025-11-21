@@ -1,0 +1,28 @@
+{
+  "display_name": "元数据采集",
+  "description": "执行元数据采集任务",
+  "metadata_task_id": {
+    "display_name": "元数据采集任务",
+    "info": "选择要执行的元数据采集任务"
+  },
+  "outputs": {
+    "execution_result": {
+      "display_name": "执行结果"
+    }
+  },
+  "status": {
+    "loading_tasks": "正在加载元数据采集任务...",
+    "tasks_loaded": "已加载 {count} 个元数据采集任务",
+    "executing_task": "正在执行元数据采集任务 {task_id}...",
+    "execution_success": "执行成功：{message}"
+  },
+  "errors": {
+    "no_task_selected": "请选择元数据采集任务",
+    "task_id_not_found": "找不到任务ID：{name}",
+    "execution_failed": "执行失败：{error}",
+    "api_call_failed": "API调用失败：{error}",
+    "no_tasks_found": "未找到元数据采集任务",
+    "load_failed": "加载元数据采集任务失败：{error}",
+    "graph_not_available": "服务不可用"
+  }
+}

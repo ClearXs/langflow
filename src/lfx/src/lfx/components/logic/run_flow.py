@@ -1,3 +1,4 @@
+import os
 from typing import Any
 
 import i18n
@@ -12,14 +13,17 @@ class RunFlowComponent(RunFlowBaseComponent):
     display_name = i18n.t("components.logic.run_flow.display_name")
     description = i18n.t("components.logic.run_flow.description")
     documentation: str = "https://docs.langflow.org/components-logic#run-flow"
-    beta = True
     name = "RunFlow"
     icon = "Workflow"
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     inputs = RunFlowBaseComponent.get_base_inputs()
     outputs = RunFlowBaseComponent.get_base_outputs()
 
-    async def update_build_config(self, build_config: dotdict, field_value: Any, field_name: str | None = None):
+    async def update_build_config(
+        self, build_config: dotdict, field_value: Any, field_name: str | None = None, action: str | None = None
+    ):
         if field_name == "flow_name_selected":
             try:
                 build_config["flow_name_selected"]["options"] = await self.get_flow_names()

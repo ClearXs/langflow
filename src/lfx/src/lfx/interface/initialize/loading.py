@@ -92,9 +92,7 @@ def _get_component_class_from_registry(vertex_type: str) -> type:
                                 module_name, class_name = parts
                                 module = importlib.import_module(module_name)
                                 component_class = getattr(module, class_name)
-                                logger.info(
-                                    f"✓ Found component by display_name '{vertex_type}' → type '{comp_type}'"
-                                )
+                                logger.info(f"✓ Found component by display_name '{vertex_type}' → type '{comp_type}'")
                                 return component_class
                         except (ImportError, AttributeError) as e:
                             logger.warning(f"Failed to import from module_path: {e}")
@@ -336,8 +334,13 @@ async def update_params_with_load_from_db_fields(
                 if field not in params or not params[field]:
                     continue
 
+                # Get flow_id if available from the component
+                flow_id = getattr(custom_component, "flow_id", None) if hasattr(custom_component, "flow_id") else None
+
                 try:
-                    key = await custom_component.get_variable(name=params[field], field=field, session=session)
+                    key = await custom_component.get_variable(
+                        name=params[field], field=field, session=session, flow_id=flow_id
+                    )
                 except ValueError as e:
                     if any(reason in str(e) for reason in ["User id is not set", "variable not found."]):
                         raise

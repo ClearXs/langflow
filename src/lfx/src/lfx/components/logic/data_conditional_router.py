@@ -1,3 +1,4 @@
+import os
 from typing import Any
 
 import i18n
@@ -16,6 +17,8 @@ class DataConditionalRouterComponent(Component):
     name = "DataConditionalRouter"
     legacy = True
     replacement = ["logic.ConditionalRouter"]
+
+    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
 
     inputs = [
         DataInput(

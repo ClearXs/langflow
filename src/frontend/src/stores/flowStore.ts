@@ -897,6 +897,7 @@ const useFlowStore = create<FlowStoreType>((set, get) => ({
       flowId: currentFlow!.id,
       startNodeId,
       stopNodeId,
+      runtimeVariables: get().runtimeVariables,
       onGetOrderSuccess: () => {},
       onBuildComplete: (allNodesValid) => {
         if (!silent) {
@@ -1168,6 +1169,13 @@ const useFlowStore = create<FlowStoreType>((set, get) => ({
   stopNodeId: undefined,
   setStopNodeId: (nodeId: string | undefined) => {
     set({ stopNodeId: nodeId });
+  },
+  runtimeVariables: {},
+  setRuntimeVariables: (variables: Record<string, string>) => {
+    set({ runtimeVariables: variables });
+  },
+  clearRuntimeVariables: () => {
+    set({ runtimeVariables: {} });
   },
 }));
 

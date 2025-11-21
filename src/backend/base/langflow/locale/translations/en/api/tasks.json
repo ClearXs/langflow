@@ -1,0 +1,26 @@
+{
+  "tasks": {
+    "task_created": "Task created successfully",
+    "task_updated": "Task updated successfully",
+    "task_deleted": "Task deleted successfully",
+    "task_not_found": "Task not found",
+    "flow_not_found": "Flow not found or access denied",
+    "access_denied": "Access denied to this task",
+    "status": {
+      "running": "Running",
+      "success": "Success",
+      "error": "Error",
+      "pending": "Pending"
+    },
+    "labels": {
+      "total_components": "Total Components",
+      "success_components": "Success",
+      "error_components": "Error",
+      "data_rows": "Data Rows",
+      "data_size": "Data Size (MB)",
+      "duration": "Duration (ms)",
+      "memory": "Memory (MB)",
+      "exchanges": "Data Exchanges"
+    }
+  }
+}

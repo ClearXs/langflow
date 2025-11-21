@@ -104,3 +104,27 @@ async def delete_variable(
         await variable_service.delete_variable_by_id(user_id=current_user.id, variable_id=variable_id, session=session)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e)) from e
+
+
+@router.get("/system", response_model=list[dict], status_code=200)
+async def get_system_variables(
+    *,
+    current_user: CurrentActiveUser,
+):
+    """Get all available system variables.
+
+    System variables are dynamic variables that are resolved at runtime,
+    such as current date/time, UUIDs, flow history times, etc.
+
+    Returns:
+        List of system variable definitions with metadata including
+        name, display names, description, and examples.
+    """
+    variable_service = get_variable_service()
+    if not isinstance(variable_service, DatabaseVariableService):
+        msg = "Variable service is not an instance of DatabaseVariableService"
+        raise TypeError(msg)
+    try:
+        return variable_service.get_system_variables()
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e)) from e

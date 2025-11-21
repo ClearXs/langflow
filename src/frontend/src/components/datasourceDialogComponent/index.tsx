@@ -92,6 +92,9 @@ export default function DataSourceDialog() {
     { value: "neo4j", label: "Neo4j", defaultPort: "7687" },
     { value: "kafka", label: "Kafka", defaultPort: "9092" },
     { value: "flink", label: "Flink", defaultPort: "8081" },
+    { value: "mongodb", label: "MongoDB", defaultPort: "27017" },
+    { value: "clickhouse", label: "ClickHouse", defaultPort: "8123" },
+    { value: "doris", label: "Apache Doris", defaultPort: "9030" },
   ];
 
   const resetForm = () => {
@@ -1309,6 +1312,317 @@ export default function DataSourceDialog() {
                         />
                         <Label htmlFor="ssl_verify_cert">
                           {t("dataSource.advanced.ssl_verify_cert")}
+                        </Label>
+                      </div>
+                    </>
+                  )}
+
+                  {/* MongoDB Advanced Config */}
+                  {formData.type === "mongodb" && (
+                    <>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="serverSelectionTimeoutMS">
+                            {t("dataSource.advanced.serverSelectionTimeoutMS")}
+                          </Label>
+                          <Input
+                            id="serverSelectionTimeoutMS"
+                            type="number"
+                            value={
+                              formData.advanced_config
+                                .serverSelectionTimeoutMS || ""
+                            }
+                            onChange={(e) =>
+                              handleAdvancedConfigChange(
+                                "serverSelectionTimeoutMS",
+                                e.target.value
+                                  ? parseInt(e.target.value)
+                                  : undefined,
+                              )
+                            }
+                            placeholder="30000"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="connectTimeoutMS">
+                            {t("dataSource.advanced.connectTimeoutMS")}
+                          </Label>
+                          <Input
+                            id="connectTimeoutMS"
+                            type="number"
+                            value={
+                              formData.advanced_config.connectTimeoutMS || ""
+                            }
+                            onChange={(e) =>
+                              handleAdvancedConfigChange(
+                                "connectTimeoutMS",
+                                e.target.value
+                                  ? parseInt(e.target.value)
+                                  : undefined,
+                              )
+                            }
+                            placeholder="20000"
+                          />
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="maxPoolSize">
+                            {t("dataSource.advanced.maxPoolSize")}
+                          </Label>
+                          <Input
+                            id="maxPoolSize"
+                            type="number"
+                            value={formData.advanced_config.maxPoolSize || ""}
+                            onChange={(e) =>
+                              handleAdvancedConfigChange(
+                                "maxPoolSize",
+                                e.target.value
+                                  ? parseInt(e.target.value)
+                                  : undefined,
+                              )
+                            }
+                            placeholder="100"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="authSource">
+                            {t("dataSource.advanced.authSource")}
+                          </Label>
+                          <Input
+                            id="authSource"
+                            value={formData.advanced_config.authSource || ""}
+                            onChange={(e) =>
+                              handleAdvancedConfigChange(
+                                "authSource",
+                                e.target.value,
+                              )
+                            }
+                            placeholder="admin"
+                          />
+                        </div>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <input
+                          id="tls"
+                          type="checkbox"
+                          checked={formData.advanced_config.tls || false}
+                          onChange={(e) =>
+                            handleAdvancedConfigChange("tls", e.target.checked)
+                          }
+                          className="h-4 w-4"
+                        />
+                        <Label htmlFor="tls">
+                          {t("dataSource.advanced.tls")}
+                        </Label>
+                      </div>
+                    </>
+                  )}
+
+                  {/* ClickHouse Advanced Config */}
+                  {formData.type === "clickhouse" && (
+                    <>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="connect_timeout">
+                            {t("dataSource.advanced.connect_timeout")}
+                          </Label>
+                          <Input
+                            id="connect_timeout"
+                            type="number"
+                            value={
+                              formData.advanced_config.connect_timeout || ""
+                            }
+                            onChange={(e) =>
+                              handleAdvancedConfigChange(
+                                "connect_timeout",
+                                e.target.value
+                                  ? parseInt(e.target.value)
+                                  : undefined,
+                              )
+                            }
+                            placeholder="10"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="send_receive_timeout">
+                            {t("dataSource.advanced.send_receive_timeout")}
+                          </Label>
+                          <Input
+                            id="send_receive_timeout"
+                            type="number"
+                            value={
+                              formData.advanced_config.send_receive_timeout ||
+                              ""
+                            }
+                            onChange={(e) =>
+                              handleAdvancedConfigChange(
+                                "send_receive_timeout",
+                                e.target.value
+                                  ? parseInt(e.target.value)
+                                  : undefined,
+                              )
+                            }
+                            placeholder="300"
+                          />
+                        </div>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <input
+                          id="compress"
+                          type="checkbox"
+                          checked={formData.advanced_config.compress || false}
+                          onChange={(e) =>
+                            handleAdvancedConfigChange(
+                              "compress",
+                              e.target.checked,
+                            )
+                          }
+                          className="h-4 w-4"
+                        />
+                        <Label htmlFor="compress">
+                          {t("dataSource.advanced.compress")}
+                        </Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <input
+                          id="secure"
+                          type="checkbox"
+                          checked={formData.advanced_config.secure || false}
+                          onChange={(e) =>
+                            handleAdvancedConfigChange(
+                              "secure",
+                              e.target.checked,
+                            )
+                          }
+                          className="h-4 w-4"
+                        />
+                        <Label htmlFor="secure">
+                          {t("dataSource.advanced.secure")}
+                        </Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <input
+                          id="verify"
+                          type="checkbox"
+                          checked={formData.advanced_config.verify || false}
+                          onChange={(e) =>
+                            handleAdvancedConfigChange(
+                              "verify",
+                              e.target.checked,
+                            )
+                          }
+                          className="h-4 w-4"
+                        />
+                        <Label htmlFor="verify">
+                          {t("dataSource.advanced.verify")}
+                        </Label>
+                      </div>
+                    </>
+                  )}
+
+                  {/* Doris Advanced Config */}
+                  {formData.type === "doris" && (
+                    <>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="connect_timeout">
+                            {t("dataSource.advanced.connect_timeout")}
+                          </Label>
+                          <Input
+                            id="connect_timeout"
+                            type="number"
+                            value={
+                              formData.advanced_config.connect_timeout || ""
+                            }
+                            onChange={(e) =>
+                              handleAdvancedConfigChange(
+                                "connect_timeout",
+                                e.target.value
+                                  ? parseInt(e.target.value)
+                                  : undefined,
+                              )
+                            }
+                            placeholder="10"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="read_timeout">
+                            {t("dataSource.advanced.read_timeout")}
+                          </Label>
+                          <Input
+                            id="read_timeout"
+                            type="number"
+                            value={formData.advanced_config.read_timeout || ""}
+                            onChange={(e) =>
+                              handleAdvancedConfigChange(
+                                "read_timeout",
+                                e.target.value
+                                  ? parseInt(e.target.value)
+                                  : undefined,
+                              )
+                            }
+                            placeholder="30"
+                          />
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="write_timeout">
+                            {t("dataSource.advanced.write_timeout")}
+                          </Label>
+                          <Input
+                            id="write_timeout"
+                            type="number"
+                            value={formData.advanced_config.write_timeout || ""}
+                            onChange={(e) =>
+                              handleAdvancedConfigChange(
+                                "write_timeout",
+                                e.target.value
+                                  ? parseInt(e.target.value)
+                                  : undefined,
+                              )
+                            }
+                            placeholder="30"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="charset">
+                            {t("dataSource.advanced.charset")}
+                          </Label>
+                          <Select
+                            value={formData.advanced_config.charset || ""}
+                            onValueChange={(value) =>
+                              handleAdvancedConfigChange("charset", value)
+                            }
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder="utf8mb4" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="utf8">utf8</SelectItem>
+                              <SelectItem value="utf8mb4">utf8mb4</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <input
+                          id="ssl_enabled"
+                          type="checkbox"
+                          checked={
+                            formData.advanced_config.ssl_enabled || false
+                          }
+                          onChange={(e) =>
+                            handleAdvancedConfigChange(
+                              "ssl_enabled",
+                              e.target.checked,
+                            )
+                          }
+                          className="h-4 w-4"
+                        />
+                        <Label htmlFor="ssl_enabled">
+                          {t("dataSource.advanced.ssl_enabled")}
                         </Label>
                       </div>
                     </>

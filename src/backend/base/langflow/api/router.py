@@ -9,6 +9,8 @@ from langflow.api.v1 import (
     flows_router,
     folders_router,
     knowledge_bases_router,
+    lineage_router,
+    lineage_search_router,
     locale_router,
     login_router,
     mcp_projects_router,
@@ -18,6 +20,7 @@ from langflow.api.v1 import (
     projects_router,
     starter_projects_router,
     store_router,
+    tasks_router,
     users_router,
     validate_router,
     variables_router,
@@ -49,11 +52,14 @@ router_v1.include_router(folders_router)
 router_v1.include_router(projects_router)
 router_v1.include_router(starter_projects_router)
 router_v1.include_router(knowledge_bases_router)
+router_v1.include_router(lineage_router)
+router_v1.include_router(lineage_search_router)
 router_v1.include_router(mcp_router)
 router_v1.include_router(voice_mode_router)
 router_v1.include_router(mcp_projects_router)
 router_v1.include_router(openai_responses_router)
 router_v1.include_router(locale_router)
+router_v1.include_router(tasks_router)
 
 router_v2.include_router(files_router_v2)
 router_v2.include_router(mcp_router_v2)

@@ -151,6 +151,11 @@ export const useSidebarCategories = () => {
         name: "computations",
         icon: "Cpu",
       },
+      {
+        display_name: t("flow.sidebar.components.collect"),
+        name: "collect",
+        icon: "Package",
+      },
     ],
     [],
   );

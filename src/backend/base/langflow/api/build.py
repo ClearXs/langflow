@@ -102,6 +102,75 @@ async def _trigger_alarm_safe(
         await logger.awarning(f"[Alarm] Failed to trigger alarm for flow {flow_id}: {e}")
 
 
+async def _update_task_statistics_async(run_id: str) -> None:
+    """Update task statistics asynchronously.
+
+    Args:
+        run_id: The run ID of the flow execution
+    """
+    try:
+        await logger.adebug(f"[Background] Starting task statistics update for run_id={run_id}")
+
+        # Wait for log queue to finish processing
+        from langflow.services.component_execution_logger_queue import _log_queue
+
+        if _log_queue is not None:
+            # Wait up to 3 seconds for queue to empty
+            max_wait = 3.0
+            wait_interval = 0.1
+            elapsed = 0.0
+
+            while not _log_queue.empty() and elapsed < max_wait:
+                await asyncio.sleep(wait_interval)
+                elapsed += wait_interval
+
+            # Wait for task_done() to be called
+            try:
+                await asyncio.wait_for(_log_queue.join(), timeout=2.0)
+                await logger.adebug(f"[Background] Log queue processed for run_id={run_id}")
+            except asyncio.TimeoutError:
+                await logger.awarning(f"[Background] Timeout waiting for queue for run_id={run_id}")
+
+        # Additional delay for database commits
+        await asyncio.sleep(0.3)
+
+        # Update task statistics
+        async with session_scope() as task_session:
+            from langflow.services.execution_task.service import ExecutionTaskService
+
+            task_service = ExecutionTaskService(task_session)
+
+            # Retry up to 3 times if still running
+            max_retries = 3
+            retry_count = 0
+            updated_task = await task_service.update_task_from_transactions(run_id)
+
+            if updated_task:
+                await logger.adebug(
+                    f"[Background] Initial task status: {updated_task.status}, "
+                    f"components: {updated_task.total_components}"
+                )
+
+            while updated_task and updated_task.status == "running" and retry_count < max_retries:
+                retry_count += 1
+                await asyncio.sleep(0.5)
+                updated_task = await task_service.update_task_from_transactions(run_id)
+
+            if updated_task:
+                await logger.adebug(
+                    f"[Background] Updated task for run_id={run_id}: "
+                    f"status={updated_task.status}, "
+                    f"components={updated_task.total_components}, "
+                    f"success={updated_task.success_components}, "
+                    f"error={updated_task.error_components}"
+                )
+            else:
+                await logger.awarning(f"[Background] No task found for run_id={run_id}")
+
+    except Exception as e:  # noqa: BLE001
+        await logger.awarning(f"[Background] Failed to update task statistics for run_id={run_id}: {e}")
+
+
 async def start_flow_build(
     *,
     flow_id: uuid.UUID,
@@ -280,6 +349,24 @@ async def generate_flow_events(
                 graph = await create_graph(fresh_session, flow_id_str, flow_name)
 
             graph.set_run_id(run_id)
+
+            # Create execution task for tracking
+            try:
+                async with session_scope() as task_session:
+                    from langflow.services.execution_task.service import ExecutionTaskService
+
+                    task_service = ExecutionTaskService(task_session)
+                    await task_service.create_task(
+                        flow_id=flow_id,
+                        run_id=run_id,
+                        user_id=current_user.id,
+                        trigger_type="manual",
+                    )
+                    await logger.adebug(f"Created execution task for run_id: {run_id}")
+            except Exception as e:  # noqa: BLE001
+                # Don't let task creation failure break the flow execution
+                await logger.awarning(f"Failed to create execution task: {e}")
+
             first_layer = sort_vertices(graph)
 
             for vertex_id in first_layer:
@@ -328,6 +415,12 @@ async def generate_flow_events(
         else:
             effective_session_id = flow_id_str
 
+        # Extract runtime_variables from inputs and add to context
+        context = None
+        if inputs and hasattr(inputs, "runtime_variables") and inputs.runtime_variables:
+            context = {"runtime_variables": inputs.runtime_variables}
+            await logger.adebug(f"Using runtime variables in build: {list(inputs.runtime_variables.keys())}")
+
         if not data:
             return await build_graph_from_db(
                 flow_id=flow_id,
@@ -335,6 +428,7 @@ async def generate_flow_events(
                 chat_service=chat_service,
                 user_id=str(current_user.id),
                 session_id=effective_session_id,
+                context=context,
             )
 
         if not flow_name:
@@ -347,6 +441,7 @@ async def generate_flow_events(
             user_id=str(current_user.id),
             flow_name=flow_name,
             session_id=effective_session_id,
+            context=context,
         )
 
     def sort_vertices(graph: Graph) -> list[str]:
@@ -588,10 +683,19 @@ async def generate_flow_events(
         )
 
         raise
+    finally:
+        # Always update task statistics, even if build failed or was cancelled
+        # This ensures task status is updated correctly
+        event_manager.on_end(data={})
+        await graph.end_all_traces()
+        await event_manager.queue.put((None, None, time.time()))
 
-    event_manager.on_end(data={})
-    await graph.end_all_traces()
-    await event_manager.queue.put((None, None, time.time()))
+        # Create a detached background task to update task statistics
+        # This runs independently and won't be cancelled when the parent task is cancelled
+        task = asyncio.create_task(_update_task_statistics_async(graph.run_id))
+        # Store task reference to prevent it from being garbage collected
+        # but we don't need to await it as it should run independently
+        task.add_done_callback(lambda _: None)
 
 
 async def cancel_flow_build(
