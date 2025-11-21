@@ -55,6 +55,7 @@ export default defineConfig(({ mode }) => {
         "@": path.resolve(__dirname, "./src"),
         "@queries": path.resolve(__dirname, "./src/controllers/API/queries"),
       },
+      extensions: [".mjs", ".js", ".ts", ".jsx", ".tsx", ".json"],
     },
     define: {
       "process.env.BACKEND_URL": JSON.stringify(
