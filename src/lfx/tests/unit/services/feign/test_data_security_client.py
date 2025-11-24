@@ -202,9 +202,7 @@ class TestDataSecurityFeignClient:
         mock_feign_service.post.return_value = mock_response
 
         # Execute
-        result = await data_security_client.test_rule_batch(
-            rule_id=1, input_values=["value1", "value2", "value3"]
-        )
+        result = await data_security_client.test_rule_batch(rule_id=1, input_values=["value1", "value2", "value3"])
 
         # Verify
         assert len(result) == 3
@@ -259,9 +257,7 @@ class TestDataSecurityFeignClient:
         mock_feign_service.post.return_value = mock_response
 
         # Execute
-        result = await data_security_client.test_rule_batch(
-            rule_id=1, input_values=["value1", "value2"]
-        )
+        result = await data_security_client.test_rule_batch(rule_id=1, input_values=["value1", "value2"])
 
         # Verify
         assert result == []
@@ -275,9 +271,7 @@ class TestDataSecurityFeignClient:
         mock_feign_service.post.return_value = mock_response
 
         # Execute
-        result = await data_security_client.test_rule_batch(
-            rule_id=1, input_values=["value1", "value2", "value3"]
-        )
+        result = await data_security_client.test_rule_batch(rule_id=1, input_values=["value1", "value2", "value3"])
 
         # Verify - should return whatever service returned, validation happens in component
         assert result == ["result1"]

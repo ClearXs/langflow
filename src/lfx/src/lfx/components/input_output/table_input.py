@@ -49,79 +49,6 @@ def _serialize_neo4j_value(value):
     """Neo4j对象包装函数 - 调用通用序列化函数。"""
     return _serialize_value_for_table(value)
 
-    # 处理Neo4j特殊对象
-    try:
-        # 检查是否是Neo4j对象 - 更宽松的检测
-        class_name = value.__class__.__name__
-        module_name = getattr(value.__class__, "__module__", "")
-
-        # 检查是否是Neo4j对象（通过类名或模块名）
-        is_neo4j_object = "neo4j" in module_name.lower() or class_name in ["Node", "Relationship", "Path", "Record"]
-
-        if is_neo4j_object:
-            # Neo4j Node对象
-            if class_name == "Node" or (hasattr(value, "labels") and hasattr(value, "properties")):
-                node_data = {
-                    "_type": "Node",
-                    "labels": list(value.labels) if hasattr(value, "labels") else [],
-                    "properties": dict(value.properties) if hasattr(value, "properties") else {},
-                }
-                if hasattr(value, "element_id"):
-                    node_data["_element_id"] = str(value.element_id)
-                return {"value": node_data}
-
-            # Neo4j Relationship对象
-            if class_name == "Relationship" or (
-                hasattr(value, "type") and hasattr(value, "start_node") and hasattr(value, "end_node")
-            ):
-                rel_data = {
-                    "_type": "Relationship",
-                    "type": str(value.type) if hasattr(value, "type") else "",
-                }
-                if hasattr(value, "element_id"):
-                    rel_data["_element_id"] = str(value.element_id)
-                if hasattr(value, "start_node") and hasattr(value.start_node, "element_id"):
-                    rel_data["start_node_id"] = str(value.start_node.element_id)
-                if hasattr(value, "end_node") and hasattr(value.end_node, "element_id"):
-                    rel_data["end_node_id"] = str(value.end_node.element_id)
-                if hasattr(value, "properties"):
-                    rel_data["properties"] = dict(value.properties)
-                return {"value": rel_data}
-
-            # 其他Neo4j对象，提取所有可用属性
-            neo4j_data = {"_type": class_name}
-            for attr in dir(value):
-                if not attr.startswith("_") and not callable(getattr(value, attr)):
-                    try:
-                        attr_value = getattr(value, attr)
-                        if isinstance(attr_value, (str, int, float, bool, list, dict)) or attr_value is None:
-                            if isinstance(attr_value, frozenset):
-                                neo4j_data[attr] = list(attr_value)
-                            else:
-                                neo4j_data[attr] = attr_value
-                    except Exception:
-                        continue
-            return {"value": neo4j_data}
-
-        # 普通复牚对象（字典、列表等），直接JSON序列化
-        import json
-
-        json_str = json.dumps(value, ensure_ascii=False)
-        # 限制长度避免UI问题
-        if len(json_str) > 500:
-            json_str = json_str[:500] + "..."
-        return {"value": json_str}
-
-    except (TypeError, ValueError, AttributeError):
-        # 如果JSON序列化失败，用字符串表示
-        try:
-            str_value = str(value)
-            if len(str_value) > 500:
-                str_value = str_value[:500] + "..."
-            return {"value": str_value}
-        except Exception:
-            return {"value": f"<{value.__class__.__name__} object>"}
-
 
 def _convert_neo4j_record_to_dict(record):
     """Convert a Neo4j Record to a flat dictionary with serializable values.
@@ -669,12 +596,27 @@ class ETLTableInputComponent(Component):
                 # 保存数据源信息供后续使用
                 self._current_datasource_info = datasource_info
 
-                # 添加调试日志
+                # ✅ 添加详细调试日志
                 if datasource_info:
                     logger.debug(
                         f"[TableInput] Found datasource info: type={datasource_info.get('type')}, "
-                        f"name={datasource_info.get('name')}, id={datasource_info.get('id')}"
+                        f"name={datasource_info.get('name')}, id={datasource_info.get('id')}, "
+                        f"source={datasource_info.get('source')}, has_raw_data={bool(datasource_info.get('raw_data'))}"
                     )
+                    # 如果是公共数据源，显示 raw_data 的键
+                    if datasource_info.get("source") == "public" and datasource_info.get("raw_data"):
+                        raw_data = datasource_info["raw_data"]
+                        logger.debug(f"[TableInput] Public datasource raw_data keys: {list(raw_data.keys())}")
+                        if "dataSourceParam" in raw_data:
+                            params = raw_data["dataSourceParam"]
+                            logger.debug(
+                                f"[TableInput] dataSourceParam keys: {list(params.keys()) if isinstance(params, dict) else 'NOT A DICT'}"
+                            )
+                            if isinstance(params, dict):
+                                logger.debug(
+                                    f"[TableInput] Extracted params: host={params.get('host')}, "
+                                    f"port={params.get('port')}, database={params.get('database')}"
+                                )
                 else:
                     logger.warning("[TableInput] datasource_info is None!")
 
@@ -850,6 +792,9 @@ class ETLTableInputComponent(Component):
 
                     logger.info("[TableInput] Detected ClickHouse datasource, using clickhouse-connect driver")
 
+                    # ✅ 添加调试日志：显示连接字符串
+                    logger.debug(f"[TableInput] Preview - ClickHouse connection_string: {connection_string}")
+
                     # Parse ClickHouse connection string
                     # Format: clickhouse+connect://username:password@host:port/database
                     match = re.match(r"clickhouse\+connect://([^:]+):([^@]+)@([^:]+):(\d+)/(.+)", connection_string)
@@ -860,7 +805,16 @@ class ETLTableInputComponent(Component):
                     username = unquote(username)
                     password = unquote(password)
 
+                    # ✅ 添加调试日志：显示解析后的参数
+                    logger.debug(
+                        f"[TableInput] Preview - Parsed ClickHouse params: host={host}, port={port}, "
+                        f"database={database}, username={username}"
+                    )
+
                     # Create ClickHouse client
+                    logger.info(
+                        f"[TableInput] Preview - Creating ClickHouse client: host={host}, port={port}, database={database}"
+                    )
                     client = clickhouse_connect.get_client(
                         host=host, port=int(port), username=username, password=password, database=database
                     )
@@ -989,7 +943,7 @@ class ETLTableInputComponent(Component):
             # 合并数据源列表
             all_datasources = []
 
-            # 添加内置数据源 - 不包含 connection_string，通过 API 动态获取
+            # 添加内置数据源 - 包含完整连接参数（包括密码），用于本地构建连接字符串
             for ds in builtin_datasources:
                 display_name = f"{ds['name']} ({ds['type']}) [自定义]"
                 all_datasources.append(
@@ -999,7 +953,13 @@ class ETLTableInputComponent(Component):
                         "type": ds["type"],
                         "source": "builtin",
                         "display_name": display_name,
-                        # ❌ 移除预构建的 connection_string，改为通过 API 动态获取
+                        # ✅ 包含预构建的连接字符串和参数，避免API调用
+                        "host": ds.get("host"),
+                        "port": ds.get("port"),
+                        "database": ds.get("database"),
+                        "username": ds.get("username"),
+                        "password": ds.get("password"),
+                        "advanced_config": ds.get("advanced_config"),
                     }
                 )
 
@@ -1410,22 +1370,150 @@ class ETLTableInputComponent(Component):
             return str(identifier).strip()
 
     def _get_connection_string(self, datasource_id: str, datasource_info: dict = None) -> str:
-        """获取数据源连接字符串，支持内置和公共数据源"""
-        # 公共数据源：从raw_data构建连接字符串
-        if datasource_info and datasource_info.get("source") == "public":
-            logger.info("[TableInput] Building connection string for public datasource")
-            return self._build_public_connection_string(datasource_info["raw_data"])
+        """获取数据源连接字符串，支持内置和公共数据源
 
-        # 内置数据源：通过 API 调用获取连接字符串（包含最新密码）
-        if datasource_info and datasource_info.get("source") == "builtin":
-            logger.info(
-                f"[TableInput] Getting connection string from API for builtin datasource (datasource_id={datasource_id})"
-            )
-            return self._get_builtin_connection_string(datasource_id)
+        统一使用 datasource_info 构建连接字符串，避免调用API。
+        """
+        if not datasource_info:
+            raise ValueError(f"Missing datasource_info for datasource_id: {datasource_id}")
 
-        # 后备方案：通过 API 获取
-        logger.warning(f"[TableInput] Falling back to API call for connection string (datasource_id={datasource_id})")
-        return self._get_builtin_connection_string(datasource_id)
+        source = datasource_info.get("source")
+        ds_type = datasource_info.get("type", "").lower()
+
+        logger.info(f"[TableInput] Building connection string for {source} datasource (type={ds_type})")
+
+        # 公共数据源：从 raw_data 构建
+        if source == "public":
+            raw_data = datasource_info.get("raw_data", {})
+            if not raw_data:
+                raise ValueError(f"Missing raw_data for public datasource: {datasource_id}")
+            return self._build_connection_string_from_datasource_info(datasource_info)
+
+        # 内置数据源：从 datasource_info 直接构建
+        if source == "builtin":
+            return self._build_connection_string_from_datasource_info(datasource_info)
+
+        # 未知来源
+        raise ValueError(f"Unknown datasource source: {source}")
+
+    def _build_connection_string_from_datasource_info(self, datasource_info: dict) -> str:
+        """从 datasource_info 构建连接字符串（统一方法）"""
+        from urllib.parse import quote_plus
+
+        source = datasource_info.get("source")
+
+        # 公共数据源：从 raw_data 提取参数
+        if source == "public":
+            raw_data = datasource_info.get("raw_data", {})
+            params = raw_data.get("dataSourceParam", {}) or raw_data.get("parameters", {})
+
+            if not params:
+                raise ValueError("[TableInput] No dataSourceParam found in raw_data")
+
+            ds_type = params.get("type", "").lower()
+
+            # ✅ Neo4j特殊处理：从URL提取host/port
+            if ds_type == "neo4j":
+                url = params.get("url", "")
+                username = params.get("username", "")
+                password = params.get("password", "")
+
+                if not url:
+                    raise ValueError(f"[TableInput] Missing required 'url' parameter for Neo4j datasource")
+
+                import re
+
+                match = re.match(r"bolt://([^:]+):(\d+)", url)
+                if not match:
+                    raise ValueError(f"[TableInput] Invalid Neo4j URL format: {url}")
+
+                host = match.group(1)
+                port = int(match.group(2))
+
+                username_encoded = quote_plus(username) if username else ""
+                password_encoded = quote_plus(password) if password else ""
+
+                if username and password:
+                    return f"bolt://{username_encoded}:{password_encoded}@{host}:{port}"
+                else:
+                    return f"bolt://{host}:{port}"
+
+            # 其他数据源：正常提取host/port
+            host = params.get("host")
+            port = params.get("port")
+            database = params.get("database")
+            username = params.get("username")
+            password = params.get("password")
+
+        # 内置数据源：直接从 datasource_info 提取
+        elif source == "builtin":
+            ds_type = datasource_info.get("type", "").lower()
+
+            # ✅ Neo4j特殊处理：内置数据源可能有url或host/port
+            if ds_type == "neo4j":
+                url = datasource_info.get("url", "")
+                username = datasource_info.get("username", "")
+                password = datasource_info.get("password", "")
+
+                # 如果有URL，从URL中解析host和port
+                if url:
+                    import re
+
+                    match = re.match(r"bolt://([^:]+):(\d+)", url)
+                    if not match:
+                        raise ValueError(f"[TableInput] Invalid Neo4j URL format: {url}")
+
+                    host = match.group(1)
+                    port = int(match.group(2))
+                else:
+                    # 没有URL，尝试使用host和port字段
+                    host = datasource_info.get("host")
+                    port = datasource_info.get("port")
+
+                    if not host or not port:
+                        raise ValueError(
+                            f"[TableInput] Neo4j datasource missing both 'url' and 'host/port' fields. "
+                            f"Available fields: {list(datasource_info.keys())}"
+                        )
+
+                username_encoded = quote_plus(username) if username else ""
+                password_encoded = quote_plus(password) if password else ""
+
+                if username and password:
+                    return f"bolt://{username_encoded}:{password_encoded}@{host}:{port}"
+                else:
+                    return f"bolt://{host}:{port}"
+
+            # 其他数据源：正常提取
+            host = datasource_info.get("host")
+            port = datasource_info.get("port")
+            database = datasource_info.get("database")
+            username = datasource_info.get("username")
+            password = datasource_info.get("password")
+
+        else:
+            raise ValueError(f"Unknown source: {source}")
+
+        # 验证必填字段（Neo4j已经在上面处理并返回了）
+        if not host or not port:
+            raise ValueError(f"Missing required parameters: host={host}, port={port}")
+
+        # URL编码用户名和密码
+        username_encoded = quote_plus(username) if username else ""
+        password_encoded = quote_plus(password) if password else ""
+
+        # 根据数据库类型构建连接字符串
+        if ds_type == "mysql":
+            return f"mysql+pymysql://{username_encoded}:{password_encoded}@{host}:{port}/{database}"
+        if ds_type == "postgresql":
+            return f"postgresql://{username_encoded}:{password_encoded}@{host}:{port}/{database}"
+        if ds_type == "clickhouse":
+            return f"clickhouse+connect://{username_encoded}:{password_encoded}@{host}:{port}/{database}"
+        if ds_type == "doris":
+            return f"mysql+pymysql://{username_encoded}:{password_encoded}@{host}:{port}/{database}"
+        if ds_type == "mongodb":
+            return f"mongodb://{username_encoded}:{password_encoded}@{host}:{port}/{database}"
+        raise ValueError(f"Unsupported datasource type: {ds_type}")
 
     def _build_public_connection_string(self, raw_data: dict) -> str:
         """构建公共数据源连接字符串"""
@@ -1437,6 +1525,18 @@ class ETLTableInputComponent(Component):
         if not params:
             logger.warning("[TableInput] No dataSourceParam found in raw_data")
             params = {}
+
+        # ✅ 添加详细的调试日志，查看 params 的内容
+        logger.debug(
+            f"[TableInput] Extracted params keys: {list(params.keys()) if isinstance(params, dict) else 'NOT A DICT'}"
+        )
+        logger.debug(
+            f"[TableInput] Params content: host={params.get('host') if isinstance(params, dict) else 'N/A'}, "
+            f"port={params.get('port') if isinstance(params, dict) else 'N/A'}, "
+            f"database={params.get('database') if isinstance(params, dict) else 'N/A'}, "
+            f"username={params.get('username') if isinstance(params, dict) else 'N/A'}, "
+            f"type={params.get('type') if isinstance(params, dict) else 'N/A'}"
+        )
 
         # ✅ 修复：优先从 dataSourceParam.type 获取类型（公共数据源的实际位置）
         ds_type = params.get("type") if isinstance(params, dict) else None
@@ -1518,8 +1618,60 @@ class ETLTableInputComponent(Component):
         """从参数构建连接字符串 - Support MySQL, PostgreSQL, Hive, Neo4j, MongoDB, ClickHouse, Doris"""
         from urllib.parse import quote_plus
 
-        host = params.get("host", "localhost")
-        port = params.get("port", 3306)
+        # 调试日志：记录传入的参数
+        logger.debug(f"[TableInput] Building connection string for type={ds_type}, params keys={list(params.keys())}")
+        logger.debug(
+            f"[TableInput] Connection params: host={params.get('host')}, port={params.get('port')}, "
+            f"database={params.get('database')}, username={params.get('username')}, url={params.get('url')}"
+        )
+
+        # ✅ Neo4j特殊处理：使用URL而不是host/port
+        if ds_type == "neo4j":
+            url = params.get("url", "")
+            username = params.get("username", "")
+            password = params.get("password", "")
+
+            if not url:
+                raise ValueError(
+                    f"[TableInput] Missing required 'url' parameter for Neo4j datasource. "
+                    f"Available params: {list(params.keys())}"
+                )
+
+            username_encoded = quote_plus(username) if username else ""
+            password_encoded = quote_plus(password) if password else ""
+
+            # 从URL中提取host和port（用于连接字符串构建）
+            import re
+
+            match = re.match(r"bolt://([^:]+):(\d+)", url)
+            if not match:
+                raise ValueError(f"[TableInput] Invalid Neo4j URL format: {url}. Expected: bolt://host:port")
+
+            host = match.group(1)
+            port = int(match.group(2))
+
+            if username and password:
+                conn_str = f"bolt://{username_encoded}:{password_encoded}@{host}:{port}"
+            else:
+                conn_str = f"bolt://{host}:{port}"
+
+            logger.info(f"[TableInput] Built Neo4j connection string: bolt://{username_encoded}:***@{host}:{port}")
+            return conn_str
+
+        # ✅ 其他数据源：验证必填字段host和port
+        if not params.get("host"):
+            raise ValueError(
+                f"[TableInput] Missing required 'host' parameter for {ds_type} datasource. "
+                f"Available params: {list(params.keys())}"
+            )
+        if not params.get("port"):
+            raise ValueError(
+                f"[TableInput] Missing required 'port' parameter for {ds_type} datasource. "
+                f"Available params: {list(params.keys())}"
+            )
+
+        host = params["host"]
+        port = params["port"]
         database = params.get("database", "")
         username = params.get("username", "")
         password = params.get("password", "")
@@ -1528,56 +1680,46 @@ class ETLTableInputComponent(Component):
         password_encoded = quote_plus(password) if password else ""
 
         if ds_type == "mysql":
-            return f"mysql+pymysql://{username_encoded}:{password_encoded}@{host}:{port}/{database}"
-        if ds_type == "postgresql":
-            return f"postgresql://{username_encoded}:{password_encoded}@{host}:{port}/{database}"
-        if ds_type == "hive":
+            conn_str = f"mysql+pymysql://{username_encoded}:{password_encoded}@{host}:{port}/{database}"
+        elif ds_type == "postgresql":
+            conn_str = f"postgresql://{username_encoded}:{password_encoded}@{host}:{port}/{database}"
+        elif ds_type == "hive":
             # Hive connection - username/password optional
-            hive_port = port if port != 3306 else 10000
             hive_database = database or "default"
-            conn_str = f"hive://{host}:{hive_port}/{hive_database}"
+            conn_str = f"hive://{host}:{port}/{hive_database}"
             if username:
                 conn_str += f"?auth={username}"
                 if password:
                     conn_str += f"&pwd={password_encoded}"
-            return conn_str
-        if ds_type == "neo4j":
-            # Neo4j connection - 使用 bolt:// 协议，不是 neo4j://
-            # 优先使用URL中的连接信息
-            url = params.get("url", "")
-            if url and url.startswith("bolt://"):
-                import re
-
-                match = re.match(r"bolt://([^:]+):(\d+)", url)
-                if match:
-                    host = match.group(1)
-                    port = int(match.group(2))
-            else:
-                # 回退到使用host和port参数
-                neo4j_port = port if port != 3306 else 7687
-                port = neo4j_port
-
-            if username and password:
-                return f"bolt://{username_encoded}:{password_encoded}@{host}:{port}"
-            return f"bolt://{host}:{port}"
-        if ds_type == "mongodb":
+        elif ds_type == "mongodb":
             # MongoDB connection string
-            mongo_port = port if port != 3306 else 27017
             if username and password:
-                return f"mongodb://{username_encoded}:{password_encoded}@{host}:{mongo_port}/{database}"
-            return f"mongodb://{host}:{mongo_port}/{database}"
-        if ds_type == "clickhouse":
+                conn_str = f"mongodb://{username_encoded}:{password_encoded}@{host}:{port}/{database}"
+            else:
+                conn_str = f"mongodb://{host}:{port}/{database}"
+        elif ds_type == "clickhouse":
             # ClickHouse connection using clickhouse-connect driver
-            ch_port = port if port != 3306 else 8123
-            return f"clickhouse+connect://{username_encoded}:{password_encoded}@{host}:{ch_port}/{database}"
-        if ds_type == "doris":
+            conn_str = f"clickhouse+connect://{username_encoded}:{password_encoded}@{host}:{port}/{database}"
+        elif ds_type == "doris":
             # Doris connection using MySQL protocol (compatible with MySQL driver)
-            doris_port = port if port != 3306 else 9030
-            return f"mysql+pymysql://{username_encoded}:{password_encoded}@{host}:{doris_port}/{database}"
-        raise ValueError(f"Unsupported database type: {ds_type}")
+            conn_str = f"mysql+pymysql://{username_encoded}:{password_encoded}@{host}:{port}/{database}"
+        else:
+            raise ValueError(f"Unsupported database type: {ds_type}")
+
+        # 调试日志：记录构建的连接字符串（隐藏密码）
+        import re
+
+        safe_conn_str = re.sub(r"://([^:]+):([^@]*)@", r"://\1:***@", conn_str)
+        logger.info(f"[TableInput] Built connection string for {ds_type}: {safe_conn_str}")
+
+        return conn_str
 
     def _get_builtin_connection_string(self, datasource_id: str) -> str:
-        """获取内置数据源连接字符串"""
+        """获取内置数据源连接字符串 - 使用同步HTTP客户端
+
+        从 update_build_config() 等同步上下文调用此方法。
+        使用同步 httpx.Client 避免事件循环冲突。
+        """
         import os
 
         import httpx
@@ -1590,43 +1732,27 @@ class ETLTableInputComponent(Component):
             logger.debug(
                 f"[TableInput] Getting connection string for builtin datasource ID: {datasource_id} (cleaned: {clean_datasource_id})"
             )
-            logger.debug(f"[TableInput] Using API URL: {api_url}")
 
-            with httpx.Client(timeout=5.0) as client:
+            # 使用同步 httpx.Client（不需要事件循环）
+            timeout_config = httpx.Timeout(30.0, connect=10.0)
+            with httpx.Client(timeout=timeout_config) as client:
                 url = f"{api_url}/api/v1/datasources/{clean_datasource_id}/connection-string"
-                logger.debug(f"[TableInput] Making request to: {url}")
+                logger.debug(f"[TableInput] Making sync request to: {url}")
 
                 response = client.get(url)
 
                 if response.status_code != 200:
-                    # 增强错误记录，包含响应内容
-                    try:
-                        error_content = response.text
-                        logger.error(f"[TableInput] API request failed. Status: {response.status_code}, URL: {url}")
-                        logger.error(f"[TableInput] Response content: {error_content}")
-                    except Exception:
-                        logger.error(f"[TableInput] API request failed. Status: {response.status_code}, URL: {url}")
-
-                    # 根据状态码提供更具体的错误信息
-                    if response.status_code == 422:
-                        raise ValueError(
-                            f"Invalid datasource ID '{datasource_id}' or datasource configuration. Status: {response.status_code}"
-                        )
-                    if response.status_code == 404:
-                        raise ValueError(
-                            f"Datasource with ID '{datasource_id}' not found. Status: {response.status_code}"
-                        )
+                    logger.error(f"[TableInput] API request failed. Status: {response.status_code}, URL: {url}")
                     raise ValueError(f"Failed to get connection string, status: {response.status_code}")
 
                 connection_data = response.json()
                 connection_string = connection_data.get("connection_string")
 
                 if not connection_string:
-                    logger.error(f"[TableInput] Empty connection string in response: {connection_data}")
                     raise ValueError(i18n.t("components.input_output.table_input.errors.connection_string_empty"))
 
-                logger.debug(f"[TableInput] Successfully retrieved connection string for datasource: {datasource_id}")
                 return connection_string
+
         except httpx.TimeoutException:
             logger.error(f"[TableInput] Timeout getting connection string for datasource: {datasource_id}")
             raise ValueError("Connection string request timed out")
@@ -1662,7 +1788,7 @@ class ETLTableInputComponent(Component):
         # Format: clickhouse+connect://username:password@host:port/database
         match = re.match(r"clickhouse\+connect://([^:]+):([^@]*)@([^:]+):(\d+)/(.+)", connection_string)
         if not match:
-            raise ValueError(f"Invalid ClickHouse connection string format")
+            raise ValueError("Invalid ClickHouse connection string format")
 
         username, password, host, port, database = match.groups()
         username = unquote(username)
@@ -1845,6 +1971,13 @@ class ETLTableInputComponent(Component):
                         "source": source,
                         "display_name": ds["display_name"],
                         "raw_data": ds.get("raw_data"),
+                        # ✅ 包含连接参数，用于本地构建连接字符串
+                        "host": ds.get("host"),
+                        "port": ds.get("port"),
+                        "database": ds.get("database"),
+                        "username": ds.get("username"),
+                        "password": ds.get("password"),
+                        "advanced_config": ds.get("advanced_config"),
                     }
 
                     logger.debug(
@@ -1962,7 +2095,23 @@ class ETLTableInputComponent(Component):
             try:
                 # 使用保存的数据源信息
                 datasource_info = getattr(self, "_current_datasource_info", None)
+
+                # ✅ 添加调试日志：显示datasource_info状态
+                logger.debug(
+                    f"[TableInput] Before get_connection_string - datasource_info is None: {datasource_info is None}"
+                )
+                if datasource_info:
+                    logger.debug(f"[TableInput] datasource_info keys: {list(datasource_info.keys())}")
+                    logger.debug(f"[TableInput] datasource_info source: {datasource_info.get('source')}")
+                    logger.debug(f"[TableInput] datasource_info type: {datasource_info.get('type')}")
+
                 connection_string = self._get_connection_string(datasource_id, datasource_info)
+
+                # ✅ 添加调试日志：显示连接字符串内容（隐藏密码）
+                import re
+
+                safe_conn_str = re.sub(r"://([^:]+):([^@]*)@", r"://\1:***@", connection_string)
+                logger.info(f"[TableInput] Built connection string: {safe_conn_str}")
                 logger.debug(f"[TableInput] Got connection string for datasource {datasource_id}")
 
             except Exception as e:
@@ -1986,6 +2135,28 @@ class ETLTableInputComponent(Component):
 
             # Check datasource type for special handling
             datasource_info = getattr(self, "_current_datasource_info", None)
+
+            # ✅ 添加调试日志：显示 load_data 使用的 datasource_info
+            if datasource_info:
+                logger.debug(
+                    f"[TableInput] load_data using datasource_info: source={datasource_info.get('source')}, "
+                    f"type={datasource_info.get('type')}, has_raw_data={bool(datasource_info.get('raw_data'))}"
+                )
+                if datasource_info.get("source") == "public":
+                    if datasource_info.get("raw_data"):
+                        raw_data = datasource_info["raw_data"]
+                        logger.debug(f"[TableInput] load_data - raw_data keys: {list(raw_data.keys())}")
+                        if "dataSourceParam" in raw_data:
+                            params = raw_data["dataSourceParam"]
+                            logger.debug(
+                                f"[TableInput] load_data - params from raw_data: host={params.get('host') if isinstance(params, dict) else 'N/A'}, "
+                                f"port={params.get('port') if isinstance(params, dict) else 'N/A'}"
+                            )
+                    else:
+                        logger.warning("[TableInput] load_data - Public datasource but no raw_data!")
+            else:
+                logger.warning("[TableInput] load_data - No datasource_info available!")
+
             db_type = datasource_info.get("type", "").lower() if datasource_info else ""
 
             # Neo4j-specific handling
@@ -2270,12 +2441,43 @@ class ETLTableInputComponent(Component):
         """
         import clickhouse_connect
 
-        host = datasource_info.get("host", "localhost")
-        port = datasource_info.get("port", 8123)
-        database = datasource_info.get("database", "default")
-        username = datasource_info.get("username", "default")
-        password = datasource_info.get("password", "")
-        advanced_config = datasource_info.get("advanced_config", {})
+        # ✅ 添加调试日志：显示传入的 datasource_info 的完整结构
+        logger.debug(
+            f"[TableInput] _fetch_clickhouse_data called with datasource_info keys: {list(datasource_info.keys())}"
+        )
+        logger.debug(f"[TableInput] datasource_info source: {datasource_info.get('source')}")
+        logger.debug(f"[TableInput] datasource_info type: {datasource_info.get('type')}")
+        logger.debug(f"[TableInput] has raw_data: {bool(datasource_info.get('raw_data'))}")
+
+        # 公共数据源：从 raw_data.dataSourceParam 提取参数
+        if datasource_info.get("source") == "public":
+            raw_data = datasource_info.get("raw_data", {})
+            logger.debug(f"[TableInput] raw_data keys: {list(raw_data.keys()) if raw_data else 'None'}")
+            params = raw_data.get("dataSourceParam", {})
+            host = params.get("host", "localhost")
+            port = params.get("port", 8123)
+            database = params.get("database", "default")
+            username = params.get("username", "default")
+            password = params.get("password", "")
+            advanced_config = {}  # 公共数据源的高级配置在 pool 里，不适用于 clickhouse-connect
+
+            logger.debug(
+                f"[TableInput] ClickHouse public datasource params: host={host}, port={port}, "
+                f"database={database}, username={username}, has_password={bool(password)}"
+            )
+        else:
+            # 内置数据源：直接从 datasource_info 提取
+            host = datasource_info.get("host", "localhost")
+            port = datasource_info.get("port", 8123)
+            database = datasource_info.get("database", "default")
+            username = datasource_info.get("username", "default")
+            password = datasource_info.get("password", "")
+            advanced_config = datasource_info.get("advanced_config", {})
+
+            logger.debug(
+                f"[TableInput] ClickHouse builtin datasource params: host={host}, port={port}, "
+                f"database={database}, username={username}, has_password={bool(password)}"
+            )
 
         if isinstance(advanced_config, str):
             import json
@@ -2301,6 +2503,11 @@ class ETLTableInputComponent(Component):
             client_params["secure"] = advanced_config["secure"]
         if advanced_config.get("verify"):
             client_params["verify"] = advanced_config["verify"]
+
+        logger.info(
+            f"[TableInput] Creating ClickHouse client with params: host={client_params['host']}, "
+            f"port={client_params['port']}, database={client_params['database']}, username={client_params['username']}"
+        )
 
         # Create ClickHouse client
         client = clickhouse_connect.get_client(**client_params)
@@ -2350,12 +2557,24 @@ class ETLTableInputComponent(Component):
         """
         import pymysql
 
-        host = datasource_info.get("host", "localhost")
-        port = datasource_info.get("port", 9030)
-        database = datasource_info.get("database", "")
-        username = datasource_info.get("username", "root")
-        password = datasource_info.get("password", "")
-        advanced_config = datasource_info.get("advanced_config", {})
+        # 公共数据源：从 raw_data.dataSourceParam 提取参数
+        if datasource_info.get("source") == "public":
+            raw_data = datasource_info.get("raw_data", {})
+            params = raw_data.get("dataSourceParam", {})
+            host = params.get("host", "localhost")
+            port = params.get("port", 9030)
+            database = params.get("database", "")
+            username = params.get("username", "root")
+            password = params.get("password", "")
+            advanced_config = {}  # 公共数据源的高级配置在 pool 里，不适用于 pymysql
+        else:
+            # 内置数据源：直接从 datasource_info 提取
+            host = datasource_info.get("host", "localhost")
+            port = datasource_info.get("port", 9030)
+            database = datasource_info.get("database", "")
+            username = datasource_info.get("username", "root")
+            password = datasource_info.get("password", "")
+            advanced_config = datasource_info.get("advanced_config", {})
 
         if isinstance(advanced_config, str):
             import json
@@ -2475,12 +2694,24 @@ class ETLTableInputComponent(Component):
         sort = query_dict.get("sort")
         limit = query_dict.get("limit", max(0, self.max_records))
 
-        host = datasource_info.get("host", "localhost")
-        port = datasource_info.get("port", 27017)
-        database = datasource_info.get("database", "admin")
-        username = datasource_info.get("username", "")
-        password = datasource_info.get("password", "")
-        advanced_config = datasource_info.get("advanced_config", {})
+        # 公共数据源：从 raw_data.dataSourceParam 提取参数
+        if datasource_info.get("source") == "public":
+            raw_data = datasource_info.get("raw_data", {})
+            params = raw_data.get("dataSourceParam", {})
+            host = params.get("host", "localhost")
+            port = params.get("port", 27017)
+            database = params.get("database", "admin")
+            username = params.get("username", "")
+            password = params.get("password", "")
+            advanced_config = {}  # 公共数据源的高级配置在 pool 里，不适用于 pymongo
+        else:
+            # 内置数据源：直接从 datasource_info 提取
+            host = datasource_info.get("host", "localhost")
+            port = datasource_info.get("port", 27017)
+            database = datasource_info.get("database", "admin")
+            username = datasource_info.get("username", "")
+            password = datasource_info.get("password", "")
+            advanced_config = datasource_info.get("advanced_config", {})
 
         if isinstance(advanced_config, str):
             advanced_config = json.loads(advanced_config)

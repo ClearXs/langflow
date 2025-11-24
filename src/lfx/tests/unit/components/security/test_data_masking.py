@@ -44,11 +44,7 @@ class TestETLDataMaskingComponent:
         component.masking_rules = [{"field": "phone", "rule_id": 10}]
 
         # Mock the client
-        mock_data_security_client.test_rule_batch.return_value = [
-            "138****8000",
-            "139****9000",
-            "137****7000"
-        ]
+        mock_data_security_client.test_rule_batch.return_value = ["138****8000", "139****9000", "137****7000"]
 
         with patch("lfx.services.deps.get_data_security_client", return_value=mock_data_security_client):
             # Execute
@@ -74,15 +70,12 @@ class TestETLDataMaskingComponent:
         """Test masking of multiple fields."""
         # Setup component
         component.data_input = sample_data
-        component.masking_rules = [
-            {"field": "phone", "rule_id": 10},
-            {"field": "email", "rule_id": 11}
-        ]
+        component.masking_rules = [{"field": "phone", "rule_id": 10}, {"field": "email", "rule_id": 11}]
 
         # Setup mock responses for different calls
         mock_data_security_client.test_rule_batch.side_effect = [
             ["138****8000", "139****9000", "137****7000"],  # First call for phone
-            ["zh***@example.com", "li***@example.com"]       # Second call for email (skip null)
+            ["zh***@example.com", "li***@example.com"],  # Second call for email (skip null)
         ]
 
         with patch("lfx.services.deps.get_data_security_client", return_value=mock_data_security_client):
@@ -182,8 +175,10 @@ class TestETLDataMaskingComponent:
 
         with patch("lfx.services.deps.get_data_security_client", return_value=mock_data_security_client):
             # Execute and verify exception
-            with pytest.raises(ValueError, match="Field 'phone' masking failed \\(rule_id=10\\): "
-                                 "Masking service returned 1 values but expected 3"):
+            with pytest.raises(
+                ValueError,
+                match="Field 'phone' masking failed \\(rule_id=10\\): Masking service returned 1 values but expected 3",
+            ):
                 await component.mask_data()
 
     @pytest.mark.asyncio
@@ -220,10 +215,7 @@ class TestETLDataMaskingComponent:
         """Test successful statistics generation."""
         # Setup component
         component.data_input = sample_data
-        component.masking_rules = [
-            {"field": "phone", "rule_id": 10},
-            {"field": "email", "rule_id": 11}
-        ]
+        component.masking_rules = [{"field": "phone", "rule_id": 10}, {"field": "email", "rule_id": 11}]
 
         # Mock the masking process
         mock_data_security_client.test_rule_batch.return_value = ["masked_phone"]

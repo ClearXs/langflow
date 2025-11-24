@@ -198,7 +198,9 @@ class ETLFieldPivotComponent(Component):
                     if upstream_data:
                         # Extract field names
                         field_names = self._extract_field_names(upstream_data)
-                        logger.debug(f"[FieldPivot] Extracted {len(field_names)} fields from upstream data: {field_names}")
+                        logger.debug(
+                            f"[FieldPivot] Extracted {len(field_names)} fields from upstream data: {field_names}"
+                        )
                     else:
                         logger.warning("[FieldPivot] No data returned from upstream node")
 
@@ -209,9 +211,7 @@ class ETLFieldPivotComponent(Component):
                     try:
                         from lfx.components.helpers.field_extraction import find_and_extract_upstream_fields
 
-                        fields = find_and_extract_upstream_fields(
-                            graph_data, node_id, "data_input", "FieldPivot"
-                        )
+                        fields = find_and_extract_upstream_fields(graph_data, node_id, "data_input", "FieldPivot")
 
                         if fields:
                             field_names = [field["name"] for field in fields]

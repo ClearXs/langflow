@@ -20,10 +20,14 @@ class DataSourceBase(SQLModel):
     port: int = Field(nullable=False)
     database: str = Field(nullable=False)
     username: str | None = Field(default=None, nullable=True)  # Optional for Hive, Kafka, Flink
-    password: str | None = Field(default=None, nullable=True)  # Optional for Hive, Kafka, Flink, store plain password (or you can encrypt it at application level)
+    password: str | None = Field(
+        default=None, nullable=True
+    )  # Optional for Hive, Kafka, Flink, store plain password (or you can encrypt it at application level)
     status: str | None = Field(default="inactive", nullable=True)  # active, inactive, error
     last_tested_at: datetime | None = Field(default=None, sa_column=Column(DateTime(timezone=True), nullable=True))
-    advanced_config: str = Field(default="{}", sa_column=Column(Text, nullable=True, server_default="{}"))  # JSON string for advanced configuration
+    advanced_config: str = Field(
+        default="{}", sa_column=Column(Text, nullable=True, server_default="{}")
+    )  # JSON string for advanced configuration
 
 
 class DataSource(DataSourceBase, table=True):  # type: ignore[call-arg]

@@ -35,9 +35,7 @@ class ETLFieldTypeConversion(Component):
                     "display_name": i18n.t(
                         "components.manipulations.field_type_conversion.type_conversions.field_name.display_name"
                     ),
-                    "info": i18n.t(
-                        "components.manipulations.field_type_conversion.type_conversions.field_name.info"
-                    ),
+                    "info": i18n.t("components.manipulations.field_type_conversion.type_conversions.field_name.info"),
                     "type": "str",
                     "required": True,
                 },
@@ -46,9 +44,7 @@ class ETLFieldTypeConversion(Component):
                     "display_name": i18n.t(
                         "components.manipulations.field_type_conversion.type_conversions.source_type.display_name"
                     ),
-                    "info": i18n.t(
-                        "components.manipulations.field_type_conversion.type_conversions.source_type.info"
-                    ),
+                    "info": i18n.t("components.manipulations.field_type_conversion.type_conversions.source_type.info"),
                     "type": "str",
                     "disable_edit": True,
                     "formatter": "code",
@@ -59,9 +55,7 @@ class ETLFieldTypeConversion(Component):
                     "display_name": i18n.t(
                         "components.manipulations.field_type_conversion.type_conversions.target_type.display_name"
                     ),
-                    "info": i18n.t(
-                        "components.manipulations.field_type_conversion.type_conversions.target_type.info"
-                    ),
+                    "info": i18n.t("components.manipulations.field_type_conversion.type_conversions.target_type.info"),
                     "type": "str",
                     "formatter": "text",
                     "options": ["string", "integer", "float", "boolean", "datetime"],
@@ -78,27 +72,84 @@ class ETLFieldTypeConversion(Component):
                     "type": "str",
                     "options_map": {
                         "datetime": [
-                            {"label": i18n.t("components.manipulations.field_type_conversion.rules.datetime.default"), "value": ""},
-                            {"label": i18n.t("components.manipulations.field_type_conversion.rules.datetime.yyyy_mm_dd"), "value": "yyyy-MM-dd"},
-                            {"label": i18n.t("components.manipulations.field_type_conversion.rules.datetime.yyyy_mm_dd_hh_mm_ss"), "value": "yyyy-MM-dd HH:mm:ss"},
-                            {"label": i18n.t("components.manipulations.field_type_conversion.rules.datetime.yyyy_mm_dd_slash"), "value": "yyyy/MM/dd"},
-                            {"label": i18n.t("components.manipulations.field_type_conversion.rules.datetime.dd_mm_yyyy"), "value": "dd/MM/yyyy"},
-                            {"label": i18n.t("components.manipulations.field_type_conversion.rules.datetime.mm_dd_yyyy"), "value": "MM/dd/yyyy"},
-                            {"label": i18n.t("components.manipulations.field_type_conversion.rules.datetime.iso8601"), "value": "ISO8601"},
+                            {
+                                "label": i18n.t(
+                                    "components.manipulations.field_type_conversion.rules.datetime.default"
+                                ),
+                                "value": "",
+                            },
+                            {
+                                "label": i18n.t(
+                                    "components.manipulations.field_type_conversion.rules.datetime.yyyy_mm_dd"
+                                ),
+                                "value": "yyyy-MM-dd",
+                            },
+                            {
+                                "label": i18n.t(
+                                    "components.manipulations.field_type_conversion.rules.datetime.yyyy_mm_dd_hh_mm_ss"
+                                ),
+                                "value": "yyyy-MM-dd HH:mm:ss",
+                            },
+                            {
+                                "label": i18n.t(
+                                    "components.manipulations.field_type_conversion.rules.datetime.yyyy_mm_dd_slash"
+                                ),
+                                "value": "yyyy/MM/dd",
+                            },
+                            {
+                                "label": i18n.t(
+                                    "components.manipulations.field_type_conversion.rules.datetime.dd_mm_yyyy"
+                                ),
+                                "value": "dd/MM/yyyy",
+                            },
+                            {
+                                "label": i18n.t(
+                                    "components.manipulations.field_type_conversion.rules.datetime.mm_dd_yyyy"
+                                ),
+                                "value": "MM/dd/yyyy",
+                            },
+                            {
+                                "label": i18n.t(
+                                    "components.manipulations.field_type_conversion.rules.datetime.iso8601"
+                                ),
+                                "value": "ISO8601",
+                            },
                         ],
                         "boolean": [
-                            {"label": i18n.t("components.manipulations.field_type_conversion.rules.boolean.default"), "value": ""},
-                            {"label": i18n.t("components.manipulations.field_type_conversion.rules.boolean.true_values"), "value": "true,1,yes"},
-                            {"label": i18n.t("components.manipulations.field_type_conversion.rules.boolean.false_values"), "value": "false,0,no"},
+                            {
+                                "label": i18n.t("components.manipulations.field_type_conversion.rules.boolean.default"),
+                                "value": "",
+                            },
+                            {
+                                "label": i18n.t(
+                                    "components.manipulations.field_type_conversion.rules.boolean.true_values"
+                                ),
+                                "value": "true,1,yes",
+                            },
+                            {
+                                "label": i18n.t(
+                                    "components.manipulations.field_type_conversion.rules.boolean.false_values"
+                                ),
+                                "value": "false,0,no",
+                            },
                         ],
                         "string": [
-                            {"label": i18n.t("components.manipulations.field_type_conversion.rules.default"), "value": ""}
+                            {
+                                "label": i18n.t("components.manipulations.field_type_conversion.rules.default"),
+                                "value": "",
+                            }
                         ],
                         "integer": [
-                            {"label": i18n.t("components.manipulations.field_type_conversion.rules.default"), "value": ""}
+                            {
+                                "label": i18n.t("components.manipulations.field_type_conversion.rules.default"),
+                                "value": "",
+                            }
                         ],
                         "float": [
-                            {"label": i18n.t("components.manipulations.field_type_conversion.rules.default"), "value": ""}
+                            {
+                                "label": i18n.t("components.manipulations.field_type_conversion.rules.default"),
+                                "value": "",
+                            }
                         ],
                     },
                     "depend_on": "target_type",
@@ -186,12 +237,14 @@ class ETLFieldTypeConversion(Component):
                 # 生成类型转换配置行
                 conversions = []
                 for field_name_item, detected_type in field_info.items():
-                    conversions.append({
-                        "field_name": field_name_item,
-                        "source_type": detected_type,  # Now has real type from upstream!
-                        "target_type": detected_type,
-                        "conversion_rule": "",
-                    })
+                    conversions.append(
+                        {
+                            "field_name": field_name_item,
+                            "source_type": detected_type,  # Now has real type from upstream!
+                            "target_type": detected_type,
+                            "conversion_rule": "",
+                        }
+                    )
 
                 build_config["type_conversions"]["value"] = conversions
                 self.status = i18n.t(
@@ -332,9 +385,7 @@ class ETLFieldTypeConversion(Component):
         except ValueError:
             raise
         except Exception as e:
-            error_msg = i18n.t(
-                "components.manipulations.field_type_conversion.errors.conversion_failed", error=str(e)
-            )
+            error_msg = i18n.t("components.manipulations.field_type_conversion.errors.conversion_failed", error=str(e))
             self.status = error_msg
             logger.exception(f"[ETLFieldTypeConversion] {error_msg}")
             raise ValueError(error_msg) from e
@@ -374,9 +425,7 @@ class ETLFieldTypeConversion(Component):
                         )
                         raise ValueError(msg) from e
                     # 非严格模式：保留原值
-                    logger.warning(
-                        f"Row {row_index + 1}, field '{field_name}': {e}, keeping original value"
-                    )
+                    logger.warning(f"Row {row_index + 1}, field '{field_name}': {e}, keeping original value")
                     converted[field_name] = value
             elif pass_through:
                 # 透传未配置的字段

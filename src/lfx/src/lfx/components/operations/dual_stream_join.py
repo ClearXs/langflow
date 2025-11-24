@@ -214,14 +214,20 @@ class ETLDualStreamJoinComponent(Component):
                     except ValueError as e:
                         error_msg = str(e)
                         if "has not been built yet" in error_msg and attempt < max_retries - 1:
-                            logger.warning(f"[DualStreamJoin] Upstream node not built, retrying... (attempt {attempt + 1}/{max_retries})")
+                            logger.warning(
+                                f"[DualStreamJoin] Upstream node not built, retrying... (attempt {attempt + 1}/{max_retries})"
+                            )
                             await asyncio.sleep(0.2)  # Brief delay before retry
                             continue
                         # Fallback strategy: Extract from upstream node configurations
-                        logger.warning(f"[DualStreamJoin] Upstream execution failed after {attempt + 1} attempts: {e}. Trying static analysis...")
+                        logger.warning(
+                            f"[DualStreamJoin] Upstream execution failed after {attempt + 1} attempts: {e}. Trying static analysis..."
+                        )
                         break
                     except Exception as e:
-                        logger.warning(f"[DualStreamJoin] Unexpected error during upstream execution: {e}. Falling back to static analysis...")
+                        logger.warning(
+                            f"[DualStreamJoin] Unexpected error during upstream execution: {e}. Falling back to static analysis..."
+                        )
                         break
 
                 # If we couldn't get data from execution, try static analysis
@@ -313,7 +319,9 @@ class ETLDualStreamJoinComponent(Component):
 
                 except ValueError as e:
                     # Fallback strategy: Extract from upstream node configurations
-                    logger.warning(f"[DualStreamJoin] Upstream execution failed for preview: {e}. Trying static analysis...")
+                    logger.warning(
+                        f"[DualStreamJoin] Upstream execution failed for preview: {e}. Trying static analysis..."
+                    )
 
                     try:
                         from lfx.components.helpers.field_extraction import find_and_extract_upstream_fields
@@ -329,7 +337,7 @@ class ETLDualStreamJoinComponent(Component):
                         # Generate simple preview without data types
                         if left_fields_dicts or right_fields_dicts:
                             output_fields = []
-                            for field_dict in (left_fields_dicts or []):
+                            for field_dict in left_fields_dicts or []:
                                 output_fields.append(
                                     {
                                         "field_name": field_dict["name"],
@@ -337,7 +345,7 @@ class ETLDualStreamJoinComponent(Component):
                                         "data_type": field_dict.get("type", "unknown"),
                                     }
                                 )
-                            for field_dict in (right_fields_dicts or []):
+                            for field_dict in right_fields_dicts or []:
                                 output_fields.append(
                                     {
                                         "field_name": field_dict["name"],

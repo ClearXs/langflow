@@ -122,7 +122,11 @@ class StreamingExecutor:
                             value = result[key]
                             if isinstance(value, list):
                                 # Filter for Data objects
-                                data_to_propagate = [item for item in value if hasattr(item, "__class__") and item.__class__.__name__ == "Data"]
+                                data_to_propagate = [
+                                    item
+                                    for item in value
+                                    if hasattr(item, "__class__") and item.__class__.__name__ == "Data"
+                                ]
                             elif hasattr(value, "__class__") and value.__class__.__name__ == "Data":
                                 data_to_propagate = [value]
                             if data_to_propagate:
@@ -194,13 +198,19 @@ class StreamingExecutor:
 
                                 # Handle list of Data objects
                                 if isinstance(extracted_value, list) and extracted_value:
-                                    if hasattr(extracted_value[0], "__class__") and extracted_value[0].__class__.__name__ == "Data":
+                                    if (
+                                        hasattr(extracted_value[0], "__class__")
+                                        and extracted_value[0].__class__.__name__ == "Data"
+                                    ):
                                         # Use the first Data object for propagation
                                         extracted_data = extracted_value[0]
                                         logger.debug(f"Extracted Data object from list: {extracted_data}")
                                         break
                                 # Handle single Data object
-                                elif hasattr(extracted_value, "__class__") and extracted_value.__class__.__name__ == "Data":
+                                elif (
+                                    hasattr(extracted_value, "__class__")
+                                    and extracted_value.__class__.__name__ == "Data"
+                                ):
                                     extracted_data = extracted_value
                                     logger.debug(f"Extracted single Data object: {extracted_data}")
                                     break

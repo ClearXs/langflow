@@ -114,7 +114,9 @@ class ETLMetadataExtractor(BaseMetadataExtractor):
                 source_info["topic"] = getattr(topic, "value", str(topic)) if hasattr(topic, "value") else str(topic)
             if "bootstrap_servers" in self.vertex.params:
                 servers = self.vertex.params["bootstrap_servers"]
-                source_info["bootstrap_servers"] = getattr(servers, "value", str(servers)) if hasattr(servers, "value") else str(servers)
+                source_info["bootstrap_servers"] = (
+                    getattr(servers, "value", str(servers)) if hasattr(servers, "value") else str(servers)
+                )
 
         # 文件输入组件（Excel, CSV等）
         elif any(x in self.vertex.vertex_type.lower() for x in ["excel", "csv"]):
@@ -155,7 +157,9 @@ class ETLMetadataExtractor(BaseMetadataExtractor):
             logger.info(f"[METADATA_DEBUG] Extracted data_list: {len(data_list) if data_list else 'None'} items")
 
             if not data_list:
-                logger.warning(f"[METADATA_DEBUG] No data extracted from results for component: {self.vertex.vertex_type}")
+                logger.warning(
+                    f"[METADATA_DEBUG] No data extracted from results for component: {self.vertex.vertex_type}"
+                )
                 return None
 
             row_count = len(data_list)
@@ -220,7 +224,9 @@ class ETLMetadataExtractor(BaseMetadataExtractor):
 
             # 从各种输出类型中提取数据
             extracted_data = self._extract_from_output(output_data)
-            logger.info(f"[METADATA_DEBUG] Extracted {len(extracted_data) if extracted_data else 0} data items from '{output_name}'")
+            logger.info(
+                f"[METADATA_DEBUG] Extracted {len(extracted_data) if extracted_data else 0} data items from '{output_name}'"
+            )
 
             if extracted_data:
                 all_data.extend(extracted_data)
@@ -483,10 +489,10 @@ class ETLMetadataExtractor(BaseMetadataExtractor):
             是否是transformation组件
         """
         component_class = self.vertex.vertex_type.lower()
-        return any(x in component_class for x in [
-            "cleaning", "mapping", "pivot", "split", "merge",
-            "filter", "transform", "manipulation"
-        ])
+        return any(
+            x in component_class
+            for x in ["cleaning", "mapping", "pivot", "split", "merge", "filter", "transform", "manipulation"]
+        )
 
     def _calculate_transformation_metrics(self, results: dict) -> dict | None:
         """计算转换指标
@@ -505,7 +511,4 @@ class ETLMetadataExtractor(BaseMetadataExtractor):
         """
         # TODO: 实现更复杂的转换指标计算
         # 需要对比输入和输出的schema和行数
-        return {
-            "type": "transformation",
-            "note": "Detailed transformation metrics not yet implemented"
-        }
+        return {"type": "transformation", "note": "Detailed transformation metrics not yet implemented"}

@@ -30,52 +30,66 @@ def create_execution_log_indexes():
 
         with engine.connect() as conn:
             # Create index for flow-specific queries
-            conn.execute(text("""
+            conn.execute(
+                text("""
                 CREATE INDEX IF NOT EXISTS idx_transaction_flow_id
                 ON transaction(flow_id)
-            """))
+            """)
+            )
 
             # Create composite index for flow + status filtering
-            conn.execute(text("""
+            conn.execute(
+                text("""
                 CREATE INDEX IF NOT EXISTS idx_transaction_flow_status
                 ON transaction(flow_id, status)
-            """))
+            """)
+            )
 
             # Create composite index for flow + time ordering
-            conn.execute(text("""
+            conn.execute(
+                text("""
                 CREATE INDEX IF NOT EXISTS idx_transaction_flow_timestamp
                 ON transaction(flow_id, timestamp DESC)
-            """))
+            """)
+            )
 
             # Create index for transaction lookup by flow and vertex
-            conn.execute(text("""
+            conn.execute(
+                text("""
                 CREATE INDEX IF NOT EXISTS idx_transaction_flow_vertex
                 ON transaction(flow_id, vertex_id)
-            """))
+            """)
+            )
 
             # Check if database supports JSON indexes
             db_type = _get_database_type(database_url)
             if db_type == "postgresql":
                 # PostgreSQL JSON path indexes
-                conn.execute(text("""
+                conn.execute(
+                    text("""
                     CREATE INDEX IF NOT EXISTS idx_transaction_inputs_component_type
                     ON transaction USING GIN ((inputs->'_metadata'->>'component_type'))
-                """))
+                """)
+                )
 
-                conn.execute(text("""
+                conn.execute(
+                    text("""
                     CREATE INDEX IF NOT EXISTS idx_transaction_outputs_metadata
                     ON transaction USING GIN (outputs)
-                """))
+                """)
+                )
 
                 logger.info("Created PostgreSQL JSON indexes for transaction metadata")
 
             elif db_type == "sqlite":
                 # SQLite JSON path indexes (SQLite 3.38+)
                 try:
-                    conn.execute(text("""
+                    conn.execute(
+                        text("""
                         CREATE INDEX IF NOT EXISTS idx_transaction_inputs_component_type
                         ON transaction ((json_extract(inputs, '$._metadata.component_type')))
-                    """))
+                    """)
+                    )
 
                     logger.info("Created SQLite JSON indexes for transaction metadata")
 
@@ -127,7 +141,7 @@ def drop_execution_log_indexes():
                 "idx_transaction_flow_timestamp",
                 "idx_transaction_flow_vertex",
                 "idx_transaction_inputs_component_type",
-                "idx_transaction_outputs_metadata"
+                "idx_transaction_outputs_metadata",
             ]
 
             for index_name in indexes_to_drop:

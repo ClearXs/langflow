@@ -152,9 +152,7 @@ class ETLFieldUnpivotComponent(Component):
                     try:
                         from lfx.components.helpers.field_extraction import find_and_extract_upstream_fields
 
-                        fields = find_and_extract_upstream_fields(
-                            graph_data, node_id, "data_input", "FieldUnpivot"
-                        )
+                        fields = find_and_extract_upstream_fields(graph_data, node_id, "data_input", "FieldUnpivot")
 
                         if fields:
                             logger.info(f"[FieldUnpivot] Extracted {len(fields)} fields from static config")

@@ -192,12 +192,8 @@ async def get_vertex_exchanges(
     input_exchanges_raw = await db.exec(input_stmt)
     output_exchanges_raw = await db.exec(output_stmt)
 
-    input_exchanges = [
-        DataExchangeReadResponse.model_validate(e, from_attributes=True) for e in input_exchanges_raw
-    ]
-    output_exchanges = [
-        DataExchangeReadResponse.model_validate(e, from_attributes=True) for e in output_exchanges_raw
-    ]
+    input_exchanges = [DataExchangeReadResponse.model_validate(e, from_attributes=True) for e in input_exchanges_raw]
+    output_exchanges = [DataExchangeReadResponse.model_validate(e, from_attributes=True) for e in output_exchanges_raw]
 
     # Calculate totals
     total_input_count = len(input_exchanges)

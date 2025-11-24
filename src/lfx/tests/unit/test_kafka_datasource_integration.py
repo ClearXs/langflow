@@ -104,12 +104,14 @@ class TestKafkaInputDatasourceIntegration:
         mock_response.status_code = 200
         mock_response.json.return_value = {
             "host": "kafka1:9092,kafka2:9092",
-            "advanced_config": json.dumps({
-                "security_protocol": "SASL_PLAINTEXT",
-                "sasl_mechanism": "PLAIN",
-                "sasl_username": "admin",
-                "sasl_password": "password",
-            }),
+            "advanced_config": json.dumps(
+                {
+                    "security_protocol": "SASL_PLAINTEXT",
+                    "sasl_mechanism": "PLAIN",
+                    "sasl_username": "admin",
+                    "sasl_password": "password",
+                }
+            ),
         }
         mock_client_instance = MagicMock()
         mock_client_instance.get.return_value = mock_response
@@ -214,9 +216,7 @@ class TestKafkaInputDatasourceIntegration:
         # Mock builtin datasources
         mock_response = MagicMock()
         mock_response.status_code = 200
-        mock_response.json.return_value = [
-            {"id": "builtin-123", "name": "Builtin Kafka", "type": "kafka"}
-        ]
+        mock_response.json.return_value = [{"id": "builtin-123", "name": "Builtin Kafka", "type": "kafka"}]
         mock_client_instance = MagicMock()
         mock_client_instance.get.return_value = mock_response
         mock_client.return_value.__enter__.return_value = mock_client_instance
@@ -394,10 +394,12 @@ class TestKafkaOutputDatasourceIntegration:
         mock_response.status_code = 200
         mock_response.json.return_value = {
             "host": "kafka1:9092",
-            "advanced_config": json.dumps({
-                "compression_type": "gzip",
-                "acks": "all",
-            }),
+            "advanced_config": json.dumps(
+                {
+                    "compression_type": "gzip",
+                    "acks": "all",
+                }
+            ),
         }
         mock_client_instance = MagicMock()
         mock_client_instance.get.return_value = mock_response

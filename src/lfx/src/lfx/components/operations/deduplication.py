@@ -176,21 +176,29 @@ class ETLDeduplicationComponent(Component):
                         if upstream_data:
                             # Extract field names from upstream data
                             field_names = self._extract_field_names(upstream_data)
-                            logger.info(f"[Deduplication] Extracted {len(field_names)} fields from upstream data (attempt {attempt + 1})")
+                            logger.info(
+                                f"[Deduplication] Extracted {len(field_names)} fields from upstream data (attempt {attempt + 1})"
+                            )
                             break
                         logger.warning(f"[Deduplication] No data returned from upstream node (attempt {attempt + 1})")
 
                     except ValueError as e:
                         error_msg = str(e)
                         if "has not been built yet" in error_msg and attempt < max_retries - 1:
-                            logger.warning(f"[Deduplication] Upstream node not built, retrying... (attempt {attempt + 1}/{max_retries})")
+                            logger.warning(
+                                f"[Deduplication] Upstream node not built, retrying... (attempt {attempt + 1}/{max_retries})"
+                            )
                             await asyncio.sleep(0.2)  # Brief delay before retry
                             continue
                         # Fallback strategy: Extract from upstream node configuration
-                        logger.warning(f"[Deduplication] Upstream execution failed after {attempt + 1} attempts: {e}. Trying static analysis...")
+                        logger.warning(
+                            f"[Deduplication] Upstream execution failed after {attempt + 1} attempts: {e}. Trying static analysis..."
+                        )
                         break
                     except Exception as e:
-                        logger.warning(f"[Deduplication] Unexpected error during upstream execution: {e}. Falling back to static analysis...")
+                        logger.warning(
+                            f"[Deduplication] Unexpected error during upstream execution: {e}. Falling back to static analysis..."
+                        )
                         break
 
                 # If we couldn't get data from execution, try static analysis
@@ -198,9 +206,7 @@ class ETLDeduplicationComponent(Component):
                     try:
                         from lfx.components.helpers.field_extraction import find_and_extract_upstream_fields
 
-                        fields = find_and_extract_upstream_fields(
-                            graph_data, node_id, "data_input", "Deduplication"
-                        )
+                        fields = find_and_extract_upstream_fields(graph_data, node_id, "data_input", "Deduplication")
 
                         if fields:
                             field_names = [field["name"] for field in fields]
@@ -256,11 +262,15 @@ class ETLDeduplicationComponent(Component):
 
                         if upstream_data:
                             field_names = self._extract_field_names(upstream_data)
-                            logger.info(f"[Deduplication] Refreshed sort field with {len(field_names)} fields from upstream data")
+                            logger.info(
+                                f"[Deduplication] Refreshed sort field with {len(field_names)} fields from upstream data"
+                            )
 
                     except ValueError:
                         # Fallback strategy: Extract from static config
-                        logger.warning("[Deduplication] Upstream execution failed for sort field. Trying static analysis...")
+                        logger.warning(
+                            "[Deduplication] Upstream execution failed for sort field. Trying static analysis..."
+                        )
 
                         try:
                             from lfx.components.helpers.field_extraction import find_and_extract_upstream_fields
@@ -270,7 +280,9 @@ class ETLDeduplicationComponent(Component):
                             )
                             if fields:
                                 field_names = [field["name"] for field in fields]
-                                logger.info(f"[Deduplication] Refreshed sort field with {len(field_names)} fields from static config")
+                                logger.info(
+                                    f"[Deduplication] Refreshed sort field with {len(field_names)} fields from static config"
+                                )
 
                         except Exception:  # noqa: BLE001
                             logger.exception("[Deduplication] Static analysis for sort field also failed")

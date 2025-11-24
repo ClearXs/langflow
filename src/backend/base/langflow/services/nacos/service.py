@@ -41,11 +41,13 @@ def get_local_ip() -> str:
         for addr_info in socket.getaddrinfo(hostname, None):
             ip = addr_info[4][0]
             # Skip loopback, link-local, and IPv6 addresses for now
-            if (ip and
-                not ip.startswith("127.") and
-                not ip.startswith("169.254.") and
-                not ip.startswith("fe80::") and
-                not ip == "::1"):
+            if (
+                ip
+                and not ip.startswith("127.")
+                and not ip.startswith("169.254.")
+                and not ip.startswith("fe80::")
+                and not ip == "::1"
+            ):
                 # Prefer IPv4 addresses
                 if "." in ip:
                     return ip

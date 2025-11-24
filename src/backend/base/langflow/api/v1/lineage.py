@@ -251,9 +251,7 @@ async def search_lineage_by_table(
                         }
                     )
 
-        logger.info(
-            f"Search completed: {len(flows)} flows searched, {len(all_results)} matches found"
-        )
+        logger.info(f"Search completed: {len(flows)} flows searched, {len(all_results)} matches found")
 
         return {
             "results": all_results,

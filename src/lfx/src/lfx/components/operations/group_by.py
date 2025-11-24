@@ -238,21 +238,29 @@ class ETLGroupByComponent(Component):
                         if upstream_data:
                             # Extract field names from upstream data
                             field_names = self._extract_field_names(upstream_data)
-                            logger.info(f"[GroupBy] Extracted {len(field_names)} fields from upstream data (attempt {attempt + 1})")
+                            logger.info(
+                                f"[GroupBy] Extracted {len(field_names)} fields from upstream data (attempt {attempt + 1})"
+                            )
                             break
                         logger.warning(f"[GroupBy] No data returned from upstream node (attempt {attempt + 1})")
 
                     except ValueError as e:
                         error_msg = str(e)
                         if "has not been built yet" in error_msg and attempt < max_retries - 1:
-                            logger.warning(f"[GroupBy] Upstream node not built, retrying... (attempt {attempt + 1}/{max_retries})")
+                            logger.warning(
+                                f"[GroupBy] Upstream node not built, retrying... (attempt {attempt + 1}/{max_retries})"
+                            )
                             await asyncio.sleep(0.2)  # Brief delay before retry
                             continue
                         # Fallback strategy: Extract from upstream node configuration
-                        logger.warning(f"[GroupBy] Upstream execution failed after {attempt + 1} attempts: {e}. Trying static analysis...")
+                        logger.warning(
+                            f"[GroupBy] Upstream execution failed after {attempt + 1} attempts: {e}. Trying static analysis..."
+                        )
                         break
                     except Exception as e:
-                        logger.warning(f"[GroupBy] Unexpected error during upstream execution: {e}. Falling back to static analysis...")
+                        logger.warning(
+                            f"[GroupBy] Unexpected error during upstream execution: {e}. Falling back to static analysis..."
+                        )
                         break
 
                 # If we couldn't get data from execution, try static analysis
@@ -260,9 +268,7 @@ class ETLGroupByComponent(Component):
                     try:
                         from lfx.components.helpers.field_extraction import find_and_extract_upstream_fields
 
-                        fields = find_and_extract_upstream_fields(
-                            graph_data, node_id, "data_input", "GroupBy"
-                        )
+                        fields = find_and_extract_upstream_fields(graph_data, node_id, "data_input", "GroupBy")
 
                         if fields:
                             field_names = [field["name"] for field in fields]
@@ -283,9 +289,7 @@ class ETLGroupByComponent(Component):
                     build_config["group_by_columns"]["table_schema"][0]["options"] = field_names
 
                     # Auto-populate with all fields (users can remove unwanted ones)
-                    build_config["group_by_columns"]["value"] = [
-                        {"field_name": name} for name in field_names
-                    ]
+                    build_config["group_by_columns"]["value"] = [{"field_name": name} for name in field_names]
                     logger.info(f"[GroupBy] Auto-populated {len(field_names)} group by columns")
 
                     self.status = i18n.t(
@@ -389,11 +393,7 @@ class ETLGroupByComponent(Component):
             df = self._convert_to_dataframe(self.data_input)
 
             # Extract group by columns - use all rows in the table
-            group_cols = [
-                col["field_name"]
-                for col in self.group_by_columns
-                if col.get("field_name")
-            ]
+            group_cols = [col["field_name"] for col in self.group_by_columns if col.get("field_name")]
 
             if not group_cols:
                 raise ValueError(i18n.t("components.operations.group_by.errors.no_group_columns_in_table"))

@@ -462,9 +462,7 @@ class ETLDataCleaningComponent(Component):
                     try:
                         from lfx.components.helpers.field_extraction import find_and_extract_upstream_fields
 
-                        fields = find_and_extract_upstream_fields(
-                            graph_data, node_id, "data_input", "DataCleaning"
-                        )
+                        fields = find_and_extract_upstream_fields(graph_data, node_id, "data_input", "DataCleaning")
 
                         if fields:
                             # Generate filter conditions from field names
@@ -545,9 +543,7 @@ class ETLDataCleaningComponent(Component):
                     try:
                         from lfx.components.helpers.field_extraction import find_and_extract_upstream_fields
 
-                        fields = find_and_extract_upstream_fields(
-                            graph_data, node_id, "data_input", "DataCleaning"
-                        )
+                        fields = find_and_extract_upstream_fields(graph_data, node_id, "data_input", "DataCleaning")
 
                         if fields:
                             # Generate cleaning rules from field names
@@ -948,7 +944,9 @@ class ETLDataCleaningComponent(Component):
 
             for data_item in data_items:
                 # Get original data dictionary
-                row_dict = data_item.data if hasattr(data_item, "data") and isinstance(data_item.data, dict) else data_item
+                row_dict = (
+                    data_item.data if hasattr(data_item, "data") and isinstance(data_item.data, dict) else data_item
+                )
 
                 # If row_dict is still not a dict, try to handle it
                 if not isinstance(row_dict, dict):

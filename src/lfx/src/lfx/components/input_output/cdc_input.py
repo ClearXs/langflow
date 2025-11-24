@@ -1,4 +1,5 @@
 import asyncio
+import threading
 from collections.abc import AsyncGenerator, Generator
 from datetime import datetime
 from typing import Any
@@ -11,6 +12,13 @@ from lfx.io import BoolInput, DropdownInput, IntInput, MessageTextInput, Output
 from lfx.log.logger import logger
 from lfx.schema import Data
 from lfx.streaming import streaming_component
+
+# ==================== 专用事件循环线程（用于同步上下文中调用异步HTTP请求） ====================
+# 创建独立的事件循环，避免与主事件循环冲突
+_http_loop = asyncio.new_event_loop()
+_http_thread = threading.Thread(target=_http_loop.run_forever, name="CDCInputAsyncHTTPRunner", daemon=True)
+_http_thread.start()
+logger.info("[CDCInput] Started dedicated event loop thread for async HTTP requests")
 
 
 @streaming_component
@@ -474,8 +482,8 @@ class ETLCDCStreamInputComponent(Component):
         # 如果没有前缀或不符合UUID格式，直接返回
         return datasource_id
 
-    def _get_builtin_connection_string(self, datasource_id: str) -> str:
-        """获取内置数据源连接字符串"""
+    async def _get_builtin_connection_string_async(self, datasource_id: str) -> str:
+        """获取内置数据源连接字符串 - 异步版本（使用 httpx.AsyncClient）"""
         import os
 
         import httpx
@@ -489,8 +497,11 @@ class ETLCDCStreamInputComponent(Component):
                 f"[CDCInput] Getting connection string for datasource ID: {datasource_id} (cleaned: {clean_datasource_id})"
             )
 
-            with httpx.Client(timeout=120.0) as client:
-                response = client.get(f"{api_url}/api/v1/datasources/{clean_datasource_id}/connection-string")
+            async with httpx.AsyncClient(timeout=120.0) as client:
+                url = f"{api_url}/api/v1/datasources/{clean_datasource_id}/connection-string"
+                logger.debug(f"[CDCInput] Making async request to: {url}")
+
+                response = await client.get(url)
 
                 if response.status_code != 200:
                     raise ValueError(
@@ -505,10 +516,34 @@ class ETLCDCStreamInputComponent(Component):
                 if not connection_string:
                     raise ValueError(i18n.t("components.input_output.cdc_input.errors.empty_connection"))
 
+                logger.debug(f"[CDCInput] Successfully retrieved connection string for datasource: {datasource_id}")
                 return connection_string
+        except httpx.TimeoutException:
+            logger.error(f"[CDCInput] Timeout getting connection string for datasource: {datasource_id}")
+            raise ValueError("Connection string request timed out")
+        except httpx.RequestError as e:
+            logger.error(f"[CDCInput] Network error getting connection string: {e}")
+            raise ValueError(f"Network error: {e}")
         except Exception as e:
             logger.error(f"[CDCInput] Error getting builtin connection string: {e}")
             raise
+
+    def _get_builtin_connection_string(self, datasource_id: str) -> str:
+        """获取内置数据源连接字符串 - 同步包装器
+
+        从同步上下文调用此方法（如 CDC 流式方法中的 get_connection_setup）。
+        使用专用事件循环线程运行异步请求，避免与主事件循环冲突。
+        """
+        logger.debug(f"[CDCInput] Using dedicated event loop thread for datasource {datasource_id}")
+
+        # 在专用事件循环中调度协程
+        future = asyncio.run_coroutine_threadsafe(self._get_builtin_connection_string_async(datasource_id), _http_loop)
+
+        try:
+            return future.result(timeout=180)  # 180秒超时（比内部的120秒多一些缓冲）
+        except Exception as e:
+            logger.error(f"[CDCInput] Error getting connection string for datasource {datasource_id}: {e}")
+            raise ValueError(f"Connection string request failed: {e}")
 
     def _normalize_cdc_mode(self, mode_value: str) -> str:
         """规范化 CDC 模式值，将 i18n 翻译值映射回标准值.

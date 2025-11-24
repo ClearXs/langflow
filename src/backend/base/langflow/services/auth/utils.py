@@ -59,7 +59,7 @@ async def api_key_security(
             created_user = await create_super_user(
                 settings_service.auth_settings.SUPERUSER,
                 settings_service.auth_settings.SUPERUSER_PASSWORD.get_secret_value(),
-                db
+                db,
             )
             return UserRead.model_validate(created_user, from_attributes=True)
 
@@ -173,7 +173,7 @@ async def get_current_user(
         return await create_super_user(
             settings_service.auth_settings.SUPERUSER,
             settings_service.auth_settings.SUPERUSER_PASSWORD.get_secret_value(),
-            db
+            db,
         )
 
     if token:
@@ -287,10 +287,11 @@ async def get_current_active_user(current_user: Annotated[User, Depends(get_curr
                 return default_user
             # If no superuser exists, create one
             from langflow.services.auth.utils import create_super_user
+
             return await create_super_user(
                 settings_service.auth_settings.SUPERUSER,
                 settings_service.auth_settings.SUPERUSER_PASSWORD.get_secret_value(),
-                db
+                db,
             )
 
     if not current_user.is_active:
@@ -338,7 +339,7 @@ async def get_webhook_user(flow_id: str, request: Request) -> UserRead:
             created_user = await create_super_user(
                 settings_service.auth_settings.SUPERUSER,
                 settings_service.auth_settings.SUPERUSER_PASSWORD.get_secret_value(),
-                db
+                db,
             )
             return UserRead.model_validate(created_user, from_attributes=True)
 

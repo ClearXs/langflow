@@ -3,7 +3,6 @@
 用于没有特定Extractor的组件类型，提供基础的元数据提取功能。
 """
 
-
 from lfx.log.logger import logger
 
 from langflow.services.metadata_extractors.base import BaseMetadataExtractor
@@ -58,7 +57,9 @@ class GenericMetadataExtractor(BaseMetadataExtractor):
         # 复用 ETL 提取器的通用数据分析逻辑
         if results:
             try:
-                logger.info(f"[METADATA_DEBUG] GenericMetadataExtractor delegating to ETL extractor for component: {self.vertex.vertex_type}")
+                logger.info(
+                    f"[METADATA_DEBUG] GenericMetadataExtractor delegating to ETL extractor for component: {self.vertex.vertex_type}"
+                )
                 from langflow.services.metadata_extractors.etl_extractor import ETLMetadataExtractor
 
                 # 使用 ETL 提取器的通用分析方法
@@ -74,10 +75,13 @@ class GenericMetadataExtractor(BaseMetadataExtractor):
                         "field_count": output_data.get("field_count", 0),
                         "data_size": output_data.get("data_size", 0),
                     }
-                    logger.info(f"[METADATA_DEBUG] GenericMetadataExtractor created data_metrics: {metadata['data_metrics']}")
+                    logger.info(
+                        f"[METADATA_DEBUG] GenericMetadataExtractor created data_metrics: {metadata['data_metrics']}"
+                    )
             except Exception as e:
                 logger.error(f"[METADATA_DEBUG] Failed to extract universal data metrics: {e}")
                 import traceback
+
                 logger.error(f"[METADATA_DEBUG] Traceback: {traceback.format_exc()}")
 
         return metadata

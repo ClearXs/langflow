@@ -249,9 +249,7 @@ class AggregatedExchangeTracker:
         entry["total_size"] += self._calculate_data_size(data)
         entry["data_types"].add(type(data).__name__)
 
-        logger.debug(
-            f"Aggregated exchange: {source_vertex_name} -> {target_vertex_name}, count: {entry['count']}"
-        )
+        logger.debug(f"Aggregated exchange: {source_vertex_name} -> {target_vertex_name}, count: {entry['count']}")
 
     def _calculate_data_size(self, data: Data) -> int:
         """Calculate the approximate size of data in bytes.
@@ -303,9 +301,7 @@ class AggregatedExchangeTracker:
                         "aggregated": True,
                         "count": stats["count"],
                         "avg_size": stats["total_size"] / stats["count"] if stats["count"] > 0 else 0,
-                        "window_start": self._current_window_start.isoformat()
-                        if self._current_window_start
-                        else None,
+                        "window_start": self._current_window_start.isoformat() if self._current_window_start else None,
                         "window_seconds": self.window_seconds,
                     },
                     exchange_metadata={

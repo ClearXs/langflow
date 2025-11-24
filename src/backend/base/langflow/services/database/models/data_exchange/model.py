@@ -18,7 +18,9 @@ class DataExchangeBase(SQLModel):
     data_type: str = Field(nullable=False)  # e.g., "Message", "Data", "str", "list"
     data_size: int = Field(default=0)  # Size in bytes
     data_sample: dict | None = Field(default=None, sa_column=Column(JSON))  # Sampled data content
-    exchange_metadata: dict | None = Field(default=None, sa_column=Column(JSON))  # Additional metadata (renamed to avoid SQLModel conflict)
+    exchange_metadata: dict | None = Field(
+        default=None, sa_column=Column(JSON)
+    )  # Additional metadata (renamed to avoid SQLModel conflict)
 
     # Needed for Column(JSON)
     class Config:

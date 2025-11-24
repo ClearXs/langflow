@@ -87,7 +87,9 @@ class LLMMetadataExtractor(BaseMetadataExtractor):
         for key in ["model_name", "model", "model_id"]:
             if key in self.vertex.params:
                 value = self.vertex.params[key]
-                model_info["model_name"] = getattr(value, "value", str(value)) if hasattr(value, "value") else str(value)
+                model_info["model_name"] = (
+                    getattr(value, "value", str(value)) if hasattr(value, "value") else str(value)
+                )
                 break
 
         # 温度参数
@@ -102,7 +104,9 @@ class LLMMetadataExtractor(BaseMetadataExtractor):
         if "max_tokens" in self.vertex.params:
             max_tok = self.vertex.params["max_tokens"]
             try:
-                model_info["max_tokens"] = int(getattr(max_tok, "value", max_tok) if hasattr(max_tok, "value") else max_tok)
+                model_info["max_tokens"] = int(
+                    getattr(max_tok, "value", max_tok) if hasattr(max_tok, "value") else max_tok
+                )
             except (ValueError, TypeError):
                 pass
 

@@ -150,21 +150,31 @@ class ETLFieldNameMappingComponent(Component):
                         if upstream_data:
                             # Extract field names from upstream data
                             field_mappings = self._extract_field_mappings(upstream_data)
-                            logger.info(f"[FieldNameMapping] Extracted {len(field_mappings)} field mappings from upstream data (attempt {attempt + 1})")
+                            logger.info(
+                                f"[FieldNameMapping] Extracted {len(field_mappings)} field mappings from upstream data (attempt {attempt + 1})"
+                            )
                             break
-                        logger.warning(f"[FieldNameMapping] No data returned from upstream node (attempt {attempt + 1})")
+                        logger.warning(
+                            f"[FieldNameMapping] No data returned from upstream node (attempt {attempt + 1})"
+                        )
 
                     except ValueError as e:
                         error_msg = str(e)
                         if "has not been built yet" in error_msg and attempt < max_retries - 1:
-                            logger.warning(f"[FieldNameMapping] Upstream node not built, retrying... (attempt {attempt + 1}/{max_retries})")
+                            logger.warning(
+                                f"[FieldNameMapping] Upstream node not built, retrying... (attempt {attempt + 1}/{max_retries})"
+                            )
                             await asyncio.sleep(0.2)  # Brief delay before retry
                             continue
                         # Fallback strategy: Extract from upstream node configuration
-                        logger.warning(f"[FieldNameMapping] Upstream execution failed after {attempt + 1} attempts: {e}. Trying static analysis...")
+                        logger.warning(
+                            f"[FieldNameMapping] Upstream execution failed after {attempt + 1} attempts: {e}. Trying static analysis..."
+                        )
                         break
                     except Exception as e:
-                        logger.warning(f"[FieldNameMapping] Unexpected error during upstream execution: {e}. Falling back to static analysis...")
+                        logger.warning(
+                            f"[FieldNameMapping] Unexpected error during upstream execution: {e}. Falling back to static analysis..."
+                        )
                         break
 
                 # If we couldn't get data from execution, try static analysis
@@ -172,9 +182,7 @@ class ETLFieldNameMappingComponent(Component):
                     try:
                         from lfx.components.helpers.field_extraction import find_and_extract_upstream_fields
 
-                        fields = find_and_extract_upstream_fields(
-                            graph_data, node_id, "data_input", "FieldNameMapping"
-                        )
+                        fields = find_and_extract_upstream_fields(graph_data, node_id, "data_input", "FieldNameMapping")
 
                         if fields:
                             # Generate field mappings from field info (with types)

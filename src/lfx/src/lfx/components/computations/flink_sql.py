@@ -158,7 +158,9 @@ FROM user_behavior;""",
         action: str | None = None,
     ):
         """Handle field changes and action button clicks."""
-        logger.info(f"[FlinkSQL] update_build_config called: field_name={field_name}, action={action}, field_value type={type(field_value)}")
+        logger.info(
+            f"[FlinkSQL] update_build_config called: field_name={field_name}, action={action}, field_value type={type(field_value)}"
+        )
 
         # Handle refresh action for specific fields
         if action == "refresh":
@@ -437,11 +439,13 @@ FROM user_behavior;""",
 
             for i, line in enumerate(lines):
                 # Skip auto-generated content
-                if line.strip().startswith("-- Function:") or \
-                   line.strip().startswith("ADD JAR") or \
-                   line.strip().startswith("CREATE TEMPORARY FUNCTION") or \
-                   line.strip() == udf_marker or \
-                   line.strip() == "":
+                if (
+                    line.strip().startswith("-- Function:")
+                    or line.strip().startswith("ADD JAR")
+                    or line.strip().startswith("CREATE TEMPORARY FUNCTION")
+                    or line.strip() == udf_marker
+                    or line.strip() == ""
+                ):
                     continue
                 # Found first line that's not UDF-related
                 user_sql_start = i

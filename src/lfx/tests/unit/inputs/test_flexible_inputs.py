@@ -1,6 +1,5 @@
 """Tests for flexible input types with optional upstream connections."""
 
-
 from lfx.inputs.inputs import (
     DataFrameInput,
     DataInput,

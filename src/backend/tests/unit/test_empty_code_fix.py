@@ -66,9 +66,7 @@ class TestEmptyCodeFix:
                     "data": {
                         "type": "MessageInput",
                         "node": {
-                            "template": {
-                                "input_value": {"type": "str", "value": "test"}
-                            },
+                            "template": {"input_value": {"type": "str", "value": "test"}},
                             "official": True,
                         },
                     },

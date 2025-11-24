@@ -2,6 +2,7 @@
 
 import asyncio
 import re
+import threading
 from typing import Any
 from urllib.parse import unquote
 
@@ -15,6 +16,13 @@ from lfx.custom.custom_component.component import Component
 from lfx.io import BoolInput, DropdownInput, MessageTextInput, MultilineInput, Output, TableInput
 from lfx.log.logger import logger
 from lfx.schema import Data
+
+# ==================== 专用事件循环线程（用于同步上下文中调用异步HTTP请求） ====================
+# 创建独立的事件循环，避免与主事件循环冲突
+_http_loop = asyncio.new_event_loop()
+_http_thread = threading.Thread(target=_http_loop.run_forever, name="SQLScriptAsyncHTTPRunner", daemon=True)
+_http_thread.start()
+logger.info("[SQLScript] Started dedicated event loop thread for async HTTP requests")
 
 
 # Neo4j数据序列化函数 (复制自table_input.py)
@@ -640,8 +648,8 @@ class ETLSQLScriptComponent(Component):
         # 内置数据源：使用现有逻辑
         return self._get_builtin_connection_string(datasource_id)
 
-    def _get_builtin_connection_string(self, datasource_id: str) -> str:
-        """Get connection string for builtin datasource."""
+    async def _get_builtin_connection_string_async(self, datasource_id: str) -> str:
+        """Get connection string for builtin datasource - 异步版本（使用 httpx.AsyncClient）"""
         import os
 
         import httpx
@@ -649,8 +657,11 @@ class ETLSQLScriptComponent(Component):
         api_url = os.getenv("LANGFLOW_API_URL", "http://localhost:7860")
 
         try:
-            with httpx.Client(timeout=10.0) as client:
-                response = client.get(f"{api_url}/api/v1/datasources/{datasource_id}/connection-string")
+            async with httpx.AsyncClient(timeout=10.0) as client:
+                url = f"{api_url}/api/v1/datasources/{datasource_id}/connection-string"
+                logger.debug(f"[SQLScript] Making async request to: {url}")
+
+                response = await client.get(url)
 
                 if response.status_code != 200:
                     raise ValueError(f"Failed to get connection string, status: {response.status_code}")
@@ -661,10 +672,34 @@ class ETLSQLScriptComponent(Component):
                 if not connection_string:
                     raise ValueError(i18n.t("components.scripts.sql_script.errors.connection_string_empty"))
 
+                logger.debug(f"[SQLScript] Successfully retrieved connection string for datasource: {datasource_id}")
                 return connection_string
+        except httpx.TimeoutException:
+            logger.error(f"[SQLScript] Timeout getting connection string for datasource: {datasource_id}")
+            raise ValueError("Connection string request timed out")
+        except httpx.RequestError as e:
+            logger.error(f"[SQLScript] Network error getting connection string: {e}")
+            raise ValueError(f"Network error: {e}")
         except Exception as e:
             logger.error(f"[SQLScript] Error getting builtin connection string: {e}")
             raise
+
+    def _get_builtin_connection_string(self, datasource_id: str) -> str:
+        """Get connection string for builtin datasource - 同步包装器
+
+        从同步上下文调用此方法（如 update_build_config、execute_script）。
+        使用专用事件循环线程运行异步请求，避免与主事件循环冲突。
+        """
+        logger.debug(f"[SQLScript] Using dedicated event loop thread for datasource {datasource_id}")
+
+        # 在专用事件循环中调度协程
+        future = asyncio.run_coroutine_threadsafe(self._get_builtin_connection_string_async(datasource_id), _http_loop)
+
+        try:
+            return future.result(timeout=15)  # 15秒超时（比内部的10秒多一些缓冲）
+        except Exception as e:
+            logger.error(f"[SQLScript] Error getting connection string for datasource {datasource_id}: {e}")
+            raise ValueError(f"Connection string request failed: {e}")
 
     def _build_public_connection_string(self, raw_data: dict) -> str:
         """构建公共数据源连接字符串"""

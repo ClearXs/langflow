@@ -47,7 +47,7 @@ class TestETLDataEncryptionComponent:
         mock_data_security_client.test_rule_batch.return_value = [
             "encrypted_phone_1",
             "encrypted_phone_2",
-            "encrypted_phone_3"
+            "encrypted_phone_3",
         ]
 
         with patch("lfx.services.deps.get_data_security_client", return_value=mock_data_security_client):
@@ -74,15 +74,12 @@ class TestETLDataEncryptionComponent:
         """Test encryption of multiple fields."""
         # Setup component
         component.data_input = sample_data
-        component.field_configs = [
-            {"field": "phone", "rule_id": 1},
-            {"field": "id_card", "rule_id": 2}
-        ]
+        component.field_configs = [{"field": "phone", "rule_id": 1}, {"field": "id_card", "rule_id": 2}]
 
         # Setup mock responses for different calls
         mock_data_security_client.test_rule_batch.side_effect = [
             ["encrypted_phone_1", "encrypted_phone_2", "encrypted_phone_3"],  # First call for phone
-            ["encrypted_id_1", "encrypted_id_2"]                               # Second call for id_card (skip null)
+            ["encrypted_id_1", "encrypted_id_2"],  # Second call for id_card (skip null)
         ]
 
         with patch("lfx.services.deps.get_data_security_client", return_value=mock_data_security_client):
@@ -182,8 +179,11 @@ class TestETLDataEncryptionComponent:
 
         with patch("lfx.services.deps.get_data_security_client", return_value=mock_data_security_client):
             # Execute and verify exception
-            with pytest.raises(ValueError, match="Field 'phone' encryption failed \\(rule_id=1\\): "
-                                 "Encryption service returned 1 values but expected 3"):
+            with pytest.raises(
+                ValueError,
+                match="Field 'phone' encryption failed \\(rule_id=1\\): "
+                "Encryption service returned 1 values but expected 3",
+            ):
                 await component.process_encryption()
 
     @pytest.mark.asyncio
@@ -220,10 +220,7 @@ class TestETLDataEncryptionComponent:
         """Test successful statistics generation."""
         # Setup component
         component.data_input = sample_data
-        component.field_configs = [
-            {"field": "phone", "rule_id": 1},
-            {"field": "id_card", "rule_id": 2}
-        ]
+        component.field_configs = [{"field": "phone", "rule_id": 1}, {"field": "id_card", "rule_id": 2}]
 
         # Mock the encryption process
         mock_data_security_client.test_rule_batch.return_value = ["encrypted_phone"]

@@ -1,5 +1,6 @@
 import asyncio
 import re
+import threading
 from typing import Any
 from urllib.parse import unquote
 
@@ -13,6 +14,13 @@ from lfx.custom.custom_component.component import Component
 from lfx.io import BoolInput, DataInput, DropdownInput, IntInput, MessageTextInput, Output, TableInput
 from lfx.log.logger import logger
 from lfx.schema import Data
+
+# ==================== 专用事件循环线程（用于同步上下文中调用异步HTTP请求） ====================
+# 创建独立的事件循环，避免与主事件循环冲突
+_http_loop = asyncio.new_event_loop()
+_http_thread = threading.Thread(target=_http_loop.run_forever, name="TableOutputAsyncHTTPRunner", daemon=True)
+_http_thread.start()
+logger.info("[TableOutput] Started dedicated event loop thread for async HTTP requests")
 
 # Update options for field mappings
 UPDATE_OPTIONS = [
@@ -1264,11 +1272,26 @@ class ETLTableOutputComponent(Component):
 
     def _build_public_connection_string(self, raw_data: dict) -> str:
         """构建公共数据源连接字符串"""
+        # 记录原始数据以便调试
+        logger.debug(f"[TableOutput] Building connection string from raw_data with keys: {list(raw_data.keys())}")
+
         # 获取数据源参数
         params = raw_data.get("dataSourceParam", {})
         if not params:
             logger.warning("[TableOutput] No dataSourceParam found in raw_data")
             params = {}
+
+        # ✅ 添加详细的调试日志，查看 params 的内容
+        logger.debug(
+            f"[TableOutput] Extracted params keys: {list(params.keys()) if isinstance(params, dict) else 'NOT A DICT'}"
+        )
+        logger.debug(
+            f"[TableOutput] Params content: host={params.get('host') if isinstance(params, dict) else 'N/A'}, "
+            f"port={params.get('port') if isinstance(params, dict) else 'N/A'}, "
+            f"database={params.get('database') if isinstance(params, dict) else 'N/A'}, "
+            f"username={params.get('username') if isinstance(params, dict) else 'N/A'}, "
+            f"type={params.get('type') if isinstance(params, dict) else 'N/A'}"
+        )
 
         # ✅ 修复：优先从 dataSourceParam.type 获取类型（公共数据源的实际位置）
         ds_type = params.get("type") if isinstance(params, dict) else None
@@ -1314,8 +1337,27 @@ class ETLTableOutputComponent(Component):
         """从参数构建连接字符串 - Support MySQL, PostgreSQL, Hive, Neo4j, MongoDB, ClickHouse, Doris"""
         from urllib.parse import quote_plus, unquote
 
-        host = params.get("host", "localhost")
-        port = params.get("port", 3306)
+        # 调试日志：记录传入的参数
+        logger.debug(f"[TableOutput] Building connection string for type={ds_type}, params keys={list(params.keys())}")
+        logger.debug(
+            f"[TableOutput] Connection params: host={params.get('host')}, port={params.get('port')}, "
+            f"database={params.get('database')}, username={params.get('username')}"
+        )
+
+        # ✅ 修复公共数据源 localhost 问题：不使用默认值，而是验证必填字段
+        if not params.get("host"):
+            raise ValueError(
+                f"[TableOutput] Missing required 'host' parameter for {ds_type} datasource. "
+                f"Available params: {list(params.keys())}"
+            )
+        if not params.get("port"):
+            raise ValueError(
+                f"[TableOutput] Missing required 'port' parameter for {ds_type} datasource. "
+                f"Available params: {list(params.keys())}"
+            )
+
+        host = params["host"]
+        port = params["port"]
         database = params.get("database", "")
         username = params.get("username", "")
         password = params.get("password", "")
@@ -1357,32 +1399,25 @@ class ETLTableOutputComponent(Component):
                 if match:
                     host = match.group(1)
                     port = int(match.group(2))
-            else:
-                # 回退到使用host和port参数
-                neo4j_port = port if port != 3306 else 7687
-                port = neo4j_port
 
             if username and password:
                 return f"bolt://{username_encoded}:{password_encoded}@{host}:{port}"
             return f"bolt://{host}:{port}"
         if ds_type == "mongodb":
             # MongoDB connection string
-            mongo_port = port if port != 3306 else 27017
             if username and password:
-                return f"mongodb://{username_encoded}:{password_encoded}@{host}:{mongo_port}/{database}"
-            return f"mongodb://{host}:{mongo_port}/{database}"
+                return f"mongodb://{username_encoded}:{password_encoded}@{host}:{port}/{database}"
+            return f"mongodb://{host}:{port}/{database}"
         if ds_type == "clickhouse":
             # ClickHouse connection using clickhouse-connect driver
-            ch_port = port if port != 3306 else 8123
-            return f"clickhouse+connect://{username_encoded}:{password_encoded}@{host}:{ch_port}/{database}"
+            return f"clickhouse+connect://{username_encoded}:{password_encoded}@{host}:{port}/{database}"
         if ds_type == "doris":
             # Doris connection using MySQL protocol (compatible with MySQL driver)
-            doris_port = port if port != 3306 else 9030
-            return f"mysql+pymysql://{username_encoded}:{password_encoded}@{host}:{doris_port}/{database}"
+            return f"mysql+pymysql://{username_encoded}:{password_encoded}@{host}:{port}/{database}"
         raise ValueError(f"Unsupported database type: {ds_type}")
 
-    def _get_builtin_connection_string(self, datasource_id: str) -> str:
-        """获取内置数据源连接字符串"""
+    async def _get_builtin_connection_string_async(self, datasource_id: str) -> str:
+        """获取内置数据源连接字符串 - 异步版本（使用 httpx.AsyncClient）"""
         import os
 
         import httpx
@@ -1396,8 +1431,11 @@ class ETLTableOutputComponent(Component):
                 f"[TableOutput] Getting connection string for datasource ID: {datasource_id} (cleaned: {clean_datasource_id})"
             )
 
-            with httpx.Client(timeout=120.0) as client:
-                response = client.get(f"{api_url}/api/v1/datasources/{clean_datasource_id}/connection-string")
+            async with httpx.AsyncClient(timeout=120.0) as client:
+                url = f"{api_url}/api/v1/datasources/{clean_datasource_id}/connection-string"
+                logger.debug(f"[TableOutput] Making async request to: {url}")
+
+                response = await client.get(url)
 
                 if response.status_code != 200:
                     raise ValueError(f"Failed to get connection string, status: {response.status_code}")
@@ -1408,7 +1446,14 @@ class ETLTableOutputComponent(Component):
                 if not connection_string:
                     raise ValueError(i18n.t("components.input_output.table_output.errors.connection_string_empty"))
 
+                logger.debug(f"[TableOutput] Successfully retrieved connection string for datasource: {datasource_id}")
                 return connection_string
+        except httpx.TimeoutException:
+            logger.error(f"[TableOutput] Timeout getting connection string for datasource: {datasource_id}")
+            raise ValueError("Connection string request timed out")
+        except httpx.RequestError as e:
+            logger.error(f"[TableOutput] Network error getting connection string: {e}")
+            raise ValueError(f"Network error: {e}")
         except Exception as e:
             logger.error(f"[TableOutput] Error getting builtin connection string: {e}")
             raise
@@ -1432,36 +1477,21 @@ class ETLTableOutputComponent(Component):
         return self._get_builtin_connection_string_sync(datasource_id)
 
     def _get_builtin_connection_string_sync(self, datasource_id: str) -> str:
-        """获取内置数据源连接字符串（同步版本）"""
-        import os
+        """获取内置数据源连接字符串 - 同步包装器
 
-        import httpx
+        从同步上下文调用此方法（如 write_to_table）。
+        使用专用事件循环线程运行异步请求，避免与主事件循环冲突。
+        """
+        logger.debug(f"[TableOutput] Using dedicated event loop thread for datasource {datasource_id}")
 
-        api_url = os.getenv("LANGFLOW_API_URL", "http://localhost:7860")
+        # 在专用事件循环中调度协程
+        future = asyncio.run_coroutine_threadsafe(self._get_builtin_connection_string_async(datasource_id), _http_loop)
 
         try:
-            # 提取纯UUID（移除可能的前缀）
-            clean_datasource_id = self._extract_uuid_from_id(datasource_id)
-            logger.debug(
-                f"[TableOutput] Getting connection string (sync) for datasource ID: {datasource_id} (cleaned: {clean_datasource_id})"
-            )
-
-            with httpx.Client(timeout=120.0) as client:
-                response = client.get(f"{api_url}/api/v1/datasources/{clean_datasource_id}/connection-string")
-
-                if response.status_code != 200:
-                    raise ValueError(f"Failed to get connection string, status: {response.status_code}")
-
-                connection_data = response.json()
-                connection_string = connection_data.get("connection_string")
-
-                if not connection_string:
-                    raise ValueError(i18n.t("components.input_output.table_output.errors.connection_string_empty"))
-
-                return connection_string
+            return future.result(timeout=180)  # 180秒超时（比内部的120秒多一些缓冲）
         except Exception as e:
-            logger.error(f"[TableOutput] Error getting builtin connection string: {e}")
-            raise
+            logger.error(f"[TableOutput] Error getting connection string for datasource {datasource_id}: {e}")
+            raise ValueError(f"Connection string request failed: {e}")
 
     def _extract_field_info_from_data(self, data_list: list[Data]) -> list[dict]:
         """Extract field information from upstream data.
@@ -2684,7 +2714,7 @@ class ETLTableOutputComponent(Component):
         # Format: clickhouse+connect://username:password@host:port/database
         match = re.match(r"clickhouse\+connect://([^:]+):([^@]*)@([^:]+):(\d+)/(.+)", connection_string)
         if not match:
-            raise ValueError(f"Invalid ClickHouse connection string format")
+            raise ValueError("Invalid ClickHouse connection string format")
 
         username, password, host, port, database = match.groups()
         username = unquote(username)
@@ -2747,7 +2777,7 @@ class ETLTableOutputComponent(Component):
         # Format: mysql://username:password@host:port/database or mysql+pymysql://...
         match = re.match(r"mysql(?:\+pymysql)?://([^:]+):([^@]*)@([^:]+):(\d+)/(.+)", connection_string)
         if not match:
-            raise ValueError(f"Invalid Doris/MySQL connection string format")
+            raise ValueError("Invalid Doris/MySQL connection string format")
 
         username, password, host, port, database = match.groups()
         username = unquote(username)
@@ -2819,7 +2849,7 @@ class ETLTableOutputComponent(Component):
         # Format: mongodb://[username:password@]host:port/database
         match = re.match(r"mongodb://(?:([^:]+):([^@]*)@)?([^:]+):(\d+)/(.+)", connection_string)
         if not match:
-            raise ValueError(f"Invalid MongoDB connection string format")
+            raise ValueError("Invalid MongoDB connection string format")
 
         username, password, host, port, database = match.groups()
         if username:

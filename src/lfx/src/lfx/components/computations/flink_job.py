@@ -1,6 +1,5 @@
 import asyncio
 import datetime
-import json
 import os
 from typing import Any
 
@@ -89,16 +88,17 @@ class ETLFlinkJobComponent(Component):
         # Load Flink datasources for initial load or when flink_datasource is accessed
         if field_name is None or field_name == "flink_datasource":
             datasources = self._load_flink_datasources()
-            build_config["flink_datasource"]["options"] = [ds["display_name"] for ds in datasources]
+            # Use 'value' (ID) as the option value, not display_name
+            build_config["flink_datasource"]["options"] = [ds["value"] for ds in datasources]
             build_config["flink_datasource"]["options_metadata"] = datasources
 
         return build_config
 
-    def _load_flink_datasources(self) -> list[dict]:
-        """Load unified Flink datasources (builtin + public)."""
+    async def _load_flink_datasources_async(self) -> list[dict]:
+        """Load unified Flink datasources (builtin + public) asynchronously."""
         try:
-            builtin_datasources = self._get_builtin_flink_datasources()
-            public_datasources = self._get_public_flink_clusters()
+            builtin_datasources = await self._get_builtin_flink_datasources_async()
+            public_datasources = await self._get_public_flink_clusters_async()
 
             # Combine both lists
             all_datasources = builtin_datasources + public_datasources
@@ -111,6 +111,15 @@ class ETLFlinkJobComponent(Component):
 
         except Exception as e:
             logger.error(f"Failed to load Flink datasources: {e}")
+            return []
+
+    def _load_flink_datasources(self) -> list[dict]:
+        """Load unified Flink datasources (builtin + public) - sync wrapper."""
+        try:
+            return asyncio.run(self._load_flink_datasources_async())
+        except RuntimeError:
+            # If we're already in an event loop, we can't use asyncio.run
+            logger.warning("[FlinkJob] Cannot use asyncio.run in active event loop, returning empty list")
             return []
 
     def _extract_uuid_from_id(self, datasource_id: str) -> str:
@@ -127,8 +136,8 @@ class ETLFlinkJobComponent(Component):
         # If no prefix or not valid UUID format, return as-is
         return datasource_id
 
-    def _get_builtin_flink_datasources(self) -> list[dict]:
-        """Get builtin (custom) Flink datasources."""
+    async def _get_builtin_flink_datasources_async(self) -> list[dict]:
+        """Get builtin (custom) Flink datasources asynchronously."""
         try:
             from lfx.base.datasource.manager import DataSourceManager
 
@@ -137,7 +146,7 @@ class ETLFlinkJobComponent(Component):
                 self.datasource_manager = DataSourceManager()
 
             # Get datasources using correct API
-            datasources = asyncio.run(self.datasource_manager.get_datasources())
+            datasources = await self.datasource_manager.get_datasources()
             flink_datasources = []
 
             logger.debug(f"[FlinkJob] Got enterprise datasources: {len(datasources.get('enterprise', []))}")
@@ -178,8 +187,16 @@ class ETLFlinkJobComponent(Component):
             logger.exception(f"[FlinkJob] Failed to load builtin Flink datasources: {e}")
             return []
 
-    def _get_public_flink_clusters(self) -> list[dict]:
-        """Get public Flink clusters from data-stream service."""
+    def _get_builtin_flink_datasources(self) -> list[dict]:
+        """Get builtin (custom) Flink datasources - sync wrapper."""
+        try:
+            return asyncio.run(self._get_builtin_flink_datasources_async())
+        except RuntimeError:
+            logger.warning("[FlinkJob] Cannot load builtin datasources in active event loop")
+            return []
+
+    async def _get_public_flink_clusters_async(self) -> list[dict]:
+        """Get public Flink clusters from data-stream service asynchronously."""
         try:
             from lfx.services.deps import get_feign_service
             from lfx.services.feign.clients.data_stream import DataStreamFeignClient
@@ -188,7 +205,7 @@ class ETLFlinkJobComponent(Component):
             client = DataStreamFeignClient(feign_service)
 
             # Async call to get cluster list
-            cluster_list = asyncio.run(client.get_flink_cluster_list())
+            cluster_list = await client.get_flink_cluster_list()
 
             public_datasources = []
             for cluster in cluster_list:
@@ -219,6 +236,14 @@ class ETLFlinkJobComponent(Component):
 
         except Exception as e:
             logger.error(f"[FlinkJob] Failed to load public Flink clusters: {e}")
+            return []
+
+    def _get_public_flink_clusters(self) -> list[dict]:
+        """Get public Flink clusters from data-stream service - sync wrapper."""
+        try:
+            return asyncio.run(self._get_public_flink_clusters_async())
+        except RuntimeError:
+            logger.warning("[FlinkJob] Cannot load public clusters in active event loop")
             return []
 
     def _build_flink_cluster_display_name(self, name: str, version: str, execution_mode: str, status: str) -> str:
@@ -255,26 +280,90 @@ class ETLFlinkJobComponent(Component):
 
         return None
 
-    def _get_flink_connection_info(self, datasource_id: str) -> dict:
-        """Get Flink connection information from datasource."""
+    async def _find_datasource_by_display_name_async(self, display_name: str) -> dict | None:
+        """Find datasource in cached options_metadata by display name (async version)."""
         try:
-            # Find datasource in metadata
+            logger.debug(f"[FlinkJob] Searching for datasource by display_name: {display_name}")
+            logger.debug(f"[FlinkJob] Has _input_dict: {hasattr(self, '_input_dict')}")
+
+            # Access cached metadata from update_build_config
+            if hasattr(self, "_input_dict") and self._input_dict:
+                flink_datasource_input = self._input_dict.get("flink_datasource")
+                logger.debug(f"[FlinkJob] flink_datasource_input found: {flink_datasource_input is not None}")
+
+                if flink_datasource_input and hasattr(flink_datasource_input, "options_metadata"):
+                    options_metadata = flink_datasource_input.options_metadata
+                    logger.debug(
+                        f"[FlinkJob] options_metadata length: {len(options_metadata) if options_metadata else 0}"
+                    )
+
+                    if options_metadata:
+                        for ds in options_metadata:
+                            ds_display = ds.get("display_name")
+                            ds_label = ds.get("label")
+                            logger.debug(
+                                f"[FlinkJob] Checking datasource: display_name={ds_display}, label={ds_label}, id={ds.get('id')}"
+                            )
+
+                            if ds_display == display_name or ds_label == display_name:
+                                logger.info(
+                                    f"[FlinkJob] Found datasource by display_name: {display_name} -> {ds.get('id')}"
+                                )
+                                return ds
+                else:
+                    logger.warning(f"[FlinkJob] flink_datasource_input has no options_metadata attribute")
+            else:
+                logger.warning(f"[FlinkJob] _input_dict not available or empty")
+
+            # Fallback: Try to load datasources directly using async version
+            logger.info(f"[FlinkJob] Falling back to direct datasource loading (async)")
+            datasources = await self._load_flink_datasources_async()
+            logger.debug(f"[FlinkJob] Loaded {len(datasources)} datasources for lookup")
+
+            for ds in datasources:
+                ds_display = ds.get("display_name")
+                ds_label = ds.get("label")
+
+                if ds_display == display_name or ds_label == display_name:
+                    logger.info(f"[FlinkJob] Found datasource via fallback: {display_name} -> {ds.get('id')}")
+                    return ds
+
+        except Exception as e:
+            logger.error(f"[FlinkJob] Failed to find datasource by display_name: {e}", exc_info=True)
+
+        return None
+
+    async def _get_flink_connection_info(self, datasource_id: str) -> dict:
+        """Get Flink connection information from datasource.
+
+        Args:
+            datasource_id: Datasource ID (UUID)
+        """
+        try:
+            logger.info(f"[FlinkJob] Getting connection info for datasource ID: {datasource_id}")
+
+            # Find datasource in cached metadata by ID
             datasource = self._find_datasource_by_id(datasource_id)
+            logger.debug(f"[FlinkJob] Find by ID result: {datasource is not None}")
 
             if not datasource:
-                logger.warning(f"[FlinkJob] Datasource not found in metadata: {datasource_id}, using DataSourceManager")
+                logger.warning(f"[FlinkJob] Datasource not found in metadata cache, querying DataSourceManager")
                 # Fallback to DataSourceManager
                 from lfx.base.datasource.manager import DataSourceManager
 
                 manager = DataSourceManager()
-                # Use async method correctly
-                datasource = asyncio.run(manager._get_datasource_by_id(datasource_id))
+                datasource_dict = await manager._get_datasource_by_id(datasource_id)
 
-                if not datasource:
+                if not datasource_dict:
                     raise ValueError(f"Datasource not found: {datasource_id}")
 
                 # Extract connection info from datasource
-                return self._extract_connection_info_from_datasource(datasource)
+                return self._extract_connection_info_from_datasource(datasource_dict)
+
+            # Found datasource in metadata
+            logger.info(
+                f"[FlinkJob] Found datasource in metadata: {datasource.get('name')} (source={datasource.get('source')})"
+            )
 
             # Check source to determine how to extract connection info
             source = datasource.get("source", "builtin")
@@ -282,26 +371,27 @@ class ETLFlinkJobComponent(Component):
             if source == "public":
                 # Extract from public datasource (raw_data)
                 return self._build_public_flink_connection_info(datasource)
+
             # Extract from builtin datasource using DataSourceManager
             from lfx.base.datasource.manager import DataSourceManager
 
             manager = DataSourceManager()
 
             # Use the ID from cached datasource (already has correct prefix: custom_ or enterprise_)
-            actual_id = datasource.get("id", datasource_id)
-            logger.debug(f"[FlinkJob] Looking up builtin datasource with ID: {actual_id}")
+            actual_id = datasource.get("id")
+            logger.info(f"[FlinkJob] Looking up builtin datasource with ID: {actual_id}")
 
-            # Use async method correctly
-            builtin_ds = asyncio.run(manager._get_datasource_by_id(actual_id))
+            # Use await instead of asyncio.run()
+            builtin_ds = await manager._get_datasource_by_id(actual_id)
 
             if not builtin_ds:
-                raise ValueError(f"Builtin datasource not found: {actual_id} (original input: {datasource_id})")
+                raise ValueError(f"Builtin datasource not found: {actual_id}")
 
             # Extract connection info from datasource
             return self._extract_connection_info_from_datasource(builtin_ds)
 
         except Exception as e:
-            logger.error(f"[FlinkJob] Failed to get Flink connection info: {e}")
+            logger.error(f"[FlinkJob] Failed to get Flink connection info: {e}", exc_info=True)
             return {
                 "jobmanager_host": "localhost",
                 "jobmanager_port": 6123,
@@ -317,14 +407,21 @@ class ETLFlinkJobComponent(Component):
         Returns:
             Connection info dictionary
         """
+        logger.info(f"[FlinkJob] Extracting connection info from datasource: {datasource.get('name', 'Unknown')}")
+        logger.debug(f"[FlinkJob] Datasource keys: {list(datasource.keys())}")
+
         # Try to get from advanced_config first (for Flink datasources)
         advanced_config = datasource.get("advanced_config", {})
+        logger.debug(f"[FlinkJob] advanced_config type: {type(advanced_config)}, value: {advanced_config}")
+
         if isinstance(advanced_config, str):
             try:
                 import json
 
                 advanced_config = json.loads(advanced_config)
+                logger.debug(f"[FlinkJob] Parsed advanced_config: {advanced_config}")
             except (json.JSONDecodeError, ValueError):
+                logger.warning(f"[FlinkJob] Failed to parse advanced_config as JSON")
                 advanced_config = {}
 
         # Helper function to parse URL
@@ -353,21 +450,25 @@ class ETLFlinkJobComponent(Component):
         if advanced_config.get("jobmanager_host"):
             jobmanager_host = advanced_config.get("jobmanager_host")
             rest_port = advanced_config.get("rest_port") or 8081
+            logger.info(f"[FlinkJob] Found jobmanager_host in advanced_config: {jobmanager_host}:{rest_port}")
         elif advanced_config.get("host"):
             # Parse host which might contain URL with port
             jobmanager_host, rest_port = parse_url(advanced_config.get("host"))
+            logger.info(f"[FlinkJob] Parsed host from advanced_config: {jobmanager_host}:{rest_port}")
         elif datasource.get("host"):
             # Parse datasource host which might contain URL with port
             jobmanager_host, rest_port = parse_url(datasource.get("host"))
+            logger.info(f"[FlinkJob] Parsed host from datasource: {jobmanager_host}:{rest_port}")
         else:
             jobmanager_host = "localhost"
             rest_port = 8081
+            logger.warning(f"[FlinkJob] No host configuration found, using default: {jobmanager_host}:{rest_port}")
 
         jobmanager_port = advanced_config.get("jobmanager_port") or 6123
 
-        logger.debug(
+        logger.info(
             f"[FlinkJob] Extracted connection info: host={jobmanager_host}, "
-            f"rest_port={rest_port}"
+            f"rest_port={rest_port}, jobmanager_port={jobmanager_port}"
         )
 
         return {
@@ -438,17 +539,23 @@ class ETLFlinkJobComponent(Component):
             }
 
     async def _submit_jar_job(
-        self, datasource_id: str, jar_file_input: str, entry_class: str, program_args: str, parallelism: int
+        self, datasource_id: str, file_id: str, entry_class: str, program_args: str, parallelism: int
     ) -> dict:
-        """Submit JAR job to Flink cluster with datasource file download."""
-        # Get Flink connection info
-        conn_info = self._get_flink_connection_info(datasource_id)
-        rest_url = f"http://{conn_info['jobmanager_host']}:{conn_info['rest_port']}"
+        """Submit JAR job to Flink cluster with datasource file download.
 
-        # Extract file ID using CSV/Excel pattern
-        file_id = self._extract_jar_file_id(jar_file_input)
-        if not file_id:
-            raise ValueError(i18n.t("components.computations.flink_job.errors.invalid_jar_file"))
+        Args:
+            datasource_id: Flink datasource ID
+            file_id: File ID (numeric) or file path
+            entry_class: Main class entry point
+            program_args: Program arguments
+            parallelism: Job parallelism
+
+        Returns:
+            Job information dictionary
+        """
+        # Get Flink connection info
+        conn_info = await self._get_flink_connection_info(datasource_id)
+        rest_url = f"http://{conn_info['jobmanager_host']}:{conn_info['rest_port']}"
 
         # Check if it's a file ID (numeric) or actual path
         is_file_id = file_id.isdigit() if isinstance(file_id, str) else False
@@ -542,36 +649,6 @@ class ETLFlinkJobComponent(Component):
                 cleanup_temp_file(temp_jar_path)
                 logger.info(f"[FlinkJob] Cleaned up temp file: {temp_jar_path}")
 
-    def _extract_jar_file_id(self, jar_file_input: Any) -> str | None:
-        """Extract file ID from JAR file input (same pattern as CSV/Excel components).
-
-        Args:
-            jar_file_input: JAR file input from component
-
-        Returns:
-            File ID (numeric string) or file path
-        """
-        # Parse JSON string if needed
-        if isinstance(jar_file_input, str):
-            try:
-                jar_data = json.loads(jar_file_input)
-                file_id = jar_data.get("file_path") or jar_data.get("value")
-                logger.debug(f"[FlinkJob] Extracted from JSON: {file_id}")
-                return file_id
-            except json.JSONDecodeError:
-                # Not JSON, might be direct file ID or path
-                logger.debug(f"[FlinkJob] Using string directly: {jar_file_input}")
-                return jar_file_input
-
-        # Already a dict
-        elif isinstance(jar_file_input, dict):
-            file_id = jar_file_input.get("file_path") or jar_file_input.get("value")
-            logger.debug(f"[FlinkJob] Extracted from dict: {file_id}")
-            return file_id
-
-        logger.warning(f"[FlinkJob] Unexpected input type: {type(jar_file_input)}")
-        return None
-
     def submit_flink_job(self) -> Data:
         """Submit JAR job to Flink cluster."""
         try:
@@ -585,11 +662,52 @@ class ETLFlinkJobComponent(Component):
             if not self.entry_class:
                 raise ValueError(i18n.t("components.computations.flink_job.errors.no_entry_class"))
 
-            # Submit JAR job
+            # Extract file ID from _parameters (same pattern as CSV Input)
+            logger.info(
+                f"[FlinkJob] submit_flink_job called with jar_file: {self.jar_file} (type: {type(self.jar_file)})"
+            )
+            logger.info(f"[FlinkJob] _parameters keys: {list(self._parameters.keys())}")
+
+            # Try to get file_id from multiple sources
+            file_id = None
+
+            # 1. Check if _parameters has the original jar_file structure
+            jar_file_param = self._parameters.get("jar_file")
+            if isinstance(jar_file_param, dict):
+                file_id = jar_file_param.get("file_path") or jar_file_param.get("value")
+                logger.info(f"[FlinkJob] Extracted file_id from dict _parameters: {file_id}")
+
+            # 2. If _parameters has a string path, check if it looks like a file ID
+            elif isinstance(jar_file_param, str):
+                # Check if it's a numeric file ID
+                if jar_file_param.isdigit():
+                    file_id = jar_file_param
+                    logger.info(f"[FlinkJob] Using numeric string from _parameters as file_id: {file_id}")
+                else:
+                    # It's a path (could be cached path or real path)
+                    # Try to extract file ID from the path if it looks like /path/to/cache/123456
+                    basename = os.path.basename(jar_file_param)
+                    if basename.isdigit():
+                        file_id = basename
+                        logger.info(f"[FlinkJob] Extracted file_id from cached path basename: {file_id}")
+                    else:
+                        # It's a real file path, use it directly
+                        file_id = jar_file_param
+                        logger.info(f"[FlinkJob] Using path from _parameters: {file_id}")
+
+            # 3. Fallback to self.jar_file
+            if not file_id and self.jar_file:
+                file_id = self.jar_file
+                logger.info(f"[FlinkJob] Fallback to self.jar_file: {file_id}")
+
+            if not file_id:
+                raise ValueError(i18n.t("components.computations.flink_job.errors.no_jar_file"))
+
+            # Submit JAR job with extracted file_id
             result = asyncio.run(
                 self._submit_jar_job(
                     datasource_id,
-                    self.jar_file,
+                    file_id,
                     self.entry_class,
                     self.program_args or "",
                     self.parallelism,
