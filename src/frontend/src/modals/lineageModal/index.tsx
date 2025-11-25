@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import ForwardedIconComponent from "@/components/common/genericIconComponent";
 import {
@@ -7,13 +7,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import LineageGraph from "./components/lineage-graph";
 import { useGetLineage } from "./use-get-lineage";
 
@@ -25,14 +18,13 @@ interface LineageModalProps {
 
 const LineageModal = ({ open, setOpen, flowId }: LineageModalProps) => {
   const { t } = useTranslation();
-  const [selectedTable, setSelectedTable] = useState<string | null>(null);
 
   const {
     data: lineageData,
     isLoading,
     error,
     refetch,
-  } = useGetLineage(flowId, selectedTable || undefined);
+  } = useGetLineage(flowId, undefined);
 
   useEffect(() => {
     if (open) {
@@ -41,10 +33,6 @@ const LineageModal = ({ open, setOpen, flowId }: LineageModalProps) => {
   }, [open, refetch]);
 
   const allTables = lineageData?.tables || [];
-
-  const handleTableSelect = (tableId: string | null) => {
-    setSelectedTable(tableId);
-  };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -73,35 +61,14 @@ const LineageModal = ({ open, setOpen, flowId }: LineageModalProps) => {
           </div>
         ) : lineageData ? (
           <div className="flex flex-1 flex-col gap-3 overflow-hidden">
-            {/* Filter Controls */}
-            <div className="flex items-center gap-3">
-              <Select
-                value={selectedTable || "all"}
-                onValueChange={(value) =>
-                  handleTableSelect(value === "all" ? null : value)
-                }
-              >
-                <SelectTrigger className="w-[250px]">
-                  <SelectValue placeholder={t("lineage.selectTable")} />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">{t("lineage.allTables")}</SelectItem>
-                  {allTables.map((table) => (
-                    <SelectItem key={table.id} value={table.table_name}>
-                      {table.table_name} (
-                      {table.type === "source"
-                        ? t("lineage.source")
-                        : t("lineage.target")}
-                      ) - {table.node_name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-
-              <div className="text-sm text-muted-foreground">
-                {t("lineage.totalTables")}: {lineageData.total_tables} |
-                {t("lineage.totalRelationships")}:{" "}
-                {lineageData.total_relationships}
+            {/* Statistics */}
+            <div className="flex items-center gap-4 text-sm text-muted-foreground">
+              <div>
+                {t("lineage.totalTables")}: {lineageData.total_tables}
+              </div>
+              <div>|</div>
+              <div>
+                {t("lineage.totalRelationships")}: {lineageData.total_relationships}
               </div>
             </div>
 
