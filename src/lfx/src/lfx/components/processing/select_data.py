@@ -128,7 +128,7 @@ class SelectDataComponent(Component):
             self.log(error_msg, "error")
             raise ValueError(error_msg) from e
 
-    def update_build_config(self, build_config, field_value, field_name=None):
+    def update_build_config(self, build_config, field_value, field_name=None, action=None):
         """Update the range_spec max value based on data_list length."""
         try:
             if field_name == "data_list" and field_value:

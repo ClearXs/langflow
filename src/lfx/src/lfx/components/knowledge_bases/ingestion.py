@@ -631,6 +631,7 @@ class KnowledgeIngestionComponent(Component):
         build_config,
         field_value: Any,
         field_name: str | None = None,
+        action: str | None = None,
     ):
         """Update build configuration based on provider selection."""
         # Create a new knowledge base

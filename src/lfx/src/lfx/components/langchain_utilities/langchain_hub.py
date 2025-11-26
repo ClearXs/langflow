@@ -43,7 +43,7 @@ class LangChainHubPromptComponent(Component):
         ),
     ]
 
-    def update_build_config(self, build_config: dict, field_value: str, field_name: str | None = None):
+    def update_build_config(self, build_config: dict, field_value: str, field_name: str | None = None, action: str | None = None):
         # If the field is not langchain_hub_prompt or the value is empty, return the build config as is
         if field_name != "langchain_hub_prompt" or not field_value:
             return build_config

@@ -36,7 +36,7 @@ OPERATORS = {
 
 
 class DataOperationsComponent(Component):
-    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
+    # ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
     display_name = i18n.t("components.processing.data_operations.display_name")
     description = i18n.t("components.processing.data_operations.description")
     icon = "file-json"
@@ -612,7 +612,7 @@ class DataOperationsComponent(Component):
             raise ValueError(error_msg) from e
 
     # Configuration and execution methods
-    def update_build_config(self, build_config: dotdict, field_value: Any, field_name: str | None = None) -> dotdict:
+    def update_build_config(self, build_config: dotdict, field_value: Any, field_name: str | None = None, action: str | None = None) -> dotdict:
         if field_name == "operations":
             build_config["operations"]["value"] = field_value
             selected_actions = [action["name"] for action in field_value]

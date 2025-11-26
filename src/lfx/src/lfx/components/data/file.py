@@ -171,6 +171,7 @@ class FileComponent(BaseFileComponent):
         build_config: dict[str, Any],
         field_value: Any,
         field_name: str | None = None,
+        action: str | None = None,
     ) -> dict[str, Any]:
         """Show/hide Advanced Parser and related fields based on selection context."""
         if field_name == "path":

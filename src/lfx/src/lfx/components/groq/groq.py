@@ -141,7 +141,7 @@ class GroqModel(LCModelComponent):
 
         return model_ids
 
-    def update_build_config(self, build_config: dict, field_value: str, field_name: str | None = None):
+    def update_build_config(self, build_config: dict, field_value: str, field_name: str | None = None, action: str | None = None):
         """Update build configuration when inputs change.
 
         Args:

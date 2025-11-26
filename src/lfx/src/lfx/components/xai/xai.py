@@ -118,7 +118,7 @@ class XAIModelComponent(LCModelComponent):
             return XAI_DEFAULT_MODELS
 
     @override
-    def update_build_config(self, build_config: dict, field_value: str, field_name: str | None = None):
+    def update_build_config(self, build_config: dict, field_value: str, field_name: str | None = None, action: str | None = None):
         """Update build configuration with fresh model list when key fields change."""
         if field_name in {"api_key", "base_url", "model_name"}:
             models = self.get_models()

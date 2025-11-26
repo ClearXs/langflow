@@ -166,7 +166,7 @@ class DataFrameOperationsComponent(Component):
         )
     ]
 
-    def update_build_config(self, build_config, field_value, field_name=None):
+    def update_build_config(self, build_config, field_value, field_name=None, action=None):
         dynamic_fields = [
             "column_name",
             "filter_value",

@@ -565,7 +565,7 @@ class AgentComponent(ToolCallingAgentComponent):
             return build_config
 
     async def update_build_config(
-        self, build_config: dotdict, field_value: str, field_name: str | None = None
+        self, build_config: dotdict, field_value: str, field_name: str | None = None, action: str | None = None
     ) -> dotdict:
         try:
             # Iterate over all providers in the MODEL_PROVIDERS_DICT

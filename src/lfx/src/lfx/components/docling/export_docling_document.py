@@ -79,7 +79,7 @@ class ExportDoclingDocumentComponent(Component):
         ),
     ]
 
-    def update_build_config(self, build_config: dict, field_value: Any, field_name: str | None = None) -> dict:
+    def update_build_config(self, build_config: dict, field_value: Any, field_name: str | None = None, action: str | None = None) -> dict:
         """Update build configuration based on export format selection.
 
         Args:

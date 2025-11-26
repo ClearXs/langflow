@@ -31,6 +31,7 @@ class AssistantsRun(ComponentWithCache):
         build_config: dotdict,
         field_value: Any,
         field_name: str | None = None,
+        action: str | None = None,
     ) -> None:
         if field_name == "thread_id":
             if field_value is None:

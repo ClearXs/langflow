@@ -163,7 +163,7 @@ class SaveToFileComponent(Component):
         )
     ]
 
-    def update_build_config(self, build_config, field_value, field_name=None):
+    def update_build_config(self, build_config, field_value, field_name=None, action=None):
         """Update build configuration to show/hide fields based on storage location selection."""
         if field_name != "storage_location":
             return build_config

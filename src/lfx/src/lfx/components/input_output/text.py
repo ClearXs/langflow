@@ -116,7 +116,7 @@ class TextComponent(Component):
     ]
 
     def update_build_config(
-        self, build_config: dict[str, Any], field_value: Any, field_name: str | None = None
+        self, build_config: dict[str, Any], field_value: Any, field_name: str | None = None, action: str | None = None
     ) -> dict[str, Any]:
         """Update build config based on user selection."""
         if field_name == "text_type":

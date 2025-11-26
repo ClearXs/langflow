@@ -641,7 +641,7 @@ class OpenSearchVectorStoreComponent(LCVectorStoreComponent):
             self.log(error_msg)
             raise
 
-    async def update_build_config(self, build_config: dict, field_value: str, field_name: str | None = None) -> dict:
+    async def update_build_config(self, build_config: dict, field_value: str, field_name: str | None = None, action: str | None = None) -> dict:
         """Dynamically update component configuration based on field changes."""
         try:
             if field_name == "auth_mode":

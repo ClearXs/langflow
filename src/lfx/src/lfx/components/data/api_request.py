@@ -466,7 +466,7 @@ class APIRequestComponent(Component):
         self.status = result
         return result
 
-    def update_build_config(self, build_config: dotdict, field_value: Any, field_name: str | None = None) -> dotdict:
+    def update_build_config(self, build_config: dotdict, field_value: Any, field_name: str | None = None, action: str | None = None) -> dotdict:
         """Update the build config based on the selected mode."""
         if field_name != "mode":
             if field_name == "curl_input" and self.mode == "cURL" and self.curl_input:

@@ -159,7 +159,7 @@ class ComposioAPIComponent(LCToolComponent):
         )
         return build_config
 
-    def update_build_config(self, build_config: dict, field_value: Any, field_name: str | None = None) -> dict:
+    def update_build_config(self, build_config: dict, field_value: Any, field_name: str | None = None, action: str | None = None) -> dict:
         logger.debug(
             i18n.t("components.composio.composio_api.logs.updating_config", field_name=field_name or "unknown")
         )

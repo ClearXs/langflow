@@ -147,7 +147,7 @@ class EmbeddingModelComponent(LCEmbeddingsModel):
         self.status = error_message
         raise ValueError(error_message)
 
-    def update_build_config(self, build_config: dotdict, field_value: Any, field_name: str | None = None) -> dotdict:
+    def update_build_config(self, build_config: dotdict, field_value: Any, field_name: str | None = None, action: str | None = None) -> dotdict:
         if field_name == "provider" and field_value == "OpenAI":
             build_config["model"]["options"] = OPENAI_EMBEDDING_MODEL_NAMES
             build_config["model"]["value"] = OPENAI_EMBEDDING_MODEL_NAMES[0]

@@ -90,7 +90,7 @@ class KnowledgeRetrievalComponent(Component):
         ),
     ]
 
-    async def update_build_config(self, build_config, field_value, field_name=None):  # noqa: ARG002
+    async def update_build_config(self, build_config, field_value, field_name=None, action=None):  # noqa: ARG002
         if field_name == "knowledge_base":
             # Update the knowledge base options dynamically
             build_config["knowledge_base"]["options"] = await get_knowledge_bases(

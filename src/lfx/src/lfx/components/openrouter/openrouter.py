@@ -174,7 +174,7 @@ class OpenRouterComponent(LCModelComponent):
             pass
         return None
 
-    def update_build_config(self, build_config: dict, field_value: str, field_name: str | None = None) -> dict:
+    def update_build_config(self, build_config: dict, field_value: str, field_name: str | None = None, action: str | None = None) -> dict:
         """Update build configuration based on field updates."""
         try:
             if field_name is None or field_name == "provider":

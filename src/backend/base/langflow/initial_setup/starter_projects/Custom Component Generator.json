@@ -67,9 +67,7 @@
             "dataType": "URL",
             "id": "URL-h1gAB",
             "name": "raw_results",
-            "output_types": [
-              "Message"
-            ]
+            "output_types": []
           },
           "targetHandle": {
             "fieldName": "EXAMPLE_COMPONENTS",
@@ -84,7 +82,7 @@
         "id": "reactflow__edge-URL-h1gAB{œdataTypeœ:œURLœ,œidœ:œURL-h1gABœ,œnameœ:œraw_resultsœ,œoutput_typesœ:[œMessageœ]}-Prompt-cMwv1{œfieldNameœ:œEXAMPLE_COMPONENTSœ,œidœ:œPrompt-cMwv1œ,œinputTypesœ:[œMessageœ,œTextœ],œtypeœ:œstrœ}",
         "selected": false,
         "source": "URL-h1gAB",
-        "sourceHandle": "{œdataTypeœ: œURLœ, œidœ: œURL-h1gABœ, œnameœ: œraw_resultsœ, œoutput_typesœ: [œMessageœ]}",
+        "sourceHandle": "{œdataTypeœ: œURLœ, œidœ: œURL-h1gABœ, œnameœ: œraw_resultsœ, œoutput_typesœ: []}",
         "target": "Prompt-cMwv1",
         "targetHandle": "{œfieldNameœ: œEXAMPLE_COMPONENTSœ, œidœ: œPrompt-cMwv1œ, œinputTypesœ: [œMessageœ, œTextœ], œtypeœ: œstrœ}"
       },
@@ -96,9 +94,7 @@
             "dataType": "URL",
             "id": "URL-G5J7i",
             "name": "raw_results",
-            "output_types": [
-              "Message"
-            ]
+            "output_types": []
           },
           "targetHandle": {
             "fieldName": "CUSTOM_COMPONENT_CODE",
@@ -113,7 +109,7 @@
         "id": "reactflow__edge-URL-G5J7i{œdataTypeœ:œURLœ,œidœ:œURL-G5J7iœ,œnameœ:œraw_resultsœ,œoutput_typesœ:[œMessageœ]}-Prompt-cMwv1{œfieldNameœ:œCUSTOM_COMPONENT_CODEœ,œidœ:œPrompt-cMwv1œ,œinputTypesœ:[œMessageœ,œTextœ],œtypeœ:œstrœ}",
         "selected": false,
         "source": "URL-G5J7i",
-        "sourceHandle": "{œdataTypeœ: œURLœ, œidœ: œURL-G5J7iœ, œnameœ: œraw_resultsœ, œoutput_typesœ: [œMessageœ]}",
+        "sourceHandle": "{œdataTypeœ: œURLœ, œidœ: œURL-G5J7iœ, œnameœ: œraw_resultsœ, œoutput_typesœ: []}",
         "target": "Prompt-cMwv1",
         "targetHandle": "{œfieldNameœ: œCUSTOM_COMPONENT_CODEœ, œidœ: œPrompt-cMwv1œ, œinputTypesœ: [œMessageœ, œTextœ], œtypeœ: œstrœ}"
       },
@@ -183,9 +179,7 @@
             "dataType": "URL",
             "id": "URL-gEE5N",
             "name": "raw_results",
-            "output_types": [
-              "Message"
-            ]
+            "output_types": []
           },
           "targetHandle": {
             "fieldName": "BASE_COMPONENT_CODE",
@@ -200,7 +194,7 @@
         "id": "reactflow__edge-URL-gEE5N{œdataTypeœ:œURLœ,œidœ:œURL-gEE5Nœ,œnameœ:œraw_resultsœ,œoutput_typesœ:[œMessageœ]}-Prompt-cMwv1{œfieldNameœ:œBASE_COMPONENT_CODEœ,œidœ:œPrompt-cMwv1œ,œinputTypesœ:[œMessageœ,œTextœ],œtypeœ:œstrœ}",
         "selected": false,
         "source": "URL-gEE5N",
-        "sourceHandle": "{œdataTypeœ: œURLœ, œidœ: œURL-gEE5Nœ, œnameœ: œraw_resultsœ, œoutput_typesœ: [œMessageœ]}",
+        "sourceHandle": "{œdataTypeœ: œURLœ, œidœ: œURL-gEE5Nœ, œnameœ: œraw_resultsœ, œoutput_typesœ: []}",
         "target": "Prompt-cMwv1",
         "targetHandle": "{œfieldNameœ: œBASE_COMPONENT_CODEœ, œidœ: œPrompt-cMwv1œ, œinputTypesœ: [œMessageœ, œTextœ], œtypeœ: œstrœ}"
       }
@@ -219,7 +213,7 @@
             "beta": false,
             "conditional_paths": [],
             "custom_fields": {},
-            "description": "Stores or retrieves stored chat messages from Langflow tables or an external memory.",
+            "description": "从Langflow表或外部内存中存储或检索聊天消息。",
             "display_name": "Chat Memory",
             "documentation": "",
             "edited": false,
@@ -237,15 +231,19 @@
             "legacy": false,
             "lf_version": "1.6.0",
             "metadata": {
-              "code_hash": "efd11fac2416",
+              "code_hash": "e571f0c46616",
               "dependencies": {
                 "dependencies": [
+                  {
+                    "name": "i18n",
+                    "version": "0.16.0"
+                  },
                   {
                     "name": "lfx",
                     "version": null
                   }
                 ],
-                "total_dependencies": 1
+                "total_dependencies": 2
               },
               "module": "lfx.components.helpers.memory.MemoryComponent"
             },
@@ -254,7 +252,7 @@
               {
                 "allows_loop": false,
                 "cache": true,
-                "display_name": "Message",
+                "display_name": "消息",
                 "group_outputs": false,
                 "method": "retrieve_messages_as_text",
                 "name": "messages_text",
@@ -268,7 +266,7 @@
               {
                 "allows_loop": false,
                 "cache": true,
-                "display_name": "Dataframe",
+                "display_name": "数据框",
                 "group_outputs": false,
                 "method": "retrieve_messages_dataframe",
                 "name": "dataframe",
@@ -284,7 +282,7 @@
             "template": {
               "_type": "Component",
               "code": {
-                "advanced": true,
+                "advanced": false,
                 "dynamic": true,
                 "fileTypes": [],
                 "file_path": "",
@@ -295,18 +293,18 @@
                 "name": "code",
                 "password": false,
                 "placeholder": "",
-                "required": true,
+                "required": false,
                 "show": true,
                 "title_case": false,
                 "type": "code",
-                "value": "from typing import Any, cast\n\nfrom lfx.custom.custom_component.component import Component\nfrom lfx.helpers.data import data_to_text\nfrom lfx.inputs.inputs import DropdownInput, HandleInput, IntInput, MessageTextInput, MultilineInput, TabInput\nfrom lfx.memory import aget_messages, astore_message\nfrom lfx.schema.data import Data\nfrom lfx.schema.dataframe import DataFrame\nfrom lfx.schema.dotdict import dotdict\nfrom lfx.schema.message import Message\nfrom lfx.template.field.base import Output\nfrom lfx.utils.component_utils import set_current_fields, set_field_display\nfrom lfx.utils.constants import MESSAGE_SENDER_AI, MESSAGE_SENDER_NAME_AI, MESSAGE_SENDER_USER\n\n\nclass MemoryComponent(Component):\n    display_name = \"Message History\"\n    description = \"Stores or retrieves stored chat messages from Langflow tables or an external memory.\"\n    documentation: str = \"https://docs.langflow.org/components-helpers#message-history\"\n    icon = \"message-square-more\"\n    name = \"Memory\"\n    default_keys = [\"mode\", \"memory\", \"session_id\"]\n    mode_config = {\n        \"Store\": [\"message\", \"memory\", \"sender\", \"sender_name\", \"session_id\"],\n        \"Retrieve\": [\"n_messages\", \"order\", \"template\", \"memory\", \"session_id\"],\n    }\n\n    inputs = [\n        TabInput(\n            name=\"mode\",\n            display_name=\"Mode\",\n            options=[\"Retrieve\", \"Store\"],\n            value=\"Retrieve\",\n            info=\"Operation mode: Store messages or Retrieve messages.\",\n            real_time_refresh=True,\n        ),\n        MessageTextInput(\n            name=\"message\",\n            display_name=\"Message\",\n            info=\"The chat message to be stored.\",\n            tool_mode=True,\n            dynamic=True,\n            show=False,\n        ),\n        HandleInput(\n            name=\"memory\",\n            display_name=\"External Memory\",\n            input_types=[\"Memory\"],\n            info=\"Retrieve messages from an external memory. If empty, it will use the Langflow tables.\",\n            advanced=True,\n        ),\n        DropdownInput(\n            name=\"sender_type\",\n            display_name=\"Sender Type\",\n            options=[MESSAGE_SENDER_AI, MESSAGE_SENDER_USER, \"Machine and User\"],\n            value=\"Machine and User\",\n            info=\"Filter by sender type.\",\n            advanced=True,\n        ),\n        MessageTextInput(\n            name=\"sender\",\n            display_name=\"Sender\",\n            info=\"The sender of the message. Might be Machine or User. \"\n            \"If empty, the current sender parameter will be used.\",\n            advanced=True,\n        ),\n        MessageTextInput(\n            name=\"sender_name\",\n            display_name=\"Sender Name\",\n            info=\"Filter by sender name.\",\n            advanced=True,\n            show=False,\n        ),\n        IntInput(\n            name=\"n_messages\",\n            display_name=\"Number of Messages\",\n            value=100,\n            info=\"Number of messages to retrieve.\",\n            advanced=True,\n            show=True,\n        ),\n        MessageTextInput(\n            name=\"session_id\",\n            display_name=\"Session ID\",\n            info=\"The session ID of the chat. If empty, the current session ID parameter will be used.\",\n            value=\"\",\n            advanced=True,\n        ),\n        DropdownInput(\n            name=\"order\",\n            display_name=\"Order\",\n            options=[\"Ascending\", \"Descending\"],\n            value=\"Ascending\",\n            info=\"Order of the messages.\",\n            advanced=True,\n            tool_mode=True,\n            required=True,\n        ),\n        MultilineInput(\n            name=\"template\",\n            display_name=\"Template\",\n            info=\"The template to use for formatting the data. \"\n            \"It can contain the keys {text}, {sender} or any other key in the message data.\",\n            value=\"{sender_name}: {text}\",\n            advanced=True,\n            show=False,\n        ),\n    ]\n\n    outputs = [\n        Output(display_name=\"Message\", name=\"messages_text\", method=\"retrieve_messages_as_text\", dynamic=True),\n        Output(display_name=\"Dataframe\", name=\"dataframe\", method=\"retrieve_messages_dataframe\", dynamic=True),\n    ]\n\n    def update_outputs(self, frontend_node: dict, field_name: str, field_value: Any) -> dict:\n        \"\"\"Dynamically show only the relevant output based on the selected output type.\"\"\"\n        if field_name == \"mode\":\n            # Start with empty outputs\n            frontend_node[\"outputs\"] = []\n            if field_value == \"Store\":\n                frontend_node[\"outputs\"] = [\n                    Output(\n                        display_name=\"Stored Messages\",\n                        name=\"stored_messages\",\n                        method=\"store_message\",\n                        hidden=True,\n                        dynamic=True,\n                    )\n                ]\n            if field_value == \"Retrieve\":\n                frontend_node[\"outputs\"] = [\n                    Output(\n                        display_name=\"Messages\", name=\"messages_text\", method=\"retrieve_messages_as_text\", dynamic=True\n                    ),\n                    Output(\n                        display_name=\"Dataframe\", name=\"dataframe\", method=\"retrieve_messages_dataframe\", dynamic=True\n                    ),\n                ]\n        return frontend_node\n\n    async def store_message(self) -> Message:\n        message = Message(text=self.message) if isinstance(self.message, str) else self.message\n\n        message.session_id = self.session_id or message.session_id\n        message.sender = self.sender or message.sender or MESSAGE_SENDER_AI\n        message.sender_name = self.sender_name or message.sender_name or MESSAGE_SENDER_NAME_AI\n\n        stored_messages: list[Message] = []\n\n        if self.memory:\n            self.memory.session_id = message.session_id\n            lc_message = message.to_lc_message()\n            await self.memory.aadd_messages([lc_message])\n\n            stored_messages = await self.memory.aget_messages() or []\n\n            stored_messages = [Message.from_lc_message(m) for m in stored_messages] if stored_messages else []\n\n            if message.sender:\n                stored_messages = [m for m in stored_messages if m.sender == message.sender]\n        else:\n            await astore_message(message, flow_id=self.graph.flow_id)\n            stored_messages = (\n                await aget_messages(\n                    session_id=message.session_id, sender_name=message.sender_name, sender=message.sender\n                )\n                or []\n            )\n\n        if not stored_messages:\n            msg = \"No messages were stored. Please ensure that the session ID and sender are properly set.\"\n            raise ValueError(msg)\n\n        stored_message = stored_messages[0]\n        self.status = stored_message\n        return stored_message\n\n    async def retrieve_messages(self) -> Data:\n        sender_type = self.sender_type\n        sender_name = self.sender_name\n        session_id = self.session_id\n        n_messages = self.n_messages\n        order = \"DESC\" if self.order == \"Descending\" else \"ASC\"\n\n        if sender_type == \"Machine and User\":\n            sender_type = None\n\n        if self.memory and not hasattr(self.memory, \"aget_messages\"):\n            memory_name = type(self.memory).__name__\n            err_msg = f\"External Memory object ({memory_name}) must have 'aget_messages' method.\"\n            raise AttributeError(err_msg)\n        # Check if n_messages is None or 0\n        if n_messages == 0:\n            stored = []\n        elif self.memory:\n            # override session_id\n            self.memory.session_id = session_id\n\n            stored = await self.memory.aget_messages()\n            # langchain memories are supposed to return messages in ascending order\n\n            if n_messages:\n                stored = stored[-n_messages:]  # Get last N messages first\n\n            if order == \"DESC\":\n                stored = stored[::-1]  # Then reverse if needed\n\n            stored = [Message.from_lc_message(m) for m in stored]\n            if sender_type:\n                expected_type = MESSAGE_SENDER_AI if sender_type == MESSAGE_SENDER_AI else MESSAGE_SENDER_USER\n                stored = [m for m in stored if m.type == expected_type]\n        else:\n            # For internal memory, we always fetch the last N messages by ordering by DESC\n            stored = await aget_messages(\n                sender=sender_type,\n                sender_name=sender_name,\n                session_id=session_id,\n                limit=10000,\n                order=order,\n            )\n            if n_messages:\n                stored = stored[-n_messages:]  # Get last N messages\n\n        # self.status = stored\n        return cast(\"Data\", stored)\n\n    async def retrieve_messages_as_text(self) -> Message:\n        stored_text = data_to_text(self.template, await self.retrieve_messages())\n        # self.status = stored_text\n        return Message(text=stored_text)\n\n    async def retrieve_messages_dataframe(self) -> DataFrame:\n        \"\"\"Convert the retrieved messages into a DataFrame.\n\n        Returns:\n            DataFrame: A DataFrame containing the message data.\n        \"\"\"\n        messages = await self.retrieve_messages()\n        return DataFrame(messages)\n\n    def update_build_config(\n        self,\n        build_config: dotdict,\n        field_value: Any,  # noqa: ARG002\n        field_name: str | None = None,  # noqa: ARG002\n    ) -> dotdict:\n        return set_current_fields(\n            build_config=build_config,\n            action_fields=self.mode_config,\n            selected_action=build_config[\"mode\"][\"value\"],\n            default_fields=self.default_keys,\n            func=set_field_display,\n        )\n"
+                "value": "import os\nfrom typing import Any, cast\n\nimport i18n\n\nfrom lfx.custom.custom_component.component import Component\nfrom lfx.helpers.data import data_to_text\nfrom lfx.inputs.inputs import DropdownInput, HandleInput, IntInput, MessageTextInput, MultilineInput, TabInput\nfrom lfx.memory import aget_messages, astore_message\nfrom lfx.schema.data import Data\nfrom lfx.schema.dataframe import DataFrame\nfrom lfx.schema.dotdict import dotdict\nfrom lfx.schema.message import Message\nfrom lfx.template.field.base import Output\nfrom lfx.utils.component_utils import set_current_fields, set_field_display\nfrom lfx.utils.constants import MESSAGE_SENDER_AI, MESSAGE_SENDER_NAME_AI, MESSAGE_SENDER_USER\n\n\nclass MemoryComponent(Component):\n    ignore: bool = os.getenv(\"LANGFLOW_IGNORE_COMPONENT\", \"false\") == \"true\"\n    display_name = i18n.t(\"components.helpers.memory.display_name\")\n    description = i18n.t(\"components.helpers.memory.description\")\n    documentation: str = \"https://docs.langflow.org/components-helpers#message-history\"\n    icon = \"message-square-more\"\n    name = \"Memory\"\n    default_keys = [\"mode\", \"memory\", \"session_id\"]\n    mode_config = {\n        \"Store\": [\"message\", \"memory\", \"sender\", \"sender_name\", \"session_id\"],\n        \"Retrieve\": [\"n_messages\", \"order\", \"template\", \"memory\", \"session_id\"],\n    }\n\n    inputs = [\n        TabInput(\n            name=\"mode\",\n            display_name=i18n.t(\"components.helpers.memory.mode.display_name\"),\n            options=[i18n.t(\"components.helpers.memory.mode.retrieve\"), i18n.t(\"components.helpers.memory.mode.store\")],\n            value=i18n.t(\"components.helpers.memory.mode.retrieve\"),\n            info=i18n.t(\"components.helpers.memory.mode.info\"),\n            real_time_refresh=True,\n        ),\n        MessageTextInput(\n            name=\"message\",\n            display_name=i18n.t(\"components.helpers.memory.message.display_name\"),\n            info=i18n.t(\"components.helpers.memory.message.info\"),\n            tool_mode=True,\n            dynamic=True,\n            show=False,\n        ),\n        HandleInput(\n            name=\"memory\",\n            display_name=i18n.t(\"components.helpers.memory.external_memory.display_name\"),\n            input_types=[\"Memory\"],\n            info=i18n.t(\"components.helpers.memory.external_memory.info\"),\n            advanced=True,\n        ),\n        DropdownInput(\n            name=\"sender_type\",\n            display_name=i18n.t(\"components.helpers.memory.sender_type.display_name\"),\n            options=[\n                MESSAGE_SENDER_AI,\n                MESSAGE_SENDER_USER,\n                i18n.t(\"components.helpers.memory.sender_type.machine_and_user\"),\n            ],\n            value=i18n.t(\"components.helpers.memory.sender_type.machine_and_user\"),\n            info=i18n.t(\"components.helpers.memory.sender_type.info\"),\n            advanced=True,\n        ),\n        MessageTextInput(\n            name=\"sender\",\n            display_name=i18n.t(\"components.helpers.memory.sender.display_name\"),\n            info=i18n.t(\"components.helpers.memory.sender.info\"),\n            advanced=True,\n        ),\n        MessageTextInput(\n            name=\"sender_name\",\n            display_name=i18n.t(\"components.helpers.memory.sender_name.display_name\"),\n            info=i18n.t(\"components.helpers.memory.sender_name.info\"),\n            advanced=True,\n            show=False,\n        ),\n        IntInput(\n            name=\"n_messages\",\n            display_name=i18n.t(\"components.helpers.memory.n_messages.display_name\"),\n            value=100,\n            info=i18n.t(\"components.helpers.memory.n_messages.info\"),\n            advanced=True,\n            show=True,\n        ),\n        MessageTextInput(\n            name=\"session_id\",\n            display_name=i18n.t(\"components.helpers.memory.session_id.display_name\"),\n            info=i18n.t(\"components.helpers.memory.session_id.info\"),\n            value=\"\",\n            advanced=True,\n        ),\n        DropdownInput(\n            name=\"order\",\n            display_name=i18n.t(\"components.helpers.memory.order.display_name\"),\n            options=[\n                i18n.t(\"components.helpers.memory.order.ascending\"),\n                i18n.t(\"components.helpers.memory.order.descending\"),\n            ],\n            value=i18n.t(\"components.helpers.memory.order.ascending\"),\n            info=i18n.t(\"components.helpers.memory.order.info\"),\n            advanced=True,\n            tool_mode=True,\n            required=True,\n        ),\n        MultilineInput(\n            name=\"template\",\n            display_name=i18n.t(\"components.helpers.memory.template.display_name\"),\n            info=i18n.t(\"components.helpers.memory.template.info\"),\n            value=\"{sender_name}: {text}\",\n            advanced=True,\n            show=False,\n        ),\n    ]\n\n    outputs = [\n        Output(\n            display_name=i18n.t(\"components.helpers.memory.outputs.message.display_name\"),\n            name=\"messages_text\",\n            method=\"retrieve_messages_as_text\",\n            dynamic=True,\n        ),\n        Output(\n            display_name=i18n.t(\"components.helpers.memory.outputs.dataframe.display_name\"),\n            name=\"dataframe\",\n            method=\"retrieve_messages_dataframe\",\n            dynamic=True,\n        ),\n    ]\n\n    def update_outputs(self, frontend_node: dict, field_name: str, field_value: Any) -> dict:\n        \"\"\"Dynamically show only the relevant output based on the selected output type.\"\"\"\n        if field_name == \"mode\":\n            # Start with empty outputs\n            frontend_node[\"outputs\"] = []\n            if field_value in [\"Store\", i18n.t(\"components.helpers.memory.mode.store\")]:\n                frontend_node[\"outputs\"] = [\n                    Output(\n                        display_name=i18n.t(\"components.helpers.memory.outputs.stored_messages.display_name\"),\n                        name=\"stored_messages\",\n                        method=\"store_message\",\n                        hidden=True,\n                        dynamic=True,\n                    )\n                ]\n            if field_value in [\"Retrieve\", i18n.t(\"components.helpers.memory.mode.retrieve\")]:\n                frontend_node[\"outputs\"] = [\n                    Output(\n                        display_name=i18n.t(\"components.helpers.memory.outputs.messages.display_name\"),\n                        name=\"messages_text\",\n                        method=\"retrieve_messages_as_text\",\n                        dynamic=True,\n                    ),\n                    Output(\n                        display_name=i18n.t(\"components.helpers.memory.outputs.dataframe.display_name\"),\n                        name=\"dataframe\",\n                        method=\"retrieve_messages_dataframe\",\n                        dynamic=True,\n                    ),\n                ]\n        return frontend_node\n\n    async def store_message(self) -> Message:\n        try:\n            message = Message(text=self.message) if isinstance(self.message, str) else self.message\n\n            message.session_id = self.session_id or message.session_id\n            message.sender = self.sender or message.sender or MESSAGE_SENDER_AI\n            message.sender_name = self.sender_name or message.sender_name or MESSAGE_SENDER_NAME_AI\n\n            stored_messages: list[Message] = []\n\n            if self.memory:\n                self.memory.session_id = message.session_id\n                lc_message = message.to_lc_message()\n                await self.memory.aadd_messages([lc_message])\n\n                stored_messages = await self.memory.aget_messages() or []\n\n                stored_messages = [Message.from_lc_message(m) for m in stored_messages] if stored_messages else []\n\n                if message.sender:\n                    stored_messages = [m for m in stored_messages if m.sender == message.sender]\n            else:\n                await astore_message(message, flow_id=self.graph.flow_id)\n                stored_messages = (\n                    await aget_messages(\n                        session_id=message.session_id, sender_name=message.sender_name, sender=message.sender\n                    )\n                    or []\n                )\n\n            if not stored_messages:\n                error_msg = i18n.t(\"components.helpers.memory.errors.no_messages_stored\")\n                raise ValueError(error_msg)\n\n            stored_message = stored_messages[0]\n            success_msg = i18n.t(\n                \"components.helpers.memory.success.message_stored\",\n                sender=message.sender_name,\n                session_id=message.session_id,\n            )\n            self.status = success_msg\n            return stored_message\n\n        except Exception as e:\n            error_msg = i18n.t(\"components.helpers.memory.errors.store_failed\", error=str(e))\n            self.status = error_msg\n            raise ValueError(error_msg) from e\n\n    async def retrieve_messages(self) -> Data:\n        try:\n            sender_type = self.sender_type\n            sender_name = self.sender_name\n            session_id = self.session_id\n            n_messages = self.n_messages\n            order = (\n                \"DESC\" if self.order in [\"Descending\", i18n.t(\"components.helpers.memory.order.descending\")] else \"ASC\"\n            )\n\n            if sender_type in [\"Machine and User\", i18n.t(\"components.helpers.memory.sender_type.machine_and_user\")]:\n                sender_type = None\n\n            if self.memory and not hasattr(self.memory, \"aget_messages\"):\n                memory_name = type(self.memory).__name__\n                err_msg = i18n.t(\"components.helpers.memory.errors.invalid_external_memory\", memory_name=memory_name)\n                raise AttributeError(err_msg)\n\n            # Check if n_messages is None or 0\n            if n_messages == 0:\n                stored = []\n            elif self.memory:\n                # override session_id\n                self.memory.session_id = session_id\n\n                stored = await self.memory.aget_messages()\n                # langchain memories are supposed to return messages in ascending order\n\n                if n_messages:\n                    stored = stored[-n_messages:]  # Get last N messages first\n\n                if order == \"DESC\":\n                    stored = stored[::-1]  # Then reverse if needed\n\n                stored = [Message.from_lc_message(m) for m in stored]\n                if sender_type:\n                    expected_type = MESSAGE_SENDER_AI if sender_type == MESSAGE_SENDER_AI else MESSAGE_SENDER_USER\n                    stored = [m for m in stored if m.type == expected_type]\n            else:\n                # For internal memory, we always fetch the last N messages by ordering by DESC\n                stored = await aget_messages(\n                    sender=sender_type,\n                    sender_name=sender_name,\n                    session_id=session_id,\n                    limit=10000,\n                    order=order,\n                )\n                if n_messages:\n                    stored = stored[-n_messages:]  # Get last N messages\n\n            success_msg = i18n.t(\n                \"components.helpers.memory.success.messages_retrieved\", count=len(stored), session_id=session_id\n            )\n            self.status = success_msg\n\n            return cast(\"Data\", stored)\n\n        except Exception as e:\n            error_msg = i18n.t(\"components.helpers.memory.errors.retrieve_failed\", error=str(e))\n            self.status = error_msg\n            raise ValueError(error_msg) from e\n\n    async def retrieve_messages_as_text(self) -> Message:\n        try:\n            stored_text = data_to_text(self.template, await self.retrieve_messages())\n\n            success_msg = i18n.t(\"components.helpers.memory.success.text_formatted\")\n            self.status = success_msg\n\n            return Message(text=stored_text)\n\n        except Exception as e:\n            error_msg = i18n.t(\"components.helpers.memory.errors.text_formatting_failed\", error=str(e))\n            self.status = error_msg\n            return Message(text=error_msg)\n\n    async def retrieve_messages_dataframe(self) -> DataFrame:\n        \"\"\"Convert the retrieved messages into a DataFrame.\n\n        Returns:\n            DataFrame: A DataFrame containing the message data.\n        \"\"\"\n        try:\n            messages = await self.retrieve_messages()\n            dataframe = DataFrame(messages)\n\n            success_msg = i18n.t(\"components.helpers.memory.success.dataframe_created\", rows=len(messages))\n            self.status = success_msg\n\n            return dataframe\n\n        except Exception as e:\n            error_msg = i18n.t(\"components.helpers.memory.errors.dataframe_creation_failed\", error=str(e))\n            self.status = error_msg\n            return DataFrame([])\n\n    def update_build_config(\n        self,\n        build_config: dotdict,\n        field_value: Any,  # noqa: ARG002\n        field_name: str | None = None,  # noqa: ARG002\n        action: str | None = None,\n    ) -> dotdict:\n        return set_current_fields(\n            build_config=build_config,\n            action_fields=self.mode_config,\n            selected_action=build_config[\"mode\"][\"value\"],\n            default_fields=self.default_keys,\n            func=set_field_display,\n        )\n"
               },
               "memory": {
                 "_input_type": "HandleInput",
                 "advanced": true,
-                "display_name": "External Memory",
+                "display_name": "外部内存",
                 "dynamic": false,
-                "info": "Retrieve messages from an external memory. If empty, it will use the Langflow tables.",
+                "info": "从外部内存检索消息。如果为空，将使用Langflow表。",
                 "input_types": [
                   "Memory"
                 ],
@@ -323,9 +321,9 @@
               "message": {
                 "_input_type": "MessageTextInput",
                 "advanced": false,
-                "display_name": "Message",
+                "display_name": "消息",
                 "dynamic": true,
-                "info": "The chat message to be stored.",
+                "info": "要存储的聊天消息。",
                 "input_types": [
                   "Message"
                 ],
@@ -346,13 +344,13 @@
               "mode": {
                 "_input_type": "TabInput",
                 "advanced": false,
-                "display_name": "Mode",
+                "display_name": "模式",
                 "dynamic": false,
-                "info": "Operation mode: Store messages or Retrieve messages.",
+                "info": "操作模式：存储消息或检索消息。",
                 "name": "mode",
                 "options": [
-                  "Retrieve",
-                  "Store"
+                  "检索",
+                  "存储"
                 ],
                 "placeholder": "",
                 "real_time_refresh": true,
@@ -367,9 +365,9 @@
               "n_messages": {
                 "_input_type": "IntInput",
                 "advanced": true,
-                "display_name": "Number of Messages",
+                "display_name": "消息数量",
                 "dynamic": false,
-                "info": "Number of messages to retrieve.",
+                "info": "要检索的消息数量。",
                 "list": false,
                 "name": "n_messages",
                 "placeholder": "",
@@ -384,13 +382,13 @@
                 "_input_type": "DropdownInput",
                 "advanced": true,
                 "combobox": false,
-                "display_name": "Order",
+                "display_name": "排序",
                 "dynamic": false,
-                "info": "Order of the messages.",
+                "info": "消息的排序方式。",
                 "name": "order",
                 "options": [
-                  "Ascending",
-                  "Descending"
+                  "升序",
+                  "降序"
                 ],
                 "placeholder": "",
                 "required": true,
@@ -405,9 +403,9 @@
                 "_input_type": "DropdownInput",
                 "advanced": true,
                 "combobox": false,
-                "display_name": "Sender",
+                "display_name": "发送者",
                 "dynamic": false,
-                "info": "The sender of the message. Might be Machine or User. If empty, the current sender parameter will be used.",
+                "info": "消息的发送者。可能是机器或用户。如果为空，将使用当前发送者参数。",
                 "name": "sender",
                 "options": [
                   "Machine",
@@ -426,9 +424,9 @@
               "sender_name": {
                 "_input_type": "MessageTextInput",
                 "advanced": true,
-                "display_name": "Sender Name",
+                "display_name": "发送者名称",
                 "dynamic": false,
-                "info": "Filter by sender name.",
+                "info": "按发送者名称筛选。",
                 "input_types": [
                   "Message"
                 ],
@@ -450,14 +448,14 @@
                 "advanced": true,
                 "combobox": false,
                 "dialog_inputs": {},
-                "display_name": "Sender Type",
+                "display_name": "发送者类型",
                 "dynamic": false,
-                "info": "Filter by sender type.",
+                "info": "按发送者类型筛选。",
                 "name": "sender_type",
                 "options": [
                   "Machine",
                   "User",
-                  "Machine and User"
+                  "机器和用户"
                 ],
                 "options_metadata": [],
                 "placeholder": "",
@@ -473,9 +471,9 @@
               "session_id": {
                 "_input_type": "MessageTextInput",
                 "advanced": true,
-                "display_name": "Session ID",
+                "display_name": "会话ID",
                 "dynamic": false,
-                "info": "The session ID of the chat. If empty, the current session ID parameter will be used.",
+                "info": "聊天的会话ID。如果为空，将使用当前会话ID参数。",
                 "input_types": [
                   "Message"
                 ],
@@ -495,9 +493,9 @@
               "template": {
                 "_input_type": "MultilineInput",
                 "advanced": true,
-                "display_name": "Template",
+                "display_name": "模板",
                 "dynamic": false,
-                "info": "The template to use for formatting the data. It can contain the keys {text}, {sender} or any other key in the message data.",
+                "info": "用于格式化数据的模板。它可以包含键%{text}、%{sender}或消息数据中的任何其他键。",
                 "input_types": [
                   "Message"
                 ],
@@ -839,7 +837,7 @@
             "beta": false,
             "conditional_paths": [],
             "custom_fields": {},
-            "description": "Fetch content from one or more web pages, following links recursively.",
+            "description": "从URL获取和处理数据，支持各种内容类型和HTTP方法。",
             "display_name": "URL",
             "documentation": "",
             "edited": false,
@@ -848,36 +846,61 @@
               "format"
             ],
             "frozen": false,
-            "icon": "layout-template",
+            "icon": "link",
             "legacy": false,
             "lf_version": "1.6.0",
-            "metadata": {},
+            "metadata": {
+              "code_hash": "ab56d85cdc25",
+              "dependencies": {
+                "dependencies": [
+                  {
+                    "name": "i18n",
+                    "version": "0.16.0"
+                  },
+                  {
+                    "name": "requests",
+                    "version": "2.32.5"
+                  },
+                  {
+                    "name": "bs4",
+                    "version": "4.12.3"
+                  },
+                  {
+                    "name": "lfx",
+                    "version": null
+                  }
+                ],
+                "total_dependencies": 4
+              },
+              "module": "lfx.components.data.url.URLComponent"
+            },
             "output_types": [],
             "outputs": [
               {
                 "allows_loop": false,
                 "cache": true,
-                "display_name": "Result",
+                "display_name": "URL数据",
                 "group_outputs": false,
-                "method": "fetch_content",
-                "name": "page_results",
+                "method": "fetch_url_data",
+                "name": "data",
+                "selected": "Data",
                 "tool_mode": true,
                 "types": [
-                  "DataFrame"
+                  "Data"
                 ],
                 "value": "__UNDEFINED__"
               },
               {
                 "allows_loop": false,
                 "cache": true,
-                "display_name": "Raw Result",
+                "display_name": "响应信息",
                 "group_outputs": false,
-                "method": "as_message",
-                "name": "raw_results",
-                "selected": "Message",
+                "method": "get_response_info",
+                "name": "response_info",
+                "selected": "Data",
                 "tool_mode": true,
                 "types": [
-                  "Message"
+                  "Data"
                 ],
                 "value": "__UNDEFINED__"
               }
@@ -885,44 +908,34 @@
             "pinned": false,
             "template": {
               "_type": "Component",
-              "autoset_encoding": {
-                "_input_type": "BoolInput",
+              "body": {
+                "_input_type": "MultilineInput",
                 "advanced": true,
-                "display_name": "Autoset Encoding",
+                "copy_field": false,
+                "display_name": "请求体",
                 "dynamic": false,
-                "info": "If enabled, automatically sets the encoding of the request.",
+                "info": "POST/PUT/PATCH请求的请求体内容。可以是JSON或纯文本。",
+                "input_group": "default",
+                "input_types": [
+                  "Message"
+                ],
                 "list": false,
-                "list_add_label": "Add More",
-                "name": "autoset_encoding",
-                "placeholder": "",
+                "list_add_label": "添加更多",
+                "load_from_db": false,
+                "multiline": true,
+                "name": "body",
+                "placeholder": "{\"key\": \"value\"}",
                 "required": false,
                 "show": true,
                 "title_case": false,
                 "tool_mode": false,
+                "trace_as_input": true,
                 "trace_as_metadata": true,
-                "type": "bool",
-                "value": true
-              },
-              "check_response_status": {
-                "_input_type": "BoolInput",
-                "advanced": true,
-                "display_name": "Check Response Status",
-                "dynamic": false,
-                "info": "If enabled, checks the response status of the request.",
-                "list": false,
-                "list_add_label": "Add More",
-                "name": "check_response_status",
-                "placeholder": "",
-                "required": false,
-                "show": true,
-                "title_case": false,
-                "tool_mode": false,
-                "trace_as_metadata": true,
-                "type": "bool",
-                "value": false
+                "type": "str",
+                "value": ""
               },
               "code": {
-                "advanced": true,
+                "advanced": false,
                 "dynamic": true,
                 "fileTypes": [],
                 "file_path": "",
@@ -933,77 +946,106 @@
                 "name": "code",
                 "password": false,
                 "placeholder": "",
-                "required": true,
+                "required": false,
                 "show": true,
                 "title_case": false,
                 "type": "code",
-                "value": "import re\n\nimport requests\nfrom bs4 import BeautifulSoup\nfrom langchain_community.document_loaders import RecursiveUrlLoader\nfrom loguru import logger\n\nfrom langflow.custom import Component\nfrom langflow.field_typing.range_spec import RangeSpec\nfrom langflow.helpers.data import safe_convert\nfrom langflow.io import BoolInput, DropdownInput, IntInput, MessageTextInput, Output, SliderInput, TableInput\nfrom langflow.schema import DataFrame, Message\nfrom langflow.services.deps import get_settings_service\n\n# Constants\nDEFAULT_TIMEOUT = 30\nDEFAULT_MAX_DEPTH = 1\nDEFAULT_FORMAT = \"Text\"\nURL_REGEX = re.compile(\n    r\"^(https?:\\/\\/)?\" r\"(www\\.)?\" r\"([a-zA-Z0-9.-]+)\" r\"(\\.[a-zA-Z]{2,})?\" r\"(:\\d+)?\" r\"(\\/[^\\s]*)?$\",\n    re.IGNORECASE,\n)\n\n\nclass URLComponent(Component):\n    \"\"\"A component that loads and parses content from web pages recursively.\n\n    This component allows fetching content from one or more URLs, with options to:\n    - Control crawl depth\n    - Prevent crawling outside the root domain\n    - Use async loading for better performance\n    - Extract either raw HTML or clean text\n    - Configure request headers and timeouts\n    \"\"\"\n\n    display_name = \"URL\"\n    description = \"Fetch content from one or more web pages, following links recursively.\"\n    icon = \"layout-template\"\n    name = \"URLComponent\"\n\n    inputs = [\n        MessageTextInput(\n            name=\"urls\",\n            display_name=\"URLs\",\n            info=\"Enter one or more URLs to crawl recursively, by clicking the '+' button.\",\n            is_list=True,\n            tool_mode=True,\n            placeholder=\"Enter a URL...\",\n            list_add_label=\"Add URL\",\n            input_types=[],\n        ),\n        SliderInput(\n            name=\"max_depth\",\n            display_name=\"Depth\",\n            info=(\n                \"Controls how many 'clicks' away from the initial page the crawler will go:\\n\"\n                \"- depth 1: only the initial page\\n\"\n                \"- depth 2: initial page + all pages linked directly from it\\n\"\n                \"- depth 3: initial page + direct links + links found on those direct link pages\\n\"\n                \"Note: This is about link traversal, not URL path depth.\"\n            ),\n            value=DEFAULT_MAX_DEPTH,\n            range_spec=RangeSpec(min=1, max=5, step=1),\n            required=False,\n            min_label=\" \",\n            max_label=\" \",\n            min_label_icon=\"None\",\n            max_label_icon=\"None\",\n            # slider_input=True\n        ),\n        BoolInput(\n            name=\"prevent_outside\",\n            display_name=\"Prevent Outside\",\n            info=(\n                \"If enabled, only crawls URLs within the same domain as the root URL. \"\n                \"This helps prevent the crawler from going to external websites.\"\n            ),\n            value=True,\n            required=False,\n            advanced=True,\n        ),\n        BoolInput(\n            name=\"use_async\",\n            display_name=\"Use Async\",\n            info=(\n                \"If enabled, uses asynchronous loading which can be significantly faster \"\n                \"but might use more system resources.\"\n            ),\n            value=True,\n            required=False,\n            advanced=True,\n        ),\n        DropdownInput(\n            name=\"format\",\n            display_name=\"Output Format\",\n            info=\"Output Format. Use 'Text' to extract the text from the HTML or 'HTML' for the raw HTML content.\",\n            options=[\"Text\", \"HTML\"],\n            value=DEFAULT_FORMAT,\n            advanced=True,\n        ),\n        IntInput(\n            name=\"timeout\",\n            display_name=\"Timeout\",\n            info=\"Timeout for the request in seconds.\",\n            value=DEFAULT_TIMEOUT,\n            required=False,\n            advanced=True,\n        ),\n        TableInput(\n            name=\"headers\",\n            display_name=\"Headers\",\n            info=\"The headers to send with the request\",\n            table_schema=[\n                {\n                    \"name\": \"key\",\n                    \"display_name\": \"Header\",\n                    \"type\": \"str\",\n                    \"description\": \"Header name\",\n                },\n                {\n                    \"name\": \"value\",\n                    \"display_name\": \"Value\",\n                    \"type\": \"str\",\n                    \"description\": \"Header value\",\n                },\n            ],\n            value=[{\"key\": \"User-Agent\", \"value\": get_settings_service().settings.user_agent}],\n            advanced=True,\n            input_types=[\"DataFrame\"],\n        ),\n        BoolInput(\n            name=\"filter_text_html\",\n            display_name=\"Filter Text/HTML\",\n            info=\"If enabled, filters out text/css content type from the results.\",\n            value=True,\n            required=False,\n            advanced=True,\n        ),\n        BoolInput(\n            name=\"continue_on_failure\",\n            display_name=\"Continue on Failure\",\n            info=\"If enabled, continues crawling even if some requests fail.\",\n            value=True,\n            required=False,\n            advanced=True,\n        ),\n        BoolInput(\n            name=\"check_response_status\",\n            display_name=\"Check Response Status\",\n            info=\"If enabled, checks the response status of the request.\",\n            value=False,\n            required=False,\n            advanced=True,\n        ),\n        BoolInput(\n            name=\"autoset_encoding\",\n            display_name=\"Autoset Encoding\",\n            info=\"If enabled, automatically sets the encoding of the request.\",\n            value=True,\n            required=False,\n            advanced=True,\n        ),\n    ]\n\n    outputs = [\n        Output(display_name=\"Result\", name=\"page_results\", method=\"fetch_content\"),\n        Output(display_name=\"Raw Result\", name=\"raw_results\", method=\"as_message\"),\n    ]\n\n    @staticmethod\n    def validate_url(url: str) -> bool:\n        \"\"\"Validates if the given string matches URL pattern.\n\n        Args:\n            url: The URL string to validate\n\n        Returns:\n            bool: True if the URL is valid, False otherwise\n        \"\"\"\n        return bool(URL_REGEX.match(url))\n\n    def ensure_url(self, url: str) -> str:\n        \"\"\"Ensures the given string is a valid URL.\n\n        Args:\n            url: The URL string to validate and normalize\n\n        Returns:\n            str: The normalized URL\n\n        Raises:\n            ValueError: If the URL is invalid\n        \"\"\"\n        url = url.strip()\n        if not url.startswith((\"http://\", \"https://\")):\n            url = \"https://\" + url\n\n        if not self.validate_url(url):\n            msg = f\"Invalid URL: {url}\"\n            raise ValueError(msg)\n\n        return url\n\n    def _create_loader(self, url: str) -> RecursiveUrlLoader:\n        \"\"\"Creates a RecursiveUrlLoader instance with the configured settings.\n\n        Args:\n            url: The URL to load\n\n        Returns:\n            RecursiveUrlLoader: Configured loader instance\n        \"\"\"\n        headers_dict = {header[\"key\"]: header[\"value\"] for header in self.headers}\n        extractor = (lambda x: x) if self.format == \"HTML\" else (lambda x: BeautifulSoup(x, \"lxml\").get_text())\n\n        return RecursiveUrlLoader(\n            url=url,\n            max_depth=self.max_depth,\n            prevent_outside=self.prevent_outside,\n            use_async=self.use_async,\n            extractor=extractor,\n            timeout=self.timeout,\n            headers=headers_dict,\n            check_response_status=self.check_response_status,\n            continue_on_failure=self.continue_on_failure,\n            base_url=url,  # Add base_url to ensure consistent domain crawling\n            autoset_encoding=self.autoset_encoding,  # Enable automatic encoding detection\n            exclude_dirs=[],  # Allow customization of excluded directories\n            link_regex=None,  # Allow customization of link filtering\n        )\n\n    def fetch_url_contents(self) -> list[dict]:\n        \"\"\"Load documents from the configured URLs.\n\n        Returns:\n            List[Data]: List of Data objects containing the fetched content\n\n        Raises:\n            ValueError: If no valid URLs are provided or if there's an error loading documents\n        \"\"\"\n        try:\n            urls = list({self.ensure_url(url) for url in self.urls if url.strip()})\n            logger.info(f\"URLs: {urls}\")\n            if not urls:\n                msg = \"No valid URLs provided.\"\n                raise ValueError(msg)\n\n            all_docs = []\n            for url in urls:\n                logger.info(f\"Loading documents from {url}\")\n\n                try:\n                    loader = self._create_loader(url)\n                    docs = loader.load()\n\n                    if not docs:\n                        logger.warning(f\"No documents found for {url}\")\n                        continue\n\n                    logger.info(f\"Found {len(docs)} documents from {url}\")\n                    all_docs.extend(docs)\n\n                except requests.exceptions.RequestException as e:\n                    logger.exception(f\"Error loading documents from {url}: {e}\")\n                    continue\n\n            if not all_docs:\n                msg = \"No documents were successfully loaded from any URL\"\n                raise ValueError(msg)\n\n            # data = [Data(text=doc.page_content, **doc.metadata) for doc in all_docs]\n            data = [\n                {\n                    \"text\": safe_convert(doc.page_content, clean_data=True),\n                    \"url\": doc.metadata.get(\"source\", \"\"),\n                    \"title\": doc.metadata.get(\"title\", \"\"),\n                    \"description\": doc.metadata.get(\"description\", \"\"),\n                    \"content_type\": doc.metadata.get(\"content_type\", \"\"),\n                    \"language\": doc.metadata.get(\"language\", \"\"),\n                }\n                for doc in all_docs\n            ]\n        except Exception as e:\n            error_msg = e.message if hasattr(e, \"message\") else e\n            msg = f\"Error loading documents: {error_msg!s}\"\n            logger.exception(msg)\n            raise ValueError(msg) from e\n        return data\n\n    def fetch_content(self) -> DataFrame:\n        \"\"\"Convert the documents to a DataFrame.\"\"\"\n        return DataFrame(data=self.fetch_url_contents())\n\n    def as_message(self) -> Message:\n        \"\"\"Convert the documents to a Message.\"\"\"\n        url_contents = self.fetch_url_contents()\n        return Message(text=\"\\n\\n\".join([x[\"text\"] for x in url_contents]), data={\"data\": url_contents})\n"
+                "value": "import json\nimport os\nfrom typing import Any\nfrom urllib.parse import urljoin, urlparse\n\nimport i18n\nimport requests\nfrom bs4 import BeautifulSoup\n\nfrom lfx.custom.custom_component.component import Component\nfrom lfx.io import BoolInput, DropdownInput, IntInput, MessageTextInput, MultilineInput, Output\nfrom lfx.schema.data import Data\n\n\nclass URLComponent(Component):\n    ignore: bool = os.getenv(\"LANGFLOW_IGNORE_COMPONENT\", \"false\") == \"true\"\n    display_name = i18n.t(\"components.data.url.display_name\")\n    description = i18n.t(\"components.data.url.description\")\n    icon = \"link\"\n    name = \"URL\"\n\n    inputs = [\n        MessageTextInput(\n            name=\"urls\",\n            display_name=i18n.t(\"components.data.url.urls.display_name\"),\n            info=i18n.t(\"components.data.url.urls.info\"),\n            required=True,\n            placeholder=\"https://example.com,https://example2.com\",\n        ),\n        DropdownInput(\n            name=\"method\",\n            display_name=i18n.t(\"components.data.url.method.display_name\"),\n            info=i18n.t(\"components.data.url.method.info\"),\n            options=[\"GET\", \"POST\", \"PUT\", \"DELETE\", \"PATCH\"],\n            value=\"GET\",\n        ),\n        MultilineInput(\n            name=\"headers\",\n            display_name=i18n.t(\"components.data.url.headers.display_name\"),\n            info=i18n.t(\"components.data.url.headers.info\"),\n            placeholder='{\"User-Agent\": \"MyBot 1.0\", \"Accept\": \"text/html\"}',\n            advanced=True,\n        ),\n        MultilineInput(\n            name=\"body\",\n            display_name=i18n.t(\"components.data.url.body.display_name\"),\n            info=i18n.t(\"components.data.url.body.info\"),\n            placeholder='{\"key\": \"value\"}',\n            advanced=True,\n        ),\n        IntInput(\n            name=\"timeout\",\n            display_name=i18n.t(\"components.data.url.timeout.display_name\"),\n            info=i18n.t(\"components.data.url.timeout.info\"),\n            value=30,\n            range_spec={\"min\": 1, \"max\": 300},\n            advanced=True,\n        ),\n        BoolInput(\n            name=\"follow_redirects\",\n            display_name=i18n.t(\"components.data.url.follow_redirects.display_name\"),\n            info=i18n.t(\"components.data.url.follow_redirects.info\"),\n            value=True,\n            advanced=True,\n        ),\n        BoolInput(\n            name=\"verify_ssl\",\n            display_name=i18n.t(\"components.data.url.verify_ssl.display_name\"),\n            info=i18n.t(\"components.data.url.verify_ssl.info\"),\n            value=True,\n            advanced=True,\n        ),\n        DropdownInput(\n            name=\"content_type\",\n            display_name=i18n.t(\"components.data.url.content_type.display_name\"),\n            info=i18n.t(\"components.data.url.content_type.info\"),\n            options=[\"auto\", \"text\", \"html\", \"json\", \"xml\"],\n            value=\"auto\",\n            advanced=True,\n        ),\n        BoolInput(\n            name=\"extract_metadata\",\n            display_name=i18n.t(\"components.data.url.extract_metadata.display_name\"),\n            info=i18n.t(\"components.data.url.extract_metadata.info\"),\n            value=True,\n            advanced=True,\n        ),\n        BoolInput(\n            name=\"extract_links\",\n            display_name=i18n.t(\"components.data.url.extract_links.display_name\"),\n            info=i18n.t(\"components.data.url.extract_links.info\"),\n            value=False,\n            advanced=True,\n        ),\n        IntInput(\n            name=\"max_content_length\",\n            display_name=i18n.t(\"components.data.url.max_content_length.display_name\"),\n            info=i18n.t(\"components.data.url.max_content_length.info\"),\n            value=1048576,  # 1MB\n            range_spec={\"min\": 1024, \"max\": 10485760},  # 1KB to 10MB\n            advanced=True,\n        ),\n        MessageTextInput(\n            name=\"text_key\",\n            display_name=i18n.t(\"components.data.url.text_key.display_name\"),\n            info=i18n.t(\"components.data.url.text_key.info\"),\n            value=\"content\",\n            advanced=True,\n        ),\n    ]\n\n    outputs = [\n        Output(\n            name=\"data\", display_name=i18n.t(\"components.data.url.outputs.data.display_name\"), method=\"fetch_url_data\"\n        ),\n        Output(\n            name=\"response_info\",\n            display_name=i18n.t(\"components.data.url.outputs.response_info.display_name\"),\n            method=\"get_response_info\",\n        ),\n    ]\n\n    def fetch_url_data(self) -> list[Data]:\n        \"\"\"Fetch data from URLs and return as Data objects.\"\"\"\n        try:\n            if not self.urls.strip():\n                error_message = i18n.t(\"components.data.url.errors.empty_urls\")\n                self.status = error_message\n                raise ValueError(error_message)\n\n            # Parse URLs\n            url_list = [url.strip() for url in self.urls.split(\",\") if url.strip()]\n\n            if not url_list:\n                error_message = i18n.t(\"components.data.url.errors.no_valid_urls\")\n                self.status = error_message\n                raise ValueError(error_message)\n\n            # Parse headers\n            headers = self._parse_headers()\n\n            # Parse body\n            body = self._parse_body()\n\n            results = []\n            successful_requests = 0\n\n            for url in url_list:\n                try:\n                    # Validate URL\n                    parsed_url = urlparse(url)\n                    if not parsed_url.scheme or not parsed_url.netloc:\n                        warning_message = i18n.t(\"components.data.url.warnings.invalid_url\", url=url)\n                        self.status = warning_message\n                        continue\n\n                    # Make request\n                    response = self._make_request(url, headers, body)\n\n                    # Process response\n                    data_dict = self._process_response(url, response)\n\n                    results.append(Data(data=data_dict, text_key=self.text_key))\n                    successful_requests += 1\n\n                except requests.RequestException as e:\n                    warning_message = i18n.t(\"components.data.url.warnings.request_failed\", url=url, error=str(e))\n                    self.status = warning_message\n                    # Continue with other URLs\n                    continue\n\n            if not results:\n                error_message = i18n.t(\"components.data.url.errors.no_successful_requests\")\n                self.status = error_message\n                return []\n\n            success_message = i18n.t(\n                \"components.data.url.success.fetched_data\", successful=successful_requests, total=len(url_list)\n            )\n            self.status = success_message\n            return results\n\n        except Exception as e:\n            error_message = i18n.t(\"components.data.url.errors.fetch_error\", error=str(e))\n            self.status = error_message\n            raise ValueError(error_message) from e\n\n    def get_response_info(self) -> list[Data]:\n        \"\"\"Get response information for URLs.\"\"\"\n        try:\n            if not self.urls.strip():\n                error_message = i18n.t(\"components.data.url.errors.empty_urls\")\n                raise ValueError(error_message)\n\n            url_list = [url.strip() for url in self.urls.split(\",\") if url.strip()]\n            headers = self._parse_headers()\n            body = self._parse_body()\n\n            results = []\n\n            for url in url_list:\n                try:\n                    response = self._make_request(url, headers, body)\n\n                    info_dict = {\n                        \"url\": url,\n                        \"status_code\": response.status_code,\n                        \"status_text\": response.reason,\n                        \"headers\": dict(response.headers),\n                        \"content_type\": response.headers.get(\"content-type\", \"\"),\n                        \"content_length\": len(response.content),\n                        \"encoding\": response.encoding,\n                        \"elapsed_time\": response.elapsed.total_seconds(),\n                        \"final_url\": response.url,\n                        \"history\": [r.url for r in response.history],\n                    }\n\n                    results.append(Data(data=info_dict, text_key=\"url\"))\n\n                except requests.RequestException as e:\n                    error_dict = {\"url\": url, \"error\": str(e), \"status\": \"failed\"}\n                    results.append(Data(data=error_dict, text_key=\"url\"))\n\n            return results\n\n        except Exception as e:\n            error_message = i18n.t(\"components.data.url.errors.response_info_error\", error=str(e))\n            raise ValueError(error_message) from e\n\n    def _parse_headers(self) -> dict[str, str]:\n        \"\"\"Parse headers from JSON string.\"\"\"\n        if not self.headers.strip():\n            return {}\n\n        try:\n            return json.loads(self.headers)\n        except json.JSONDecodeError as e:\n            warning_message = i18n.t(\"components.data.url.warnings.invalid_headers\", error=str(e))\n            self.status = warning_message\n            return {}\n\n    def _parse_body(self) -> str | None:\n        \"\"\"Parse body content.\"\"\"\n        if not self.body.strip():\n            return None\n\n        try:\n            # Try to parse as JSON to validate\n            json.loads(self.body)\n            return self.body\n        except json.JSONDecodeError:\n            # Return as plain text if not JSON\n            return self.body\n\n    def _make_request(self, url: str, headers: dict[str, str], body: str | None) -> requests.Response:\n        \"\"\"Make HTTP request to URL.\"\"\"\n        request_kwargs = {\n            \"timeout\": self.timeout,\n            \"allow_redirects\": self.follow_redirects,\n            \"verify\": self.verify_ssl,\n            \"headers\": headers,\n        }\n\n        if body and self.method.upper() in [\"POST\", \"PUT\", \"PATCH\"]:\n            # Try to send as JSON if possible, otherwise as text\n            try:\n                json.loads(body)\n                request_kwargs[\"json\"] = json.loads(body)\n            except json.JSONDecodeError:\n                request_kwargs[\"data\"] = body\n\n        response = requests.request(self.method.upper(), url, **request_kwargs)\n\n        # Check content length\n        if len(response.content) > self.max_content_length:\n            warning_message = i18n.t(\n                \"components.data.url.warnings.content_too_large\",\n                size=len(response.content),\n                max_size=self.max_content_length,\n            )\n            self.status = warning_message\n\n        response.raise_for_status()\n        return response\n\n    def _process_response(self, url: str, response: requests.Response) -> dict[str, Any]:\n        \"\"\"Process HTTP response and extract data.\"\"\"\n        data_dict = {\n            \"url\": url,\n            \"status_code\": response.status_code,\n            \"content_type\": response.headers.get(\"content-type\", \"\"),\n            \"content_length\": len(response.content),\n        }\n\n        # Determine content type\n        content_type = self.content_type\n        if content_type == \"auto\":\n            response_content_type = response.headers.get(\"content-type\", \"\").lower()\n            if \"application/json\" in response_content_type:\n                content_type = \"json\"\n            elif \"text/html\" in response_content_type:\n                content_type = \"html\"\n            elif \"application/xml\" in response_content_type or \"text/xml\" in response_content_type:\n                content_type = \"xml\"\n            else:\n                content_type = \"text\"\n\n        # Process content based on type\n        try:\n            if content_type == \"json\":\n                data_dict[\"content\"] = response.json()\n                data_dict[\"raw_content\"] = response.text\n            elif content_type == \"html\":\n                soup = BeautifulSoup(response.text, \"html.parser\")\n                data_dict[\"content\"] = soup.get_text(strip=True)\n                data_dict[\"raw_content\"] = response.text\n\n                if self.extract_metadata:\n                    data_dict[\"metadata\"] = self._extract_html_metadata(soup)\n\n                if self.extract_links:\n                    data_dict[\"links\"] = self._extract_links(soup, url)\n\n            elif content_type == \"xml\":\n                data_dict[\"content\"] = response.text\n                data_dict[\"raw_content\"] = response.text\n            else:  # text\n                data_dict[\"content\"] = response.text\n                data_dict[\"raw_content\"] = response.text\n\n        except Exception as e:\n            # Fallback to raw text if processing fails\n            data_dict[\"content\"] = response.text\n            data_dict[\"raw_content\"] = response.text\n            data_dict[\"processing_error\"] = str(e)\n\n        return data_dict\n\n    def _extract_html_metadata(self, soup: BeautifulSoup) -> dict[str, str]:\n        \"\"\"Extract metadata from HTML.\"\"\"\n        metadata = {}\n\n        # Title\n        title_tag = soup.find(\"title\")\n        if title_tag:\n            metadata[\"title\"] = title_tag.get_text(strip=True)\n\n        # Meta tags\n        meta_tags = soup.find_all(\"meta\")\n        for tag in meta_tags:\n            name = tag.get(\"name\") or tag.get(\"property\") or tag.get(\"http-equiv\")\n            content = tag.get(\"content\")\n            if name and content:\n                metadata[name] = content\n\n        return metadata\n\n    def _extract_links(self, soup: BeautifulSoup, base_url: str) -> list[str]:\n        \"\"\"Extract links from HTML.\"\"\"\n        links = []\n\n        for link_tag in soup.find_all(\"a\", href=True):\n            href = link_tag[\"href\"]\n            # Convert relative URLs to absolute\n            absolute_url = urljoin(base_url, href)\n            links.append(absolute_url)\n\n        return list(set(links))  # Remove duplicates\n"
               },
-              "continue_on_failure": {
-                "_input_type": "BoolInput",
-                "advanced": true,
-                "display_name": "Continue on Failure",
-                "dynamic": false,
-                "info": "If enabled, continues crawling even if some requests fail.",
-                "list": false,
-                "list_add_label": "Add More",
-                "name": "continue_on_failure",
-                "placeholder": "",
-                "required": false,
-                "show": true,
-                "title_case": false,
-                "tool_mode": false,
-                "trace_as_metadata": true,
-                "type": "bool",
-                "value": true
-              },
-              "filter_text_html": {
-                "_input_type": "BoolInput",
-                "advanced": true,
-                "display_name": "Filter Text/HTML",
-                "dynamic": false,
-                "info": "If enabled, filters out text/css content type from the results.",
-                "list": false,
-                "list_add_label": "Add More",
-                "name": "filter_text_html",
-                "placeholder": "",
-                "required": false,
-                "show": true,
-                "title_case": false,
-                "tool_mode": false,
-                "trace_as_metadata": true,
-                "type": "bool",
-                "value": true
-              },
-              "format": {
+              "content_type": {
                 "_input_type": "DropdownInput",
                 "advanced": true,
                 "combobox": false,
-                "display_name": "Output Format",
+                "dialog_inputs": {},
+                "display_name": "内容类型",
                 "dynamic": false,
-                "info": "Output Format. Use 'Text' to extract the text from the HTML or 'HTML' for the raw HTML content.",
-                "name": "format",
+                "external_options": {},
+                "info": "如何处理响应内容。'自动'将根据响应头进行检测。",
+                "input_group": "default",
+                "name": "content_type",
                 "options": [
-                  "Text",
-                  "HTML"
+                  "auto",
+                  "text",
+                  "html",
+                  "json",
+                  "xml"
                 ],
+                "options_metadata": [],
+                "placeholder": "",
+                "required": false,
+                "show": true,
+                "title_case": false,
+                "toggle": false,
+                "tool_mode": false,
+                "trace_as_metadata": true,
+                "type": "str",
+                "value": "auto"
+              },
+              "extract_links": {
+                "_input_type": "BoolInput",
+                "advanced": true,
+                "display_name": "提取链接",
+                "dynamic": false,
+                "info": "是否从HTML页面提取所有链接。",
+                "input_group": "default",
+                "list": false,
+                "list_add_label": "添加更多",
+                "name": "extract_links",
                 "placeholder": "",
                 "required": false,
                 "show": true,
                 "title_case": false,
                 "tool_mode": false,
                 "trace_as_metadata": true,
-                "type": "str",
-                "value": "Text"
+                "type": "bool",
+                "value": false
+              },
+              "extract_metadata": {
+                "_input_type": "BoolInput",
+                "advanced": true,
+                "display_name": "提取元数据",
+                "dynamic": false,
+                "info": "是否从HTML页面提取元数据（标题、元标签等）。",
+                "input_group": "default",
+                "list": false,
+                "list_add_label": "添加更多",
+                "name": "extract_metadata",
+                "placeholder": "",
+                "required": false,
+                "show": true,
+                "title_case": false,
+                "tool_mode": false,
+                "trace_as_metadata": true,
+                "type": "bool",
+                "value": true
+              },
+              "follow_redirects": {
+                "_input_type": "BoolInput",
+                "advanced": true,
+                "display_name": "跟随重定向",
+                "dynamic": false,
+                "info": "是否自动跟随HTTP重定向。",
+                "input_group": "default",
+                "list": false,
+                "list_add_label": "添加更多",
+                "name": "follow_redirects",
+                "placeholder": "",
+                "required": false,
+                "show": true,
+                "title_case": false,
+                "tool_mode": false,
+                "trace_as_metadata": true,
+                "type": "bool",
+                "value": true
               },
               "headers": {
                 "_input_type": "TableInput",
                 "advanced": true,
-                "display_name": "Headers",
+                "display_name": "请求头",
                 "dynamic": false,
-                "info": "The headers to send with the request",
+                "info": "作为JSON对象包含在请求中的HTTP头。示例：{\"User-Agent\": \"MyBot 1.0\"}",
                 "input_types": [
-                  "DataFrame"
+                  "Message"
                 ],
                 "is_list": true,
                 "list_add_label": "Add More",
@@ -1055,58 +1097,90 @@
                   }
                 ]
               },
-              "max_depth": {
-                "_input_type": "SliderInput",
-                "advanced": false,
-                "display_name": "Depth",
+              "max_content_length": {
+                "_input_type": "IntInput",
+                "advanced": true,
+                "display_name": "最大内容长度",
                 "dynamic": false,
-                "info": "Controls how many 'clicks' away from the initial page the crawler will go:\n- depth 1: only the initial page\n- depth 2: initial page + all pages linked directly from it\n- depth 3: initial page + direct links + links found on those direct link pages\nNote: This is about link traversal, not URL path depth.",
-                "max_label": " ",
-                "max_label_icon": "None",
-                "min_label": " ",
-                "min_label_icon": "None",
-                "name": "max_depth",
+                "info": "允许的最大响应内容长度（字节）。",
+                "input_group": "default",
+                "list": false,
+                "list_add_label": "添加更多",
+                "name": "max_content_length",
                 "placeholder": "",
                 "range_spec": {
-                  "max": 5,
-                  "min": 1,
-                  "step": 1,
+                  "max": 10485760.0,
+                  "min": 1024.0,
+                  "step": 0.1,
                   "step_type": "float"
                 },
-                "required": false,
-                "show": true,
-                "slider_buttons": false,
-                "slider_buttons_options": [],
-                "slider_input": false,
-                "title_case": false,
-                "tool_mode": false,
-                "type": "slider",
-                "value": 1
-              },
-              "prevent_outside": {
-                "_input_type": "BoolInput",
-                "advanced": true,
-                "display_name": "Prevent Outside",
-                "dynamic": false,
-                "info": "If enabled, only crawls URLs within the same domain as the root URL. This helps prevent the crawler from going to external websites.",
-                "list": false,
-                "list_add_label": "Add More",
-                "name": "prevent_outside",
-                "placeholder": "",
                 "required": false,
                 "show": true,
                 "title_case": false,
                 "tool_mode": false,
                 "trace_as_metadata": true,
-                "type": "bool",
-                "value": true
+                "type": "int",
+                "value": 1048576
+              },
+              "method": {
+                "_input_type": "DropdownInput",
+                "advanced": false,
+                "combobox": false,
+                "dialog_inputs": {},
+                "display_name": "HTTP方法",
+                "dynamic": false,
+                "external_options": {},
+                "info": "用于请求的HTTP方法（GET、POST、PUT、DELETE、PATCH）。",
+                "input_group": "default",
+                "name": "method",
+                "options": [
+                  "GET",
+                  "POST",
+                  "PUT",
+                  "DELETE",
+                  "PATCH"
+                ],
+                "options_metadata": [],
+                "placeholder": "",
+                "required": false,
+                "show": true,
+                "title_case": false,
+                "toggle": false,
+                "tool_mode": false,
+                "trace_as_metadata": true,
+                "type": "str",
+                "value": "GET"
+              },
+              "text_key": {
+                "_input_type": "MessageTextInput",
+                "advanced": true,
+                "display_name": "文本键",
+                "dynamic": false,
+                "info": "用于数据对象中文本字段的键。",
+                "input_group": "default",
+                "input_types": [
+                  "Message"
+                ],
+                "list": false,
+                "list_add_label": "添加更多",
+                "load_from_db": false,
+                "name": "text_key",
+                "placeholder": "",
+                "required": false,
+                "show": true,
+                "title_case": false,
+                "tool_mode": false,
+                "trace_as_input": true,
+                "trace_as_metadata": true,
+                "type": "str",
+                "value": "content"
               },
               "timeout": {
                 "_input_type": "IntInput",
                 "advanced": true,
-                "display_name": "Timeout",
+                "display_name": "超时时间（秒）",
                 "dynamic": false,
-                "info": "Timeout for the request in seconds.",
+                "info": "请求超时时间（秒）。",
                 "list": false,
                 "list_add_label": "Add More",
                 "name": "timeout",
@@ -1122,15 +1196,17 @@
               "urls": {
                 "_input_type": "MessageTextInput",
                 "advanced": false,
-                "display_name": "URLs",
+                "display_name": "URL地址",
                 "dynamic": false,
-                "info": "Enter one or more URLs to crawl recursively, by clicking the '+' button.",
-                "input_types": [],
-                "list": true,
+                "info": "要获取数据的URL地址列表，用逗号分隔。",
+                "input_types": [
+                  "Message"
+                ],
+                "list": false,
                 "load_from_db": false,
                 "name": "urls",
                 "placeholder": "",
-                "required": false,
+                "required": true,
                 "show": true,
                 "title_case": false,
                 "tool_mode": true,
@@ -1141,15 +1217,16 @@
                   "https://raw.githubusercontent.com/langflow-ai/langflow/refs/heads/main/src/backend/base/langflow/custom/custom_component/component.py"
                 ]
               },
-              "use_async": {
+              "verify_ssl": {
                 "_input_type": "BoolInput",
                 "advanced": true,
-                "display_name": "Use Async",
+                "display_name": "验证SSL",
                 "dynamic": false,
-                "info": "If enabled, uses asynchronous loading which can be significantly faster but might use more system resources.",
+                "info": "是否验证HTTPS请求的SSL证书。",
+                "input_group": "default",
                 "list": false,
-                "list_add_label": "Add More",
-                "name": "use_async",
+                "list_add_label": "添加更多",
+                "name": "verify_ssl",
                 "placeholder": "",
                 "required": false,
                 "show": true,
@@ -1195,7 +1272,7 @@
             "beta": false,
             "conditional_paths": [],
             "custom_fields": {},
-            "description": "Fetch content from one or more web pages, following links recursively.",
+            "description": "从URL获取和处理数据，支持各种内容类型和HTTP方法。",
             "display_name": "URL",
             "documentation": "",
             "edited": false,
@@ -1204,36 +1281,61 @@
               "format"
             ],
             "frozen": false,
-            "icon": "layout-template",
+            "icon": "link",
             "legacy": false,
             "lf_version": "1.6.0",
-            "metadata": {},
+            "metadata": {
+              "code_hash": "ab56d85cdc25",
+              "dependencies": {
+                "dependencies": [
+                  {
+                    "name": "i18n",
+                    "version": "0.16.0"
+                  },
+                  {
+                    "name": "requests",
+                    "version": "2.32.5"
+                  },
+                  {
+                    "name": "bs4",
+                    "version": "4.12.3"
+                  },
+                  {
+                    "name": "lfx",
+                    "version": null
+                  }
+                ],
+                "total_dependencies": 4
+              },
+              "module": "lfx.components.data.url.URLComponent"
+            },
             "output_types": [],
             "outputs": [
               {
                 "allows_loop": false,
                 "cache": true,
-                "display_name": "Result",
+                "display_name": "URL数据",
                 "group_outputs": false,
-                "method": "fetch_content",
-                "name": "page_results",
+                "method": "fetch_url_data",
+                "name": "data",
+                "selected": "Data",
                 "tool_mode": true,
                 "types": [
-                  "DataFrame"
+                  "Data"
                 ],
                 "value": "__UNDEFINED__"
               },
               {
                 "allows_loop": false,
                 "cache": true,
-                "display_name": "Raw Result",
+                "display_name": "响应信息",
                 "group_outputs": false,
-                "method": "as_message",
-                "name": "raw_results",
-                "selected": "Message",
+                "method": "get_response_info",
+                "name": "response_info",
+                "selected": "Data",
                 "tool_mode": true,
                 "types": [
-                  "Message"
+                  "Data"
                 ],
                 "value": "__UNDEFINED__"
               }
@@ -1241,44 +1343,34 @@
             "pinned": false,
             "template": {
               "_type": "Component",
-              "autoset_encoding": {
-                "_input_type": "BoolInput",
+              "body": {
+                "_input_type": "MultilineInput",
                 "advanced": true,
-                "display_name": "Autoset Encoding",
+                "copy_field": false,
+                "display_name": "请求体",
                 "dynamic": false,
-                "info": "If enabled, automatically sets the encoding of the request.",
+                "info": "POST/PUT/PATCH请求的请求体内容。可以是JSON或纯文本。",
+                "input_group": "default",
+                "input_types": [
+                  "Message"
+                ],
                 "list": false,
-                "list_add_label": "Add More",
-                "name": "autoset_encoding",
-                "placeholder": "",
+                "list_add_label": "添加更多",
+                "load_from_db": false,
+                "multiline": true,
+                "name": "body",
+                "placeholder": "{\"key\": \"value\"}",
                 "required": false,
                 "show": true,
                 "title_case": false,
                 "tool_mode": false,
+                "trace_as_input": true,
                 "trace_as_metadata": true,
-                "type": "bool",
-                "value": true
-              },
-              "check_response_status": {
-                "_input_type": "BoolInput",
-                "advanced": true,
-                "display_name": "Check Response Status",
-                "dynamic": false,
-                "info": "If enabled, checks the response status of the request.",
-                "list": false,
-                "list_add_label": "Add More",
-                "name": "check_response_status",
-                "placeholder": "",
-                "required": false,
-                "show": true,
-                "title_case": false,
-                "tool_mode": false,
-                "trace_as_metadata": true,
-                "type": "bool",
-                "value": false
+                "type": "str",
+                "value": ""
               },
               "code": {
-                "advanced": true,
+                "advanced": false,
                 "dynamic": true,
                 "fileTypes": [],
                 "file_path": "",
@@ -1289,77 +1381,106 @@
                 "name": "code",
                 "password": false,
                 "placeholder": "",
-                "required": true,
+                "required": false,
                 "show": true,
                 "title_case": false,
                 "type": "code",
-                "value": "import re\n\nimport requests\nfrom bs4 import BeautifulSoup\nfrom langchain_community.document_loaders import RecursiveUrlLoader\nfrom loguru import logger\n\nfrom langflow.custom import Component\nfrom langflow.field_typing.range_spec import RangeSpec\nfrom langflow.helpers.data import safe_convert\nfrom langflow.io import BoolInput, DropdownInput, IntInput, MessageTextInput, Output, SliderInput, TableInput\nfrom langflow.schema import DataFrame, Message\nfrom langflow.services.deps import get_settings_service\n\n# Constants\nDEFAULT_TIMEOUT = 30\nDEFAULT_MAX_DEPTH = 1\nDEFAULT_FORMAT = \"Text\"\nURL_REGEX = re.compile(\n    r\"^(https?:\\/\\/)?\" r\"(www\\.)?\" r\"([a-zA-Z0-9.-]+)\" r\"(\\.[a-zA-Z]{2,})?\" r\"(:\\d+)?\" r\"(\\/[^\\s]*)?$\",\n    re.IGNORECASE,\n)\n\n\nclass URLComponent(Component):\n    \"\"\"A component that loads and parses content from web pages recursively.\n\n    This component allows fetching content from one or more URLs, with options to:\n    - Control crawl depth\n    - Prevent crawling outside the root domain\n    - Use async loading for better performance\n    - Extract either raw HTML or clean text\n    - Configure request headers and timeouts\n    \"\"\"\n\n    display_name = \"URL\"\n    description = \"Fetch content from one or more web pages, following links recursively.\"\n    icon = \"layout-template\"\n    name = \"URLComponent\"\n\n    inputs = [\n        MessageTextInput(\n            name=\"urls\",\n            display_name=\"URLs\",\n            info=\"Enter one or more URLs to crawl recursively, by clicking the '+' button.\",\n            is_list=True,\n            tool_mode=True,\n            placeholder=\"Enter a URL...\",\n            list_add_label=\"Add URL\",\n            input_types=[],\n        ),\n        SliderInput(\n            name=\"max_depth\",\n            display_name=\"Depth\",\n            info=(\n                \"Controls how many 'clicks' away from the initial page the crawler will go:\\n\"\n                \"- depth 1: only the initial page\\n\"\n                \"- depth 2: initial page + all pages linked directly from it\\n\"\n                \"- depth 3: initial page + direct links + links found on those direct link pages\\n\"\n                \"Note: This is about link traversal, not URL path depth.\"\n            ),\n            value=DEFAULT_MAX_DEPTH,\n            range_spec=RangeSpec(min=1, max=5, step=1),\n            required=False,\n            min_label=\" \",\n            max_label=\" \",\n            min_label_icon=\"None\",\n            max_label_icon=\"None\",\n            # slider_input=True\n        ),\n        BoolInput(\n            name=\"prevent_outside\",\n            display_name=\"Prevent Outside\",\n            info=(\n                \"If enabled, only crawls URLs within the same domain as the root URL. \"\n                \"This helps prevent the crawler from going to external websites.\"\n            ),\n            value=True,\n            required=False,\n            advanced=True,\n        ),\n        BoolInput(\n            name=\"use_async\",\n            display_name=\"Use Async\",\n            info=(\n                \"If enabled, uses asynchronous loading which can be significantly faster \"\n                \"but might use more system resources.\"\n            ),\n            value=True,\n            required=False,\n            advanced=True,\n        ),\n        DropdownInput(\n            name=\"format\",\n            display_name=\"Output Format\",\n            info=\"Output Format. Use 'Text' to extract the text from the HTML or 'HTML' for the raw HTML content.\",\n            options=[\"Text\", \"HTML\"],\n            value=DEFAULT_FORMAT,\n            advanced=True,\n        ),\n        IntInput(\n            name=\"timeout\",\n            display_name=\"Timeout\",\n            info=\"Timeout for the request in seconds.\",\n            value=DEFAULT_TIMEOUT,\n            required=False,\n            advanced=True,\n        ),\n        TableInput(\n            name=\"headers\",\n            display_name=\"Headers\",\n            info=\"The headers to send with the request\",\n            table_schema=[\n                {\n                    \"name\": \"key\",\n                    \"display_name\": \"Header\",\n                    \"type\": \"str\",\n                    \"description\": \"Header name\",\n                },\n                {\n                    \"name\": \"value\",\n                    \"display_name\": \"Value\",\n                    \"type\": \"str\",\n                    \"description\": \"Header value\",\n                },\n            ],\n            value=[{\"key\": \"User-Agent\", \"value\": get_settings_service().settings.user_agent}],\n            advanced=True,\n            input_types=[\"DataFrame\"],\n        ),\n        BoolInput(\n            name=\"filter_text_html\",\n            display_name=\"Filter Text/HTML\",\n            info=\"If enabled, filters out text/css content type from the results.\",\n            value=True,\n            required=False,\n            advanced=True,\n        ),\n        BoolInput(\n            name=\"continue_on_failure\",\n            display_name=\"Continue on Failure\",\n            info=\"If enabled, continues crawling even if some requests fail.\",\n            value=True,\n            required=False,\n            advanced=True,\n        ),\n        BoolInput(\n            name=\"check_response_status\",\n            display_name=\"Check Response Status\",\n            info=\"If enabled, checks the response status of the request.\",\n            value=False,\n            required=False,\n            advanced=True,\n        ),\n        BoolInput(\n            name=\"autoset_encoding\",\n            display_name=\"Autoset Encoding\",\n            info=\"If enabled, automatically sets the encoding of the request.\",\n            value=True,\n            required=False,\n            advanced=True,\n        ),\n    ]\n\n    outputs = [\n        Output(display_name=\"Result\", name=\"page_results\", method=\"fetch_content\"),\n        Output(display_name=\"Raw Result\", name=\"raw_results\", method=\"as_message\"),\n    ]\n\n    @staticmethod\n    def validate_url(url: str) -> bool:\n        \"\"\"Validates if the given string matches URL pattern.\n\n        Args:\n            url: The URL string to validate\n\n        Returns:\n            bool: True if the URL is valid, False otherwise\n        \"\"\"\n        return bool(URL_REGEX.match(url))\n\n    def ensure_url(self, url: str) -> str:\n        \"\"\"Ensures the given string is a valid URL.\n\n        Args:\n            url: The URL string to validate and normalize\n\n        Returns:\n            str: The normalized URL\n\n        Raises:\n            ValueError: If the URL is invalid\n        \"\"\"\n        url = url.strip()\n        if not url.startswith((\"http://\", \"https://\")):\n            url = \"https://\" + url\n\n        if not self.validate_url(url):\n            msg = f\"Invalid URL: {url}\"\n            raise ValueError(msg)\n\n        return url\n\n    def _create_loader(self, url: str) -> RecursiveUrlLoader:\n        \"\"\"Creates a RecursiveUrlLoader instance with the configured settings.\n\n        Args:\n            url: The URL to load\n\n        Returns:\n            RecursiveUrlLoader: Configured loader instance\n        \"\"\"\n        headers_dict = {header[\"key\"]: header[\"value\"] for header in self.headers}\n        extractor = (lambda x: x) if self.format == \"HTML\" else (lambda x: BeautifulSoup(x, \"lxml\").get_text())\n\n        return RecursiveUrlLoader(\n            url=url,\n            max_depth=self.max_depth,\n            prevent_outside=self.prevent_outside,\n            use_async=self.use_async,\n            extractor=extractor,\n            timeout=self.timeout,\n            headers=headers_dict,\n            check_response_status=self.check_response_status,\n            continue_on_failure=self.continue_on_failure,\n            base_url=url,  # Add base_url to ensure consistent domain crawling\n            autoset_encoding=self.autoset_encoding,  # Enable automatic encoding detection\n            exclude_dirs=[],  # Allow customization of excluded directories\n            link_regex=None,  # Allow customization of link filtering\n        )\n\n    def fetch_url_contents(self) -> list[dict]:\n        \"\"\"Load documents from the configured URLs.\n\n        Returns:\n            List[Data]: List of Data objects containing the fetched content\n\n        Raises:\n            ValueError: If no valid URLs are provided or if there's an error loading documents\n        \"\"\"\n        try:\n            urls = list({self.ensure_url(url) for url in self.urls if url.strip()})\n            logger.info(f\"URLs: {urls}\")\n            if not urls:\n                msg = \"No valid URLs provided.\"\n                raise ValueError(msg)\n\n            all_docs = []\n            for url in urls:\n                logger.info(f\"Loading documents from {url}\")\n\n                try:\n                    loader = self._create_loader(url)\n                    docs = loader.load()\n\n                    if not docs:\n                        logger.warning(f\"No documents found for {url}\")\n                        continue\n\n                    logger.info(f\"Found {len(docs)} documents from {url}\")\n                    all_docs.extend(docs)\n\n                except requests.exceptions.RequestException as e:\n                    logger.exception(f\"Error loading documents from {url}: {e}\")\n                    continue\n\n            if not all_docs:\n                msg = \"No documents were successfully loaded from any URL\"\n                raise ValueError(msg)\n\n            # data = [Data(text=doc.page_content, **doc.metadata) for doc in all_docs]\n            data = [\n                {\n                    \"text\": safe_convert(doc.page_content, clean_data=True),\n                    \"url\": doc.metadata.get(\"source\", \"\"),\n                    \"title\": doc.metadata.get(\"title\", \"\"),\n                    \"description\": doc.metadata.get(\"description\", \"\"),\n                    \"content_type\": doc.metadata.get(\"content_type\", \"\"),\n                    \"language\": doc.metadata.get(\"language\", \"\"),\n                }\n                for doc in all_docs\n            ]\n        except Exception as e:\n            error_msg = e.message if hasattr(e, \"message\") else e\n            msg = f\"Error loading documents: {error_msg!s}\"\n            logger.exception(msg)\n            raise ValueError(msg) from e\n        return data\n\n    def fetch_content(self) -> DataFrame:\n        \"\"\"Convert the documents to a DataFrame.\"\"\"\n        return DataFrame(data=self.fetch_url_contents())\n\n    def as_message(self) -> Message:\n        \"\"\"Convert the documents to a Message.\"\"\"\n        url_contents = self.fetch_url_contents()\n        return Message(text=\"\\n\\n\".join([x[\"text\"] for x in url_contents]), data={\"data\": url_contents})\n"
+                "value": "import json\nimport os\nfrom typing import Any\nfrom urllib.parse import urljoin, urlparse\n\nimport i18n\nimport requests\nfrom bs4 import BeautifulSoup\n\nfrom lfx.custom.custom_component.component import Component\nfrom lfx.io import BoolInput, DropdownInput, IntInput, MessageTextInput, MultilineInput, Output\nfrom lfx.schema.data import Data\n\n\nclass URLComponent(Component):\n    ignore: bool = os.getenv(\"LANGFLOW_IGNORE_COMPONENT\", \"false\") == \"true\"\n    display_name = i18n.t(\"components.data.url.display_name\")\n    description = i18n.t(\"components.data.url.description\")\n    icon = \"link\"\n    name = \"URL\"\n\n    inputs = [\n        MessageTextInput(\n            name=\"urls\",\n            display_name=i18n.t(\"components.data.url.urls.display_name\"),\n            info=i18n.t(\"components.data.url.urls.info\"),\n            required=True,\n            placeholder=\"https://example.com,https://example2.com\",\n        ),\n        DropdownInput(\n            name=\"method\",\n            display_name=i18n.t(\"components.data.url.method.display_name\"),\n            info=i18n.t(\"components.data.url.method.info\"),\n            options=[\"GET\", \"POST\", \"PUT\", \"DELETE\", \"PATCH\"],\n            value=\"GET\",\n        ),\n        MultilineInput(\n            name=\"headers\",\n            display_name=i18n.t(\"components.data.url.headers.display_name\"),\n            info=i18n.t(\"components.data.url.headers.info\"),\n            placeholder='{\"User-Agent\": \"MyBot 1.0\", \"Accept\": \"text/html\"}',\n            advanced=True,\n        ),\n        MultilineInput(\n            name=\"body\",\n            display_name=i18n.t(\"components.data.url.body.display_name\"),\n            info=i18n.t(\"components.data.url.body.info\"),\n            placeholder='{\"key\": \"value\"}',\n            advanced=True,\n        ),\n        IntInput(\n            name=\"timeout\",\n            display_name=i18n.t(\"components.data.url.timeout.display_name\"),\n            info=i18n.t(\"components.data.url.timeout.info\"),\n            value=30,\n            range_spec={\"min\": 1, \"max\": 300},\n            advanced=True,\n        ),\n        BoolInput(\n            name=\"follow_redirects\",\n            display_name=i18n.t(\"components.data.url.follow_redirects.display_name\"),\n            info=i18n.t(\"components.data.url.follow_redirects.info\"),\n            value=True,\n            advanced=True,\n        ),\n        BoolInput(\n            name=\"verify_ssl\",\n            display_name=i18n.t(\"components.data.url.verify_ssl.display_name\"),\n            info=i18n.t(\"components.data.url.verify_ssl.info\"),\n            value=True,\n            advanced=True,\n        ),\n        DropdownInput(\n            name=\"content_type\",\n            display_name=i18n.t(\"components.data.url.content_type.display_name\"),\n            info=i18n.t(\"components.data.url.content_type.info\"),\n            options=[\"auto\", \"text\", \"html\", \"json\", \"xml\"],\n            value=\"auto\",\n            advanced=True,\n        ),\n        BoolInput(\n            name=\"extract_metadata\",\n            display_name=i18n.t(\"components.data.url.extract_metadata.display_name\"),\n            info=i18n.t(\"components.data.url.extract_metadata.info\"),\n            value=True,\n            advanced=True,\n        ),\n        BoolInput(\n            name=\"extract_links\",\n            display_name=i18n.t(\"components.data.url.extract_links.display_name\"),\n            info=i18n.t(\"components.data.url.extract_links.info\"),\n            value=False,\n            advanced=True,\n        ),\n        IntInput(\n            name=\"max_content_length\",\n            display_name=i18n.t(\"components.data.url.max_content_length.display_name\"),\n            info=i18n.t(\"components.data.url.max_content_length.info\"),\n            value=1048576,  # 1MB\n            range_spec={\"min\": 1024, \"max\": 10485760},  # 1KB to 10MB\n            advanced=True,\n        ),\n        MessageTextInput(\n            name=\"text_key\",\n            display_name=i18n.t(\"components.data.url.text_key.display_name\"),\n            info=i18n.t(\"components.data.url.text_key.info\"),\n            value=\"content\",\n            advanced=True,\n        ),\n    ]\n\n    outputs = [\n        Output(\n            name=\"data\", display_name=i18n.t(\"components.data.url.outputs.data.display_name\"), method=\"fetch_url_data\"\n        ),\n        Output(\n            name=\"response_info\",\n            display_name=i18n.t(\"components.data.url.outputs.response_info.display_name\"),\n            method=\"get_response_info\",\n        ),\n    ]\n\n    def fetch_url_data(self) -> list[Data]:\n        \"\"\"Fetch data from URLs and return as Data objects.\"\"\"\n        try:\n            if not self.urls.strip():\n                error_message = i18n.t(\"components.data.url.errors.empty_urls\")\n                self.status = error_message\n                raise ValueError(error_message)\n\n            # Parse URLs\n            url_list = [url.strip() for url in self.urls.split(\",\") if url.strip()]\n\n            if not url_list:\n                error_message = i18n.t(\"components.data.url.errors.no_valid_urls\")\n                self.status = error_message\n                raise ValueError(error_message)\n\n            # Parse headers\n            headers = self._parse_headers()\n\n            # Parse body\n            body = self._parse_body()\n\n            results = []\n            successful_requests = 0\n\n            for url in url_list:\n                try:\n                    # Validate URL\n                    parsed_url = urlparse(url)\n                    if not parsed_url.scheme or not parsed_url.netloc:\n                        warning_message = i18n.t(\"components.data.url.warnings.invalid_url\", url=url)\n                        self.status = warning_message\n                        continue\n\n                    # Make request\n                    response = self._make_request(url, headers, body)\n\n                    # Process response\n                    data_dict = self._process_response(url, response)\n\n                    results.append(Data(data=data_dict, text_key=self.text_key))\n                    successful_requests += 1\n\n                except requests.RequestException as e:\n                    warning_message = i18n.t(\"components.data.url.warnings.request_failed\", url=url, error=str(e))\n                    self.status = warning_message\n                    # Continue with other URLs\n                    continue\n\n            if not results:\n                error_message = i18n.t(\"components.data.url.errors.no_successful_requests\")\n                self.status = error_message\n                return []\n\n            success_message = i18n.t(\n                \"components.data.url.success.fetched_data\", successful=successful_requests, total=len(url_list)\n            )\n            self.status = success_message\n            return results\n\n        except Exception as e:\n            error_message = i18n.t(\"components.data.url.errors.fetch_error\", error=str(e))\n            self.status = error_message\n            raise ValueError(error_message) from e\n\n    def get_response_info(self) -> list[Data]:\n        \"\"\"Get response information for URLs.\"\"\"\n        try:\n            if not self.urls.strip():\n                error_message = i18n.t(\"components.data.url.errors.empty_urls\")\n                raise ValueError(error_message)\n\n            url_list = [url.strip() for url in self.urls.split(\",\") if url.strip()]\n            headers = self._parse_headers()\n            body = self._parse_body()\n\n            results = []\n\n            for url in url_list:\n                try:\n                    response = self._make_request(url, headers, body)\n\n                    info_dict = {\n                        \"url\": url,\n                        \"status_code\": response.status_code,\n                        \"status_text\": response.reason,\n                        \"headers\": dict(response.headers),\n                        \"content_type\": response.headers.get(\"content-type\", \"\"),\n                        \"content_length\": len(response.content),\n                        \"encoding\": response.encoding,\n                        \"elapsed_time\": response.elapsed.total_seconds(),\n                        \"final_url\": response.url,\n                        \"history\": [r.url for r in response.history],\n                    }\n\n                    results.append(Data(data=info_dict, text_key=\"url\"))\n\n                except requests.RequestException as e:\n                    error_dict = {\"url\": url, \"error\": str(e), \"status\": \"failed\"}\n                    results.append(Data(data=error_dict, text_key=\"url\"))\n\n            return results\n\n        except Exception as e:\n            error_message = i18n.t(\"components.data.url.errors.response_info_error\", error=str(e))\n            raise ValueError(error_message) from e\n\n    def _parse_headers(self) -> dict[str, str]:\n        \"\"\"Parse headers from JSON string.\"\"\"\n        if not self.headers.strip():\n            return {}\n\n        try:\n            return json.loads(self.headers)\n        except json.JSONDecodeError as e:\n            warning_message = i18n.t(\"components.data.url.warnings.invalid_headers\", error=str(e))\n            self.status = warning_message\n            return {}\n\n    def _parse_body(self) -> str | None:\n        \"\"\"Parse body content.\"\"\"\n        if not self.body.strip():\n            return None\n\n        try:\n            # Try to parse as JSON to validate\n            json.loads(self.body)\n            return self.body\n        except json.JSONDecodeError:\n            # Return as plain text if not JSON\n            return self.body\n\n    def _make_request(self, url: str, headers: dict[str, str], body: str | None) -> requests.Response:\n        \"\"\"Make HTTP request to URL.\"\"\"\n        request_kwargs = {\n            \"timeout\": self.timeout,\n            \"allow_redirects\": self.follow_redirects,\n            \"verify\": self.verify_ssl,\n            \"headers\": headers,\n        }\n\n        if body and self.method.upper() in [\"POST\", \"PUT\", \"PATCH\"]:\n            # Try to send as JSON if possible, otherwise as text\n            try:\n                json.loads(body)\n                request_kwargs[\"json\"] = json.loads(body)\n            except json.JSONDecodeError:\n                request_kwargs[\"data\"] = body\n\n        response = requests.request(self.method.upper(), url, **request_kwargs)\n\n        # Check content length\n        if len(response.content) > self.max_content_length:\n            warning_message = i18n.t(\n                \"components.data.url.warnings.content_too_large\",\n                size=len(response.content),\n                max_size=self.max_content_length,\n            )\n            self.status = warning_message\n\n        response.raise_for_status()\n        return response\n\n    def _process_response(self, url: str, response: requests.Response) -> dict[str, Any]:\n        \"\"\"Process HTTP response and extract data.\"\"\"\n        data_dict = {\n            \"url\": url,\n            \"status_code\": response.status_code,\n            \"content_type\": response.headers.get(\"content-type\", \"\"),\n            \"content_length\": len(response.content),\n        }\n\n        # Determine content type\n        content_type = self.content_type\n        if content_type == \"auto\":\n            response_content_type = response.headers.get(\"content-type\", \"\").lower()\n            if \"application/json\" in response_content_type:\n                content_type = \"json\"\n            elif \"text/html\" in response_content_type:\n                content_type = \"html\"\n            elif \"application/xml\" in response_content_type or \"text/xml\" in response_content_type:\n                content_type = \"xml\"\n            else:\n                content_type = \"text\"\n\n        # Process content based on type\n        try:\n            if content_type == \"json\":\n                data_dict[\"content\"] = response.json()\n                data_dict[\"raw_content\"] = response.text\n            elif content_type == \"html\":\n                soup = BeautifulSoup(response.text, \"html.parser\")\n                data_dict[\"content\"] = soup.get_text(strip=True)\n                data_dict[\"raw_content\"] = response.text\n\n                if self.extract_metadata:\n                    data_dict[\"metadata\"] = self._extract_html_metadata(soup)\n\n                if self.extract_links:\n                    data_dict[\"links\"] = self._extract_links(soup, url)\n\n            elif content_type == \"xml\":\n                data_dict[\"content\"] = response.text\n                data_dict[\"raw_content\"] = response.text\n            else:  # text\n                data_dict[\"content\"] = response.text\n                data_dict[\"raw_content\"] = response.text\n\n        except Exception as e:\n            # Fallback to raw text if processing fails\n            data_dict[\"content\"] = response.text\n            data_dict[\"raw_content\"] = response.text\n            data_dict[\"processing_error\"] = str(e)\n\n        return data_dict\n\n    def _extract_html_metadata(self, soup: BeautifulSoup) -> dict[str, str]:\n        \"\"\"Extract metadata from HTML.\"\"\"\n        metadata = {}\n\n        # Title\n        title_tag = soup.find(\"title\")\n        if title_tag:\n            metadata[\"title\"] = title_tag.get_text(strip=True)\n\n        # Meta tags\n        meta_tags = soup.find_all(\"meta\")\n        for tag in meta_tags:\n            name = tag.get(\"name\") or tag.get(\"property\") or tag.get(\"http-equiv\")\n            content = tag.get(\"content\")\n            if name and content:\n                metadata[name] = content\n\n        return metadata\n\n    def _extract_links(self, soup: BeautifulSoup, base_url: str) -> list[str]:\n        \"\"\"Extract links from HTML.\"\"\"\n        links = []\n\n        for link_tag in soup.find_all(\"a\", href=True):\n            href = link_tag[\"href\"]\n            # Convert relative URLs to absolute\n            absolute_url = urljoin(base_url, href)\n            links.append(absolute_url)\n\n        return list(set(links))  # Remove duplicates\n"
               },
-              "continue_on_failure": {
-                "_input_type": "BoolInput",
-                "advanced": true,
-                "display_name": "Continue on Failure",
-                "dynamic": false,
-                "info": "If enabled, continues crawling even if some requests fail.",
-                "list": false,
-                "list_add_label": "Add More",
-                "name": "continue_on_failure",
-                "placeholder": "",
-                "required": false,
-                "show": true,
-                "title_case": false,
-                "tool_mode": false,
-                "trace_as_metadata": true,
-                "type": "bool",
-                "value": true
-              },
-              "filter_text_html": {
-                "_input_type": "BoolInput",
-                "advanced": true,
-                "display_name": "Filter Text/HTML",
-                "dynamic": false,
-                "info": "If enabled, filters out text/css content type from the results.",
-                "list": false,
-                "list_add_label": "Add More",
-                "name": "filter_text_html",
-                "placeholder": "",
-                "required": false,
-                "show": true,
-                "title_case": false,
-                "tool_mode": false,
-                "trace_as_metadata": true,
-                "type": "bool",
-                "value": true
-              },
-              "format": {
+              "content_type": {
                 "_input_type": "DropdownInput",
                 "advanced": true,
                 "combobox": false,
-                "display_name": "Output Format",
+                "dialog_inputs": {},
+                "display_name": "内容类型",
                 "dynamic": false,
-                "info": "Output Format. Use 'Text' to extract the text from the HTML or 'HTML' for the raw HTML content.",
-                "name": "format",
+                "external_options": {},
+                "info": "如何处理响应内容。'自动'将根据响应头进行检测。",
+                "input_group": "default",
+                "name": "content_type",
                 "options": [
-                  "Text",
-                  "HTML"
+                  "auto",
+                  "text",
+                  "html",
+                  "json",
+                  "xml"
                 ],
+                "options_metadata": [],
+                "placeholder": "",
+                "required": false,
+                "show": true,
+                "title_case": false,
+                "toggle": false,
+                "tool_mode": false,
+                "trace_as_metadata": true,
+                "type": "str",
+                "value": "auto"
+              },
+              "extract_links": {
+                "_input_type": "BoolInput",
+                "advanced": true,
+                "display_name": "提取链接",
+                "dynamic": false,
+                "info": "是否从HTML页面提取所有链接。",
+                "input_group": "default",
+                "list": false,
+                "list_add_label": "添加更多",
+                "name": "extract_links",
                 "placeholder": "",
                 "required": false,
                 "show": true,
                 "title_case": false,
                 "tool_mode": false,
                 "trace_as_metadata": true,
-                "type": "str",
-                "value": "Text"
+                "type": "bool",
+                "value": false
+              },
+              "extract_metadata": {
+                "_input_type": "BoolInput",
+                "advanced": true,
+                "display_name": "提取元数据",
+                "dynamic": false,
+                "info": "是否从HTML页面提取元数据（标题、元标签等）。",
+                "input_group": "default",
+                "list": false,
+                "list_add_label": "添加更多",
+                "name": "extract_metadata",
+                "placeholder": "",
+                "required": false,
+                "show": true,
+                "title_case": false,
+                "tool_mode": false,
+                "trace_as_metadata": true,
+                "type": "bool",
+                "value": true
+              },
+              "follow_redirects": {
+                "_input_type": "BoolInput",
+                "advanced": true,
+                "display_name": "跟随重定向",
+                "dynamic": false,
+                "info": "是否自动跟随HTTP重定向。",
+                "input_group": "default",
+                "list": false,
+                "list_add_label": "添加更多",
+                "name": "follow_redirects",
+                "placeholder": "",
+                "required": false,
+                "show": true,
+                "title_case": false,
+                "tool_mode": false,
+                "trace_as_metadata": true,
+                "type": "bool",
+                "value": true
               },
               "headers": {
                 "_input_type": "TableInput",
                 "advanced": true,
-                "display_name": "Headers",
+                "display_name": "请求头",
                 "dynamic": false,
-                "info": "The headers to send with the request",
+                "info": "作为JSON对象包含在请求中的HTTP头。示例：{\"User-Agent\": \"MyBot 1.0\"}",
                 "input_types": [
-                  "DataFrame"
+                  "Message"
                 ],
                 "is_list": true,
                 "list_add_label": "Add More",
@@ -1411,58 +1532,90 @@
                   }
                 ]
               },
-              "max_depth": {
-                "_input_type": "SliderInput",
-                "advanced": false,
-                "display_name": "Depth",
+              "max_content_length": {
+                "_input_type": "IntInput",
+                "advanced": true,
+                "display_name": "最大内容长度",
                 "dynamic": false,
-                "info": "Controls how many 'clicks' away from the initial page the crawler will go:\n- depth 1: only the initial page\n- depth 2: initial page + all pages linked directly from it\n- depth 3: initial page + direct links + links found on those direct link pages\nNote: This is about link traversal, not URL path depth.",
-                "max_label": " ",
-                "max_label_icon": "None",
-                "min_label": " ",
-                "min_label_icon": "None",
-                "name": "max_depth",
+                "info": "允许的最大响应内容长度（字节）。",
+                "input_group": "default",
+                "list": false,
+                "list_add_label": "添加更多",
+                "name": "max_content_length",
                 "placeholder": "",
                 "range_spec": {
-                  "max": 5,
-                  "min": 1,
-                  "step": 1,
+                  "max": 10485760.0,
+                  "min": 1024.0,
+                  "step": 0.1,
                   "step_type": "float"
                 },
-                "required": false,
-                "show": true,
-                "slider_buttons": false,
-                "slider_buttons_options": [],
-                "slider_input": false,
-                "title_case": false,
-                "tool_mode": false,
-                "type": "slider",
-                "value": 1
-              },
-              "prevent_outside": {
-                "_input_type": "BoolInput",
-                "advanced": true,
-                "display_name": "Prevent Outside",
-                "dynamic": false,
-                "info": "If enabled, only crawls URLs within the same domain as the root URL. This helps prevent the crawler from going to external websites.",
-                "list": false,
-                "list_add_label": "Add More",
-                "name": "prevent_outside",
-                "placeholder": "",
                 "required": false,
                 "show": true,
                 "title_case": false,
                 "tool_mode": false,
                 "trace_as_metadata": true,
-                "type": "bool",
-                "value": true
+                "type": "int",
+                "value": 1048576
+              },
+              "method": {
+                "_input_type": "DropdownInput",
+                "advanced": false,
+                "combobox": false,
+                "dialog_inputs": {},
+                "display_name": "HTTP方法",
+                "dynamic": false,
+                "external_options": {},
+                "info": "用于请求的HTTP方法（GET、POST、PUT、DELETE、PATCH）。",
+                "input_group": "default",
+                "name": "method",
+                "options": [
+                  "GET",
+                  "POST",
+                  "PUT",
+                  "DELETE",
+                  "PATCH"
+                ],
+                "options_metadata": [],
+                "placeholder": "",
+                "required": false,
+                "show": true,
+                "title_case": false,
+                "toggle": false,
+                "tool_mode": false,
+                "trace_as_metadata": true,
+                "type": "str",
+                "value": "GET"
+              },
+              "text_key": {
+                "_input_type": "MessageTextInput",
+                "advanced": true,
+                "display_name": "文本键",
+                "dynamic": false,
+                "info": "用于数据对象中文本字段的键。",
+                "input_group": "default",
+                "input_types": [
+                  "Message"
+                ],
+                "list": false,
+                "list_add_label": "添加更多",
+                "load_from_db": false,
+                "name": "text_key",
+                "placeholder": "",
+                "required": false,
+                "show": true,
+                "title_case": false,
+                "tool_mode": false,
+                "trace_as_input": true,
+                "trace_as_metadata": true,
+                "type": "str",
+                "value": "content"
               },
               "timeout": {
                 "_input_type": "IntInput",
                 "advanced": true,
-                "display_name": "Timeout",
+                "display_name": "超时时间（秒）",
                 "dynamic": false,
-                "info": "Timeout for the request in seconds.",
+                "info": "请求超时时间（秒）。",
                 "list": false,
                 "list_add_label": "Add More",
                 "name": "timeout",
@@ -1478,15 +1631,17 @@
               "urls": {
                 "_input_type": "MessageTextInput",
                 "advanced": false,
-                "display_name": "URLs",
+                "display_name": "URL地址",
                 "dynamic": false,
-                "info": "Enter one or more URLs to crawl recursively, by clicking the '+' button.",
-                "input_types": [],
-                "list": true,
+                "info": "要获取数据的URL地址列表，用逗号分隔。",
+                "input_types": [
+                  "Message"
+                ],
+                "list": false,
                 "load_from_db": false,
                 "name": "urls",
                 "placeholder": "",
-                "required": false,
+                "required": true,
                 "show": true,
                 "title_case": false,
                 "tool_mode": true,
@@ -1503,15 +1658,16 @@
                   "https://raw.githubusercontent.com/langflow-ai/langflow/refs/heads/main/src/backend/base/langflow/components/data/file.py"
                 ]
               },
-              "use_async": {
+              "verify_ssl": {
                 "_input_type": "BoolInput",
                 "advanced": true,
-                "display_name": "Use Async",
+                "display_name": "验证SSL",
                 "dynamic": false,
-                "info": "If enabled, uses asynchronous loading which can be significantly faster but might use more system resources.",
+                "info": "是否验证HTTPS请求的SSL证书。",
+                "input_group": "default",
                 "list": false,
-                "list_add_label": "Add More",
-                "name": "use_async",
+                "list_add_label": "添加更多",
+                "name": "verify_ssl",
                 "placeholder": "",
                 "required": false,
                 "show": true,
@@ -1557,7 +1713,7 @@
             "beta": false,
             "conditional_paths": [],
             "custom_fields": {},
-            "description": "Fetch content from one or more web pages, following links recursively.",
+            "description": "从URL获取和处理数据，支持各种内容类型和HTTP方法。",
             "display_name": "URL",
             "documentation": "",
             "edited": false,
@@ -1566,36 +1722,61 @@
               "format"
             ],
             "frozen": false,
-            "icon": "layout-template",
+            "icon": "link",
             "legacy": false,
             "lf_version": "1.6.0",
-            "metadata": {},
+            "metadata": {
+              "code_hash": "ab56d85cdc25",
+              "dependencies": {
+                "dependencies": [
+                  {
+                    "name": "i18n",
+                    "version": "0.16.0"
+                  },
+                  {
+                    "name": "requests",
+                    "version": "2.32.5"
+                  },
+                  {
+                    "name": "bs4",
+                    "version": "4.12.3"
+                  },
+                  {
+                    "name": "lfx",
+                    "version": null
+                  }
+                ],
+                "total_dependencies": 4
+              },
+              "module": "lfx.components.data.url.URLComponent"
+            },
             "output_types": [],
             "outputs": [
               {
                 "allows_loop": false,
                 "cache": true,
-                "display_name": "Result",
+                "display_name": "URL数据",
                 "group_outputs": false,
-                "method": "fetch_content",
-                "name": "page_results",
+                "method": "fetch_url_data",
+                "name": "data",
+                "selected": "Data",
                 "tool_mode": true,
                 "types": [
-                  "DataFrame"
+                  "Data"
                 ],
                 "value": "__UNDEFINED__"
               },
               {
                 "allows_loop": false,
                 "cache": true,
-                "display_name": "Raw Result",
+                "display_name": "响应信息",
                 "group_outputs": false,
-                "method": "as_message",
-                "name": "raw_results",
-                "selected": "Message",
+                "method": "get_response_info",
+                "name": "response_info",
+                "selected": "Data",
                 "tool_mode": true,
                 "types": [
-                  "Message"
+                  "Data"
                 ],
                 "value": "__UNDEFINED__"
               }
@@ -1603,44 +1784,34 @@
             "pinned": false,
             "template": {
               "_type": "Component",
-              "autoset_encoding": {
-                "_input_type": "BoolInput",
+              "body": {
+                "_input_type": "MultilineInput",
                 "advanced": true,
-                "display_name": "Autoset Encoding",
+                "copy_field": false,
+                "display_name": "请求体",
                 "dynamic": false,
-                "info": "If enabled, automatically sets the encoding of the request.",
+                "info": "POST/PUT/PATCH请求的请求体内容。可以是JSON或纯文本。",
+                "input_group": "default",
+                "input_types": [
+                  "Message"
+                ],
                 "list": false,
-                "list_add_label": "Add More",
-                "name": "autoset_encoding",
-                "placeholder": "",
+                "list_add_label": "添加更多",
+                "load_from_db": false,
+                "multiline": true,
+                "name": "body",
+                "placeholder": "{\"key\": \"value\"}",
                 "required": false,
                 "show": true,
                 "title_case": false,
                 "tool_mode": false,
+                "trace_as_input": true,
                 "trace_as_metadata": true,
-                "type": "bool",
-                "value": true
-              },
-              "check_response_status": {
-                "_input_type": "BoolInput",
-                "advanced": true,
-                "display_name": "Check Response Status",
-                "dynamic": false,
-                "info": "If enabled, checks the response status of the request.",
-                "list": false,
-                "list_add_label": "Add More",
-                "name": "check_response_status",
-                "placeholder": "",
-                "required": false,
-                "show": true,
-                "title_case": false,
-                "tool_mode": false,
-                "trace_as_metadata": true,
-                "type": "bool",
-                "value": false
+                "type": "str",
+                "value": ""
               },
               "code": {
-                "advanced": true,
+                "advanced": false,
                 "dynamic": true,
                 "fileTypes": [],
                 "file_path": "",
@@ -1651,77 +1822,106 @@
                 "name": "code",
                 "password": false,
                 "placeholder": "",
-                "required": true,
+                "required": false,
                 "show": true,
                 "title_case": false,
                 "type": "code",
-                "value": "import re\n\nimport requests\nfrom bs4 import BeautifulSoup\nfrom langchain_community.document_loaders import RecursiveUrlLoader\nfrom loguru import logger\n\nfrom langflow.custom import Component\nfrom langflow.field_typing.range_spec import RangeSpec\nfrom langflow.helpers.data import safe_convert\nfrom langflow.io import BoolInput, DropdownInput, IntInput, MessageTextInput, Output, SliderInput, TableInput\nfrom langflow.schema import DataFrame, Message\nfrom langflow.services.deps import get_settings_service\n\n# Constants\nDEFAULT_TIMEOUT = 30\nDEFAULT_MAX_DEPTH = 1\nDEFAULT_FORMAT = \"Text\"\nURL_REGEX = re.compile(\n    r\"^(https?:\\/\\/)?\" r\"(www\\.)?\" r\"([a-zA-Z0-9.-]+)\" r\"(\\.[a-zA-Z]{2,})?\" r\"(:\\d+)?\" r\"(\\/[^\\s]*)?$\",\n    re.IGNORECASE,\n)\n\n\nclass URLComponent(Component):\n    \"\"\"A component that loads and parses content from web pages recursively.\n\n    This component allows fetching content from one or more URLs, with options to:\n    - Control crawl depth\n    - Prevent crawling outside the root domain\n    - Use async loading for better performance\n    - Extract either raw HTML or clean text\n    - Configure request headers and timeouts\n    \"\"\"\n\n    display_name = \"URL\"\n    description = \"Fetch content from one or more web pages, following links recursively.\"\n    icon = \"layout-template\"\n    name = \"URLComponent\"\n\n    inputs = [\n        MessageTextInput(\n            name=\"urls\",\n            display_name=\"URLs\",\n            info=\"Enter one or more URLs to crawl recursively, by clicking the '+' button.\",\n            is_list=True,\n            tool_mode=True,\n            placeholder=\"Enter a URL...\",\n            list_add_label=\"Add URL\",\n            input_types=[],\n        ),\n        SliderInput(\n            name=\"max_depth\",\n            display_name=\"Depth\",\n            info=(\n                \"Controls how many 'clicks' away from the initial page the crawler will go:\\n\"\n                \"- depth 1: only the initial page\\n\"\n                \"- depth 2: initial page + all pages linked directly from it\\n\"\n                \"- depth 3: initial page + direct links + links found on those direct link pages\\n\"\n                \"Note: This is about link traversal, not URL path depth.\"\n            ),\n            value=DEFAULT_MAX_DEPTH,\n            range_spec=RangeSpec(min=1, max=5, step=1),\n            required=False,\n            min_label=\" \",\n            max_label=\" \",\n            min_label_icon=\"None\",\n            max_label_icon=\"None\",\n            # slider_input=True\n        ),\n        BoolInput(\n            name=\"prevent_outside\",\n            display_name=\"Prevent Outside\",\n            info=(\n                \"If enabled, only crawls URLs within the same domain as the root URL. \"\n                \"This helps prevent the crawler from going to external websites.\"\n            ),\n            value=True,\n            required=False,\n            advanced=True,\n        ),\n        BoolInput(\n            name=\"use_async\",\n            display_name=\"Use Async\",\n            info=(\n                \"If enabled, uses asynchronous loading which can be significantly faster \"\n                \"but might use more system resources.\"\n            ),\n            value=True,\n            required=False,\n            advanced=True,\n        ),\n        DropdownInput(\n            name=\"format\",\n            display_name=\"Output Format\",\n            info=\"Output Format. Use 'Text' to extract the text from the HTML or 'HTML' for the raw HTML content.\",\n            options=[\"Text\", \"HTML\"],\n            value=DEFAULT_FORMAT,\n            advanced=True,\n        ),\n        IntInput(\n            name=\"timeout\",\n            display_name=\"Timeout\",\n            info=\"Timeout for the request in seconds.\",\n            value=DEFAULT_TIMEOUT,\n            required=False,\n            advanced=True,\n        ),\n        TableInput(\n            name=\"headers\",\n            display_name=\"Headers\",\n            info=\"The headers to send with the request\",\n            table_schema=[\n                {\n                    \"name\": \"key\",\n                    \"display_name\": \"Header\",\n                    \"type\": \"str\",\n                    \"description\": \"Header name\",\n                },\n                {\n                    \"name\": \"value\",\n                    \"display_name\": \"Value\",\n                    \"type\": \"str\",\n                    \"description\": \"Header value\",\n                },\n            ],\n            value=[{\"key\": \"User-Agent\", \"value\": get_settings_service().settings.user_agent}],\n            advanced=True,\n            input_types=[\"DataFrame\"],\n        ),\n        BoolInput(\n            name=\"filter_text_html\",\n            display_name=\"Filter Text/HTML\",\n            info=\"If enabled, filters out text/css content type from the results.\",\n            value=True,\n            required=False,\n            advanced=True,\n        ),\n        BoolInput(\n            name=\"continue_on_failure\",\n            display_name=\"Continue on Failure\",\n            info=\"If enabled, continues crawling even if some requests fail.\",\n            value=True,\n            required=False,\n            advanced=True,\n        ),\n        BoolInput(\n            name=\"check_response_status\",\n            display_name=\"Check Response Status\",\n            info=\"If enabled, checks the response status of the request.\",\n            value=False,\n            required=False,\n            advanced=True,\n        ),\n        BoolInput(\n            name=\"autoset_encoding\",\n            display_name=\"Autoset Encoding\",\n            info=\"If enabled, automatically sets the encoding of the request.\",\n            value=True,\n            required=False,\n            advanced=True,\n        ),\n    ]\n\n    outputs = [\n        Output(display_name=\"Result\", name=\"page_results\", method=\"fetch_content\"),\n        Output(display_name=\"Raw Result\", name=\"raw_results\", method=\"as_message\"),\n    ]\n\n    @staticmethod\n    def validate_url(url: str) -> bool:\n        \"\"\"Validates if the given string matches URL pattern.\n\n        Args:\n            url: The URL string to validate\n\n        Returns:\n            bool: True if the URL is valid, False otherwise\n        \"\"\"\n        return bool(URL_REGEX.match(url))\n\n    def ensure_url(self, url: str) -> str:\n        \"\"\"Ensures the given string is a valid URL.\n\n        Args:\n            url: The URL string to validate and normalize\n\n        Returns:\n            str: The normalized URL\n\n        Raises:\n            ValueError: If the URL is invalid\n        \"\"\"\n        url = url.strip()\n        if not url.startswith((\"http://\", \"https://\")):\n            url = \"https://\" + url\n\n        if not self.validate_url(url):\n            msg = f\"Invalid URL: {url}\"\n            raise ValueError(msg)\n\n        return url\n\n    def _create_loader(self, url: str) -> RecursiveUrlLoader:\n        \"\"\"Creates a RecursiveUrlLoader instance with the configured settings.\n\n        Args:\n            url: The URL to load\n\n        Returns:\n            RecursiveUrlLoader: Configured loader instance\n        \"\"\"\n        headers_dict = {header[\"key\"]: header[\"value\"] for header in self.headers}\n        extractor = (lambda x: x) if self.format == \"HTML\" else (lambda x: BeautifulSoup(x, \"lxml\").get_text())\n\n        return RecursiveUrlLoader(\n            url=url,\n            max_depth=self.max_depth,\n            prevent_outside=self.prevent_outside,\n            use_async=self.use_async,\n            extractor=extractor,\n            timeout=self.timeout,\n            headers=headers_dict,\n            check_response_status=self.check_response_status,\n            continue_on_failure=self.continue_on_failure,\n            base_url=url,  # Add base_url to ensure consistent domain crawling\n            autoset_encoding=self.autoset_encoding,  # Enable automatic encoding detection\n            exclude_dirs=[],  # Allow customization of excluded directories\n            link_regex=None,  # Allow customization of link filtering\n        )\n\n    def fetch_url_contents(self) -> list[dict]:\n        \"\"\"Load documents from the configured URLs.\n\n        Returns:\n            List[Data]: List of Data objects containing the fetched content\n\n        Raises:\n            ValueError: If no valid URLs are provided or if there's an error loading documents\n        \"\"\"\n        try:\n            urls = list({self.ensure_url(url) for url in self.urls if url.strip()})\n            logger.info(f\"URLs: {urls}\")\n            if not urls:\n                msg = \"No valid URLs provided.\"\n                raise ValueError(msg)\n\n            all_docs = []\n            for url in urls:\n                logger.info(f\"Loading documents from {url}\")\n\n                try:\n                    loader = self._create_loader(url)\n                    docs = loader.load()\n\n                    if not docs:\n                        logger.warning(f\"No documents found for {url}\")\n                        continue\n\n                    logger.info(f\"Found {len(docs)} documents from {url}\")\n                    all_docs.extend(docs)\n\n                except requests.exceptions.RequestException as e:\n                    logger.exception(f\"Error loading documents from {url}: {e}\")\n                    continue\n\n            if not all_docs:\n                msg = \"No documents were successfully loaded from any URL\"\n                raise ValueError(msg)\n\n            # data = [Data(text=doc.page_content, **doc.metadata) for doc in all_docs]\n            data = [\n                {\n                    \"text\": safe_convert(doc.page_content, clean_data=True),\n                    \"url\": doc.metadata.get(\"source\", \"\"),\n                    \"title\": doc.metadata.get(\"title\", \"\"),\n                    \"description\": doc.metadata.get(\"description\", \"\"),\n                    \"content_type\": doc.metadata.get(\"content_type\", \"\"),\n                    \"language\": doc.metadata.get(\"language\", \"\"),\n                }\n                for doc in all_docs\n            ]\n        except Exception as e:\n            error_msg = e.message if hasattr(e, \"message\") else e\n            msg = f\"Error loading documents: {error_msg!s}\"\n            logger.exception(msg)\n            raise ValueError(msg) from e\n        return data\n\n    def fetch_content(self) -> DataFrame:\n        \"\"\"Convert the documents to a DataFrame.\"\"\"\n        return DataFrame(data=self.fetch_url_contents())\n\n    def as_message(self) -> Message:\n        \"\"\"Convert the documents to a Message.\"\"\"\n        url_contents = self.fetch_url_contents()\n        return Message(text=\"\\n\\n\".join([x[\"text\"] for x in url_contents]), data={\"data\": url_contents})\n"
+                "value": "import json\nimport os\nfrom typing import Any\nfrom urllib.parse import urljoin, urlparse\n\nimport i18n\nimport requests\nfrom bs4 import BeautifulSoup\n\nfrom lfx.custom.custom_component.component import Component\nfrom lfx.io import BoolInput, DropdownInput, IntInput, MessageTextInput, MultilineInput, Output\nfrom lfx.schema.data import Data\n\n\nclass URLComponent(Component):\n    ignore: bool = os.getenv(\"LANGFLOW_IGNORE_COMPONENT\", \"false\") == \"true\"\n    display_name = i18n.t(\"components.data.url.display_name\")\n    description = i18n.t(\"components.data.url.description\")\n    icon = \"link\"\n    name = \"URL\"\n\n    inputs = [\n        MessageTextInput(\n            name=\"urls\",\n            display_name=i18n.t(\"components.data.url.urls.display_name\"),\n            info=i18n.t(\"components.data.url.urls.info\"),\n            required=True,\n            placeholder=\"https://example.com,https://example2.com\",\n        ),\n        DropdownInput(\n            name=\"method\",\n            display_name=i18n.t(\"components.data.url.method.display_name\"),\n            info=i18n.t(\"components.data.url.method.info\"),\n            options=[\"GET\", \"POST\", \"PUT\", \"DELETE\", \"PATCH\"],\n            value=\"GET\",\n        ),\n        MultilineInput(\n            name=\"headers\",\n            display_name=i18n.t(\"components.data.url.headers.display_name\"),\n            info=i18n.t(\"components.data.url.headers.info\"),\n            placeholder='{\"User-Agent\": \"MyBot 1.0\", \"Accept\": \"text/html\"}',\n            advanced=True,\n        ),\n        MultilineInput(\n            name=\"body\",\n            display_name=i18n.t(\"components.data.url.body.display_name\"),\n            info=i18n.t(\"components.data.url.body.info\"),\n            placeholder='{\"key\": \"value\"}',\n            advanced=True,\n        ),\n        IntInput(\n            name=\"timeout\",\n            display_name=i18n.t(\"components.data.url.timeout.display_name\"),\n            info=i18n.t(\"components.data.url.timeout.info\"),\n            value=30,\n            range_spec={\"min\": 1, \"max\": 300},\n            advanced=True,\n        ),\n        BoolInput(\n            name=\"follow_redirects\",\n            display_name=i18n.t(\"components.data.url.follow_redirects.display_name\"),\n            info=i18n.t(\"components.data.url.follow_redirects.info\"),\n            value=True,\n            advanced=True,\n        ),\n        BoolInput(\n            name=\"verify_ssl\",\n            display_name=i18n.t(\"components.data.url.verify_ssl.display_name\"),\n            info=i18n.t(\"components.data.url.verify_ssl.info\"),\n            value=True,\n            advanced=True,\n        ),\n        DropdownInput(\n            name=\"content_type\",\n            display_name=i18n.t(\"components.data.url.content_type.display_name\"),\n            info=i18n.t(\"components.data.url.content_type.info\"),\n            options=[\"auto\", \"text\", \"html\", \"json\", \"xml\"],\n            value=\"auto\",\n            advanced=True,\n        ),\n        BoolInput(\n            name=\"extract_metadata\",\n            display_name=i18n.t(\"components.data.url.extract_metadata.display_name\"),\n            info=i18n.t(\"components.data.url.extract_metadata.info\"),\n            value=True,\n            advanced=True,\n        ),\n        BoolInput(\n            name=\"extract_links\",\n            display_name=i18n.t(\"components.data.url.extract_links.display_name\"),\n            info=i18n.t(\"components.data.url.extract_links.info\"),\n            value=False,\n            advanced=True,\n        ),\n        IntInput(\n            name=\"max_content_length\",\n            display_name=i18n.t(\"components.data.url.max_content_length.display_name\"),\n            info=i18n.t(\"components.data.url.max_content_length.info\"),\n            value=1048576,  # 1MB\n            range_spec={\"min\": 1024, \"max\": 10485760},  # 1KB to 10MB\n            advanced=True,\n        ),\n        MessageTextInput(\n            name=\"text_key\",\n            display_name=i18n.t(\"components.data.url.text_key.display_name\"),\n            info=i18n.t(\"components.data.url.text_key.info\"),\n            value=\"content\",\n            advanced=True,\n        ),\n    ]\n\n    outputs = [\n        Output(\n            name=\"data\", display_name=i18n.t(\"components.data.url.outputs.data.display_name\"), method=\"fetch_url_data\"\n        ),\n        Output(\n            name=\"response_info\",\n            display_name=i18n.t(\"components.data.url.outputs.response_info.display_name\"),\n            method=\"get_response_info\",\n        ),\n    ]\n\n    def fetch_url_data(self) -> list[Data]:\n        \"\"\"Fetch data from URLs and return as Data objects.\"\"\"\n        try:\n            if not self.urls.strip():\n                error_message = i18n.t(\"components.data.url.errors.empty_urls\")\n                self.status = error_message\n                raise ValueError(error_message)\n\n            # Parse URLs\n            url_list = [url.strip() for url in self.urls.split(\",\") if url.strip()]\n\n            if not url_list:\n                error_message = i18n.t(\"components.data.url.errors.no_valid_urls\")\n                self.status = error_message\n                raise ValueError(error_message)\n\n            # Parse headers\n            headers = self._parse_headers()\n\n            # Parse body\n            body = self._parse_body()\n\n            results = []\n            successful_requests = 0\n\n            for url in url_list:\n                try:\n                    # Validate URL\n                    parsed_url = urlparse(url)\n                    if not parsed_url.scheme or not parsed_url.netloc:\n                        warning_message = i18n.t(\"components.data.url.warnings.invalid_url\", url=url)\n                        self.status = warning_message\n                        continue\n\n                    # Make request\n                    response = self._make_request(url, headers, body)\n\n                    # Process response\n                    data_dict = self._process_response(url, response)\n\n                    results.append(Data(data=data_dict, text_key=self.text_key))\n                    successful_requests += 1\n\n                except requests.RequestException as e:\n                    warning_message = i18n.t(\"components.data.url.warnings.request_failed\", url=url, error=str(e))\n                    self.status = warning_message\n                    # Continue with other URLs\n                    continue\n\n            if not results:\n                error_message = i18n.t(\"components.data.url.errors.no_successful_requests\")\n                self.status = error_message\n                return []\n\n            success_message = i18n.t(\n                \"components.data.url.success.fetched_data\", successful=successful_requests, total=len(url_list)\n            )\n            self.status = success_message\n            return results\n\n        except Exception as e:\n            error_message = i18n.t(\"components.data.url.errors.fetch_error\", error=str(e))\n            self.status = error_message\n            raise ValueError(error_message) from e\n\n    def get_response_info(self) -> list[Data]:\n        \"\"\"Get response information for URLs.\"\"\"\n        try:\n            if not self.urls.strip():\n                error_message = i18n.t(\"components.data.url.errors.empty_urls\")\n                raise ValueError(error_message)\n\n            url_list = [url.strip() for url in self.urls.split(\",\") if url.strip()]\n            headers = self._parse_headers()\n            body = self._parse_body()\n\n            results = []\n\n            for url in url_list:\n                try:\n                    response = self._make_request(url, headers, body)\n\n                    info_dict = {\n                        \"url\": url,\n                        \"status_code\": response.status_code,\n                        \"status_text\": response.reason,\n                        \"headers\": dict(response.headers),\n                        \"content_type\": response.headers.get(\"content-type\", \"\"),\n                        \"content_length\": len(response.content),\n                        \"encoding\": response.encoding,\n                        \"elapsed_time\": response.elapsed.total_seconds(),\n                        \"final_url\": response.url,\n                        \"history\": [r.url for r in response.history],\n                    }\n\n                    results.append(Data(data=info_dict, text_key=\"url\"))\n\n                except requests.RequestException as e:\n                    error_dict = {\"url\": url, \"error\": str(e), \"status\": \"failed\"}\n                    results.append(Data(data=error_dict, text_key=\"url\"))\n\n            return results\n\n        except Exception as e:\n            error_message = i18n.t(\"components.data.url.errors.response_info_error\", error=str(e))\n            raise ValueError(error_message) from e\n\n    def _parse_headers(self) -> dict[str, str]:\n        \"\"\"Parse headers from JSON string.\"\"\"\n        if not self.headers.strip():\n            return {}\n\n        try:\n            return json.loads(self.headers)\n        except json.JSONDecodeError as e:\n            warning_message = i18n.t(\"components.data.url.warnings.invalid_headers\", error=str(e))\n            self.status = warning_message\n            return {}\n\n    def _parse_body(self) -> str | None:\n        \"\"\"Parse body content.\"\"\"\n        if not self.body.strip():\n            return None\n\n        try:\n            # Try to parse as JSON to validate\n            json.loads(self.body)\n            return self.body\n        except json.JSONDecodeError:\n            # Return as plain text if not JSON\n            return self.body\n\n    def _make_request(self, url: str, headers: dict[str, str], body: str | None) -> requests.Response:\n        \"\"\"Make HTTP request to URL.\"\"\"\n        request_kwargs = {\n            \"timeout\": self.timeout,\n            \"allow_redirects\": self.follow_redirects,\n            \"verify\": self.verify_ssl,\n            \"headers\": headers,\n        }\n\n        if body and self.method.upper() in [\"POST\", \"PUT\", \"PATCH\"]:\n            # Try to send as JSON if possible, otherwise as text\n            try:\n                json.loads(body)\n                request_kwargs[\"json\"] = json.loads(body)\n            except json.JSONDecodeError:\n                request_kwargs[\"data\"] = body\n\n        response = requests.request(self.method.upper(), url, **request_kwargs)\n\n        # Check content length\n        if len(response.content) > self.max_content_length:\n            warning_message = i18n.t(\n                \"components.data.url.warnings.content_too_large\",\n                size=len(response.content),\n                max_size=self.max_content_length,\n            )\n            self.status = warning_message\n\n        response.raise_for_status()\n        return response\n\n    def _process_response(self, url: str, response: requests.Response) -> dict[str, Any]:\n        \"\"\"Process HTTP response and extract data.\"\"\"\n        data_dict = {\n            \"url\": url,\n            \"status_code\": response.status_code,\n            \"content_type\": response.headers.get(\"content-type\", \"\"),\n            \"content_length\": len(response.content),\n        }\n\n        # Determine content type\n        content_type = self.content_type\n        if content_type == \"auto\":\n            response_content_type = response.headers.get(\"content-type\", \"\").lower()\n            if \"application/json\" in response_content_type:\n                content_type = \"json\"\n            elif \"text/html\" in response_content_type:\n                content_type = \"html\"\n            elif \"application/xml\" in response_content_type or \"text/xml\" in response_content_type:\n                content_type = \"xml\"\n            else:\n                content_type = \"text\"\n\n        # Process content based on type\n        try:\n            if content_type == \"json\":\n                data_dict[\"content\"] = response.json()\n                data_dict[\"raw_content\"] = response.text\n            elif content_type == \"html\":\n                soup = BeautifulSoup(response.text, \"html.parser\")\n                data_dict[\"content\"] = soup.get_text(strip=True)\n                data_dict[\"raw_content\"] = response.text\n\n                if self.extract_metadata:\n                    data_dict[\"metadata\"] = self._extract_html_metadata(soup)\n\n                if self.extract_links:\n                    data_dict[\"links\"] = self._extract_links(soup, url)\n\n            elif content_type == \"xml\":\n                data_dict[\"content\"] = response.text\n                data_dict[\"raw_content\"] = response.text\n            else:  # text\n                data_dict[\"content\"] = response.text\n                data_dict[\"raw_content\"] = response.text\n\n        except Exception as e:\n            # Fallback to raw text if processing fails\n            data_dict[\"content\"] = response.text\n            data_dict[\"raw_content\"] = response.text\n            data_dict[\"processing_error\"] = str(e)\n\n        return data_dict\n\n    def _extract_html_metadata(self, soup: BeautifulSoup) -> dict[str, str]:\n        \"\"\"Extract metadata from HTML.\"\"\"\n        metadata = {}\n\n        # Title\n        title_tag = soup.find(\"title\")\n        if title_tag:\n            metadata[\"title\"] = title_tag.get_text(strip=True)\n\n        # Meta tags\n        meta_tags = soup.find_all(\"meta\")\n        for tag in meta_tags:\n            name = tag.get(\"name\") or tag.get(\"property\") or tag.get(\"http-equiv\")\n            content = tag.get(\"content\")\n            if name and content:\n                metadata[name] = content\n\n        return metadata\n\n    def _extract_links(self, soup: BeautifulSoup, base_url: str) -> list[str]:\n        \"\"\"Extract links from HTML.\"\"\"\n        links = []\n\n        for link_tag in soup.find_all(\"a\", href=True):\n            href = link_tag[\"href\"]\n            # Convert relative URLs to absolute\n            absolute_url = urljoin(base_url, href)\n            links.append(absolute_url)\n\n        return list(set(links))  # Remove duplicates\n"
               },
-              "continue_on_failure": {
-                "_input_type": "BoolInput",
-                "advanced": true,
-                "display_name": "Continue on Failure",
-                "dynamic": false,
-                "info": "If enabled, continues crawling even if some requests fail.",
-                "list": false,
-                "list_add_label": "Add More",
-                "name": "continue_on_failure",
-                "placeholder": "",
-                "required": false,
-                "show": true,
-                "title_case": false,
-                "tool_mode": false,
-                "trace_as_metadata": true,
-                "type": "bool",
-                "value": true
-              },
-              "filter_text_html": {
-                "_input_type": "BoolInput",
-                "advanced": true,
-                "display_name": "Filter Text/HTML",
-                "dynamic": false,
-                "info": "If enabled, filters out text/css content type from the results.",
-                "list": false,
-                "list_add_label": "Add More",
-                "name": "filter_text_html",
-                "placeholder": "",
-                "required": false,
-                "show": true,
-                "title_case": false,
-                "tool_mode": false,
-                "trace_as_metadata": true,
-                "type": "bool",
-                "value": true
-              },
-              "format": {
+              "content_type": {
                 "_input_type": "DropdownInput",
                 "advanced": true,
                 "combobox": false,
-                "display_name": "Output Format",
+                "dialog_inputs": {},
+                "display_name": "内容类型",
                 "dynamic": false,
-                "info": "Output Format. Use 'Text' to extract the text from the HTML or 'HTML' for the raw HTML content.",
-                "name": "format",
+                "external_options": {},
+                "info": "如何处理响应内容。'自动'将根据响应头进行检测。",
+                "input_group": "default",
+                "name": "content_type",
                 "options": [
-                  "Text",
-                  "HTML"
+                  "auto",
+                  "text",
+                  "html",
+                  "json",
+                  "xml"
                 ],
+                "options_metadata": [],
+                "placeholder": "",
+                "required": false,
+                "show": true,
+                "title_case": false,
+                "toggle": false,
+                "tool_mode": false,
+                "trace_as_metadata": true,
+                "type": "str",
+                "value": "auto"
+              },
+              "extract_links": {
+                "_input_type": "BoolInput",
+                "advanced": true,
+                "display_name": "提取链接",
+                "dynamic": false,
+                "info": "是否从HTML页面提取所有链接。",
+                "input_group": "default",
+                "list": false,
+                "list_add_label": "添加更多",
+                "name": "extract_links",
                 "placeholder": "",
                 "required": false,
                 "show": true,
                 "title_case": false,
                 "tool_mode": false,
                 "trace_as_metadata": true,
-                "type": "str",
-                "value": "Text"
+                "type": "bool",
+                "value": false
+              },
+              "extract_metadata": {
+                "_input_type": "BoolInput",
+                "advanced": true,
+                "display_name": "提取元数据",
+                "dynamic": false,
+                "info": "是否从HTML页面提取元数据（标题、元标签等）。",
+                "input_group": "default",
+                "list": false,
+                "list_add_label": "添加更多",
+                "name": "extract_metadata",
+                "placeholder": "",
+                "required": false,
+                "show": true,
+                "title_case": false,
+                "tool_mode": false,
+                "trace_as_metadata": true,
+                "type": "bool",
+                "value": true
+              },
+              "follow_redirects": {
+                "_input_type": "BoolInput",
+                "advanced": true,
+                "display_name": "跟随重定向",
+                "dynamic": false,
+                "info": "是否自动跟随HTTP重定向。",
+                "input_group": "default",
+                "list": false,
+                "list_add_label": "添加更多",
+                "name": "follow_redirects",
+                "placeholder": "",
+                "required": false,
+                "show": true,
+                "title_case": false,
+                "tool_mode": false,
+                "trace_as_metadata": true,
+                "type": "bool",
+                "value": true
               },
               "headers": {
                 "_input_type": "TableInput",
                 "advanced": true,
-                "display_name": "Headers",
+                "display_name": "请求头",
                 "dynamic": false,
-                "info": "The headers to send with the request",
+                "info": "作为JSON对象包含在请求中的HTTP头。示例：{\"User-Agent\": \"MyBot 1.0\"}",
                 "input_types": [
-                  "DataFrame"
+                  "Message"
                 ],
                 "is_list": true,
                 "list_add_label": "Add More",
@@ -1773,58 +1973,90 @@
                   }
                 ]
               },
-              "max_depth": {
-                "_input_type": "SliderInput",
-                "advanced": false,
-                "display_name": "Depth",
+              "max_content_length": {
+                "_input_type": "IntInput",
+                "advanced": true,
+                "display_name": "最大内容长度",
                 "dynamic": false,
-                "info": "Controls how many 'clicks' away from the initial page the crawler will go:\n- depth 1: only the initial page\n- depth 2: initial page + all pages linked directly from it\n- depth 3: initial page + direct links + links found on those direct link pages\nNote: This is about link traversal, not URL path depth.",
-                "max_label": " ",
-                "max_label_icon": "None",
-                "min_label": " ",
-                "min_label_icon": "None",
-                "name": "max_depth",
+                "info": "允许的最大响应内容长度（字节）。",
+                "input_group": "default",
+                "list": false,
+                "list_add_label": "添加更多",
+                "name": "max_content_length",
                 "placeholder": "",
                 "range_spec": {
-                  "max": 5,
-                  "min": 1,
-                  "step": 1,
+                  "max": 10485760.0,
+                  "min": 1024.0,
+                  "step": 0.1,
                   "step_type": "float"
                 },
-                "required": false,
-                "show": true,
-                "slider_buttons": false,
-                "slider_buttons_options": [],
-                "slider_input": false,
-                "title_case": false,
-                "tool_mode": false,
-                "type": "slider",
-                "value": 1
-              },
-              "prevent_outside": {
-                "_input_type": "BoolInput",
-                "advanced": true,
-                "display_name": "Prevent Outside",
-                "dynamic": false,
-                "info": "If enabled, only crawls URLs within the same domain as the root URL. This helps prevent the crawler from going to external websites.",
-                "list": false,
-                "list_add_label": "Add More",
-                "name": "prevent_outside",
-                "placeholder": "",
                 "required": false,
                 "show": true,
                 "title_case": false,
                 "tool_mode": false,
                 "trace_as_metadata": true,
-                "type": "bool",
-                "value": true
+                "type": "int",
+                "value": 1048576
+              },
+              "method": {
+                "_input_type": "DropdownInput",
+                "advanced": false,
+                "combobox": false,
+                "dialog_inputs": {},
+                "display_name": "HTTP方法",
+                "dynamic": false,
+                "external_options": {},
+                "info": "用于请求的HTTP方法（GET、POST、PUT、DELETE、PATCH）。",
+                "input_group": "default",
+                "name": "method",
+                "options": [
+                  "GET",
+                  "POST",
+                  "PUT",
+                  "DELETE",
+                  "PATCH"
+                ],
+                "options_metadata": [],
+                "placeholder": "",
+                "required": false,
+                "show": true,
+                "title_case": false,
+                "toggle": false,
+                "tool_mode": false,
+                "trace_as_metadata": true,
+                "type": "str",
+                "value": "GET"
+              },
+              "text_key": {
+                "_input_type": "MessageTextInput",
+                "advanced": true,
+                "display_name": "文本键",
+                "dynamic": false,
+                "info": "用于数据对象中文本字段的键。",
+                "input_group": "default",
+                "input_types": [
+                  "Message"
+                ],
+                "list": false,
+                "list_add_label": "添加更多",
+                "load_from_db": false,
+                "name": "text_key",
+                "placeholder": "",
+                "required": false,
+                "show": true,
+                "title_case": false,
+                "tool_mode": false,
+                "trace_as_input": true,
+                "trace_as_metadata": true,
+                "type": "str",
+                "value": "content"
               },
               "timeout": {
                 "_input_type": "IntInput",
                 "advanced": true,
-                "display_name": "Timeout",
+                "display_name": "超时时间（秒）",
                 "dynamic": false,
-                "info": "Timeout for the request in seconds.",
+                "info": "请求超时时间（秒）。",
                 "list": false,
                 "list_add_label": "Add More",
                 "name": "timeout",
@@ -1840,15 +2072,17 @@
               "urls": {
                 "_input_type": "MessageTextInput",
                 "advanced": false,
-                "display_name": "URLs",
+                "display_name": "URL地址",
                 "dynamic": false,
-                "info": "Enter one or more URLs to crawl recursively, by clicking the '+' button.",
-                "input_types": [],
-                "list": true,
+                "info": "要获取数据的URL地址列表，用逗号分隔。",
+                "input_types": [
+                  "Message"
+                ],
+                "list": false,
                 "load_from_db": false,
                 "name": "urls",
                 "placeholder": "",
-                "required": false,
+                "required": true,
                 "show": true,
                 "title_case": false,
                 "tool_mode": true,
@@ -1859,15 +2093,16 @@
                   "https://raw.githubusercontent.com/langflow-ai/langflow/refs/heads/main/src/backend/base/langflow/components/custom_component/custom_component.py"
                 ]
               },
-              "use_async": {
+              "verify_ssl": {
                 "_input_type": "BoolInput",
                 "advanced": true,
-                "display_name": "Use Async",
+                "display_name": "验证SSL",
                 "dynamic": false,
-                "info": "If enabled, uses asynchronous loading which can be significantly faster but might use more system resources.",
+                "info": "是否验证HTTPS请求的SSL证书。",
+                "input_group": "default",
                 "list": false,
-                "list_add_label": "Add More",
-                "name": "use_async",
+                "list_add_label": "添加更多",
+                "name": "verify_ssl",
                 "placeholder": "",
                 "required": false,
                 "show": true,

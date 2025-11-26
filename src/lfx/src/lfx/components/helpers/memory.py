@@ -312,6 +312,7 @@ class MemoryComponent(Component):
         build_config: dotdict,
         field_value: Any,  # noqa: ARG002
         field_name: str | None = None,  # noqa: ARG002
+        action: str | None = None,
     ) -> dotdict:
         return set_current_fields(
             build_config=build_config,

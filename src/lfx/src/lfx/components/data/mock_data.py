@@ -75,7 +75,7 @@ class MockDataGeneratorComponent(Component):
     ]
 
     def update_build_config(
-        self, build_config: dict[str, Any], field_value: Any, field_name: str | None = None
+        self, build_config: dict[str, Any], field_value: Any, field_name: str | None = None, action: str | None = None
     ) -> dict[str, Any]:
         """Show/hide custom schema field based on data type selection."""
         if field_name == "data_type":

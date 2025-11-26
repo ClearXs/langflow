@@ -300,7 +300,7 @@
             "beta": false,
             "conditional_paths": [],
             "custom_fields": {},
-            "description": "Poll for the status of a transcription job using AssemblyAI",
+            "description": "使用AssemblyAI轮询转录任务的状态",
             "display_name": "AssemblyAI Poll Transcript",
             "documentation": "https://www.assemblyai.com/docs",
             "edited": false,
@@ -314,7 +314,7 @@
             "legacy": false,
             "lf_version": "1.1.5",
             "metadata": {
-              "code_hash": "935c9296b149",
+              "code_hash": "00c8d217657b",
               "dependencies": {
                 "dependencies": [
                   {
@@ -322,11 +322,15 @@
                     "version": "0.35.1"
                   },
                   {
+                    "name": "i18n",
+                    "version": "0.16.0"
+                  },
+                  {
                     "name": "lfx",
                     "version": null
                   }
                 ],
-                "total_dependencies": 2
+                "total_dependencies": 3
               },
               "module": "lfx.components.assemblyai.assemblyai_poll_transcript.AssemblyAITranscriptionJobPoller"
             },
@@ -336,7 +340,7 @@
               {
                 "allows_loop": false,
                 "cache": true,
-                "display_name": "Transcription Result",
+                "display_name": "转录结果",
                 "group_outputs": false,
                 "method": "poll_transcription_job",
                 "name": "transcription_result",
@@ -354,9 +358,9 @@
               "api_key": {
                 "_input_type": "SecretStrInput",
                 "advanced": false,
-                "display_name": "Assembly API Key",
+                "display_name": "Assembly API密钥",
                 "dynamic": false,
-                "info": "Your AssemblyAI API key. You can get one from https://www.assemblyai.com/",
+                "info": "您的AssemblyAI API密钥。您可以从https://www.assemblyai.com/获取",
                 "input_types": [],
                 "load_from_db": true,
                 "name": "api_key",
@@ -369,7 +373,7 @@
                 "value": "ASSEMBLYAI_API_KEY"
               },
               "code": {
-                "advanced": true,
+                "advanced": false,
                 "dynamic": true,
                 "fileTypes": [],
                 "file_path": "",
@@ -380,18 +384,18 @@
                 "name": "code",
                 "password": false,
                 "placeholder": "",
-                "required": true,
+                "required": false,
                 "show": true,
                 "title_case": false,
                 "type": "code",
-                "value": "import assemblyai as aai\n\nfrom lfx.custom.custom_component.component import Component\nfrom lfx.field_typing.range_spec import RangeSpec\nfrom lfx.io import DataInput, FloatInput, Output, SecretStrInput\nfrom lfx.log.logger import logger\nfrom lfx.schema.data import Data\n\n\nclass AssemblyAITranscriptionJobPoller(Component):\n    display_name = \"AssemblyAI Poll Transcript\"\n    description = \"Poll for the status of a transcription job using AssemblyAI\"\n    documentation = \"https://www.assemblyai.com/docs\"\n    icon = \"AssemblyAI\"\n\n    inputs = [\n        SecretStrInput(\n            name=\"api_key\",\n            display_name=\"Assembly API Key\",\n            info=\"Your AssemblyAI API key. You can get one from https://www.assemblyai.com/\",\n            required=True,\n        ),\n        DataInput(\n            name=\"transcript_id\",\n            display_name=\"Transcript ID\",\n            info=\"The ID of the transcription job to poll\",\n            required=True,\n        ),\n        FloatInput(\n            name=\"polling_interval\",\n            display_name=\"Polling Interval\",\n            value=3.0,\n            info=\"The polling interval in seconds\",\n            advanced=True,\n            range_spec=RangeSpec(min=3, max=30),\n        ),\n    ]\n\n    outputs = [\n        Output(display_name=\"Transcription Result\", name=\"transcription_result\", method=\"poll_transcription_job\"),\n    ]\n\n    def poll_transcription_job(self) -> Data:\n        \"\"\"Polls the transcription status until completion and returns the Data.\"\"\"\n        aai.settings.api_key = self.api_key\n        aai.settings.polling_interval = self.polling_interval\n\n        # check if it's an error message from the previous step\n        if self.transcript_id.data.get(\"error\"):\n            self.status = self.transcript_id.data[\"error\"]\n            return self.transcript_id\n\n        try:\n            transcript = aai.Transcript.get_by_id(self.transcript_id.data[\"transcript_id\"])\n        except Exception as e:  # noqa: BLE001\n            error = f\"Getting transcription failed: {e}\"\n            logger.debug(error, exc_info=True)\n            self.status = error\n            return Data(data={\"error\": error})\n\n        if transcript.status == aai.TranscriptStatus.completed:\n            json_response = transcript.json_response\n            text = json_response.pop(\"text\", None)\n            utterances = json_response.pop(\"utterances\", None)\n            transcript_id = json_response.pop(\"id\", None)\n            sorted_data = {\"text\": text, \"utterances\": utterances, \"id\": transcript_id}\n            sorted_data.update(json_response)\n            data = Data(data=sorted_data)\n            self.status = data\n            return data\n        self.status = transcript.error\n        return Data(data={\"error\": transcript.error})\n"
+                "value": "import os\n\nimport assemblyai as aai\nimport i18n\n\nfrom lfx.custom.custom_component.component import Component\nfrom lfx.field_typing.range_spec import RangeSpec\nfrom lfx.io import DataInput, FloatInput, Output, SecretStrInput\nfrom lfx.log.logger import logger\nfrom lfx.schema.data import Data\n\n\nclass AssemblyAITranscriptionJobPoller(Component):\n    display_name = i18n.t(\"components.assemblyai.assemblyai_poll_transcript.display_name\")\n    description = i18n.t(\"components.assemblyai.assemblyai_poll_transcript.description\")\n    documentation = \"https://www.assemblyai.com/docs\"\n    icon = \"AssemblyAI\"\n\n    ignore: bool = os.getenv(\"LANGFLOW_IGNORE_COMPONENT\", \"false\") == \"true\"\n\n    inputs = [\n        SecretStrInput(\n            name=\"api_key\",\n            display_name=i18n.t(\"components.assemblyai.assemblyai_poll_transcript.api_key.display_name\"),\n            info=i18n.t(\"components.assemblyai.assemblyai_poll_transcript.api_key.info\"),\n            required=True,\n        ),\n        DataInput(\n            name=\"transcript_id\",\n            display_name=i18n.t(\"components.assemblyai.assemblyai_poll_transcript.transcript_id.display_name\"),\n            info=i18n.t(\"components.assemblyai.assemblyai_poll_transcript.transcript_id.info\"),\n            required=True,\n        ),\n        FloatInput(\n            name=\"polling_interval\",\n            display_name=i18n.t(\"components.assemblyai.assemblyai_poll_transcript.polling_interval.display_name\"),\n            value=3.0,\n            info=i18n.t(\"components.assemblyai.assemblyai_poll_transcript.polling_interval.info\"),\n            advanced=True,\n            range_spec=RangeSpec(min=3, max=30),\n        ),\n    ]\n\n    outputs = [\n        Output(\n            display_name=i18n.t(\n                \"components.assemblyai.assemblyai_poll_transcript.outputs.transcription_result.display_name\"\n            ),\n            name=\"transcription_result\",\n            method=\"poll_transcription_job\",\n        ),\n    ]\n\n    def poll_transcription_job(self) -> Data:\n        \"\"\"Polls the transcription status until completion and returns the Data.\"\"\"\n        try:\n            aai.settings.api_key = self.api_key\n            aai.settings.polling_interval = self.polling_interval\n\n            logger.debug(\n                i18n.t(\n                    \"components.assemblyai.assemblyai_poll_transcript.logs.polling_interval_set\",\n                    interval=self.polling_interval,\n                )\n            )\n\n            # Check if it's an error message from the previous step\n            if self.transcript_id.data.get(\"error\"):\n                error_msg = self.transcript_id.data[\"error\"]\n                logger.warning(\n                    i18n.t(\n                        \"components.assemblyai.assemblyai_poll_transcript.warnings.previous_step_error\", error=error_msg\n                    )\n                )\n                self.status = error_msg\n                return self.transcript_id\n\n            # Get transcript ID\n            if \"transcript_id\" not in self.transcript_id.data:\n                error_msg = i18n.t(\"components.assemblyai.assemblyai_poll_transcript.errors.transcript_id_not_found\")\n                logger.error(error_msg)\n                self.status = error_msg\n                return Data(data={\"error\": error_msg})\n\n            transcript_id = self.transcript_id.data[\"transcript_id\"]\n\n            self.status = i18n.t(\n                \"components.assemblyai.assemblyai_poll_transcript.status.polling_transcript\", id=transcript_id\n            )\n            logger.info(\n                i18n.t(\"components.assemblyai.assemblyai_poll_transcript.logs.polling_started\", id=transcript_id)\n            )\n\n            try:\n                transcript = aai.Transcript.get_by_id(transcript_id)\n            except Exception as e:\n                error_msg = i18n.t(\n                    \"components.assemblyai.assemblyai_poll_transcript.errors.get_transcript_failed\", error=str(e)\n                )\n                logger.error(error_msg, exc_info=True)\n                self.status = error_msg\n                return Data(data={\"error\": error_msg})\n\n            if transcript.status == aai.TranscriptStatus.completed:\n                logger.info(\n                    i18n.t(\n                        \"components.assemblyai.assemblyai_poll_transcript.logs.transcript_completed\", id=transcript_id\n                    )\n                )\n\n                self.status = i18n.t(\"components.assemblyai.assemblyai_poll_transcript.status.processing_result\")\n\n                try:\n                    json_response = transcript.json_response\n                    text = json_response.pop(\"text\", None)\n                    utterances = json_response.pop(\"utterances\", None)\n                    tid = json_response.pop(\"id\", None)\n\n                    # Build sorted data with text and utterances first\n                    sorted_data = {\"text\": text, \"utterances\": utterances, \"id\": tid}\n                    sorted_data.update(json_response)\n\n                    data = Data(data=sorted_data)\n\n                    success_msg = i18n.t(\n                        \"components.assemblyai.assemblyai_poll_transcript.success.transcription_completed\",\n                        id=transcript_id,\n                        length=len(text) if text else 0,\n                    )\n                    logger.info(success_msg)\n                    self.status = data\n\n                    return data\n\n                except Exception as e:\n                    error_msg = i18n.t(\n                        \"components.assemblyai.assemblyai_poll_transcript.errors.process_result_failed\", error=str(e)\n                    )\n                    logger.exception(error_msg)\n                    self.status = error_msg\n                    return Data(data={\"error\": error_msg})\n\n            # Transcript is not completed\n            error_msg = transcript.error or i18n.t(\n                \"components.assemblyai.assemblyai_poll_transcript.errors.transcript_not_completed\",\n                status=transcript.status,\n            )\n            logger.error(\n                i18n.t(\n                    \"components.assemblyai.assemblyai_poll_transcript.logs.transcript_error\",\n                    id=transcript_id,\n                    status=transcript.status,\n                    error=error_msg,\n                )\n            )\n            self.status = error_msg\n            return Data(data={\"error\": error_msg})\n\n        except Exception as e:\n            error_msg = i18n.t(\"components.assemblyai.assemblyai_poll_transcript.errors.poll_failed\", error=str(e))\n            logger.exception(error_msg)\n            self.status = error_msg\n            return Data(data={\"error\": error_msg})\n"
               },
               "polling_interval": {
                 "_input_type": "FloatInput",
                 "advanced": true,
-                "display_name": "Polling Interval",
+                "display_name": "轮询间隔",
                 "dynamic": false,
-                "info": "The polling interval in seconds",
+                "info": "轮询间隔（秒）",
                 "list": false,
                 "list_add_label": "Add More",
                 "name": "polling_interval",
@@ -413,9 +417,9 @@
               "transcript_id": {
                 "_input_type": "DataInput",
                 "advanced": false,
-                "display_name": "Transcript ID",
+                "display_name": "转录ID",
                 "dynamic": false,
-                "info": "The ID of the transcription job to poll",
+                "info": "要轮询的转录任务的ID",
                 "input_types": [
                   "Data"
                 ],
@@ -1578,7 +1582,7 @@
             "beta": false,
             "conditional_paths": [],
             "custom_fields": {},
-            "description": "Stores or retrieves stored chat messages from Langflow tables or an external memory.",
+            "description": "从Langflow表或外部内存中存储或检索聊天消息。",
             "display_name": "Message History",
             "documentation": "",
             "edited": false,
@@ -1596,15 +1600,19 @@
             "legacy": false,
             "lf_version": "1.1.5",
             "metadata": {
-              "code_hash": "efd11fac2416",
+              "code_hash": "e571f0c46616",
               "dependencies": {
                 "dependencies": [
+                  {
+                    "name": "i18n",
+                    "version": "0.16.0"
+                  },
                   {
                     "name": "lfx",
                     "version": null
                   }
                 ],
-                "total_dependencies": 1
+                "total_dependencies": 2
               },
               "module": "lfx.components.helpers.memory.MemoryComponent"
             },
@@ -1614,7 +1622,7 @@
               {
                 "allows_loop": false,
                 "cache": true,
-                "display_name": "Message",
+                "display_name": "消息",
                 "group_outputs": false,
                 "method": "retrieve_messages_as_text",
                 "name": "messages_text",
@@ -1628,7 +1636,7 @@
               {
                 "allows_loop": false,
                 "cache": true,
-                "display_name": "Dataframe",
+                "display_name": "数据框",
                 "group_outputs": false,
                 "method": "retrieve_messages_dataframe",
                 "name": "dataframe",
@@ -1644,7 +1652,7 @@
             "template": {
               "_type": "Component",
               "code": {
-                "advanced": true,
+                "advanced": false,
                 "dynamic": true,
                 "fileTypes": [],
                 "file_path": "",
@@ -1655,18 +1663,18 @@
                 "name": "code",
                 "password": false,
                 "placeholder": "",
-                "required": true,
+                "required": false,
                 "show": true,
                 "title_case": false,
                 "type": "code",
-                "value": "from typing import Any, cast\n\nfrom lfx.custom.custom_component.component import Component\nfrom lfx.helpers.data import data_to_text\nfrom lfx.inputs.inputs import DropdownInput, HandleInput, IntInput, MessageTextInput, MultilineInput, TabInput\nfrom lfx.memory import aget_messages, astore_message\nfrom lfx.schema.data import Data\nfrom lfx.schema.dataframe import DataFrame\nfrom lfx.schema.dotdict import dotdict\nfrom lfx.schema.message import Message\nfrom lfx.template.field.base import Output\nfrom lfx.utils.component_utils import set_current_fields, set_field_display\nfrom lfx.utils.constants import MESSAGE_SENDER_AI, MESSAGE_SENDER_NAME_AI, MESSAGE_SENDER_USER\n\n\nclass MemoryComponent(Component):\n    display_name = \"Message History\"\n    description = \"Stores or retrieves stored chat messages from Langflow tables or an external memory.\"\n    documentation: str = \"https://docs.langflow.org/components-helpers#message-history\"\n    icon = \"message-square-more\"\n    name = \"Memory\"\n    default_keys = [\"mode\", \"memory\", \"session_id\"]\n    mode_config = {\n        \"Store\": [\"message\", \"memory\", \"sender\", \"sender_name\", \"session_id\"],\n        \"Retrieve\": [\"n_messages\", \"order\", \"template\", \"memory\", \"session_id\"],\n    }\n\n    inputs = [\n        TabInput(\n            name=\"mode\",\n            display_name=\"Mode\",\n            options=[\"Retrieve\", \"Store\"],\n            value=\"Retrieve\",\n            info=\"Operation mode: Store messages or Retrieve messages.\",\n            real_time_refresh=True,\n        ),\n        MessageTextInput(\n            name=\"message\",\n            display_name=\"Message\",\n            info=\"The chat message to be stored.\",\n            tool_mode=True,\n            dynamic=True,\n            show=False,\n        ),\n        HandleInput(\n            name=\"memory\",\n            display_name=\"External Memory\",\n            input_types=[\"Memory\"],\n            info=\"Retrieve messages from an external memory. If empty, it will use the Langflow tables.\",\n            advanced=True,\n        ),\n        DropdownInput(\n            name=\"sender_type\",\n            display_name=\"Sender Type\",\n            options=[MESSAGE_SENDER_AI, MESSAGE_SENDER_USER, \"Machine and User\"],\n            value=\"Machine and User\",\n            info=\"Filter by sender type.\",\n            advanced=True,\n        ),\n        MessageTextInput(\n            name=\"sender\",\n            display_name=\"Sender\",\n            info=\"The sender of the message. Might be Machine or User. \"\n            \"If empty, the current sender parameter will be used.\",\n            advanced=True,\n        ),\n        MessageTextInput(\n            name=\"sender_name\",\n            display_name=\"Sender Name\",\n            info=\"Filter by sender name.\",\n            advanced=True,\n            show=False,\n        ),\n        IntInput(\n            name=\"n_messages\",\n            display_name=\"Number of Messages\",\n            value=100,\n            info=\"Number of messages to retrieve.\",\n            advanced=True,\n            show=True,\n        ),\n        MessageTextInput(\n            name=\"session_id\",\n            display_name=\"Session ID\",\n            info=\"The session ID of the chat. If empty, the current session ID parameter will be used.\",\n            value=\"\",\n            advanced=True,\n        ),\n        DropdownInput(\n            name=\"order\",\n            display_name=\"Order\",\n            options=[\"Ascending\", \"Descending\"],\n            value=\"Ascending\",\n            info=\"Order of the messages.\",\n            advanced=True,\n            tool_mode=True,\n            required=True,\n        ),\n        MultilineInput(\n            name=\"template\",\n            display_name=\"Template\",\n            info=\"The template to use for formatting the data. \"\n            \"It can contain the keys {text}, {sender} or any other key in the message data.\",\n            value=\"{sender_name}: {text}\",\n            advanced=True,\n            show=False,\n        ),\n    ]\n\n    outputs = [\n        Output(display_name=\"Message\", name=\"messages_text\", method=\"retrieve_messages_as_text\", dynamic=True),\n        Output(display_name=\"Dataframe\", name=\"dataframe\", method=\"retrieve_messages_dataframe\", dynamic=True),\n    ]\n\n    def update_outputs(self, frontend_node: dict, field_name: str, field_value: Any) -> dict:\n        \"\"\"Dynamically show only the relevant output based on the selected output type.\"\"\"\n        if field_name == \"mode\":\n            # Start with empty outputs\n            frontend_node[\"outputs\"] = []\n            if field_value == \"Store\":\n                frontend_node[\"outputs\"] = [\n                    Output(\n                        display_name=\"Stored Messages\",\n                        name=\"stored_messages\",\n                        method=\"store_message\",\n                        hidden=True,\n                        dynamic=True,\n                    )\n                ]\n            if field_value == \"Retrieve\":\n                frontend_node[\"outputs\"] = [\n                    Output(\n                        display_name=\"Messages\", name=\"messages_text\", method=\"retrieve_messages_as_text\", dynamic=True\n                    ),\n                    Output(\n                        display_name=\"Dataframe\", name=\"dataframe\", method=\"retrieve_messages_dataframe\", dynamic=True\n                    ),\n                ]\n        return frontend_node\n\n    async def store_message(self) -> Message:\n        message = Message(text=self.message) if isinstance(self.message, str) else self.message\n\n        message.session_id = self.session_id or message.session_id\n        message.sender = self.sender or message.sender or MESSAGE_SENDER_AI\n        message.sender_name = self.sender_name or message.sender_name or MESSAGE_SENDER_NAME_AI\n\n        stored_messages: list[Message] = []\n\n        if self.memory:\n            self.memory.session_id = message.session_id\n            lc_message = message.to_lc_message()\n            await self.memory.aadd_messages([lc_message])\n\n            stored_messages = await self.memory.aget_messages() or []\n\n            stored_messages = [Message.from_lc_message(m) for m in stored_messages] if stored_messages else []\n\n            if message.sender:\n                stored_messages = [m for m in stored_messages if m.sender == message.sender]\n        else:\n            await astore_message(message, flow_id=self.graph.flow_id)\n            stored_messages = (\n                await aget_messages(\n                    session_id=message.session_id, sender_name=message.sender_name, sender=message.sender\n                )\n                or []\n            )\n\n        if not stored_messages:\n            msg = \"No messages were stored. Please ensure that the session ID and sender are properly set.\"\n            raise ValueError(msg)\n\n        stored_message = stored_messages[0]\n        self.status = stored_message\n        return stored_message\n\n    async def retrieve_messages(self) -> Data:\n        sender_type = self.sender_type\n        sender_name = self.sender_name\n        session_id = self.session_id\n        n_messages = self.n_messages\n        order = \"DESC\" if self.order == \"Descending\" else \"ASC\"\n\n        if sender_type == \"Machine and User\":\n            sender_type = None\n\n        if self.memory and not hasattr(self.memory, \"aget_messages\"):\n            memory_name = type(self.memory).__name__\n            err_msg = f\"External Memory object ({memory_name}) must have 'aget_messages' method.\"\n            raise AttributeError(err_msg)\n        # Check if n_messages is None or 0\n        if n_messages == 0:\n            stored = []\n        elif self.memory:\n            # override session_id\n            self.memory.session_id = session_id\n\n            stored = await self.memory.aget_messages()\n            # langchain memories are supposed to return messages in ascending order\n\n            if n_messages:\n                stored = stored[-n_messages:]  # Get last N messages first\n\n            if order == \"DESC\":\n                stored = stored[::-1]  # Then reverse if needed\n\n            stored = [Message.from_lc_message(m) for m in stored]\n            if sender_type:\n                expected_type = MESSAGE_SENDER_AI if sender_type == MESSAGE_SENDER_AI else MESSAGE_SENDER_USER\n                stored = [m for m in stored if m.type == expected_type]\n        else:\n            # For internal memory, we always fetch the last N messages by ordering by DESC\n            stored = await aget_messages(\n                sender=sender_type,\n                sender_name=sender_name,\n                session_id=session_id,\n                limit=10000,\n                order=order,\n            )\n            if n_messages:\n                stored = stored[-n_messages:]  # Get last N messages\n\n        # self.status = stored\n        return cast(\"Data\", stored)\n\n    async def retrieve_messages_as_text(self) -> Message:\n        stored_text = data_to_text(self.template, await self.retrieve_messages())\n        # self.status = stored_text\n        return Message(text=stored_text)\n\n    async def retrieve_messages_dataframe(self) -> DataFrame:\n        \"\"\"Convert the retrieved messages into a DataFrame.\n\n        Returns:\n            DataFrame: A DataFrame containing the message data.\n        \"\"\"\n        messages = await self.retrieve_messages()\n        return DataFrame(messages)\n\n    def update_build_config(\n        self,\n        build_config: dotdict,\n        field_value: Any,  # noqa: ARG002\n        field_name: str | None = None,  # noqa: ARG002\n    ) -> dotdict:\n        return set_current_fields(\n            build_config=build_config,\n            action_fields=self.mode_config,\n            selected_action=build_config[\"mode\"][\"value\"],\n            default_fields=self.default_keys,\n            func=set_field_display,\n        )\n"
+                "value": "import os\nfrom typing import Any, cast\n\nimport i18n\n\nfrom lfx.custom.custom_component.component import Component\nfrom lfx.helpers.data import data_to_text\nfrom lfx.inputs.inputs import DropdownInput, HandleInput, IntInput, MessageTextInput, MultilineInput, TabInput\nfrom lfx.memory import aget_messages, astore_message\nfrom lfx.schema.data import Data\nfrom lfx.schema.dataframe import DataFrame\nfrom lfx.schema.dotdict import dotdict\nfrom lfx.schema.message import Message\nfrom lfx.template.field.base import Output\nfrom lfx.utils.component_utils import set_current_fields, set_field_display\nfrom lfx.utils.constants import MESSAGE_SENDER_AI, MESSAGE_SENDER_NAME_AI, MESSAGE_SENDER_USER\n\n\nclass MemoryComponent(Component):\n    ignore: bool = os.getenv(\"LANGFLOW_IGNORE_COMPONENT\", \"false\") == \"true\"\n    display_name = i18n.t(\"components.helpers.memory.display_name\")\n    description = i18n.t(\"components.helpers.memory.description\")\n    documentation: str = \"https://docs.langflow.org/components-helpers#message-history\"\n    icon = \"message-square-more\"\n    name = \"Memory\"\n    default_keys = [\"mode\", \"memory\", \"session_id\"]\n    mode_config = {\n        \"Store\": [\"message\", \"memory\", \"sender\", \"sender_name\", \"session_id\"],\n        \"Retrieve\": [\"n_messages\", \"order\", \"template\", \"memory\", \"session_id\"],\n    }\n\n    inputs = [\n        TabInput(\n            name=\"mode\",\n            display_name=i18n.t(\"components.helpers.memory.mode.display_name\"),\n            options=[i18n.t(\"components.helpers.memory.mode.retrieve\"), i18n.t(\"components.helpers.memory.mode.store\")],\n            value=i18n.t(\"components.helpers.memory.mode.retrieve\"),\n            info=i18n.t(\"components.helpers.memory.mode.info\"),\n            real_time_refresh=True,\n        ),\n        MessageTextInput(\n            name=\"message\",\n            display_name=i18n.t(\"components.helpers.memory.message.display_name\"),\n            info=i18n.t(\"components.helpers.memory.message.info\"),\n            tool_mode=True,\n            dynamic=True,\n            show=False,\n        ),\n        HandleInput(\n            name=\"memory\",\n            display_name=i18n.t(\"components.helpers.memory.external_memory.display_name\"),\n            input_types=[\"Memory\"],\n            info=i18n.t(\"components.helpers.memory.external_memory.info\"),\n            advanced=True,\n        ),\n        DropdownInput(\n            name=\"sender_type\",\n            display_name=i18n.t(\"components.helpers.memory.sender_type.display_name\"),\n            options=[\n                MESSAGE_SENDER_AI,\n                MESSAGE_SENDER_USER,\n                i18n.t(\"components.helpers.memory.sender_type.machine_and_user\"),\n            ],\n            value=i18n.t(\"components.helpers.memory.sender_type.machine_and_user\"),\n            info=i18n.t(\"components.helpers.memory.sender_type.info\"),\n            advanced=True,\n        ),\n        MessageTextInput(\n            name=\"sender\",\n            display_name=i18n.t(\"components.helpers.memory.sender.display_name\"),\n            info=i18n.t(\"components.helpers.memory.sender.info\"),\n            advanced=True,\n        ),\n        MessageTextInput(\n            name=\"sender_name\",\n            display_name=i18n.t(\"components.helpers.memory.sender_name.display_name\"),\n            info=i18n.t(\"components.helpers.memory.sender_name.info\"),\n            advanced=True,\n            show=False,\n        ),\n        IntInput(\n            name=\"n_messages\",\n            display_name=i18n.t(\"components.helpers.memory.n_messages.display_name\"),\n            value=100,\n            info=i18n.t(\"components.helpers.memory.n_messages.info\"),\n            advanced=True,\n            show=True,\n        ),\n        MessageTextInput(\n            name=\"session_id\",\n            display_name=i18n.t(\"components.helpers.memory.session_id.display_name\"),\n            info=i18n.t(\"components.helpers.memory.session_id.info\"),\n            value=\"\",\n            advanced=True,\n        ),\n        DropdownInput(\n            name=\"order\",\n            display_name=i18n.t(\"components.helpers.memory.order.display_name\"),\n            options=[\n                i18n.t(\"components.helpers.memory.order.ascending\"),\n                i18n.t(\"components.helpers.memory.order.descending\"),\n            ],\n            value=i18n.t(\"components.helpers.memory.order.ascending\"),\n            info=i18n.t(\"components.helpers.memory.order.info\"),\n            advanced=True,\n            tool_mode=True,\n            required=True,\n        ),\n        MultilineInput(\n            name=\"template\",\n            display_name=i18n.t(\"components.helpers.memory.template.display_name\"),\n            info=i18n.t(\"components.helpers.memory.template.info\"),\n            value=\"{sender_name}: {text}\",\n            advanced=True,\n            show=False,\n        ),\n    ]\n\n    outputs = [\n        Output(\n            display_name=i18n.t(\"components.helpers.memory.outputs.message.display_name\"),\n            name=\"messages_text\",\n            method=\"retrieve_messages_as_text\",\n            dynamic=True,\n        ),\n        Output(\n            display_name=i18n.t(\"components.helpers.memory.outputs.dataframe.display_name\"),\n            name=\"dataframe\",\n            method=\"retrieve_messages_dataframe\",\n            dynamic=True,\n        ),\n    ]\n\n    def update_outputs(self, frontend_node: dict, field_name: str, field_value: Any) -> dict:\n        \"\"\"Dynamically show only the relevant output based on the selected output type.\"\"\"\n        if field_name == \"mode\":\n            # Start with empty outputs\n            frontend_node[\"outputs\"] = []\n            if field_value in [\"Store\", i18n.t(\"components.helpers.memory.mode.store\")]:\n                frontend_node[\"outputs\"] = [\n                    Output(\n                        display_name=i18n.t(\"components.helpers.memory.outputs.stored_messages.display_name\"),\n                        name=\"stored_messages\",\n                        method=\"store_message\",\n                        hidden=True,\n                        dynamic=True,\n                    )\n                ]\n            if field_value in [\"Retrieve\", i18n.t(\"components.helpers.memory.mode.retrieve\")]:\n                frontend_node[\"outputs\"] = [\n                    Output(\n                        display_name=i18n.t(\"components.helpers.memory.outputs.messages.display_name\"),\n                        name=\"messages_text\",\n                        method=\"retrieve_messages_as_text\",\n                        dynamic=True,\n                    ),\n                    Output(\n                        display_name=i18n.t(\"components.helpers.memory.outputs.dataframe.display_name\"),\n                        name=\"dataframe\",\n                        method=\"retrieve_messages_dataframe\",\n                        dynamic=True,\n                    ),\n                ]\n        return frontend_node\n\n    async def store_message(self) -> Message:\n        try:\n            message = Message(text=self.message) if isinstance(self.message, str) else self.message\n\n            message.session_id = self.session_id or message.session_id\n            message.sender = self.sender or message.sender or MESSAGE_SENDER_AI\n            message.sender_name = self.sender_name or message.sender_name or MESSAGE_SENDER_NAME_AI\n\n            stored_messages: list[Message] = []\n\n            if self.memory:\n                self.memory.session_id = message.session_id\n                lc_message = message.to_lc_message()\n                await self.memory.aadd_messages([lc_message])\n\n                stored_messages = await self.memory.aget_messages() or []\n\n                stored_messages = [Message.from_lc_message(m) for m in stored_messages] if stored_messages else []\n\n                if message.sender:\n                    stored_messages = [m for m in stored_messages if m.sender == message.sender]\n            else:\n                await astore_message(message, flow_id=self.graph.flow_id)\n                stored_messages = (\n                    await aget_messages(\n                        session_id=message.session_id, sender_name=message.sender_name, sender=message.sender\n                    )\n                    or []\n                )\n\n            if not stored_messages:\n                error_msg = i18n.t(\"components.helpers.memory.errors.no_messages_stored\")\n                raise ValueError(error_msg)\n\n            stored_message = stored_messages[0]\n            success_msg = i18n.t(\n                \"components.helpers.memory.success.message_stored\",\n                sender=message.sender_name,\n                session_id=message.session_id,\n            )\n            self.status = success_msg\n            return stored_message\n\n        except Exception as e:\n            error_msg = i18n.t(\"components.helpers.memory.errors.store_failed\", error=str(e))\n            self.status = error_msg\n            raise ValueError(error_msg) from e\n\n    async def retrieve_messages(self) -> Data:\n        try:\n            sender_type = self.sender_type\n            sender_name = self.sender_name\n            session_id = self.session_id\n            n_messages = self.n_messages\n            order = (\n                \"DESC\" if self.order in [\"Descending\", i18n.t(\"components.helpers.memory.order.descending\")] else \"ASC\"\n            )\n\n            if sender_type in [\"Machine and User\", i18n.t(\"components.helpers.memory.sender_type.machine_and_user\")]:\n                sender_type = None\n\n            if self.memory and not hasattr(self.memory, \"aget_messages\"):\n                memory_name = type(self.memory).__name__\n                err_msg = i18n.t(\"components.helpers.memory.errors.invalid_external_memory\", memory_name=memory_name)\n                raise AttributeError(err_msg)\n\n            # Check if n_messages is None or 0\n            if n_messages == 0:\n                stored = []\n            elif self.memory:\n                # override session_id\n                self.memory.session_id = session_id\n\n                stored = await self.memory.aget_messages()\n                # langchain memories are supposed to return messages in ascending order\n\n                if n_messages:\n                    stored = stored[-n_messages:]  # Get last N messages first\n\n                if order == \"DESC\":\n                    stored = stored[::-1]  # Then reverse if needed\n\n                stored = [Message.from_lc_message(m) for m in stored]\n                if sender_type:\n                    expected_type = MESSAGE_SENDER_AI if sender_type == MESSAGE_SENDER_AI else MESSAGE_SENDER_USER\n                    stored = [m for m in stored if m.type == expected_type]\n            else:\n                # For internal memory, we always fetch the last N messages by ordering by DESC\n                stored = await aget_messages(\n                    sender=sender_type,\n                    sender_name=sender_name,\n                    session_id=session_id,\n                    limit=10000,\n                    order=order,\n                )\n                if n_messages:\n                    stored = stored[-n_messages:]  # Get last N messages\n\n            success_msg = i18n.t(\n                \"components.helpers.memory.success.messages_retrieved\", count=len(stored), session_id=session_id\n            )\n            self.status = success_msg\n\n            return cast(\"Data\", stored)\n\n        except Exception as e:\n            error_msg = i18n.t(\"components.helpers.memory.errors.retrieve_failed\", error=str(e))\n            self.status = error_msg\n            raise ValueError(error_msg) from e\n\n    async def retrieve_messages_as_text(self) -> Message:\n        try:\n            stored_text = data_to_text(self.template, await self.retrieve_messages())\n\n            success_msg = i18n.t(\"components.helpers.memory.success.text_formatted\")\n            self.status = success_msg\n\n            return Message(text=stored_text)\n\n        except Exception as e:\n            error_msg = i18n.t(\"components.helpers.memory.errors.text_formatting_failed\", error=str(e))\n            self.status = error_msg\n            return Message(text=error_msg)\n\n    async def retrieve_messages_dataframe(self) -> DataFrame:\n        \"\"\"Convert the retrieved messages into a DataFrame.\n\n        Returns:\n            DataFrame: A DataFrame containing the message data.\n        \"\"\"\n        try:\n            messages = await self.retrieve_messages()\n            dataframe = DataFrame(messages)\n\n            success_msg = i18n.t(\"components.helpers.memory.success.dataframe_created\", rows=len(messages))\n            self.status = success_msg\n\n            return dataframe\n\n        except Exception as e:\n            error_msg = i18n.t(\"components.helpers.memory.errors.dataframe_creation_failed\", error=str(e))\n            self.status = error_msg\n            return DataFrame([])\n\n    def update_build_config(\n        self,\n        build_config: dotdict,\n        field_value: Any,  # noqa: ARG002\n        field_name: str | None = None,  # noqa: ARG002\n        action: str | None = None,\n    ) -> dotdict:\n        return set_current_fields(\n            build_config=build_config,\n            action_fields=self.mode_config,\n            selected_action=build_config[\"mode\"][\"value\"],\n            default_fields=self.default_keys,\n            func=set_field_display,\n        )\n"
               },
               "memory": {
                 "_input_type": "HandleInput",
                 "advanced": true,
-                "display_name": "External Memory",
+                "display_name": "外部内存",
                 "dynamic": false,
-                "info": "Retrieve messages from an external memory. If empty, it will use the Langflow tables.",
+                "info": "从外部内存检索消息。如果为空，将使用Langflow表。",
                 "input_types": [
                   "Memory"
                 ],
@@ -1684,9 +1692,9 @@
               "message": {
                 "_input_type": "MessageTextInput",
                 "advanced": false,
-                "display_name": "Message",
+                "display_name": "消息",
                 "dynamic": true,
-                "info": "The chat message to be stored.",
+                "info": "要存储的聊天消息。",
                 "input_types": [
                   "Message"
                 ],
@@ -1707,13 +1715,13 @@
               "mode": {
                 "_input_type": "TabInput",
                 "advanced": false,
-                "display_name": "Mode",
+                "display_name": "模式",
                 "dynamic": false,
-                "info": "Operation mode: Store messages or Retrieve messages.",
+                "info": "操作模式：存储消息或检索消息。",
                 "name": "mode",
                 "options": [
-                  "Retrieve",
-                  "Store"
+                  "检索",
+                  "存储"
                 ],
                 "placeholder": "",
                 "real_time_refresh": true,
@@ -1728,9 +1736,9 @@
               "n_messages": {
                 "_input_type": "IntInput",
                 "advanced": true,
-                "display_name": "Number of Messages",
+                "display_name": "消息数量",
                 "dynamic": false,
-                "info": "Number of messages to retrieve.",
+                "info": "要检索的消息数量。",
                 "list": false,
                 "list_add_label": "Add More",
                 "name": "n_messages",
@@ -1748,13 +1756,13 @@
                 "advanced": true,
                 "combobox": false,
                 "dialog_inputs": {},
-                "display_name": "Order",
+                "display_name": "排序",
                 "dynamic": false,
-                "info": "Order of the messages.",
+                "info": "消息的排序方式。",
                 "name": "order",
                 "options": [
-                  "Ascending",
-                  "Descending"
+                  "升序",
+                  "降序"
                 ],
                 "options_metadata": [],
                 "placeholder": "",
@@ -1771,9 +1779,9 @@
                 "advanced": true,
                 "combobox": false,
                 "dialog_inputs": {},
-                "display_name": "Sender",
+                "display_name": "发送者",
                 "dynamic": false,
-                "info": "The sender of the message. Might be Machine or User. If empty, the current sender parameter will be used.",
+                "info": "消息的发送者。可能是机器或用户。如果为空，将使用当前发送者参数。",
                 "name": "sender",
                 "options": [
                   "Machine",
@@ -1793,9 +1801,9 @@
               "sender_name": {
                 "_input_type": "MessageTextInput",
                 "advanced": true,
-                "display_name": "Sender Name",
+                "display_name": "发送者名称",
                 "dynamic": false,
-                "info": "Filter by sender name.",
+                "info": "按发送者名称筛选。",
                 "input_types": [
                   "Message"
                 ],
@@ -1818,14 +1826,14 @@
                 "advanced": true,
                 "combobox": false,
                 "dialog_inputs": {},
-                "display_name": "Sender Type",
+                "display_name": "发送者类型",
                 "dynamic": false,
-                "info": "Filter by sender type.",
+                "info": "按发送者类型筛选。",
                 "name": "sender_type",
                 "options": [
                   "Machine",
                   "User",
-                  "Machine and User"
+                  "机器和用户"
                 ],
                 "options_metadata": [],
                 "placeholder": "",
@@ -1841,9 +1849,9 @@
               "session_id": {
                 "_input_type": "MessageTextInput",
                 "advanced": true,
-                "display_name": "Session ID",
+                "display_name": "会话ID",
                 "dynamic": false,
-                "info": "The session ID of the chat. If empty, the current session ID parameter will be used.",
+                "info": "聊天的会话ID。如果为空，将使用当前会话ID参数。",
                 "input_types": [
                   "Message"
                 ],
@@ -1864,9 +1872,9 @@
               "template": {
                 "_input_type": "MultilineInput",
                 "advanced": true,
-                "display_name": "Template",
+                "display_name": "模板",
                 "dynamic": false,
-                "info": "The template to use for formatting the data. It can contain the keys {text}, {sender} or any other key in the message data.",
+                "info": "用于格式化数据的模板。它可以包含键%{text}、%{sender}或消息数据中的任何其他键。",
                 "input_types": [
                   "Message"
                 ],
@@ -2275,7 +2283,7 @@
             "category": "assemblyai",
             "conditional_paths": [],
             "custom_fields": {},
-            "description": "Create a transcription job for an audio file using AssemblyAI with advanced options",
+            "description": "使用AssemblyAI为音频文件创建具有高级选项的转录任务",
             "display_name": "AssemblyAI Start Transcript",
             "documentation": "https://www.assemblyai.com/docs",
             "edited": false,
@@ -2296,7 +2304,7 @@
             "key": "AssemblyAITranscriptionJobCreator",
             "legacy": false,
             "metadata": {
-              "code_hash": "7ff7b3f90298",
+              "code_hash": "0a40da8997e7",
               "dependencies": {
                 "dependencies": [
                   {
@@ -2304,11 +2312,15 @@
                     "version": "0.35.1"
                   },
                   {
+                    "name": "i18n",
+                    "version": "0.16.0"
+                  },
+                  {
                     "name": "lfx",
                     "version": null
                   }
                 ],
-                "total_dependencies": 2
+                "total_dependencies": 3
               },
               "module": "lfx.components.assemblyai.assemblyai_start_transcript.AssemblyAITranscriptionJobCreator"
             },
@@ -2318,7 +2330,7 @@
               {
                 "allows_loop": false,
                 "cache": true,
-                "display_name": "Transcript ID",
+                "display_name": "转录ID",
                 "group_outputs": false,
                 "method": "create_transcription_job",
                 "name": "transcript_id",
@@ -2337,9 +2349,9 @@
               "api_key": {
                 "_input_type": "SecretStrInput",
                 "advanced": false,
-                "display_name": "Assembly API Key",
+                "display_name": "Assembly API密钥",
                 "dynamic": false,
-                "info": "Your AssemblyAI API key. You can get one from https://www.assemblyai.com/",
+                "info": "您的AssemblyAI API密钥。您可以从https://www.assemblyai.com/获取",
                 "input_types": [],
                 "load_from_db": true,
                 "name": "api_key",
@@ -2354,7 +2366,7 @@
               "audio_file": {
                 "_input_type": "FileInput",
                 "advanced": false,
-                "display_name": "Audio File",
+                "display_name": "音频文件",
                 "dynamic": false,
                 "fileTypes": [
                   "3ga",
@@ -2398,7 +2410,7 @@
                   "mxf"
                 ],
                 "file_path": "",
-                "info": "The audio file to transcribe",
+                "info": "要转录的音频文件",
                 "list": false,
                 "list_add_label": "Add More",
                 "name": "audio_file",
@@ -2413,9 +2425,9 @@
               "audio_file_url": {
                 "_input_type": "MessageTextInput",
                 "advanced": true,
-                "display_name": "Audio File URL",
+                "display_name": "音频文件URL",
                 "dynamic": false,
-                "info": "The URL of the audio file to transcribe (Can be used instead of a File)",
+                "info": "要转录的音频文件的URL（可以代替文件使用）",
                 "input_types": [
                   "Message"
                 ],
@@ -2434,7 +2446,7 @@
                 "value": ""
               },
               "code": {
-                "advanced": true,
+                "advanced": false,
                 "dynamic": true,
                 "fileTypes": [],
                 "file_path": "",
@@ -2445,18 +2457,18 @@
                 "name": "code",
                 "password": false,
                 "placeholder": "",
-                "required": true,
+                "required": false,
                 "show": true,
                 "title_case": false,
                 "type": "code",
-                "value": "from pathlib import Path\n\nimport assemblyai as aai\n\nfrom lfx.custom.custom_component.component import Component\nfrom lfx.io import BoolInput, DropdownInput, FileInput, MessageTextInput, Output, SecretStrInput\nfrom lfx.log.logger import logger\nfrom lfx.schema.data import Data\n\n\nclass AssemblyAITranscriptionJobCreator(Component):\n    display_name = \"AssemblyAI Start Transcript\"\n    description = \"Create a transcription job for an audio file using AssemblyAI with advanced options\"\n    documentation = \"https://www.assemblyai.com/docs\"\n    icon = \"AssemblyAI\"\n\n    inputs = [\n        SecretStrInput(\n            name=\"api_key\",\n            display_name=\"Assembly API Key\",\n            info=\"Your AssemblyAI API key. You can get one from https://www.assemblyai.com/\",\n            required=True,\n        ),\n        FileInput(\n            name=\"audio_file\",\n            display_name=\"Audio File\",\n            file_types=[\n                \"3ga\",\n                \"8svx\",\n                \"aac\",\n                \"ac3\",\n                \"aif\",\n                \"aiff\",\n                \"alac\",\n                \"amr\",\n                \"ape\",\n                \"au\",\n                \"dss\",\n                \"flac\",\n                \"flv\",\n                \"m4a\",\n                \"m4b\",\n                \"m4p\",\n                \"m4r\",\n                \"mp3\",\n                \"mpga\",\n                \"ogg\",\n                \"oga\",\n                \"mogg\",\n                \"opus\",\n                \"qcp\",\n                \"tta\",\n                \"voc\",\n                \"wav\",\n                \"wma\",\n                \"wv\",\n                \"webm\",\n                \"mts\",\n                \"m2ts\",\n                \"ts\",\n                \"mov\",\n                \"mp2\",\n                \"mp4\",\n                \"m4p\",\n                \"m4v\",\n                \"mxf\",\n            ],\n            info=\"The audio file to transcribe\",\n            required=True,\n        ),\n        MessageTextInput(\n            name=\"audio_file_url\",\n            display_name=\"Audio File URL\",\n            info=\"The URL of the audio file to transcribe (Can be used instead of a File)\",\n            advanced=True,\n        ),\n        DropdownInput(\n            name=\"speech_model\",\n            display_name=\"Speech Model\",\n            options=[\n                \"best\",\n                \"nano\",\n            ],\n            value=\"best\",\n            info=\"The speech model to use for the transcription\",\n            advanced=True,\n        ),\n        BoolInput(\n            name=\"language_detection\",\n            display_name=\"Automatic Language Detection\",\n            info=\"Enable automatic language detection\",\n            advanced=True,\n        ),\n        MessageTextInput(\n            name=\"language_code\",\n            display_name=\"Language\",\n            info=(\n                \"\"\"\n            The language of the audio file. Can be set manually if automatic language detection is disabled.\n            See https://www.assemblyai.com/docs/getting-started/supported-languages \"\"\"\n                \"for a list of supported language codes.\"\n            ),\n            advanced=True,\n        ),\n        BoolInput(\n            name=\"speaker_labels\",\n            display_name=\"Enable Speaker Labels\",\n            info=\"Enable speaker diarization\",\n        ),\n        MessageTextInput(\n            name=\"speakers_expected\",\n            display_name=\"Expected Number of Speakers\",\n            info=\"Set the expected number of speakers (optional, enter a number)\",\n            advanced=True,\n        ),\n        BoolInput(\n            name=\"punctuate\",\n            display_name=\"Punctuate\",\n            info=\"Enable automatic punctuation\",\n            advanced=True,\n            value=True,\n        ),\n        BoolInput(\n            name=\"format_text\",\n            display_name=\"Format Text\",\n            info=\"Enable text formatting\",\n            advanced=True,\n            value=True,\n        ),\n    ]\n\n    outputs = [\n        Output(display_name=\"Transcript ID\", name=\"transcript_id\", method=\"create_transcription_job\"),\n    ]\n\n    def create_transcription_job(self) -> Data:\n        aai.settings.api_key = self.api_key\n\n        # Convert speakers_expected to int if it's not empty\n        speakers_expected = None\n        if self.speakers_expected and self.speakers_expected.strip():\n            try:\n                speakers_expected = int(self.speakers_expected)\n            except ValueError:\n                self.status = \"Error: Expected Number of Speakers must be a valid integer\"\n                return Data(data={\"error\": \"Error: Expected Number of Speakers must be a valid integer\"})\n\n        language_code = self.language_code or None\n\n        config = aai.TranscriptionConfig(\n            speech_model=self.speech_model,\n            language_detection=self.language_detection,\n            language_code=language_code,\n            speaker_labels=self.speaker_labels,\n            speakers_expected=speakers_expected,\n            punctuate=self.punctuate,\n            format_text=self.format_text,\n        )\n\n        audio = None\n        if self.audio_file:\n            if self.audio_file_url:\n                logger.warning(\"Both an audio file an audio URL were specified. The audio URL was ignored.\")\n\n            # Check if the file exists\n            if not Path(self.audio_file).exists():\n                self.status = \"Error: Audio file not found\"\n                return Data(data={\"error\": \"Error: Audio file not found\"})\n            audio = self.audio_file\n        elif self.audio_file_url:\n            audio = self.audio_file_url\n        else:\n            self.status = \"Error: Either an audio file or an audio URL must be specified\"\n            return Data(data={\"error\": \"Error: Either an audio file or an audio URL must be specified\"})\n\n        try:\n            transcript = aai.Transcriber().submit(audio, config=config)\n        except Exception as e:  # noqa: BLE001\n            logger.debug(\"Error submitting transcription job\", exc_info=True)\n            self.status = f\"An error occurred: {e}\"\n            return Data(data={\"error\": f\"An error occurred: {e}\"})\n\n        if transcript.error:\n            self.status = transcript.error\n            return Data(data={\"error\": transcript.error})\n        result = Data(data={\"transcript_id\": transcript.id})\n        self.status = result\n        return result\n"
+                "value": "import os\nfrom pathlib import Path\n\nimport assemblyai as aai\nimport i18n\n\nfrom lfx.custom.custom_component.component import Component\nfrom lfx.io import BoolInput, DropdownInput, FileInput, MessageTextInput, Output, SecretStrInput\nfrom lfx.log.logger import logger\nfrom lfx.schema.data import Data\n\n\nclass AssemblyAITranscriptionJobCreator(Component):\n    display_name = i18n.t(\"components.assemblyai.assemblyai_start_transcript.display_name\")\n    description = i18n.t(\"components.assemblyai.assemblyai_start_transcript.description\")\n    documentation = \"https://www.assemblyai.com/docs\"\n    icon = \"AssemblyAI\"\n\n    ignore: bool = os.getenv(\"LANGFLOW_IGNORE_COMPONENT\", \"false\") == \"true\"\n\n    inputs = [\n        SecretStrInput(\n            name=\"api_key\",\n            display_name=i18n.t(\"components.assemblyai.assemblyai_start_transcript.api_key.display_name\"),\n            info=i18n.t(\"components.assemblyai.assemblyai_start_transcript.api_key.info\"),\n            required=True,\n        ),\n        FileInput(\n            name=\"audio_file\",\n            display_name=i18n.t(\"components.assemblyai.assemblyai_start_transcript.audio_file.display_name\"),\n            file_types=[\n                \"3ga\",\n                \"8svx\",\n                \"aac\",\n                \"ac3\",\n                \"aif\",\n                \"aiff\",\n                \"alac\",\n                \"amr\",\n                \"ape\",\n                \"au\",\n                \"dss\",\n                \"flac\",\n                \"flv\",\n                \"m4a\",\n                \"m4b\",\n                \"m4p\",\n                \"m4r\",\n                \"mp3\",\n                \"mpga\",\n                \"ogg\",\n                \"oga\",\n                \"mogg\",\n                \"opus\",\n                \"qcp\",\n                \"tta\",\n                \"voc\",\n                \"wav\",\n                \"wma\",\n                \"wv\",\n                \"webm\",\n                \"mts\",\n                \"m2ts\",\n                \"ts\",\n                \"mov\",\n                \"mp2\",\n                \"mp4\",\n                \"m4p\",\n                \"m4v\",\n                \"mxf\",\n            ],\n            info=i18n.t(\"components.assemblyai.assemblyai_start_transcript.audio_file.info\"),\n            required=True,\n        ),\n        MessageTextInput(\n            name=\"audio_file_url\",\n            display_name=i18n.t(\"components.assemblyai.assemblyai_start_transcript.audio_file_url.display_name\"),\n            info=i18n.t(\"components.assemblyai.assemblyai_start_transcript.audio_file_url.info\"),\n            advanced=True,\n        ),\n        DropdownInput(\n            name=\"speech_model\",\n            display_name=i18n.t(\"components.assemblyai.assemblyai_start_transcript.speech_model.display_name\"),\n            options=[\n                \"best\",\n                \"nano\",\n            ],\n            value=\"best\",\n            info=i18n.t(\"components.assemblyai.assemblyai_start_transcript.speech_model.info\"),\n            advanced=True,\n        ),\n        BoolInput(\n            name=\"language_detection\",\n            display_name=i18n.t(\"components.assemblyai.assemblyai_start_transcript.language_detection.display_name\"),\n            info=i18n.t(\"components.assemblyai.assemblyai_start_transcript.language_detection.info\"),\n            advanced=True,\n        ),\n        MessageTextInput(\n            name=\"language_code\",\n            display_name=i18n.t(\"components.assemblyai.assemblyai_start_transcript.language_code.display_name\"),\n            info=i18n.t(\"components.assemblyai.assemblyai_start_transcript.language_code.info\"),\n            advanced=True,\n        ),\n        BoolInput(\n            name=\"speaker_labels\",\n            display_name=i18n.t(\"components.assemblyai.assemblyai_start_transcript.speaker_labels.display_name\"),\n            info=i18n.t(\"components.assemblyai.assemblyai_start_transcript.speaker_labels.info\"),\n        ),\n        MessageTextInput(\n            name=\"speakers_expected\",\n            display_name=i18n.t(\"components.assemblyai.assemblyai_start_transcript.speakers_expected.display_name\"),\n            info=i18n.t(\"components.assemblyai.assemblyai_start_transcript.speakers_expected.info\"),\n            advanced=True,\n        ),\n        BoolInput(\n            name=\"punctuate\",\n            display_name=i18n.t(\"components.assemblyai.assemblyai_start_transcript.punctuate.display_name\"),\n            info=i18n.t(\"components.assemblyai.assemblyai_start_transcript.punctuate.info\"),\n            advanced=True,\n            value=True,\n        ),\n        BoolInput(\n            name=\"format_text\",\n            display_name=i18n.t(\"components.assemblyai.assemblyai_start_transcript.format_text.display_name\"),\n            info=i18n.t(\"components.assemblyai.assemblyai_start_transcript.format_text.info\"),\n            advanced=True,\n            value=True,\n        ),\n    ]\n\n    outputs = [\n        Output(\n            display_name=i18n.t(\"components.assemblyai.assemblyai_start_transcript.outputs.transcript_id.display_name\"),\n            name=\"transcript_id\",\n            method=\"create_transcription_job\",\n        ),\n    ]\n\n    def create_transcription_job(self) -> Data:\n        \"\"\"Create a transcription job for an audio file using AssemblyAI.\"\"\"\n        try:\n            aai.settings.api_key = self.api_key\n\n            # Convert speakers_expected to int if it's not empty\n            speakers_expected = None\n            if self.speakers_expected and self.speakers_expected.strip():\n                try:\n                    speakers_expected = int(self.speakers_expected)\n                    logger.debug(\n                        i18n.t(\n                            \"components.assemblyai.assemblyai_start_transcript.logs.speakers_expected_set\",\n                            count=speakers_expected,\n                        )\n                    )\n                except ValueError:\n                    error_msg = i18n.t(\n                        \"components.assemblyai.assemblyai_start_transcript.errors.invalid_speakers_count\"\n                    )\n                    logger.error(error_msg)\n                    self.status = error_msg\n                    return Data(data={\"error\": error_msg})\n\n            language_code = self.language_code or None\n            if language_code:\n                logger.debug(\n                    i18n.t(\n                        \"components.assemblyai.assemblyai_start_transcript.logs.language_code_set\", code=language_code\n                    )\n                )\n\n            # Build configuration\n            self.status = i18n.t(\"components.assemblyai.assemblyai_start_transcript.status.building_config\")\n\n            config = aai.TranscriptionConfig(\n                speech_model=self.speech_model,\n                language_detection=self.language_detection,\n                language_code=language_code,\n                speaker_labels=self.speaker_labels,\n                speakers_expected=speakers_expected,\n                punctuate=self.punctuate,\n                format_text=self.format_text,\n            )\n\n            logger.debug(\n                i18n.t(\n                    \"components.assemblyai.assemblyai_start_transcript.logs.config_built\",\n                    model=self.speech_model,\n                    language_detection=self.language_detection,\n                    speaker_labels=self.speaker_labels,\n                )\n            )\n\n            # Determine audio source\n            audio = None\n            if self.audio_file:\n                if self.audio_file_url:\n                    logger.warning(i18n.t(\"components.assemblyai.assemblyai_start_transcript.warnings.url_ignored\"))\n\n                # Check if the file exists\n                if not Path(self.audio_file).exists():\n                    error_msg = i18n.t(\"components.assemblyai.assemblyai_start_transcript.errors.file_not_found\")\n                    logger.error(\n                        i18n.t(\n                            \"components.assemblyai.assemblyai_start_transcript.logs.file_not_found\",\n                            path=self.audio_file,\n                        )\n                    )\n                    self.status = error_msg\n                    return Data(data={\"error\": error_msg})\n\n                audio = self.audio_file\n                logger.info(\n                    i18n.t(\n                        \"components.assemblyai.assemblyai_start_transcript.logs.using_audio_file\", path=self.audio_file\n                    )\n                )\n\n            elif self.audio_file_url:\n                audio = self.audio_file_url\n                logger.info(\n                    i18n.t(\n                        \"components.assemblyai.assemblyai_start_transcript.logs.using_audio_url\",\n                        url=self.audio_file_url,\n                    )\n                )\n            else:\n                error_msg = i18n.t(\"components.assemblyai.assemblyai_start_transcript.errors.no_audio_source\")\n                logger.error(error_msg)\n                self.status = error_msg\n                return Data(data={\"error\": error_msg})\n\n            # Submit transcription job\n            self.status = i18n.t(\"components.assemblyai.assemblyai_start_transcript.status.submitting_job\")\n\n            try:\n                transcript = aai.Transcriber().submit(audio, config=config)\n                logger.info(\n                    i18n.t(\"components.assemblyai.assemblyai_start_transcript.logs.job_submitted\", id=transcript.id)\n                )\n            except Exception as e:\n                logger.debug(\n                    i18n.t(\"components.assemblyai.assemblyai_start_transcript.logs.submission_error\"), exc_info=True\n                )\n                error_msg = i18n.t(\n                    \"components.assemblyai.assemblyai_start_transcript.errors.submission_failed\", error=str(e)\n                )\n                logger.error(error_msg)\n                self.status = error_msg\n                return Data(data={\"error\": error_msg})\n\n            if transcript.error:\n                error_msg = transcript.error\n                logger.error(\n                    i18n.t(\"components.assemblyai.assemblyai_start_transcript.logs.transcript_error\", error=error_msg)\n                )\n                self.status = error_msg\n                return Data(data={\"error\": error_msg})\n\n            result = Data(data={\"transcript_id\": transcript.id})\n            success_msg = i18n.t(\n                \"components.assemblyai.assemblyai_start_transcript.success.job_created\", id=transcript.id\n            )\n            logger.info(success_msg)\n            self.status = result\n\n            return result\n\n        except Exception as e:\n            error_msg = i18n.t(\n                \"components.assemblyai.assemblyai_start_transcript.errors.create_job_failed\", error=str(e)\n            )\n            logger.exception(error_msg)\n            self.status = error_msg\n            return Data(data={\"error\": error_msg})\n"
               },
               "format_text": {
                 "_input_type": "BoolInput",
                 "advanced": true,
-                "display_name": "Format Text",
+                "display_name": "格式化文本",
                 "dynamic": false,
-                "info": "Enable text formatting",
+                "info": "启用文本格式化",
                 "list": false,
                 "list_add_label": "Add More",
                 "name": "format_text",
@@ -2472,9 +2484,9 @@
               "language_code": {
                 "_input_type": "MessageTextInput",
                 "advanced": true,
-                "display_name": "Language",
+                "display_name": "语言",
                 "dynamic": false,
-                "info": "\n            The language of the audio file. Can be set manually if automatic language detection is disabled.\n            See https://www.assemblyai.com/docs/getting-started/supported-languages for a list of supported language codes.",
+                "info": "音频文件的语言。如果禁用自动语言检测，可以手动设置。支持的语言代码列表请参见https://www.assemblyai.com/docs/getting-started/supported-languages",
                 "input_types": [
                   "Message"
                 ],
@@ -2495,9 +2507,9 @@
               "language_detection": {
                 "_input_type": "BoolInput",
                 "advanced": true,
-                "display_name": "Automatic Language Detection",
+                "display_name": "自动语言检测",
                 "dynamic": false,
-                "info": "Enable automatic language detection",
+                "info": "启用自动语言检测",
                 "list": false,
                 "list_add_label": "Add More",
                 "name": "language_detection",
@@ -2513,9 +2525,9 @@
               "punctuate": {
                 "_input_type": "BoolInput",
                 "advanced": true,
-                "display_name": "Punctuate",
+                "display_name": "标点符号",
                 "dynamic": false,
-                "info": "Enable automatic punctuation",
+                "info": "启用自动标点",
                 "list": false,
                 "list_add_label": "Add More",
                 "name": "punctuate",
@@ -2531,9 +2543,9 @@
               "speaker_labels": {
                 "_input_type": "BoolInput",
                 "advanced": false,
-                "display_name": "Enable Speaker Labels",
+                "display_name": "启用说话人标签",
                 "dynamic": false,
-                "info": "Enable speaker diarization",
+                "info": "启用说话人分离",
                 "list": false,
                 "list_add_label": "Add More",
                 "name": "speaker_labels",
@@ -2549,9 +2561,9 @@
               "speakers_expected": {
                 "_input_type": "MessageTextInput",
                 "advanced": true,
-                "display_name": "Expected Number of Speakers",
+                "display_name": "预期说话人数",
                 "dynamic": false,
-                "info": "Set the expected number of speakers (optional, enter a number)",
+                "info": "设置预期的说话人数（可选，输入数字）",
                 "input_types": [
                   "Message"
                 ],
@@ -2574,9 +2586,9 @@
                 "advanced": true,
                 "combobox": false,
                 "dialog_inputs": {},
-                "display_name": "Speech Model",
+                "display_name": "语音模型",
                 "dynamic": false,
-                "info": "The speech model to use for the transcription",
+                "info": "用于转录的语音模型",
                 "name": "speech_model",
                 "options": [
                   "best",

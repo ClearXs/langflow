@@ -836,7 +836,7 @@
             "category": "helpers",
             "conditional_paths": [],
             "custom_fields": {},
-            "description": "Stores or retrieves stored chat messages from Langflow tables or an external memory.",
+            "description": "从Langflow表或外部内存中存储或检索聊天消息。",
             "display_name": "Message History",
             "documentation": "",
             "edited": false,
@@ -857,15 +857,19 @@
             "legacy": false,
             "lf_version": "1.4.3",
             "metadata": {
-              "code_hash": "efd11fac2416",
+              "code_hash": "e571f0c46616",
               "dependencies": {
                 "dependencies": [
+                  {
+                    "name": "i18n",
+                    "version": "0.16.0"
+                  },
                   {
                     "name": "lfx",
                     "version": null
                   }
                 ],
-                "total_dependencies": 1
+                "total_dependencies": 2
               },
               "module": "lfx.components.helpers.memory.MemoryComponent"
             },
@@ -875,7 +879,7 @@
               {
                 "allows_loop": false,
                 "cache": true,
-                "display_name": "Message",
+                "display_name": "消息",
                 "group_outputs": false,
                 "method": "retrieve_messages_as_text",
                 "name": "messages_text",
@@ -889,7 +893,7 @@
               {
                 "allows_loop": false,
                 "cache": true,
-                "display_name": "Dataframe",
+                "display_name": "数据框",
                 "group_outputs": false,
                 "method": "retrieve_messages_dataframe",
                 "name": "dataframe",
@@ -906,7 +910,7 @@
             "template": {
               "_type": "Component",
               "code": {
-                "advanced": true,
+                "advanced": false,
                 "dynamic": true,
                 "fileTypes": [],
                 "file_path": "",
@@ -917,18 +921,18 @@
                 "name": "code",
                 "password": false,
                 "placeholder": "",
-                "required": true,
+                "required": false,
                 "show": true,
                 "title_case": false,
                 "type": "code",
-                "value": "from typing import Any, cast\n\nfrom lfx.custom.custom_component.component import Component\nfrom lfx.helpers.data import data_to_text\nfrom lfx.inputs.inputs import DropdownInput, HandleInput, IntInput, MessageTextInput, MultilineInput, TabInput\nfrom lfx.memory import aget_messages, astore_message\nfrom lfx.schema.data import Data\nfrom lfx.schema.dataframe import DataFrame\nfrom lfx.schema.dotdict import dotdict\nfrom lfx.schema.message import Message\nfrom lfx.template.field.base import Output\nfrom lfx.utils.component_utils import set_current_fields, set_field_display\nfrom lfx.utils.constants import MESSAGE_SENDER_AI, MESSAGE_SENDER_NAME_AI, MESSAGE_SENDER_USER\n\n\nclass MemoryComponent(Component):\n    display_name = \"Message History\"\n    description = \"Stores or retrieves stored chat messages from Langflow tables or an external memory.\"\n    documentation: str = \"https://docs.langflow.org/components-helpers#message-history\"\n    icon = \"message-square-more\"\n    name = \"Memory\"\n    default_keys = [\"mode\", \"memory\", \"session_id\"]\n    mode_config = {\n        \"Store\": [\"message\", \"memory\", \"sender\", \"sender_name\", \"session_id\"],\n        \"Retrieve\": [\"n_messages\", \"order\", \"template\", \"memory\", \"session_id\"],\n    }\n\n    inputs = [\n        TabInput(\n            name=\"mode\",\n            display_name=\"Mode\",\n            options=[\"Retrieve\", \"Store\"],\n            value=\"Retrieve\",\n            info=\"Operation mode: Store messages or Retrieve messages.\",\n            real_time_refresh=True,\n        ),\n        MessageTextInput(\n            name=\"message\",\n            display_name=\"Message\",\n            info=\"The chat message to be stored.\",\n            tool_mode=True,\n            dynamic=True,\n            show=False,\n        ),\n        HandleInput(\n            name=\"memory\",\n            display_name=\"External Memory\",\n            input_types=[\"Memory\"],\n            info=\"Retrieve messages from an external memory. If empty, it will use the Langflow tables.\",\n            advanced=True,\n        ),\n        DropdownInput(\n            name=\"sender_type\",\n            display_name=\"Sender Type\",\n            options=[MESSAGE_SENDER_AI, MESSAGE_SENDER_USER, \"Machine and User\"],\n            value=\"Machine and User\",\n            info=\"Filter by sender type.\",\n            advanced=True,\n        ),\n        MessageTextInput(\n            name=\"sender\",\n            display_name=\"Sender\",\n            info=\"The sender of the message. Might be Machine or User. \"\n            \"If empty, the current sender parameter will be used.\",\n            advanced=True,\n        ),\n        MessageTextInput(\n            name=\"sender_name\",\n            display_name=\"Sender Name\",\n            info=\"Filter by sender name.\",\n            advanced=True,\n            show=False,\n        ),\n        IntInput(\n            name=\"n_messages\",\n            display_name=\"Number of Messages\",\n            value=100,\n            info=\"Number of messages to retrieve.\",\n            advanced=True,\n            show=True,\n        ),\n        MessageTextInput(\n            name=\"session_id\",\n            display_name=\"Session ID\",\n            info=\"The session ID of the chat. If empty, the current session ID parameter will be used.\",\n            value=\"\",\n            advanced=True,\n        ),\n        DropdownInput(\n            name=\"order\",\n            display_name=\"Order\",\n            options=[\"Ascending\", \"Descending\"],\n            value=\"Ascending\",\n            info=\"Order of the messages.\",\n            advanced=True,\n            tool_mode=True,\n            required=True,\n        ),\n        MultilineInput(\n            name=\"template\",\n            display_name=\"Template\",\n            info=\"The template to use for formatting the data. \"\n            \"It can contain the keys {text}, {sender} or any other key in the message data.\",\n            value=\"{sender_name}: {text}\",\n            advanced=True,\n            show=False,\n        ),\n    ]\n\n    outputs = [\n        Output(display_name=\"Message\", name=\"messages_text\", method=\"retrieve_messages_as_text\", dynamic=True),\n        Output(display_name=\"Dataframe\", name=\"dataframe\", method=\"retrieve_messages_dataframe\", dynamic=True),\n    ]\n\n    def update_outputs(self, frontend_node: dict, field_name: str, field_value: Any) -> dict:\n        \"\"\"Dynamically show only the relevant output based on the selected output type.\"\"\"\n        if field_name == \"mode\":\n            # Start with empty outputs\n            frontend_node[\"outputs\"] = []\n            if field_value == \"Store\":\n                frontend_node[\"outputs\"] = [\n                    Output(\n                        display_name=\"Stored Messages\",\n                        name=\"stored_messages\",\n                        method=\"store_message\",\n                        hidden=True,\n                        dynamic=True,\n                    )\n                ]\n            if field_value == \"Retrieve\":\n                frontend_node[\"outputs\"] = [\n                    Output(\n                        display_name=\"Messages\", name=\"messages_text\", method=\"retrieve_messages_as_text\", dynamic=True\n                    ),\n                    Output(\n                        display_name=\"Dataframe\", name=\"dataframe\", method=\"retrieve_messages_dataframe\", dynamic=True\n                    ),\n                ]\n        return frontend_node\n\n    async def store_message(self) -> Message:\n        message = Message(text=self.message) if isinstance(self.message, str) else self.message\n\n        message.session_id = self.session_id or message.session_id\n        message.sender = self.sender or message.sender or MESSAGE_SENDER_AI\n        message.sender_name = self.sender_name or message.sender_name or MESSAGE_SENDER_NAME_AI\n\n        stored_messages: list[Message] = []\n\n        if self.memory:\n            self.memory.session_id = message.session_id\n            lc_message = message.to_lc_message()\n            await self.memory.aadd_messages([lc_message])\n\n            stored_messages = await self.memory.aget_messages() or []\n\n            stored_messages = [Message.from_lc_message(m) for m in stored_messages] if stored_messages else []\n\n            if message.sender:\n                stored_messages = [m for m in stored_messages if m.sender == message.sender]\n        else:\n            await astore_message(message, flow_id=self.graph.flow_id)\n            stored_messages = (\n                await aget_messages(\n                    session_id=message.session_id, sender_name=message.sender_name, sender=message.sender\n                )\n                or []\n            )\n\n        if not stored_messages:\n            msg = \"No messages were stored. Please ensure that the session ID and sender are properly set.\"\n            raise ValueError(msg)\n\n        stored_message = stored_messages[0]\n        self.status = stored_message\n        return stored_message\n\n    async def retrieve_messages(self) -> Data:\n        sender_type = self.sender_type\n        sender_name = self.sender_name\n        session_id = self.session_id\n        n_messages = self.n_messages\n        order = \"DESC\" if self.order == \"Descending\" else \"ASC\"\n\n        if sender_type == \"Machine and User\":\n            sender_type = None\n\n        if self.memory and not hasattr(self.memory, \"aget_messages\"):\n            memory_name = type(self.memory).__name__\n            err_msg = f\"External Memory object ({memory_name}) must have 'aget_messages' method.\"\n            raise AttributeError(err_msg)\n        # Check if n_messages is None or 0\n        if n_messages == 0:\n            stored = []\n        elif self.memory:\n            # override session_id\n            self.memory.session_id = session_id\n\n            stored = await self.memory.aget_messages()\n            # langchain memories are supposed to return messages in ascending order\n\n            if n_messages:\n                stored = stored[-n_messages:]  # Get last N messages first\n\n            if order == \"DESC\":\n                stored = stored[::-1]  # Then reverse if needed\n\n            stored = [Message.from_lc_message(m) for m in stored]\n            if sender_type:\n                expected_type = MESSAGE_SENDER_AI if sender_type == MESSAGE_SENDER_AI else MESSAGE_SENDER_USER\n                stored = [m for m in stored if m.type == expected_type]\n        else:\n            # For internal memory, we always fetch the last N messages by ordering by DESC\n            stored = await aget_messages(\n                sender=sender_type,\n                sender_name=sender_name,\n                session_id=session_id,\n                limit=10000,\n                order=order,\n            )\n            if n_messages:\n                stored = stored[-n_messages:]  # Get last N messages\n\n        # self.status = stored\n        return cast(\"Data\", stored)\n\n    async def retrieve_messages_as_text(self) -> Message:\n        stored_text = data_to_text(self.template, await self.retrieve_messages())\n        # self.status = stored_text\n        return Message(text=stored_text)\n\n    async def retrieve_messages_dataframe(self) -> DataFrame:\n        \"\"\"Convert the retrieved messages into a DataFrame.\n\n        Returns:\n            DataFrame: A DataFrame containing the message data.\n        \"\"\"\n        messages = await self.retrieve_messages()\n        return DataFrame(messages)\n\n    def update_build_config(\n        self,\n        build_config: dotdict,\n        field_value: Any,  # noqa: ARG002\n        field_name: str | None = None,  # noqa: ARG002\n    ) -> dotdict:\n        return set_current_fields(\n            build_config=build_config,\n            action_fields=self.mode_config,\n            selected_action=build_config[\"mode\"][\"value\"],\n            default_fields=self.default_keys,\n            func=set_field_display,\n        )\n"
+                "value": "import os\nfrom typing import Any, cast\n\nimport i18n\n\nfrom lfx.custom.custom_component.component import Component\nfrom lfx.helpers.data import data_to_text\nfrom lfx.inputs.inputs import DropdownInput, HandleInput, IntInput, MessageTextInput, MultilineInput, TabInput\nfrom lfx.memory import aget_messages, astore_message\nfrom lfx.schema.data import Data\nfrom lfx.schema.dataframe import DataFrame\nfrom lfx.schema.dotdict import dotdict\nfrom lfx.schema.message import Message\nfrom lfx.template.field.base import Output\nfrom lfx.utils.component_utils import set_current_fields, set_field_display\nfrom lfx.utils.constants import MESSAGE_SENDER_AI, MESSAGE_SENDER_NAME_AI, MESSAGE_SENDER_USER\n\n\nclass MemoryComponent(Component):\n    ignore: bool = os.getenv(\"LANGFLOW_IGNORE_COMPONENT\", \"false\") == \"true\"\n    display_name = i18n.t(\"components.helpers.memory.display_name\")\n    description = i18n.t(\"components.helpers.memory.description\")\n    documentation: str = \"https://docs.langflow.org/components-helpers#message-history\"\n    icon = \"message-square-more\"\n    name = \"Memory\"\n    default_keys = [\"mode\", \"memory\", \"session_id\"]\n    mode_config = {\n        \"Store\": [\"message\", \"memory\", \"sender\", \"sender_name\", \"session_id\"],\n        \"Retrieve\": [\"n_messages\", \"order\", \"template\", \"memory\", \"session_id\"],\n    }\n\n    inputs = [\n        TabInput(\n            name=\"mode\",\n            display_name=i18n.t(\"components.helpers.memory.mode.display_name\"),\n            options=[i18n.t(\"components.helpers.memory.mode.retrieve\"), i18n.t(\"components.helpers.memory.mode.store\")],\n            value=i18n.t(\"components.helpers.memory.mode.retrieve\"),\n            info=i18n.t(\"components.helpers.memory.mode.info\"),\n            real_time_refresh=True,\n        ),\n        MessageTextInput(\n            name=\"message\",\n            display_name=i18n.t(\"components.helpers.memory.message.display_name\"),\n            info=i18n.t(\"components.helpers.memory.message.info\"),\n            tool_mode=True,\n            dynamic=True,\n            show=False,\n        ),\n        HandleInput(\n            name=\"memory\",\n            display_name=i18n.t(\"components.helpers.memory.external_memory.display_name\"),\n            input_types=[\"Memory\"],\n            info=i18n.t(\"components.helpers.memory.external_memory.info\"),\n            advanced=True,\n        ),\n        DropdownInput(\n            name=\"sender_type\",\n            display_name=i18n.t(\"components.helpers.memory.sender_type.display_name\"),\n            options=[\n                MESSAGE_SENDER_AI,\n                MESSAGE_SENDER_USER,\n                i18n.t(\"components.helpers.memory.sender_type.machine_and_user\"),\n            ],\n            value=i18n.t(\"components.helpers.memory.sender_type.machine_and_user\"),\n            info=i18n.t(\"components.helpers.memory.sender_type.info\"),\n            advanced=True,\n        ),\n        MessageTextInput(\n            name=\"sender\",\n            display_name=i18n.t(\"components.helpers.memory.sender.display_name\"),\n            info=i18n.t(\"components.helpers.memory.sender.info\"),\n            advanced=True,\n        ),\n        MessageTextInput(\n            name=\"sender_name\",\n            display_name=i18n.t(\"components.helpers.memory.sender_name.display_name\"),\n            info=i18n.t(\"components.helpers.memory.sender_name.info\"),\n            advanced=True,\n            show=False,\n        ),\n        IntInput(\n            name=\"n_messages\",\n            display_name=i18n.t(\"components.helpers.memory.n_messages.display_name\"),\n            value=100,\n            info=i18n.t(\"components.helpers.memory.n_messages.info\"),\n            advanced=True,\n            show=True,\n        ),\n        MessageTextInput(\n            name=\"session_id\",\n            display_name=i18n.t(\"components.helpers.memory.session_id.display_name\"),\n            info=i18n.t(\"components.helpers.memory.session_id.info\"),\n            value=\"\",\n            advanced=True,\n        ),\n        DropdownInput(\n            name=\"order\",\n            display_name=i18n.t(\"components.helpers.memory.order.display_name\"),\n            options=[\n                i18n.t(\"components.helpers.memory.order.ascending\"),\n                i18n.t(\"components.helpers.memory.order.descending\"),\n            ],\n            value=i18n.t(\"components.helpers.memory.order.ascending\"),\n            info=i18n.t(\"components.helpers.memory.order.info\"),\n            advanced=True,\n            tool_mode=True,\n            required=True,\n        ),\n        MultilineInput(\n            name=\"template\",\n            display_name=i18n.t(\"components.helpers.memory.template.display_name\"),\n            info=i18n.t(\"components.helpers.memory.template.info\"),\n            value=\"{sender_name}: {text}\",\n            advanced=True,\n            show=False,\n        ),\n    ]\n\n    outputs = [\n        Output(\n            display_name=i18n.t(\"components.helpers.memory.outputs.message.display_name\"),\n            name=\"messages_text\",\n            method=\"retrieve_messages_as_text\",\n            dynamic=True,\n        ),\n        Output(\n            display_name=i18n.t(\"components.helpers.memory.outputs.dataframe.display_name\"),\n            name=\"dataframe\",\n            method=\"retrieve_messages_dataframe\",\n            dynamic=True,\n        ),\n    ]\n\n    def update_outputs(self, frontend_node: dict, field_name: str, field_value: Any) -> dict:\n        \"\"\"Dynamically show only the relevant output based on the selected output type.\"\"\"\n        if field_name == \"mode\":\n            # Start with empty outputs\n            frontend_node[\"outputs\"] = []\n            if field_value in [\"Store\", i18n.t(\"components.helpers.memory.mode.store\")]:\n                frontend_node[\"outputs\"] = [\n                    Output(\n                        display_name=i18n.t(\"components.helpers.memory.outputs.stored_messages.display_name\"),\n                        name=\"stored_messages\",\n                        method=\"store_message\",\n                        hidden=True,\n                        dynamic=True,\n                    )\n                ]\n            if field_value in [\"Retrieve\", i18n.t(\"components.helpers.memory.mode.retrieve\")]:\n                frontend_node[\"outputs\"] = [\n                    Output(\n                        display_name=i18n.t(\"components.helpers.memory.outputs.messages.display_name\"),\n                        name=\"messages_text\",\n                        method=\"retrieve_messages_as_text\",\n                        dynamic=True,\n                    ),\n                    Output(\n                        display_name=i18n.t(\"components.helpers.memory.outputs.dataframe.display_name\"),\n                        name=\"dataframe\",\n                        method=\"retrieve_messages_dataframe\",\n                        dynamic=True,\n                    ),\n                ]\n        return frontend_node\n\n    async def store_message(self) -> Message:\n        try:\n            message = Message(text=self.message) if isinstance(self.message, str) else self.message\n\n            message.session_id = self.session_id or message.session_id\n            message.sender = self.sender or message.sender or MESSAGE_SENDER_AI\n            message.sender_name = self.sender_name or message.sender_name or MESSAGE_SENDER_NAME_AI\n\n            stored_messages: list[Message] = []\n\n            if self.memory:\n                self.memory.session_id = message.session_id\n                lc_message = message.to_lc_message()\n                await self.memory.aadd_messages([lc_message])\n\n                stored_messages = await self.memory.aget_messages() or []\n\n                stored_messages = [Message.from_lc_message(m) for m in stored_messages] if stored_messages else []\n\n                if message.sender:\n                    stored_messages = [m for m in stored_messages if m.sender == message.sender]\n            else:\n                await astore_message(message, flow_id=self.graph.flow_id)\n                stored_messages = (\n                    await aget_messages(\n                        session_id=message.session_id, sender_name=message.sender_name, sender=message.sender\n                    )\n                    or []\n                )\n\n            if not stored_messages:\n                error_msg = i18n.t(\"components.helpers.memory.errors.no_messages_stored\")\n                raise ValueError(error_msg)\n\n            stored_message = stored_messages[0]\n            success_msg = i18n.t(\n                \"components.helpers.memory.success.message_stored\",\n                sender=message.sender_name,\n                session_id=message.session_id,\n            )\n            self.status = success_msg\n            return stored_message\n\n        except Exception as e:\n            error_msg = i18n.t(\"components.helpers.memory.errors.store_failed\", error=str(e))\n            self.status = error_msg\n            raise ValueError(error_msg) from e\n\n    async def retrieve_messages(self) -> Data:\n        try:\n            sender_type = self.sender_type\n            sender_name = self.sender_name\n            session_id = self.session_id\n            n_messages = self.n_messages\n            order = (\n                \"DESC\" if self.order in [\"Descending\", i18n.t(\"components.helpers.memory.order.descending\")] else \"ASC\"\n            )\n\n            if sender_type in [\"Machine and User\", i18n.t(\"components.helpers.memory.sender_type.machine_and_user\")]:\n                sender_type = None\n\n            if self.memory and not hasattr(self.memory, \"aget_messages\"):\n                memory_name = type(self.memory).__name__\n                err_msg = i18n.t(\"components.helpers.memory.errors.invalid_external_memory\", memory_name=memory_name)\n                raise AttributeError(err_msg)\n\n            # Check if n_messages is None or 0\n            if n_messages == 0:\n                stored = []\n            elif self.memory:\n                # override session_id\n                self.memory.session_id = session_id\n\n                stored = await self.memory.aget_messages()\n                # langchain memories are supposed to return messages in ascending order\n\n                if n_messages:\n                    stored = stored[-n_messages:]  # Get last N messages first\n\n                if order == \"DESC\":\n                    stored = stored[::-1]  # Then reverse if needed\n\n                stored = [Message.from_lc_message(m) for m in stored]\n                if sender_type:\n                    expected_type = MESSAGE_SENDER_AI if sender_type == MESSAGE_SENDER_AI else MESSAGE_SENDER_USER\n                    stored = [m for m in stored if m.type == expected_type]\n            else:\n                # For internal memory, we always fetch the last N messages by ordering by DESC\n                stored = await aget_messages(\n                    sender=sender_type,\n                    sender_name=sender_name,\n                    session_id=session_id,\n                    limit=10000,\n                    order=order,\n                )\n                if n_messages:\n                    stored = stored[-n_messages:]  # Get last N messages\n\n            success_msg = i18n.t(\n                \"components.helpers.memory.success.messages_retrieved\", count=len(stored), session_id=session_id\n            )\n            self.status = success_msg\n\n            return cast(\"Data\", stored)\n\n        except Exception as e:\n            error_msg = i18n.t(\"components.helpers.memory.errors.retrieve_failed\", error=str(e))\n            self.status = error_msg\n            raise ValueError(error_msg) from e\n\n    async def retrieve_messages_as_text(self) -> Message:\n        try:\n            stored_text = data_to_text(self.template, await self.retrieve_messages())\n\n            success_msg = i18n.t(\"components.helpers.memory.success.text_formatted\")\n            self.status = success_msg\n\n            return Message(text=stored_text)\n\n        except Exception as e:\n            error_msg = i18n.t(\"components.helpers.memory.errors.text_formatting_failed\", error=str(e))\n            self.status = error_msg\n            return Message(text=error_msg)\n\n    async def retrieve_messages_dataframe(self) -> DataFrame:\n        \"\"\"Convert the retrieved messages into a DataFrame.\n\n        Returns:\n            DataFrame: A DataFrame containing the message data.\n        \"\"\"\n        try:\n            messages = await self.retrieve_messages()\n            dataframe = DataFrame(messages)\n\n            success_msg = i18n.t(\"components.helpers.memory.success.dataframe_created\", rows=len(messages))\n            self.status = success_msg\n\n            return dataframe\n\n        except Exception as e:\n            error_msg = i18n.t(\"components.helpers.memory.errors.dataframe_creation_failed\", error=str(e))\n            self.status = error_msg\n            return DataFrame([])\n\n    def update_build_config(\n        self,\n        build_config: dotdict,\n        field_value: Any,  # noqa: ARG002\n        field_name: str | None = None,  # noqa: ARG002\n        action: str | None = None,\n    ) -> dotdict:\n        return set_current_fields(\n            build_config=build_config,\n            action_fields=self.mode_config,\n            selected_action=build_config[\"mode\"][\"value\"],\n            default_fields=self.default_keys,\n            func=set_field_display,\n        )\n"
               },
               "memory": {
                 "_input_type": "HandleInput",
                 "advanced": true,
-                "display_name": "External Memory",
+                "display_name": "外部内存",
                 "dynamic": false,
-                "info": "Retrieve messages from an external memory. If empty, it will use the Langflow tables.",
+                "info": "从外部内存检索消息。如果为空，将使用Langflow表。",
                 "input_types": [
                   "Memory"
                 ],
@@ -946,9 +950,9 @@
               "message": {
                 "_input_type": "MessageTextInput",
                 "advanced": false,
-                "display_name": "Message",
+                "display_name": "消息",
                 "dynamic": true,
-                "info": "The chat message to be stored.",
+                "info": "要存储的聊天消息。",
                 "input_types": [
                   "Message"
                 ],
@@ -969,13 +973,13 @@
               "mode": {
                 "_input_type": "TabInput",
                 "advanced": false,
-                "display_name": "Mode",
+                "display_name": "模式",
                 "dynamic": false,
-                "info": "Operation mode: Store messages or Retrieve messages.",
+                "info": "操作模式：存储消息或检索消息。",
                 "name": "mode",
                 "options": [
-                  "Retrieve",
-                  "Store"
+                  "检索",
+                  "存储"
                 ],
                 "placeholder": "",
                 "real_time_refresh": true,
@@ -990,9 +994,9 @@
               "n_messages": {
                 "_input_type": "IntInput",
                 "advanced": true,
-                "display_name": "Number of Messages",
+                "display_name": "消息数量",
                 "dynamic": false,
-                "info": "Number of messages to retrieve.",
+                "info": "要检索的消息数量。",
                 "list": false,
                 "list_add_label": "Add More",
                 "name": "n_messages",
@@ -1010,13 +1014,13 @@
                 "advanced": true,
                 "combobox": false,
                 "dialog_inputs": {},
-                "display_name": "Order",
+                "display_name": "排序",
                 "dynamic": false,
-                "info": "Order of the messages.",
+                "info": "消息的排序方式。",
                 "name": "order",
                 "options": [
-                  "Ascending",
-                  "Descending"
+                  "升序",
+                  "降序"
                 ],
                 "options_metadata": [],
                 "placeholder": "",
@@ -1034,9 +1038,9 @@
                 "advanced": true,
                 "combobox": false,
                 "dialog_inputs": {},
-                "display_name": "Sender",
+                "display_name": "发送者",
                 "dynamic": false,
-                "info": "The sender of the message. Might be Machine or User. If empty, the current sender parameter will be used.",
+                "info": "消息的发送者。可能是机器或用户。如果为空，将使用当前发送者参数。",
                 "name": "sender",
                 "options": [
                   "Machine",
@@ -1057,9 +1061,9 @@
               "sender_name": {
                 "_input_type": "MessageTextInput",
                 "advanced": true,
-                "display_name": "Sender Name",
+                "display_name": "发送者名称",
                 "dynamic": false,
-                "info": "Filter by sender name.",
+                "info": "按发送者名称筛选。",
                 "input_types": [
                   "Message"
                 ],
@@ -1082,14 +1086,14 @@
                 "advanced": true,
                 "combobox": false,
                 "dialog_inputs": {},
-                "display_name": "Sender Type",
+                "display_name": "发送者类型",
                 "dynamic": false,
-                "info": "Filter by sender type.",
+                "info": "按发送者类型筛选。",
                 "name": "sender_type",
                 "options": [
                   "Machine",
                   "User",
-                  "Machine and User"
+                  "机器和用户"
                 ],
                 "options_metadata": [],
                 "placeholder": "",
@@ -1105,9 +1109,9 @@
               "session_id": {
                 "_input_type": "MessageTextInput",
                 "advanced": true,
-                "display_name": "Session ID",
+                "display_name": "会话ID",
                 "dynamic": false,
-                "info": "The session ID of the chat. If empty, the current session ID parameter will be used.",
+                "info": "聊天的会话ID。如果为空，将使用当前会话ID参数。",
                 "input_types": [
                   "Message"
                 ],
@@ -1129,9 +1133,9 @@
                 "_input_type": "MultilineInput",
                 "advanced": true,
                 "copy_field": false,
-                "display_name": "Template",
+                "display_name": "模板",
                 "dynamic": false,
-                "info": "The template to use for formatting the data. It can contain the keys {text}, {sender} or any other key in the message data.",
+                "info": "用于格式化数据的模板。它可以包含键%{text}、%{sender}或消息数据中的任何其他键。",
                 "input_types": [
                   "Message"
                 ],

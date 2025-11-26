@@ -141,7 +141,7 @@ def _parse_csv_to_data(text: str) -> Data:
 
 
 class TypeConverterComponent(Component):
-    ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
+    # ignore: bool = os.getenv("LANGFLOW_IGNORE_COMPONENT", "false") == "true"
     display_name = i18n.t("components.processing.converter.display_name")
     description = i18n.t("components.processing.converter.description")
     documentation: str = "https://docs.langflow.org/components-processing#type-convert"

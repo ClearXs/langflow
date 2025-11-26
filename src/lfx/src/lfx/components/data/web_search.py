@@ -111,7 +111,7 @@ class WebSearchComponent(Component):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-    def update_build_config(self, build_config: dict, field_value: Any, field_name: str | None = None) -> dict:
+    def update_build_config(self, build_config: dict, field_value: Any, field_name: str | None = None, action: str | None = None) -> dict:
         """Update input visibility based on search mode."""
         if field_name == "search_mode":
             # Update query field info based on mode

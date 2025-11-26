@@ -97,7 +97,7 @@ class LangWatchComponent(Component):
             msg = f"No evaluators found from {endpoint}"
             raise ValueError(msg)
 
-    def update_build_config(self, build_config: dotdict, field_value: Any, field_name: str | None = None) -> dotdict:
+    def update_build_config(self, build_config: dotdict, field_value: Any, field_name: str | None = None, action: str | None = None) -> dotdict:
         try:
             logger.info(f"Updating build config. Field name: {field_name}, Field value: {field_value}")
 

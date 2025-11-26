@@ -64,7 +64,7 @@ class ParserComponent(Component):
         ),
     ]
 
-    def update_build_config(self, build_config, field_value, field_name=None):
+    def update_build_config(self, build_config, field_value, field_name=None, action=None):
         """Dynamically hide/show `template` and enforce requirement based on `mode`."""
         if field_name == "mode":
             # Map localized mode values to internal values

@@ -111,7 +111,7 @@ class DeepSeekModelComponent(LCModelComponent):
             return DEEPSEEK_MODELS
 
     @override
-    def update_build_config(self, build_config: dict, field_value: str, field_name: str | None = None):
+    def update_build_config(self, build_config: dict, field_value: str, field_name: str | None = None, action: str | None = None):
         """Update build configuration when certain fields change.
 
         Args:
