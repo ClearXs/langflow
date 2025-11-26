@@ -311,12 +311,12 @@ class ETLFlinkJobComponent(Component):
                                 )
                                 return ds
                 else:
-                    logger.warning(f"[FlinkJob] flink_datasource_input has no options_metadata attribute")
+                    logger.warning("[FlinkJob] flink_datasource_input has no options_metadata attribute")
             else:
-                logger.warning(f"[FlinkJob] _input_dict not available or empty")
+                logger.warning("[FlinkJob] _input_dict not available or empty")
 
             # Fallback: Try to load datasources directly using async version
-            logger.info(f"[FlinkJob] Falling back to direct datasource loading (async)")
+            logger.info("[FlinkJob] Falling back to direct datasource loading (async)")
             datasources = await self._load_flink_datasources_async()
             logger.debug(f"[FlinkJob] Loaded {len(datasources)} datasources for lookup")
 
@@ -347,7 +347,7 @@ class ETLFlinkJobComponent(Component):
             logger.debug(f"[FlinkJob] Find by ID result: {datasource is not None}")
 
             if not datasource:
-                logger.warning(f"[FlinkJob] Datasource not found in metadata cache, querying DataSourceManager")
+                logger.warning("[FlinkJob] Datasource not found in metadata cache, querying DataSourceManager")
                 # Fallback to DataSourceManager
                 from lfx.base.datasource.manager import DataSourceManager
 
@@ -421,7 +421,7 @@ class ETLFlinkJobComponent(Component):
                 advanced_config = json.loads(advanced_config)
                 logger.debug(f"[FlinkJob] Parsed advanced_config: {advanced_config}")
             except (json.JSONDecodeError, ValueError):
-                logger.warning(f"[FlinkJob] Failed to parse advanced_config as JSON")
+                logger.warning("[FlinkJob] Failed to parse advanced_config as JSON")
                 advanced_config = {}
 
         # Helper function to parse URL

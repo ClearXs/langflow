@@ -35,8 +35,14 @@ const optimizeFlowDataForSave = (
         return node;
       }
 
-      // Check if this is a built-in component (official !== false)
-      const isBuiltInComponent = nodeData.official !== false;
+      // Check if this is a built-in component
+      // Built-in: official === true OR (official is undefined AND type is not Custom)
+      // Custom: official === false OR type includes 'Custom'
+      const isBuiltInComponent =
+        nodeData.official === true ||
+        (nodeData.official !== false &&
+          !nodeData.type?.includes("Custom") &&
+          nodeData.type !== "CustomComponent");
 
       // Remove temporary metadata fields (_graph_data, _node_id) to prevent data bloat
       // These fields are only needed during API requests, not for persistence

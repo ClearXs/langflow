@@ -1419,7 +1419,7 @@ class ETLTableInputComponent(Component):
                 password = params.get("password", "")
 
                 if not url:
-                    raise ValueError(f"[TableInput] Missing required 'url' parameter for Neo4j datasource")
+                    raise ValueError("[TableInput] Missing required 'url' parameter for Neo4j datasource")
 
                 import re
 
@@ -1435,8 +1435,7 @@ class ETLTableInputComponent(Component):
 
                 if username and password:
                     return f"bolt://{username_encoded}:{password_encoded}@{host}:{port}"
-                else:
-                    return f"bolt://{host}:{port}"
+                return f"bolt://{host}:{port}"
 
             # 其他数据源：正常提取host/port
             host = params.get("host")
@@ -1481,8 +1480,7 @@ class ETLTableInputComponent(Component):
 
                 if username and password:
                     return f"bolt://{username_encoded}:{password_encoded}@{host}:{port}"
-                else:
-                    return f"bolt://{host}:{port}"
+                return f"bolt://{host}:{port}"
 
             # 其他数据源：正常提取
             host = datasource_info.get("host")

@@ -65,6 +65,9 @@ class FrontendNode(BaseModel):
     """Metadata for the component node."""
     tool_mode: bool = False
     """Whether the frontend node is in tool mode."""
+    official: bool | None = None
+    """Whether the component is an official/built-in component.
+    None or True = built-in, False = custom component."""
 
     def set_documentation(self, documentation: str) -> None:
         """Sets the documentation of the frontend node."""

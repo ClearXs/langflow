@@ -43,8 +43,14 @@ const optimizeGraphDataForBackend = (graphData: any): any => {
         return n;
       }
 
-      // Check if this is a built-in component (official === true or undefined defaults to true)
-      const isBuiltInComponent = nodeData.official !== false;
+      // Check if this is a built-in component
+      // Built-in: official === true OR (official is undefined AND type is not Custom)
+      // Custom: official === false OR type includes 'Custom'
+      const isBuiltInComponent =
+        nodeData.official === true ||
+        (nodeData.official !== false &&
+          !nodeData.type?.includes("Custom") &&
+          nodeData.type !== "CustomComponent");
 
       // Remove temporary metadata fields from template to prevent nesting
       // These fields (_graph_data, _node_id) are only needed during API request, not for persistence
@@ -129,7 +135,13 @@ export const usePostTemplateValue: useMutationFunctionType<
     graphData = optimizeGraphDataForBackend(graphData);
 
     // Check if current node is built-in component
-    const isBuiltInComponent = node.official !== false;
+    // Built-in: official === true OR (official is undefined AND type is not Custom)
+    // Custom: official === false OR type includes 'Custom'
+    const isBuiltInComponent =
+      node.official === true ||
+      (node.official !== false &&
+        !node.type?.includes("Custom") &&
+        node.type !== "CustomComponent");
 
     // Get component type (vertex_type) from multiple sources
     // Priority:

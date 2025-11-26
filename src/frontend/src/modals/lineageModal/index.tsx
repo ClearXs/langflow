@@ -68,7 +68,8 @@ const LineageModal = ({ open, setOpen, flowId }: LineageModalProps) => {
               </div>
               <div>|</div>
               <div>
-                {t("lineage.totalRelationships")}: {lineageData.total_relationships}
+                {t("lineage.totalRelationships")}:{" "}
+                {lineageData.total_relationships}
               </div>
             </div>
 

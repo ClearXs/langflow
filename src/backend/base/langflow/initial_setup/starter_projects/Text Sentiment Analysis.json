@@ -777,7 +777,7 @@
                 "value": true
               },
               "code": {
-                "advanced": true,
+                "advanced": false,
                 "dynamic": true,
                 "fileTypes": [],
                 "file_path": "",
@@ -1040,7 +1040,7 @@
                 "value": true
               },
               "code": {
-                "advanced": true,
+                "advanced": false,
                 "dynamic": true,
                 "fileTypes": [],
                 "file_path": "",

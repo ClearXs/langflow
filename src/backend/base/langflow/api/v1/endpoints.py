@@ -63,18 +63,18 @@ router = APIRouter(tags=["Base"])
 
 
 def _remove_code_from_graph_data(graph_data: dict) -> dict:
-    """Remove code.value from all nodes in graph_data.
+    """Remove code.value from built-in components only in graph_data.
 
     Rationale:
-    - Built-in components: loaded from module, don't need code
-    - Custom components: loaded from module during temp graph execution
-    - Reduces _graph_data size by ~88%
+    - Built-in components: loaded from module, don't need code storage
+    - Custom components: code must be preserved for persistence
+    - Reduces _graph_data size by ~88% for built-in components
 
     Args:
         graph_data: Original graph data with code
 
     Returns:
-        Optimized graph data without code values
+        Optimized graph data with code removed only from built-in components
     """
     import copy
 
@@ -87,11 +87,17 @@ def _remove_code_from_graph_data(graph_data: dict) -> dict:
         if not isinstance(node, dict):
             continue
 
-        # Navigate to template
-        template = node.get("data", {}).get("node", {}).get("template", {})
+        # Navigate to node data and template
+        node_data = node.get("data", {}).get("node", {})
+        template = node_data.get("template", {})
 
-        # Remove code.value (keep structure for compatibility)
-        if "code" in template and isinstance(template["code"], dict):
+        # Check if this is a built-in component
+        # official=False means custom component, undefined/True means built-in
+        is_builtin = node_data.get("official") is not False
+
+        # Only remove code.value for built-in components
+        # Custom components (official=False) retain their code
+        if is_builtin and "code" in template and isinstance(template["code"], dict):
             if "value" in template["code"]:
                 template["code"]["value"] = ""
                 # Add marker for debugging
@@ -1070,7 +1076,11 @@ async def custom_component_update(
             action=code_request.action,  # Pass action parameter
         )
         if "code" not in updated_build_config or not updated_build_config.get("code", {}).get("value"):
-            updated_build_config = add_code_field_to_build_config(updated_build_config, code_request.code)
+            # Determine if this is a built-in component: code is empty or only whitespace
+            is_builtin = not code_request.code or code_request.code.strip() == ""
+            updated_build_config = add_code_field_to_build_config(
+                updated_build_config, code_request.code, is_builtin=is_builtin
+            )
         component_node["template"] = updated_build_config
 
         if isinstance(cc_instance, Component):

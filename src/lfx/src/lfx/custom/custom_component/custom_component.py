@@ -252,10 +252,17 @@ class CustomComponent(BaseComponent):
         build_config: dotdict,
         field_value: Any,
         field_name: str | None = None,
+        action: str | None = None,
     ):
         """Updates the build configuration for the custom component.
 
         Do not call directly as implementation can be a coroutine.
+
+        Args:
+            build_config: The current build configuration
+            field_value: The new value for the field
+            field_name: Name of the field being updated
+            action: Optional action parameter for action buttons
         """
         build_config[field_name]["value"] = field_value
         return build_config
