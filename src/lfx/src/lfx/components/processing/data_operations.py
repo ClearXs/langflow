@@ -1,6 +1,6 @@
 import ast
+import asyncio
 import json
-import os
 from typing import Any
 
 import i18n
@@ -612,7 +612,9 @@ class DataOperationsComponent(Component):
             raise ValueError(error_msg) from e
 
     # Configuration and execution methods
-    def update_build_config(self, build_config: dotdict, field_value: Any, field_name: str | None = None, action: str | None = None) -> dotdict:
+    async def update_build_config(
+        self, build_config: dotdict, field_value: Any, field_name: str | None = None, action: str | None = None
+    ) -> dotdict:
         if field_name == "operations":
             build_config["operations"]["value"] = field_value
             selected_actions = [action["name"] for action in field_value]
@@ -636,6 +638,34 @@ class DataOperationsComponent(Component):
                     config = ACTION_CONFIG[internal_action]
                     build_config["data"]["is_list"] = config["is_list"]
                     logger.info(config["log_msg"])
+
+                    # Extract and propagate field information from upstream
+                    try:
+                        graph_data = build_config.get("_graph_data", {})
+                        node_id = build_config.get("_node_id")
+
+                        if not graph_data and hasattr(self, "graph") and self.graph is not None:
+                            if hasattr(self.graph, "data"):
+                                graph_data = self.graph.data
+
+                        if graph_data and node_id:
+                            # Get upstream fields with retry mechanism
+                            upstream_fields = await self._get_upstream_fields_with_retry(graph_data, node_id)
+
+                            if upstream_fields:
+                                # Calculate output fields based on operation type
+                                output_fields = self._calculate_output_fields(
+                                    internal_action, upstream_fields, build_config
+                                )
+
+                                # Store output fields for downstream components
+                                build_config["_output_fields"] = output_fields
+                                logger.info(
+                                    f"[DataOperations] Calculated {len(output_fields)} output fields for {internal_action}"
+                                )
+                    except Exception as e:
+                        logger.warning(f"[DataOperations] Failed to extract upstream fields: {e}")
+
                     return set_current_fields(
                         build_config=build_config,
                         action_fields=self.actions_data,
@@ -656,6 +686,147 @@ class DataOperationsComponent(Component):
                 build_config["selected_key"]["show"] = False
 
         return build_config
+
+    async def _get_upstream_fields_with_retry(self, graph_data: dict, node_id: str) -> list[dict]:
+        """Get upstream fields with retry mechanism for 'has not been built yet' errors.
+
+        Returns:
+            List of field dicts with structure: [{"name": "field1", "type": "string"}, ...]
+        """
+        max_retries = 2
+
+        for attempt in range(max_retries):
+            try:
+                # Try to get actual data from upstream node
+                upstream_data = await self.get_upstream_data(
+                    input_name="data", graph_data=graph_data, sample_size=10, vertex_id=node_id
+                )
+
+                if upstream_data:
+                    # Extract fields from actual data
+                    if isinstance(upstream_data, list) and len(upstream_data) > 0:
+                        first_item = upstream_data[0]
+                        if hasattr(first_item, "data") and isinstance(first_item.data, dict):
+                            from lfx.components.helpers.field_extraction import _infer_type_from_value
+
+                            fields = [
+                                {"name": key, "type": _infer_type_from_value(value)}
+                                for key, value in first_item.data.items()
+                            ]
+                            logger.info(
+                                f"[DataOperations] Extracted {len(fields)} fields from upstream data (attempt {attempt + 1})"
+                            )
+                            return fields
+
+                logger.warning(f"[DataOperations] No data returned from upstream node (attempt {attempt + 1})")
+
+            except ValueError as e:
+                error_msg = str(e)
+                if "has not been built yet" in error_msg and attempt < max_retries - 1:
+                    logger.warning(
+                        f"[DataOperations] Upstream node not built, retrying... (attempt {attempt + 1}/{max_retries})"
+                    )
+                    await asyncio.sleep(0.2)
+                    continue
+                logger.warning(f"[DataOperations] Upstream execution failed: {e}. Trying static analysis...")
+                break
+            except Exception as e:
+                logger.warning(f"[DataOperations] Unexpected error: {e}. Falling back to static analysis...")
+                break
+
+        # Fallback: static field extraction
+        try:
+            from lfx.components.helpers.field_extraction import find_and_extract_upstream_fields
+
+            fields = find_and_extract_upstream_fields(graph_data, node_id, "data", "DataOperations")
+            if fields:
+                logger.info(f"[DataOperations] Extracted {len(fields)} fields from static config")
+                return fields
+        except Exception as e:
+            logger.exception(f"[DataOperations] Static analysis failed: {e}")
+
+        return []
+
+    def _calculate_output_fields(
+        self, operation: str, upstream_fields: list[dict], build_config: dotdict
+    ) -> list[dict]:
+        """Calculate output fields based on operation type and configuration.
+
+        Args:
+            operation: Operation type (e.g., "Select Keys", "Remove Keys")
+            upstream_fields: List of upstream field dicts with {"name": str, "type": str}
+            build_config: Current build configuration
+
+        Returns:
+            List of output field dicts
+        """
+        if operation == "Select Keys":
+            # Only selected keys are output
+            select_keys_value = build_config.get("select_keys_input", {}).get("value", [])
+            if select_keys_value:
+                # Filter to only selected fields
+                selected_names = set(select_keys_value)
+                return [f for f in upstream_fields if f["name"] in selected_names]
+            return upstream_fields
+
+        if operation == "Remove Keys":
+            # All fields except removed keys
+            remove_keys_value = build_config.get("remove_keys_input", {}).get("value", [])
+            if remove_keys_value:
+                removed_names = set(remove_keys_value)
+                return [f for f in upstream_fields if f["name"] not in removed_names]
+            return upstream_fields
+
+        if operation == "Rename Keys":
+            # Fields with renamed names
+            rename_keys_value = build_config.get("rename_keys_input", {}).get("value", {})
+            if rename_keys_value and isinstance(rename_keys_value, dict):
+                result = []
+                for field in upstream_fields:
+                    new_name = rename_keys_value.get(field["name"], field["name"])
+                    result.append({"name": new_name, "type": field["type"]})
+                return result
+            return upstream_fields
+
+        if operation == "Append or Update":
+            # Original fields + new fields from append_update_data
+            append_data_value = build_config.get("append_update_data", {}).get("value", {})
+            result = upstream_fields.copy()
+            if append_data_value and isinstance(append_data_value, dict):
+                from lfx.components.helpers.field_extraction import _infer_type_from_value
+
+                existing_names = {f["name"] for f in result}
+                for key, value in append_data_value.items():
+                    if key not in existing_names:
+                        result.append({"name": key, "type": _infer_type_from_value(value)})
+            return result
+
+        if operation == "Literal Eval":
+            # All fields preserved, types may change but we can't predict
+            return upstream_fields
+
+        if operation == "Filter Values":
+            # All fields preserved, only rows are filtered
+            return upstream_fields
+
+        if operation == "Combine":
+            # For combine, we would need to merge fields from multiple inputs
+            # This is complex and would require analyzing all inputs
+            # For now, return upstream fields (first input)
+            return upstream_fields
+
+        if operation == "Path Selection":
+            # Output depends on selected JSON path - hard to predict
+            # Return a generic result field
+            return [{"name": "result", "type": "string"}]
+
+        if operation == "JQ Expression":
+            # Output depends on JQ query - hard to predict
+            # Return a generic result field
+            return [{"name": "result", "type": "string"}]
+
+        # Default: return all upstream fields
+        return upstream_fields
 
     def json_path(self) -> Data:
         """Extract data using JSON path selection."""

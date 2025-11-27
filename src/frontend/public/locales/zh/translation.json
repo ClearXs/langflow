@@ -574,7 +574,9 @@
       "unexpectedErrorUpdating": "更新变量时发生意外错误，请重试。",
       "runTimestampPrefix": "Last Run: ",
       "savedHover": "Last saved: ",
-      "statusBuilding": "Building..."
+      "statusBuilding": "Building...",
+      "variableDeletedSuccessfully": "变量 {{name}} 已成功删除",
+      "unexpectedErrorDeleting": "删除变量时发生意外错误，请重试。"
     },
     "modal": {
       "title": "创建变量",
@@ -619,7 +621,11 @@
     "codeArea": {
       "hint": "💡 提示：可以在代码中使用 {变量名} 格式引用变量",
       "availableCount": "可用 {{count}} 个变量"
-    }
+    },
+    "editVariable": "编辑变量",
+    "deleteVariable": "删除变量",
+    "deleteConfirmTitle": "删除变量",
+    "deleteConfirmDescription": "确定要删除变量 {{name}} 吗？此操作无法撤销。"
   },
   "messages": {
     "noData": "无数据可用",

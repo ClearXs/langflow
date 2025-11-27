@@ -3,6 +3,7 @@ from __future__ import annotations
 import ast
 import asyncio
 import inspect
+import threading
 from collections.abc import AsyncIterator, Iterator
 from copy import deepcopy
 from textwrap import dedent
@@ -70,6 +71,15 @@ def get_component_toolkit():
 
 BACKWARDS_COMPATIBLE_ATTRIBUTES = ["user_id", "vertex", "tracing_service"]
 CONFIG_ATTRIBUTES = ["_display_name", "_description", "_icon", "_name", "_metadata"]
+
+# ==================== 专用事件循环线程（用于同步上下文中调用异步变量解析） ====================
+# 创建独立的事件循环，避免与主事件循环冲突
+_variable_resolution_loop = asyncio.new_event_loop()
+_variable_resolution_thread = threading.Thread(
+    target=_variable_resolution_loop.run_forever, name="VariableResolutionThread", daemon=True
+)
+_variable_resolution_thread.start()
+logger.info("[Component] Started dedicated event loop thread for variable resolution")
 
 
 class PlaceholderGraph(NamedTuple):
@@ -1083,13 +1093,21 @@ class Component(CustomComponent):
 
         For each parameter matching a defined input, sets the input's value and updates the parameter
         dictionary with the validated value.
+
+        Automatically resolves {variableName} patterns in fields configured with resolve_variables=True.
         """
         for key, value in params.copy().items():
             if key not in self._inputs:
                 continue
             input_ = self._inputs[key]
-            # BaseInputMixin has a `validate_assignment=True`
 
+            # 自动变量解析：如果字段配置了 resolve_variables 且值是字符串
+            if getattr(input_, "resolve_variables", False) and isinstance(value, str) and value:
+                # 使用同步包装方法，内部会快速检测是否需要解析
+                value = self.resolve_variables_in_template_sync(value, key)
+                logger.debug(f"[{self.__class__.__name__}] Auto-resolved variables in field '{key}'")
+
+            # BaseInputMixin has a `validate_assignment=True`
             input_.value = value
             params[input_.name] = input_.value
 
@@ -1375,6 +1393,49 @@ class Component(CustomComponent):
                     # Keep the original {variableName} if resolution fails
 
         return resolved_text
+
+    def _should_resolve_variables(self, value: str) -> bool:
+        """Quick check if value contains {variableName} pattern.
+
+        Args:
+            value: String value to check
+
+        Returns:
+            bool: True if value contains {variableName} pattern, False otherwise
+        """
+        import re
+
+        return bool(re.search(r"\{([a-zA-Z_][a-zA-Z0-9_]*)\}", value))
+
+    def resolve_variables_in_template_sync(self, text: str, field_name: str = "template") -> str:
+        """Synchronous wrapper for resolve_variables_in_template.
+
+        Uses dedicated event loop thread to run async variable resolution
+        from synchronous context, avoiding conflicts with main event loop.
+
+        Args:
+            text: Text containing {variableName} patterns
+            field_name: Name of the field using this template
+
+        Returns:
+            Text with variables resolved to their actual values
+        """
+        # 快速检测：如果不包含变量模式，直接返回
+        if not self._should_resolve_variables(text):
+            return text
+
+        # 在专用事件循环中调度协程
+        future = asyncio.run_coroutine_threadsafe(
+            self.resolve_variables_in_template(text, field_name), _variable_resolution_loop
+        )
+
+        try:
+            # 15秒超时（变量解析通常很快）
+            return future.result(timeout=15)
+        except Exception as e:
+            logger.warning(f"[{self.__class__.__name__}] Failed to resolve variables in '{field_name}': {e}")
+            # 解析失败保持原值
+            return text
 
     def _build_artifact(self, result):
         """Builds an artifact dictionary containing a string representation, raw data, and type for a result.

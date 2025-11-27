@@ -326,9 +326,12 @@ class MessageTextInput(StrInput, MetadataTraceMixin, InputTraceMixin, ToolModeMi
     Attributes:
         input_types (list[str]): A list of input types that this component supports.
             Defaults to ["Message"]. Can be overridden to accept other types or empty list for any type.
+        resolve_variables (bool): Enables automatic resolution of {variableName} patterns.
+            Defaults to True for this input type.
     """
 
     input_types: list[str] = ["Message"]
+    resolve_variables: bool = True  # 默认启用自动变量解析
 
     def __init__(
         self,

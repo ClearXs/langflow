@@ -456,9 +456,33 @@ class ETLTableInputComponent(Component):
                         datasource_info = metadata
                         break
 
-                # 如果在 options_metadata 中找不到，尝试重新加载数据源列表
-                if not datasource_info:
-                    logger.warning("[TableInput] Datasource info not found in options_metadata, reloading datasources")
+                # ✅ 检查 datasource_info 是否包含必要的连接参数
+                # 如果是内置数据源但缺少 host/port，或者是公共数据源但缺少 raw_data，则重新加载
+                needs_reload = False
+                if datasource_info:
+                    source = datasource_info.get("source")
+                    if source == "builtin":
+                        # 内置数据源需要 host 和 port（Neo4j除外，它可能用url）
+                        ds_type = datasource_info.get("type", "").lower()
+                        if ds_type != "neo4j" and (
+                            not datasource_info.get("host") or not datasource_info.get("port")
+                        ):
+                            logger.warning(
+                                f"[TableInput] Cached datasource_info missing connection params (host/port), reloading"
+                            )
+                            needs_reload = True
+                    elif source == "public":
+                        # 公共数据源需要 raw_data
+                        if not datasource_info.get("raw_data"):
+                            logger.warning(f"[TableInput] Cached datasource_info missing raw_data, reloading")
+                            needs_reload = True
+
+                # 如果在 options_metadata 中找不到，或者缺少必要参数，尝试重新加载数据源列表
+                if not datasource_info or needs_reload:
+                    if not datasource_info:
+                        logger.warning("[TableInput] Datasource info not found in options_metadata, reloading datasources")
+                    else:
+                        logger.info("[TableInput] Reloading datasources to get complete connection params")
                     all_datasources = self._load_unified_datasources()
                     for ds in all_datasources:
                         # 优先按 id 匹配，向后兼容 display_name
@@ -566,11 +590,34 @@ class ETLTableInputComponent(Component):
                         datasource_info = metadata
                         break
 
-                # 如果在 options_metadata 中找不到，尝试重新加载数据源列表
-                if not datasource_info:
-                    logger.warning(
-                        "[TableInput] Datasource info not found in options_metadata for preview, reloading datasources"
-                    )
+                # ✅ 检查 datasource_info 是否包含必要的连接参数（与SQL分析相同的逻辑）
+                needs_reload = False
+                if datasource_info:
+                    source = datasource_info.get("source")
+                    if source == "builtin":
+                        # 内置数据源需要 host 和 port（Neo4j除外）
+                        ds_type = datasource_info.get("type", "").lower()
+                        if ds_type != "neo4j" and (
+                            not datasource_info.get("host") or not datasource_info.get("port")
+                        ):
+                            logger.warning(
+                                f"[TableInput] Preview: Cached datasource_info missing connection params, reloading"
+                            )
+                            needs_reload = True
+                    elif source == "public":
+                        # 公共数据源需要 raw_data
+                        if not datasource_info.get("raw_data"):
+                            logger.warning(f"[TableInput] Preview: Cached datasource_info missing raw_data, reloading")
+                            needs_reload = True
+
+                # 如果在 options_metadata 中找不到，或缺少必要参数，尝试重新加载数据源列表
+                if not datasource_info or needs_reload:
+                    if not datasource_info:
+                        logger.warning(
+                            "[TableInput] Datasource info not found in options_metadata for preview, reloading datasources"
+                        )
+                    else:
+                        logger.info("[TableInput] Preview: Reloading datasources to get complete connection params")
                     all_datasources = self._load_unified_datasources()
                     for ds in all_datasources:
                         # 支持通过 display_name 或 id 来匹配
@@ -946,6 +993,15 @@ class ETLTableInputComponent(Component):
             # 添加内置数据源 - 包含完整连接参数（包括密码），用于本地构建连接字符串
             for ds in builtin_datasources:
                 display_name = f"{ds['name']} ({ds['type']}) [自定义]"
+
+                # ✅ 调试日志：显示从 builtin_datasources 获取的值
+                logger.debug(
+                    f"[TableInput] Adding builtin datasource {ds['name']}: "
+                    f"has_host={ds.get('host') is not None}, has_port={ds.get('port') is not None}, "
+                    f"host={ds.get('host')}, port={ds.get('port')}, "
+                    f"keys={list(ds.keys())}"
+                )
+
                 all_datasources.append(
                     {
                         "id": str(ds["id"]),
@@ -1012,6 +1068,7 @@ class ETLTableInputComponent(Component):
 
     def _get_builtin_datasources(self) -> list[dict]:
         """获取内置数据源 - 直接从数据库读取，包含完整连接信息"""
+        logger.info("[TableInput] ✅ _get_builtin_datasources() called - NEW CODE VERSION")
         try:
             # 直接从数据库读取数据源，避免API调用导致的死锁
             import asyncio
@@ -1033,6 +1090,15 @@ class ETLTableInputComponent(Component):
 
                         builtin_list = []
                         for ds in datasources:
+                            # ✅ 调试日志：查看从数据库加载的数据源字段值
+                            logger.debug(
+                                f"[TableInput] DB datasource {ds.name}: "
+                                f"type={ds.type}, host={ds.host}, port={ds.port}, "
+                                f"database={ds.database}, username={ds.username}, "
+                                f"has_password={bool(ds.password)}, "
+                                f"advanced_config={ds.advanced_config[:100] if ds.advanced_config else None}"
+                            )
+
                             # 构建包含所有连接参数的字典（包括密码）
                             ds_dict = {
                                 "id": str(ds.id),
@@ -1402,6 +1468,13 @@ class ETLTableInputComponent(Component):
 
         source = datasource_info.get("source")
 
+        # ✅ 入口日志 - 验证新代码已加载
+        logger.info(
+            f"[TableInput] _build_connection_string_from_datasource_info ENTRY - "
+            f"source={source}, type={datasource_info.get('type')}, "
+            f"keys={list(datasource_info.keys())}"
+        )
+
         # 公共数据源：从 raw_data 提取参数
         if source == "public":
             raw_data = datasource_info.get("raw_data", {})
@@ -1494,6 +1567,13 @@ class ETLTableInputComponent(Component):
 
         # 验证必填字段（Neo4j已经在上面处理并返回了）
         if not host or not port:
+            # ✅ 详细错误信息，帮助诊断
+            logger.error(
+                f"[TableInput] VALIDATION FAILED - Missing host/port for {ds_type} datasource. "
+                f"source={source}, host={host}, port={port}, "
+                f"datasource_info keys: {list(datasource_info.keys())}, "
+                f"datasource_info content: {datasource_info}"
+            )
             raise ValueError(f"Missing required parameters: host={host}, port={port}")
 
         # URL编码用户名和密码

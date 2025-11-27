@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import IconComponent from "@/components/common/genericIconComponent";
 import { Button } from "@/components/ui/button";
@@ -41,6 +41,14 @@ export default function RuntimeVariablesModal({
   ]);
   const [isVariablesOpen, setIsVariablesOpen] = useState(false);
 
+  // Reset state when modal closes
+  useEffect(() => {
+    if (!open) {
+      setVariables([{ key: "", value: "" }]);
+      setIsVariablesOpen(false);
+    }
+  }, [open]);
+
   // Merge all variables for display
   const allVariables = useMemo(() => {
     const global = (globalVariables || []).map((v) => ({
@@ -48,6 +56,7 @@ export default function RuntimeVariablesModal({
       displayName: `${v.name} [${t("variable.globalTag")}]`,
       description: v.description,
       isSystem: false,
+      example: undefined,
     }));
 
     const system = (systemVariables || []).map((v) => ({

@@ -99,6 +99,9 @@ class BaseInputMixin(CrossModuleModel, validate_assignment=True):
     title_case: bool = False
     """Specifies if the field should be displayed in title case. Defaults to True."""
 
+    resolve_variables: bool = False
+    """Specifies if the field should automatically resolve {variableName} patterns. Defaults to False."""
+
     input_group: str = "default"
     """Specifies the group this input belongs to for visual organization.
     - 'default': Regular inputs shown in main area

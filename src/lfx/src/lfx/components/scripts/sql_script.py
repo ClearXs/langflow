@@ -1064,15 +1064,12 @@ class ETLSQLScriptComponent(Component):
         This is called during configuration to preview execution results.
         """
         try:
-            # Resolve variables in SQL script using base Component method
-            import asyncio
-
-            resolved_sql = asyncio.run(self.resolve_variables_in_template(sql_script, "sql_script"))
-            logger.debug(f"[SQLScript] SQL after variable resolution (preview): {resolved_sql[:100]}...")
+            # Variables are automatically resolved in _validate_inputs()
+            # sql_script parameter already contains resolved values
 
             # Parse statements
             self.status = i18n.t("components.scripts.sql_script.status.parsing")
-            statements = self._parse_sql_statements(resolved_sql, statement_separator)
+            statements = self._parse_sql_statements(sql_script, statement_separator)
 
             if not statements:
                 logger.warning("[SQLScript] No statements to execute")
@@ -1254,11 +1251,8 @@ class ETLSQLScriptComponent(Component):
                 logger.warning("[SQLScript] Missing datasource or SQL script")
                 raise ValueError(i18n.t("components.scripts.sql_script.errors.no_datasource"))
 
-            # Resolve variables in SQL script using base Component method
-            import asyncio
-
-            resolved_sql = asyncio.run(self.resolve_variables_in_template(self.sql_script, "sql_script"))
-            logger.debug(f"[SQLScript] SQL after variable resolution: {resolved_sql[:100]}...")
+            # Variables are automatically resolved in _validate_inputs()
+            # self.sql_script already contains resolved values
 
             # Get datasource ID
             datasource_id = self._get_datasource_id()
@@ -1266,7 +1260,7 @@ class ETLSQLScriptComponent(Component):
 
             # Parse statements
             self.status = i18n.t("components.scripts.sql_script.status.parsing")
-            statements = self._parse_sql_statements(resolved_sql, self.statement_separator)
+            statements = self._parse_sql_statements(self.sql_script, self.statement_separator)
 
             if not statements:
                 logger.warning("[SQLScript] No statements to execute")

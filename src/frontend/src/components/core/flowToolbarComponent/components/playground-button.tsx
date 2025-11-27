@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import ForwardedIconComponent from "@/components/common/genericIconComponent";
 import ShadTooltip from "@/components/common/shadTooltipComponent";
@@ -63,6 +63,13 @@ const PlaygroundButton = ({
   const setRuntimeVariables = useFlowStore(
     (state) => state.setRuntimeVariables,
   );
+
+  // Reset runtime variables modal when playground closes
+  useEffect(() => {
+    if (!open) {
+      setRuntimeVarsOpen(false);
+    }
+  }, [open]);
 
   const handlePlaygroundClick = () => {
     // First open runtime variables modal

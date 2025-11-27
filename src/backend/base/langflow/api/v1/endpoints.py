@@ -1068,13 +1068,80 @@ async def custom_component_update(
         if code_request.node_id:
             updated_build_config["_node_id"] = code_request.node_id
 
+        # ==================== 预解析 build_config 中的变量 ====================
+        # 创建副本用于变量解析,传给 update_build_config 使用解析后的值
+        # 但返回给前端的仍然是原始值,保持用户输入的 {variableName} 模板
+        from langflow.schema.dotdict import dotdict
+
+        # 使用 dotdict 构造器创建副本，而不是 deepcopy（避免破坏 dotdict 的方法）
+        resolved_build_config = dotdict({k: (dotdict(dict(v)) if isinstance(v, dict) else v) for k, v in updated_build_config.items()})
+
+        if isinstance(cc_instance, Component) and hasattr(cc_instance, "_inputs"):
+            for field_name, field_config in resolved_build_config.items():
+                # 检查该字段是否在组件的输入定义中
+                if field_name in cc_instance._inputs:
+                    input_obj = cc_instance._inputs[field_name]
+
+                    # 只处理配置了 resolve_variables=True 的字段
+                    if getattr(input_obj, "resolve_variables", False):
+                        # 安全地获取值
+                        value = field_config.get("value") if isinstance(field_config, dict) else None
+
+                        # 只处理非空字符串
+                        if isinstance(value, str) and value:
+                            try:
+                                # 使用组件实例的同步解析方法（内部会快速检测是否包含变量模式）
+                                resolved_value = cc_instance.resolve_variables_in_template_sync(value, field_name)
+                                field_config["value"] = resolved_value
+                                logger.debug(
+                                    f"[API] Pre-resolved variables in field '{field_name}' for component '{cc_instance.display_name}': "
+                                    f"'{value}' -> '{resolved_value}'"
+                                )
+                            except Exception as e:
+                                # 解析失败保持原值（已在 resolve_variables_in_template_sync 中处理）
+                                logger.warning(
+                                    f"[API] Failed to pre-resolve variables in field '{field_name}': {e}"
+                                )
+
+        # 传给 update_build_config 的是解析后的副本
         await update_component_build_config(
             cc_instance,
-            build_config=updated_build_config,
+            build_config=resolved_build_config,  # 使用解析后的副本
             field_value=code_request.field_value,
             field_name=code_request.field,
             action=code_request.action,  # Pass action parameter
         )
+
+        # ==================== 同步组件对 build_config 的修改回原始版本 ====================
+        # update_build_config 可能会添加新字段或修改现有字段（如设置下拉选项）
+        # 我们需要将这些修改同步回 updated_build_config，但保持 resolve_variables=True 字段的原始值
+        if isinstance(cc_instance, Component) and hasattr(cc_instance, "_inputs"):
+            for field_name, field_config in resolved_build_config.items():
+                # 检查该字段是否在组件的输入定义中
+                if field_name in cc_instance._inputs:
+                    input_obj = cc_instance._inputs[field_name]
+                    # 如果是 resolve_variables=True 的字段，保持原始值不变
+                    if getattr(input_obj, "resolve_variables", False):
+                        # 同步除了 value 之外的所有修改
+                        if isinstance(field_config, dict) and field_name in updated_build_config:
+                            original_value = updated_build_config[field_name].get("value") if isinstance(
+                                updated_build_config[field_name], dict
+                            ) else None
+                            # 复制整个字段配置
+                            updated_build_config[field_name] = dotdict(dict(field_config))
+                            # 恢复原始值
+                            if original_value is not None:
+                                updated_build_config[field_name]["value"] = original_value
+                        elif field_name not in updated_build_config:
+                            # 如果是新添加的字段，直接复制
+                            updated_build_config[field_name] = field_config
+                    else:
+                        # 非 resolve_variables 字段，完全同步
+                        updated_build_config[field_name] = field_config
+                else:
+                    # 不在 _inputs 中的字段（如动态添加的字段），完全同步
+                    updated_build_config[field_name] = field_config
+
         if "code" not in updated_build_config or not updated_build_config.get("code", {}).get("value"):
             # Determine if this is a built-in component: code is empty or only whitespace
             is_builtin = not code_request.code or code_request.code.strip() == ""

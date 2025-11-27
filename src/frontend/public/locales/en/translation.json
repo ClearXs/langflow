@@ -573,7 +573,9 @@
       "errorCreatingVariable": "Error creating variable",
       "errorUpdatingVariable": "Error updating variable",
       "unexpectedErrorCreating": "An unexpected error occurred while creating variable. Please try again.",
-      "unexpectedErrorUpdating": "An unexpected error occurred while updating variable. Please try again."
+      "unexpectedErrorUpdating": "An unexpected error occurred while updating variable. Please try again.",
+      "variableDeletedSuccessfully": "Variable {{name}} deleted successfully",
+      "unexpectedErrorDeleting": "An unexpected error occurred while deleting variable. Please try again."
     },
     "modal": {
       "title": "Create Variable",
@@ -618,7 +620,11 @@
     "codeArea": {
       "hint": "💡 Tip: Use {variableName} format to reference variables in your code",
       "availableCount": "{{count}} variables available"
-    }
+    },
+    "editVariable": "Edit variable",
+    "deleteVariable": "Delete variable",
+    "deleteConfirmTitle": "Delete Variable",
+    "deleteConfirmDescription": "Are you sure you want to delete the variable {{name}}? This action cannot be undone."
   },
   "messages": {
     "noData": "No data available",

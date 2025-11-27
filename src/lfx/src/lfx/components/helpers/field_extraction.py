@@ -779,6 +779,42 @@ def extract_fields_from_node_template(
                     {"name": "updated_at", "type": "datetime"},
                 ]
 
+        # For API Input
+        elif upstream_node_type == "ETLAPIInput":
+            # ETLAPIInput dynamically fetches data from API
+            # We cannot predict the exact schema without execution
+            # Try to get from upstream_data if available (after execution)
+            if "upstream_data" in template:
+                upstream_data_config = template.get("upstream_data", {})
+                upstream_data_value = upstream_data_config.get("value")
+                if upstream_data_value and isinstance(upstream_data_value, list) and len(upstream_data_value) > 0:
+                    # Extract fields from actual data sample
+                    first_sample = upstream_data_value[0]
+                    if isinstance(first_sample, dict):
+                        if "data" in first_sample and isinstance(first_sample["data"], dict):
+                            sample_dict = first_sample["data"]
+                        else:
+                            sample_dict = first_sample
+
+                        fields = [
+                            {
+                                "name": key,
+                                "type": _infer_type_from_value(value),
+                            }
+                            for key, value in sample_dict.items()
+                        ]
+                        logger.info(f"[{component_name}] Extracted {len(fields)} fields from API Input sample data")
+                        return fields
+
+            # If no sample data available, return generic placeholder fields
+            logger.info(f"[{component_name}] ETLAPIInput has no sample data, providing generic default fields")
+            fields = [
+                {"name": "id", "type": "string"},
+                {"name": "data", "type": "string"},
+                {"name": "timestamp", "type": "datetime"},
+                {"name": "status", "type": "string"},
+            ]
+
         # For Kafka Input
         elif upstream_node_type == "ETLKafkaInput":
             # Priority 1: Extract from defined schema
@@ -880,6 +916,147 @@ def extract_fields_from_node_template(
                             )
                 except Exception as e:
                     logger.debug(f"[{component_name}] Failed to extract fields from ConditionalRouter's upstream: {e}")
+
+        # For DataOperations - calculate output fields based on operation type
+        elif upstream_node_type == "DataOperations":
+            logger.info(f"[{component_name}] DataOperations detected, analyzing operation type")
+
+            # First, check if output fields were already calculated during update_build_config
+            if "_output_fields" in template:
+                output_fields = template.get("_output_fields", {}).get("value")
+                if output_fields and isinstance(output_fields, list):
+                    fields = output_fields
+                    logger.info(
+                        f"[{component_name}] Using pre-calculated output fields from DataOperations: {len(fields)} fields"
+                    )
+                    return fields
+
+            # Otherwise, try to calculate based on operation and upstream
+            if "operations" in template:
+                operations_config = template.get("operations", {})
+                if isinstance(operations_config, dict):
+                    operations_value = operations_config.get("value", [])
+                    if isinstance(operations_value, list) and len(operations_value) > 0:
+                        operation_name = (
+                            operations_value[0].get("name", "") if isinstance(operations_value[0], dict) else ""
+                        )
+
+                        logger.debug(f"[{component_name}] DataOperations operation: {operation_name}")
+
+                        # Get upstream fields first
+                        upstream_fields = []
+                        if graph_data:
+                            try:
+                                from lfx.custom.graph_utils import find_upstream_node_id
+
+                                data_ops_upstream_id = find_upstream_node_id(
+                                    graph_data, upstream_node.get("id"), "data"
+                                )
+                                if data_ops_upstream_id:
+                                    upstream_nodes = graph_data.get("nodes", [])
+                                    data_ops_upstream_node = None
+                                    for node in upstream_nodes:
+                                        if node.get("id") == data_ops_upstream_id:
+                                            data_ops_upstream_node = node
+                                            break
+
+                                    if data_ops_upstream_node:
+                                        upstream_fields = extract_fields_from_node_template(
+                                            data_ops_upstream_node, component_name, graph_data
+                                        )
+                                        logger.info(
+                                            f"[{component_name}] Extracted {len(upstream_fields)} fields from DataOperations upstream"
+                                        )
+                            except Exception as e:
+                                logger.debug(
+                                    f"[{component_name}] Failed to get upstream fields for DataOperations: {e}"
+                                )
+
+                        # Calculate output fields based on operation type
+                        if upstream_fields:
+                            # Map localized operation names to internal names
+                            import i18n
+
+                            operation_map = {
+                                i18n.t("components.processing.data_operations.operations.select_keys"): "Select Keys",
+                                i18n.t("components.processing.data_operations.operations.literal_eval"): "Literal Eval",
+                                i18n.t("components.processing.data_operations.operations.combine"): "Combine",
+                                i18n.t(
+                                    "components.processing.data_operations.operations.filter_values"
+                                ): "Filter Values",
+                                i18n.t(
+                                    "components.processing.data_operations.operations.append_update"
+                                ): "Append or Update",
+                                i18n.t("components.processing.data_operations.operations.remove_keys"): "Remove Keys",
+                                i18n.t("components.processing.data_operations.operations.rename_keys"): "Rename Keys",
+                                i18n.t(
+                                    "components.processing.data_operations.operations.path_selection"
+                                ): "Path Selection",
+                                i18n.t(
+                                    "components.processing.data_operations.operations.jq_expression"
+                                ): "JQ Expression",
+                            }
+                            internal_operation = operation_map.get(operation_name, operation_name)
+
+                            if internal_operation == "Select Keys":
+                                # Only selected keys are output
+                                select_keys_config = template.get("select_keys_input", {})
+                                select_keys_value = select_keys_config.get("value", [])
+                                if select_keys_value:
+                                    selected_names = set(select_keys_value)
+                                    fields = [f for f in upstream_fields if f["name"] in selected_names]
+                                else:
+                                    fields = upstream_fields
+
+                            elif internal_operation == "Remove Keys":
+                                # All fields except removed keys
+                                remove_keys_config = template.get("remove_keys_input", {})
+                                remove_keys_value = remove_keys_config.get("value", [])
+                                if remove_keys_value:
+                                    removed_names = set(remove_keys_value)
+                                    fields = [f for f in upstream_fields if f["name"] not in removed_names]
+                                else:
+                                    fields = upstream_fields
+
+                            elif internal_operation == "Rename Keys":
+                                # Fields with renamed names
+                                rename_keys_config = template.get("rename_keys_input", {})
+                                rename_keys_value = rename_keys_config.get("value", {})
+                                if rename_keys_value and isinstance(rename_keys_value, dict):
+                                    fields = []
+                                    for field in upstream_fields:
+                                        new_name = rename_keys_value.get(field["name"], field["name"])
+                                        fields.append({"name": new_name, "type": field["type"]})
+                                else:
+                                    fields = upstream_fields
+
+                            elif internal_operation == "Append or Update":
+                                # Original fields + new fields
+                                append_data_config = template.get("append_update_data", {})
+                                append_data_value = append_data_config.get("value", {})
+                                fields = upstream_fields.copy()
+                                if append_data_value and isinstance(append_data_value, dict):
+                                    existing_names = {f["name"] for f in fields}
+                                    for key, value in append_data_value.items():
+                                        if key not in existing_names:
+                                            fields.append({"name": key, "type": _infer_type_from_value(value)})
+
+                            elif internal_operation in ["Literal Eval", "Filter Values", "Combine"]:
+                                # All fields preserved
+                                fields = upstream_fields
+
+                            elif internal_operation in ["Path Selection", "JQ Expression"]:
+                                # Output depends on path/query - return generic result
+                                fields = [{"name": "result", "type": "string"}]
+
+                            else:
+                                # Default: return all upstream fields
+                                fields = upstream_fields
+
+                            if fields:
+                                logger.info(
+                                    f"[{component_name}] Calculated {len(fields)} output fields for DataOperations '{internal_operation}'"
+                                )
 
         if fields:
             logger.info(f"[{component_name}] Extracted {len(fields)} fields from upstream config")
