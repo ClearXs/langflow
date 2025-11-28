@@ -1158,37 +1158,15 @@ class Component(CustomComponent):
 
         Automatically resolves {variableName} patterns in fields configured with resolve_variables=True.
         """
-        logger.info(f"[{self.__class__.__name__}] _validate_inputs called with {len(params)} params")
-
         for key, value in params.copy().items():
             if key not in self._inputs:
-                logger.debug(f"[{self.__class__.__name__}] Skipping '{key}' - not in _inputs")
                 continue
             input_ = self._inputs[key]
 
             # 自动变量解析：如果字段配置了 resolve_variables 且值是字符串
-            resolve_vars = getattr(input_, "resolve_variables", False)
-            logger.info(
-                f"[{self.__class__.__name__}] Field '{key}': "
-                f"resolve_variables={resolve_vars}, "
-                f"is_string={isinstance(value, str)}, "
-                f"has_value={bool(value)}, "
-                f"value_preview={repr(value[:100]) if isinstance(value, str) and value else repr(value)}"
-            )
-
-            if resolve_vars and isinstance(value, str) and value:
+            if getattr(input_, "resolve_variables", False) and isinstance(value, str) and value:
                 # 使用同步包装方法，内部会快速检测是否需要解析
-                original_value = value
                 value = self.resolve_variables_in_template_sync(value, key)
-                logger.info(
-                    f"[{self.__class__.__name__}] Auto-resolved variables in field '{key}': "
-                    f"'{original_value[:100]}...' -> '{value[:100]}...'"
-                )
-            else:
-                logger.debug(
-                    f"[{self.__class__.__name__}] Skipping variable resolution for field '{key}' "
-                    f"(resolve_variables={resolve_vars}, type={type(value).__name__})"
-                )
 
             # BaseInputMixin has a `validate_assignment=True`
             input_.value = value
@@ -1442,19 +1420,11 @@ class Component(CustomComponent):
 
         from langflow.services.deps import session_scope
 
-        await logger.ainfo(
-            f"[{self.__class__.__name__}] resolve_variables_in_template (async) started: "
-            f"field_name='{field_name}', text_length={len(text)}"
-        )
-
         # Find all {variableName} patterns
         pattern = r"\{([a-zA-Z_][a-zA-Z0-9_]*)\}"
         matches = re.findall(pattern, text)
 
-        await logger.ainfo(f"[{self.__class__.__name__}] Found {len(matches)} variable patterns: {matches}")
-
         if not matches:
-            await logger.ainfo(f"[{self.__class__.__name__}] No variable patterns found, returning original text")
             return text
 
         # Remove duplicates while preserving order
@@ -1465,42 +1435,20 @@ class Component(CustomComponent):
                 unique_vars.append(var)
                 seen.add(var)
 
-        await logger.ainfo(f"[{self.__class__.__name__}] Unique variables to resolve: {unique_vars}")
-
         # Resolve each variable
         resolved_text = text
         async with session_scope() as session:
-            await logger.ainfo(
-                f"[{self.__class__.__name__}] Database session opened, flow_id={getattr(self, 'flow_id', None)}"
-            )
-
             for var_name in unique_vars:
                 try:
-                    await logger.ainfo(
-                        f"[{self.__class__.__name__}] Attempting to resolve variable '{var_name}' "
-                        f"(field='{field_name}', flow_id={getattr(self, 'flow_id', None)})"
-                    )
                     # Try to get the variable value
                     var_value = await self.get_variable(
                         name=var_name, field=field_name, session=session, flow_id=getattr(self, "flow_id", None)
                     )
-                    await logger.ainfo(
-                        f"[{self.__class__.__name__}] Successfully resolved variable '{var_name}' = {var_value!r}"
-                    )
                     # Replace all occurrences of {variableName} with actual value
                     resolved_text = resolved_text.replace(f"{{{var_name}}}", str(var_value))
-                    await logger.ainfo(f"[{self.__class__.__name__}] Replaced {{{var_name}}} with value in text")
                 except Exception as e:
-                    await logger.awarning(
-                        f"[{self.__class__.__name__}] Could not resolve variable '{var_name}' in {field_name}: {e}",
-                        exc_info=True,
-                    )
+                    await logger.awarning(f"[{self.__class__.__name__}] Could not resolve variable '{var_name}': {e}")
                     # Keep the original {variableName} if resolution fails
-
-        await logger.ainfo(
-            f"[{self.__class__.__name__}] Variable resolution completed: "
-            f"original_length={len(text)}, resolved_length={len(resolved_text)}"
-        )
 
         return resolved_text
 
@@ -1530,34 +1478,11 @@ class Component(CustomComponent):
         Returns:
             Text with variables resolved to their actual values
         """
-        logger.info(
-            f"[{self.__class__.__name__}] resolve_variables_in_template_sync called: "
-            f"field_name='{field_name}', text_preview='{text[:100]}...'"
-        )
-
         # 快速检测：如果不包含变量模式，直接返回
-        has_variables = self._should_resolve_variables(text)
-        logger.info(
-            f"[{self.__class__.__name__}] Quick check result: has_variables={has_variables} "
-            f"(searched for pattern {{variableName}})"
-        )
-
-        if not has_variables:
-            logger.info(f"[{self.__class__.__name__}] No variables found, returning original text")
+        if not self._should_resolve_variables(text):
             return text
 
-        logger.info(
-            f"[{self.__class__.__name__}] Variables detected, scheduling async resolution in dedicated event loop"
-        )
-
         # 检查并恢复事件循环线程（如果死了）
-        logger.info(
-            f"[{self.__class__.__name__}] Event loop thread status: "
-            f"alive={_variable_resolution_thread.is_alive()}, "
-            f"loop_running={_variable_resolution_loop.is_running()}, "
-            f"loop_closed={_variable_resolution_loop.is_closed()}"
-        )
-
         thread_recovered = _ensure_event_loop_thread_alive()
         if not thread_recovered:
             logger.error(
@@ -1576,12 +1501,7 @@ class Component(CustomComponent):
                 variable_names = re.findall(r"\{([a-zA-Z_][a-zA-Z0-9_]*)\}", text)
 
                 if not variable_names:
-                    logger.info(f"[{self.__class__.__name__}] No variable names found in text")
                     return text
-
-                logger.info(
-                    f"[{self.__class__.__name__}] Found {len(variable_names)} variables to resolve: {variable_names}"
-                )
 
                 resolved_text = text
                 resolved_count = 0
@@ -1627,21 +1547,16 @@ class Component(CustomComponent):
 
                             resolved_text = resolved_text.replace(placeholder, value)
                             resolved_count += 1
-                            logger.info(f"[{self.__class__.__name__}] Resolved system variable {var_name} = {value}")
                         else:
                             # 非系统变量（全局变量或runtime变量）无法在同步模式下解析
                             logger.warning(
                                 f"[{self.__class__.__name__}] Variable '{var_name}' is not a system variable, "
-                                f"cannot resolve in manual synchronous mode, keeping placeholder"
+                                f"cannot resolve in synchronous fallback mode"
                             )
 
                     except Exception as e:
                         logger.error(f"[{self.__class__.__name__}] Failed to resolve variable '{var_name}': {e}")
 
-                logger.info(
-                    f"[{self.__class__.__name__}] Manual synchronous resolution completed: "
-                    f"resolved {resolved_count}/{len(variable_names)} variables"
-                )
                 return resolved_text
 
             except Exception as e:
@@ -1650,41 +1565,22 @@ class Component(CustomComponent):
 
         # 在专用事件循环中调度协程
         try:
-            logger.info(f"[{self.__class__.__name__}] Scheduling coroutine in event loop...")
             future = asyncio.run_coroutine_threadsafe(
                 self.resolve_variables_in_template(text, field_name), _variable_resolution_loop
             )
-            logger.info(
-                f"[{self.__class__.__name__}] Coroutine scheduled successfully, "
-                f"future={future}, waiting for result (timeout=15s)..."
-            )
         except Exception as e:
-            logger.error(f"[{self.__class__.__name__}] Failed to schedule coroutine in event loop: {e}", exc_info=True)
+            logger.error(f"[{self.__class__.__name__}] Failed to schedule coroutine: {e}")
             return text
 
         try:
             # 15秒超时（变量解析通常很快）
-            logger.info(f"[{self.__class__.__name__}] Waiting for future.result()...")
-            result = future.result(timeout=15)
-            logger.info(
-                f"[{self.__class__.__name__}] Variable resolution completed successfully: "
-                f"original='{text[:100]}...', resolved='{result[:100]}...'"
-            )
-            return result
+            return future.result(timeout=15)
         except TimeoutError:
-            logger.error(
-                f"[{self.__class__.__name__}] Variable resolution TIMED OUT after 15 seconds! "
-                f"Event loop might be blocked or deadlocked. Future status: {future._state if hasattr(future, '_state') else 'unknown'}"
-            )
-            # 尝试取消任务
+            logger.error(f"[{self.__class__.__name__}] Variable resolution timeout after 15s")
             future.cancel()
             return text
         except Exception as e:
-            logger.error(
-                f"[{self.__class__.__name__}] Failed to resolve variables in '{field_name}': {type(e).__name__}: {e}",
-                exc_info=True,
-            )
-            # 解析失败保持原值
+            logger.error(f"[{self.__class__.__name__}] Variable resolution failed: {type(e).__name__}: {e}")
             return text
 
     def _build_artifact(self, result):
