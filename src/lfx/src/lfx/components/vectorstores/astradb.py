@@ -836,7 +836,9 @@ class AstraDBVectorStoreComponent(LCVectorStoreComponent):
 
         return build_config
 
-    async def update_build_config(self, build_config: dict, field_value: str, field_name: str | None = None, action: str | None = None) -> dict:
+    async def update_build_config(
+        self, build_config: dict, field_value: str, field_name: str | None = None, action: str | None = None
+    ) -> dict:
         """Update build configuration based on field name and value."""
         # Early return if no token provided
         if not self.token:

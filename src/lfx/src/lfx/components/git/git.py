@@ -244,7 +244,9 @@ class GitLoaderComponent(Component):
                         i18n.t("components.git.git.logs.temp_dir_remove_failed", path=temp_dir, error=str(e))
                     )
 
-    def update_build_config(self, build_config: dict, field_value: str, field_name: str | None = None, action: str | None = None) -> dict:
+    def update_build_config(
+        self, build_config: dict, field_value: str, field_name: str | None = None, action: str | None = None
+    ) -> dict:
         """Update build configuration based on field changes."""
         # Hide fields by default
         build_config["repo_path"]["show"] = False

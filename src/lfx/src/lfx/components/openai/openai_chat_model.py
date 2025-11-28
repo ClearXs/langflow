@@ -163,7 +163,9 @@ class OpenAIModelComponent(LCModelComponent):
                 return message
         return None
 
-    def update_build_config(self, build_config: dict, field_value: Any, field_name: str | None = None, action: str | None = None) -> dict:
+    def update_build_config(
+        self, build_config: dict, field_value: Any, field_name: str | None = None, action: str | None = None
+    ) -> dict:
         if field_name in {"base_url", "model_name", "api_key"} and field_value in OPENAI_REASONING_MODEL_NAMES:
             build_config["temperature"]["show"] = False
             build_config["seed"]["show"] = False

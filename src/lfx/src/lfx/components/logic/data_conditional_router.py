@@ -214,7 +214,9 @@ class DataConditionalRouterComponent(Component):
         logger.info(status_msg)
         return False
 
-    def update_build_config(self, build_config: dotdict, field_value: Any, field_name: str | None = None, action: str | None = None):
+    def update_build_config(
+        self, build_config: dotdict, field_value: Any, field_name: str | None = None, action: str | None = None
+    ):
         if field_name == "operator":
             logger.debug(i18n.t("components.logic.data_conditional_router.logs.updating_config", operator=field_value))
 

@@ -142,7 +142,9 @@ class LocalDBComponent(LCVectorStoreComponent):
 
         return [d.name for d in vector_stores_dir.iterdir() if d.is_dir()]
 
-    def update_build_config(self, build_config: dict, field_value: str, field_name: str | None = None, action: str | None = None) -> dict:
+    def update_build_config(
+        self, build_config: dict, field_value: str, field_name: str | None = None, action: str | None = None
+    ) -> dict:
         """Update the build configuration when the mode changes."""
         if field_name == "mode":
             # Hide all dynamic fields by default

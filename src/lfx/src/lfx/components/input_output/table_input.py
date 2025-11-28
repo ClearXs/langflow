@@ -464,9 +464,7 @@ class ETLTableInputComponent(Component):
                     if source == "builtin":
                         # 内置数据源需要 host 和 port（Neo4j除外，它可能用url）
                         ds_type = datasource_info.get("type", "").lower()
-                        if ds_type != "neo4j" and (
-                            not datasource_info.get("host") or not datasource_info.get("port")
-                        ):
+                        if ds_type != "neo4j" and (not datasource_info.get("host") or not datasource_info.get("port")):
                             logger.warning(
                                 "[TableInput] Cached datasource_info missing connection params (host/port), reloading"
                             )
@@ -480,7 +478,9 @@ class ETLTableInputComponent(Component):
                 # 如果在 options_metadata 中找不到，或者缺少必要参数，尝试重新加载数据源列表
                 if not datasource_info or needs_reload:
                     if not datasource_info:
-                        logger.warning("[TableInput] Datasource info not found in options_metadata, reloading datasources")
+                        logger.warning(
+                            "[TableInput] Datasource info not found in options_metadata, reloading datasources"
+                        )
                     else:
                         logger.info("[TableInput] Reloading datasources to get complete connection params")
                     all_datasources = self._load_unified_datasources()
@@ -597,9 +597,7 @@ class ETLTableInputComponent(Component):
                     if source == "builtin":
                         # 内置数据源需要 host 和 port（Neo4j除外）
                         ds_type = datasource_info.get("type", "").lower()
-                        if ds_type != "neo4j" and (
-                            not datasource_info.get("host") or not datasource_info.get("port")
-                        ):
+                        if ds_type != "neo4j" and (not datasource_info.get("host") or not datasource_info.get("port")):
                             logger.warning(
                                 "[TableInput] Preview: Cached datasource_info missing connection params, reloading"
                             )

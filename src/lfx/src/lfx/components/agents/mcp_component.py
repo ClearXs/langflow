@@ -251,7 +251,9 @@ class MCPToolsComponent(ComponentWithCache):
             await logger.aexception(error_msg)
             raise ValueError(error_msg) from e
 
-    async def update_build_config(self, build_config: dict, field_value: str, field_name: str | None = None, action: str | None = None) -> dict:
+    async def update_build_config(
+        self, build_config: dict, field_value: str, field_name: str | None = None, action: str | None = None
+    ) -> dict:
         """Toggle the visibility of connection-specific fields based on the selected mode."""
         try:
             if field_name == "tool":

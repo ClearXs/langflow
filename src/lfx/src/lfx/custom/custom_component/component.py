@@ -101,9 +101,7 @@ def _ensure_event_loop_thread_alive():
     if _variable_resolution_thread.is_alive():
         return True
 
-    logger.warning(
-        "[Component] Event loop thread is DEAD! Attempting recovery..."
-    )
+    logger.warning("[Component] Event loop thread is DEAD! Attempting recovery...")
 
     with _thread_recovery_lock:
         # 双重检查：获取锁后再次确认线程状态
@@ -111,34 +109,38 @@ def _ensure_event_loop_thread_alive():
             return True
 
         try:
-            # 停止旧的事件循环
-            if not _variable_resolution_loop.is_closed():
-                _variable_resolution_loop.call_soon_threadsafe(_variable_resolution_loop.stop)
-                # 给一点时间让循环停止
-                import time
-                time.sleep(0.1)
-                _variable_resolution_loop.close()
+            import time
 
-            # 创建新的事件循环和线程
+            # 停止旧的事件循环（如果它还在运行）
+            if _variable_resolution_loop.is_running() and not _variable_resolution_loop.is_closed():
+                # 在循环中调度停止任务
+                _variable_resolution_loop.call_soon_threadsafe(_variable_resolution_loop.stop)
+                # 等待循环停止
+                time.sleep(0.2)
+
+            # 创建新的事件循环和线程（不关闭旧的，避免 "Cannot close a running event loop" 错误）
             _variable_resolution_loop = asyncio.new_event_loop()
             _variable_resolution_thread = threading.Thread(
                 target=_variable_resolution_loop.run_forever,
                 name="VariableResolutionThread-Recovered",
-                daemon=True
+                daemon=True,
             )
             _variable_resolution_thread.start()
 
-            logger.info(
-                f"[Component] Successfully recovered event loop thread: "
-                f"thread_name={_variable_resolution_thread.name}, "
-                f"thread_alive={_variable_resolution_thread.is_alive()}"
-            )
-            return True
+            # 验证新线程已经启动
+            time.sleep(0.1)
+
+            if _variable_resolution_thread.is_alive():
+                logger.info(
+                    f"[Component] Successfully recovered event loop thread: "
+                    f"thread_name={_variable_resolution_thread.name}, "
+                    f"thread_alive={_variable_resolution_thread.is_alive()}"
+                )
+                return True
+            logger.error("[Component] Thread recovery failed: new thread did not start properly")
+            return False
         except Exception as e:
-            logger.error(
-                f"[Component] Failed to recover event loop thread: {e}",
-                exc_info=True
-            )
+            logger.error(f"[Component] Failed to recover event loop thread: {e}", exc_info=True)
             return False
 
 
@@ -1449,9 +1451,7 @@ class Component(CustomComponent):
         pattern = r"\{([a-zA-Z_][a-zA-Z0-9_]*)\}"
         matches = re.findall(pattern, text)
 
-        await logger.ainfo(
-            f"[{self.__class__.__name__}] Found {len(matches)} variable patterns: {matches}"
-        )
+        await logger.ainfo(f"[{self.__class__.__name__}] Found {len(matches)} variable patterns: {matches}")
 
         if not matches:
             await logger.ainfo(f"[{self.__class__.__name__}] No variable patterns found, returning original text")
@@ -1465,14 +1465,14 @@ class Component(CustomComponent):
                 unique_vars.append(var)
                 seen.add(var)
 
-        await logger.ainfo(
-            f"[{self.__class__.__name__}] Unique variables to resolve: {unique_vars}"
-        )
+        await logger.ainfo(f"[{self.__class__.__name__}] Unique variables to resolve: {unique_vars}")
 
         # Resolve each variable
         resolved_text = text
         async with session_scope() as session:
-            await logger.ainfo(f"[{self.__class__.__name__}] Database session opened, flow_id={getattr(self, 'flow_id', None)}")
+            await logger.ainfo(
+                f"[{self.__class__.__name__}] Database session opened, flow_id={getattr(self, 'flow_id', None)}"
+            )
 
             for var_name in unique_vars:
                 try:
@@ -1489,13 +1489,11 @@ class Component(CustomComponent):
                     )
                     # Replace all occurrences of {variableName} with actual value
                     resolved_text = resolved_text.replace(f"{{{var_name}}}", str(var_value))
-                    await logger.ainfo(
-                        f"[{self.__class__.__name__}] Replaced {{{var_name}}} with value in text"
-                    )
+                    await logger.ainfo(f"[{self.__class__.__name__}] Replaced {{{var_name}}} with value in text")
                 except Exception as e:
                     await logger.awarning(
                         f"[{self.__class__.__name__}] Could not resolve variable '{var_name}' in {field_name}: {e}",
-                        exc_info=True
+                        exc_info=True,
                     )
                     # Keep the original {variableName} if resolution fails
 
@@ -1570,8 +1568,11 @@ class Component(CustomComponent):
             try:
                 # 提取所有变量名
                 import re
+                import uuid
+                from datetime import datetime
 
-                from lfx.services.variable.service import VariableService
+                from langflow.services.variable.constants import is_system_variable
+
                 variable_names = re.findall(r"\{([a-zA-Z_][a-zA-Z0-9_]*)\}", text)
 
                 if not variable_names:
@@ -1582,47 +1583,69 @@ class Component(CustomComponent):
                     f"[{self.__class__.__name__}] Found {len(variable_names)} variables to resolve: {variable_names}"
                 )
 
-                # 同步获取变量值（注意：这会阻塞，但比完全失败好）
-                variable_service = VariableService()
                 resolved_text = text
+                resolved_count = 0
 
                 for var_name in variable_names:
                     try:
-                        # 尝试从运行时变量、系统变量、全局变量中获取
-                        # 注意：这里只能获取系统变量，因为其他需要 user_id
                         placeholder = f"{{{var_name}}}"
 
-                        # 尝试从系统变量获取
-                        from lfx.services.variable import get_default_variables
-                        default_vars = get_default_variables()
+                        # 只处理系统变量（同步方式无法访问数据库获取全局变量和runtime变量）
+                        if is_system_variable(var_name):
+                            # 手动生成系统变量的值（复制自 service.py:resolve_system_variable）
+                            if var_name == "currentDateTime":
+                                value = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                            elif var_name == "currentDate":
+                                value = datetime.now().strftime("%Y-%m-%d")
+                            elif var_name == "uniqueId24":
+                                try:
+                                    from bson import ObjectId
 
-                        if var_name in default_vars:
-                            value = str(default_vars[var_name])
+                                    value = str(ObjectId())
+                                except ImportError:
+                                    value = uuid.uuid4().hex[:24]
+                            elif var_name == "uuid32":
+                                value = uuid.uuid4().hex
+                            elif var_name in [
+                                "lastStartTime",
+                                "lastEndTime",
+                                "lastSuccessStartTime",
+                                "lastSuccessEndTime",
+                            ]:
+                                # 流程历史时间变量需要数据库查询，同步模式无法支持
+                                logger.warning(
+                                    f"[{self.__class__.__name__}] Variable '{var_name}' requires database access, "
+                                    f"cannot resolve in manual synchronous mode, keeping placeholder"
+                                )
+                                continue
+                            else:
+                                logger.warning(
+                                    f"[{self.__class__.__name__}] Unknown system variable '{var_name}', "
+                                    f"keeping placeholder"
+                                )
+                                continue
+
                             resolved_text = resolved_text.replace(placeholder, value)
-                            logger.info(
-                                f"[{self.__class__.__name__}] Resolved {var_name} from system variables: {value}"
-                            )
+                            resolved_count += 1
+                            logger.info(f"[{self.__class__.__name__}] Resolved system variable {var_name} = {value}")
                         else:
+                            # 非系统变量（全局变量或runtime变量）无法在同步模式下解析
                             logger.warning(
-                                f"[{self.__class__.__name__}] Variable '{var_name}' not found in system variables, "
-                                f"keeping placeholder"
+                                f"[{self.__class__.__name__}] Variable '{var_name}' is not a system variable, "
+                                f"cannot resolve in manual synchronous mode, keeping placeholder"
                             )
+
                     except Exception as e:
-                        logger.error(
-                            f"[{self.__class__.__name__}] Failed to resolve variable '{var_name}': {e}"
-                        )
+                        logger.error(f"[{self.__class__.__name__}] Failed to resolve variable '{var_name}': {e}")
 
                 logger.info(
                     f"[{self.__class__.__name__}] Manual synchronous resolution completed: "
-                    f"resolved {len([v for v in variable_names if f'{{{v}}}' not in resolved_text])} variables"
+                    f"resolved {resolved_count}/{len(variable_names)} variables"
                 )
                 return resolved_text
 
             except Exception as e:
-                logger.error(
-                    f"[{self.__class__.__name__}] Manual synchronous resolution failed: {e}",
-                    exc_info=True
-                )
+                logger.error(f"[{self.__class__.__name__}] Manual synchronous resolution failed: {e}", exc_info=True)
                 return text
 
         # 在专用事件循环中调度协程
@@ -1636,9 +1659,7 @@ class Component(CustomComponent):
                 f"future={future}, waiting for result (timeout=15s)..."
             )
         except Exception as e:
-            logger.error(
-                f"[{self.__class__.__name__}] Failed to schedule coroutine in event loop: {e}", exc_info=True
-            )
+            logger.error(f"[{self.__class__.__name__}] Failed to schedule coroutine in event loop: {e}", exc_info=True)
             return text
 
         try:
@@ -1660,9 +1681,8 @@ class Component(CustomComponent):
             return text
         except Exception as e:
             logger.error(
-                f"[{self.__class__.__name__}] Failed to resolve variables in '{field_name}': "
-                f"{type(e).__name__}: {e}",
-                exc_info=True
+                f"[{self.__class__.__name__}] Failed to resolve variables in '{field_name}': {type(e).__name__}: {e}",
+                exc_info=True,
             )
             # 解析失败保持原值
             return text

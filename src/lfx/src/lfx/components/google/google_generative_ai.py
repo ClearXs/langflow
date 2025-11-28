@@ -203,7 +203,9 @@ class GoogleGenerativeAIComponent(LCModelComponent):
 
         return model_ids
 
-    def update_build_config(self, build_config: dotdict, field_value: Any, field_name: str | None = None, action: str | None = None):
+    def update_build_config(
+        self, build_config: dotdict, field_value: Any, field_name: str | None = None, action: str | None = None
+    ):
         """Update build configuration when inputs change.
 
         Args:

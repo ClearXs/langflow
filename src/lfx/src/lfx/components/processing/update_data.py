@@ -66,7 +66,9 @@ class UpdateDataComponent(Component):
         ),
     ]
 
-    def update_build_config(self, build_config: dotdict, field_value: Any, field_name: str | None = None, action: str | None = None):
+    def update_build_config(
+        self, build_config: dotdict, field_value: Any, field_name: str | None = None, action: str | None = None
+    ):
         """Update the build configuration when the number of fields changes."""
         try:
             if field_name == "number_of_fields":

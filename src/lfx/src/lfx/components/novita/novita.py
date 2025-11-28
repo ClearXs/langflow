@@ -104,7 +104,9 @@ class NovitaModelComponent(LCModelComponent):
             return MODEL_NAMES
 
     @override
-    def update_build_config(self, build_config: dict, field_value: str, field_name: str | None = None, action: str | None = None):
+    def update_build_config(
+        self, build_config: dict, field_value: str, field_name: str | None = None, action: str | None = None
+    ):
         if field_name in {"api_key", "model_name"}:
             models = self.get_models()
             build_config["model_name"]["options"] = models

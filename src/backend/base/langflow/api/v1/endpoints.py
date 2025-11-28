@@ -1074,7 +1074,9 @@ async def custom_component_update(
         from langflow.schema.dotdict import dotdict
 
         # 使用 dotdict 构造器创建副本，而不是 deepcopy（避免破坏 dotdict 的方法）
-        resolved_build_config = dotdict({k: (dotdict(dict(v)) if isinstance(v, dict) else v) for k, v in updated_build_config.items()})
+        resolved_build_config = dotdict(
+            {k: (dotdict(dict(v)) if isinstance(v, dict) else v) for k, v in updated_build_config.items()}
+        )
 
         if isinstance(cc_instance, Component) and hasattr(cc_instance, "_inputs"):
             for field_name, field_config in resolved_build_config.items():
@@ -1099,9 +1101,7 @@ async def custom_component_update(
                                 )
                             except Exception as e:
                                 # 解析失败保持原值（已在 resolve_variables_in_template_sync 中处理）
-                                logger.warning(
-                                    f"[API] Failed to pre-resolve variables in field '{field_name}': {e}"
-                                )
+                                logger.warning(f"[API] Failed to pre-resolve variables in field '{field_name}': {e}")
 
         # 传给 update_build_config 的是解析后的副本
         await update_component_build_config(
@@ -1124,9 +1124,11 @@ async def custom_component_update(
                     if getattr(input_obj, "resolve_variables", False):
                         # 同步除了 value 之外的所有修改
                         if isinstance(field_config, dict) and field_name in updated_build_config:
-                            original_value = updated_build_config[field_name].get("value") if isinstance(
-                                updated_build_config[field_name], dict
-                            ) else None
+                            original_value = (
+                                updated_build_config[field_name].get("value")
+                                if isinstance(updated_build_config[field_name], dict)
+                                else None
+                            )
                             # 复制整个字段配置
                             updated_build_config[field_name] = dotdict(dict(field_config))
                             # 恢复原始值

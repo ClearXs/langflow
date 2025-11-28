@@ -63,7 +63,9 @@ class SearXNGToolComponent(LCToolComponent):
         ),
     ]
 
-    def update_build_config(self, build_config: dotdict, field_value: Any, field_name: str | None = None, action: str | None = None) -> dotdict:
+    def update_build_config(
+        self, build_config: dotdict, field_value: Any, field_name: str | None = None, action: str | None = None
+    ) -> dotdict:
         if field_name is None:
             return build_config
 

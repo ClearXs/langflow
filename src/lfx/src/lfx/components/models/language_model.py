@@ -159,7 +159,9 @@ class LanguageModelComponent(LCModelComponent):
             self.status = error_message
             raise ValueError(error_message) from e
 
-    def update_build_config(self, build_config: dotdict, field_value: Any, field_name: str | None = None, action: str | None = None) -> dotdict:
+    def update_build_config(
+        self, build_config: dotdict, field_value: Any, field_name: str | None = None, action: str | None = None
+    ) -> dotdict:
         if field_name == "provider":
             if field_value == "OpenAI":
                 build_config["model_name"]["options"] = OPENAI_CHAT_MODEL_NAMES + OPENAI_REASONING_MODEL_NAMES

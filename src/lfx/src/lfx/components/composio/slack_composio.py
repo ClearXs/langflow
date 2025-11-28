@@ -580,5 +580,7 @@ class ComposioSlackAPIComponent(ComposioBaseComponent):
             msg = f"Failed to execute {display_name}: {e!s}"
             raise ValueError(msg) from e
 
-    def update_build_config(self, build_config: dict, field_value: Any, field_name: str | None = None, action: str | None = None) -> dict:
+    def update_build_config(
+        self, build_config: dict, field_value: Any, field_name: str | None = None, action: str | None = None
+    ) -> dict:
         return super().update_build_config(build_config, field_value, field_name)

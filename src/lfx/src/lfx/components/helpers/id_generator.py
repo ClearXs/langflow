@@ -38,7 +38,9 @@ class IDGeneratorComponent(Component):
     ]
 
     @override
-    def update_build_config(self, build_config: dotdict, field_value: Any, field_name: str | None = None, action: str | None = None):
+    def update_build_config(
+        self, build_config: dotdict, field_value: Any, field_name: str | None = None, action: str | None = None
+    ):
         try:
             if field_name == "unique_id":
                 new_id = str(uuid.uuid4())

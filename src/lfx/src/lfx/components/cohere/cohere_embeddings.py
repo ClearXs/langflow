@@ -125,7 +125,9 @@ class CohereEmbeddingsComponent(LCModelComponent):
             logger.exception(error_msg)
             raise ValueError(error_msg) from e
 
-    async def update_build_config(self, build_config: dict, field_value: Any, field_name: str | None = None, action: str | None = None):
+    async def update_build_config(
+        self, build_config: dict, field_value: Any, field_name: str | None = None, action: str | None = None
+    ):
         if field_name in {"model_name", "api_key"}:
             if build_config.get("api_key", {}).get("value", None):
                 logger.debug(i18n.t("components.cohere.cohere_embeddings.logs.updating_model_list"))

@@ -55,7 +55,9 @@ class FlowToolComponent(LCToolComponent):
         return None
 
     @override
-    async def update_build_config(self, build_config: dotdict, field_value: Any, field_name: str | None = None, action: str | None = None):
+    async def update_build_config(
+        self, build_config: dotdict, field_value: Any, field_name: str | None = None, action: str | None = None
+    ):
         if field_name == "flow_name":
             logger.debug(i18n.t("components.logic.flow_tool.logs.updating_flow_list"))
             build_config["flow_name"]["options"] = await self.get_flow_names()

@@ -76,7 +76,9 @@ class AIMLModelComponent(LCModelComponent):
     ]
 
     @override
-    def update_build_config(self, build_config: dict, field_value: str, field_name: str | None = None, action: str | None = None):
+    def update_build_config(
+        self, build_config: dict, field_value: str, field_name: str | None = None, action: str | None = None
+    ):
         """Update build configuration when model-related fields change."""
         try:
             if field_name in {"api_key", "aiml_api_base", "model_name"}:

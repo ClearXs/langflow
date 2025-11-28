@@ -52,7 +52,9 @@ class CreateDataComponent(Component):
         ),
     ]
 
-    def update_build_config(self, build_config: dotdict, field_value: Any, field_name: str | None = None, action: str | None = None):
+    def update_build_config(
+        self, build_config: dotdict, field_value: Any, field_name: str | None = None, action: str | None = None
+    ):
         if field_name == "number_of_fields":
             default_keys = ["code", "_type", "number_of_fields", "text_key", "text_key_validator"]
             try:

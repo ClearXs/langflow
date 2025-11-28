@@ -165,7 +165,9 @@ class HuggingFaceEndpointsComponent(LCModelComponent):
         )
         return self.inference_endpoint
 
-    async def update_build_config(self, build_config: dict, field_value: Any, field_name: str | None = None, action: str | None = None) -> dict:
+    async def update_build_config(
+        self, build_config: dict, field_value: Any, field_name: str | None = None, action: str | None = None
+    ) -> dict:
         """Update build configuration based on field updates.
 
         Args:

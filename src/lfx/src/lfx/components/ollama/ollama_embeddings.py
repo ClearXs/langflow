@@ -58,7 +58,9 @@ class OllamaEmbeddingsComponent(LCModelComponent):
             raise ValueError(msg) from e
         return output
 
-    async def update_build_config(self, build_config: dict, _field_value: Any, field_name: str | None = None, action: str | None = None):
+    async def update_build_config(
+        self, build_config: dict, _field_value: Any, field_name: str | None = None, action: str | None = None
+    ):
         if field_name in {"base_url", "model_name"} and not await self.is_valid_ollama_url(self.base_url):
             msg = "Ollama is not running on the provided base URL. Please start Ollama and try again."
             raise ValueError(msg)
