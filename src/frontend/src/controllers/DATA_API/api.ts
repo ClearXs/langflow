@@ -158,14 +158,10 @@ export function useDataAPI(options: UseDataAPIOptions = {}): AxiosInstance {
     }
 
     // 执行登出并重定向
-    logoutMutation(undefined, {
-      onSettled: () => {
-        if (isEmbedded) {
-          //
-          postMessageContext.sendToParent('close');
-        }
-      },
-    });
+    if (isEmbedded) {
+      //
+      postMessageContext.sendToParent('close');
+    }
   }, [onLogout, logoutMutation]);
 
   // 设置请求拦截器
