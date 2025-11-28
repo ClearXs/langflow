@@ -161,6 +161,7 @@ export function useDataAPI(options: UseDataAPIOptions = {}): AxiosInstance {
     logoutMutation(undefined, {
       onSettled: () => {
         if (isEmbedded) {
+          //
           postMessageContext.sendToParent('close');
         }
       },
