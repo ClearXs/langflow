@@ -272,25 +272,6 @@ export function useDataAPI(options: UseDataAPIOptions = {}): AxiosInstance {
   return api;
 }
 
-function handleAuthenticationError(): void {
-  // 1. 完整清理 DATA_API 的 Cookies (参考 auth.ts 的 removeToken/removeRefreshToken 模式)
-  const cookies = new Cookies();
-  cookies.remove(DATA_API_SESSION_ID, { path: '/' });
-  cookies.remove(DATA_API_USER_ID, { path: '/' });
-  cookies.remove(DATA_API_TOKEN_KEY, { path: '/' });
-  cookies.remove(DATA_API_REFRESH_TOKEN_KEY, { path: '/' });
-
-  // 2. 重定向到登录页
-  // 检查是否在 iframe 中嵌入,如果是则重定向父页面
-  const params = new URLSearchParams(window.location.search);
-  const ref = params.get('ref');
-  if (ref === 'datasense' && window.top) {
-    window.top.location.href = '/login';
-  } else {
-    window.location.href = '/login';
-  }
-}
-
 export function createDataAPI(
   config: Partial<DataAPIConfig> = {}
 ): AxiosInstance {
@@ -370,7 +351,11 @@ export function createDataAPI(
 
       // Handle 401 unauthorized
       if (status === 401) {
-        handleAuthenticationError();
+        const params = new URLSearchParams(window.location.search);
+        const ref = params.get('ref');
+        if (ref === 'datasense' && window.top) {
+          window.parent.postMessage('close', '*');
+        }
         return Promise.reject(new Error(message));
       }
 
