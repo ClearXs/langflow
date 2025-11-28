@@ -468,13 +468,13 @@ class ETLTableInputComponent(Component):
                             not datasource_info.get("host") or not datasource_info.get("port")
                         ):
                             logger.warning(
-                                f"[TableInput] Cached datasource_info missing connection params (host/port), reloading"
+                                "[TableInput] Cached datasource_info missing connection params (host/port), reloading"
                             )
                             needs_reload = True
                     elif source == "public":
                         # 公共数据源需要 raw_data
                         if not datasource_info.get("raw_data"):
-                            logger.warning(f"[TableInput] Cached datasource_info missing raw_data, reloading")
+                            logger.warning("[TableInput] Cached datasource_info missing raw_data, reloading")
                             needs_reload = True
 
                 # 如果在 options_metadata 中找不到，或者缺少必要参数，尝试重新加载数据源列表
@@ -601,13 +601,13 @@ class ETLTableInputComponent(Component):
                             not datasource_info.get("host") or not datasource_info.get("port")
                         ):
                             logger.warning(
-                                f"[TableInput] Preview: Cached datasource_info missing connection params, reloading"
+                                "[TableInput] Preview: Cached datasource_info missing connection params, reloading"
                             )
                             needs_reload = True
                     elif source == "public":
                         # 公共数据源需要 raw_data
                         if not datasource_info.get("raw_data"):
-                            logger.warning(f"[TableInput] Preview: Cached datasource_info missing raw_data, reloading")
+                            logger.warning("[TableInput] Preview: Cached datasource_info missing raw_data, reloading")
                             needs_reload = True
 
                 # 如果在 options_metadata 中找不到，或缺少必要参数，尝试重新加载数据源列表
