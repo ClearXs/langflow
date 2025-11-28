@@ -10,10 +10,8 @@ import axios, {
 } from "axios";
 import { useCallback, useEffect, useRef } from "react";
 import { Cookies } from "react-cookie";
-import { useTranslation } from "react-i18next";
 import { useLogout } from "@/controllers/API/queries/auth/use-post-logout";
 import { useUrlParam } from "@/hooks/use-iframe-params";
-import { useAlertStore } from "@/stores/alertStore";
 
 export interface DataAPIConfig {
   baseURL: string;
@@ -84,8 +82,7 @@ function serialize(data: Record<string, any>): string {
 // ============================================================================
 
 export let showError = (message: string): void => {
-  const setErrorData = useAlertStore.getState().setErrorData;
-  setErrorData("错误", [message]);
+  console.error("[DATA_API]", message);
 };
 
 export let refreshAccessToken = async (): Promise<void> => {};
@@ -123,9 +120,7 @@ export function useDataAPI(options: UseDataAPIOptions = {}): AxiosInstance {
 
   const token = useUrlParam("token");
   const authorization = useUrlParam("authorization");
-  const { t } = useTranslation();
   const { mutate: logoutMutation } = useLogout();
-  const setErrorData = useAlertStore((state) => state.setErrorData);
 
   if (!apiRef.current) {
     apiRef.current = axios.create({
@@ -152,27 +147,26 @@ export function useDataAPI(options: UseDataAPIOptions = {}): AxiosInstance {
     }
   }, [onRefreshToken]);
 
-  const handleAuthenticationError = useCallback(
-    (message: string) => {
-      const errorMessage = message || t("dataApi.loginAgain");
+  const handleAuthenticationError = useCallback(() => {
+    // 调用自定义回调
+    if (onLogout) {
+      onLogout();
+    }
 
-      // 显示错误提示
-      setErrorData(t("dataApi.authenticationFailed"), [errorMessage]);
-
-      // 调用自定义回调
-      if (onLogout) {
-        onLogout();
-      }
-
-      // 执行登出并重定向
-      logoutMutation(undefined, {
-        onSettled: () => {
+    // 执行登出并重定向
+    logoutMutation(undefined, {
+      onSettled: () => {
+        // 检查是否在 iframe 中嵌入,如果是则重定向父页面
+        const params = new URLSearchParams(window.location.search);
+        const ref = params.get("ref");
+        if (ref === "datasense" && window.top) {
+          window.top.location.href = "/login";
+        } else {
           window.location.href = "/login";
-        },
-      });
-    },
-    [t, setErrorData, onLogout, logoutMutation],
-  );
+        }
+      },
+    });
+  }, [onLogout, logoutMutation]);
 
   // 设置请求拦截器
   useEffect(() => {
@@ -244,7 +238,7 @@ export function useDataAPI(options: UseDataAPIOptions = {}): AxiosInstance {
 
         // Handle 401 unauthorized
         if (status === 401) {
-          handleAuthenticationError(message);
+          handleAuthenticationError();
           return Promise.reject(new Error(message));
         }
 
@@ -278,26 +272,23 @@ export function useDataAPI(options: UseDataAPIOptions = {}): AxiosInstance {
   return api;
 }
 
-function handleAuthenticationError(message: string): void {
-  // 获取翻译和 alert store
-  const i18n = (window as any).__i18n_instance;
-  const t = i18n?.t || ((key: string) => key);
-  const setErrorData = useAlertStore.getState().setErrorData;
-
-  const errorMessage = message || t("dataApi.loginAgain");
-
-  // 1. 显示错误提示
-  setErrorData(t("dataApi.authenticationFailed"), [errorMessage]);
-
-  // 2. 完整清理 DATA_API 的 Cookies (参考 auth.ts 的 removeToken/removeRefreshToken 模式)
+function handleAuthenticationError(): void {
+  // 1. 完整清理 DATA_API 的 Cookies (参考 auth.ts 的 removeToken/removeRefreshToken 模式)
   const cookies = new Cookies();
   cookies.remove(DATA_API_SESSION_ID, { path: "/" });
   cookies.remove(DATA_API_USER_ID, { path: "/" });
   cookies.remove(DATA_API_TOKEN_KEY, { path: "/" });
   cookies.remove(DATA_API_REFRESH_TOKEN_KEY, { path: "/" });
 
-  // 3. 重定向到登录页
-  window.location.href = "/login";
+  // 2. 重定向到登录页
+  // 检查是否在 iframe 中嵌入,如果是则重定向父页面
+  const params = new URLSearchParams(window.location.search);
+  const ref = params.get("ref");
+  if (ref === "datasense" && window.top) {
+    window.top.location.href = "/login";
+  } else {
+    window.location.href = "/login";
+  }
 }
 
 export function createDataAPI(
@@ -378,7 +369,7 @@ export function createDataAPI(
 
       // Handle 401 unauthorized
       if (status === 401) {
-        handleAuthenticationError(message);
+        handleAuthenticationError();
         return Promise.reject(new Error(message));
       }
 
