@@ -9,7 +9,11 @@ import axios, {
   type AxiosResponse,
 } from "axios";
 import { useCallback, useEffect, useRef } from "react";
+import { Cookies } from "react-cookie";
+import { useTranslation } from "react-i18next";
+import { useLogout } from "@/controllers/API/queries/auth/use-post-logout";
 import { useUrlParam } from "@/hooks/use-iframe-params";
+import { useAlertStore } from "@/stores/alertStore";
 
 export interface DataAPIConfig {
   baseURL: string;
@@ -53,6 +57,12 @@ const DEFAULT_CONFIG: DataAPIConfig = {
   statusWhiteList: [],
 };
 
+// DATA_API 专用的 Token Keys (参考 auth.ts)
+const DATA_API_TOKEN_KEY = "saber3-access-token";
+const DATA_API_REFRESH_TOKEN_KEY = "saber3-refresh-token";
+const DATA_API_SESSION_ID = "JSESSIONID";
+const DATA_API_USER_ID = "b-user-id";
+
 // ============================================================================
 // Utilities
 // ============================================================================
@@ -74,7 +84,8 @@ function serialize(data: Record<string, any>): string {
 // ============================================================================
 
 export let showError = (message: string): void => {
-  console.error("[DATA_API]", message);
+  const setErrorData = useAlertStore.getState().setErrorData;
+  setErrorData("错误", [message]);
 };
 
 export let refreshAccessToken = async (): Promise<void> => {};
@@ -112,6 +123,9 @@ export function useDataAPI(options: UseDataAPIOptions = {}): AxiosInstance {
 
   const token = useUrlParam("token");
   const authorization = useUrlParam("authorization");
+  const { t } = useTranslation();
+  const { mutate: logoutMutation } = useLogout();
+  const setErrorData = useAlertStore((state) => state.setErrorData);
 
   if (!apiRef.current) {
     apiRef.current = axios.create({
@@ -138,14 +152,26 @@ export function useDataAPI(options: UseDataAPIOptions = {}): AxiosInstance {
     }
   }, [onRefreshToken]);
 
-  const handleUnauthorized = useCallback(
-    async (
-      config: DataRequestConfig,
-      response: AxiosResponse,
-    ): Promise<AxiosResponse> => {
-      return Promise.reject();
+  const handleAuthenticationError = useCallback(
+    (message: string) => {
+      const errorMessage = message || t("dataApi.loginAgain");
+
+      // 显示错误提示
+      setErrorData(t("dataApi.authenticationFailed"), [errorMessage]);
+
+      // 调用自定义回调
+      if (onLogout) {
+        onLogout();
+      }
+
+      // 执行登出并重定向
+      logoutMutation(undefined, {
+        onSettled: () => {
+          window.location.href = "/login";
+        },
+      });
     },
-    [api],
+    [t, setErrorData, onLogout, logoutMutation],
   );
 
   // 设置请求拦截器
@@ -217,12 +243,7 @@ export function useDataAPI(options: UseDataAPIOptions = {}): AxiosInstance {
         }
 
         // Handle 401 unauthorized
-        if (status === 401 && !config._retry) {
-          return handleUnauthorized(config, res);
-        }
-
-        // Handle 401 after retry
-        if (status === 401 && config._retry) {
+        if (status === 401) {
           handleAuthenticationError(message);
           return Promise.reject(new Error(message));
         }
@@ -252,13 +273,31 @@ export function useDataAPI(options: UseDataAPIOptions = {}): AxiosInstance {
     return () => {
       api.interceptors.response.eject(responseInterceptor);
     };
-  }, [api, handleUnauthorized]);
+  }, [api, handleAuthenticationError]);
 
   return api;
 }
 
 function handleAuthenticationError(message: string): void {
-  showError(message || "User token is unavailable, please login again");
+  // 获取翻译和 alert store
+  const i18n = (window as any).__i18n_instance;
+  const t = i18n?.t || ((key: string) => key);
+  const setErrorData = useAlertStore.getState().setErrorData;
+
+  const errorMessage = message || t("dataApi.loginAgain");
+
+  // 1. 显示错误提示
+  setErrorData(t("dataApi.authenticationFailed"), [errorMessage]);
+
+  // 2. 完整清理 DATA_API 的 Cookies (参考 auth.ts 的 removeToken/removeRefreshToken 模式)
+  const cookies = new Cookies();
+  cookies.remove(DATA_API_SESSION_ID, { path: "/" });
+  cookies.remove(DATA_API_USER_ID, { path: "/" });
+  cookies.remove(DATA_API_TOKEN_KEY, { path: "/" });
+  cookies.remove(DATA_API_REFRESH_TOKEN_KEY, { path: "/" });
+
+  // 3. 重定向到登录页
+  window.location.href = "/login";
 }
 
 export function createDataAPI(

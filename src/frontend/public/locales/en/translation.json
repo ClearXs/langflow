@@ -1728,5 +1728,10 @@
   "error": {
     "refreshError": "Refresh Error",
     "actionError": "Action Error"
+  },
+  "dataApi": {
+    "authenticationFailed": "Authentication Failed",
+    "loginAgain": "User token is unavailable, please login again",
+    "error": "Error"
   }
 }

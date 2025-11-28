@@ -11,6 +11,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { convertUTCToLocalTimezone } from "@/utils/utils";
 import ComponentsList from "./components-list";
 
 interface Task {
@@ -40,22 +41,7 @@ const TasksTable = ({ tasks }: TasksTableProps) => {
   };
 
   const formatDateTime = (dateString: string) => {
-    try {
-      // Parse UTC time and convert to Beijing time (UTC+8)
-      const date = new Date(dateString);
-      // Add 8 hours for Beijing timezone
-      const beijingDate = new Date(date.getTime() + 8 * 60 * 60 * 1000);
-
-      const year = beijingDate.getUTCFullYear();
-      const month = String(beijingDate.getUTCMonth() + 1).padStart(2, "0");
-      const day = String(beijingDate.getUTCDate()).padStart(2, "0");
-      const hours = String(beijingDate.getUTCHours()).padStart(2, "0");
-      const minutes = String(beijingDate.getUTCMinutes()).padStart(2, "0");
-      const seconds = String(beijingDate.getUTCSeconds()).padStart(2, "0");
-      return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
-    } catch {
-      return dateString;
-    }
+    return convertUTCToLocalTimezone(dateString);
   };
 
   const formatDuration = (ms?: number) => {

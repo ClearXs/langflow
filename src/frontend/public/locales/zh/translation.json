@@ -1731,5 +1731,10 @@
   "error": {
     "refreshError": "刷新错误",
     "actionError": "操作错误"
+  },
+  "dataApi": {
+    "authenticationFailed": "认证失败",
+    "loginAgain": "用户令牌不可用，请重新登录",
+    "error": "错误"
   }
 }
