@@ -80,12 +80,66 @@ _variable_resolution_thread = threading.Thread(
     target=_variable_resolution_loop.run_forever, name="VariableResolutionThread", daemon=True
 )
 _variable_resolution_thread.start()
+# 添加锁用于线程恢复
+_thread_recovery_lock = threading.Lock()
 logger.info(
     f"[Component] Started dedicated event loop thread for variable resolution: "
     f"thread_name={_variable_resolution_thread.name}, "
     f"thread_alive={_variable_resolution_thread.is_alive()}, "
     f"loop={_variable_resolution_loop}"
 )
+
+
+def _ensure_event_loop_thread_alive():
+    """确保事件循环线程是活动的，如果死了就重启它。
+
+    Returns:
+        bool: True if thread is alive (or successfully recovered), False otherwise
+    """
+    global _variable_resolution_loop, _variable_resolution_thread
+
+    if _variable_resolution_thread.is_alive():
+        return True
+
+    logger.warning(
+        "[Component] Event loop thread is DEAD! Attempting recovery..."
+    )
+
+    with _thread_recovery_lock:
+        # 双重检查：获取锁后再次确认线程状态
+        if _variable_resolution_thread.is_alive():
+            return True
+
+        try:
+            # 停止旧的事件循环
+            if not _variable_resolution_loop.is_closed():
+                _variable_resolution_loop.call_soon_threadsafe(_variable_resolution_loop.stop)
+                # 给一点时间让循环停止
+                import time
+                time.sleep(0.1)
+                _variable_resolution_loop.close()
+
+            # 创建新的事件循环和线程
+            _variable_resolution_loop = asyncio.new_event_loop()
+            _variable_resolution_thread = threading.Thread(
+                target=_variable_resolution_loop.run_forever,
+                name="VariableResolutionThread-Recovered",
+                daemon=True
+            )
+            _variable_resolution_thread.start()
+
+            logger.info(
+                f"[Component] Successfully recovered event loop thread: "
+                f"thread_name={_variable_resolution_thread.name}, "
+                f"thread_alive={_variable_resolution_thread.is_alive()}"
+            )
+            return True
+        except Exception as e:
+            logger.error(
+                f"[Component] Failed to recover event loop thread: {e}",
+                exc_info=True
+            )
+            return False
 
 
 class PlaceholderGraph(NamedTuple):
@@ -1498,7 +1552,7 @@ class Component(CustomComponent):
             f"[{self.__class__.__name__}] Variables detected, scheduling async resolution in dedicated event loop"
         )
 
-        # 检查事件循环线程状态
+        # 检查并恢复事件循环线程（如果死了）
         logger.info(
             f"[{self.__class__.__name__}] Event loop thread status: "
             f"alive={_variable_resolution_thread.is_alive()}, "
@@ -1506,24 +1560,68 @@ class Component(CustomComponent):
             f"loop_closed={_variable_resolution_loop.is_closed()}"
         )
 
-        if not _variable_resolution_thread.is_alive():
+        thread_recovered = _ensure_event_loop_thread_alive()
+        if not thread_recovered:
             logger.error(
-                f"[{self.__class__.__name__}] Event loop thread is DEAD! Cannot schedule async resolution. "
-                f"Falling back to synchronous resolution using asyncio.run()..."
+                f"[{self.__class__.__name__}] Event loop thread recovery FAILED! "
+                f"Falling back to manual synchronous resolution..."
             )
-            # 降级方案: 使用 asyncio.run() 在新事件循环中执行
+            # 最后的降级方案: 手动同步解析变量（不使用 async）
             try:
-                loop = asyncio.new_event_loop()
-                asyncio.set_event_loop(loop)
-                try:
-                    result = loop.run_until_complete(self.resolve_variables_in_template(text, field_name))
-                    logger.info(f"[{self.__class__.__name__}] Fallback synchronous resolution succeeded")
-                    return result
-                finally:
-                    loop.close()
+                # 提取所有变量名
+                import re
+
+                from lfx.services.variable.service import VariableService
+                variable_names = re.findall(r"\{([a-zA-Z_][a-zA-Z0-9_]*)\}", text)
+
+                if not variable_names:
+                    logger.info(f"[{self.__class__.__name__}] No variable names found in text")
+                    return text
+
+                logger.info(
+                    f"[{self.__class__.__name__}] Found {len(variable_names)} variables to resolve: {variable_names}"
+                )
+
+                # 同步获取变量值（注意：这会阻塞，但比完全失败好）
+                variable_service = VariableService()
+                resolved_text = text
+
+                for var_name in variable_names:
+                    try:
+                        # 尝试从运行时变量、系统变量、全局变量中获取
+                        # 注意：这里只能获取系统变量，因为其他需要 user_id
+                        placeholder = f"{{{var_name}}}"
+
+                        # 尝试从系统变量获取
+                        from lfx.services.variable import get_default_variables
+                        default_vars = get_default_variables()
+
+                        if var_name in default_vars:
+                            value = str(default_vars[var_name])
+                            resolved_text = resolved_text.replace(placeholder, value)
+                            logger.info(
+                                f"[{self.__class__.__name__}] Resolved {var_name} from system variables: {value}"
+                            )
+                        else:
+                            logger.warning(
+                                f"[{self.__class__.__name__}] Variable '{var_name}' not found in system variables, "
+                                f"keeping placeholder"
+                            )
+                    except Exception as e:
+                        logger.error(
+                            f"[{self.__class__.__name__}] Failed to resolve variable '{var_name}': {e}"
+                        )
+
+                logger.info(
+                    f"[{self.__class__.__name__}] Manual synchronous resolution completed: "
+                    f"resolved {len([v for v in variable_names if f'{{{v}}}' not in resolved_text])} variables"
+                )
+                return resolved_text
+
             except Exception as e:
                 logger.error(
-                    f"[{self.__class__.__name__}] Fallback synchronous resolution also failed: {e}", exc_info=True
+                    f"[{self.__class__.__name__}] Manual synchronous resolution failed: {e}",
+                    exc_info=True
                 )
                 return text
 
@@ -1552,7 +1650,7 @@ class Component(CustomComponent):
                 f"original='{text[:100]}...', resolved='{result[:100]}...'"
             )
             return result
-        except TimeoutError as e:
+        except TimeoutError:
             logger.error(
                 f"[{self.__class__.__name__}] Variable resolution TIMED OUT after 15 seconds! "
                 f"Event loop might be blocked or deadlocked. Future status: {future._state if hasattr(future, '_state') else 'unknown'}"
