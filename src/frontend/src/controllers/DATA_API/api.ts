@@ -351,6 +351,7 @@ export function createDataAPI(
 
       // Handle 401 unauthorized
       if (status === 401) {
+        console.log(status);
         const params = new URLSearchParams(window.location.search);
         const ref = params.get('ref');
         if (ref === 'datasense' && window.top) {
