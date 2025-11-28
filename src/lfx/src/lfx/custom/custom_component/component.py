@@ -1498,12 +1498,45 @@ class Component(CustomComponent):
             f"[{self.__class__.__name__}] Variables detected, scheduling async resolution in dedicated event loop"
         )
 
+        # 检查事件循环线程状态
+        logger.info(
+            f"[{self.__class__.__name__}] Event loop thread status: "
+            f"alive={_variable_resolution_thread.is_alive()}, "
+            f"loop_running={_variable_resolution_loop.is_running()}, "
+            f"loop_closed={_variable_resolution_loop.is_closed()}"
+        )
+
+        if not _variable_resolution_thread.is_alive():
+            logger.error(
+                f"[{self.__class__.__name__}] Event loop thread is DEAD! Cannot schedule async resolution. "
+                f"Falling back to synchronous resolution using asyncio.run()..."
+            )
+            # 降级方案: 使用 asyncio.run() 在新事件循环中执行
+            try:
+                loop = asyncio.new_event_loop()
+                asyncio.set_event_loop(loop)
+                try:
+                    result = loop.run_until_complete(self.resolve_variables_in_template(text, field_name))
+                    logger.info(f"[{self.__class__.__name__}] Fallback synchronous resolution succeeded")
+                    return result
+                finally:
+                    loop.close()
+            except Exception as e:
+                logger.error(
+                    f"[{self.__class__.__name__}] Fallback synchronous resolution also failed: {e}", exc_info=True
+                )
+                return text
+
         # 在专用事件循环中调度协程
         try:
+            logger.info(f"[{self.__class__.__name__}] Scheduling coroutine in event loop...")
             future = asyncio.run_coroutine_threadsafe(
                 self.resolve_variables_in_template(text, field_name), _variable_resolution_loop
             )
-            logger.info(f"[{self.__class__.__name__}] Coroutine scheduled, waiting for result (timeout=15s)...")
+            logger.info(
+                f"[{self.__class__.__name__}] Coroutine scheduled successfully, "
+                f"future={future}, waiting for result (timeout=15s)..."
+            )
         except Exception as e:
             logger.error(
                 f"[{self.__class__.__name__}] Failed to schedule coroutine in event loop: {e}", exc_info=True
@@ -1512,15 +1545,26 @@ class Component(CustomComponent):
 
         try:
             # 15秒超时（变量解析通常很快）
+            logger.info(f"[{self.__class__.__name__}] Waiting for future.result()...")
             result = future.result(timeout=15)
             logger.info(
                 f"[{self.__class__.__name__}] Variable resolution completed successfully: "
                 f"original='{text[:100]}...', resolved='{result[:100]}...'"
             )
             return result
+        except TimeoutError as e:
+            logger.error(
+                f"[{self.__class__.__name__}] Variable resolution TIMED OUT after 15 seconds! "
+                f"Event loop might be blocked or deadlocked. Future status: {future._state if hasattr(future, '_state') else 'unknown'}"
+            )
+            # 尝试取消任务
+            future.cancel()
+            return text
         except Exception as e:
             logger.error(
-                f"[{self.__class__.__name__}] Failed to resolve variables in '{field_name}': {e}", exc_info=True
+                f"[{self.__class__.__name__}] Failed to resolve variables in '{field_name}': "
+                f"{type(e).__name__}: {e}",
+                exc_info=True
             )
             # 解析失败保持原值
             return text
