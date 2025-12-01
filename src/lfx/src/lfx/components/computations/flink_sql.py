@@ -3,6 +3,7 @@ import datetime
 from typing import Any
 
 import i18n
+from lfx.inputs.inputs import MultilineInput
 import sqlparse
 
 from lfx.custom.custom_component.component import Component
@@ -55,7 +56,7 @@ class ETLFlinkSQLComponent(Component):
             value=[],
             combobox=True,  # Allow manual input when no options
         ),
-        CodeInput(
+        MultilineInput(
             name="sql_script",
             display_name=i18n.t("components.computations.flink_sql.sql_script.display_name"),
             info=i18n.t("components.computations.flink_sql.sql_script.info"),
