@@ -7,12 +7,12 @@ import axios, {
   type AxiosInstance,
   type AxiosRequestConfig,
   type AxiosResponse,
-} from 'axios';
-import { useCallback, useEffect, useRef } from 'react';
-import { Cookies } from 'react-cookie';
-import { useLogout } from '@/controllers/API/queries/auth/use-post-logout';
-import { useIsEmbedded, useUrlParam } from '@/hooks/use-iframe-params';
-import { usePostMessageContext } from '@/contexts/postMessageContext';
+} from "axios";
+import { useCallback, useEffect, useRef } from "react";
+import { Cookies } from "react-cookie";
+import { usePostMessageContext } from "@/contexts/postMessageContext";
+import { useLogout } from "@/controllers/API/queries/auth/use-post-logout";
+import { useIsEmbedded, useUrlParam } from "@/hooks/use-iframe-params";
 
 export interface DataAPIConfig {
   baseURL: string;
@@ -46,28 +46,28 @@ export interface DataRequestConfig extends AxiosRequestConfig {
 }
 
 const DEFAULT_CONFIG: DataAPIConfig = {
-  baseURL: '/data-api',
+  baseURL: "/data-api",
   timeout: 10000,
-  clientId: 'saber3',
-  clientSecret: 'saber3_secret',
-  tokenHeader: 'Blade-Auth',
+  clientId: "saber3",
+  clientSecret: "saber3_secret",
+  tokenHeader: "Blade-Auth",
   enableEncryption: false,
   enableProgress: true,
   statusWhiteList: [],
 };
 
 // DATA_API 专用的 Token Keys (参考 auth.ts)
-const DATA_API_TOKEN_KEY = 'saber3-access-token';
-const DATA_API_REFRESH_TOKEN_KEY = 'saber3-refresh-token';
-const DATA_API_SESSION_ID = 'JSESSIONID';
-const DATA_API_USER_ID = 'b-user-id';
+const DATA_API_TOKEN_KEY = "saber3-access-token";
+const DATA_API_REFRESH_TOKEN_KEY = "saber3-refresh-token";
+const DATA_API_SESSION_ID = "JSESSIONID";
+const DATA_API_USER_ID = "b-user-id";
 
 // ============================================================================
 // Utilities
 // ============================================================================
 
 function validatenull(val: any): boolean {
-  return val === null || val === undefined || val === '';
+  return val === null || val === undefined || val === "";
 }
 
 function serialize(data: Record<string, any>): string {
@@ -83,7 +83,7 @@ function serialize(data: Record<string, any>): string {
 // ============================================================================
 
 export let showError = (message: string): void => {
-  console.error('[DATA_API]', message);
+  console.error("[DATA_API]", message);
 };
 
 export let refreshAccessToken = async (): Promise<void> => {};
@@ -119,8 +119,8 @@ export function useDataAPI(options: UseDataAPIOptions = {}): AxiosInstance {
   const isErrorShownRef = useRef(false);
   const configRef = useRef<DataAPIConfig>({ ...DEFAULT_CONFIG, ...config });
 
-  const token = useUrlParam('token');
-  const authorization = useUrlParam('authorization');
+  const token = useUrlParam("token");
+  const authorization = useUrlParam("authorization");
   const { mutate: logoutMutation } = useLogout();
 
   const postMessageContext = usePostMessageContext();
@@ -160,7 +160,7 @@ export function useDataAPI(options: UseDataAPIOptions = {}): AxiosInstance {
     // 执行登出并重定向
     if (isEmbedded) {
       //
-      postMessageContext.sendToParent('close');
+      postMessageContext.sendToParent("close");
     }
   }, [onLogout, logoutMutation]);
 
@@ -168,7 +168,7 @@ export function useDataAPI(options: UseDataAPIOptions = {}): AxiosInstance {
   useEffect(() => {
     const requestInterceptor = api.interceptors.request.use(
       (config: DataRequestConfig) => {
-        const isMinioFile = config.url && config.url.startsWith('/minio-file');
+        const isMinioFile = config.url && config.url.startsWith("/minio-file");
         if (isMinioFile) {
           return config;
         }
@@ -177,10 +177,10 @@ export function useDataAPI(options: UseDataAPIOptions = {}): AxiosInstance {
         if (!config.headers) {
           config.headers = {} as any;
         }
-        config.headers['Blade-Requested-With'] = 'BladeHttpRequest';
+        config.headers["Blade-Requested-With"] = "BladeHttpRequest";
 
         // Add Authorization header from environment variable or use default
-        config.headers['Authorization'] = authorization;
+        config.headers["Authorization"] = authorization;
 
         // Get default token from environment variable
         // Use token from URL param or default token
@@ -193,14 +193,14 @@ export function useDataAPI(options: UseDataAPIOptions = {}): AxiosInstance {
         const meta = config.meta || {};
         // Add access token
         if (config.text === true) {
-          config.headers['Content-Type'] = 'text/plain';
+          config.headers["Content-Type"] = "text/plain";
         }
         if (config.isFormData || meta.isFormData) {
-          config.headers['Content-Type'] = 'multipart/form-data';
+          config.headers["Content-Type"] = "multipart/form-data";
         }
 
         // Serialize form data
-        if (config.method === 'post' && meta.isSerialize === true) {
+        if (config.method === "post" && meta.isSerialize === true) {
           config.data = serialize(config.data);
         }
 
@@ -208,7 +208,7 @@ export function useDataAPI(options: UseDataAPIOptions = {}): AxiosInstance {
       },
       (error) => {
         return Promise.reject(error);
-      }
+      },
     );
 
     return () => {
@@ -225,7 +225,7 @@ export function useDataAPI(options: UseDataAPIOptions = {}): AxiosInstance {
         const status = res.data.error_code || res.data.code || res.status;
         const statusWhiteList = configRef.current.statusWhiteList || [];
         const message =
-          res.data.msg || res.data.error_description || 'System error';
+          res.data.msg || res.data.error_description || "System error";
 
         // Handle whitelisted status codes
         if (statusWhiteList.includes(status)) {
@@ -257,7 +257,7 @@ export function useDataAPI(options: UseDataAPIOptions = {}): AxiosInstance {
       },
       (error: AxiosError) => {
         return Promise.reject(error);
-      }
+      },
     );
 
     return () => {
@@ -269,7 +269,7 @@ export function useDataAPI(options: UseDataAPIOptions = {}): AxiosInstance {
 }
 
 export function createDataAPI(
-  config: Partial<DataAPIConfig> = {}
+  config: Partial<DataAPIConfig> = {},
 ): AxiosInstance {
   const finalConfig = { ...DEFAULT_CONFIG, ...config };
   const instance = axios.create({
@@ -282,7 +282,7 @@ export function createDataAPI(
   // Add request interceptor to include auth headers
   instance.interceptors.request.use(
     (config) => {
-      const isMinioFile = config.url && config.url.startsWith('/minio-file');
+      const isMinioFile = config.url && config.url.startsWith("/minio-file");
       if (isMinioFile) {
         return config;
       }
@@ -293,25 +293,24 @@ export function createDataAPI(
       }
 
       // Add security headers
-      config.headers['Blade-Requested-With'] = 'BladeHttpRequest';
+      config.headers["Blade-Requested-With"] = "BladeHttpRequest";
 
       // Add Authorization header from environment variable or use default
       const authHeader = import.meta.env.VITE_DATA_API_AUTHORIZATION;
-      config.headers['Authorization'] = authHeader;
+      config.headers["Authorization"] = authHeader;
 
       // Get token from localStorage (same as main API)
-      const token = window.localStorage.getItem('access_token_lf');
+      const token = window.localStorage.getItem("access_token_lf");
       const defaultToken = import.meta.env.VITE_DATA_API_DEFAULT_TOKEN;
 
       if (token) {
         // Remove quotes if present and use user's token
-        const cleanToken = token.replace(/^"(.*)"$/, '$1');
-        config.headers[
-          finalConfig.tokenHeader || 'Blade-Auth'
-        ] = `bearer ${cleanToken}`;
+        const cleanToken = token.replace(/^"(.*)"$/, "$1");
+        config.headers[finalConfig.tokenHeader || "Blade-Auth"] =
+          `bearer ${cleanToken}`;
       } else if (defaultToken) {
         // Use default token from environment variable
-        config.headers[finalConfig.tokenHeader || 'Blade-Auth'] = defaultToken;
+        config.headers[finalConfig.tokenHeader || "Blade-Auth"] = defaultToken;
       }
 
       // Get metadata from extended config
@@ -320,14 +319,14 @@ export function createDataAPI(
 
       // Add content-type headers
       if (extendedConfig.text === true) {
-        config.headers['Content-Type'] = 'text/plain';
+        config.headers["Content-Type"] = "text/plain";
       }
       if (extendedConfig.isFormData || meta.isFormData) {
-        config.headers['Content-Type'] = 'multipart/form-data';
+        config.headers["Content-Type"] = "multipart/form-data";
       }
 
       // Serialize form data
-      if (config.method === 'post' && meta.isSerialize === true) {
+      if (config.method === "post" && meta.isSerialize === true) {
         config.data = serialize(config.data);
       }
 
@@ -335,7 +334,7 @@ export function createDataAPI(
     },
     (error) => {
       return Promise.reject(error);
-    }
+    },
   );
 
   // Add response interceptor for error handling
@@ -343,15 +342,15 @@ export function createDataAPI(
     (res: AxiosResponse) => {
       const status = res.data?.error_code || res.data?.code || res.status;
       const message =
-        res.data?.msg || res.data?.error_description || 'System error';
+        res.data?.msg || res.data?.error_description || "System error";
 
       // Handle 401 unauthorized
       if (status === 401) {
         console.log(status);
         const params = new URLSearchParams(window.location.search);
-        const ref = params.get('ref');
-        if (ref === 'datasense' && window.top) {
-          window.parent.postMessage('close', '*');
+        const ref = params.get("ref");
+        if (ref === "datasense" && window.top) {
+          window.parent.postMessage("close", "*");
         }
         return Promise.reject(new Error(message));
       }
@@ -366,7 +365,7 @@ export function createDataAPI(
     },
     (error: AxiosError) => {
       return Promise.reject(error);
-    }
+    },
   );
 
   return instance;
