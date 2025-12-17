@@ -561,6 +561,7 @@ export function brokenEdgeMessage({
 }
 export function FormatColumns(columns: ColumnField[]): ColDef<any>[] {
   if (!columns) return [];
+
   const basic_types = new Set(["date", "number"]);
   const colDefs = columns.map((col) => {
     const newCol: ColDef = {
@@ -609,17 +610,47 @@ export function FormatColumns(columns: ColumnField[]): ColDef<any>[] {
       if (
         col.formatter !== FormatterType.text ||
         col.edit_mode !== "inline" ||
-        col.options
+        col.options ||
+        col.options_map
       ) {
-        if (col.options && col.formatter === FormatterType.text) {
-          newCol.cellEditor = TableDropdownCellEditor;
-          newCol.cellEditorPopup = true;
-          newCol.cellEditorParams = {
-            values: col.options,
-            optionsMetadata: col.options_metadata, // Pass metadata for i18n support
-            optionsMap: col.options_map, // Pass options_map for dynamic options
-            dependOn: col.depend_on, // Pass depend_on field name
+        // Use dynamic cellEditorSelector for options_map to switch between dropdown and text input
+        if ((col.options || col.options_map) && col.formatter === FormatterType.text) {
+          // Use cellEditorSelector for dynamic editor choice based on row data
+          newCol.cellEditorSelector = (params) => {
+            // Check if using dynamic options_map
+            if (col.options_map && col.depend_on) {
+              const dependentValue = params.data?.[col.depend_on];
+
+              if (dependentValue && col.options_map[dependentValue] && col.options_map[dependentValue].length > 0) {
+                // Has matching options - use dropdown
+                return {
+                  component: TableDropdownCellEditor,
+                  popup: true,
+                  params: {
+                    values: col.options || [],
+                    optionsMetadata: col.options_metadata,
+                    optionsMap: col.options_map,
+                    dependOn: col.depend_on,
+                  }
+                };
+              }
+              // No matching options - use default text editor
+              return undefined;
+            } else if (col.options && col.options.length > 0) {
+              // Static options - use dropdown
+              return {
+                component: TableDropdownCellEditor,
+                popup: true,
+                params: {
+                  values: col.options,
+                  optionsMetadata: col.options_metadata,
+                }
+              };
+            }
+            // No options - use default text editor
+            return undefined;
           };
+
           // Add value formatter to display i18n labels
           // For dynamic options (options_map), we need to look up the dependent field value
           if (col.options_map && col.depend_on) {

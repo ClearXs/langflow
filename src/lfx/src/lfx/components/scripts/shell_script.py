@@ -1,3 +1,4 @@
+import json
 import subprocess
 from datetime import UTC, datetime
 
@@ -5,6 +6,7 @@ import i18n
 
 from lfx.custom.custom_component.component import Component
 from lfx.io import BoolInput, CodeInput, DataInput, IntInput, MessageTextInput, Output
+from lfx.log.logger import logger
 from lfx.schema import Data
 
 
@@ -89,46 +91,24 @@ class ETLShellScriptComponent(Component):
             end_time = datetime.now(UTC)
             duration = (end_time - start_time).total_seconds()
 
-            # Build complete log information in plain text format
-            log_lines = [
-                f"开始时间: {start_time.strftime('%Y-%m-%d %H:%M:%S')}"
-                if i18n.get("locale") == "zh"
-                else f"Start Time: {start_time.strftime('%Y-%m-%d %H:%M:%S')}",
-                f"执行耗时: {duration:.2f}秒" if i18n.get("locale") == "zh" else f"Duration: {duration:.2f}s",
-                f"退出码: {result.returncode}" if i18n.get("locale") == "zh" else f"Exit Code: {result.returncode}",
-            ]
-
-            if result.stdout:
-                label = "标准输出:" if i18n.get("locale") == "zh" else "Standard Output:"
-                log_lines.append(f"\n{label}\n{result.stdout.rstrip()}")
-
-            if result.stderr:
-                label = "错误输出:" if i18n.get("locale") == "zh" else "Error Output:"
-                log_lines.append(f"\n{label}\n{result.stderr.rstrip()}")
-
-            if result.returncode == 0:
-                status_text = "状态: 执行成功" if i18n.get("locale") == "zh" else "Status: Execution Successful"
+            # 简化 status 显示
+            if i18n.get("locale") == "zh":
+                success_msg = f"执行成功 (耗时: {duration:.2f}秒)"
             else:
-                status_text = (
-                    f"状态: 执行完成 (退出码: {result.returncode})"
-                    if i18n.get("locale") == "zh"
-                    else f"Status: Completed (Exit Code: {result.returncode})"
-                )
-            log_lines.append(f"\n{status_text}")
+                success_msg = f"Execution successful (Duration: {duration:.2f}s)"
 
-            # Update status to complete log
-            self.status = "\n".join(log_lines)
+            self.status = success_msg
 
-            # Return data
-            output_data = {
-                "exit_code": result.returncode,
-                "stdout": result.stdout if result.stdout else "",
-                "stderr": result.stderr if result.stderr else "",
-                "duration": duration,
-                "success": result.returncode == 0,
-            }
-
-            return Data(data=output_data)
+            # 尝试将 stdout 解析为 JSON
+            stdout_text = result.stdout if result.stdout else ""
+            try:
+                # 尝试解析 JSON
+                parsed_data = json.loads(stdout_text)
+                return Data(data=parsed_data)
+            except json.JSONDecodeError:
+                # JSON 解析失败，记录 warning 并返回原始字符串
+                logger.warning("[ShellScript] Failed to parse stdout as JSON, returning raw string")
+                return Data(data=stdout_text)
 
         except subprocess.TimeoutExpired:
             end_time = datetime.now(UTC)

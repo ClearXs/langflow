@@ -1,0 +1,71 @@
+{
+  "display_name": "ClickHouse Input",
+  "description": "Read data from ClickHouse database tables using SQL queries",
+
+  "datasource_selector": {
+    "display_name": "Data Source",
+    "info": "Select a ClickHouse data source (builtin or public)"
+  },
+
+  "sql_query": {
+    "display_name": "SQL Query",
+    "info": "SQL query to execute on the ClickHouse database"
+  },
+
+  "field_mappings": {
+    "display_name": "Field Mappings",
+    "info": "Configure field mappings and transformations",
+    "source_field": "Source Field",
+    "data_type": "Data Type",
+    "null_value": "Null Value",
+    "null_value_desc": "Value to use when field is NULL",
+    "transformation_rule": "Transformation Rule",
+    "analyze_sql_button": "Analyze SQL"
+  },
+
+  "preview_table": {
+    "display_name": "Data Preview",
+    "info": "Preview the query results",
+    "preview_button": "Preview Data"
+  },
+
+  "use_pagination": {
+    "display_name": "Use Pagination",
+    "info": "Enable pagination for large result sets"
+  },
+
+  "page_size": {
+    "display_name": "Page Size",
+    "info": "Number of rows per page"
+  },
+
+  "max_records": {
+    "display_name": "Max Records",
+    "info": "Maximum number of records to read"
+  },
+
+  "outputs": {
+    "data": {
+      "display_name": "Data"
+    }
+  },
+
+  "status": {
+    "reading": "Reading data from ClickHouse...",
+    "success": "Successfully read {rows} rows from ClickHouse",
+    "analyzing_sql": "Analyzing SQL query...",
+    "analysis_success": "Successfully analyzed SQL and inferred {count} fields",
+    "no_fields_found": "No fields found in SQL query",
+    "previewing_data": "Previewing data from ClickHouse...",
+    "preview_success": "Successfully previewed {rows} rows from ClickHouse"
+  },
+
+  "errors": {
+    "no_datasource": "No data source selected",
+    "datasource_not_found": "Data source not found: {id}",
+    "read_failed": "Failed to read data: {error}",
+    "no_sql": "No SQL query provided",
+    "analysis_failed": "SQL analysis failed: {error}",
+    "preview_failed": "Data preview failed: {error}"
+  }
+}

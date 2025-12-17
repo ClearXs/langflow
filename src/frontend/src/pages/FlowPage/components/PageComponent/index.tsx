@@ -4,6 +4,7 @@ import {
   type NodeChange,
   type OnNodeDrag,
   type OnSelectionChangeParams,
+  Panel,
   ReactFlow,
   reconnectEdge,
   type SelectionDragHandler,
@@ -22,6 +23,7 @@ import { useHotkeys } from "react-hotkeys-hook";
 import { useShallow } from "zustand/react/shallow";
 import { DefaultEdge } from "@/CustomEdges";
 import NoteNode from "@/CustomNodes/NoteNode";
+import ExecutionHistoryPanel from "@/components/core/executionHistoryPanel";
 import FlowToolbar from "@/components/core/flowToolbarComponent";
 import {
   COLOR_OPTIONS,
@@ -35,7 +37,7 @@ import useAutoSaveFlow from "@/hooks/flows/use-autosave-flow";
 import useUploadFlow from "@/hooks/flows/use-upload-flow";
 import { useAddComponent } from "@/hooks/use-add-component";
 import { nodeColorsName } from "@/utils/styleUtils";
-import { isSupportedNodeTypes } from "@/utils/utils";
+import { cn, isSupportedNodeTypes } from "@/utils/utils";
 import GenericNode from "../../../../CustomNodes/GenericNode";
 import {
   INVALID_SELECTION_ERROR_ALERT,
@@ -155,6 +157,25 @@ export default function Page({
   }, [currentFlowId]);
 
   const [isAddingNote, setIsAddingNote] = useState(false);
+  const [isResizing, setIsResizing] = useState(false);
+
+  // Execution history state
+  const isExecutionHistoryOpen = useFlowStore(
+    (state) => state.isExecutionHistoryOpen,
+  );
+  const setExecutionHistoryOpen = useFlowStore(
+    (state) => state.setExecutionHistoryOpen,
+  );
+  const setSelectedNodeId = useFlowStore((state) => state.setSelectedNodeId);
+  const executionHistoryHeight = useFlowStore(
+    (state) => state.executionHistoryHeight,
+  );
+  const setExecutionHistoryHeight = useFlowStore(
+    (state) => state.setExecutionHistoryHeight,
+  );
+  const isExecutionHistoryMaximized = useFlowStore(
+    (state) => state.isExecutionHistoryMaximized,
+  );
 
   const addComponent = useAddComponent();
 
@@ -370,6 +391,50 @@ export default function Page({
   useHotkeys(downloadAction, handleDownload);
   //@ts-ignore
   useHotkeys("delete", handleDelete);
+
+  // Keyboard shortcut for execution history (Ctrl+E)
+  //@ts-ignore
+  useHotkeys("ctrl+e", (e: KeyboardEvent) => {
+    e.preventDefault();
+    (e as unknown as Event).stopImmediatePropagation();
+    setExecutionHistoryOpen(!isExecutionHistoryOpen);
+  });
+
+  // Handle panel resize
+  const handleResizeStart = useCallback(
+    (e: React.MouseEvent) => {
+      e.preventDefault();
+      setIsResizing(true);
+    },
+    [setIsResizing],
+  );
+
+  useEffect(() => {
+    if (!isResizing) return;
+
+    const handleMouseMove = (e: MouseEvent) => {
+      const newHeight = window.innerHeight - e.clientY;
+      const MIN_HEIGHT = 150;
+      const MAX_HEIGHT = window.innerHeight - 200;
+      const clampedHeight = Math.max(
+        MIN_HEIGHT,
+        Math.min(MAX_HEIGHT, newHeight),
+      );
+      setExecutionHistoryHeight(clampedHeight);
+    };
+
+    const handleMouseUp = () => {
+      setIsResizing(false);
+    };
+
+    document.addEventListener("mousemove", handleMouseMove);
+    document.addEventListener("mouseup", handleMouseUp);
+
+    return () => {
+      document.removeEventListener("mousemove", handleMouseMove);
+      document.removeEventListener("mouseup", handleMouseUp);
+    };
+  }, [isResizing, setExecutionHistoryHeight]);
 
   const onConnectMod = useCallback(
     (params: Connection) => {
@@ -599,8 +664,14 @@ export default function Page({
   const onSelectionChange = useCallback(
     (flow: OnSelectionChangeParams): void => {
       setLastSelection(flow);
+      // Update selected node for execution history
+      if (flow.nodes.length === 1) {
+        setSelectedNodeId(flow.nodes[0].id);
+      } else if (flow.nodes.length === 0) {
+        setSelectedNodeId(null);
+      }
     },
-    [],
+    [setSelectedNodeId],
   );
 
   const onPaneClick = useCallback(
@@ -717,93 +788,128 @@ export default function Page({
   };
 
   return (
-    <div className="h-full w-full bg-canvas" ref={reactFlowWrapper}>
+    <div
+      className="flex h-full w-full flex-col overflow-hidden bg-canvas"
+      ref={reactFlowWrapper}
+    >
       {showCanvas ? (
         <>
-          <div id="react-flow-id" className="h-full w-full bg-canvas relative">
-            {!view && (
-              <>
-                <MemoizedLogCanvasControls />
-                <MemoizedCanvasControls
-                  setIsAddingNote={setIsAddingNote}
-                  shadowBoxWidth={shadowBoxWidth}
-                  shadowBoxHeight={shadowBoxHeight}
-                />
-                <FlowToolbar />
-              </>
-            )}
-            <MemoizedSidebarTrigger />
-            <SelectionMenu
-              lastSelection={lastSelection}
-              isVisible={selectionMenuVisible}
-              nodes={lastSelection?.nodes}
-              onClick={handleGroupNode}
-            />
-            <ReactFlow<AllNodeType, EdgeType>
-              nodes={nodes}
-              edges={edges}
-              onNodesChange={onNodesChangeWithHelperLines}
-              onEdgesChange={onEdgesChange}
-              onConnect={isLocked ? undefined : onConnectMod}
-              disableKeyboardA11y={true}
-              nodesFocusable={!isLocked}
-              edgesFocusable={!isLocked}
-              onInit={setReactFlowInstance}
-              nodeTypes={nodeTypes}
-              onReconnect={isLocked ? undefined : onEdgeUpdate}
-              onReconnectStart={isLocked ? undefined : onEdgeUpdateStart}
-              onReconnectEnd={isLocked ? undefined : onEdgeUpdateEnd}
-              onNodeDrag={onNodeDrag}
-              onNodeDragStart={onNodeDragStart}
-              onSelectionDragStart={onSelectionDragStart}
-              elevateEdgesOnSelect={false}
-              onSelectionEnd={onSelectionEnd}
-              onSelectionStart={onSelectionStart}
-              connectionRadius={20}
-              edgeTypes={edgeTypes}
-              connectionLineComponent={ConnectionLineComponent}
-              onDragOver={onDragOver}
-              onNodeDragStop={onNodeDragStop}
-              onDrop={onDrop}
-              onSelectionChange={onSelectionChange}
-              deleteKeyCode={[]}
-              fitView={isEmptyFlow.current ? false : true}
-              fitViewOptions={fitViewOptions}
-              className="theme-attribution"
-              tabIndex={isLocked ? -1 : undefined}
-              minZoom={MIN_ZOOM}
-              maxZoom={MAX_ZOOM}
-              zoomOnScroll={!view}
-              zoomOnPinch={!view}
-              panOnDrag={!view}
-              panActivationKeyCode={""}
-              proOptions={{ hideAttribution: true }}
-              onPaneClick={onPaneClick}
-              onEdgeClick={handleEdgeClick}
-              onKeyDown={handleKeyDown}
-              selectNodesOnDrag={false}
-              nodesDraggable={!isLocked}
-              nodesConnectable={!isLocked}
+          {/* Canvas area - grows to fill available space */}
+          <div className="flex-1 overflow-hidden relative">
+            <div
+              id="react-flow-id"
+              className="h-full w-full bg-canvas relative"
             >
-              <FlowBuildingComponent />
-              <UpdateAllComponents />
-              <MemoizedBackground />
-              {helperLineEnabled && <HelperLines helperLines={helperLines} />}
-            </ReactFlow>
+              {!view && (
+                <>
+                  <MemoizedLogCanvasControls />
+                  <MemoizedCanvasControls
+                    setIsAddingNote={setIsAddingNote}
+                    shadowBoxWidth={shadowBoxWidth}
+                    shadowBoxHeight={shadowBoxHeight}
+                  />
+                  <FlowToolbar />
+                </>
+              )}
+              <MemoizedSidebarTrigger />
+              <SelectionMenu
+                lastSelection={lastSelection}
+                isVisible={selectionMenuVisible}
+                nodes={lastSelection?.nodes}
+                onClick={handleGroupNode}
+              />
+              <ReactFlow<AllNodeType, EdgeType>
+                nodes={nodes}
+                edges={edges}
+                onNodesChange={onNodesChangeWithHelperLines}
+                onEdgesChange={onEdgesChange}
+                onConnect={isLocked ? undefined : onConnectMod}
+                disableKeyboardA11y={true}
+                nodesFocusable={!isLocked}
+                edgesFocusable={!isLocked}
+                onInit={setReactFlowInstance}
+                nodeTypes={nodeTypes}
+                onReconnect={isLocked ? undefined : onEdgeUpdate}
+                onReconnectStart={isLocked ? undefined : onEdgeUpdateStart}
+                onReconnectEnd={isLocked ? undefined : onEdgeUpdateEnd}
+                onNodeDrag={onNodeDrag}
+                onNodeDragStart={onNodeDragStart}
+                onSelectionDragStart={onSelectionDragStart}
+                elevateEdgesOnSelect={false}
+                onSelectionEnd={onSelectionEnd}
+                onSelectionStart={onSelectionStart}
+                connectionRadius={20}
+                edgeTypes={edgeTypes}
+                connectionLineComponent={ConnectionLineComponent}
+                onDragOver={onDragOver}
+                onNodeDragStop={onNodeDragStop}
+                onDrop={onDrop}
+                onSelectionChange={onSelectionChange}
+                deleteKeyCode={[]}
+                fitView={isEmptyFlow.current ? false : true}
+                fitViewOptions={fitViewOptions}
+                className="theme-attribution"
+                tabIndex={isLocked ? -1 : undefined}
+                minZoom={MIN_ZOOM}
+                maxZoom={MAX_ZOOM}
+                zoomOnScroll={!view}
+                zoomOnPinch={!view}
+                panOnDrag={!view}
+                panActivationKeyCode={""}
+                proOptions={{ hideAttribution: true }}
+                onPaneClick={onPaneClick}
+                onEdgeClick={handleEdgeClick}
+                onKeyDown={handleKeyDown}
+                selectNodesOnDrag={false}
+                nodesDraggable={!isLocked}
+                nodesConnectable={!isLocked}
+              >
+                <FlowBuildingComponent />
+                <UpdateAllComponents />
+                <MemoizedBackground />
+                {helperLineEnabled && <HelperLines helperLines={helperLines} />}
+              </ReactFlow>
+            </div>
+            <div
+              id="shadow-box"
+              style={{
+                position: "absolute",
+                width: `${shadowBoxWidth}px`,
+                height: `${shadowBoxHeight}px`,
+                backgroundColor: `${shadowBoxBackgroundColor}`,
+                opacity: 0.7,
+                pointerEvents: "none",
+                // Prevent shadow-box from showing unexpectedly during initial renders
+                display: "none",
+              }}
+            ></div>
           </div>
+
+          {/* Execution History Panel - slides up from bottom */}
           <div
-            id="shadow-box"
+            className={cn(
+              "border-t bg-background transition-all duration-300 ease-in-out overflow-hidden flex flex-col relative",
+            )}
             style={{
-              position: "absolute",
-              width: `${shadowBoxWidth}px`,
-              height: `${shadowBoxHeight}px`,
-              backgroundColor: `${shadowBoxBackgroundColor}`,
-              opacity: 0.7,
-              pointerEvents: "none",
-              // Prevent shadow-box from showing unexpectedly during initial renders
-              display: "none",
+              height: isExecutionHistoryOpen
+                ? isExecutionHistoryMaximized
+                  ? "calc(100vh - 100px)"
+                  : `${executionHistoryHeight}px`
+                : "0px",
             }}
-          ></div>
+          >
+            {/* Resize handle */}
+            {isExecutionHistoryOpen && !isExecutionHistoryMaximized && (
+              <div
+                className={cn(
+                  "absolute top-0 left-0 right-0 h-1 cursor-ns-resize hover:bg-primary/50 transition-colors",
+                  isResizing && "bg-primary",
+                )}
+                onMouseDown={handleResizeStart}
+              />
+            )}
+            {isExecutionHistoryOpen && <ExecutionHistoryPanel />}
+          </div>
         </>
       ) : (
         <div className="flex h-full w-full items-center justify-center">

@@ -115,6 +115,16 @@ const useFlowStore = create<FlowStoreType>((set, get) => ({
   nodes: [],
   edges: [],
   isBuilding: false,
+  isExecutionHistoryOpen: false,
+  setExecutionHistoryOpen: (open) => set({ isExecutionHistoryOpen: open }),
+  selectedNodeId: null,
+  setSelectedNodeId: (nodeId) => set({ selectedNodeId: nodeId }),
+  executionHistoryHeight: 300,
+  setExecutionHistoryHeight: (height) =>
+    set({ executionHistoryHeight: height }),
+  isExecutionHistoryMaximized: false,
+  setExecutionHistoryMaximized: (maximized) =>
+    set({ isExecutionHistoryMaximized: maximized }),
   streamingJobId: null,
   isPersistentStream: false,
   stopBuilding: async () => {

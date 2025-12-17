@@ -32,6 +32,7 @@ export default function TableDropdownCellEditor({
     // If optionsMap and dependOn are configured, use dynamic options
     if (optionsMap && dependOn && data) {
       const dependentValue = data[dependOn];
+
       if (dependentValue && optionsMap[dependentValue]) {
         return optionsMap[dependentValue];
       }

@@ -1,0 +1,67 @@
+{
+  "display_name": "ClickHouse 输出",
+  "description": "写入数据到 ClickHouse 数据库表",
+  "data_input": {
+    "display_name": "数据输入",
+    "info": "要写入数据库的输入数据"
+  },
+  "datasource_selector": {
+    "display_name": "数据源",
+    "info": "选择一个 ClickHouse 数据源（内置或公共）"
+  },
+  "table_name": {
+    "display_name": "表名",
+    "info": "要写入数据的目标表名"
+  },
+  "field_mappings": {
+    "display_name": "字段映射",
+    "info": "配置从源字段到目标字段的映射",
+    "source_field": "源字段",
+    "target_field": "目标字段",
+    "data_type": "数据类型",
+    "update_option": "更新选项",
+    "is_key_field": "是否为主键字段",
+    "is_key_field_desc": "将此字段标记为用于更新的主键字段",
+    "null_value": "空值替换",
+    "null_value_desc": "字段为 NULL 时使用的值",
+    "analyze_schema_button": "分析字段"
+  },
+  "preview_table": {
+    "display_name": "数据预览",
+    "info": "预览要写入的数据"
+  },
+  "write_mode": {
+    "display_name": "写入模式",
+    "info": "如何将数据写入表",
+    "append": "追加",
+    "overwrite": "覆盖",
+    "fail": "失败"
+  },
+  "clear_table_first": {
+    "display_name": "先清空表",
+    "info": "写入数据前清空表"
+  },
+  "batch_size": {
+    "display_name": "批次大小",
+    "info": "每批次写入的行数"
+  },
+  "outputs": {
+    "data": {
+      "display_name": "输出数据"
+    }
+  },
+  "status": {
+    "writing": "正在写入数据到 ClickHouse...",
+    "success": "成功写入 {rows} 行数据到 ClickHouse",
+    "analyzing_schema": "正在从上游组件分析字段...",
+    "analysis_success": "成功从上游分析了 {count} 个字段",
+    "no_fields_found": "未在上游组件中找到字段"
+  },
+  "errors": {
+    "no_datasource": "未选择数据源",
+    "datasource_not_found": "未找到数据源：{id}",
+    "write_failed": "写入数据失败：{error}",
+    "no_graph_data": "没有可用于字段分析的图数据",
+    "analysis_failed": "字段分析失败：{error}"
+  }
+}

@@ -285,8 +285,20 @@ class ETLFieldNameMappingComponent(Component):
             # Convert to DataFrame with proper error handling
             processed_data = []
             for d in data_items:
-                if hasattr(d, "data") and isinstance(d.data, dict):
-                    processed_data.append(d.data)
+                if hasattr(d, "data"):
+                    # Handle Data objects
+                    if isinstance(d.data, dict):
+                        # Data object with dict payload
+                        processed_data.append(d.data)
+                    elif isinstance(d.data, list):
+                        # Data object with list payload - extend with all items
+                        for item in d.data:
+                            if isinstance(item, dict):
+                                processed_data.append(item)
+                            else:
+                                logger.warning(f"Skipping non-dict item in Data.data list: {type(item)}")
+                    else:
+                        logger.warning(f"Unknown Data.data type {type(d.data)}: {d.data}")
                 elif isinstance(d, dict):
                     processed_data.append(d)
                 elif isinstance(d, tuple):
@@ -304,11 +316,18 @@ class ETLFieldNameMappingComponent(Component):
             df = pd.DataFrame(processed_data)
 
             # Strip whitespace from column names to normalize field names
-            df.columns = df.columns.str.strip()
+            # Convert all column names to strings first to handle non-string column names
+            df.columns = [str(col).strip() if isinstance(col, str) else str(col) for col in df.columns]
 
             # Log available fields for debugging
             logger.info(f"[FieldNameMapping] Available fields in input data: {list(df.columns)}")
             logger.info(f"[FieldNameMapping] Field mappings to apply: {self.field_mappings}")
+
+            # Check if DataFrame is empty - if so, skip mapping and return empty result
+            if df.empty or len(df.columns) == 0:
+                logger.warning("[FieldNameMapping] Input DataFrame is empty (no data or no columns), skipping field mapping")
+                self.status = i18n.t("components.manipulations.field_name_mapping.warnings.empty_input")
+                return []
 
             # Build mapping dictionary and validate
             mapping_dict = {}

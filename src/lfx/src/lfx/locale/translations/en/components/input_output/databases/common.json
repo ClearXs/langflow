@@ -1,0 +1,12 @@
+{
+  "field_mappings": {
+    "update_options": {
+      "sync_update": "Sync Update",
+      "insert_only": "Insert Only",
+      "update_when_has_value": "Update When Has Value",
+      "update_when_not_empty": "Update When Not Empty",
+      "cumulative_update": "Cumulative Update",
+      "prohibit_update": "Prohibit Update"
+    }
+  }
+}

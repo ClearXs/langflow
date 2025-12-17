@@ -3,6 +3,7 @@ from enum import Enum
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 VALID_TYPES = [
+    # Basic types
     "date",
     "number",
     "text",
@@ -13,6 +14,15 @@ VALID_TYPES = [
     "str",
     "string",
     "boolean",
+    # Spatial types
+    "point",
+    "linestring",
+    "polygon",
+    "multipoint",
+    "multilinestring",
+    "multipolygon",
+    "geometry",
+    "geography",
 ]
 
 
@@ -22,6 +32,7 @@ class FormatterType(str, Enum):
     number = "number"
     json = "json"
     boolean = "boolean"
+    geometry = "geometry"
 
 
 class EditMode(str, Enum):
@@ -85,6 +96,18 @@ class Column(BaseModel):
             value = FormatterType.json
         if value == "date":
             value = FormatterType.date
+        # Map all spatial types to geometry formatter
+        if value in {
+            "point",
+            "linestring",
+            "polygon",
+            "multipoint",
+            "multilinestring",
+            "multipolygon",
+            "geometry",
+            "geography",
+        }:
+            value = FormatterType.geometry
         if isinstance(value, str):
             return FormatterType(value)
         if isinstance(value, FormatterType):

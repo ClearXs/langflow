@@ -5,6 +5,10 @@
     "display_name": "CSV File",
     "info": "Select the CSV file to read"
   },
+  "file_id_variable": {
+    "display_name": "File Variable",
+    "info": "Reference a file variable for file ID (e.g., {csvFileId}). Takes precedence over file selection if both provided."
+  },
   "delimiter": {
     "display_name": "Delimiter",
     "info": "Field separator character",
@@ -53,10 +57,12 @@
   "errors": {
     "no_file_selected": "Please select a CSV file first",
     "no_file_path": "File path is required",
+    "no_file_source": "Please provide either a file selection or an external variable for file ID",
     "preview_failed": "Preview failed: %{error}",
     "read_csv_failed": "Failed to read CSV file: %{error}",
     "load_data_failed": "Failed to load data: %{error}",
-    "encoding_error": "Encoding error with %{encoding}: %{error}"
+    "encoding_error": "Encoding error with %{encoding}: %{error}",
+    "variable_not_resolved": "Variable '{variable}' not found in runtime or global variables. Please check: (1) Variable is defined in Global Variables settings, or (2) Variable is passed in runtime variables when executing the flow."
   },
   "status": {
     "preview_success": "Successfully previewed %{count} rows",

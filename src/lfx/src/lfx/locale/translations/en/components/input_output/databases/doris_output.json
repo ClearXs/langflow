@@ -1,0 +1,67 @@
+{
+  "display_name": "Doris Output",
+  "description": "Write data to Doris database tables",
+  "data_input": {
+    "display_name": "Data Input",
+    "info": "Input data to write to the database"
+  },
+  "datasource_selector": {
+    "display_name": "Data Source",
+    "info": "Select a Doris data source (builtin or public)"
+  },
+  "table_name": {
+    "display_name": "Table Name",
+    "info": "Target table name to write data to"
+  },
+  "field_mappings": {
+    "display_name": "Field Mappings",
+    "info": "Configure field mappings from source to target",
+    "source_field": "Source Field",
+    "target_field": "Target Field",
+    "data_type": "Data Type",
+    "update_option": "Update Option",
+    "is_key_field": "Is Key Field",
+    "is_key_field_desc": "Mark this field as a key field for updates",
+    "null_value": "Null Value",
+    "null_value_desc": "Value to use when field is NULL",
+    "analyze_schema_button": "Analyze Schema"
+  },
+  "preview_table": {
+    "display_name": "Data Preview",
+    "info": "Preview the data to be written"
+  },
+  "write_mode": {
+    "display_name": "Write Mode",
+    "info": "How to write data to the table",
+    "append": "append",
+    "overwrite": "overwrite",
+    "fail": "fail"
+  },
+  "clear_table_first": {
+    "display_name": "Clear Table First",
+    "info": "Clear the table before writing data"
+  },
+  "batch_size": {
+    "display_name": "Batch Size",
+    "info": "Number of rows to write in each batch"
+  },
+  "outputs": {
+    "data": {
+      "display_name": "Output Data"
+    }
+  },
+  "status": {
+    "writing": "Writing data to Doris...",
+    "success": "Successfully wrote {rows} rows to Doris",
+    "analyzing_schema": "Analyzing schema from upstream component...",
+    "analysis_success": "Successfully analyzed {count} fields from upstream",
+    "no_fields_found": "No fields found in upstream component"
+  },
+  "errors": {
+    "no_datasource": "No data source selected",
+    "datasource_not_found": "Data source not found: {id}",
+    "write_failed": "Failed to write data: {error}",
+    "no_graph_data": "No graph data available for schema analysis",
+    "analysis_failed": "Schema analysis failed: {error}"
+  }
+}

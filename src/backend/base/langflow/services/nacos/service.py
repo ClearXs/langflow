@@ -319,6 +319,28 @@ class NacosService(Service):
             return self.service_manager.discover_instances(service_name, healthy_only, group_name)
         return []
 
+    def list_services(
+        self,
+        group_name: str = "DEFAULT_GROUP",
+        page_no: int = 1,
+        page_size: int = 100,
+    ) -> list[str]:
+        """List all services in Nacos.
+
+        Args:
+            group_name: Service group name
+            page_no: Page number for pagination
+            page_size: Page size for pagination
+
+        Returns:
+            List of service names
+        """
+        if not self._enabled or self.service_manager is None:
+            logger.warning("Nacos service is not enabled")
+            return []
+
+        return self.service_manager.list_services(group_name, page_no, page_size)
+
     @property
     def enabled(self) -> bool:
         """Check if Nacos service is enabled."""

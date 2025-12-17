@@ -116,7 +116,7 @@ class QualityModelFeignClient:
             logger.exception(f"[QualityModelClient] {error_msg}")
             raise ValueError(error_msg) from e
 
-    async def execute_immediately(self, model_id: int) -> dict[str, Any]:
+    async def execute_immediately(self, model_id: int, external_params: dict[str, Any] | None = None) -> dict[str, Any]:
         """Execute quality model check immediately.
 
         Calls the /quality-model/execute-immediately endpoint to trigger
@@ -124,50 +124,59 @@ class QualityModelFeignClient:
 
         Args:
             model_id: Quality model ID to execute
+            external_params: Optional external parameters (e.g., {"folderId": 123})
 
         Returns:
             Execution result dictionary with keys:
                 - success (bool): True if execution succeeded
                 - message (str): Result message from API
+                - data (dict): Full quality check result data from QualityModelExecutionResultVO
 
         Raises:
             ValueError: API call failed or returned error
 
         Example:
             client = QualityModelFeignClient(feign_service)
-            result = await client.execute_immediately(model_id=123)
+            result = await client.execute_immediately(model_id=123, external_params={"folderId": 456})
             if result["success"]:
                 print(f"Execution succeeded: {result['message']}")
+                print(f"Quality check data: {result['data']}")
             else:
                 print(f"Execution failed: {result['message']}")
         """
         try:
-            logger.info(f"[QualityModelClient] Executing quality model immediately: {model_id}")
+            logger.info(f"[QualityModelClient] Executing quality model immediately: {model_id}, external_params={external_params}")
+
+            # Build DTO request body: {"modelId": xxx, "externalParams": {...}}
+            request_body: dict[str, Any] = {"modelId": model_id}
+            if external_params:
+                request_body["externalParams"] = external_params
 
             response = await self.feign_service.post(
                 service_name=self.SERVICE_NAME,
                 path="/quality-model/execute-immediately",
-                params={"id": model_id},
-                json=None,  # No request body needed
+                json=request_body,  # Send complete DTO as request body
             )
 
             result = response.json()
 
-            # Handle Spring Boot R<Void> response wrapper
+            # Handle Spring Boot R<QualityModelExecutionResultVO> response wrapper
             if isinstance(result, dict) and "code" in result:
                 code = result.get("code")
                 success = result.get("success", False)
                 message = result.get("msg", "Unknown response")
+                data = result.get("data")  # Extract quality check result data
 
                 # Check both code=200 AND success=true as per requirements
                 if code == 200 and success:
                     logger.info(f"[QualityModelClient] Quality model {model_id} executed successfully: {message}")
-                    return {"success": True, "message": message}
+                    # Return both metadata and full quality check data
+                    return {"success": True, "message": message, "data": data}
                 logger.warning(
                     f"[QualityModelClient] Quality model {model_id} execution failed - "
                     f"code: {code}, success: {success}, msg: {message}"
                 )
-                return {"success": False, "message": message}
+                return {"success": False, "message": message, "data": data}
             # Unexpected response format
             msg = f"Unexpected response format from execute-immediately API: {result}"
             logger.error(f"[QualityModelClient] {msg}")

@@ -1,5 +1,6 @@
 import { cloneDeep } from "lodash";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Input } from "@/components/ui/input";
 import { ICON_STROKE_WIDTH } from "@/constants/constants";
 import {
@@ -18,6 +19,7 @@ const KeypairListComponent = ({
   isList = true,
   id,
 }) => {
+  const { t } = useTranslation();
   const getTestId = (prefix, index) =>
     `${editNode ? "editNode" : ""}${prefix}${index}`;
 
@@ -129,7 +131,7 @@ const KeypairListComponent = ({
           type="text"
           value={key.trim()}
           className={getInputClassName(editNode, duplicateKey)}
-          placeholder="Type key..."
+          placeholder={t("common.typeKey")}
           onChange={(event) => handleChangeKey(event, index)}
         />
         <Input
@@ -139,7 +141,7 @@ const KeypairListComponent = ({
           disabled={disabled}
           value={obj[key]}
           className={editNode ? "input-edit-node" : ""}
-          placeholder="Type a value..."
+          placeholder={t("common.typeValue")}
           onChange={(event) => handleChangeValue(event, index)}
         />
         <div className="hit-area-icon">

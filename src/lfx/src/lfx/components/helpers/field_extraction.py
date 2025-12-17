@@ -15,15 +15,40 @@ def normalize_type(type_str: str | None) -> str:
     """Normalize database/SQL types to standard component types.
 
     Args:
-        type_str: Database type (e.g., 'VARCHAR', 'INT', 'TIMESTAMP', 'integer', 'string')
+        type_str: Database type (e.g., 'VARCHAR', 'INT', 'TIMESTAMP', 'integer', 'string',
+                  'geometry(Point,4326)', 'geography', 'POINT', 'POLYGON')
 
     Returns:
-        Normalized type: 'string', 'integer', 'float', 'boolean', 'datetime'
+        Normalized type: 'string', 'integer', 'float', 'boolean', 'datetime',
+                        'point', 'linestring', 'polygon', 'multipoint',
+                        'multilinestring', 'multipolygon', 'geometry', 'geography'
     """
     if not type_str:
         return "string"
 
     type_lower = str(type_str).lower()
+
+    # Spatial types (PostGIS) - check before other types
+    # Handle formats like: geometry(Point,4326), geometry(LineString), POINT, geography, etc.
+    if any(geo_type in type_lower for geo_type in ["geometry", "geography", "point", "linestring", "polygon"]):
+        # geometry(Point, 4326) → point
+        # geometry(LineString) → linestring
+        if "point" in type_lower and "multi" not in type_lower:
+            return "point"
+        if "linestring" in type_lower and "multi" not in type_lower:
+            return "linestring"
+        if "polygon" in type_lower and "multi" not in type_lower:
+            return "polygon"
+        if "multipoint" in type_lower:
+            return "multipoint"
+        if "multilinestring" in type_lower:
+            return "multilinestring"
+        if "multipolygon" in type_lower:
+            return "multipolygon"
+        if "geography" in type_lower:
+            return "geography"
+        # Default to generic 'geometry' for unknown spatial types
+        return "geometry"
 
     # Integer types
     if any(t in type_lower for t in ["int", "serial", "bigint", "smallint", "tinyint", "mediumint"]):
@@ -917,19 +942,64 @@ def extract_fields_from_node_template(
                 except Exception as e:
                     logger.debug(f"[{component_name}] Failed to extract fields from ConditionalRouter's upstream: {e}")
 
+        # For ETLQualityModel - extract from _output_fields
+        elif upstream_node_type == "ETLQualityModel":
+            logger.info(f"[{component_name}] ETLQualityModel detected, checking for _output_fields")
+
+            if "_output_fields" in template:
+                output_fields_value = template.get("_output_fields")
+
+                # Handle both formats: direct list or wrapped in dict
+                if isinstance(output_fields_value, list):
+                    # Direct list format (new format)
+                    fields = output_fields_value
+                    logger.info(
+                        f"[{component_name}] Using _output_fields from ETLQualityModel (direct list): {len(fields)} fields"
+                    )
+                elif isinstance(output_fields_value, dict) and "value" in output_fields_value:
+                    # Wrapped format (old format)
+                    fields = output_fields_value.get("value", [])
+                    if isinstance(fields, list):
+                        logger.info(
+                            f"[{component_name}] Using _output_fields from ETLQualityModel (wrapped dict): {len(fields)} fields"
+                        )
+                else:
+                    logger.warning(
+                        f"[{component_name}] _output_fields exists but has unexpected format: {type(output_fields_value)}"
+                    )
+                    fields = []
+            else:
+                logger.warning(f"[{component_name}] ETLQualityModel has no _output_fields in template")
+                fields = []
+
+            if fields:
+                return fields
+
         # For DataOperations - calculate output fields based on operation type
         elif upstream_node_type == "DataOperations":
             logger.info(f"[{component_name}] DataOperations detected, analyzing operation type")
 
             # First, check if output fields were already calculated during update_build_config
             if "_output_fields" in template:
-                output_fields = template.get("_output_fields", {}).get("value")
-                if output_fields and isinstance(output_fields, list):
-                    fields = output_fields
+                output_fields_value = template.get("_output_fields")
+
+                # Handle both formats: direct list or wrapped in dict
+                if isinstance(output_fields_value, list):
+                    # Direct list format (new format)
+                    fields = output_fields_value
                     logger.info(
-                        f"[{component_name}] Using pre-calculated output fields from DataOperations: {len(fields)} fields"
+                        f"[{component_name}] Using pre-calculated output fields from DataOperations (direct list): {len(fields)} fields"
                     )
                     return fields
+                elif isinstance(output_fields_value, dict) and "value" in output_fields_value:
+                    # Wrapped format (old format)
+                    output_fields = output_fields_value.get("value")
+                    if output_fields and isinstance(output_fields, list):
+                        fields = output_fields
+                        logger.info(
+                            f"[{component_name}] Using pre-calculated output fields from DataOperations (wrapped dict): {len(fields)} fields"
+                        )
+                        return fields
 
             # Otherwise, try to calculate based on operation and upstream
             if "operations" in template:
@@ -1046,8 +1116,124 @@ def extract_fields_from_node_template(
                                 fields = upstream_fields
 
                             elif internal_operation in ["Path Selection", "JQ Expression"]:
-                                # Output depends on path/query - return generic result
-                                fields = [{"name": "result", "type": "string"}]
+                                # ============ Hybrid Strategy for Path Selection / JQ Expression ============
+                                # Layer 1: Already checked _output_fields above (lines 983-1002)
+
+                                # Layer 2: Try to use mapped_json_display sample with JQ expression
+                                logger.info(
+                                    f"[{component_name}] {internal_operation} detected - attempting hybrid field extraction"
+                                )
+
+                                # Get the JQ expression/path
+                                jq_expression = None
+                                if internal_operation == "Path Selection":
+                                    selected_key_config = template.get("selected_key", {})
+                                    jq_expression = selected_key_config.get("value", "")
+                                elif internal_operation == "JQ Expression":
+                                    jq_input_config = template.get("jq_input", {})
+                                    jq_expression = jq_input_config.get("value", "")
+
+                                logger.info(f"[{component_name}] JQ expression: '{jq_expression}'")
+
+                                if jq_expression:
+                                    # Try mapped_json_display sample
+                                    mapped_json_config = template.get("mapped_json_display", {})
+                                    mapped_json_str = mapped_json_config.get("value", "")
+
+                                    if mapped_json_str:
+                                        logger.info(
+                                            f"[{component_name}] Found mapped_json_display sample, attempting to infer fields from it"
+                                        )
+                                        try:
+                                            import json
+                                            import jq
+
+                                            # Parse the sample JSON
+                                            sample_data = json.loads(mapped_json_str)
+                                            logger.debug(
+                                                f"[{component_name}] Parsed sample JSON, type: {type(sample_data).__name__}"
+                                            )
+                                            logger.debug(
+                                                f"[{component_name}] Sample JSON keys: {list(sample_data.keys())[:10] if isinstance(sample_data, dict) else 'N/A'}"
+                                            )
+                                            logger.debug(
+                                                f"[{component_name}] Sample JSON preview: {str(sample_data)[:200]}"
+                                            )
+
+                                            # Apply JQ expression to sample
+                                            compiled = jq.compile(jq_expression)
+                                            result = compiled.input(sample_data).first()
+
+                                            logger.debug(
+                                                f"[{component_name}] JQ result preview: {str(result)[:200]}"
+                                            )
+
+                                            logger.info(
+                                                f"[{component_name}] JQ result type: {type(result).__name__}"
+                                            )
+
+                                            # Infer fields from result structure
+                                            if isinstance(result, dict):
+                                                # Result is a dict - extract its keys as fields
+                                                logger.debug(
+                                                    f"[{component_name}] JQ result dict has {len(result)} keys: {list(result.keys())[:10]}"
+                                                )
+                                                fields = [
+                                                    {"name": key, "type": _infer_type_from_value(value)}
+                                                    for key, value in result.items()
+                                                ]
+                                                logger.info(
+                                                    f"[{component_name}] Inferred {len(fields)} fields from mapped_json_display "
+                                                    f"sample (dict result)"
+                                                )
+                                                if fields:
+                                                    logger.debug(f"[{component_name}] First few fields: {fields[:5]}")
+                                            elif isinstance(result, list) and len(result) > 0 and isinstance(result[0], dict):
+                                                # Result is a list of dicts - use first item structure
+                                                fields = [
+                                                    {"name": key, "type": _infer_type_from_value(value)}
+                                                    for key, value in result[0].items()
+                                                ]
+                                                logger.info(
+                                                    f"[{component_name}] Inferred {len(fields)} fields from mapped_json_display "
+                                                    f"sample (list of dicts)"
+                                                )
+                                            else:
+                                                logger.info(
+                                                    f"[{component_name}] JQ result is not a dict or list of dicts "
+                                                    f"(type: {type(result).__name__}), cannot infer fields"
+                                                )
+                                                fields = []
+
+                                        except json.JSONDecodeError as e:
+                                            logger.warning(
+                                                f"[{component_name}] Failed to parse mapped_json_display as JSON: {e}"
+                                            )
+                                            fields = []
+                                        except Exception as e:
+                                            logger.debug(
+                                                f"[{component_name}] Failed to apply JQ to mapped_json_display: {e}"
+                                            )
+                                            fields = []
+                                    else:
+                                        logger.info(
+                                            f"[{component_name}] No mapped_json_display sample available"
+                                        )
+                                        fields = []
+                                else:
+                                    logger.warning(
+                                        f"[{component_name}] No JQ expression configured for {internal_operation}"
+                                    )
+                                    fields = []
+
+                                # Layer 3: Fallback message
+                                if not fields:
+                                    logger.info(
+                                        f"[{component_name}] {internal_operation}: No fields could be inferred statically. "
+                                        "Please either: (1) Run the flow to enable runtime field extraction, or "
+                                        "(2) Provide a sample JSON in the 'JSON显示' field to enable static inference."
+                                    )
+                                    fields = []
 
                             else:
                                 # Default: return all upstream fields

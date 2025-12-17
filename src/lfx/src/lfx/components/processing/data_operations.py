@@ -285,14 +285,10 @@ class DataOperationsComponent(Component):
                 self.status = error_msg
                 raise ValueError(error_msg)
 
-            if isinstance(result, dict):
-                success_msg = i18n.t("components.processing.data_operations.success.jq_query_executed")
-                self.status = success_msg
-                return Data(data=result)
-
+            # 直接返回原始结果
             success_msg = i18n.t("components.processing.data_operations.success.jq_query_executed")
             self.status = success_msg
-            return Data(data={"result": result})
+            return Data(data=result)
 
         except (ValueError, TypeError, KeyError, json.JSONDecodeError) as e:
             error_msg = i18n.t("components.processing.data_operations.errors.jq_query_failed", error=str(e))
@@ -615,6 +611,65 @@ class DataOperationsComponent(Component):
     async def update_build_config(
         self, build_config: dotdict, field_value: Any, field_name: str | None = None, action: str | None = None
     ) -> dotdict:
+        logger.info(f"[DataOperations] update_build_config called: field_name={field_name}, action={action}")
+        logger.info(f"[DataOperations] build_config keys at entry: {list(build_config.keys())}")
+
+        # ============ Field propagation logic (always execute) ============
+        # Extract and propagate field information from upstream for ANY update
+        # This ensures _output_fields is always available for downstream components
+        try:
+            # Only extract if we have an operation selected
+            operations_value = build_config.get("operations", {}).get("value", [])
+            logger.info(f"[DataOperations] operations_value: {operations_value}")
+            if operations_value and len(operations_value) > 0:
+                selected_operation_localized = operations_value[0].get("name", "")
+
+                # Map localized name to internal name
+                action_map = {
+                    i18n.t("components.processing.data_operations.operations.select_keys"): "Select Keys",
+                    i18n.t("components.processing.data_operations.operations.literal_eval"): "Literal Eval",
+                    i18n.t("components.processing.data_operations.operations.combine"): "Combine",
+                    i18n.t("components.processing.data_operations.operations.filter_values"): "Filter Values",
+                    i18n.t("components.processing.data_operations.operations.append_update"): "Append or Update",
+                    i18n.t("components.processing.data_operations.operations.remove_keys"): "Remove Keys",
+                    i18n.t("components.processing.data_operations.operations.rename_keys"): "Rename Keys",
+                    i18n.t("components.processing.data_operations.operations.path_selection"): "Path Selection",
+                    i18n.t("components.processing.data_operations.operations.jq_expression"): "JQ Expression",
+                }
+                internal_operation = action_map.get(selected_operation_localized, selected_operation_localized)
+
+                logger.info(f"[DataOperations] update_build_config: operation='{internal_operation}', field_name={field_name}")
+
+                graph_data = build_config.get("_graph_data", {})
+                node_id = build_config.get("_node_id")
+
+                if not graph_data and hasattr(self, "graph") and self.graph is not None:
+                    if hasattr(self.graph, "data"):
+                        graph_data = self.graph.data
+
+                if graph_data and node_id:
+                    # Get upstream fields
+                    logger.info(f"[DataOperations] Extracting upstream fields for '{internal_operation}'")
+                    upstream_fields = await self._get_upstream_fields_with_retry(graph_data, node_id)
+                    logger.info(f"[DataOperations] Got {len(upstream_fields)} upstream fields")
+
+                    if upstream_fields:
+                        # Calculate output fields based on operation type
+                        logger.info(f"[DataOperations] Calculating output fields for '{internal_operation}'")
+                        output_fields = await self._calculate_output_fields(
+                            internal_operation, upstream_fields, build_config
+                        )
+                        logger.info(f"[DataOperations] Calculated {len(output_fields)} output fields")
+
+                        # Store output fields for downstream components
+                        build_config["_output_fields"] = output_fields
+                        logger.info(
+                            f"[DataOperations] SET _output_fields with {len(output_fields)} fields for '{internal_operation}'"
+                        )
+        except Exception as e:
+            logger.warning(f"[DataOperations] Field extraction failed: {e}")
+
+        # ============ Handle specific field updates ============
         if field_name == "operations":
             build_config["operations"]["value"] = field_value
             selected_actions = [action["name"] for action in field_value]
@@ -639,32 +694,8 @@ class DataOperationsComponent(Component):
                     build_config["data"]["is_list"] = config["is_list"]
                     logger.info(config["log_msg"])
 
-                    # Extract and propagate field information from upstream
-                    try:
-                        graph_data = build_config.get("_graph_data", {})
-                        node_id = build_config.get("_node_id")
-
-                        if not graph_data and hasattr(self, "graph") and self.graph is not None:
-                            if hasattr(self.graph, "data"):
-                                graph_data = self.graph.data
-
-                        if graph_data and node_id:
-                            # Get upstream fields with retry mechanism
-                            upstream_fields = await self._get_upstream_fields_with_retry(graph_data, node_id)
-
-                            if upstream_fields:
-                                # Calculate output fields based on operation type
-                                output_fields = self._calculate_output_fields(
-                                    internal_action, upstream_fields, build_config
-                                )
-
-                                # Store output fields for downstream components
-                                build_config["_output_fields"] = output_fields
-                                logger.info(
-                                    f"[DataOperations] Calculated {len(output_fields)} output fields for {internal_action}"
-                                )
-                    except Exception as e:
-                        logger.warning(f"[DataOperations] Failed to extract upstream fields: {e}")
+                    # Field extraction is now handled unconditionally at the start of update_build_config
+                    # No need to duplicate it here
 
                     return set_current_fields(
                         build_config=build_config,
@@ -747,7 +778,7 @@ class DataOperationsComponent(Component):
 
         return []
 
-    def _calculate_output_fields(
+    async def _calculate_output_fields(
         self, operation: str, upstream_fields: list[dict], build_config: dotdict
     ) -> list[dict]:
         """Calculate output fields based on operation type and configuration.
@@ -760,6 +791,7 @@ class DataOperationsComponent(Component):
         Returns:
             List of output field dicts
         """
+        logger.debug(f"[DataOperations] _calculate_output_fields called for operation: {operation}")
         if operation == "Select Keys":
             # Only selected keys are output
             select_keys_value = build_config.get("select_keys_input", {}).get("value", [])
@@ -816,14 +848,154 @@ class DataOperationsComponent(Component):
             return upstream_fields
 
         if operation == "Path Selection":
-            # Output depends on selected JSON path - hard to predict
-            # Return a generic result field
-            return [{"name": "result", "type": "string"}]
+            # Path selection navigates through JSON structure
+            # Try to get upstream data sample and apply JQ to infer output structure
+            logger.info(f"[DataOperations] _calculate_output_fields: Processing Path Selection operation")
+            selected_key_value = build_config.get("selected_key", {}).get("value", "")
+            logger.info(f"[DataOperations] Path Selection: selected_key from build_config = '{selected_key_value}'")
+
+            if not selected_key_value:
+                logger.info("[DataOperations] Path Selection: no path configured yet")
+                return []
+
+            try:
+                # Try to get upstream data sample
+                graph_data = build_config.get("_graph_data", {})
+                node_id = build_config.get("_node_id")
+                logger.info(f"[DataOperations] Path Selection: graph_data available = {bool(graph_data)}, node_id = {node_id}")
+
+                if graph_data and node_id:
+                    logger.info(f"[DataOperations] Path Selection: attempting to get upstream data for path '{selected_key_value}'")
+
+                    # Try to get a small sample from upstream
+                    try:
+                        # Get upstream data (sample_size=1 for just structure analysis)
+                        logger.info("[DataOperations] Path Selection: calling get_upstream_data...")
+                        upstream_data = await self.get_upstream_data(
+                            input_name="data",
+                            graph_data=graph_data,
+                            sample_size=1,
+                            vertex_id=node_id
+                        )
+                        logger.info(f"[DataOperations] Path Selection: got upstream_data, count = {len(upstream_data) if upstream_data else 0}")
+
+                        if upstream_data and len(upstream_data) > 0:
+                            # Apply JQ expression to sample data
+                            import jq
+                            first_item = upstream_data[0]
+                            input_payload = first_item.data if hasattr(first_item, "data") else first_item
+
+                            compiled = jq.compile(selected_key_value)
+                            result = compiled.input(input_payload).first()
+
+                            # Infer fields from the result
+                            if isinstance(result, dict):
+                                from lfx.components.helpers.field_extraction import _infer_type_from_value
+
+                                fields = [
+                                    {"name": key, "type": _infer_type_from_value(value)}
+                                    for key, value in result.items()
+                                ]
+                                logger.info(
+                                    f"[DataOperations] Path Selection: inferred {len(fields)} fields from upstream data sample"
+                                )
+                                return fields
+                            elif isinstance(result, list) and len(result) > 0 and isinstance(result[0], dict):
+                                # Result is a list of dicts - use first item structure
+                                from lfx.components.helpers.field_extraction import _infer_type_from_value
+
+                                fields = [
+                                    {"name": key, "type": _infer_type_from_value(value)}
+                                    for key, value in result[0].items()
+                                ]
+                                logger.info(
+                                    f"[DataOperations] Path Selection: inferred {len(fields)} fields from list result"
+                                )
+                                return fields
+                            else:
+                                logger.info(
+                                    f"[DataOperations] Path Selection: result is not a dict or list of dicts (type: {type(result).__name__})"
+                                )
+                                return []
+                    except Exception as e:
+                        logger.debug(f"[DataOperations] Path Selection: could not get upstream data: {e}")
+                        # Fall through to return empty
+            except Exception as e:
+                logger.debug(f"[DataOperations] Path Selection: field inference failed: {e}")
+
+            # Fallback: cannot determine structure
+            logger.info("[DataOperations] Path Selection: runtime field extraction will be used")
+            return []
 
         if operation == "JQ Expression":
-            # Output depends on JQ query - hard to predict
-            # Return a generic result field
-            return [{"name": "result", "type": "string"}]
+            # Similar logic for JQ Expression
+            query_value = build_config.get("query", {}).get("value", "")
+
+            if not query_value:
+                logger.info("[DataOperations] JQ Expression: no query configured yet")
+                return []
+
+            try:
+                graph_data = build_config.get("_graph_data", {})
+                node_id = build_config.get("_node_id")
+
+                if graph_data and node_id:
+                    logger.info(f"[DataOperations] JQ Expression: attempting to get upstream data for query '{query_value}'")
+
+                    try:
+                        upstream_data = await self.get_upstream_data(
+                            input_name="data",
+                            graph_data=graph_data,
+                            sample_size=1,
+                            vertex_id=node_id
+                        )
+
+                        if upstream_data and len(upstream_data) > 0:
+                            import jq
+                            import json
+                            from json_repair import repair_json
+
+                            first_item = upstream_data[0]
+                            raw_data = first_item.model_dump() if hasattr(first_item, "model_dump") else first_item
+                            input_str = json.dumps(raw_data)
+                            repaired = repair_json(input_str)
+                            data_json = json.loads(repaired)
+                            jq_input = data_json["data"] if isinstance(data_json, dict) and "data" in data_json else data_json
+
+                            results = jq.compile(query_value).input(jq_input).all()
+
+                            if results and len(results) > 0:
+                                result = results[0] if len(results) == 1 else results
+
+                                if isinstance(result, dict):
+                                    from lfx.components.helpers.field_extraction import _infer_type_from_value
+
+                                    fields = [
+                                        {"name": key, "type": _infer_type_from_value(value)}
+                                        for key, value in result.items()
+                                    ]
+                                    logger.info(
+                                        f"[DataOperations] JQ Expression: inferred {len(fields)} fields from upstream data sample"
+                                    )
+                                    return fields
+                                elif isinstance(result, list) and len(result) > 0 and isinstance(result[0], dict):
+                                    from lfx.components.helpers.field_extraction import _infer_type_from_value
+
+                                    fields = [
+                                        {"name": key, "type": _infer_type_from_value(value)}
+                                        for key, value in result[0].items()
+                                    ]
+                                    logger.info(
+                                        f"[DataOperations] JQ Expression: inferred {len(fields)} fields from list result"
+                                    )
+                                    return fields
+                    except Exception as e:
+                        logger.debug(f"[DataOperations] JQ Expression: could not get upstream data: {e}")
+            except Exception as e:
+                logger.debug(f"[DataOperations] JQ Expression: field inference failed: {e}")
+
+            logger.info("[DataOperations] JQ Expression: runtime field extraction will be used")
+            return []
 
         # Default: return all upstream fields
         return upstream_fields
@@ -839,14 +1011,10 @@ class DataOperationsComponent(Component):
             compiled = jq.compile(self.selected_key)
             result = compiled.input(input_payload).first()
 
-            if isinstance(result, dict):
-                success_msg = i18n.t("components.processing.data_operations.success.path_selection_executed")
-                self.status = success_msg
-                return Data(data=result)
-
+            # 直接返回原始结果
             success_msg = i18n.t("components.processing.data_operations.success.path_selection_executed")
             self.status = success_msg
-            return Data(data={"result": result})
+            return Data(data=result)
 
         except (ValueError, TypeError, KeyError) as e:
             error_msg = i18n.t("components.processing.data_operations.errors.path_selection_failed", error=str(e))

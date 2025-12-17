@@ -221,8 +221,20 @@ class ETLFieldValueMergeComponent(Component):
             # Extract data from Data objects
             data_records = []
             for d in data_input_list:
-                if hasattr(d, "data") and isinstance(d.data, dict):
-                    data_records.append(d.data)
+                if hasattr(d, "data"):
+                    # Handle Data objects
+                    if isinstance(d.data, dict):
+                        # Data object with dict payload
+                        data_records.append(d.data)
+                    elif isinstance(d.data, list):
+                        # Data object with list payload - extend with all items
+                        for item in d.data:
+                            if isinstance(item, dict):
+                                data_records.append(item)
+                            else:
+                                logger.warning(f"[FieldValueMerge] Skipping non-dict item in Data.data list: {type(item)}")
+                    else:
+                        logger.warning(f"[FieldValueMerge] Unknown Data.data type {type(d.data)}: {d.data}")
                 elif isinstance(d, dict):
                     data_records.append(d)
                 else:
@@ -232,6 +244,10 @@ class ETLFieldValueMergeComponent(Component):
                 raise ValueError(i18n.t("components.manipulations.field_value_merge.errors.no_valid_data"))
 
             df = pd.DataFrame(data_records)
+
+            # Normalize column names to strings to handle non-string column names
+            df.columns = [str(col).strip() if isinstance(col, str) else str(col) for col in df.columns]
+
             logger.debug(f"[FieldValueMerge] Input dataframe: {len(df)} records, {len(df.columns)} fields")
             logger.debug(f"[FieldValueMerge] DataFrame columns: {list(df.columns)}")
 

@@ -537,6 +537,52 @@ class NacosServiceManager:
             logger.exception(f"Failed to discover instances: {service_name}")
             return []
 
+    def list_services(
+        self,
+        group_name: str | None = None,
+        page_no: int = 1,
+        page_size: int = 100,
+    ) -> list[str]:
+        """List all services in Nacos using v2 API.
+
+        Args:
+            group_name: Service group name (uses self.group_name if None)
+            page_no: Page number for pagination (default: 1)
+            page_size: Page size for pagination (default: 100)
+
+        Returns:
+            List of service names
+        """
+        self._ensure_client()
+        group_name = group_name or self.group_name
+
+        try:
+            from v2.nacos.naming.model.naming_param import ListServiceParam
+
+            # Use v2 async API to list services
+            service_list = _run_async(
+                self._naming_client.list_services(
+                    ListServiceParam(
+                        namespace_id=self.namespace,
+                        group_name=group_name,
+                        page_no=page_no,
+                        page_size=page_size,
+                    )
+                )
+            )
+
+            # Extract service names from the response
+            # The response has 'services' field, not 'doms'
+            services = service_list.services if hasattr(service_list, "services") else []
+            logger.debug(
+                f"Listed {len(services)} services from Nacos using v2 API "
+                f"(namespace: {self.namespace}, group: {group_name})"
+            )
+            return services
+        except Exception:
+            logger.exception("Failed to list services from Nacos")
+            return []
+
     def subscribe(
         self,
         callback: Callable[[list[dict[str, Any]]], None],

@@ -5,6 +5,10 @@
     "display_name": "Excel File",
     "info": "Select the Excel file to read"
   },
+  "file_id_variable": {
+    "display_name": "File Variable",
+    "info": "Reference a file variable for file ID (e.g., {excelFileId}). Takes precedence over file selection if both provided."
+  },
   "sheet_index": {
     "display_name": "Sheet Index",
     "info": "Sheet number to read (0 for first sheet, 1 for second, etc.)"
@@ -39,6 +43,8 @@
   "errors": {
     "no_file_selected": "Please select an Excel file first",
     "no_file_path": "File path is required",
+    "no_file_source": "Please provide either a file selection or an external variable for file ID",
+    "variable_not_resolved": "Variable '{variable}' not found in runtime or global variables. Please check: (1) Variable is defined in Global Variables settings, or (2) Variable is passed in runtime variables when executing the flow.",
     "preview_failed": "Preview failed: %{error}",
     "read_excel_failed": "Failed to read Excel file: %{error}",
     "load_data_failed": "Failed to load data: %{error}"

@@ -20,11 +20,11 @@
     },
     "target_type": {
       "display_name": "目标类型",
-      "info": "选择要转换到的目标数据类型"
+      "info": "选择要转换到的目标数据类型（包括用于复杂对象的JSON）"
     },
     "conversion_rule": {
       "display_name": "转换规则",
-      "info": "类型特定规则(可选):\n• datetime: 格式字符串(yyyy-MM-dd、yyyy-MM-dd HH:mm:ss、ISO8601 等)\n• boolean: 逗号分隔的真值列表(如: true,1,yes)\n• integer/float: 留空使用默认转换\n• string: 留空"
+      "info": "类型特定规则(可选):\n• datetime: 格式字符串(yyyy-MM-dd、yyyy-MM-dd HH:mm:ss、ISO8601 等)\n• boolean: 逗号分隔的真值列表(如: true,1,yes)\n• json: 将JSON字符串解析为对象/数组\n• integer/float: 留空使用默认转换\n• string: 留空"
     }
   },
 

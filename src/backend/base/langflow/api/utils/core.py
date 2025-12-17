@@ -170,6 +170,11 @@ async def build_graph_from_data(flow_id: uuid.UUID | str, payload: dict, **kwarg
     session_id = kwargs.get("session_id") or str_flow_id
 
     graph = Graph.from_payload(payload, str_flow_id, flow_name, kwargs.get("user_id"))
+
+    # Set context if provided (contains runtime_variables and other context data)
+    if "context" in kwargs and kwargs["context"]:
+        graph.context = kwargs["context"]
+
     for vertex_id in graph.has_session_id_vertices:
         vertex = graph.get_vertex(vertex_id)
         if vertex is None:

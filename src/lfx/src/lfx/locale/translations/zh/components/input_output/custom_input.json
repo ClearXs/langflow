@@ -1,43 +1,56 @@
 {
   "display_name": "自定义输入",
-  "description": "自定义数据输入组件,用户可定义字段结构,便于测试",
+  "description": "处理上游数据并基于自定义字段配置生成新记录",
+  "upstream_data": {
+    "display_name": "上游数据",
+    "info": "来自上游组件的数据列表。连接后将基于上游数据行数生成新记录。"
+  },
   "field_schema": {
     "display_name": "字段结构",
-    "info": "定义自定义字段(字段名称、数据类型、默认值)。编辑后自动同步到数据录入表格。",
+    "info": "定义自定义字段(字段名称、数据类型、数据来源、取值配置)。编辑后自动同步到预览表。",
     "field_name": "字段名称",
     "data_type": "数据类型",
-    "default_value": "默认值"
+    "value_source": "数据来源",
+    "value_source_options": {
+      "from_upstream": "从上游读取",
+      "generate_id": "生成ID",
+      "use_variable": "使用变量",
+      "current_time": "当前时间",
+      "current_timestamp": "当前时间戳",
+      "sequence": "序列号",
+      "fixed_value": "固定值",
+      "expression": "表达式计算"
+    },
+    "default_value": "取值配置"
   },
-  "data_table": {
-    "display_name": "数据录入",
-    "info": "输入自定义数据行。提示：先定义字段结构,再使用下方按钮生成测试数据或手动录入。",
-    "generate_button": "生成测试数据",
-    "validate_button": "验证数据类型"
-  },
-  "test_rows_count": {
-    "display_name": "测试数据行数",
-    "info": "要生成的测试数据行数(1-1000)"
-  },
-  "strict_validation": {
-    "display_name": "严格类型验证",
-    "info": "启用严格的数据类型检查"
+  "preview_table": {
+    "display_name": "预览数据",
+    "info": "基于当前字段结构配置预览生成的数据(10条样本记录)",
+    "preview_button": "预览数据"
   },
   "output_data": {
     "display_name": "数据"
   },
+  "id_types": {
+    "uuid": "UUID",
+    "snowflake": "雪花ID",
+    "auto_increment": "自增ID",
+    "ulid": "ULID",
+    "nanoid": "NanoID",
+    "timestamp": "时间戳ID"
+  },
+  "timestamp_types": {
+    "seconds": "秒(10位)"
+  },
   "status": {
-    "schema_applied": "字段结构已应用,包含%{count}个字段",
-    "schema_cleared": "字段结构已清空",
-    "test_data_generated": "已生成%{count}行测试数据",
-    "validation_passed": "全部%{count}行数据验证通过,类型正确",
-    "data_loaded": "已加载%{count}行数据"
+    "generated_from_upstream": "基于上游数据生成了{count}条记录",
+    "preview_generated": "已生成{count}条预览记录"
   },
   "errors": {
     "no_schema": "请先定义字段结构",
-    "no_data": "没有可验证的数据,请先生成测试数据或手动录入",
-    "invalid_field_name": "无效的字段名称:%{name}",
-    "type_conversion_failed": "无法将值'%{value}'转换为类型%{type}",
-    "validation_failed": "数据验证失败:%{error}",
-    "duplicate_field": "字段名称重复:%{name}"
+    "type_conversion_failed": "无法将值'{value}'转换为类型{type}",
+    "validation_failed": "数据验证失败:{error}",
+    "preview_failed": "预览生成失败:{error}",
+    "preview_requires_upstream": "字段配置为【从上游读取】时,必须连接上游数据才能预览。请先连接上游组件或修改字段数据来源配置。"
   }
 }

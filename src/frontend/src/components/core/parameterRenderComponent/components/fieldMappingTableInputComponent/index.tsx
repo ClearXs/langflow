@@ -24,7 +24,20 @@ interface FieldMapping {
   enabled: boolean;
 }
 
-const DATA_TYPES = ["string", "integer", "float", "boolean"];
+const DATA_TYPES = [
+  "string",
+  "integer",
+  "float",
+  "boolean",
+  "point",
+  "linestring",
+  "polygon",
+  "multipoint",
+  "multilinestring",
+  "multipolygon",
+  "geometry",
+  "geography",
+];
 
 export default function FieldMappingTableInputComponent({
   value,

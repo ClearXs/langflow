@@ -7,6 +7,7 @@ _dynamic_imports = {
     "ETLCSVInputComponent": "csv_input",
     "ETLCustomInputComponent": "custom_input",
     "ETLExcelInputComponent": "excel_input",
+    "ETLFeignInputComponent": "feign_input",
     "ETLFileInputComponent": "file_input",
     "ETLKafkaInputComponent": "kafka_input",
     "ETLTableInputComponent": "table_input",
@@ -14,6 +15,7 @@ _dynamic_imports = {
     "ETLAPIOutputComponent": "api_output",
     "ETLCSVOutputComponent": "csv_output",
     "ETLExcelOutputComponent": "excel_output",
+    "ETLFeignOutputComponent": "feign_output",
     "ETLKafkaOutputComponent": "kafka_output",
     "ETLTableOutputComponent": "table_output",
 }

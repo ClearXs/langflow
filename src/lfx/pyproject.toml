@@ -117,6 +117,16 @@ dev = [
     "ruff>=0.9.10",
 ]
 
+spatial = [
+    "geopandas>=0.14.0,<2.0.0",
+    "shapely>=2.1.0,<3.0.0",
+    "pyproj>=3.7.0,<4.0.0",
+    "fiona>=1.10.0,<2.0.0",
+    "rasterio>=1.4.0,<1.5.0",
+    "geoalchemy2>=0.18.0,<1.0.0",
+    "pandera>=0.20.0,<1.0.0",
+]
+
 [tool.coverage.run]
 branch = true
 omit = [

@@ -1,0 +1,68 @@
+{
+  "display_name": "Shapefile 输入",
+  "description": "读取 ESRI Shapefile 格式并转换为支持坐标系统和几何验证的空间数据。",
+
+  "file_path": {
+    "display_name": "Shapefile（ZIP 或 .shp）",
+    "info": "选择包含 shapefile 组件（.shp、.shx、.dbf、.prj）的 .zip 压缩包或 .shp 文件。"
+  },
+
+  "file_id_variable": {
+    "display_name": "文件变量",
+    "info": "引用文件变量作为文件ID（例如：{shapefileId}）。如果同时提供，此项优先于文件选择。"
+  },
+
+  "target_crs": {
+    "display_name": "目标坐标系",
+    "info": "输出数据的目标坐标参考系统。EPSG:4326 是标准 GPS 坐标（WGS84）。"
+  },
+
+  "encoding": {
+    "display_name": "文件编码",
+    "info": ".dbf 文件的字符编码（例如：utf-8、gbk、gb2312、latin1）。"
+  },
+
+  "validate_geometry": {
+    "display_name": "验证几何对象",
+    "info": "检查几何对象是否有效（无自相交、拓扑正确等）。"
+  },
+
+  "fix_invalid": {
+    "display_name": "修复无效几何对象",
+    "info": "尝试使用 buffer(0) 方法自动修复无效的几何对象。"
+  },
+
+  "outputs": {
+    "spatial_data": {
+      "display_name": "空间数据",
+      "info": "带有空间元数据（_geometry_wkt、_geometry_type、_crs）的 Data 对象形式的地理要素。"
+    }
+  },
+
+  "status": {
+    "reading_file": "正在读取 Shapefile 文件...",
+    "transforming_crs": "正在将坐标转换为 {target_crs}...",
+    "validating_geometry": "正在验证几何对象...",
+    "fixing_geometries": "正在修复无效的几何对象...",
+    "converting_data": "正在转换为 Data 对象..."
+  },
+
+  "success": {
+    "loaded": "成功加载了 {count} 个要素，几何类型：{types}（坐标系：{crs}）"
+  },
+
+  "errors": {
+    "missing_libraries": "Shapefile 处理需要 'geopandas' 和 'fiona'。请使用以下命令安装：uv sync --group spatial",
+    "empty_file": "Shapefile 文件为空或不包含任何要素",
+    "validation_failed": "发现 {count} 个无效的几何对象。启用\"修复无效几何对象\"以尝试自动修复。",
+    "loading_failed": "加载 Shapefile 文件失败：{error}",
+    "no_file_source": "请提供文件选择或文件变量作为文件ID",
+    "variable_not_resolved": "在运行时变量或全局变量中未找到变量'{variable}'。请检查：(1) 变量是否在全局变量设置中定义，或 (2) 执行流程时是否在运行时变量中传递了该变量。"
+  },
+
+  "warnings": {
+    "no_crs": "Shapefile 中未检测到坐标系，默认使用 EPSG:4326（WGS84）",
+    "invalid_geometries": "发现 {count} 个无效的几何对象",
+    "unfixed_geometries": "{count} 个几何对象无法自动修复"
+  }
+}

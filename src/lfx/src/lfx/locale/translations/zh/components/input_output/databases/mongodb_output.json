@@ -1,0 +1,51 @@
+{
+  "display_name": "MongoDB 输出",
+  "description": "写入数据到 MongoDB 数据库集合",
+
+  "data_input": {
+    "display_name": "数据输入",
+    "info": "要写入 MongoDB 数据库的数据"
+  },
+
+  "datasource_selector": {
+    "display_name": "数据源",
+    "info": "选择一个 MongoDB 数据源(内置或公共)"
+  },
+
+  "collection_name": {
+    "display_name": "集合名称",
+    "info": "要写入的 MongoDB 集合"
+  },
+
+  "write_mode": {
+    "display_name": "写入模式",
+    "info": "如何处理集合中的现有数据",
+    "insert": "插入",
+    "update": "更新",
+    "upsert": "更新插入",
+    "replace": "替换"
+  },
+
+  "batch_size": {
+    "display_name": "批大小",
+    "info": "每批写入的文档数"
+  },
+
+  "outputs": {
+    "data": {
+      "display_name": "数据"
+    }
+  },
+
+  "status": {
+    "writing": "正在写入数据到 MongoDB...",
+    "success": "成功写入了 {rows} 个文档到 MongoDB"
+  },
+
+  "errors": {
+    "no_datasource": "未选择数据源",
+    "datasource_not_found": "未找到 ID 为 '{id}' 的数据源",
+    "connection_failed": "连接 MongoDB 失败: {error}",
+    "write_failed": "写入数据失败: {error}"
+  }
+}

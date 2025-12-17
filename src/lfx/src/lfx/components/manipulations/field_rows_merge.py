@@ -398,8 +398,20 @@ class ETLFieldRowsMergeComponent(Component):
             # Convert to DataFrame with proper error handling
             processed_data = []
             for d in data_items:
-                if hasattr(d, "data") and isinstance(d.data, dict):
-                    processed_data.append(d.data)
+                if hasattr(d, "data"):
+                    # Handle Data objects
+                    if isinstance(d.data, dict):
+                        # Data object with dict payload
+                        processed_data.append(d.data)
+                    elif isinstance(d.data, list):
+                        # Data object with list payload - extend with all items
+                        for item in d.data:
+                            if isinstance(item, dict):
+                                processed_data.append(item)
+                            else:
+                                logger.warning(f"Skipping non-dict item in Data.data list: {type(item)}")
+                    else:
+                        logger.warning(f"Unknown Data.data type {type(d.data)}: {d.data}")
                 elif isinstance(d, dict):
                     processed_data.append(d)
                 elif isinstance(d, tuple):
@@ -415,6 +427,10 @@ class ETLFieldRowsMergeComponent(Component):
                     continue
 
             df = pd.DataFrame(processed_data)
+
+            # Normalize column names to strings to handle non-string column names
+            df.columns = [str(col).strip() if isinstance(col, str) else str(col) for col in df.columns]
+
             total_rows = len(df)
             logger.info(f"[FieldRowsMerge] Processing {total_rows} rows")
 

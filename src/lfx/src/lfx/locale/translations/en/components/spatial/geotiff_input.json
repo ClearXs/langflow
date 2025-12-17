@@ -1,0 +1,59 @@
+{
+  "display_name": "GeoTIFF Input",
+  "description": "Reads GeoTIFF raster files and extracts spatial metadata including CRS, bounds, resolution, and band information.",
+
+  "file_path": {
+    "display_name": "GeoTIFF File(s)",
+    "info": "Select one or more GeoTIFF (.tif, .tiff) files. Multiple files can be merged or processed individually."
+  },
+
+  "file_id_variable": {
+    "display_name": "File Variable",
+    "info": "Reference an file variable for file ID(s) (e.g., {geoTiffFileId}). For multiple files, use comma separation. Takes precedence over file selection if both provided."
+  },
+
+  "read_mode": {
+    "display_name": "Read Mode",
+    "info": "How to read the raster data: 'metadata' for spatial info only, 'array' for full pixel data, 'sample' for random point sampling."
+  },
+
+  "sample_size": {
+    "display_name": "Sample Size",
+    "info": "Number of random points to sample when read_mode is 'sample'. Maximum is raster width × height."
+  },
+
+  "merge_files": {
+    "display_name": "Merge Files",
+    "info": "Merge multiple GeoTIFF files into a single mosaic. Only applies when multiple files are selected."
+  },
+
+  "outputs": {
+    "spatial_data": {
+      "display_name": "Raster Data",
+      "info": "Raster metadata and data as Data objects with CRS, bounds, resolution, and optional array/sample data."
+    }
+  },
+
+  "status": {
+    "reading_files": "Reading {count} GeoTIFF file(s)...",
+    "merging_files": "Merging raster files into mosaic...",
+    "processing_file": "Processing file {current} of {total}...",
+    "sampling_points": "Sampling random points from raster..."
+  },
+
+  "success": {
+    "loaded": "Successfully loaded {count} raster dataset(s)"
+  },
+
+  "errors": {
+    "missing_libraries": "GeoTIFF processing requires 'rasterio'. Install with: uv sync --group spatial",
+    "no_valid_files": "No valid GeoTIFF files could be opened",
+    "loading_failed": "Failed to load GeoTIFF: {error}",
+    "no_file_source": "Please provide either a file selection or an file variable for file ID",
+    "variable_not_resolved": "Variable '{variable}' not found in runtime or global variables. Please check: (1) Variable is defined in Global Variables settings, or (2) Variable is passed in runtime variables when executing the flow."
+  },
+
+  "warnings": {
+    "file_open_failed": "Failed to open raster file: {path}"
+  }
+}

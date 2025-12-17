@@ -1,6 +1,5 @@
 """Custom Input Component for ETL operations."""
 
-import random
 from datetime import datetime
 from typing import Any
 
@@ -8,7 +7,7 @@ import i18n
 import pandas as pd
 
 from lfx.custom.custom_component.component import Component
-from lfx.io import BoolInput, IntInput, Output, TableInput
+from lfx.io import HandleInput, Output, TableInput
 from lfx.log.logger import logger
 from lfx.schema import Data
 
@@ -25,48 +24,6 @@ def _format_i18n(key: str, **kwargs) -> str:
     return text
 
 
-# Sample data generators for test data
-SAMPLE_FIRST_NAMES = [
-    "James",
-    "Mary",
-    "John",
-    "Patricia",
-    "Robert",
-    "Jennifer",
-    "Michael",
-    "Linda",
-    "William",
-    "Barbara",
-    "David",
-    "Elizabeth",
-    "Richard",
-    "Susan",
-    "Joseph",
-    "Jessica",
-]
-
-SAMPLE_LAST_NAMES = [
-    "Smith",
-    "Johnson",
-    "Williams",
-    "Brown",
-    "Jones",
-    "Garcia",
-    "Miller",
-    "Davis",
-    "Rodriguez",
-    "Martinez",
-    "Hernandez",
-    "Lopez",
-    "Gonzalez",
-    "Wilson",
-    "Anderson",
-    "Thomas",
-]
-
-SAMPLE_EMAIL_DOMAINS = ["gmail.com", "yahoo.com", "outlook.com", "example.com", "test.com"]
-
-
 class ETLCustomInputComponent(Component):
     """Custom data input component with user-defined schema for testing."""
 
@@ -76,6 +33,15 @@ class ETLCustomInputComponent(Component):
     name = "ETLCustomInput"
 
     inputs = [
+        HandleInput(
+            name="upstream_data",
+            display_name=i18n.t("components.input_output.custom_input.upstream_data.display_name"),
+            info=i18n.t("components.input_output.custom_input.upstream_data.info"),
+            input_types=["Data"],
+            is_list=True,
+            required=False,
+            advanced=False,
+        ),
         TableInput(
             name="field_schema",
             display_name=i18n.t("components.input_output.custom_input.field_schema.display_name"),
@@ -92,12 +58,97 @@ class ETLCustomInputComponent(Component):
                     "display_name": i18n.t("components.input_output.custom_input.field_schema.data_type"),
                     "type": "str",
                     "formatter": "text",
-                    "options": ["string", "integer", "float", "boolean", "datetime"],
+                    "options": [
+                        "string",
+                        "integer",
+                        "float",
+                        "boolean",
+                        "datetime",
+                        "json",
+                        "point",
+                        "linestring",
+                        "polygon",
+                        "multipoint",
+                        "multilinestring",
+                        "multipolygon",
+                        "geometry",
+                        "geography",
+                    ],
+                },
+                {
+                    "name": "value_source",
+                    "display_name": i18n.t("components.input_output.custom_input.field_schema.value_source"),
+                    "type": "str",
+                    "formatter": "text",
+                    "options": [
+                        i18n.t("components.input_output.custom_input.field_schema.value_source_options.from_upstream"),
+                        i18n.t("components.input_output.custom_input.field_schema.value_source_options.generate_id"),
+                        i18n.t("components.input_output.custom_input.field_schema.value_source_options.use_variable"),
+                        i18n.t("components.input_output.custom_input.field_schema.value_source_options.current_time"),
+                        i18n.t(
+                            "components.input_output.custom_input.field_schema.value_source_options.current_timestamp"
+                        ),
+                        i18n.t("components.input_output.custom_input.field_schema.value_source_options.sequence"),
+                        i18n.t("components.input_output.custom_input.field_schema.value_source_options.fixed_value"),
+                        i18n.t("components.input_output.custom_input.field_schema.value_source_options.expression"),
+                    ],
+                    "default": i18n.t(
+                        "components.input_output.custom_input.field_schema.value_source_options.use_variable"
+                    ),
                 },
                 {
                     "name": "default_value",
                     "display_name": i18n.t("components.input_output.custom_input.field_schema.default_value"),
                     "type": "str",
+                    "formatter": "text",  # Required for dropdown editor
+                    "depend_on": "value_source",
+                    "options_map": {
+                        i18n.t("components.input_output.custom_input.field_schema.value_source_options.generate_id"): [
+                            {
+                                "label": i18n.t("components.input_output.custom_input.id_types.uuid"),
+                                "value": "UUID",
+                            },
+                            {
+                                "label": i18n.t("components.input_output.custom_input.id_types.snowflake"),
+                                "value": "雪花ID",
+                            },
+                            {
+                                "label": i18n.t("components.input_output.custom_input.id_types.auto_increment"),
+                                "value": "自增ID",
+                            },
+                            {
+                                "label": i18n.t("components.input_output.custom_input.id_types.ulid"),
+                                "value": "ULID",
+                            },
+                            {
+                                "label": i18n.t("components.input_output.custom_input.id_types.nanoid"),
+                                "value": "NanoID",
+                            },
+                            {
+                                "label": i18n.t("components.input_output.custom_input.id_types.timestamp"),
+                                "value": "时间戳ID",
+                            },
+                        ],
+                        i18n.t("components.input_output.custom_input.field_schema.value_source_options.current_time"): [
+                            {"label": "yyyy-MM-dd HH:mm:ss", "value": "%Y-%m-%d %H:%M:%S"},
+                            {"label": "yyyy-MM-dd", "value": "%Y-%m-%d"},
+                            {"label": "yyyy年MM月dd日 HH:mm:ss", "value": "%Y年%m月%d日 %H:%M:%S"},
+                            {"label": "yyyy年MM月dd日", "value": "%Y年%m月%d日"},
+                            {"label": "yyyyMMddHHmmss", "value": "%Y%m%d%H%M%S"},
+                            {"label": "yyyy-MM-ddTHH:mm:ss+08:00", "value": "%Y-%m-%dT%H:%M:%S+08:00"},
+                            {"label": "yyyy/MM/dd HH:mm:ss", "value": "%Y/%m/%d %H:%M:%S"},
+                            {"label": "dd/MM/yyyy HH:mm:ss", "value": "%d/%m/%Y %H:%M:%S"},
+                            {"label": "MM/dd/yyyy hh:mm:ss a", "value": "%m/%d/%Y %I:%M:%S %p"},
+                        ],
+                        i18n.t(
+                            "components.input_output.custom_input.field_schema.value_source_options.current_timestamp"
+                        ): [
+                            {
+                                "label": i18n.t("components.input_output.custom_input.timestamp_types.seconds"),
+                                "value": "秒",
+                            },
+                        ],
+                    },
                 },
             ],
             value=[],
@@ -110,47 +161,26 @@ class ETLCustomInputComponent(Component):
             advanced=False,
         ),
         TableInput(
-            name="data_table",
-            display_name=i18n.t("components.input_output.custom_input.data_table.display_name"),
-            info=i18n.t("components.input_output.custom_input.data_table.info"),
+            name="preview_table",
+            display_name=i18n.t("components.input_output.custom_input.preview_table.display_name"),
+            info=i18n.t("components.input_output.custom_input.preview_table.info"),
             table_schema=[],  # Will be dynamically generated from field_schema
             value=[],
             table_options={
-                "block_add": False,
-                "block_delete": False,
-                "block_edit": False,
+                "block_add": True,  # Disable adding rows
+                "block_delete": True,  # Disable deleting rows
+                "block_edit": True,  # Disable editing
                 "pagination": True,
                 "action_buttons": [
                     {
-                        "name": "generate_test_data",
-                        "label": i18n.t("components.input_output.custom_input.data_table.generate_button"),
-                        "icon": "Sparkles",
-                        "position": "top",
-                    },
-                    {
-                        "name": "validate_data",
-                        "label": i18n.t("components.input_output.custom_input.data_table.validate_button"),
-                        "icon": "CheckCircle",
+                        "name": "preview_data",
+                        "label": i18n.t("components.input_output.custom_input.preview_table.preview_button"),
+                        "icon": "Eye",
                         "position": "top",
                     },
                 ],
             },
             advanced=False,
-        ),
-        IntInput(
-            name="test_rows_count",
-            display_name=i18n.t("components.input_output.custom_input.test_rows_count.display_name"),
-            info=i18n.t("components.input_output.custom_input.test_rows_count.info"),
-            value=10,
-            range_spec={"min": 1, "max": 1000},
-            advanced=True,
-        ),
-        BoolInput(
-            name="strict_validation",
-            display_name=i18n.t("components.input_output.custom_input.strict_validation.display_name"),
-            info=i18n.t("components.input_output.custom_input.strict_validation.info"),
-            value=True,
-            advanced=True,
         ),
     ]
 
@@ -176,171 +206,80 @@ class ETLCustomInputComponent(Component):
             f"action: {action}"
         )
 
-        # ALWAYS sync schema on ANY update_build_config call
-        # This ensures data_table schema is always in sync with field_schema
+        # Debug: Log field_schema configuration to verify options_map and depend_on
+        if field_name == "field_schema" or action == "load":
+            field_schema_config = build_config.get("field_schema", {})
+            table_schema = field_schema_config.get("table_schema", [])
+            logger.info(f"[CustomInput] field_schema table_schema has {len(table_schema)} columns")
+            for col in table_schema:
+                if col.get("name") == "default_value":
+                    logger.info(
+                        f"[CustomInput] default_value column config: "
+                        f"depend_on={col.get('depend_on')}, "
+                        f"has_options_map={bool(col.get('options_map'))}, "
+                        f"options_map_keys={list(col.get('options_map', {}).keys())}"
+                    )
+
+        # ALWAYS sync preview_table schema on ANY update_build_config call
         try:
             field_schema = build_config.get("field_schema", {}).get("value", [])
-            current_data_schema = build_config.get("data_table", {}).get("table_schema", [])
+            current_preview_schema = build_config.get("preview_table", {}).get("table_schema", [])
 
             # Only update if we have a field_schema
             if field_schema:
                 # Generate expected schema
                 expected_schema = self._generate_schema_from_fields(field_schema)
 
-                # Check if schema needs update
-                schema_changed = len(current_data_schema) != len(expected_schema)
-                if not schema_changed and len(expected_schema) > 0:
-                    # Check if field names match
-                    current_names = {f.get("name") for f in current_data_schema}
+                # Check if preview_table schema needs update
+                preview_schema_changed = len(current_preview_schema) != len(expected_schema)
+                if not preview_schema_changed and len(expected_schema) > 0:
+                    current_preview_names = {f.get("name") for f in current_preview_schema}
                     expected_names = {f.get("name") for f in expected_schema}
-                    schema_changed = current_names != expected_names
+                    preview_schema_changed = current_preview_names != expected_names
 
-                if schema_changed:
-                    logger.info(
-                        f"[CustomInput] Schema out of sync, updating data_table schema with {len(expected_schema)} fields"
-                    )
-                    build_config["data_table"]["table_schema"] = expected_schema
+                if preview_schema_changed:
+                    logger.info(f"[CustomInput] Syncing preview_table schema with {len(expected_schema)} fields")
+                    build_config["preview_table"]["table_schema"] = expected_schema
 
-                    # Clear data if schema structure changed
-                    # BUT DO NOT clear if user is about to generate test data or validate
-                    # because those actions will populate/check the data
-                    if action not in ("generate_test_data", "validate_data"):
-                        existing_data = build_config.get("data_table", {}).get("value", [])
-                        if existing_data:
-                            logger.info("[CustomInput] Clearing existing data due to schema change")
-                            build_config["data_table"]["value"] = []
-                    else:
-                        logger.info(f"[CustomInput] Schema synced but NOT clearing data because action={action}")
         except Exception as e:  # noqa: BLE001
             logger.error(f"[CustomInput] Error during auto-sync: {e}")
 
-        # Handle explicit field_schema changes (from user editing the table)
-        if field_name == "field_schema":
-            logger.info("[CustomInput] Field schema explicitly changed by user")
+        # Handle "Preview Data" action
+        if field_name == "preview_table" and action == "preview_data":
+            logger.info("[CustomInput] Preview data action triggered")
             try:
-                field_schema = build_config.get("field_schema", {}).get("value", [])
+                import asyncio
 
-                if not field_schema:
-                    # Clear data_table if schema is empty
-                    build_config["data_table"]["table_schema"] = []
-                    build_config["data_table"]["value"] = []
-                    self.status = i18n.t("components.input_output.custom_input.status.schema_cleared")
-                    logger.info("[CustomInput] Schema cleared")
-                    return build_config
-
-                # Validate schema for duplicate field names
-                field_names = [field.get("field_name") for field in field_schema if field.get("field_name")]
-                if len(field_names) != len(set(field_names)):
-                    # Find duplicates
-                    duplicates = [name for name in field_names if field_names.count(name) > 1]
-                    duplicate_name = duplicates[0] if duplicates else "unknown"
-                    self.status = _format_i18n(
-                        "components.input_output.custom_input.errors.duplicate_field", name=duplicate_name
-                    )
-                    logger.error(f"[CustomInput] Duplicate field name: {duplicate_name}")
-                    return build_config
-
-                # Generate data table schema (already done in auto-sync above)
-                data_table_schema = self._generate_schema_from_fields(field_schema)
-                build_config["data_table"]["table_schema"] = data_table_schema
-
-                self.status = _format_i18n(
-                    "components.input_output.custom_input.status.schema_applied", count=len(data_table_schema)
-                )
-                logger.info(f"[CustomInput] User-triggered schema update with {len(data_table_schema)} fields")
-
-            except Exception as e:  # noqa: BLE001 - Catch all for config updates
-                error_msg = str(e)
-                self.status = _format_i18n(
-                    "components.input_output.custom_input.errors.validation_failed", error=error_msg
-                )
-                logger.exception(f"[CustomInput] Failed to sync schema: {error_msg}")
-
-        # Handle "Generate Test Data" action
-        if field_name == "data_table" and action == "generate_test_data":
-            logger.info("[CustomInput] Generate test data action triggered")
-            try:
                 # Get current field schema
                 field_schema = build_config.get("field_schema", {}).get("value", [])
 
                 if not field_schema:
                     self.status = i18n.t("components.input_output.custom_input.errors.no_schema")
-                    logger.warning("[CustomInput] No field schema defined for test data generation")
+                    logger.warning("[CustomInput] No field schema defined for preview")
                     return build_config
 
-                # Get test rows count
-                test_rows_count = build_config.get("test_rows_count", {}).get("value", 10)
+                # Ensure preview_table schema is synced
+                preview_schema = self._generate_schema_from_fields(field_schema)
+                build_config["preview_table"]["table_schema"] = preview_schema
 
-                # Generate test data
-                test_data = self._generate_test_data(field_schema, test_rows_count)
+                # Generate preview data (10 sample rows)
+                # Need to run async method in sync context, passing build_config for upstream data access
+                preview_data = asyncio.run(self._generate_preview_data(field_schema, build_config, sample_size=10))
 
-                # DEBUG: Log generated data details
-                logger.info(
-                    f"[CustomInput] Generated test data sample (first row): {test_data[0] if test_data else 'EMPTY'}"
-                )
-                logger.info(f"[CustomInput] Total rows generated: {len(test_data)}")
-                logger.info(
-                    f"[CustomInput] Current data_table schema: {build_config.get('data_table', {}).get('table_schema', [])}"
-                )
-
-                # Update data_table with test data
-                build_config["data_table"]["value"] = test_data
-
-                # DEBUG: Verify the update
-                logger.info(
-                    f"[CustomInput] After update, data_table value has {len(build_config['data_table']['value'])} rows"
-                )
+                # Update preview_table with generated data
+                build_config["preview_table"]["value"] = preview_data
 
                 self.status = _format_i18n(
-                    "components.input_output.custom_input.status.test_data_generated", count=len(test_data)
+                    "components.input_output.custom_input.status.preview_generated", count=len(preview_data)
                 )
-                logger.info(f"[CustomInput] Generated {len(test_data)} test data rows")
+                logger.info(f"[CustomInput] Generated {len(preview_data)} preview records")
 
             except Exception as e:  # noqa: BLE001 - Catch all for config updates
                 error_msg = str(e)
                 self.status = _format_i18n(
-                    "components.input_output.custom_input.errors.validation_failed", error=error_msg
+                    "components.input_output.custom_input.errors.preview_failed", error=error_msg
                 )
-                logger.exception(f"[CustomInput] Failed to generate test data: {error_msg}")
-
-        # Handle "Validate Data" action
-        if field_name == "data_table" and action == "validate_data":
-            logger.info("[CustomInput] Validate data action triggered")
-            try:
-                # Get current field schema
-                field_schema = build_config.get("field_schema", {}).get("value", [])
-
-                if not field_schema:
-                    self.status = i18n.t("components.input_output.custom_input.errors.no_schema")
-                    logger.warning("[CustomInput] No field schema defined for validation")
-                    return build_config
-
-                # Get current data
-                data_table = build_config.get("data_table", {}).get("value", [])
-
-                if not data_table:
-                    self.status = i18n.t("components.input_output.custom_input.errors.no_data")
-                    logger.warning("[CustomInput] No data to validate")
-                    return build_config
-
-                # Get strict validation setting
-                strict_validation = build_config.get("strict_validation", {}).get("value", True)
-
-                # Validate all rows
-                for idx, row in enumerate(data_table):
-                    self._validate_data_row(row, field_schema, strict_validation, row_index=idx)
-
-                self.status = _format_i18n(
-                    "components.input_output.custom_input.status.validation_passed", count=len(data_table)
-                )
-                logger.info(f"[CustomInput] All {len(data_table)} rows validated successfully")
-
-            except Exception as e:  # noqa: BLE001 - Catch all for config updates
-                error_msg = str(e)
-                self.status = _format_i18n(
-                    "components.input_output.custom_input.errors.validation_failed", error=error_msg
-                )
-                logger.exception(f"[CustomInput] Data validation failed: {error_msg}")
+                logger.exception(f"[CustomInput] Preview data generation failed: {error_msg}")
 
         return build_config
 
@@ -372,6 +311,19 @@ class ETLCustomInputComponent(Component):
                 frontend_type = "bool"
             elif data_type == "datetime":
                 frontend_type = "str"  # DateTime rendered as string in table
+            elif data_type == "json":
+                frontend_type = "str"  # JSON rendered as string in table
+            elif data_type in (
+                "point",
+                "linestring",
+                "polygon",
+                "multipoint",
+                "multilinestring",
+                "multipolygon",
+                "geometry",
+                "geography",
+            ):
+                frontend_type = "str"  # Spatial types rendered as string (JSON) in table
 
             table_schema.append(
                 {
@@ -383,121 +335,6 @@ class ETLCustomInputComponent(Component):
             )
 
         return table_schema
-
-    def _generate_test_data(self, field_schema: list[dict], row_count: int) -> list[dict]:
-        """Generate test data based on field schema.
-
-        Args:
-            field_schema: List of field definitions
-            row_count: Number of rows to generate
-
-        Returns:
-            List of data rows (dictionaries)
-        """
-        test_data = []
-
-        for i in range(row_count):
-            row = {}
-            for field in field_schema:
-                field_name = field.get("field_name")
-                data_type = field.get("data_type", "string")
-                default_value = field.get("default_value", "")
-
-                if not field_name:
-                    continue
-
-                # Generate sample value based on type
-                value = self._generate_sample_value(field_name, data_type, i)
-
-                # Use default value if specified and it's the first row
-                if i == 0 and default_value:
-                    try:
-                        value = self._convert_value(default_value, data_type)
-                    except Exception:
-                        # If conversion fails, use generated value
-                        pass
-
-                row[field_name] = value
-
-            test_data.append(row)
-
-        return test_data
-
-    def _generate_sample_value(self, field_name: str, data_type: str, index: int) -> Any:
-        """Generate realistic sample value based on field name and type.
-
-        Args:
-            field_name: Name of the field
-            data_type: Data type of the field
-            index: Row index for generating unique values
-
-        Returns:
-            Sample value of appropriate type
-        """
-        field_name_lower = field_name.lower()
-
-        if data_type == "string":
-            # Generate contextual strings based on field name
-            if "name" in field_name_lower and "first" in field_name_lower:
-                return random.choice(SAMPLE_FIRST_NAMES)
-            if "name" in field_name_lower and "last" in field_name_lower:
-                return random.choice(SAMPLE_LAST_NAMES)
-            if "name" in field_name_lower:
-                return f"{random.choice(SAMPLE_FIRST_NAMES)} {random.choice(SAMPLE_LAST_NAMES)}"
-            if "email" in field_name_lower:
-                first = random.choice(SAMPLE_FIRST_NAMES).lower()
-                last = random.choice(SAMPLE_LAST_NAMES).lower()
-                domain = random.choice(SAMPLE_EMAIL_DOMAINS)
-                return f"{first}.{last}@{domain}"
-            if "address" in field_name_lower or "street" in field_name_lower:
-                return f"{random.randint(1, 9999)} {random.choice(['Main', 'Oak', 'Maple', 'Park'])} St"
-            if "city" in field_name_lower:
-                return random.choice(["New York", "Los Angeles", "Chicago", "Houston", "Phoenix"])
-            if "state" in field_name_lower:
-                return random.choice(["CA", "NY", "TX", "FL", "IL"])
-            if "country" in field_name_lower:
-                return random.choice(["USA", "Canada", "UK", "Germany", "France"])
-            if "phone" in field_name_lower:
-                return f"+1-555-{random.randint(100, 999)}-{random.randint(1000, 9999)}"
-            if "description" in field_name_lower or "comment" in field_name_lower:
-                return f"Sample description for record {index + 1}"
-            return f"sample_{field_name}_{index + 1}"
-
-        if data_type == "integer":
-            # Generate contextual integers
-            if "id" in field_name_lower:
-                return index + 1
-            if "age" in field_name_lower:
-                return random.randint(18, 80)
-            if "year" in field_name_lower:
-                return random.randint(2000, 2025)
-            if "count" in field_name_lower or "total" in field_name_lower:
-                return random.randint(0, 1000)
-            return random.randint(1, 100)
-
-        if data_type == "float":
-            # Generate contextual floats
-            if "price" in field_name_lower or "cost" in field_name_lower or "amount" in field_name_lower:
-                return round(random.uniform(10.0, 1000.0), 2)
-            if "rate" in field_name_lower or "percent" in field_name_lower:
-                return round(random.uniform(0.0, 100.0), 2)
-            if "score" in field_name_lower:
-                return round(random.uniform(0.0, 10.0), 2)
-            return round(random.uniform(0.0, 100.0), 2)
-
-        if data_type == "boolean":
-            return random.choice([True, False])
-
-        if data_type == "datetime":
-            # Generate random datetime in past year
-            year = random.randint(2024, 2025)
-            month = random.randint(1, 12)
-            day = random.randint(1, 28)  # Safe day range
-            hour = random.randint(0, 23)
-            minute = random.randint(0, 59)
-            return datetime(year, month, day, hour, minute).isoformat()
-
-        return ""
 
     def _convert_value(self, value: Any, data_type: str) -> Any:
         """Convert value to target data type.
@@ -547,8 +384,58 @@ class ETLCustomInputComponent(Component):
                 except Exception as e:
                     raise ValueError(f"Cannot parse datetime: {e}")
 
-            else:
-                return str(value)
+            # JSON type handling
+            if data_type == "json":
+                if isinstance(value, (dict, list)):
+                    # Already a dict/list, return as-is
+                    return value
+                if isinstance(value, str):
+                    # Try to parse JSON string
+                    import json
+
+                    try:
+                        return json.loads(value)
+                    except json.JSONDecodeError as e:
+                        raise ValueError(f"Invalid JSON format: {e}")
+                # If it's a Data object, extract its data attribute
+                if hasattr(value, "data"):
+                    return value.data
+                raise ValueError(f"Cannot convert {type(value).__name__} to JSON")
+
+            # Spatial types - validate GeoJSON format
+            if data_type in (
+                "point",
+                "linestring",
+                "polygon",
+                "multipoint",
+                "multilinestring",
+                "multipolygon",
+                "geometry",
+                "geography",
+            ):
+                # If already a dict (GeoJSON object), validate and return
+                if isinstance(value, dict):
+                    if "type" not in value or "coordinates" not in value:
+                        raise ValueError("Invalid GeoJSON format: missing 'type' or 'coordinates'")
+                    return value
+
+                # If string, try to parse as JSON
+                if isinstance(value, str):
+                    import json
+
+                    try:
+                        geojson = json.loads(value)
+                        if not isinstance(geojson, dict):
+                            raise ValueError("GeoJSON must be an object")
+                        if "type" not in geojson or "coordinates" not in geojson:
+                            raise ValueError("Invalid GeoJSON format: missing 'type' or 'coordinates'")
+                        return geojson
+                    except json.JSONDecodeError as e:
+                        raise ValueError(f"Cannot parse GeoJSON: {e}")
+
+                raise ValueError(f"Cannot convert {type(value)} to GeoJSON")
+
+            return str(value)
 
         except (ValueError, TypeError) as e:
             raise ValueError(
@@ -559,58 +446,222 @@ class ETLCustomInputComponent(Component):
                 )
             ) from e
 
-    def _validate_data_row(
-        self, row: dict, field_schema: list[dict], strict_validation: bool = True, row_index: int = 0
-    ) -> dict:
-        """Validate single data row against schema.
+    def _generate_id(self, id_type: str, index: int) -> str:
+        """Generate ID based on specified type.
 
         Args:
-            row: Data row to validate
-            field_schema: Field schema definitions
-            strict_validation: Whether to enforce strict type checking
-            row_index: Row index for error reporting
+            id_type: ID type (UUID/Snowflake ID/Auto-increment/ULID/NanoID/Timestamp ID)
+            index: Current record index (for auto-increment)
 
         Returns:
-            Validated and converted row
+            Generated ID string
+        """
+        import time
+        import uuid
+
+        # Normalize id_type to handle both English and Chinese
+        id_type_normalized = id_type.strip()
+
+        # UUID
+        if id_type_normalized in ("UUID", i18n.t("components.input_output.custom_input.id_types.uuid")):
+            return str(uuid.uuid4())
+
+        # Snowflake ID (simplified implementation using timestamp + random)
+        if id_type_normalized in (
+            "Snowflake ID",
+            "雪花ID",
+            i18n.t("components.input_output.custom_input.id_types.snowflake"),
+        ):
+            # Simplified snowflake: timestamp (41 bits) + machine id (10 bits) + sequence (12 bits)
+            timestamp_ms = int(time.time() * 1000)
+            machine_id = 1  # Fixed machine ID for simplicity
+            sequence = index % 4096  # Sequence number from index
+            snowflake_id = (timestamp_ms << 22) | (machine_id << 12) | sequence
+            return str(snowflake_id)
+
+        # Auto-increment ID
+        if id_type_normalized in (
+            "Auto Increment ID",
+            "自增ID",
+            i18n.t("components.input_output.custom_input.id_types.auto_increment"),
+        ):
+            return str(index + 1)
+
+        # ULID
+        if id_type_normalized in ("ULID", i18n.t("components.input_output.custom_input.id_types.ulid")):
+            try:
+                import ulid
+
+                return str(ulid.new())
+            except ImportError:
+                logger.warning("[CustomInput] ulid library not available, using UUID as fallback")
+                return str(uuid.uuid4())
+
+        # NanoID
+        if id_type_normalized in ("NanoID", i18n.t("components.input_output.custom_input.id_types.nanoid")):
+            try:
+                from nanoid import generate
+
+                return generate()
+            except ImportError:
+                logger.warning("[CustomInput] nanoid library not available, using UUID as fallback")
+                return str(uuid.uuid4())
+
+        # Timestamp ID
+        if id_type_normalized in (
+            "Timestamp ID",
+            "时间戳ID",
+            i18n.t("components.input_output.custom_input.id_types.timestamp"),
+        ):
+            # Generate timestamp ID (milliseconds)
+            return str(int(time.time() * 1000))
+
+        # Unknown type - default to UUID
+        logger.warning(f"[CustomInput] Unknown ID type: {id_type}, using UUID as fallback")
+        return str(uuid.uuid4())
+
+    def _generate_current_time(self, format_str: str) -> str:
+        """Generate current time in China timezone (Asia/Shanghai).
+
+        Args:
+            format_str: Python strftime format string
+
+        Returns:
+            Formatted time string
+        """
+        from datetime import datetime
+
+        try:
+            # Try Python 3.9+ zoneinfo first
+            from zoneinfo import ZoneInfo
+
+            china_tz = ZoneInfo("Asia/Shanghai")
+        except ImportError:
+            # Fallback to pytz for Python 3.8
+            try:
+                import pytz
+
+                china_tz = pytz.timezone("Asia/Shanghai")
+            except ImportError:
+                # If no timezone library available, use UTC+8 offset
+                from datetime import timedelta, timezone
+
+                china_tz = timezone(timedelta(hours=8))
+
+        now = datetime.now(china_tz)
+        return now.strftime(format_str)
+
+    def _generate_current_timestamp(self, precision: str = "秒") -> str:
+        """Generate current timestamp in China timezone (Asia/Shanghai).
+
+        Args:
+            precision: Timestamp precision ("秒" for seconds)
+
+        Returns:
+            Timestamp string
+        """
+        from datetime import datetime
+
+        try:
+            # Try Python 3.9+ zoneinfo first
+            from zoneinfo import ZoneInfo
+
+            china_tz = ZoneInfo("Asia/Shanghai")
+        except ImportError:
+            # Fallback to pytz for Python 3.8
+            try:
+                import pytz
+
+                china_tz = pytz.timezone("Asia/Shanghai")
+            except ImportError:
+                # If no timezone library available, use UTC+8 offset
+                from datetime import timedelta, timezone
+
+                china_tz = timezone(timedelta(hours=8))
+
+        now = datetime.now(china_tz)
+
+        # Only seconds supported
+        return str(int(now.timestamp()))
+
+    def _generate_sequence(self, config: str, index: int) -> str:
+        """Generate sequence number.
+
+        Args:
+            config: Sequence configuration "起始值:步长" (e.g., "1:1", "100:10")
+            index: Current row index (from 0)
+
+        Returns:
+            Sequence number string
 
         Raises:
-            ValueError: If validation fails in strict mode
+            ValueError: If config format is invalid
         """
-        validated_row = {}
+        try:
+            parts = config.split(":")
+            if len(parts) != 2:
+                msg = f"Invalid sequence config: {config}, expected format: 'start:step'"
+                logger.error(f"[CustomInput] {msg}")
+                raise ValueError(msg)
 
-        for field in field_schema:
-            field_name = field.get("field_name")
-            data_type = field.get("data_type", "string")
+            start = int(parts[0])
+            step = int(parts[1])
 
-            if not field_name:
-                continue
+            return str(start + index * step)
+        except ValueError as e:
+            logger.error(f"[CustomInput] Sequence generation failed: {e}")
+            # Fallback to simple index
+            return str(index + 1)
 
-            # Get value from row
-            value = row.get(field_name)
+    def _resolve_expression(self, expression: str, row_data: dict) -> str:
+        """Resolve expression with field references and variables.
 
-            # Apply type conversion
+        Supports {variable} syntax with intelligent priority:
+        1. Current row field values (row_data)
+        2. System variables (currentDateTime, uuid32, etc.)
+        3. User global variables
+
+        Args:
+            expression: Expression string like "{first_name}_{last_name}"
+            row_data: Current row data dictionary
+
+        Returns:
+            Resolved string
+        """
+        import re
+
+        # Find all {xxx} placeholders
+        pattern = r"\{([a-zA-Z_][a-zA-Z0-9_]*)\}"
+
+        def replace_placeholder(match):
+            var_name = match.group(1)
+
+            # Priority 1: Check current row data first
+            if var_name in row_data:
+                return str(row_data[var_name])
+
+            # Priority 2 & 3: Try system variables and global variables via existing resolver
             try:
-                converted_value = self._convert_value(value, data_type)
-                validated_row[field_name] = converted_value
-            except ValueError as e:
-                if strict_validation:
-                    error_msg = f"Row {row_index + 1}, field '{field_name}': {e}"
-                    logger.error(f"[CustomInput] Validation error: {error_msg}")
-                    raise ValueError(error_msg) from e
-                # In non-strict mode, keep original value
-                logger.warning(
-                    f"[CustomInput] Type conversion warning for row {row_index + 1}, "
-                    f"field '{field_name}': {e}. Keeping original value."
-                )
-                validated_row[field_name] = value
+                resolved = self.resolve_variables_in_template_sync(f"{{{var_name}}}", "expression")
+                # If resolution succeeded (not still a placeholder)
+                if resolved != f"{{{var_name}}}":
+                    return resolved
+            except Exception:
+                pass
 
-        return validated_row
+            # Unable to resolve - keep placeholder
+            return match.group(0)
+
+        return re.sub(pattern, replace_placeholder, expression)
 
     def load_data(self) -> list[Data]:
         """Load custom data and return as list of Data objects.
 
+        Generates new records based on upstream data and field configuration.
+        If no upstream data is available, returns a sample record with schema for field inference.
+
         Returns:
-            List of Data objects containing validated data
+            List of Data objects containing generated records
         """
         logger.info("[CustomInput] load_data called")
 
@@ -623,33 +674,18 @@ class ETLCustomInputComponent(Component):
                 # Return empty sample for field inference
                 return [Data(data={})]
 
-            # Get data table
-            data_table = getattr(self, "data_table", [])
+            # Get upstream data
+            upstream_data = getattr(self, "upstream_data", [])
 
-            if not data_table:
-                logger.warning("[CustomInput] No data rows, returning sample record with schema")
-                # Create sample record with None values for field inference
-                sample_data = {field.get("field_name"): None for field in field_schema if field.get("field_name")}
-                return [Data(data=sample_data)]
+            # Process upstream data if available
+            if upstream_data:
+                logger.info(f"[CustomInput] Processing {len(upstream_data)} upstream records")
+                return self._process_upstream_data(upstream_data, field_schema)
 
-            # Get strict validation setting
-            strict_validation = getattr(self, "strict_validation", True)
-
-            # Validate and convert all rows
-            result = []
-            for idx, row in enumerate(data_table):
-                try:
-                    validated_row = self._validate_data_row(row, field_schema, strict_validation, idx)
-                    result.append(Data(data=validated_row))
-                except Exception as e:
-                    error_msg = f"Row {idx + 1} validation failed: {e}"
-                    logger.error(f"[CustomInput] {error_msg}")
-                    raise ValueError(error_msg) from e
-
-            self.status = _format_i18n("components.input_output.custom_input.status.data_loaded", count=len(result))
-            logger.info(f"[CustomInput] Loaded {len(result)} data rows")
-
-            return result
+            # No upstream data - return empty sample with schema for field inference
+            logger.info("[CustomInput] No upstream data, returning sample record with schema")
+            sample_data = {field.get("field_name"): None for field in field_schema if field.get("field_name")}
+            return [Data(data=sample_data)]
 
         except Exception as e:
             error_msg = str(e)
@@ -660,3 +696,459 @@ class ETLCustomInputComponent(Component):
                 "components.input_output.custom_input.errors.validation_failed", error=error_msg
             )
             raise ValueError(translated_msg) from e
+
+    async def _fetch_upstream_data_for_preview(
+        self, graph_data: dict, node_id: str, sample_size: int = 10
+    ) -> list[Data]:
+        """Fetch upstream data for preview, bypassing GraphUtils filtering.
+
+        This method directly finds and executes the upstream node without using
+        find_upstream_node_id, which filters out "upstream_data" connections.
+
+        Args:
+            graph_data: Flow graph data containing nodes and edges
+            node_id: Current node ID
+            sample_size: Number of records to fetch
+
+        Returns:
+            List of Data objects from upstream node
+        """
+        import json
+
+        # Manually find upstream node connected to "upstream_data" input
+        edges = graph_data.get("edges", [])
+        upstream_node_id = None
+
+        logger.debug(f"[CustomInput] Searching for upstream_data connection for node '{node_id}'")
+        logger.debug(f"[CustomInput] Total edges: {len(edges)}")
+
+        for edge in edges:
+            # Check if this edge targets our node
+            if edge.get("target") != node_id:
+                continue
+
+            # Extract target handle
+            target_handle = None
+
+            # Method 1: Try nested format {data: {targetHandle: {fieldName}}}
+            if "data" in edge:
+                data_obj = edge.get("data", {})
+                if isinstance(data_obj, dict):
+                    target_handle_data = data_obj.get("targetHandle", {})
+                    if isinstance(target_handle_data, dict):
+                        target_handle = target_handle_data.get("fieldName")
+
+            # Method 2: Try JSON string in targetHandle
+            if not target_handle:
+                top_level_handle = edge.get("targetHandle")
+                if isinstance(top_level_handle, str):
+                    if top_level_handle.startswith("{") or top_level_handle.startswith("["):
+                        try:
+                            cleaned_json = top_level_handle.replace("œ", '"')
+                            parsed = json.loads(cleaned_json)
+                            if isinstance(parsed, dict):
+                                target_handle = parsed.get("fieldName")
+                        except (json.JSONDecodeError, ValueError):
+                            pass
+                    else:
+                        target_handle = top_level_handle
+
+            logger.debug(
+                f"[CustomInput] Edge: source={edge.get('source')}, "
+                f"target={edge.get('target')}, targetHandle={target_handle}"
+            )
+
+            # Check if this is the upstream_data connection
+            if target_handle == "upstream_data":
+                upstream_node_id = edge.get("source")
+                logger.info(f"[CustomInput] Found upstream_data connection from node '{upstream_node_id}'")
+                break
+
+        if not upstream_node_id:
+            logger.warning("[CustomInput] No upstream node connected to 'upstream_data' input")
+            return []
+
+        # Execute the upstream node
+        try:
+            from lfx.graph.graph.base import Graph
+            from lfx.schema import Data
+
+            logger.debug("[CustomInput] Building temporary graph for upstream execution")
+
+            # Transform graph data to expected format
+            transformed_graph_data = self._transform_graph_data_for_execution(graph_data)
+
+            # Create temporary graph
+            temp_graph = Graph.from_payload(transformed_graph_data)
+            logger.debug(f"[CustomInput] Temporary graph created with {len(temp_graph.vertices)} vertices")
+
+            # Build the run map to establish dependency order
+            temp_graph.build_run_map()
+
+            # Get the target vertex
+            target_vertex = temp_graph.get_vertex(upstream_node_id)
+            if not target_vertex:
+                logger.error(f"[CustomInput] Vertex '{upstream_node_id}' not found in graph")
+                return []
+
+            # Build all dependencies recursively using topological order
+            vertices_to_build = []
+            visited = set()
+
+            def collect_dependencies(vertex_id: str):
+                """Recursively collect all dependencies."""
+                if vertex_id in visited:
+                    return
+                visited.add(vertex_id)
+
+                vertex = temp_graph.get_vertex(vertex_id)
+                if not vertex:
+                    return
+
+                # Get predecessor vertices (dependencies)
+                predecessors = temp_graph.predecessor_map.get(vertex_id, [])
+                for pred_id in predecessors:
+                    collect_dependencies(pred_id)
+
+                vertices_to_build.append(vertex_id)
+
+            # Collect all dependencies
+            collect_dependencies(upstream_node_id)
+
+            # Build each vertex in dependency order
+            for vertex_id in vertices_to_build:
+                if vertex_id == upstream_node_id:
+                    # Build the target vertex and get its result
+                    build_result = await temp_graph.build_vertex(
+                        vertex_id=vertex_id,
+                        fallback_to_env_vars=True,
+                        user_id=None,
+                    )
+
+                    # Extract the result from VertexBuildResult
+                    built_vertex = build_result.vertex if hasattr(build_result, "vertex") else None
+                    if built_vertex and hasattr(built_vertex, "results"):
+                        result = built_vertex.results
+                    else:
+                        results_dict = build_result.results_dict if hasattr(build_result, "results_dict") else {}
+                        result = list(results_dict.values())[0] if results_dict else []
+
+                    # Unwrap result if it's a dict (like {"data": [...]})
+                    if isinstance(result, dict):
+                        if len(result) == 1:
+                            result = list(result.values())[0]
+                        elif "data" in result:
+                            result = result["data"]
+
+                    # Convert to list of Data objects
+                    if not isinstance(result, list):
+                        result = [result] if result else []
+
+                    result_data = []
+                    for item in result[:sample_size]:
+                        if isinstance(item, Data):
+                            result_data.append(item)
+                        elif isinstance(item, dict):
+                            result_data.append(Data(data=item))
+                        else:
+                            result_data.append(Data(data={"value": item}))
+
+                    logger.info(f"[CustomInput] Successfully fetched {len(result_data)} records from upstream node")
+                    return result_data
+                else:
+                    # Build dependency vertices without capturing results
+                    await temp_graph.build_vertex(
+                        vertex_id=vertex_id,
+                        fallback_to_env_vars=True,
+                        user_id=None,
+                    )
+
+            logger.error("[CustomInput] Target vertex not found in dependency list")
+            return []
+
+        except Exception as e:
+            logger.exception(f"[CustomInput] Failed to execute upstream node: {e}")
+            return []
+
+    def _process_upstream_data(self, upstream_data: list[Data], field_schema: list[dict]) -> list[Data]:
+        """Process upstream data and generate new records based on field configuration.
+
+        Args:
+            upstream_data: List of upstream Data objects
+            field_schema: Field schema configuration
+
+        Returns:
+            List of generated Data objects
+        """
+        result = []
+
+        # Get localized value_source options for comparison
+        from_upstream_text = i18n.t(
+            "components.input_output.custom_input.field_schema.value_source_options.from_upstream"
+        )
+        generate_id_text = i18n.t("components.input_output.custom_input.field_schema.value_source_options.generate_id")
+        use_variable_text = i18n.t(
+            "components.input_output.custom_input.field_schema.value_source_options.use_variable"
+        )
+        current_time_text = i18n.t(
+            "components.input_output.custom_input.field_schema.value_source_options.current_time"
+        )
+        current_timestamp_text = i18n.t(
+            "components.input_output.custom_input.field_schema.value_source_options.current_timestamp"
+        )
+        sequence_text = i18n.t("components.input_output.custom_input.field_schema.value_source_options.sequence")
+        fixed_value_text = i18n.t("components.input_output.custom_input.field_schema.value_source_options.fixed_value")
+        expression_text = i18n.t("components.input_output.custom_input.field_schema.value_source_options.expression")
+
+        for index, upstream_row in enumerate(upstream_data):
+            new_record = {}
+            # Extract row data for expression resolution
+            row_data = upstream_row.data if hasattr(upstream_row, "data") else upstream_row
+
+            for field_config in field_schema:
+                field_name = field_config.get("field_name")
+                if not field_name:
+                    continue
+
+                value_source = field_config.get("value_source", use_variable_text)
+                data_type = field_config.get("data_type", "string")
+                default_value = field_config.get("default_value", "")
+
+                # Generate field value based on value_source
+                if value_source == from_upstream_text:
+                    # Store entire upstream row object as JSON
+                    value = row_data
+                    logger.debug(f"[CustomInput] Field '{field_name}': from_upstream, value type={type(value)}")
+
+                elif value_source == generate_id_text:
+                    # Generate ID based on default_value (ID type)
+                    value = self._generate_id(default_value, index)
+                    logger.debug(f"[CustomInput] Field '{field_name}': generate_id type={default_value}, value={value}")
+
+                elif value_source == current_time_text:
+                    # Generate current time with format
+                    value = self._generate_current_time(default_value)
+                    logger.debug(
+                        f"[CustomInput] Field '{field_name}': current_time format={default_value}, value={value}"
+                    )
+
+                elif value_source == current_timestamp_text:
+                    # Generate current timestamp
+                    value = self._generate_current_timestamp(default_value)
+                    logger.debug(f"[CustomInput] Field '{field_name}': current_timestamp, value={value}")
+
+                elif value_source == sequence_text:
+                    # Generate sequence number
+                    value = self._generate_sequence(default_value, index)
+                    logger.debug(f"[CustomInput] Field '{field_name}': sequence config={default_value}, value={value}")
+
+                elif value_source == fixed_value_text:
+                    # Use fixed value directly
+                    value = default_value
+                    logger.debug(f"[CustomInput] Field '{field_name}': fixed_value, value={value}")
+
+                elif value_source == expression_text:
+                    # Resolve expression with field references
+                    value = self._resolve_expression(default_value, row_data)
+                    logger.debug(
+                        f"[CustomInput] Field '{field_name}': expression, template={default_value}, value={value}"
+                    )
+
+                else:  # use_variable_text or default
+                    # Resolve variable expression
+                    value = self.resolve_variables_in_template_sync(default_value, field_name)
+                    logger.debug(
+                        f"[CustomInput] Field '{field_name}': use_variable, template={default_value}, value={value}"
+                    )
+
+                # Convert to target data type
+                try:
+                    converted_value = self._convert_value(value, data_type)
+                    new_record[field_name] = converted_value
+                except Exception as e:
+                    logger.error(
+                        f"[CustomInput] Type conversion failed for field '{field_name}' (row {index + 1}): {e}"
+                    )
+                    raise ValueError(
+                        f"Row {index + 1}, field '{field_name}': Type conversion to {data_type} failed: {e}"
+                    ) from e
+
+            result.append(Data(data=new_record))
+
+        self.status = _format_i18n(
+            "components.input_output.custom_input.status.generated_from_upstream", count=len(result)
+        )
+        logger.info(f"[CustomInput] Generated {len(result)} records from upstream data")
+
+        return result
+
+    async def _generate_preview_data(
+        self, field_schema: list[dict], build_config: dict, sample_size: int = 10
+    ) -> list[dict]:
+        """Generate preview data simulating the real load_data execution.
+
+        Args:
+            field_schema: List of field configurations
+            build_config: Build configuration containing graph data for upstream access
+            sample_size: Number of sample rows to generate (default: 10)
+
+        Returns:
+            List of preview data dictionaries (for frontend table display)
+        """
+        preview_data = []
+
+        # Try to get upstream data from graph
+        upstream_data = []
+        try:
+            graph_data = build_config.get("_graph_data", {})
+            node_id = build_config.get("_node_id")
+
+            if graph_data and node_id:
+                logger.info("[CustomInput] Attempting to fetch upstream data for preview...")
+                # Use custom upstream fetching that bypasses GraphUtils filtering
+                upstream_data = await self._fetch_upstream_data_for_preview(
+                    graph_data=graph_data,
+                    node_id=node_id,
+                    sample_size=sample_size,
+                )
+                if upstream_data:
+                    logger.info(f"[CustomInput] Successfully fetched {len(upstream_data)} upstream records for preview")
+                else:
+                    logger.info("[CustomInput] No upstream data available")
+        except Exception as e:
+            logger.warning(f"[CustomInput] Failed to get upstream data for preview: {e}")
+            upstream_data = []
+
+        # Check if there's a "从上游读取" field but no upstream data
+        from_upstream_text = i18n.t(
+            "components.input_output.custom_input.field_schema.value_source_options.from_upstream"
+        )
+        has_from_upstream_field = any(field.get("value_source") == from_upstream_text for field in field_schema)
+
+        if has_from_upstream_field and not upstream_data:
+            # Don't generate fake data - show error message
+            msg = i18n.t("components.input_output.custom_input.errors.preview_requires_upstream")
+            raise ValueError(msg)
+
+        # Determine row count
+        row_count = len(upstream_data) if upstream_data else sample_size
+
+        # Get localized value_source options
+        from_upstream_text = i18n.t(
+            "components.input_output.custom_input.field_schema.value_source_options.from_upstream"
+        )
+        generate_id_text = i18n.t("components.input_output.custom_input.field_schema.value_source_options.generate_id")
+        use_variable_text = i18n.t(
+            "components.input_output.custom_input.field_schema.value_source_options.use_variable"
+        )
+        current_time_text = i18n.t(
+            "components.input_output.custom_input.field_schema.value_source_options.current_time"
+        )
+        current_timestamp_text = i18n.t(
+            "components.input_output.custom_input.field_schema.value_source_options.current_timestamp"
+        )
+        sequence_text = i18n.t("components.input_output.custom_input.field_schema.value_source_options.sequence")
+        fixed_value_text = i18n.t("components.input_output.custom_input.field_schema.value_source_options.fixed_value")
+        expression_text = i18n.t("components.input_output.custom_input.field_schema.value_source_options.expression")
+
+        # Generate each row
+        for index in range(row_count):
+            row = {}
+
+            # Get upstream row data if available
+            upstream_row = upstream_data[index] if index < len(upstream_data) else None
+            row_data = upstream_row.data if upstream_row and hasattr(upstream_row, "data") else {}
+
+            for field_config in field_schema:
+                field_name = field_config.get("field_name")
+                if not field_name:
+                    continue
+
+                value_source = field_config.get("value_source", use_variable_text)
+                data_type = field_config.get("data_type", "string")
+                default_value = field_config.get("default_value", "")
+
+                # Generate field value based on value_source
+                try:
+                    if value_source == from_upstream_text:
+                        # Only use real upstream data (no simulation)
+                        if upstream_row:
+                            value = row_data
+                        else:
+                            # This should not happen due to the check above
+                            msg = i18n.t("components.input_output.custom_input.errors.preview_requires_upstream")
+                            raise ValueError(msg)
+
+                    elif value_source == generate_id_text:
+                        # Generate ID based on type
+                        value = self._generate_id(default_value, index)
+
+                    elif value_source == current_time_text:
+                        # Generate current time with format
+                        value = self._generate_current_time(default_value)
+
+                    elif value_source == current_timestamp_text:
+                        # Generate current timestamp
+                        value = self._generate_current_timestamp(default_value)
+
+                    elif value_source == sequence_text:
+                        # Generate sequence number
+                        value = self._generate_sequence(default_value, index)
+
+                    elif value_source == fixed_value_text:
+                        # Use fixed value directly
+                        value = default_value
+
+                    elif value_source == expression_text:
+                        # Resolve expression with field references
+                        # In preview, row_data may be incomplete, use what's available
+                        value = self._resolve_expression(default_value, row_data)
+
+                    else:  # use_variable_text
+                        # Try to resolve variable (may fail in preview, use fallback)
+                        try:
+                            value = self.resolve_variables_in_template_sync(default_value, field_name)
+                        except Exception:
+                            # In preview mode, variable resolution may fail, use template as-is
+                            value = default_value or f"{{variable_{field_name}}}"
+
+                    # Convert for display
+                    converted_value = self._convert_value_for_display(value, data_type)
+                    row[field_name] = converted_value
+
+                except Exception as e:
+                    logger.warning(f"[CustomInput] Preview generation warning for field '{field_name}': {e}")
+                    row[field_name] = f"<error: {str(e)[:50]}>"
+
+            preview_data.append(row)
+
+        return preview_data
+
+    def _convert_value_for_display(self, value: Any, data_type: str) -> Any:
+        """Convert value to format suitable for frontend table display.
+
+        Args:
+            value: Original value
+            data_type: Target data type
+
+        Returns:
+            Value converted for display (JSON objects returned with special metadata)
+        """
+        if data_type == "json":
+            # JSON type: return special object for frontend to render with icon + dialog modal
+            if isinstance(value, (dict, list)):
+                import json
+
+                # Return a dict with metadata for frontend to render JSON with icon + dialog modal
+                return {
+                    "_type": "json",  # Special marker for frontend
+                    "formatted": json.dumps(value, ensure_ascii=False, indent=2),
+                    "raw": value,
+                    "preview": json.dumps(value, ensure_ascii=False)[:100]
+                    + ("..." if len(json.dumps(value, ensure_ascii=False)) > 100 else ""),
+                }
+
+            return str(value)
+
+        # For other types, use standard conversion
+        return self._convert_value(value, data_type)

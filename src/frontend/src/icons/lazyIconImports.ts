@@ -102,6 +102,10 @@ export const lazyIconsMapping = {
     import("@/icons/ChromaIcon").then((mod) => ({ default: mod.ChromaIcon })),
   Cleanlab: () =>
     import("@/icons/Cleanlab").then((mod) => ({ default: mod.CleanlabIcon })),
+  ClickHouse: () =>
+    import("@/icons/Clickhouse").then((mod) => ({
+      default: mod.ClickhouseIcon,
+    })),
   Clickhouse: () =>
     import("@/icons/Clickhouse").then((mod) => ({
       default: mod.ClickhouseIcon,
@@ -132,6 +136,8 @@ export const lazyIconsMapping = {
     import("@/icons/DeepSeek").then((mod) => ({ default: mod.DeepSeekIcon })),
   Docling: () =>
     import("@/icons/Docling").then((mod) => ({ default: mod.DoclingIcon })),
+  Doris: () =>
+    import("@/icons/Doris").then((mod) => ({ default: mod.DorisIcon })),
   Dropbox: () =>
     import("@/icons/Dropbox").then((mod) => ({ default: mod.DropboxIcon })),
   DuckDuckGo: () =>
@@ -233,6 +239,7 @@ export const lazyIconsMapping = {
       default: mod.HackerNewsIcon,
     })),
   HCD: () => import("@/icons/HCD").then((mod) => ({ default: mod.HCDIcon })),
+  Hive: () => import("@/icons/Hive").then((mod) => ({ default: mod.HiveIcon })),
   HomeAssistant: () =>
     import("@/icons/HomeAssistant").then((mod) => ({
       default: mod.HomeAssistantIcon,
@@ -285,9 +292,13 @@ export const lazyIconsMapping = {
     import("@/icons/mistral").then((mod) => ({ default: mod.MistralIcon })),
   MongoDB: () =>
     import("@/icons/MongoDB").then((mod) => ({ default: mod.MongoDBIcon })),
+  MySQL: () =>
+    import("@/icons/MySQL").then((mod) => ({ default: mod.MySQLIcon })),
   Needle: () =>
     import("@/icons/Needle").then((mod) => ({ default: mod.NeedleIcon })),
   Neon: () => import("@/icons/Neon").then((mod) => ({ default: mod.NeonIcon })),
+  Neo4j: () =>
+    import("@/icons/Neo4j").then((mod) => ({ default: mod.Neo4jIcon })),
   Newsapi: () =>
     import("@/icons/Newsapi").then((mod) => ({ default: mod.NewsapiIcon })),
   NotDiamond: () =>

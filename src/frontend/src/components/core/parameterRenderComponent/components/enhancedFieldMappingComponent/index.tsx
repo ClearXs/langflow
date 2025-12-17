@@ -45,6 +45,15 @@ const DATA_TYPES = [
   { value: "timestamp", label: "Timestamp" },
   { value: "json", label: "JSON" },
   { value: "text", label: "Text" },
+  // Spatial types
+  { value: "point", label: "Point" },
+  { value: "linestring", label: "LineString" },
+  { value: "polygon", label: "Polygon" },
+  { value: "multipoint", label: "MultiPoint" },
+  { value: "multilinestring", label: "MultiLineString" },
+  { value: "multipolygon", label: "MultiPolygon" },
+  { value: "geometry", label: "Geometry" },
+  { value: "geography", label: "Geography" },
 ];
 
 // Transformation rule options

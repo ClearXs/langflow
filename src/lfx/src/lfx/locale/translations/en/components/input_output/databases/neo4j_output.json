@@ -1,0 +1,51 @@
+{
+  "display_name": "Neo4j Output",
+  "description": "Write data to Neo4j graph database as nodes and relationships",
+
+  "data_input": {
+    "display_name": "Data Input",
+    "info": "The data to write to Neo4j database"
+  },
+
+  "datasource_selector": {
+    "display_name": "Data Source",
+    "info": "Select a Neo4j data source (builtin or public)"
+  },
+
+  "label": {
+    "display_name": "Node Label",
+    "info": "The label for nodes to create (optional)"
+  },
+
+  "write_mode": {
+    "display_name": "Write Mode",
+    "info": "How to write data to the graph",
+    "batch_insert": "batch_insert",
+    "append": "append",
+    "upsert": "upsert",
+    "replace": "replace"
+  },
+
+  "batch_size": {
+    "display_name": "Batch Size",
+    "info": "Number of nodes to write in each batch"
+  },
+
+  "outputs": {
+    "data": {
+      "display_name": "Data"
+    }
+  },
+
+  "status": {
+    "writing": "Writing data to Neo4j...",
+    "success": "Successfully wrote {rows} nodes to Neo4j"
+  },
+
+  "errors": {
+    "no_datasource": "No data source selected",
+    "datasource_not_found": "Data source with ID '{id}' not found",
+    "connection_failed": "Failed to connect to Neo4j: {error}",
+    "write_failed": "Failed to write data: {error}"
+  }
+}

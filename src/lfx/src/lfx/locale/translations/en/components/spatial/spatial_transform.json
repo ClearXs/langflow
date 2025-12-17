@@ -1,0 +1,68 @@
+{
+  "display_name": "Spatial Transform",
+  "description": "Performs coordinate transformations and geographic entity encoding on spatial data.",
+
+  "data_input": {
+    "display_name": "Input Data",
+    "info": "Spatial data to transform"
+  },
+
+  "transformation_rules": {
+    "display_name": "Transformation Rules",
+    "info": "Configure fields and their transformations. Use 'Analyze Fields' to auto-populate table with upstream fields.",
+    "field_name": "Field Name",
+    "field_type": "Field Type",
+    "transformation_type": "Transformation Type",
+    "source_crs": "Source CRS",
+    "target_crs": "Target CRS",
+    "entity_class_field": "Entity Class Field",
+    "level": "Encoding Level",
+    "analyze_button": "Analyze Fields"
+  },
+
+  "field_types": {
+    "string": "String",
+    "integer": "Integer",
+    "float": "Float",
+    "boolean": "Boolean",
+    "datetime": "DateTime",
+    "point": "Point",
+    "linestring": "LineString",
+    "polygon": "Polygon",
+    "multipoint": "MultiPoint",
+    "multilinestring": "MultiLineString",
+    "multipolygon": "MultiPolygon",
+    "geometry": "Geometry",
+    "geography": "Geography"
+  },
+
+  "transformation_types": {
+    "none": "None",
+    "coordinate_transform": "Coordinate Transform",
+    "geo_entity_encode": "Geo Entity Encode"
+  },
+
+  "outputs": {
+    "data": {
+      "display_name": "Transformed Data"
+    }
+  },
+
+  "status": {
+    "processing": "Processing spatial transformations...",
+    "analysis_success": "Successfully analyzed {count} fields from upstream data",
+    "success": "Successfully transformed {count} records"
+  },
+
+  "errors": {
+    "no_data": "No input data provided",
+    "no_rules": "No transformation rules configured",
+    "no_graph_data": "No graph data available for field analysis",
+    "graph_not_available": "Graph data not available for field analysis",
+    "transform_failed": "Spatial transformation failed: {error}"
+  },
+
+  "warnings": {
+    "field_load_failed": "Failed to load fields from upstream data"
+  }
+}

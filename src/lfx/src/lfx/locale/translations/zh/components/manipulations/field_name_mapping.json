@@ -46,6 +46,7 @@
     "analysis_failed": "字段解析失败: %{error}"
   },
   "warnings": {
-    "field_load_failed": "无法自动加载字段，请手动配置"
+    "field_load_failed": "无法自动加载字段，请手动配置",
+    "empty_input": "输入数据为空，无需进行字段映射"
   }
 }

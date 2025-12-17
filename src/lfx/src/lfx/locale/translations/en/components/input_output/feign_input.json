@@ -1,0 +1,67 @@
+{
+  "display_name": "Feign Input",
+  "description": "Fetch data from microservices via Nacos service discovery",
+
+  "service_name": {
+    "display_name": "Service Name",
+    "info": "Nacos registered service name (click refresh to load)"
+  },
+  "api_path": {
+    "display_name": "API Path",
+    "info": "API endpoint path (e.g., /resource-file/download/)"
+  },
+  "method": {
+    "display_name": "HTTP Method",
+    "info": "HTTP request method"
+  },
+  "group_name": {
+    "display_name": "Group Name",
+    "info": "Nacos service group name"
+  },
+  "headers": {
+    "display_name": "Custom Headers",
+    "info": "Additional HTTP headers"
+  },
+  "request_body": {
+    "display_name": "Request Body",
+    "info": "JSON request body for POST"
+  },
+  "timeout": {
+    "display_name": "Timeout (seconds)",
+    "info": "Request timeout"
+  },
+  "retry_count": {
+    "display_name": "Retry Count",
+    "info": "Number of retry attempts"
+  },
+  "data_path": {
+    "display_name": "Data Path",
+    "info": "JSONPath to extract data (e.g., $.data or data.items)"
+  },
+
+  "outputs": {
+    "data": {
+      "display_name": "Data"
+    },
+    "response_info": {
+      "display_name": "Response Info"
+    }
+  },
+
+  "status": {
+    "fetching": "Fetching from microservice...",
+    "success": "Successfully fetched %{records} records",
+    "loading_services": "Loading Nacos services...",
+    "services_loaded": "Loaded %{count} services",
+    "no_services_found": "No services found"
+  },
+
+  "errors": {
+    "fetch_failed": "Request failed: %{error}",
+    "no_service_name": "Service name required",
+    "no_api_path": "API path required",
+    "feign_service_unavailable": "FeignService unavailable",
+    "nacos_not_enabled": "Nacos not enabled",
+    "load_failed": "Failed to load services"
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "field_mappings": {
+    "update_options": {
+      "sync_update": "同步更新",
+      "insert_only": "仅插入",
+      "update_when_has_value": "有值时更新",
+      "update_when_not_empty": "非空时更新",
+      "cumulative_update": "累加更新",
+      "prohibit_update": "禁止更新"
+    }
+  }
+}

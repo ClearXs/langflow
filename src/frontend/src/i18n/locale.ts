@@ -42,6 +42,11 @@ export const useSidebarCategories = () => {
           ]
         : []),
       {
+        display_name: t("flow.sidebar.components.spatial"),
+        name: "spatial",
+        icon: "Map",
+      },
+      {
         display_name: t("flow.sidebar.components.vectorstores"),
         name: "vectorstores",
         icon: "Layers",

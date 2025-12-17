@@ -1,0 +1,38 @@
+{
+  "display_name": "Neo4j Input",
+  "description": "Read data from Neo4j graph database using Cypher queries",
+
+  "datasource_selector": {
+    "display_name": "Data Source",
+    "info": "Select a Neo4j data source (builtin or public)"
+  },
+
+  "cypher_query": {
+    "display_name": "Cypher Query",
+    "info": "Cypher query to execute on the Neo4j database"
+  },
+
+  "limit": {
+    "display_name": "Limit",
+    "info": "Maximum number of records to return"
+  },
+
+  "outputs": {
+    "data": {
+      "display_name": "Data"
+    }
+  },
+
+  "status": {
+    "reading": "Reading data from Neo4j...",
+    "success": "Successfully read {rows} records from Neo4j"
+  },
+
+  "errors": {
+    "no_datasource": "No data source selected",
+    "datasource_not_found": "Data source with ID '{id}' not found",
+    "connection_failed": "Failed to connect to Neo4j: {error}",
+    "query_failed": "Failed to execute Cypher query: {error}",
+    "read_failed": "Failed to read data: {error}"
+  }
+}

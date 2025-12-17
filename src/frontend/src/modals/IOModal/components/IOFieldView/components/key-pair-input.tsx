@@ -1,5 +1,6 @@
 import _ from "lodash";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import IconComponent from "../../../../../components/common/genericIconComponent";
 import { Input } from "../../../../../components/ui/input";
 import { classNames } from "../../../../../utils/utils";
@@ -21,6 +22,7 @@ const IOKeyPairInput = ({
   isInputField,
   testId,
 }: IOKeyPairInputProps) => {
+  const { t } = useTranslation();
   const checkValueType = useCallback((value) => {
     return Array.isArray(value) ? value : [value];
   }, []);
@@ -76,7 +78,7 @@ const IOKeyPairInput = ({
               type="text"
               value={item.key.trim()}
               className={classNames(duplicateKey ? "input-invalid" : "")}
-              placeholder="Type key..."
+              placeholder={t("common.typeKey")}
               onChange={(event) => handleChangeKey(event, item.objIndex)}
               disabled={!isInputField}
               data-testid={testId ? `${testId}-key-${idx}` : undefined}
@@ -85,7 +87,7 @@ const IOKeyPairInput = ({
             <Input
               type="text"
               value={item.value}
-              placeholder="Type a value..."
+              placeholder={t("common.typeValue")}
               onChange={(event) =>
                 handleChangeValue(event.target.value, item.objIndex)
               }

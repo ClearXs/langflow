@@ -46,6 +46,7 @@
     "analysis_failed": "Field analysis failed: %{error}"
   },
   "warnings": {
-    "field_load_failed": "Unable to automatically load fields, please configure manually"
+    "field_load_failed": "Unable to automatically load fields, please configure manually",
+    "empty_input": "Input data is empty, no field mapping needed"
   }
 }

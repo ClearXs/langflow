@@ -1,43 +1,56 @@
 {
   "display_name": "Custom Input",
-  "description": "Custom data input with user-defined schema for testing",
+  "description": "Process upstream data and generate new records based on custom field configuration",
+  "upstream_data": {
+    "display_name": "Upstream Data",
+    "info": "Data list from upstream components. When connected, generates new records based on upstream row count."
+  },
   "field_schema": {
     "display_name": "Field Schema",
-    "info": "Define your custom fields (field name, data type, default value). Changes automatically sync to Data Entry table.",
+    "info": "Define your custom fields (field name, data type, value source, configuration). Changes automatically sync to Preview table.",
     "field_name": "Field Name",
     "data_type": "Data Type",
-    "default_value": "Default Value"
+    "value_source": "Value Source",
+    "value_source_options": {
+      "from_upstream": "From Upstream",
+      "generate_id": "Generate ID",
+      "use_variable": "Use Variable",
+      "current_time": "Current Time",
+      "current_timestamp": "Current Timestamp",
+      "sequence": "Sequence Number",
+      "fixed_value": "Fixed Value",
+      "expression": "Expression"
+    },
+    "default_value": "Value Configuration"
   },
-  "data_table": {
-    "display_name": "Data Entry",
-    "info": "Enter your custom data rows. Tip: Define field schema first, then use buttons below to generate test data or enter manually.",
-    "generate_button": "Generate Test Data",
-    "validate_button": "Validate Data Types"
-  },
-  "test_rows_count": {
-    "display_name": "Test Rows Count",
-    "info": "Number of test data rows to generate (1-1000)"
-  },
-  "strict_validation": {
-    "display_name": "Strict Type Validation",
-    "info": "Enable strict type checking for data values"
+  "preview_table": {
+    "display_name": "Preview Data",
+    "info": "Preview generated data based on current field schema configuration (10 sample rows)",
+    "preview_button": "Preview Data"
   },
   "output_data": {
     "display_name": "Data"
   },
+  "id_types": {
+    "uuid": "UUID",
+    "snowflake": "Snowflake ID",
+    "auto_increment": "Auto Increment ID",
+    "ulid": "ULID",
+    "nanoid": "NanoID",
+    "timestamp": "Timestamp ID"
+  },
+  "timestamp_types": {
+    "seconds": "Seconds (10-digit)"
+  },
   "status": {
-    "schema_applied": "Schema applied successfully with %{count} fields",
-    "schema_cleared": "Schema cleared",
-    "test_data_generated": "Generated %{count} test data rows",
-    "validation_passed": "All %{count} rows validated successfully with correct types",
-    "data_loaded": "Loaded %{count} data rows"
+    "generated_from_upstream": "Generated {count} records from upstream data",
+    "preview_generated": "Generated {count} preview records"
   },
   "errors": {
     "no_schema": "Please define field schema first",
-    "no_data": "No data to validate. Please generate test data or enter manually.",
-    "invalid_field_name": "Invalid field name: %{name}",
-    "type_conversion_failed": "Failed to convert value '%{value}' to type %{type}",
-    "validation_failed": "Data validation failed: %{error}",
-    "duplicate_field": "Duplicate field name: %{name}"
+    "type_conversion_failed": "Failed to convert value '{value}' to type {type}",
+    "validation_failed": "Data validation failed: {error}",
+    "preview_failed": "Preview generation failed: {error}",
+    "preview_requires_upstream": "When fields are configured with 'From Upstream' source, upstream data connection is required for preview. Please connect an upstream component or change the field's value source configuration."
   }
 }

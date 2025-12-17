@@ -1,0 +1,63 @@
+{
+  "display_name": "GeoJSON Input",
+  "description": "Reads GeoJSON files and converts them to spatial data with coordinate system support and geometry validation.",
+
+  "file_path": {
+    "display_name": "GeoJSON File",
+    "info": "Select a GeoJSON or JSON file containing geographic features."
+  },
+
+  "file_id_variable": {
+    "display_name": "File Variable",
+    "info": "Reference an file variable for file ID (e.g., {geoJsonFileId}). Takes precedence over file selection if both provided."
+  },
+
+  "target_crs": {
+    "display_name": "Target CRS",
+    "info": "Target coordinate reference system for the output data. EPSG:4326 is standard GPS coordinates (WGS84)."
+  },
+
+  "validate_geometry": {
+    "display_name": "Validate Geometry",
+    "info": "Check if geometries are valid (no self-intersections, proper topology, etc.)."
+  },
+
+  "fix_invalid": {
+    "display_name": "Fix Invalid Geometries",
+    "info": "Attempt to automatically fix invalid geometries using buffer(0) method."
+  },
+
+  "outputs": {
+    "spatial_data": {
+      "display_name": "Spatial Data",
+      "info": "Geographic features as Data objects with spatial metadata (_geometry_wkt, _geometry_type, _crs)."
+    }
+  },
+
+  "status": {
+    "reading_file": "Reading GeoJSON file...",
+    "transforming_crs": "Transforming coordinates to {target_crs}...",
+    "validating_geometry": "Validating geometry...",
+    "fixing_geometries": "Fixing invalid geometries...",
+    "converting_data": "Converting to Data objects..."
+  },
+
+  "success": {
+    "loaded": "Successfully loaded {count} features with geometry types: {types} (CRS: {crs})"
+  },
+
+  "errors": {
+    "missing_libraries": "GeoJSON processing requires 'geopandas' and 'shapely'. Install with: uv sync --group spatial",
+    "empty_file": "GeoJSON file is empty or contains no features",
+    "validation_failed": "Found {count} invalid geometries. Enable 'Fix Invalid Geometries' to attempt automatic repair.",
+    "loading_failed": "Failed to load GeoJSON file: {error}",
+    "no_file_source": "Please provide either a file selection or an file variable for file ID",
+    "variable_not_resolved": "Variable '{variable}' not found in runtime or global variables. Please check: (1) Variable is defined in Global Variables settings, or (2) Variable is passed in runtime variables when executing the flow."
+  },
+
+  "warnings": {
+    "no_crs": "No CRS detected in GeoJSON, defaulting to EPSG:4326 (WGS84)",
+    "invalid_geometries": "Found {count} invalid geometries",
+    "unfixed_geometries": "{count} geometries could not be automatically fixed"
+  }
+}

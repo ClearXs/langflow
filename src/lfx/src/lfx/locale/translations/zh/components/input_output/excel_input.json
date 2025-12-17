@@ -5,6 +5,10 @@
     "display_name": "Excel文件",
     "info": "选择要读取的Excel文件"
   },
+  "file_id_variable": {
+    "display_name": "文件变量",
+    "info": "引用文件变量作为文件ID（例如：{excelFileId}）。如果同时提供，此项优先于文件选择。"
+  },
   "sheet_index": {
     "display_name": "工作表序号",
     "info": "选择要读取的工作表序号（0表示第一个工作表，1表示第二个，依此类推）"
@@ -39,6 +43,8 @@
   "errors": {
     "no_file_selected": "请先选择Excel文件",
     "no_file_path": "文件路径不能为空",
+    "no_file_source": "请提供文件选择或文件变量作为文件ID",
+    "variable_not_resolved": "在运行时变量或全局变量中未找到变量'{variable}'。请检查：(1) 变量是否在全局变量设置中定义，或 (2) 执行流程时是否在运行时变量中传递了该变量。",
     "preview_failed": "预览失败：%{error}",
     "read_excel_failed": "读取Excel文件失败：%{error}",
     "load_data_failed": "加载数据失败：%{error}"

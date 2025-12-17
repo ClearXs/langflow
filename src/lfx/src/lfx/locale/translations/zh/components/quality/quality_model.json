@@ -1,6 +1,14 @@
 {
   "display_name": "质量模型",
   "description": "执行手动模式的质量模型检查",
+  "folder_id_file": {
+    "display_name": "文件/文件夹选择",
+    "info": "从文件浏览器选择文件或文件夹（将使用资源ID）"
+  },
+  "folder_id_variable": {
+    "display_name": "文件变量",
+    "info": "引用文件变量作为文件夹ID（例如：{folderIdVar}）。如果同时提供，此项优先于文件选择。"
+  },
   "quality_model_id": {
     "display_name": "质量模型",
     "info": "选择要执行的质量模型（仅显示手动执行模式的模型）"
@@ -14,7 +22,7 @@
     "loading_models": "正在从数据治理服务加载质量模型列表...",
     "models_loaded": "成功加载%{count}个手动执行质量模型",
     "filtering_manual_models": "正在筛选手动执行模式的质量模型...",
-    "executing_model": "正在执行质量模型检查（模型ID: %{model_id}）...",
+    "executing_model": "正在执行质量模型检查（模型ID: %{model_id}，文件夹ID: %{folder_id}）...",
     "execution_success": "质量模型执行成功: %{message}",
     "processing_data": "正在处理%{count}条数据...",
     "data_processed": "成功处理%{count}条数据",
@@ -25,6 +33,7 @@
     "no_models_found": "未找到可用的质量模型",
     "no_manual_models": "未找到手动执行模式的质量模型",
     "no_model_selected": "未选择质量模型，请先选择一个质量模型",
+    "no_folder_source": "请提供文件/文件夹选择或文件变量作为文件夹ID",
     "model_id_not_found": "无法找到质量模型ID，模型名称: %{name}",
     "execution_failed": "质量模型执行失败: %{error}",
     "api_call_failed": "调用质量模型API失败: %{error}",
@@ -32,6 +41,7 @@
     "no_data_input": "未提供数据输入。请先连接数据源。",
     "no_graph_data": "没有图数据可用。请先保存工作流。",
     "graph_not_available": "加载质量模型功能仅在流程执行期间可用。",
-    "load_failed": "加载质量模型失败: %{error}"
+    "load_failed": "加载质量模型失败: %{error}",
+    "variable_not_resolved": "在运行时变量或全局变量中未找到变量 '{variable}'。请检查：(1) 变量是否在全局变量设置中定义，或 (2) 执行流程时是否在运行时变量中传递了该变量。"
   }
 }

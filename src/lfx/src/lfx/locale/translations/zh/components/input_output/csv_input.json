@@ -5,6 +5,10 @@
     "display_name": "CSV文件",
     "info": "选择要读取的CSV文件"
   },
+  "file_id_variable": {
+    "display_name": "文件变量",
+    "info": "引用文件变量作为文件ID（例如：{csvFileId}）。如果同时提供，此项优先于文件选择。"
+  },
   "delimiter": {
     "display_name": "分隔符",
     "info": "字段分隔符",
@@ -53,10 +57,12 @@
   "errors": {
     "no_file_selected": "请先选择CSV文件",
     "no_file_path": "文件路径不能为空",
+    "no_file_source": "请提供文件选择或文件变量作为文件ID",
     "preview_failed": "预览失败：%{error}",
     "read_csv_failed": "读取CSV文件失败：%{error}",
     "load_data_failed": "加载数据失败：%{error}",
-    "encoding_error": "使用编码%{encoding}时出现错误：%{error}"
+    "encoding_error": "使用编码%{encoding}时出现错误：%{error}",
+    "variable_not_resolved": "在运行时变量或全局变量中未找到变量'{variable}'。请检查：(1) 变量是否在全局变量设置中定义，或 (2) 执行流程时是否在运行时变量中传递了该变量。"
   },
   "status": {
     "preview_success": "成功预览%{count}行数据",

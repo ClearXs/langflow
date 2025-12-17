@@ -1022,7 +1022,7 @@ export function convertObjToArray(singleObject: object | string, type: string) {
   const arrConverted: any[] = [];
   if (typeof singleObject === "object") {
     for (const key in singleObject) {
-      if (Object.prototype.hasOwnProperty.call(singleObject, key)) {
+      if (Object.hasOwn(singleObject, key)) {
         const newObj = {};
         newObj[key] = singleObject[key];
         arrConverted.push(newObj);
@@ -1038,7 +1038,7 @@ export function convertArrayToObj(arrayOfObjects) {
   const objConverted = {};
   for (const obj of arrayOfObjects) {
     for (const key in obj) {
-      if (Object.prototype.hasOwnProperty.call(obj, key)) {
+      if (Object.hasOwn(obj, key)) {
         objConverted[key] = obj[key];
       }
     }
@@ -1066,7 +1066,7 @@ export function hasEmptyKey(objArray) {
   if (!Array.isArray(objArray)) objArray = [];
   for (const obj of objArray) {
     for (const key in obj) {
-      if (Object.prototype.hasOwnProperty.call(obj, key) && key === "") {
+      if (Object.hasOwn(obj, key) && key === "") {
         return true; // Found an empty key
       }
     }
@@ -1078,7 +1078,7 @@ export function convertValuesToNumbers(arr) {
   return arr.map((obj) => {
     const newObj = {};
     for (const key in obj) {
-      if (Object.prototype.hasOwnProperty.call(obj, key)) {
+      if (Object.hasOwn(obj, key)) {
         let value = obj[key];
         if (/^\d+$/.test(value)) {
           value = value?.toString().trim();

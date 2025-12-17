@@ -91,38 +91,19 @@ class ETLPythonScriptComponent(Component):
             stderr_text = stderr_capture.getvalue() if stderr_capture else ""
             result_value = local_vars.get("result")
 
-            # Build complete log information in plain text format
-            log_lines = [
-                f"开始时间: {start_time.strftime('%Y-%m-%d %H:%M:%S')}"
-                if i18n.get("locale") == "zh"
-                else f"Start Time: {start_time.strftime('%Y-%m-%d %H:%M:%S')}",
-                f"执行耗时: {duration:.2f}秒" if i18n.get("locale") == "zh" else f"Duration: {duration:.2f}s",
-            ]
+            # 简化 status 显示
+            if i18n.get("locale") == "zh":
+                success_msg = f"执行成功 (耗时: {duration:.2f}秒)"
+            else:
+                success_msg = f"Execution successful (Duration: {duration:.2f}s)"
 
-            if stdout_text:
-                label = "标准输出:" if i18n.get("locale") == "zh" else "Standard Output:"
-                log_lines.append(f"\n{label}\n{stdout_text.rstrip()}")
+            self.status = success_msg
 
-            if stderr_text:
-                label = "错误输出:" if i18n.get("locale") == "zh" else "Error Output:"
-                log_lines.append(f"\n{label}\n{stderr_text.rstrip()}")
-
-            status_text = "状态: 执行成功" if i18n.get("locale") == "zh" else "Status: Execution Successful"
-            log_lines.append(f"\n{status_text}")
-
-            # Update status to complete log
-            self.status = "\n".join(log_lines)
-
-            # Return data
-            output_data = {
-                "result": result_value,
-                "stdout": stdout_text,
-                "stderr": stderr_text,
-                "duration": duration,
-                "success": True,
-            }
-
-            return Data(data=output_data)
+            # 直接返回 result 变量的值
+            if result_value is None:
+                # None 值返回空字典
+                return Data(data={})
+            return Data(data=result_value)
 
         except Exception as e:
             end_time = datetime.now(UTC)

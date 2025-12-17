@@ -1,0 +1,65 @@
+{
+  "display_name": "Feign输出",
+  "description": "通过Nacos服务发现向微服务发送数据",
+
+  "data_input": {
+    "display_name": "数据输入",
+    "info": "要发送到微服务的数据"
+  },
+  "service_name": {
+    "display_name": "服务名称",
+    "info": "Nacos注册的服务名称（点击刷新加载）"
+  },
+  "api_path": {
+    "display_name": "API路径",
+    "info": "API接口路径（例如：/resource-file/upload/）"
+  },
+  "method": {
+    "display_name": "HTTP方法",
+    "info": "HTTP请求方法"
+  },
+  "group_name": {
+    "display_name": "分组名称",
+    "info": "Nacos服务分组名称"
+  },
+  "headers": {
+    "display_name": "自定义请求头",
+    "info": "额外的HTTP请求头"
+  },
+  "batch_size": {
+    "display_name": "批量大小",
+    "info": "每批发送的记录数"
+  },
+  "send_as_batch": {
+    "display_name": "批量发送",
+    "info": "是否批量发送数据"
+  },
+  "timeout": {
+    "display_name": "超时时间（秒）",
+    "info": "请求超时时间"
+  },
+
+  "outputs": {
+    "result": {
+      "display_name": "发送结果"
+    }
+  },
+
+  "status": {
+    "sending": "正在发送到微服务...",
+    "success": "发送成功 %{success} 条，失败 %{errors} 条",
+    "loading_services": "正在加载Nacos服务...",
+    "services_loaded": "已加载 %{count} 个服务",
+    "no_services_found": "未找到服务"
+  },
+
+  "errors": {
+    "no_data": "没有数据可发送",
+    "no_service_name": "服务名称不能为空",
+    "no_api_path": "API路径不能为空",
+    "send_failed": "发送失败：%{error}",
+    "feign_service_unavailable": "Feign服务不可用",
+    "nacos_not_enabled": "Nacos未启用",
+    "load_failed": "加载服务失败"
+  }
+}

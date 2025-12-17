@@ -1583,6 +1583,78 @@ class Component(CustomComponent):
             logger.error(f"[{self.__class__.__name__}] Variable resolution failed: {type(e).__name__}: {e}")
             return text
 
+    def _resolve_variable_with_fallback(self, variable_value: str, error_translation_key: str) -> str:
+        """Resolve a variable value with manual fallback if automatic resolution failed.
+
+        This method handles the common pattern where a field with resolve_variables=True
+        might still contain {variableName} if automatic resolution failed. It provides
+        a manual fallback by checking graph context for runtime variables.
+
+        Args:
+            variable_value: The value that may contain an unresolved {variableName} pattern
+            error_translation_key: Translation key for error message (e.g., "components.input_output.csv_input.errors.variable_not_resolved")
+
+        Returns:
+            str: The resolved variable value
+
+        Raises:
+            ValueError: If variable cannot be resolved
+
+        Example:
+            ```python
+            def _get_file_id(self) -> str:
+                if hasattr(self, "file_id_variable") and self.file_id_variable:
+                    variable_value = self.file_id_variable.strip()
+                    if variable_value:
+                        return self._resolve_variable_with_fallback(
+                            variable_value,
+                            "components.input_output.csv_input.errors.variable_not_resolved"
+                        )
+                # ... rest of logic
+            ```
+        """
+        import i18n
+
+        variable_value = variable_value.strip()
+        if not variable_value:
+            return variable_value
+
+        # Check if it's a variable pattern {variableName} that wasn't resolved
+        if not (variable_value.startswith("{") and variable_value.endswith("}")):
+            # Already resolved or is a literal value
+            return variable_value
+
+        # Variable resolution should have already happened in _validate_inputs()
+        # If we still have {variableName}, it means resolution failed - try manual fallback
+        var_name = variable_value[1:-1]  # Extract variable name without {}
+
+        # Try to get runtime variables from graph context (same logic as Component.get_variable())
+        resolved_value = None
+        if hasattr(self, "graph") and self.graph and hasattr(self.graph, "context"):
+            context = self.graph.context
+
+            if context:
+                # Check for runtime_variables (highest priority)
+                runtime_variables = context.get("runtime_variables")
+
+                if runtime_variables and var_name in runtime_variables:
+                    resolved_value = runtime_variables[var_name]
+
+                # Backward compatibility: check for request_variables from HTTP headers
+                if not resolved_value:
+                    request_variables = context.get("request_variables")
+
+                    if request_variables and var_name in request_variables:
+                        resolved_value = request_variables[var_name]
+
+        if resolved_value:
+            return str(resolved_value).strip()
+
+        # Variable not found - provide helpful error message
+        error_msg = i18n.t(error_translation_key, variable=var_name)
+        self.status = error_msg
+        raise ValueError(error_msg)
+
     def _build_artifact(self, result):
         """Builds an artifact dictionary containing a string representation, raw data, and type for a result.
 

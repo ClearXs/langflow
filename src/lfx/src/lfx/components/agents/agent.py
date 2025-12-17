@@ -577,9 +577,14 @@ class AgentComponent(ToolCallingAgentComponent):
                     component_class = provider_info.get("component_class")
                     if component_class and hasattr(component_class, "update_build_config"):
                         # Call the component class's update_build_config method
-                        build_config = await update_component_build_config(
+                        updated_config = await update_component_build_config(
                             component_class, build_config, field_value, "model_name"
                         )
+                        # Merge the updated config back into build_config if it's different
+                        if updated_config is not None and updated_config is not build_config:
+                            if isinstance(updated_config, dict):
+                                for key, value in updated_config.items():
+                                    build_config[key] = value
 
                 provider_configs: dict[str, tuple[dict, list[dict]]] = {
                     provider: (
@@ -675,14 +680,28 @@ class AgentComponent(ToolCallingAgentComponent):
                         # remove the prefix from the field_name
                         if isinstance(field_name, str) and isinstance(prefix, str):
                             field_name = field_name.replace(prefix, "")
-                        build_config = await update_component_build_config(
+                        updated_config = await update_component_build_config(
                             component_class, build_config, field_value, "model_name"
                         )
-            return dotdict({k: v.to_dict() if hasattr(v, "to_dict") else v for k, v in build_config.items()})
+                        # Merge the updated config back into build_config if it's different
+                        if updated_config is not None and updated_config is not build_config:
+                            if isinstance(updated_config, dict):
+                                for key, value in updated_config.items():
+                                    build_config[key] = value
+
+            # Convert all values with to_dict() method to dicts before returning
+            for key, value in build_config.items():
+                if hasattr(value, "to_dict") and callable(getattr(value, "to_dict", None)):
+                    build_config[key] = value.to_dict()
+
+            return build_config
 
         except Exception as e:
             error_msg = i18n.t("components.agents.agent.errors.build_config_update_failed", error=str(e))
-            await logger.aerror(error_msg)
+            await logger.aerror(f"{error_msg} - Traceback: {e!r}")
+            import traceback
+
+            await logger.aerror(f"Full traceback: {traceback.format_exc()}")
             raise ValueError(error_msg) from e
 
     async def _get_tools(self) -> list[Tool]:

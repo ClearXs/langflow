@@ -1,6 +1,14 @@
 {
   "display_name": "Quality Model",
   "description": "Execute manual mode quality model checks",
+  "folder_id_file": {
+    "display_name": "File/Folder Selection",
+    "info": "Select file or folder from file browser (Resource ID will be used)"
+  },
+  "folder_id_variable": {
+    "display_name": "File Variable",
+    "info": "Reference a file variable for folder ID (e.g., {folderIdVar}). Takes precedence over file selection if both provided."
+  },
   "quality_model_id": {
     "display_name": "Quality Model",
     "info": "Select quality model to execute (only manual execution mode models shown)"
@@ -14,7 +22,7 @@
     "loading_models": "Loading quality model list from data-governance service...",
     "models_loaded": "Successfully loaded %{count} manual execution quality models",
     "filtering_manual_models": "Filtering manual execution mode quality models...",
-    "executing_model": "Executing quality model check (Model ID: %{model_id})...",
+    "executing_model": "Executing quality model check (Model ID: %{model_id}, Folder ID: %{folder_id})...",
     "execution_success": "Quality model executed successfully: %{message}",
     "processing_data": "Processing %{count} records...",
     "data_processed": "Successfully processed %{count} records",
@@ -25,6 +33,7 @@
     "no_models_found": "No available quality models found",
     "no_manual_models": "No manual execution mode quality models found",
     "no_model_selected": "No quality model selected, please select a quality model first",
+    "no_folder_source": "Please provide either a file/folder selection or a file variable for folder ID",
     "model_id_not_found": "Cannot find quality model ID for model name: %{name}",
     "execution_failed": "Quality model execution failed: %{error}",
     "api_call_failed": "Quality model API call failed: %{error}",
@@ -32,6 +41,7 @@
     "no_data_input": "No data input provided. Please connect a data source first.",
     "no_graph_data": "No graph data available. Please save the workflow first.",
     "graph_not_available": "Load quality models feature is only available during flow execution.",
-    "load_failed": "Failed to load quality models: %{error}"
+    "load_failed": "Failed to load quality models: %{error}",
+    "variable_not_resolved": "Variable '{variable}' not found in runtime or global variables. Please check: (1) Variable is defined in Global Variables settings, or (2) Variable is passed in runtime variables when executing the flow."
   }
 }

@@ -20,11 +20,11 @@
     },
     "target_type": {
       "display_name": "Target Type",
-      "info": "Select the target data type to convert to"
+      "info": "Select the target data type to convert to (including JSON for complex objects)"
     },
     "conversion_rule": {
       "display_name": "Conversion Rule",
-      "info": "Type-specific rules (optional):\n• datetime: Format string (yyyy-MM-dd, yyyy-MM-dd HH:mm:ss, ISO8601, etc.)\n• boolean: Comma-separated true values (e.g., true,1,yes)\n• integer/float: Leave empty for default conversion\n• string: Leave empty"
+      "info": "Type-specific rules (optional):\n• datetime: Format string (yyyy-MM-dd, yyyy-MM-dd HH:mm:ss, ISO8601, etc.)\n• boolean: Comma-separated true values (e.g., true,1,yes)\n• json: Parses JSON strings to objects/arrays\n• integer/float: Leave empty for default conversion\n• string: Leave empty"
     }
   },
 

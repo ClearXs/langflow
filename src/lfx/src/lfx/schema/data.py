@@ -27,13 +27,14 @@ class Data(CrossModuleModel):
     """Represents a record with text and optional data.
 
     Attributes:
-        data (dict, optional): Additional data associated with the record.
+        data (dict | list, optional): Additional data associated with the record.
+            Can be a dictionary for key-value pairs, or a list for sequential data.
     """
 
     model_config = ConfigDict(validate_assignment=True)
 
     text_key: str = "text"
-    data: dict = {}
+    data: dict | list = {}
     default_value: str | None = ""
 
     @model_validator(mode="before")
@@ -44,20 +45,22 @@ class Data(CrossModuleModel):
             raise ValueError(msg)  # noqa: TRY004
         if "data" not in values or values["data"] is None:
             values["data"] = {}
-        if not isinstance(values["data"], dict):
-            msg = (
-                f"Invalid data format: expected dictionary but got {type(values).__name__}."
-                " This will raise an error in version langflow==1.3.0."
-            )
+        # Allow both dict and list for data field
+        if not isinstance(values["data"], (dict, list)):
+            msg = f"Invalid data format: expected dictionary or list but got {type(values['data']).__name__}."
             logger.warning(msg)
-        # Any other keyword should be added to the data dictionary
-        for key in values:
-            if key not in values["data"] and key not in {"text_key", "data", "default_value"}:
-                values["data"][key] = values[key]
+        # Any other keyword should be added to the data dictionary (only if data is dict)
+        if isinstance(values.get("data", {}), dict):
+            for key in values:
+                if key not in values["data"] and key not in {"text_key", "data", "default_value"}:
+                    values["data"][key] = values[key]
         return values
 
     @model_serializer(mode="plain", when_used="json")
     def serialize_model(self):
+        if isinstance(self.data, list):
+            # For list data, return the list directly
+            return self.data
         return {k: v.to_json() if hasattr(v, "to_json") else v for k, v in self.data.items()}
 
     def get_text(self):
@@ -69,7 +72,9 @@ class Data(CrossModuleModel):
         Returns:
             The text value from the data dictionary or the default value.
         """
-        return self.data.get(self.text_key, self.default_value)
+        if isinstance(self.data, dict):
+            return self.data.get(self.text_key, self.default_value)
+        return self.default_value
 
     def set_text(self, text: str | None) -> str:
         r"""Sets the text value in the data dictionary.
@@ -86,7 +91,8 @@ class Data(CrossModuleModel):
             str: The text value that was set in the data dictionary.
         """
         new_text = "" if text is None else str(text)
-        self.data[self.text_key] = new_text
+        if isinstance(self.data, dict):
+            self.data[self.text_key] = new_text
         return new_text
 
     @classmethod
@@ -124,20 +130,28 @@ class Data(CrossModuleModel):
         for all types that support the addition operation. Falls back to the value from 'other'
         record when addition is not supported.
         """
-        combined_data = self.data.copy()
-        for key, value in other.data.items():
-            # If the key exists in both data and both values support the addition operation
-            if key in combined_data:
-                try:
-                    combined_data[key] += value
-                except TypeError:
-                    # Fallback: Use the value from 'other' record if addition is not supported
-                    combined_data[key] = value
-            else:
-                # If the key is not in the first record, simply add it
-                combined_data[key] = value
+        # Handle list + list
+        if isinstance(self.data, list) and isinstance(other.data, list):
+            return Data(data=self.data + other.data)
 
-        return Data(data=combined_data)
+        # Handle dict + dict
+        if isinstance(self.data, dict) and isinstance(other.data, dict):
+            combined_data = self.data.copy()
+            for key, value in other.data.items():
+                # If the key exists in both data and both values support the addition operation
+                if key in combined_data:
+                    try:
+                        combined_data[key] += value
+                    except TypeError:
+                        # Fallback: Use the value from 'other' record if addition is not supported
+                        combined_data[key] = value
+                else:
+                    # If the key is not in the first record, simply add it
+                    combined_data[key] = value
+            return Data(data=combined_data)
+
+        # Fallback: return other
+        return other
 
     def to_lc_document(self) -> Document:
         """Converts the Data to a Document.
@@ -145,6 +159,10 @@ class Data(CrossModuleModel):
         Returns:
             Document: The converted Document.
         """
+        if isinstance(self.data, list):
+            # For list data, convert to JSON string
+            return Document(page_content=json.dumps(self.data, ensure_ascii=False), metadata={})
+
         data_copy = self.data.copy()
         text = data_copy.pop(self.text_key, self.default_value)
         if isinstance(text, str):
@@ -159,6 +177,10 @@ class Data(CrossModuleModel):
         Returns:
             BaseMessage: The converted BaseMessage.
         """
+        # Handle list data
+        if isinstance(self.data, list):
+            return AIMessage(content=json.dumps(self.data, ensure_ascii=False))
+
         # The idea of this function is to be a helper to convert a Data to a BaseMessage
         # It will use the "sender" key to determine if the message is Human or AI
         # If the key is not present, it will default to AI
@@ -195,7 +217,11 @@ class Data(CrossModuleModel):
                 return self.__getattribute__(key)
             if key in {"data", "text_key"} or key.startswith("_"):
                 return super().__getattr__(key)
-            return self.data[key]
+            if isinstance(self.data, dict):
+                return self.data[key]
+            # For list data, raise AttributeError
+            msg = f"'{type(self).__name__}' object with list data has no attribute '{key}'"
+            raise AttributeError(msg)
         except KeyError as e:
             # Fallback to default behavior to raise AttributeError for undefined attributes
             msg = f"'{type(self).__name__}' object has no attribute '{key}'"
@@ -210,17 +236,20 @@ class Data(CrossModuleModel):
         if key in {"data", "text_key"} or key.startswith("_"):
             super().__setattr__(key, value)
         elif key in self.model_fields:
-            self.data[key] = value
+            if isinstance(self.data, dict):
+                self.data[key] = value
             super().__setattr__(key, value)
         else:
-            self.data[key] = value
+            if isinstance(self.data, dict):
+                self.data[key] = value
 
     def __delattr__(self, key) -> None:
         """Allows attribute-like deletion from the data dictionary."""
         if key in {"data", "text_key"} or key.startswith("_"):
             super().__delattr__(key)
         else:
-            del self.data[key]
+            if isinstance(self.data, dict):
+                del self.data[key]
 
     def __deepcopy__(self, memo):
         """Custom deepcopy implementation to handle copying of the Data object."""
@@ -229,11 +258,15 @@ class Data(CrossModuleModel):
 
     # check which attributes the Data has by checking the keys in the data dictionary
     def __dir__(self):
-        return super().__dir__() + list(self.data.keys())
+        if isinstance(self.data, dict):
+            return super().__dir__() + list(self.data.keys())
+        return super().__dir__()
 
     def __str__(self) -> str:
         # return a JSON string representation of the Data atributes
         try:
+            if isinstance(self.data, list):
+                return serialize_data(self.data)
             data = {k: v.to_json() if hasattr(v, "to_json") else v for k, v in self.data.items()}
             return serialize_data(data)  # use the custom serializer
         except Exception:  # noqa: BLE001
@@ -241,7 +274,9 @@ class Data(CrossModuleModel):
             return str(self.data)
 
     def __contains__(self, key) -> bool:
-        return key in self.data
+        if isinstance(self.data, dict):
+            return key in self.data
+        return False
 
     def __eq__(self, /, other):
         return isinstance(other, Data) and self.data == other.data

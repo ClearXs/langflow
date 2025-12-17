@@ -1,0 +1,68 @@
+{
+  "display_name": "空间转换",
+  "description": "对空间数据执行坐标转换和地理实体编码。",
+
+  "data_input": {
+    "display_name": "输入数据",
+    "info": "要转换的空间数据"
+  },
+
+  "transformation_rules": {
+    "display_name": "转换规则",
+    "info": "配置字段及其转换规则。使用「分析字段」按钮自动填充上游字段到表格。",
+    "field_name": "字段名称",
+    "field_type": "字段类型",
+    "transformation_type": "转换类型",
+    "source_crs": "源坐标系",
+    "target_crs": "目标坐标系",
+    "entity_class_field": "实体类型字段",
+    "level": "编码层级",
+    "analyze_button": "分析字段"
+  },
+
+  "field_types": {
+    "string": "字符串",
+    "integer": "整数",
+    "float": "浮点数",
+    "boolean": "布尔值",
+    "datetime": "日期时间",
+    "point": "点",
+    "linestring": "线",
+    "polygon": "面",
+    "multipoint": "多点",
+    "multilinestring": "多线",
+    "multipolygon": "多面",
+    "geometry": "几何对象",
+    "geography": "地理对象"
+  },
+
+  "transformation_types": {
+    "none": "无",
+    "coordinate_transform": "坐标转换",
+    "geo_entity_encode": "地理实体编码"
+  },
+
+  "outputs": {
+    "data": {
+      "display_name": "转换后数据"
+    }
+  },
+
+  "status": {
+    "processing": "正在处理空间转换...",
+    "analysis_success": "成功从上游数据分析出 {count} 个字段",
+    "success": "成功转换了 {count} 条记录"
+  },
+
+  "errors": {
+    "no_data": "未提供输入数据",
+    "no_rules": "未配置转换规则",
+    "no_graph_data": "字段分析缺少图数据",
+    "graph_not_available": "字段分析的图数据不可用",
+    "transform_failed": "空间转换失败：{error}"
+  },
+
+  "warnings": {
+    "field_load_failed": "从上游数据加载字段失败"
+  }
+}

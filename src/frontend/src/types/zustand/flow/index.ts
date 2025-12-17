@@ -107,6 +107,14 @@ export type FlowStoreType = {
   addDataToFlowPool: (data: VertexBuildTypeAPI, nodeId: string) => void;
   CleanFlowPool: () => void;
   isBuilding: boolean;
+  isExecutionHistoryOpen: boolean;
+  setExecutionHistoryOpen: (open: boolean) => void;
+  selectedNodeId: string | null;
+  setSelectedNodeId: (nodeId: string | null) => void;
+  executionHistoryHeight: number;
+  setExecutionHistoryHeight: (height: number) => void;
+  isExecutionHistoryMaximized: boolean;
+  setExecutionHistoryMaximized: (maximized: boolean) => void;
   streamingJobId: string | null;
   isPersistentStream: boolean;
   isPending: boolean;

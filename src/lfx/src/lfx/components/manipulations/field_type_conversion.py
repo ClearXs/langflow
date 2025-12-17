@@ -58,7 +58,7 @@ class ETLFieldTypeConversion(Component):
                     "info": i18n.t("components.manipulations.field_type_conversion.type_conversions.target_type.info"),
                     "type": "str",
                     "formatter": "text",
-                    "options": ["string", "integer", "float", "boolean", "datetime"],
+                    "options": ["string", "integer", "float", "boolean", "datetime", "json", "point", "linestring", "polygon", "geometry"],
                     "required": True,
                 },
                 {
@@ -291,6 +291,8 @@ class ETLFieldTypeConversion(Component):
             return "float"
         if isinstance(value, datetime):
             return "datetime"
+        if isinstance(value, (dict, list)):
+            return "json"
         if isinstance(value, str):
             # 尝试识别字符串中的特殊类型
             if value.lower() in ("true", "false", "yes", "no", "1", "0"):
@@ -314,7 +316,7 @@ class ETLFieldTypeConversion(Component):
 
     def _merge_types(self, type1: str, type2: str) -> str:
         """合并两个类型, 选择更宽松的类型."""
-        type_hierarchy = ["boolean", "integer", "float", "datetime", "string"]
+        type_hierarchy = ["boolean", "integer", "float", "datetime", "json", "string"]
         idx1 = type_hierarchy.index(type1) if type1 in type_hierarchy else -1
         idx2 = type_hierarchy.index(type2) if type2 in type_hierarchy else -1
         return type_hierarchy[max(idx1, idx2)]
@@ -503,6 +505,26 @@ class ETLFieldTypeConversion(Component):
             except Exception as e:
                 msg = f"Cannot parse datetime: {e}"
                 raise ValueError(msg) from e
+
+        # JSON 转换
+        if target_type == "json":
+            if isinstance(value, (dict, list)):
+                # 已经是 dict/list，直接返回
+                return value
+            if isinstance(value, str):
+                # 尝试解析 JSON 字符串
+                import json
+
+                try:
+                    return json.loads(value)
+                except json.JSONDecodeError as e:
+                    msg = f"Invalid JSON format: {e}"
+                    raise ValueError(msg) from e
+            # 如果是 Data 对象，提取其 data 属性
+            if hasattr(value, "data"):
+                return value.data
+            msg = f"Cannot convert {type(value).__name__} to JSON"
+            raise ValueError(msg)
 
         return value
 

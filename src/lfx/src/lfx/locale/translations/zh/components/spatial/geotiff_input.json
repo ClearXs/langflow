@@ -1,0 +1,59 @@
+{
+  "display_name": "GeoTIFF 输入",
+  "description": "读取 GeoTIFF 栅格文件并提取空间元数据，包括坐标系、范围、分辨率和波段信息。",
+
+  "file_path": {
+    "display_name": "GeoTIFF 文件",
+    "info": "选择一个或多个 GeoTIFF（.tif、.tiff）文件。多个文件可以合并或单独处理。"
+  },
+
+  "file_id_variable": {
+    "display_name": "文件变量",
+    "info": "引用文件变量作为文件ID（例如：{geoTiffFileId}）。对于多个文件，使用逗号分隔。如果同时提供，此项优先于文件选择。"
+  },
+
+  "read_mode": {
+    "display_name": "读取模式",
+    "info": "如何读取栅格数据：'metadata' 仅读取空间信息，'array' 读取完整像素数据，'sample' 随机采样点。"
+  },
+
+  "sample_size": {
+    "display_name": "采样大小",
+    "info": "当读取模式为 'sample' 时要采样的随机点数量。最大值为栅格宽度 × 高度。"
+  },
+
+  "merge_files": {
+    "display_name": "合并文件",
+    "info": "将多个 GeoTIFF 文件合并为单个镶嵌图。仅在选择多个文件时适用。"
+  },
+
+  "outputs": {
+    "spatial_data": {
+      "display_name": "栅格数据",
+      "info": "包含坐标系、范围、分辨率和可选数组/采样数据的 Data 对象形式的栅格元数据和数据。"
+    }
+  },
+
+  "status": {
+    "reading_files": "正在读取 {count} 个 GeoTIFF 文件...",
+    "merging_files": "正在将栅格文件合并为镶嵌图...",
+    "processing_file": "正在处理文件 {current}/{total}...",
+    "sampling_points": "正在从栅格中采样随机点..."
+  },
+
+  "success": {
+    "loaded": "成功加载了 {count} 个栅格数据集"
+  },
+
+  "errors": {
+    "missing_libraries": "GeoTIFF 处理需要 'rasterio'。请使用以下命令安装：uv sync --group spatial",
+    "no_valid_files": "无法打开任何有效的 GeoTIFF 文件",
+    "loading_failed": "加载 GeoTIFF 失败：{error}",
+    "no_file_source": "请提供文件选择或文件变量作为文件ID",
+    "variable_not_resolved": "在运行时变量或全局变量中未找到变量'{variable}'。请检查：(1) 变量是否在全局变量设置中定义，或 (2) 执行流程时是否在运行时变量中传递了该变量。"
+  },
+
+  "warnings": {
+    "file_open_failed": "无法打开栅格文件：{path}"
+  }
+}

@@ -1,0 +1,65 @@
+{
+  "display_name": "Feign Output",
+  "description": "Send data to microservices via Nacos service discovery",
+
+  "data_input": {
+    "display_name": "Data Input",
+    "info": "Data to send to the microservice"
+  },
+  "service_name": {
+    "display_name": "Service Name",
+    "info": "Nacos registered service name (click refresh to load)"
+  },
+  "api_path": {
+    "display_name": "API Path",
+    "info": "API endpoint path (e.g., /resource-file/upload/)"
+  },
+  "method": {
+    "display_name": "HTTP Method",
+    "info": "HTTP request method"
+  },
+  "group_name": {
+    "display_name": "Group Name",
+    "info": "Nacos service group name"
+  },
+  "headers": {
+    "display_name": "Custom Headers",
+    "info": "Additional HTTP headers"
+  },
+  "batch_size": {
+    "display_name": "Batch Size",
+    "info": "Number of records per batch"
+  },
+  "send_as_batch": {
+    "display_name": "Send as Batch",
+    "info": "Send data in batches or individually"
+  },
+  "timeout": {
+    "display_name": "Timeout (seconds)",
+    "info": "Request timeout"
+  },
+
+  "outputs": {
+    "result": {
+      "display_name": "Send Result"
+    }
+  },
+
+  "status": {
+    "sending": "Sending to microservice...",
+    "success": "Sent %{success} records, %{errors} errors",
+    "loading_services": "Loading Nacos services...",
+    "services_loaded": "Loaded %{count} services",
+    "no_services_found": "No services found"
+  },
+
+  "errors": {
+    "no_data": "No data to send",
+    "no_service_name": "Service name required",
+    "no_api_path": "API path required",
+    "send_failed": "Send failed: %{error}",
+    "feign_service_unavailable": "FeignService unavailable",
+    "nacos_not_enabled": "Nacos not enabled",
+    "load_failed": "Failed to load services"
+  }
+}

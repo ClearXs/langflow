@@ -1,0 +1,67 @@
+{
+  "display_name": "Feign输入",
+  "description": "通过Nacos服务发现从微服务获取数据",
+
+  "service_name": {
+    "display_name": "服务名称",
+    "info": "Nacos注册的服务名称（点击刷新加载）"
+  },
+  "api_path": {
+    "display_name": "API路径",
+    "info": "API接口路径（例如：/resource-file/download/）"
+  },
+  "method": {
+    "display_name": "HTTP方法",
+    "info": "HTTP请求方法"
+  },
+  "group_name": {
+    "display_name": "分组名称",
+    "info": "Nacos服务分组名称"
+  },
+  "headers": {
+    "display_name": "自定义请求头",
+    "info": "额外的HTTP请求头"
+  },
+  "request_body": {
+    "display_name": "请求体",
+    "info": "POST请求的JSON请求体"
+  },
+  "timeout": {
+    "display_name": "超时时间（秒）",
+    "info": "请求超时时间"
+  },
+  "retry_count": {
+    "display_name": "重试次数",
+    "info": "失败后重试次数"
+  },
+  "data_path": {
+    "display_name": "数据路径",
+    "info": "提取数据的JSONPath（例如：$.data 或 data.items）"
+  },
+
+  "outputs": {
+    "data": {
+      "display_name": "数据"
+    },
+    "response_info": {
+      "display_name": "响应信息"
+    }
+  },
+
+  "status": {
+    "fetching": "正在从微服务获取数据...",
+    "success": "成功获取 %{records} 条记录",
+    "loading_services": "正在加载Nacos服务...",
+    "services_loaded": "已加载 %{count} 个服务",
+    "no_services_found": "未找到服务"
+  },
+
+  "errors": {
+    "fetch_failed": "请求失败：%{error}",
+    "no_service_name": "服务名称不能为空",
+    "no_api_path": "API路径不能为空",
+    "feign_service_unavailable": "Feign服务不可用",
+    "nacos_not_enabled": "Nacos未启用",
+    "load_failed": "加载服务失败"
+  }
+}

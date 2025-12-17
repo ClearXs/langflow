@@ -60,7 +60,15 @@ class ETLCSVInputComponent(Component):
             file_types=["csv", "txt", "tsv"],
             is_list=False,
             temp_file=False,  # Trigger FileTableInputComponent
-            required=True,
+            required=False,  # Optional since file_id_variable can replace it
+        ),
+        StrInput(
+            name="file_id_variable",
+            display_name=i18n.t("components.input_output.csv_input.file_id_variable.display_name"),
+            info=i18n.t("components.input_output.csv_input.file_id_variable.info"),
+            placeholder="{csvFileId}",
+            required=False,  # Optional since file_path can replace it
+            resolve_variables=True,  # Enable automatic variable resolution
         ),
         DropdownInput(
             name="delimiter",
@@ -413,21 +421,41 @@ class ETLCSVInputComponent(Component):
         except Exception as e:
             raise ValueError(_format_i18n("components.input_output.csv_input.errors.read_csv_failed", error=str(e)))
 
-    def load_data(self) -> list[Data]:
-        """Load CSV data and return as list of Data objects."""
-        logger.info(f"[CSVInput] load_data called with file_path: {self.file_path} (type: {type(self.file_path)})")
-        logger.info(f"[CSVInput] _parameters keys: {list(self._parameters.keys())}")
+    def _get_file_id(self) -> str:
+        """Extract file_id from either file selection or external variable.
 
+        Priority:
+        1. file_id_variable (if provided and not empty)
+        2. file_path (if provided)
+        3. Raise error if neither provided
+
+        Returns:
+            str: File ID (resource ID from file browser or resolved variable)
+
+        Raises:
+            ValueError: If neither input is provided
+        """
+        # Priority 1: File Variable (with manual fallback if automatic resolution failed)
+        if hasattr(self, "file_id_variable") and self.file_id_variable:
+            variable_value = self.file_id_variable.strip()
+            if variable_value:
+                # Use base class helper method for variable resolution with fallback
+                resolved_value = self._resolve_variable_with_fallback(
+                    variable_value,
+                    "components.input_output.csv_input.errors.variable_not_resolved"
+                )
+                logger.info(f"[CSVInput] Using file_id from variable: {resolved_value}")
+                return resolved_value
+
+        # Priority 2: File selection from UI - use existing extraction logic
         # Try to get file_id from multiple sources
         file_id = None
 
-        # 1. Check if _parameters has the original file_path structure
+        # Check if _parameters has the original file_path structure
         file_path_param = self._parameters.get("file_path")
         if isinstance(file_path_param, dict):
             file_id = file_path_param.get("file_path") or file_path_param.get("value")
             logger.info(f"[CSVInput] Extracted file_id from dict _parameters: {file_id}")
-
-        # 2. If _parameters has a string path, check if it looks like a file ID
         elif isinstance(file_path_param, str):
             # Check if it's a numeric file ID
             if file_path_param.isdigit():
@@ -435,7 +463,6 @@ class ETLCSVInputComponent(Component):
                 logger.info(f"[CSVInput] Using numeric string from _parameters as file_id: {file_id}")
             else:
                 # It's a path (could be cached path or real path)
-                # Try to extract file ID from the path if it looks like /path/to/cache/123456
                 import os
 
                 basename = os.path.basename(file_path_param)
@@ -447,15 +474,27 @@ class ETLCSVInputComponent(Component):
                     file_id = file_path_param
                     logger.info(f"[CSVInput] Using path from _parameters: {file_id}")
 
-        # 3. Fallback to self.file_path
-        if not file_id and self.file_path:
+        # Fallback to self.file_path
+        if not file_id and hasattr(self, "file_path") and self.file_path:
             file_id = self.file_path
             logger.info(f"[CSVInput] Fallback to self.file_path: {file_id}")
 
-        if not file_id:
-            error_msg = i18n.t("components.input_output.csv_input.errors.no_file_path")
-            logger.error("[CSVInput] No file path provided")
-            raise ValueError(error_msg)
+        if file_id:
+            logger.info(f"[CSVInput] Using file_id from file selection: {file_id}")
+            return file_id
+
+        # Neither provided - raise error
+        error_msg = i18n.t("components.input_output.csv_input.errors.no_file_source")
+        logger.error("[CSVInput] No file source provided")
+        raise ValueError(error_msg)
+
+    def load_data(self) -> list[Data]:
+        """Load CSV data and return as list of Data objects."""
+        logger.info("[CSVInput] load_data called")
+        logger.info(f"[CSVInput] _parameters keys: {list(self._parameters.keys())}")
+
+        # Get file_id from either external variable or file selection
+        file_id = self._get_file_id()
 
         temp_file_path = None
         try:

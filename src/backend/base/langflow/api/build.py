@@ -419,7 +419,6 @@ async def generate_flow_events(
         context = None
         if inputs and hasattr(inputs, "runtime_variables") and inputs.runtime_variables:
             context = {"runtime_variables": inputs.runtime_variables}
-            await logger.adebug(f"Using runtime variables in build: {list(inputs.runtime_variables.keys())}")
 
         if not data:
             return await build_graph_from_db(

@@ -222,6 +222,7 @@ export const SIDEBAR_CATEGORIES = [
         },
       ]
     : []),
+  { display_name: "Spatial", name: "spatial", icon: "Map" },
   { display_name: "Vector Stores", name: "vectorstores", icon: "Layers" },
   { display_name: "Processing", name: "processing", icon: "ListFilter" },
   { display_name: "Logic", name: "logic", icon: "ArrowRightLeft" },

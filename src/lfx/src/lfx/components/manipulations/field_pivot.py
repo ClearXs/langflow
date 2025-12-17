@@ -15,6 +15,39 @@ from lfx.log.logger import logger
 from lfx.schema import Data
 
 
+def _extract_data_records(data_items: list) -> list[dict]:
+    """Extract data records from Data objects or plain dicts, handling both dict and list payloads.
+
+    Args:
+        data_items: List of Data objects or dicts
+
+    Returns:
+        List of dict records ready for DataFrame construction
+    """
+    processed_data = []
+    for d in data_items:
+        if hasattr(d, "data"):
+            # Handle Data objects
+            if isinstance(d.data, dict):
+                # Data object with dict payload
+                processed_data.append(d.data)
+            elif isinstance(d.data, list):
+                # Data object with list payload - extend with all items
+                for item in d.data:
+                    if isinstance(item, dict):
+                        processed_data.append(item)
+                    else:
+                        logger.warning(f"Skipping non-dict item in Data.data list: {type(item)}")
+            else:
+                logger.warning(f"Unknown Data.data type {type(d.data)}, using d directly")
+                processed_data.append(d)
+        elif isinstance(d, dict):
+            processed_data.append(d)
+        else:
+            logger.warning(f"Unknown data type {type(d)}, skipping")
+    return processed_data
+
+
 class ETLFieldPivotComponent(Component):
     """多行转换为多列组件 - 执行pivot操作"""
 
@@ -344,7 +377,11 @@ class ETLFieldPivotComponent(Component):
                 raise ValueError(i18n.t("components.manipulations.field_pivot.errors.no_input_data"))
 
             # 转换为DataFrame
-            df = pd.DataFrame([d.data if hasattr(d, "data") else d for d in self.data_input])
+            df = pd.DataFrame(_extract_data_records(self.data_input))
+
+            # Normalize column names to strings to handle non-string column names
+            df.columns = [str(col).strip() if isinstance(col, str) else str(col) for col in df.columns]
+
             total_rows = len(df)
             logger.info(f"[FieldPivot] Processing {total_rows} rows")
 
@@ -382,7 +419,7 @@ class ETLFieldPivotComponent(Component):
 
             # 取前1000条数据进行预览
             preview_data = self.data_input[:1000]
-            df = pd.DataFrame([d.data if hasattr(d, "data") else d for d in preview_data])
+            df = pd.DataFrame(_extract_data_records(preview_data))
 
             # 执行pivot预览
             df_preview = self._process_chunk(df)
@@ -416,7 +453,7 @@ class ETLFieldPivotComponent(Component):
             if not self.data_input:
                 return Data(data={"message": i18n.t("components.manipulations.field_pivot.errors.no_input_data")})
 
-            df = pd.DataFrame([d.data if hasattr(d, "data") else d for d in self.data_input])
+            df = pd.DataFrame(_extract_data_records(self.data_input))
 
             # 解析分组字段
             if isinstance(self.group_fields, list):
@@ -486,7 +523,7 @@ class ETLFieldPivotComponent(Component):
 
             # Get sample data to infer schema
             sample_data = self.data_input[:10]  # Need more data for pivot
-            df = pd.DataFrame([d.data if hasattr(d, "data") else d for d in sample_data])
+            df = pd.DataFrame(_extract_data_records(sample_data))
 
             if df.empty:
                 return Data(data={"fields": [], "field_names": []})

@@ -3,11 +3,11 @@ import datetime
 from typing import Any
 
 import i18n
-from lfx.inputs.inputs import MultilineInput
 import sqlparse
 
 from lfx.custom.custom_component.component import Component
-from lfx.io import CodeInput, DropdownInput, IntInput, MultiselectInput, Output, TableInput
+from lfx.inputs.inputs import MultilineInput
+from lfx.io import DropdownInput, IntInput, MultiselectInput, Output, TableInput
 from lfx.log.logger import logger
 from lfx.schema import Data
 
