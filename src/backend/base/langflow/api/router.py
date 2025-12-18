@@ -8,6 +8,7 @@ from langflow.api.v1 import (
     files_router,
     flows_router,
     folders_router,
+    gdb_router,
     knowledge_bases_router,
     lineage_router,
     lineage_search_router,
@@ -60,6 +61,7 @@ router_v1.include_router(mcp_projects_router)
 router_v1.include_router(openai_responses_router)
 router_v1.include_router(locale_router)
 router_v1.include_router(tasks_router)
+router_v1.include_router(gdb_router)
 
 router_v2.include_router(files_router_v2)
 router_v2.include_router(mcp_router_v2)

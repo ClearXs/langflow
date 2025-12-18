@@ -40,7 +40,12 @@ dependencies = [
     "langchain~=0.3.23",
     "validators>=0.34.0,<1.0.0",
     "i18nice>=0.16.0",
+    "gdal>=3.11.4; platform_system != 'Windows'",
+    "gdal; platform_system == 'Windows'",
 ]
+
+[tool.uv.sources]
+gdal = { path = "lib/gdal-3.11.4-cp311-cp311-win_amd64.whl", marker = "platform_system == 'Windows'" }
 
 [project.scripts]
 lfx = "lfx.__main__:main"

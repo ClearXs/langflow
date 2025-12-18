@@ -1,0 +1,81 @@
+{
+  "display_name": "GDB Import",
+  "description": "Import GDB table layer data to PostgreSQL database",
+
+  "datasource_selector": {
+    "display_name": "PostgreSQL Datasource",
+    "info": "Select target PostgreSQL datasource (loaded dynamically from data-construction service)"
+  },
+
+  "gdb_file": {
+    "display_name": "GDB File",
+    "info": "Select GDB compressed file (.gdb.zip)"
+  },
+
+  "file_id_variable": {
+    "display_name": "File ID Variable",
+    "info": "Use file ID from variable (e.g., {gdbFileId}). Has higher priority than file selection."
+  },
+
+  "layer_selector": {
+    "display_name": "Layer Selection",
+    "info": "Select GDB table layers to import. Click 'Load Layers' button to populate the list.",
+    "layer_name": "Layer Name",
+    "feature_count": "Feature Count",
+    "geometry_type": "Geometry Type",
+    "load_button": "Load Layers"
+  },
+
+  "target_table": {
+    "display_name": "Target Table Name",
+    "info": "PostgreSQL table name to import data into"
+  },
+
+  "create_table": {
+    "display_name": "Auto Create Table",
+    "info": "Automatically create table if it doesn't exist (default: true)"
+  },
+
+  "truncate_first": {
+    "display_name": "Truncate Before Import",
+    "info": "Clear existing data before importing (default: false)"
+  },
+
+  "batch_size": {
+    "display_name": "Batch Size",
+    "info": "Number of rows to write per batch (default: 1000)"
+  },
+
+  "outputs": {
+    "result": {
+      "display_name": "Import Result"
+    }
+  },
+
+  "status": {
+    "datasources_loaded": "Loaded {count} PostgreSQL datasources",
+    "loading_layers": "Loading GDB layers from file...",
+    "layers_loaded": "Loaded {count} table layers",
+    "importing": "Importing GDB data to PostgreSQL...",
+    "success": "Successfully imported {rows} rows to table '{table}'"
+  },
+
+  "warnings": {
+    "no_datasources": "No PostgreSQL datasources found",
+    "no_table_layers": "No table-type layers found in GDB file",
+    "no_data": "No data to import"
+  },
+
+  "errors": {
+    "no_file": "No GDB file selected. Please provide either a file or file ID variable.",
+    "no_layers_selected": "No layers selected. Please load and select layers first.",
+    "no_target_table": "Target table name is required.",
+    "load_datasources_failed": "Failed to load datasources: {error}",
+    "load_layers_failed": "Failed to load GDB layers: {error}",
+    "no_minio_url": "No MinIO URL found for file ID: {file_id}",
+    "get_url_failed": "Failed to get file URL for file ID {file_id}: {error}",
+    "datasource_not_found": "Datasource with ID {id} not found",
+    "get_connection_failed": "Failed to get database connection: {error}",
+    "import_failed": "Failed to import GDB data: {error}"
+  }
+}

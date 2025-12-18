@@ -1,0 +1,81 @@
+{
+  "display_name": "GDB入库",
+  "description": "将GDB表图层数据导入PostgreSQL数据库",
+
+  "datasource_selector": {
+    "display_name": "PostgreSQL数据源",
+    "info": "选择目标PostgreSQL数据源（从data-construction服务动态加载）"
+  },
+
+  "gdb_file": {
+    "display_name": "GDB文件",
+    "info": "选择GDB压缩文件（.gdb.zip）"
+  },
+
+  "file_id_variable": {
+    "display_name": "文件ID变量",
+    "info": "使用变量中的文件ID（例如：{gdbFileId}）。优先级高于文件选择。"
+  },
+
+  "layer_selector": {
+    "display_name": "图层选择",
+    "info": "选择要导入的GDB表图层。点击加载图层按钮填充列表。",
+    "layer_name": "图层名称",
+    "feature_count": "要素数量",
+    "geometry_type": "几何类型",
+    "load_button": "加载图层"
+  },
+
+  "target_table": {
+    "display_name": "目标表名",
+    "info": "导入数据的PostgreSQL表名"
+  },
+
+  "create_table": {
+    "display_name": "自动建表",
+    "info": "如果表不存在则自动创建（默认：是）"
+  },
+
+  "truncate_first": {
+    "display_name": "导入前清空",
+    "info": "导入前清空现有数据（默认：否）"
+  },
+
+  "batch_size": {
+    "display_name": "批量大小",
+    "info": "每批写入的行数（默认：1000）"
+  },
+
+  "outputs": {
+    "result": {
+      "display_name": "导入结果"
+    }
+  },
+
+  "status": {
+    "datasources_loaded": "已加载 {count} 个PostgreSQL数据源",
+    "loading_layers": "正在从文件加载GDB图层...",
+    "layers_loaded": "已加载 {count} 个表图层",
+    "importing": "正在将GDB数据导入PostgreSQL...",
+    "success": "成功导入 {rows} 行数据到表 '{table}'"
+  },
+
+  "warnings": {
+    "no_datasources": "未找到PostgreSQL数据源",
+    "no_table_layers": "GDB文件中未找到表类型图层",
+    "no_data": "没有数据可导入"
+  },
+
+  "errors": {
+    "no_file": "未选择GDB文件。请提供文件或文件ID变量。",
+    "no_layers_selected": "未选择图层。请先加载并选择图层。",
+    "no_target_table": "目标表名为必填项。",
+    "load_datasources_failed": "加载数据源失败：{error}",
+    "load_layers_failed": "加载GDB图层失败：{error}",
+    "no_minio_url": "文件ID {file_id} 未找到MinIO URL",
+    "get_url_failed": "获取文件 {file_id} 的URL失败：{error}",
+    "datasource_not_found": "未找到ID为 {id} 的数据源",
+    "get_connection_failed": "获取数据库连接失败：{error}",
+    "import_failed": "导入GDB数据失败：{error}"
+  }
+}

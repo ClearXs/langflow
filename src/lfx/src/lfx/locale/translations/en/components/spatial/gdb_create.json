@@ -1,0 +1,59 @@
+{
+  "display_name": "GDB Create Datasource",
+  "description": "Create GDB datasource from file and register as resource library in data-governance system",
+
+  "gdb_file": {
+    "display_name": "GDB File",
+    "info": "Select GDB compressed file (.gdb.zip)"
+  },
+
+  "file_id_variable": {
+    "display_name": "File ID Variable",
+    "info": "Use file ID from variable (e.g., {gdbFileId}). Has higher priority than file selection."
+  },
+
+  "resource_name": {
+    "display_name": "Resource Library Name",
+    "info": "Name of the resource library"
+  },
+
+  "resource_code": {
+    "display_name": "Resource Code",
+    "info": "Unique code identifier (alphanumeric)"
+  },
+
+  "category": {
+    "display_name": "Category",
+    "info": "Resource category classification"
+  },
+
+  "department": {
+    "display_name": "Department",
+    "info": "Department that owns this resource"
+  },
+
+  "description": {
+    "display_name": "Description",
+    "info": "Optional description of the resource"
+  },
+
+  "outputs": {
+    "datasource_id": {
+      "display_name": "Datasource ID"
+    },
+    "result_info": {
+      "display_name": "Creation Result"
+    }
+  },
+
+  "status": {
+    "creating": "Creating GDB datasource...",
+    "success": "Created successfully - ID: {datasource_id}, Name: {resource_name}"
+  },
+
+  "errors": {
+    "no_file": "No GDB file selected. Please provide either a file or file ID variable.",
+    "missing_params": "Missing required parameters. Please provide resource name, code, category, and department.",
+    "creation_failed": "Failed to create GDB datasource: {error}"
+  }
+}

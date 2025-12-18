@@ -816,7 +816,7 @@
                   },
                   {
                     "name": "fastapi",
-                    "version": "0.119.0"
+                    "version": "0.124.4"
                   },
                   {
                     "name": "lfx",
@@ -1088,7 +1088,7 @@
                   },
                   {
                     "name": "langchain_core",
-                    "version": "0.3.79"
+                    "version": "0.3.80"
                   },
                   {
                     "name": "pydantic",
@@ -1736,7 +1736,7 @@
                   },
                   {
                     "name": "fastapi",
-                    "version": "0.119.0"
+                    "version": "0.124.4"
                   },
                   {
                     "name": "lfx",
@@ -1748,11 +1748,11 @@
                   },
                   {
                     "name": "boto3",
-                    "version": "1.40.50"
+                    "version": "1.42.11"
                   },
                   {
                     "name": "google",
-                    "version": "1.43.0"
+                    "version": "1.72.0"
                   },
                   {
                     "name": "googleapiclient",

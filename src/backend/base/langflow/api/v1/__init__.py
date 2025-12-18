@@ -4,6 +4,7 @@ from langflow.api.v1.endpoints import router as endpoints_router
 from langflow.api.v1.files import router as files_router
 from langflow.api.v1.flows import router as flows_router
 from langflow.api.v1.folders import router as folders_router
+from langflow.api.v1.gdb import router as gdb_router
 from langflow.api.v1.knowledge_bases import router as knowledge_bases_router
 from langflow.api.v1.lineage import lineage_router as lineage_search_router
 from langflow.api.v1.lineage import router as lineage_router
@@ -29,6 +30,7 @@ __all__ = [
     "files_router",
     "flows_router",
     "folders_router",
+    "gdb_router",
     "knowledge_bases_router",
     "lineage_router",
     "lineage_search_router",
