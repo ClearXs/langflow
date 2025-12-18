@@ -50,7 +50,7 @@ COPY ./src/lfx/pyproject.toml /app/src/lfx/pyproject.toml
 RUN --mount=type=cache,target=/root/.cache/uv \
     RUSTFLAGS='--cfg reqwest_unstable' \
     UV_HTTP_TIMEOUT=500 \
-    uv sync --frozen --no-install-project --no-editable --extra postgresql spatial --index-url https://mirrors.aliyun.com/pypi/simple
+    uv sync --frozen --no-install-project --no-editable --extra postgresql --extra spatial  --index-url https://mirrors.aliyun.com/pypi/simple
 
 COPY ./src /app/src
 
@@ -58,7 +58,7 @@ WORKDIR /app
 
 RUN --mount=type=cache,target=/root/.cache/uv \
     RUSTFLAGS='--cfg reqwest_unstable' \
-    uv sync --frozen --no-editable --extra postgresql spatial
+    uv sync --frozen --no-editable --extra postgresql --extra spatial 
 
 ################################
 # RUNTIME

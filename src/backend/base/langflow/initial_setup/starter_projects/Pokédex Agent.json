@@ -732,7 +732,7 @@
                   },
                   {
                     "name": "httpx",
-                    "version": "0.27.2"
+                    "version": "0.28.1"
                   },
                   {
                     "name": "i18n",

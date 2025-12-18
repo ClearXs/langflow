@@ -1325,7 +1325,7 @@
                   },
                   {
                     "name": "langchain_openai",
-                    "version": "0.3.35"
+                    "version": "0.3.23"
                   },
                   {
                     "name": "lfx",
@@ -1878,7 +1878,7 @@
                   },
                   {
                     "name": "langchain_openai",
-                    "version": "0.3.35"
+                    "version": "0.3.23"
                   },
                   {
                     "name": "lfx",
