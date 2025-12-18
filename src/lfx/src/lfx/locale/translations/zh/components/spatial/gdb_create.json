@@ -1,6 +1,11 @@
 {
   "display_name": "GDB建库",
-  "description": "从GDB文件创建数据源并注册为资源库",
+  "description": "GDB数据自动建库",
+
+  "pg_datasource_selector": {
+    "display_name": "PostgreSQL数据源",
+    "info": "选择目标PostgreSQL数据源（从data-construction服务动态加载）"
+  },
 
   "gdb_file": {
     "display_name": "GDB文件",
@@ -12,34 +17,15 @@
     "info": "使用变量中的文件ID（例如：{gdbFileId}）。优先级高于文件选择。"
   },
 
-  "resource_name": {
-    "display_name": "资源库名称",
-    "info": "资源库的名称"
-  },
-
-  "resource_code": {
-    "display_name": "资源库编码",
-    "info": "唯一标识编码（字母数字）"
-  },
-
-  "category": {
-    "display_name": "分类",
-    "info": "资源分类"
-  },
-
-  "department": {
-    "display_name": "所属部门",
-    "info": "拥有该资源的部门"
-  },
-
-  "description": {
-    "display_name": "描述",
-    "info": "可选的资源描述"
-  },
-
   "outputs": {
     "datasource_id": {
       "display_name": "数据源ID"
+    },
+    "pg_datasource_id": {
+      "display_name": "PostgreSQL数据源ID"
+    },
+    "file_id": {
+      "display_name": "文件ID"
     },
     "result_info": {
       "display_name": "创建结果"
@@ -47,13 +33,20 @@
   },
 
   "status": {
+    "loading_datasources": "正在加载PostgreSQL数据源...",
+    "datasources_loaded": "已加载 {count} 个PostgreSQL数据源",
     "creating": "正在创建GDB数据源...",
-    "success": "创建成功 - ID: {datasource_id}, 名称: {resource_name}"
+    "success": "创建成功 - 数据源ID: {datasource_id}"
+  },
+
+  "warnings": {
+    "no_datasources": "未找到PostgreSQL数据源"
   },
 
   "errors": {
     "no_file": "未选择GDB文件。请提供文件或文件ID变量。",
-    "missing_params": "缺少必填参数。请提供资源库名称、编码、分类和部门。",
+    "no_pg_datasource": "未选择PostgreSQL数据源。请先选择数据源。",
+    "load_datasources_failed": "加载数据源失败：{error}",
     "creation_failed": "创建GDB数据源失败：{error}"
   }
 }

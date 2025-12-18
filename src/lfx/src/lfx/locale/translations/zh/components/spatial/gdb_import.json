@@ -1,10 +1,15 @@
 {
   "display_name": "GDB入库",
-  "description": "将GDB表图层数据导入PostgreSQL数据库",
+  "description": "将GDB表图层数据自动导入PostgreSQL数据库",
 
   "datasource_selector": {
     "display_name": "PostgreSQL数据源",
     "info": "选择目标PostgreSQL数据源（从data-construction服务动态加载）"
+  },
+
+  "database_selector": {
+    "display_name": "目标数据库",
+    "info": "选择目标数据库（从选中的PostgreSQL数据源加载）"
   },
 
   "gdb_file": {
@@ -15,20 +20,6 @@
   "file_id_variable": {
     "display_name": "文件ID变量",
     "info": "使用变量中的文件ID（例如：{gdbFileId}）。优先级高于文件选择。"
-  },
-
-  "layer_selector": {
-    "display_name": "图层选择",
-    "info": "选择要导入的GDB表图层。点击加载图层按钮填充列表。",
-    "layer_name": "图层名称",
-    "feature_count": "要素数量",
-    "geometry_type": "几何类型",
-    "load_button": "加载图层"
-  },
-
-  "target_table": {
-    "display_name": "目标表名",
-    "info": "导入数据的PostgreSQL表名"
   },
 
   "create_table": {
@@ -54,24 +45,23 @@
 
   "status": {
     "datasources_loaded": "已加载 {count} 个PostgreSQL数据源",
-    "loading_layers": "正在从文件加载GDB图层...",
-    "layers_loaded": "已加载 {count} 个表图层",
+    "databases_loaded": "已加载 {count} 个数据库",
     "importing": "正在将GDB数据导入PostgreSQL...",
-    "success": "成功导入 {rows} 行数据到表 '{table}'"
+    "success_multiple": "成功导入 {count} 个表，共 {rows} 行数据"
   },
 
   "warnings": {
     "no_datasources": "未找到PostgreSQL数据源",
-    "no_table_layers": "GDB文件中未找到表类型图层",
-    "no_data": "没有数据可导入"
+    "no_databases": "未找到可用数据库",
+    "datasource_not_found": "未找到指定的数据源",
+    "no_table_layers": "GDB文件中未找到表类型图层"
   },
 
   "errors": {
     "no_file": "未选择GDB文件。请提供文件或文件ID变量。",
-    "no_layers_selected": "未选择图层。请先加载并选择图层。",
-    "no_target_table": "目标表名为必填项。",
+    "no_datasource": "未选择PostgreSQL数据源。请选择数据源或连接GDB建库组件。",
     "load_datasources_failed": "加载数据源失败：{error}",
-    "load_layers_failed": "加载GDB图层失败：{error}",
+    "load_databases_failed": "加载数据库失败：{error}",
     "no_minio_url": "文件ID {file_id} 未找到MinIO URL",
     "get_url_failed": "获取文件 {file_id} 的URL失败：{error}",
     "datasource_not_found": "未找到ID为 {id} 的数据源",

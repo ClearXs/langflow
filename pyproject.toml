@@ -120,6 +120,7 @@ dependencies = [
     "thrift-sasl>=0.4.3",
     "hmsclient>=0.1.0",
     "openpyxl>=3.0.0",
+    "psycopg2-binary>=2.9,<3.0",
 ]
 
 [dependency-groups]
@@ -185,6 +186,10 @@ members = [
     ".",
     "src/lfx",
 ]
+
+[[tool.uv.index]]
+url = "https://pypi.tuna.tsinghua.edu.cn/simple"
+default = true
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/backend/langflow"]
@@ -321,6 +326,10 @@ nv-ingest = [
 postgresql = [
     "sqlalchemy[postgresql_psycopg2binary]>=2.0.38,<3.0.0",
     "sqlalchemy[postgresql_psycopg]>=2.0.38,<3.0.0",
+]
+
+postgresql-windows = [
+    "psycopg[binary]>=3.1.0",
 ]
 
 spatial = [

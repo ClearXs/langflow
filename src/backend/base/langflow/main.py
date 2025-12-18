@@ -1,4 +1,11 @@
 import asyncio
+import sys
+
+# Windows 下修复 ProactorEventLoop 问题
+if sys.platform.startswith("win"):
+    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+
+import asyncio
 import json
 import os
 import re

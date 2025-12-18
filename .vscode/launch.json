@@ -19,7 +19,6 @@
       "type": "debugpy",
       "request": "launch",
       "module": "uvicorn",
-      "preLaunchTask": "Install Backend",
       "python": "${workspaceFolder}/.venv/Scripts/python.exe",
        "args": [
         "--factory",

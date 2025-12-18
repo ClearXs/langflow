@@ -48,24 +48,6 @@ class GDBCreateComponent(Component):
             info=i18n.t("components.spatial.gdb_create.resource_code.info"),
             required=True,
         ),
-        MessageTextInput(
-            name="category",
-            display_name=i18n.t("components.spatial.gdb_create.category.display_name"),
-            info=i18n.t("components.spatial.gdb_create.category.info"),
-            required=True,
-        ),
-        MessageTextInput(
-            name="department",
-            display_name=i18n.t("components.spatial.gdb_create.department.display_name"),
-            info=i18n.t("components.spatial.gdb_create.department.info"),
-            required=True,
-        ),
-        MessageTextInput(
-            name="description",
-            display_name=i18n.t("components.spatial.gdb_create.description.display_name"),
-            info=i18n.t("components.spatial.gdb_create.description.info"),
-            required=False,
-        ),
     ]
 
     outputs = [
@@ -151,7 +133,7 @@ class GDBCreateComponent(Component):
         """
         try:
             # Step 1: Validate resource parameters
-            if not all([self.resource_name, self.resource_code, self.category, self.department]):
+            if not all([self.resource_name, self.resource_code]):
                 msg = i18n.t("components.spatial.gdb_create.errors.missing_params")
                 raise ValueError(msg)
 
@@ -168,9 +150,6 @@ class GDBCreateComponent(Component):
             resource_params = {
                 "name": self.resource_name,
                 "code": self.resource_code,
-                "category": self.category,
-                "department": self.department,
-                "description": self.description or "",
             }
 
             result = await governance_client.create_gdb_datasource(
@@ -191,8 +170,6 @@ class GDBCreateComponent(Component):
                     "datasource_id": datasource_id,
                     "resource_name": self.resource_name,
                     "resource_code": self.resource_code,
-                    "category": self.category,
-                    "department": self.department,
                     **result,
                 }
             )

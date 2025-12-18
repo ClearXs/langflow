@@ -35,9 +35,6 @@ class DataGovernanceFeignClient:
             resource_params: Resource library parameters containing:
                 - name (str): Resource library name
                 - code (str): Resource library code (unique identifier)
-                - category (str): Resource category
-                - department (str): Department name
-                - description (str): Optional description
 
         Returns:
             Dictionary containing:
@@ -62,9 +59,6 @@ class DataGovernanceFeignClient:
                 "resourceLibrary": {
                     "name": resource_params.get("name"),
                     "code": resource_params.get("code"),
-                    "category": resource_params.get("category"),
-                    "department": resource_params.get("department"),
-                    "description": resource_params.get("description", ""),
                 },
             }
 

@@ -150,7 +150,11 @@
       "Bash(python -c \"import sys; sys.path.insert(0, ''src/lfx/src''); from lfx.components.spatial.gdb_import import GDBImportComponent; print(''✓ GDBImportComponent 加载成功''); print(''显示名称:'', GDBImportComponent.display_name)\")",
       "Bash(python -m py_compile \"src\\lfx\\src\\lfx\\components\\spatial\\gdb_import.py\")",
       "Bash(python -m py_compile \"src\\lfx\\src\\lfx\\components\\spatial\\gdb_create.py\")",
-      "Bash(ls -la src/lfx/src/lfx/locale/translations/*/components/spatial/gdb*.json)"
+      "Bash(ls -la src/lfx/src/lfx/locale/translations/*/components/spatial/gdb*.json)",
+      "Bash(python -m py_compile src/lfx/src/lfx/components/spatial/gdb_create.py)",
+      "Bash(python -m py_compile src/lfx/src/lfx/components/spatial/gdb_import.py)",
+      "Bash(python -m py_compile \"d:\\\\corporation\\\\imagtel\\\\awesome-programmer\\\\gfkd-ds\\\\langflow\\\\src\\\\lfx\\\\src\\\\lfx\\\\components\\\\spatial\\\\gdb_import.py\")",
+      "Bash(python -m py_compile \"d:\\\\corporation\\\\imagtel\\\\awesome-programmer\\\\gfkd-ds\\\\langflow\\\\src\\\\lfx\\\\src\\\\lfx\\\\components\\\\spatial\\\\gdb_create.py\")"
     ],
     "deny": [],
     "ask": []
