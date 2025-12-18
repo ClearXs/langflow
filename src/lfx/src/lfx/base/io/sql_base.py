@@ -64,6 +64,24 @@ UPDATE_OPTION_VALUE_MAPPING = {
     "prohibit_update": "components.input_output.databases.field_mappings.update_options.prohibit_update",
 }
 
+# 兼容性映射：旧的翻译值 -> 内部值（用于向后兼容已保存的流程）
+UPDATE_OPTION_LEGACY_MAPPING = {
+    # 中文旧值
+    "同步更新": "sync_update",
+    "仅插入": "insert_only",
+    "有值时更新": "update_when_has_value",
+    "非空时更新": "update_when_not_empty",
+    "累加更新": "cumulative_update",
+    "禁止更新": "prohibit_update",
+    # 英文旧值
+    "Sync Update": "sync_update",
+    "Insert Only": "insert_only",
+    "Update When Has Value": "update_when_has_value",
+    "Update When Not Empty": "update_when_not_empty",
+    "Cumulative Update": "cumulative_update",
+    "Prohibit Update": "prohibit_update",
+}
+
 
 def get_update_option_metadata():
     """生成 update_option 的 options_metadata（动态翻译）
@@ -85,6 +103,83 @@ def get_update_option_metadata():
         {"value": "cumulative_update", "label": i18n.t(UPDATE_OPTION_VALUE_MAPPING["cumulative_update"])},
         {"value": "prohibit_update", "label": i18n.t(UPDATE_OPTION_VALUE_MAPPING["prohibit_update"])},
     ]
+
+
+def normalize_update_option(update_option: str) -> str:
+    """规范化 update_option 值，将旧的翻译值转换为内部值
+
+    Args:
+        update_option: 可能是内部值或旧的翻译值
+
+    Returns:
+        str: 规范化后的内部值
+    """
+    # 如果已经是内部值，直接返回
+    if update_option in UPDATE_OPTION_VALUE_MAPPING.keys():
+        return update_option
+
+    # 如果是旧的翻译值，转换为内部值
+    if update_option in UPDATE_OPTION_LEGACY_MAPPING:
+        return UPDATE_OPTION_LEGACY_MAPPING[update_option]
+
+    # 如果都不是，返回原值（使用默认值 sync_update）
+    return "sync_update"
+
+
+
+# Write mode value mapping (for Output components)
+WRITE_MODE_VALUE_MAPPING = {
+    "append": "components.input_output.databases.common.write_modes.append",
+    "overwrite": "components.input_output.databases.common.write_modes.overwrite",
+    "fail": "components.input_output.databases.common.write_modes.fail",
+}
+
+# 兼容性映射：旧的翻译值 -> 内部值（用于向后兼容已保存的流程）
+WRITE_MODE_LEGACY_MAPPING = {
+    # 中文旧值
+    "追加": "append",
+    "覆盖": "overwrite",
+    "如果存在则失败": "fail",
+    # 英文旧值
+    "Append": "append",
+    "Overwrite": "overwrite",
+    "Fail if Exists": "fail",
+}
+
+
+def get_write_mode_metadata():
+    """生成 write_mode 的 options_metadata（动态翻译）
+
+    返回格式：[{"value": "append", "label": "追加"}, ...]
+    这样前端可以正确显示翻译后的文本
+    """
+    return [
+        {"value": "append", "label": i18n.t(WRITE_MODE_VALUE_MAPPING["append"])},
+        {"value": "overwrite", "label": i18n.t(WRITE_MODE_VALUE_MAPPING["overwrite"])},
+        {"value": "fail", "label": i18n.t(WRITE_MODE_VALUE_MAPPING["fail"])},
+    ]
+
+
+def normalize_write_mode(write_mode: str) -> str:
+    """规范化 write_mode 值，将旧的翻译值转换为内部值
+
+    Args:
+        write_mode: 可能是内部值或旧的翻译值
+
+    Returns:
+        str: 规范化后的内部值（"append", "overwrite", "fail"）
+    """
+    # 如果已经是内部值，直接返回
+    if write_mode in ["append", "overwrite", "fail"]:
+        return write_mode
+
+    # 如果是旧的翻译值，转换为内部值
+    if write_mode in WRITE_MODE_LEGACY_MAPPING:
+        return WRITE_MODE_LEGACY_MAPPING[write_mode]
+
+    # 如果都不是，返回原值（会在后续验证中报错）
+    return write_mode
+
 
 
 class BaseSQLInputComponent(BaseTableInputComponent, ABC):
@@ -497,16 +592,49 @@ class BaseSQLOutputComponent(BaseTableOutputComponent, ABC):
 
             # 获取输入数据
             input_data = getattr(self, "data_input", None)
-            if not input_data or not hasattr(input_data, "data"):
-                raise ValueError("Invalid input data")
+            if not input_data:
+                raise ValueError("Invalid input data: data_input is empty")
 
-            df = input_data.data
-            if not isinstance(df, pd.DataFrame):
-                raise ValueError("Input data must be a pandas DataFrame")
+            # 处理不同格式的输入数据
+            if isinstance(input_data, list):
+                # 如果是 list[Data]，将每个 Data.data (dict) 转换为 DataFrame
+                if not input_data:
+                    raise ValueError("Invalid input data: data_input list is empty")
+
+                # 收集所有行的字典
+                rows = []
+                for item in input_data:
+                    if isinstance(item, Data):
+                        if hasattr(item, "data") and isinstance(item.data, dict):
+                            rows.append(item.data)
+                        else:
+                            raise ValueError(f"Invalid Data object: missing or invalid 'data' attribute")
+                    else:
+                        raise ValueError(f"Invalid input: expected Data object, got {type(item)}")
+
+                if not rows:
+                    raise ValueError("Invalid input data: no valid rows found")
+
+                # 将字典列表转换为 DataFrame
+                df = pd.DataFrame(rows)
+            elif isinstance(input_data, Data):
+                # 如果是单个 Data 对象，期望它包含 DataFrame
+                if not hasattr(input_data, "data"):
+                    raise ValueError("Invalid input data: Data object missing 'data' attribute")
+                df = input_data.data
+                if not isinstance(df, pd.DataFrame):
+                    raise ValueError(f"Input data must be a pandas DataFrame, got {type(df)}")
+            else:
+                raise ValueError(f"Invalid input data type: expected list[Data] or Data, got {type(input_data)}")
 
             # 获取表名和写入模式
             table_name = getattr(self, "table_name", "")
             write_mode = getattr(self, "write_mode", "append")
+
+            # 规范化 write_mode（兼容旧的翻译值）
+            write_mode = normalize_write_mode(write_mode)
+            # 更新 self.write_mode 为规范化后的值
+            self.write_mode = write_mode
 
             # 验证写入模式
             self._validate_write_mode(["append", "overwrite", "fail"])
@@ -531,8 +659,57 @@ class BaseSQLOutputComponent(BaseTableOutputComponent, ABC):
                 f"with mode '{write_mode}' (batch_size={batch_size})"
             )
 
+            # 处理 JSON/JSONB 列：将 dict/list 转换为 JSON 字符串
+            # 这是必需的，因为 pandas.to_sql() 无法直接处理 Python 对象
+            import json
+            import numpy as np
+
+            df_to_write = df.copy()
+            for col in df_to_write.columns:
+                # 检查列中是否有 dict 或 list 类型的值
+                non_null_values = df_to_write[col].dropna()
+                if len(non_null_values) > 0:
+                    sample_value = non_null_values.iloc[0]
+                    if isinstance(sample_value, (dict, list)):
+                        # 将整列转换为 JSON 字符串
+                        df_to_write[col] = df_to_write[col].apply(
+                            lambda x: json.dumps(x, ensure_ascii=False) if isinstance(x, (dict, list)) else x
+                        )
+                        logger.debug(f"Converted column '{col}' from dict/list to JSON string")
+
+            # 处理时间戳列：自动检测并转换 Unix 时间戳为 datetime
+            # 常见的时间戳列名模式
+            timestamp_patterns = ["time", "date", "datetime", "timestamp", "created", "updated", "modified"]
+
+            for col in df_to_write.columns:
+                # 检查列名是否包含时间相关的关键词
+                col_lower = col.lower()
+                if any(pattern in col_lower for pattern in timestamp_patterns):
+                    non_null_values = df_to_write[col].dropna()
+                    if len(non_null_values) > 0:
+                        sample_value = non_null_values.iloc[0]
+
+                        # 检查是否是数字类型（包括 numpy 数字类型）
+                        is_numeric = pd.api.types.is_numeric_dtype(df_to_write[col]) or isinstance(
+                            sample_value, (int, float, np.integer, np.floating)
+                        )
+
+                        if is_numeric:
+                            # 尝试转换为 datetime（假设是 Unix 时间戳）
+                            try:
+                                # 如果值大于 1e11，可能是毫秒时间戳，需要除以 1000
+                                if sample_value > 1e11:
+                                    df_to_write[col] = pd.to_datetime(df_to_write[col], unit="ms")
+                                    logger.info(f"Converted column '{col}' from Unix timestamp (ms) to datetime")
+                                else:
+                                    df_to_write[col] = pd.to_datetime(df_to_write[col], unit="s")
+                                    logger.info(f"Converted column '{col}' from Unix timestamp (s) to datetime")
+                            except (ValueError, OverflowError) as e:
+                                # 如果转换失败，保持原样
+                                logger.warning(f"Failed to convert column '{col}' to datetime: {e}")
+
             # 写入数据
-            df.to_sql(
+            df_to_write.to_sql(
                 name=table_name,
                 con=engine,
                 if_exists=if_exists,
@@ -542,14 +719,16 @@ class BaseSQLOutputComponent(BaseTableOutputComponent, ABC):
 
             logger.info(f"{self.__class__.__name__} successfully wrote {len(df)} rows to '{table_name}'")
 
-            # 返回写入的数据
+            # 返回写入的数据，将 metadata 作为 data 字典的一部分
             return Data(
-                data=df,
-                metadata={
-                    "table_name": table_name,
-                    "rows_written": len(df),
-                    "write_mode": write_mode,
-                },
+                data={
+                    "dataframe": df,
+                    "metadata": {
+                        "table_name": table_name,
+                        "rows_written": len(df),
+                        "write_mode": write_mode,
+                    },
+                }
             )
 
         except Exception as e:

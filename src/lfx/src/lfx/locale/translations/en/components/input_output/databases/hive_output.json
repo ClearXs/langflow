@@ -28,7 +28,8 @@
   },
   "preview_table": {
     "display_name": "Data Preview",
-    "info": "Preview the data to be written"
+    "info": "Preview the data to be written",
+    "preview_button": "Preview Data"
   },
   "write_mode": {
     "display_name": "Write Mode",
@@ -52,16 +53,20 @@
   },
   "status": {
     "writing": "Writing data to Hive...",
-    "success": "Successfully wrote {rows} rows to Hive",
+    "success": "Successfully wrote %{rows} rows to Hive",
     "analyzing_schema": "Analyzing schema from upstream component...",
-    "analysis_success": "Successfully analyzed {count} fields from upstream",
-    "no_fields_found": "No fields found in upstream component"
+    "analysis_success": "Successfully analyzed %{count} fields from upstream",
+    "no_fields_found": "No fields found in upstream component",
+    "previewing_data": "Generating data preview...",
+    "preview_success": "Successfully previewed %{count} rows of data",
+    "no_data_to_preview": "No data available for preview"
   },
   "errors": {
     "no_datasource": "No data source selected",
-    "datasource_not_found": "Data source not found: {id}",
-    "write_failed": "Failed to write data: {error}",
+    "datasource_not_found": "Data source not found: %{id}",
+    "write_failed": "Failed to write data: %{error}",
     "no_graph_data": "No graph data available for schema analysis",
-    "analysis_failed": "Schema analysis failed: {error}"
+    "analysis_failed": "Schema analysis failed: %{error}",
+    "preview_failed": "Data preview failed: %{error}"
   }
 }

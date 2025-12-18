@@ -32,6 +32,8 @@ RUN apt-get update \
     npm \
     # gcc
     gcc \
+    # gdal and spatial libs
+    gdal-bin libgdal-dev proj-bin libproj-dev libgeos-dev libspatialite-dev \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
@@ -48,7 +50,7 @@ COPY ./src/lfx/pyproject.toml /app/src/lfx/pyproject.toml
 RUN --mount=type=cache,target=/root/.cache/uv \
     RUSTFLAGS='--cfg reqwest_unstable' \
     UV_HTTP_TIMEOUT=500 \
-    uv sync --frozen --no-install-project --no-editable --extra postgresql --index-url https://mirrors.aliyun.com/pypi/simple
+    uv sync --frozen --no-install-project --no-editable --extra postgresql spatial --index-url https://mirrors.aliyun.com/pypi/simple
 
 COPY ./src /app/src
 
@@ -56,7 +58,7 @@ WORKDIR /app
 
 RUN --mount=type=cache,target=/root/.cache/uv \
     RUSTFLAGS='--cfg reqwest_unstable' \
-    uv sync --frozen --no-editable --extra postgresql
+    uv sync --frozen --no-editable --extra postgresql spatial
 
 ################################
 # RUNTIME

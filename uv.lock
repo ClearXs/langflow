@@ -3227,10 +3227,10 @@ name = "gassist"
 version = "0.0.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "colorama" },
-    { name = "flask" },
-    { name = "flask-cors" },
-    { name = "tqdm" },
+    { name = "colorama", marker = "sys_platform == 'win32'" },
+    { name = "flask", marker = "sys_platform == 'win32'" },
+    { name = "flask-cors", marker = "sys_platform == 'win32'" },
+    { name = "tqdm", marker = "sys_platform == 'win32'" },
 ]
 wheels = [
     { url = "https://files.pythonhosted.org/packages/b0/2e/f79632d7300874f7f0e60b61a6ab22455a245e1556116a1729542a77b0da/gassist-0.0.1-py3-none-any.whl", hash = "sha256:bb0fac74b453153a6c74b2db40a14fdde7879cbc10ec692ed170e576c8e2b6aa", size = 23819, upload-time = "2025-05-09T18:22:23.609Z" },
@@ -3238,26 +3238,7 @@ wheels = [
 
 [[package]]
 name = "gdal"
-version = "3.11.4"
-source = { path = "src/lfx/lib/gdal-3.11.4-cp311-cp311-win_amd64.whl" }
-resolution-markers = [
-    "python_full_version >= '3.13' and sys_platform == 'win32'",
-    "python_full_version >= '3.12.4' and python_full_version < '3.13' and sys_platform == 'win32'",
-    "python_full_version >= '3.12' and python_full_version < '3.12.4' and sys_platform == 'win32'",
-    "python_full_version == '3.11.*' and sys_platform == 'win32'",
-    "python_full_version < '3.11' and sys_platform == 'win32'",
-]
-wheels = [
-    { filename = "gdal-3.11.4-cp311-cp311-win_amd64.whl", hash = "sha256:9ba2bfd33d03b3bcdd4c94b2915dbf2411f787eb7b45f180f0c1031731fc3bc8" },
-]
-
-[package.metadata]
-requires-dist = [{ name = "numpy", marker = "extra == 'numpy'", specifier = ">1.0.0" }]
-provides-extras = ["numpy"]
-
-[[package]]
-name = "gdal"
-version = "3.12.0.post1"
+version = "3.11.3"
 source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
     "python_full_version >= '3.13' and sys_platform == 'darwin'",
@@ -3278,7 +3259,26 @@ resolution-markers = [
     "python_full_version < '3.11' and platform_machine == 'aarch64' and sys_platform == 'linux'",
     "(python_full_version < '3.11' and platform_machine != 'aarch64' and sys_platform == 'linux') or (python_full_version < '3.11' and sys_platform != 'darwin' and sys_platform != 'linux' and sys_platform != 'win32')",
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/95/fc/9d187c4d280122b497c2d4c25a1c3b1ba50e5e1836924e49323685999c43/gdal-3.12.0.post1.tar.gz", hash = "sha256:d2b68361c7cf2ef7caa8cbb8549a315080301564e3f025d1842df71a4e406236", size = 902365, upload-time = "2025-11-07T23:40:07.734Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/88/e8/f77e577b6d99ddf1fd69dfc6233b9deea0f94445bc979ef56652681caed1/gdal-3.11.3.tar.gz", hash = "sha256:4c3ad0fae393b5ddb093a7e4b890077839b2a6acdbd19202657fe4e881886efa", size = 878190, upload-time = "2025-07-12T11:07:16.975Z" }
+
+[[package]]
+name = "gdal"
+version = "3.11.4"
+source = { path = "lib/gdal-3.11.4-cp311-cp311-win_amd64.whl" }
+resolution-markers = [
+    "python_full_version >= '3.13' and sys_platform == 'win32'",
+    "python_full_version >= '3.12.4' and python_full_version < '3.13' and sys_platform == 'win32'",
+    "python_full_version >= '3.12' and python_full_version < '3.12.4' and sys_platform == 'win32'",
+    "python_full_version == '3.11.*' and sys_platform == 'win32'",
+    "python_full_version < '3.11' and sys_platform == 'win32'",
+]
+wheels = [
+    { filename = "gdal-3.11.4-cp311-cp311-win_amd64.whl", hash = "sha256:9ba2bfd33d03b3bcdd4c94b2915dbf2411f787eb7b45f180f0c1031731fc3bc8" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "numpy", marker = "extra == 'numpy'", specifier = ">1.0.0" }]
+provides-extras = ["numpy"]
 
 [[package]]
 name = "genson"
@@ -5724,6 +5724,18 @@ nv-ingest = [
 postgresql = [
     { name = "sqlalchemy", extra = ["postgresql-psycopg", "postgresql-psycopg2binary"] },
 ]
+spatial = [
+    { name = "fiona" },
+    { name = "gdal", version = "3.11.3", source = { registry = "https://pypi.org/simple" }, marker = "sys_platform != 'win32'" },
+    { name = "gdal", version = "3.11.4", source = { path = "lib/gdal-3.11.4-cp311-cp311-win_amd64.whl" }, marker = "sys_platform == 'win32'" },
+    { name = "geoalchemy2" },
+    { name = "geopandas" },
+    { name = "pandera" },
+    { name = "pyproj", version = "3.7.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
+    { name = "pyproj", version = "3.7.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
+    { name = "rasterio" },
+    { name = "shapely" },
+]
 vector-stores = [
     { name = "astrapy" },
     { name = "chromadb" },
@@ -5832,7 +5844,12 @@ requires-dist = [
     { name = "fastavro", marker = "python_full_version >= '3.13'", specifier = ">=1.9.8,<2.0.0" },
     { name = "fastparquet", specifier = ">=2024.11.0,<2025.0.0" },
     { name = "filelock", specifier = ">=3.18.0,<4.0.0" },
+    { name = "fiona", marker = "extra == 'spatial'", specifier = ">=1.10.0,<2.0.0" },
     { name = "gassist", marker = "sys_platform == 'win32'", specifier = ">=0.0.1" },
+    { name = "gdal", marker = "sys_platform == 'win32' and extra == 'spatial'", path = "lib/gdal-3.11.4-cp311-cp311-win_amd64.whl" },
+    { name = "gdal", marker = "sys_platform != 'win32' and extra == 'spatial'", specifier = ">=3.11.3" },
+    { name = "geoalchemy2", marker = "extra == 'spatial'", specifier = ">=0.18.0,<1.0.0" },
+    { name = "geopandas", marker = "extra == 'spatial'", specifier = ">=0.14.0,<2.0.0" },
     { name = "gitpython", specifier = "==3.1.43" },
     { name = "google-api-python-client", specifier = "==2.154.0" },
     { name = "google-search-results", specifier = ">=2.4.1,<3.0.0" },
@@ -5911,6 +5928,7 @@ requires-dist = [
     { name = "openpyxl", specifier = ">=3.0.0" },
     { name = "opensearch-py", specifier = "==2.8.0" },
     { name = "opik", specifier = ">=1.6.3,<2.0.0" },
+    { name = "pandera", marker = "extra == 'spatial'", specifier = ">=0.20.0,<1.0.0" },
     { name = "pgvector", specifier = "==0.3.6" },
     { name = "pinecone-client", marker = "extra == 'vector-stores'", specifier = ">=3.0.0" },
     { name = "pure-sasl", specifier = ">=0.6.2" },
@@ -5921,16 +5939,19 @@ requires-dist = [
     { name = "pymongo", specifier = "==4.10.1" },
     { name = "pymongo", marker = "extra == 'vector-stores'", specifier = "==4.10.1" },
     { name = "pymysql", specifier = ">=1.1.0,<2.0.0" },
+    { name = "pyproj", marker = "extra == 'spatial'", specifier = ">=3.7.0,<4.0.0" },
     { name = "pytube", specifier = "==15.0.0" },
     { name = "pywin32", marker = "sys_platform == 'win32'", specifier = "==307" },
     { name = "qdrant-client", specifier = "==1.9.2" },
     { name = "qdrant-client", marker = "extra == 'vector-stores'", specifier = "==1.9.2" },
     { name = "qianfan", specifier = "==0.3.5" },
     { name = "rapidocr-onnxruntime", marker = "extra == 'docling'", specifier = ">=1.4.4" },
+    { name = "rasterio", marker = "extra == 'spatial'", specifier = ">=1.4.0,<1.5.0" },
     { name = "redis", specifier = ">=5.2.1,<6.0.0" },
     { name = "scipy", specifier = ">=1.14.1,<1.16.2" },
     { name = "scrapegraph-py", specifier = ">=1.12.0,<2.0.0" },
     { name = "sentence-transformers", marker = "extra == 'local'", specifier = ">=2.3.1" },
+    { name = "shapely", marker = "extra == 'spatial'", specifier = ">=2.1.0,<3.0.0" },
     { name = "smolagents", specifier = ">=1.8.0,<2.0.0" },
     { name = "spider-client", specifier = "==0.1.24" },
     { name = "sqlalchemy", extras = ["aiosqlite"], specifier = ">=2.0.38,<3.0.0" },
@@ -5958,7 +5979,7 @@ requires-dist = [
     { name = "youtube-transcript-api", specifier = "==0.6.3" },
     { name = "zep-python", specifier = "==2.0.2" },
 ]
-provides-extras = ["google", "anthropic", "cohere", "aws", "local-models", "ibm", "vectorstores", "document-processing", "ai-models", "vector-stores", "llm-providers", "all", "docling", "audio", "couchbase", "cassio", "local", "clickhouse-connect", "nv-ingest", "postgresql"]
+provides-extras = ["google", "anthropic", "cohere", "aws", "local-models", "ibm", "vectorstores", "document-processing", "ai-models", "vector-stores", "llm-providers", "all", "docling", "audio", "couchbase", "cassio", "local", "clickhouse-connect", "nv-ingest", "postgresql", "spatial"]
 
 [package.metadata.requires-dev]
 dev = [
@@ -6440,8 +6461,6 @@ dependencies = [
     { name = "docstring-parser" },
     { name = "emoji" },
     { name = "fastapi" },
-    { name = "gdal", version = "3.11.4", source = { path = "src/lfx/lib/gdal-3.11.4-cp311-cp311-win_amd64.whl" }, marker = "sys_platform == 'win32'" },
-    { name = "gdal", version = "3.12.0.post1", source = { registry = "https://pypi.org/simple" }, marker = "sys_platform != 'win32'" },
     { name = "httpx", extra = ["http2"] },
     { name = "i18nice" },
     { name = "json-repair" },
@@ -6478,16 +6497,6 @@ dev = [
     { name = "pytest-cov" },
     { name = "ruff" },
 ]
-spatial = [
-    { name = "fiona" },
-    { name = "geoalchemy2" },
-    { name = "geopandas" },
-    { name = "pandera" },
-    { name = "pyproj", version = "3.7.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
-    { name = "pyproj", version = "3.7.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
-    { name = "rasterio" },
-    { name = "shapely" },
-]
 
 [package.metadata]
 requires-dist = [
@@ -6500,8 +6509,6 @@ requires-dist = [
     { name = "docstring-parser", specifier = ">=0.16,<1.0.0" },
     { name = "emoji", specifier = ">=2.14.1,<3.0.0" },
     { name = "fastapi", specifier = ">=0.115.13,<1.0.0" },
-    { name = "gdal", marker = "sys_platform != 'win32'", specifier = ">=3.11.4" },
-    { name = "gdal", marker = "sys_platform == 'win32'", path = "src/lfx/lib/gdal-3.11.4-cp311-cp311-win_amd64.whl" },
     { name = "httpx", extras = ["http2"], specifier = ">=0.24.0,<1.0.0" },
     { name = "i18nice", specifier = ">=0.16.0" },
     { name = "json-repair", specifier = ">=0.30.3,<1.0.0" },
@@ -6537,15 +6544,6 @@ dev = [
     { name = "pytest-asyncio", specifier = ">=0.26.0" },
     { name = "pytest-cov", specifier = ">=7.0.0" },
     { name = "ruff", specifier = ">=0.9.10" },
-]
-spatial = [
-    { name = "fiona", specifier = ">=1.10.0,<2.0.0" },
-    { name = "geoalchemy2", specifier = ">=0.18.0,<1.0.0" },
-    { name = "geopandas", specifier = ">=0.14.0,<2.0.0" },
-    { name = "pandera", specifier = ">=0.20.0,<1.0.0" },
-    { name = "pyproj", specifier = ">=3.7.0,<4.0.0" },
-    { name = "rasterio", specifier = ">=1.4.0,<1.5.0" },
-    { name = "shapely", specifier = ">=2.1.0,<3.0.0" },
 ]
 
 [[package]]
@@ -8095,9 +8093,9 @@ name = "ocrmac"
 version = "1.0.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "click" },
-    { name = "pillow" },
-    { name = "pyobjc-framework-vision" },
+    { name = "click", marker = "sys_platform == 'darwin'" },
+    { name = "pillow", marker = "sys_platform == 'darwin'" },
+    { name = "pyobjc-framework-vision", marker = "sys_platform == 'darwin'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/dd/dc/de3e9635774b97d9766f6815bbb3f5ec9bce347115f10d9abbf2733a9316/ocrmac-1.0.0.tar.gz", hash = "sha256:5b299e9030c973d1f60f82db000d6c2e5ff271601878c7db0885e850597d1d2e", size = 1463997, upload-time = "2024-11-07T12:00:00.197Z" }
 wheels = [
@@ -10535,7 +10533,7 @@ name = "pyobjc-framework-cocoa"
 version = "12.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "pyobjc-core" },
+    { name = "pyobjc-core", marker = "sys_platform == 'darwin'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/02/a3/16ca9a15e77c061a9250afbae2eae26f2e1579eb8ca9462ae2d2c71e1169/pyobjc_framework_cocoa-12.1.tar.gz", hash = "sha256:5556c87db95711b985d5efdaaf01c917ddd41d148b1e52a0c66b1a2e2c5c1640", size = 2772191, upload-time = "2025-11-14T10:13:02.069Z" }
 wheels = [
@@ -10551,8 +10549,8 @@ name = "pyobjc-framework-coreml"
 version = "12.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "pyobjc-core" },
-    { name = "pyobjc-framework-cocoa" },
+    { name = "pyobjc-core", marker = "sys_platform == 'darwin'" },
+    { name = "pyobjc-framework-cocoa", marker = "sys_platform == 'darwin'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/30/2d/baa9ea02cbb1c200683cb7273b69b4bee5070e86f2060b77e6a27c2a9d7e/pyobjc_framework_coreml-12.1.tar.gz", hash = "sha256:0d1a4216891a18775c9e0170d908714c18e4f53f9dc79fb0f5263b2aa81609ba", size = 40465, upload-time = "2025-11-14T10:14:02.265Z" }
 wheels = [
@@ -10568,8 +10566,8 @@ name = "pyobjc-framework-quartz"
 version = "12.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "pyobjc-core" },
-    { name = "pyobjc-framework-cocoa" },
+    { name = "pyobjc-core", marker = "sys_platform == 'darwin'" },
+    { name = "pyobjc-framework-cocoa", marker = "sys_platform == 'darwin'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/94/18/cc59f3d4355c9456fc945eae7fe8797003c4da99212dd531ad1b0de8a0c6/pyobjc_framework_quartz-12.1.tar.gz", hash = "sha256:27f782f3513ac88ec9b6c82d9767eef95a5cf4175ce88a1e5a65875fee799608", size = 3159099, upload-time = "2025-11-14T10:21:24.31Z" }
 wheels = [
@@ -10585,10 +10583,10 @@ name = "pyobjc-framework-vision"
 version = "12.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "pyobjc-core" },
-    { name = "pyobjc-framework-cocoa" },
-    { name = "pyobjc-framework-coreml" },
-    { name = "pyobjc-framework-quartz" },
+    { name = "pyobjc-core", marker = "sys_platform == 'darwin'" },
+    { name = "pyobjc-framework-cocoa", marker = "sys_platform == 'darwin'" },
+    { name = "pyobjc-framework-coreml", marker = "sys_platform == 'darwin'" },
+    { name = "pyobjc-framework-quartz", marker = "sys_platform == 'darwin'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/c2/5a/08bb3e278f870443d226c141af14205ff41c0274da1e053b72b11dfc9fb2/pyobjc_framework_vision-12.1.tar.gz", hash = "sha256:a30959100e85dcede3a786c544e621ad6eb65ff6abf85721f805822b8c5fe9b0", size = 59538, upload-time = "2025-11-14T10:23:21.979Z" }
 wheels = [

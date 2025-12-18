@@ -8,5 +8,10 @@
       "cumulative_update": "累加更新",
       "prohibit_update": "禁止更新"
     }
+  },
+  "write_modes": {
+    "append": "追加",
+    "overwrite": "覆盖",
+    "fail": "如果存在则失败"
   }
 }

@@ -28,7 +28,8 @@
   },
   "preview_table": {
     "display_name": "数据预览",
-    "info": "预览要写入的数据"
+    "info": "预览要写入的数据",
+    "preview_button": "预览数据"
   },
   "write_mode": {
     "display_name": "写入模式",
@@ -52,16 +53,20 @@
   },
   "status": {
     "writing": "正在写入数据到 MySQL...",
-    "success": "成功写入 {rows} 行数据到 MySQL",
+    "success": "成功写入 %{rows} 行数据到 MySQL",
     "analyzing_schema": "正在从上游组件分析字段...",
-    "analysis_success": "成功从上游分析了 {count} 个字段",
-    "no_fields_found": "未在上游组件中找到字段"
+    "analysis_success": "成功从上游分析了 %{count} 个字段",
+    "no_fields_found": "未在上游组件中找到字段",
+    "previewing_data": "正在生成数据预览...",
+    "preview_success": "成功预览 %{count} 行数据",
+    "no_data_to_preview": "没有可预览的数据"
   },
   "errors": {
     "no_datasource": "未选择数据源",
-    "datasource_not_found": "未找到数据源：{id}",
-    "write_failed": "写入数据失败：{error}",
+    "datasource_not_found": "未找到数据源：%{id}",
+    "write_failed": "写入数据失败：%{error}",
     "no_graph_data": "没有可用于字段分析的图数据",
-    "analysis_failed": "字段分析失败：{error}"
+    "analysis_failed": "字段分析失败：%{error}",
+    "preview_failed": "数据预览失败：%{error}"
   }
 }

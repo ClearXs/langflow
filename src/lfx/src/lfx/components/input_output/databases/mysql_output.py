@@ -3,9 +3,16 @@
 import i18n
 
 from lfx.base.io import datasource_utils
-from lfx.base.io.sql_base import UPDATE_OPTION_VALUE_MAPPING, BaseSQLOutputComponent, get_update_option_metadata
+from lfx.base.io.sql_base import (
+    UPDATE_OPTION_VALUE_MAPPING,
+    WRITE_MODE_VALUE_MAPPING,
+    BaseSQLOutputComponent,
+    get_update_option_metadata,
+    get_write_mode_metadata,
+)
 from lfx.io import BoolInput, DataInput, DropdownInput, IntInput, Output, TableInput
 from lfx.schema import Data
+
 
 
 class MySQLOutputComponent(BaseSQLOutputComponent):
@@ -139,6 +146,14 @@ class MySQLOutputComponent(BaseSQLOutputComponent):
                 "block_delete": True,
                 "block_edit": True,
                 "pagination": True,
+                "action_buttons": [
+                    {
+                        "name": "preview_target_data",
+                        "label": i18n.t("components.input_output.databases.mysql_output.preview_table.preview_button"),
+                        "icon": "Eye",
+                        "position": "top",
+                    }
+                ],
             },
             advanced=False,
         ),
@@ -146,12 +161,9 @@ class MySQLOutputComponent(BaseSQLOutputComponent):
             name="write_mode",
             display_name=i18n.t("components.input_output.databases.mysql_output.write_mode.display_name"),
             info=i18n.t("components.input_output.databases.mysql_output.write_mode.info"),
-            options=[
-                i18n.t("components.input_output.databases.mysql_output.write_mode.append"),
-                i18n.t("components.input_output.databases.mysql_output.write_mode.overwrite"),
-                i18n.t("components.input_output.databases.mysql_output.write_mode.fail"),
-            ],
-            value=i18n.t("components.input_output.databases.mysql_output.write_mode.append"),
+            options=list(WRITE_MODE_VALUE_MAPPING.keys()),  # ["append", "overwrite", "fail"]
+            options_metadata=get_write_mode_metadata(),  # [{"value": "append", "label": "追加"}, ...]
+            value="append",  # 使用内部值，前端通过 options_metadata 显示翻译
             advanced=False,
         ),
         BoolInput(
@@ -348,6 +360,117 @@ class MySQLOutputComponent(BaseSQLOutputComponent):
                     "components.input_output.databases.mysql_output.errors.analysis_failed", error=error_msg
                 )
 
+        # 4. 处理数据预览 preview_target_data 动作按钮
+        elif field_name == "preview_table" and action == "preview_target_data":
+            import logging
+            import pandas as pd
+
+            logger = logging.getLogger(__name__)
+            logger.info("[MySQLOutput] Output data preview triggered by action button")
+
+            try:
+                graph_data = build_config.get("_graph_data", {})
+                node_id = build_config.get("_node_id")
+
+                if not graph_data:
+                    logger.warning("[MySQLOutput] No graph data available for preview")
+                    self.status = i18n.t("components.input_output.databases.mysql_output.errors.no_graph_data")
+                    return build_config
+
+                self.status = i18n.t("components.input_output.databases.mysql_output.status.previewing_data")
+                logger.info("[MySQLOutput] Generating preview data from upstream component")
+
+                try:
+                    from lfx.components.helpers.field_extraction import extract_fields_from_node_template
+                    from lfx.custom.graph_utils import find_upstream_node_id
+
+                    upstream_node_id = find_upstream_node_id(graph_data, node_id, "data_input")
+                    if not upstream_node_id:
+                        logger.warning("[MySQLOutput] No upstream node found for data preview")
+                        self.status = i18n.t("components.input_output.databases.mysql_output.status.no_data_to_preview")
+                        return build_config
+
+                    upstream_node = None
+                    for node in graph_data.get("nodes", []):
+                        if node.get("id") == upstream_node_id:
+                            upstream_node = node
+                            break
+
+                    if not upstream_node:
+                        logger.warning(f"[MySQLOutput] Upstream node {upstream_node_id} not found in graph data")
+                        self.status = i18n.t("components.input_output.databases.mysql_output.status.no_data_to_preview")
+                        return build_config
+
+                    field_names = extract_fields_from_node_template(
+                        upstream_node, component_name="MySQLOutput", graph_data=graph_data
+                    )
+
+                    if not field_names:
+                        logger.warning("[MySQLOutput] No fields found for preview generation")
+                        self.status = i18n.t("components.input_output.databases.mysql_output.status.no_fields_found")
+                        return build_config
+
+                    # 生成示例数据
+                    sample_data = {}
+                    for field_item in field_names:
+                        if isinstance(field_item, dict):
+                            field_name = field_item.get("name")
+                        else:
+                            field_name = field_item
+
+                        field_lower = field_name.lower()
+                        if "id" in field_lower:
+                            sample_data[field_name] = f"sample_{hash(field_name) % 1000:03d}"
+                        elif "name" in field_lower:
+                            sample_data[field_name] = f"Sample {field_name.title()}"
+                        elif "email" in field_lower:
+                            sample_data[field_name] = f"sample_{field_name}@example.com"
+                        elif "phone" in field_lower:
+                            sample_data[field_name] = "13800138000"
+                        elif "date" in field_lower or "time" in field_lower:
+                            sample_data[field_name] = "2024-01-01 12:00:00"
+                        elif "amount" in field_lower or "price" in field_lower:
+                            sample_data[field_name] = f"{(hash(field_name) % 10000) / 100:.2f}"
+                        elif "count" in field_lower or "num" in field_lower:
+                            sample_data[field_name] = hash(field_name) % 100
+                        else:
+                            sample_data[field_name] = f"Sample {field_name}"
+
+                    df = pd.DataFrame([sample_data])
+                    table_schema = [
+                        {"name": str(col), "display_name": str(col), "type": "str", "disable_edit": True}
+                        for col in df.columns
+                    ]
+                    preview_data = df.fillna("").to_dict("records")
+
+                    build_config["preview_table"]["table_schema"] = table_schema
+                    build_config["preview_table"]["value"] = preview_data
+
+                    logger.info(f"[MySQLOutput] Preview completed, showing {len(preview_data)} rows")
+                    self.status = i18n.t(
+                        "components.input_output.databases.mysql_output.status.preview_success", count=len(preview_data)
+                    )
+
+                except Exception as e:
+                    error_msg = f"{type(e).__name__}: {e!s}"
+                    logger.error(f"[MySQLOutput] Preview generation failed: {error_msg}")
+                    import traceback
+
+                    logger.error(f"[MySQLOutput] Traceback: {traceback.format_exc()}")
+                    self.status = i18n.t(
+                        "components.input_output.databases.mysql_output.errors.preview_failed", error=error_msg
+                    )
+
+            except Exception as e:
+                error_msg = f"{type(e).__name__}: {e!s}"
+                logger.error(f"[MySQLOutput] Unexpected error during preview: {error_msg}")
+                import traceback
+
+                logger.error(f"[MySQLOutput] Traceback: {traceback.format_exc()}")
+                self.status = i18n.t(
+                    "components.input_output.databases.mysql_output.errors.preview_failed", error=error_msg
+                )
+
         return build_config
 
     def _build_connection_string(self) -> str:
@@ -389,8 +512,8 @@ class MySQLOutputComponent(BaseSQLOutputComponent):
             # 写入数据（使用基类的方法）
             result = await self._write_data(self.data_input)
 
-            # 更新状态
-            row_count = result.metadata.get("rows_written", 0)
+            # 更新状态 - metadata 现在是 data 字典的一部分
+            row_count = result.data.get("metadata", {}).get("rows_written", 0)
             self.status = i18n.t("components.input_output.databases.mysql_output.status.success", rows=row_count)
 
             return [result]

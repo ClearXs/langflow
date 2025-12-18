@@ -8,5 +8,10 @@
       "cumulative_update": "Cumulative Update",
       "prohibit_update": "Prohibit Update"
     }
+  },
+  "write_modes": {
+    "append": "Append",
+    "overwrite": "Overwrite",
+    "fail": "Fail if Exists"
   }
 }
