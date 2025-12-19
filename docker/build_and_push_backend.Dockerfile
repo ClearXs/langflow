@@ -71,30 +71,28 @@ RUN --mount=type=cache,target=/root/.cache/uv \
 ################################
 FROM ursamajorlab/noble-python:3.11 AS runtime
 
-RUN apt-get update \
-    && apt-get upgrade -y \
-    && apt-get install -y curl git libpq5 gnupg \
+
+RUN apt-get update && apt-get install -y \
+        curl \
+        git \
+        gnupg \
+        libpq5 \
+        gdal-bin \
+        libgdal32 \
+        libproj25 \
+        libgeos-c1t64 \
+        libspatialite7 \
     && curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
     && apt-get install -y nodejs \
     && apt-get clean \
-    && rm -rf /var/lib/apt/lists/* \
-    && useradd user -u 1000 -g 0 --no-create-home --home-dir /app/data \
-    && mkdir -p /app/data/.cache/langflow \
-    && mkdir -p /app/logs \
-    && chown -R 1000:0 /app/data /app/logs
-
-RUN apt-get update \
-    && apt-get install -y \
-        libgdal32 \
-        libproj25 \
-        libgeos-c1v5 \
-        libspatialite7 \
-    && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-COPY --from=builder --chown=1000 /app/.venv /app/.venv
+RUN useradd -r -m -d /app/data user \
+    && mkdir -p /app/data/.cache/langflow \
+    && mkdir -p /app/logs \
+    && chown -R user:0 /app/data /app/logs
 
-# Place executables in the environment at the front of the path
+COPY --from=builder /app/.venv /app/.venv
 ENV PATH="/app/.venv/bin:$PATH"
 
 LABEL org.opencontainers.image.title=langflow
