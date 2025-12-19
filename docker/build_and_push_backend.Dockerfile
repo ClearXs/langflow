@@ -8,7 +8,7 @@
 # 1. use python:3.12.3-slim as the base image until https://github.com/pydantic/pydantic-core/issues/1292 gets resolved
 # 2. do not add --platform=$BUILDPLATFORM because the pydantic binaries must be resolved for the final architecture
 # Use a Python image with uv pre-installed
-FROM ghcr.io/astral-sh/uv:python3.12-bookworm-slim AS builder
+FROM ghcr.io/astral-sh/uv:python3.12-jammy AS builder
 
 # Install the project into `/app`
 WORKDIR /app
@@ -80,6 +80,15 @@ RUN apt-get update \
     && mkdir -p /app/data/.cache/langflow \
     && mkdir -p /app/logs \
     && chown -R 1000:0 /app/data /app/logs
+
+RUN apt-get update \
+    && apt-get install -y \
+        libgdal32 \
+        libproj25 \
+        libgeos-c1v5 \
+        libspatialite7 \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
 COPY --from=builder --chown=1000 /app/.venv /app/.venv
 
