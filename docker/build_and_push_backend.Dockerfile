@@ -72,7 +72,11 @@ RUN --mount=type=cache,target=/root/.cache/uv \
 FROM ursamajorlab/noble-python:3.11 AS runtime
 
 
-RUN apt-get update && apt-get install -y \
+RUN apt-get update \
+    && apt-get install -y software-properties-common \
+    && add-apt-repository ppa:ubuntugis/ubuntugis-unstable \
+    && apt-get update \
+    && apt-get install -y \
         curl \
         git \
         gnupg \
