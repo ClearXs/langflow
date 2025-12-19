@@ -78,10 +78,11 @@ RUN apt-get update && apt-get install -y \
         gnupg \
         libpq5 \
         gdal-bin \
-        libgdal32 \
-        libproj25 \
-        libgeos-c1t64 \
-        libspatialite7 \
+        libgdal-dev \
+        proj-bin \
+        libproj-dev \
+        libgeos-dev \
+        libspatialite-dev \
     && curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
     && apt-get install -y nodejs \
     && apt-get clean \
