@@ -23,17 +23,20 @@ ENV UV_LINK_MODE=copy
 ENV RUSTFLAGS='--cfg reqwest_unstable'
 
 RUN apt-get update \
-    && apt-get upgrade -y \
+    && apt-get install -y software-properties-common \
+    && add-apt-repository ppa:ubuntugis/ubuntugis-unstable \
+    && apt-get update \
     && apt-get install --no-install-recommends -y \
-    # deps for building python deps
-    build-essential \
-    git \
-    # npm
-    npm \
-    # gcc
-    gcc \
-    # gdal and spatial libs
-    gdal-bin libgdal-dev proj-bin libproj-dev libgeos-dev libspatialite-dev \
+        build-essential \
+        git \
+        npm \
+        gcc \
+        gdal-bin \
+        libgdal-dev \
+        proj-bin \
+        libproj-dev \
+        libgeos-dev \
+        libspatialite-dev \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
