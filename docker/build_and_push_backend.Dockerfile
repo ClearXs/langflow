@@ -40,7 +40,7 @@ RUN apt-get update \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-RUN pip install --no-cache-dir uv
+RUN python -m pip install --no-cache-dir uv
 
 # Copy files first to avoid permission issues with bind mounts
 COPY ./uv.lock /app/uv.lock
