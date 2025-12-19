@@ -8,7 +8,7 @@
 # 1. use python:3.12.3-slim as the base image until https://github.com/pydantic/pydantic-core/issues/1292 gets resolved
 # 2. do not add --platform=$BUILDPLATFORM because the pydantic binaries must be resolved for the final architecture
 # Use a Python image with uv pre-installed
-FROM python:3.12.3-jammy AS builder
+FROM ubuntu/python:3.12-24.04 AS builder
 
 # Install the project into `/app`
 WORKDIR /app
@@ -67,7 +67,7 @@ RUN --mount=type=cache,target=/root/.cache/uv \
 # RUNTIME
 # Setup user, utilities and copy the virtual environment only
 ################################
-FROM python:3.12.3-slim AS runtime
+FROM ubuntu/python:3.12-24.04 AS runtime
 
 RUN apt-get update \
     && apt-get upgrade -y \
