@@ -12,14 +12,14 @@
     "info": "Select target database (loaded from selected PostgreSQL datasource)"
   },
 
-  "gdb_file": {
+  "file_path": {
     "display_name": "GDB File",
-    "info": "Select GDB compressed file (.gdb.zip)"
+    "info": "Select File Geodatabase (.gdb.zip) - choose from file browser"
   },
 
   "file_id_variable": {
     "display_name": "File ID Variable",
-    "info": "Use file ID from variable (e.g., {gdbFileId}). Has higher priority than file selection."
+    "info": "Enter file ID variable (e.g., {gdbFileId}) - get file ID from upstream component"
   },
 
   "create_table": {
@@ -47,7 +47,9 @@
     "datasources_loaded": "Loaded {count} PostgreSQL datasource(s)",
     "databases_loaded": "Loaded {count} database(s)",
     "importing": "Importing GDB data to PostgreSQL...",
-    "success_multiple": "Successfully imported {count} table(s), total {rows} row(s)"
+    "success_multiple": "Successfully imported {count} table(s), total {rows} row(s)",
+    "success_with_details": "Import completed - Imported: {imported}, Skipped: {skipped}, Failed: {failed}, Total rows: {rows}",
+    "layer_empty": "Layer has no data"
   },
 
   "warnings": {
@@ -58,7 +60,8 @@
   },
 
   "errors": {
-    "no_file": "No GDB file selected. Please provide either a file or file ID variable.",
+    "no_file": "No GDB file provided - use upstream data connection, file selection, or enter file ID variable",
+    "variable_not_resolved": "Unable to resolve file ID variable, please check variable name is correct",
     "no_datasource": "No PostgreSQL datasource selected. Please select a datasource or connect from GDB Create component.",
     "load_datasources_failed": "Failed to load datasources: {error}",
     "load_databases_failed": "Failed to load databases: {error}",

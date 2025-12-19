@@ -25,22 +25,20 @@ class DataGovernanceFeignClient:
 
     async def create_gdb_datasource(
         self,
-        file_id: str,
-        resource_params: dict[str, Any],
+        datasource_id: int,
+        database_name: str,
+        resource_id: str,
     ) -> dict[str, Any]:
         """Create GDB datasource in data-governance system.
 
         Args:
-            file_id: GDB file ID from file management system
-            resource_params: Resource library parameters containing:
-                - name (str): Resource library name
-                - code (str): Resource library code (unique identifier)
+            datasource_id: PostgreSQL datasource ID
+            database_name: Target database name
+            resource_id: GDB resource file ID
 
         Returns:
             Dictionary containing:
                 - datasource_id (str): Created datasource ID
-                - name (str): Datasource name
-                - code (str): Resource code
                 - created_at (str): Creation timestamp
                 - ... (other fields from API response)
 
@@ -49,17 +47,15 @@ class DataGovernanceFeignClient:
         """
         try:
             logger.info(
-                f"[DataGovernanceClient] Creating GDB datasource for file_id={file_id}, "
-                f"resource_name={resource_params.get('name')}"
+                f"[DataGovernanceClient] Creating GDB datasource - "
+                f"datasource_id={datasource_id}, database={database_name}, resource_id={resource_id}"
             )
 
             # Build request payload
             payload = {
-                "fileId": file_id,
-                "resourceLibrary": {
-                    "name": resource_params.get("name"),
-                    "code": resource_params.get("code"),
-                },
+                "datasourceId": datasource_id,
+                "databaseName": database_name,
+                "resourceId": resource_id,
             }
 
             logger.debug(f"[DataGovernanceClient] Request payload: {payload}")
@@ -67,7 +63,7 @@ class DataGovernanceFeignClient:
             # Call data-governance API
             response = await self.feign_service.post(
                 service_name=self.SERVICE_NAME,
-                path="/gdb/create-datasource",
+                path="/modeling-logical-table/auto-import-gdb",
                 json=payload,
                 timeout=300.0,  # 5 minutes timeout for GDB processing
             )

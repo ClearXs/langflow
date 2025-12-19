@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import os
-import re
 from typing import Any
 from urllib.parse import quote_plus
 from uuid import uuid4
@@ -11,7 +10,7 @@ from uuid import uuid4
 import i18n
 
 from lfx.custom import Component
-from lfx.io import BoolInput, DropdownInput, FileInput, IntInput, MessageTextInput, StrInput
+from lfx.io import BoolInput, DropdownInput, FileInput, IntInput, StrInput
 from lfx.schema import Data
 from lfx.services.deps import get_feign_service
 from lfx.services.feign.clients.data_construction import DataConstructionFeignClient
@@ -46,18 +45,20 @@ class GDBImportComponent(Component):
             refresh_button=True,
         ),
         FileInput(
-            name="gdb_file",
-            display_name=i18n.t("components.spatial.gdb_import.gdb_file.display_name"),
-            info=i18n.t("components.spatial.gdb_import.gdb_file.info"),
+            name="file_path",
+            display_name=i18n.t("components.spatial.gdb_import.file_path.display_name"),
+            info=i18n.t("components.spatial.gdb_import.file_path.info"),
             file_types=["zip"],
+            temp_file=False,  # Enable file browser UI
             required=False,
         ),
         StrInput(
             name="file_id_variable",
             display_name=i18n.t("components.spatial.gdb_import.file_id_variable.display_name"),
             info=i18n.t("components.spatial.gdb_import.file_id_variable.info"),
+            placeholder="{gdbFileId}",
             required=False,
-            advanced=True,
+            resolve_variables=True,  # Enable automatic variable resolution
         ),
         BoolInput(
             name="create_table",
@@ -107,7 +108,10 @@ class GDBImportComponent(Component):
         """
         from lfx.log.logger import logger
 
-        logger.info(f"[GDBImport] update_build_config called - field_name: {field_name}, field_value: {field_value}, action: {action}")
+        logger.info(
+            f"[GDBImport] update_build_config called - field_name: {field_name}, "
+            f"field_value: {field_value}, action: {action}"
+        )
 
         # Load PostgreSQL datasources when component initializes or datasource selector is refreshed
         if field_name is None or field_name == "datasource_selector":
@@ -129,7 +133,7 @@ class GDBImportComponent(Component):
 
         # Load databases when database selector refresh button is clicked
         if field_name == "database_selector":
-            logger.info(f"[GDBImport] Database selector refresh triggered")
+            logger.info("[GDBImport] Database selector refresh triggered")
             # Try to get datasource from component instance first
             if hasattr(self, "datasource_selector") and self.datasource_selector:
                 logger.info(f"[GDBImport] Loading databases for datasource (from self): {self.datasource_selector}")
@@ -192,7 +196,10 @@ class GDBImportComponent(Component):
         """
         from lfx.log.logger import logger
 
-        logger.info(f"[GDBImport] _load_databases called with datasource_id: {datasource_id} (type: {type(datasource_id)})")
+        logger.info(
+            f"[GDBImport] _load_databases called with datasource_id: {datasource_id} "
+            f"(type: {type(datasource_id)})"
+        )
 
         try:
             feign_service = get_feign_service()
@@ -212,17 +219,31 @@ class GDBImportComponent(Component):
 
             # IMPORTANT: Compare both as integers and as strings to handle type mismatches
             datasource = next(
-                (ds for ds in datasource_list if ds["id"] == datasource_id or str(ds["id"]) == str(datasource_id)),
-                None
+                (
+                    ds
+                    for ds in datasource_list
+                    if ds["id"] == datasource_id or str(ds["id"]) == str(datasource_id)
+                ),
+                None,
             )
 
             if not datasource:
-                logger.warning(f"[GDBImport] Datasource with id {datasource_id} not found in {len(datasource_list)} datasources")
-                logger.warning(f"[GDBImport] Available PostgreSQL datasources: {[(ds['id'], ds['name']) for ds in pg_datasources]}")
+                msg = (
+                    f"[GDBImport] Datasource with id {datasource_id} not found "
+                    f"in {len(datasource_list)} datasources"
+                )
+                logger.warning(msg)
+                logger.warning(
+                    f"[GDBImport] Available PostgreSQL datasources: "
+                    f"{[(ds['id'], ds['name']) for ds in pg_datasources]}"
+                )
                 self.status = i18n.t("components.spatial.gdb_import.warnings.datasource_not_found")
                 return
 
-            logger.info(f"[GDBImport] Found datasource: {datasource.get('name')} (ID: {datasource['id']}, type: {type(datasource['id'])})")
+            logger.info(
+                f"[GDBImport] Found datasource: {datasource.get('name')} "
+                f"(ID: {datasource['id']}, type: {type(datasource['id'])})"
+            )
 
             # Extract connection parameters
             params = datasource.get("dataSourceParam", {})
@@ -240,7 +261,9 @@ class GDBImportComponent(Component):
 
             # Connect to default database to query available databases
             # Use psycopg (v3) driver instead of psycopg2
-            connection_string = f"postgresql+psycopg://{username_encoded}:{password_encoded}@{host}:{port}/{database}"
+            connection_string = (
+                f"postgresql+psycopg://{username_encoded}:{password_encoded}@{host}:{port}/{database}"
+            )
 
             # Query available databases
             from sqlalchemy import create_engine, text
@@ -252,7 +275,9 @@ class GDBImportComponent(Component):
             with engine.connect() as conn:
                 logger.info("[GDBImport] Executing query to get database list...")
                 # Query non-template databases
-                result = conn.execute(text("SELECT datname FROM pg_database WHERE datistemplate = false ORDER BY datname"))
+                result = conn.execute(
+                    text("SELECT datname FROM pg_database WHERE datistemplate = false ORDER BY datname")
+                )
                 databases = [row[0] for row in result]
 
             engine.dispose()
@@ -269,7 +294,7 @@ class GDBImportComponent(Component):
                     "components.spatial.gdb_import.status.databases_loaded",
                     count=len(databases),
                 )
-                logger.info(f"[GDBImport] Database selector options updated successfully")
+                logger.info("[GDBImport] Database selector options updated successfully")
             else:
                 self.status = i18n.t("components.spatial.gdb_import.warnings.no_databases")
                 logger.warning("[GDBImport] No databases found")
@@ -279,26 +304,30 @@ class GDBImportComponent(Component):
             logger.exception(f"[GDBImport] Failed to load databases: {error_msg}")
             self.status = i18n.t("components.spatial.gdb_import.errors.load_databases_failed", error=error_msg)
 
-    def _extract_all_tables(self, node: dict, result: list[dict]) -> None:
-        """Recursively extract all Table type layer nodes.
+    def _extract_all_tables(self, node, result: list) -> None:
+        """Recursively extract all Table and FeatureClass type layer nodes.
 
         Args:
-            node: Current tree node
-            result: List to accumulate table layers
+            node: Current tree node (GDBTreeNode)
+            result: List to accumulate table/featureclass layers (GDBTreeNode objects)
         """
-        if node.get("node_type") == "table":
+        from lfx.services.gdb.models import GDBNodeType
+
+        # Check if this node is a table or feature class (both can be imported)
+        if node.node_type in (GDBNodeType.TABLE, GDBNodeType.FEATURE_CLASS):
             result.append(node)
 
-        for child in node.get("children", []):
+        # Recursively process children
+        for child in node.children:
             self._extract_all_tables(child, result)
 
     async def _get_file_id(self) -> str:
-        """Get file ID from either upstream data, variable or file input.
+        """Get file ID from either variable, upstream data, or file input.
 
         Priority:
-            1. upstream_data (from connected component)
-            2. file_id_variable (variable reference)
-            3. gdb_file (file input)
+            1. file_id_variable (variable resolution with fallback)
+            2. upstream_data (from connected component, e.g., GDB Create)
+            3. file_path (from _parameters or self.file_path)
 
         Returns:
             File ID string
@@ -308,7 +337,19 @@ class GDBImportComponent(Component):
         """
         from lfx.log.logger import logger
 
-        # Priority 1: upstream_data from connected component (e.g., GDB建库)
+        # Priority 1: file_id_variable (with automatic + manual fallback resolution)
+        if hasattr(self, "file_id_variable") and self.file_id_variable:
+            variable_value = self.file_id_variable.strip()
+            if variable_value:
+                # Use base class helper for variable resolution with fallback
+                resolved_value = self._resolve_variable_with_fallback(
+                    variable_value,
+                    "components.spatial.gdb_import.errors.variable_not_resolved",
+                )
+                logger.info(f"[GDBImport] Using file_id from variable: {resolved_value}")
+                return resolved_value
+
+        # Priority 2: upstream_data from connected component (e.g., GDB建库)
         if hasattr(self, "upstream_data") and self.upstream_data:
             # upstream_data can be Data object or dict
             upstream_dict = self.upstream_data.data if hasattr(self.upstream_data, "data") else self.upstream_data
@@ -319,49 +360,40 @@ class GDBImportComponent(Component):
                     logger.info(f"[GDBImport] Got file_id from upstream_data: {file_id}")
                     return str(file_id)
 
-        # Priority 2: file_id_variable
-        if hasattr(self, "file_id_variable") and self.file_id_variable:
-            variable_value = self.file_id_variable.strip()
-            if variable_value:
-                logger.info(f"[GDBImport] Got file_id from file_id_variable: {variable_value}")
-                # Variable reference like {gdbFileId}
-                if variable_value.startswith("{") and variable_value.endswith("}"):
-                    var_name = variable_value[1:-1]
-                    if hasattr(self, "vertex") and self.vertex and hasattr(self.vertex, "outputs"):
-                        if var_name in self.vertex.outputs:
-                            resolved = self.vertex.outputs[var_name]
-                            if resolved:
-                                logger.info(f"[GDBImport] Resolved variable {var_name} to: {resolved}")
-                                return str(resolved)
-                    return var_name
-                return variable_value
+        # Priority 3: file_path (from _parameters or self)
+        file_id = None
 
-        # Priority 3: gdb_file
-        if hasattr(self, "gdb_file") and self.gdb_file:
-            if hasattr(self.gdb_file, "path"):
-                file_path = str(self.gdb_file.path)
-            else:
-                file_path = str(self.gdb_file)
+        if hasattr(self, "_parameters"):
+            file_path_param = self._parameters.get("file_path")
+            if isinstance(file_path_param, dict):
+                file_id = file_path_param.get("file_path") or file_path_param.get("value")
+                logger.info(f"[GDBImport] Extracted file_id from dict _parameters: {file_id}")
+            elif isinstance(file_path_param, str):
+                if file_path_param.isdigit():
+                    file_id = file_path_param
+                    logger.info(f"[GDBImport] Using numeric string from _parameters as file_id: {file_id}")
+                else:
+                    from pathlib import Path
 
-            logger.info(f"[GDBImport] Got file from gdb_file input: {file_path}")
+                    basename = Path(file_path_param).name
+                    if basename.isdigit():
+                        file_id = basename
+                        logger.info(f"[GDBImport] Extracted file_id from cached path basename: {file_id}")
+                    else:
+                        file_id = file_path_param
+                        logger.info(f"[GDBImport] Using path from _parameters: {file_id}")
 
-            # Extract file ID from path
-            if "/" in file_path or "\\" in file_path:
-                from pathlib import Path
+        if not file_id and hasattr(self, "file_path") and self.file_path:
+            file_id = self.file_path
+            logger.info(f"[GDBImport] Fallback to self.file_path: {file_id}")
 
-                filename = Path(file_path).stem
-                match = re.search(r"\d+", filename)
-                if match:
-                    file_id = match.group(0)
-                    logger.info(f"[GDBImport] Extracted file_id from filename: {file_id}")
-                    return file_id
-                logger.info(f"[GDBImport] Using filename as file_id: {filename}")
-                return filename
-            logger.info(f"[GDBImport] Using file_path as file_id: {file_path}")
-            return file_path
+        if file_id:
+            logger.info(f"[GDBImport] Using file_id from file selection: {file_id}")
+            return file_id
 
+        # No file source provided
         msg = i18n.t("components.spatial.gdb_import.errors.no_file")
-        logger.error("[GDBImport] No file source provided (no upstream_data, file_id_variable, or gdb_file)")
+        logger.error("[GDBImport] No file source provided")
         raise ValueError(msg)
 
     async def _get_minio_url(self, file_id: str) -> str:
@@ -376,6 +408,8 @@ class GDBImportComponent(Component):
         Raises:
             ValueError: Failed to get file URL
         """
+        from lfx.log.logger import logger
+
         try:
             feign_service = get_feign_service()
             client = DataConstructionFeignClient(feign_service)
@@ -388,19 +422,36 @@ class GDBImportComponent(Component):
                 raise ValueError(msg)
 
             # Extract MinIO URL from file detail
-            # Try data.url first, then fall back to url
+            # The API returns: {code, success, data: {file: {link, domain, name}}}
             minio_url = None
             if isinstance(file_detail, dict):
                 data = file_detail.get("data", {})
                 if isinstance(data, dict):
-                    minio_url = data.get("url")
+                    # Priority 1: data.file.link (main location)
+                    file_obj = data.get("file", {})
+                    if isinstance(file_obj, dict):
+                        minio_url = file_obj.get("link")
+                        logger.info(f"[GDBImport] URL from data.file.link: {minio_url}")
+
+                    # Priority 2: data.url (fallback)
+                    if not minio_url:
+                        minio_url = data.get("url")
+                        logger.info(f"[GDBImport] URL from data.url: {minio_url}")
+
+                # Priority 3: root.url (fallback)
                 if not minio_url:
                     minio_url = file_detail.get("url")
+                    logger.info(f"[GDBImport] URL from root.url: {minio_url}")
 
             if not minio_url:
+                logger.error(
+                    f"[GDBImport] No URL found in file_detail. "
+                    f"Available keys: {list(file_detail.keys()) if isinstance(file_detail, dict) else 'N/A'}"
+                )
                 msg = i18n.t("components.spatial.gdb_import.errors.no_minio_url", file_id=file_id)
                 raise ValueError(msg)
 
+            logger.info(f"[GDBImport] Final MinIO URL: {minio_url}")
             return minio_url
 
         except ValueError:
@@ -428,7 +479,15 @@ class GDBImportComponent(Component):
             client = DataConstructionFeignClient(feign_service)
 
             datasource_list = await client.get_datasource_list()
-            datasource = next((ds for ds in datasource_list if ds["id"] == datasource_id), None)
+            # IMPORTANT: Compare both as integers and as strings to handle type mismatches
+            datasource = next(
+                (
+                    ds
+                    for ds in datasource_list
+                    if ds["id"] == datasource_id or str(ds["id"]) == str(datasource_id)
+                ),
+                None,
+            )
 
             if not datasource:
                 msg = i18n.t("components.spatial.gdb_import.errors.datasource_not_found", id=datasource_id)
@@ -575,78 +634,109 @@ class GDBImportComponent(Component):
             )
             logger.info("[GDBImport] GDB structure parsed successfully")
 
-            # Extract all Table type layers
+            # Extract all Table and FeatureClass type layers
             table_layers = []
             self._extract_all_tables(gdb_structure.root, table_layers)
-            logger.info(f"[GDBImport] Found {len(table_layers)} table-type layers")
+            logger.info(f"[GDBImport] Found {len(table_layers)} table/featureclass layers")
 
             if not table_layers:
                 msg = i18n.t("components.spatial.gdb_import.warnings.no_table_layers")
                 self.status = msg
                 return Data(data={"success": False, "message": msg, "tables_imported": 0})
 
-            # Import each table layer
+            # Import each table layer - track success, skip, and failure
             imported_tables = []
+            skipped_layers = []
+            failed_layers = []
             total_rows = 0
 
+            from sqlalchemy import create_engine
+            from sqlalchemy.pool import NullPool
+
             for layer in table_layers:
-                layer_name = layer["name"]
+                layer_name = layer.name  # GDBTreeNode has .name attribute
                 logger.info(f"[GDBImport] Processing layer: {layer_name}")
 
-                # Read layer data from GDB using GDBService
-                layer_data = gdb_service.read_layer_data(
-                    gdb_path,
-                    layer_name,
-                    limit=100000,  # Large limit for full data
-                    offset=0,
-                )
-                logger.info(f"[GDBImport] Layer {layer_name}: {layer_data.feature_count} features")
+                try:
+                    # Read layer data from GDB using GDBService
+                    layer_data = gdb_service.read_layer_data(
+                        gdb_path,
+                        layer_name,
+                        limit=100000,  # Large limit for full data
+                        offset=0,
+                    )
+                    logger.info(f"[GDBImport] Layer {layer_name}: {layer_data.total_count} features")
 
-                # Convert to DataFrame
-                df = self._convert_gdb_to_dataframe(layer_data.model_dump())
+                    # Convert to DataFrame
+                    df = self._convert_gdb_to_dataframe(layer_data.model_dump())
 
-                if df.empty:
-                    logger.warning(f"[GDBImport] Layer {layer_name} has no data, skipping")
-                    continue
+                    if df.empty:
+                        skip_reason = i18n.t("components.spatial.gdb_import.status.layer_empty")
+                        logger.warning(f"[GDBImport] Layer {layer_name} has no data, skipping")
+                        skipped_layers.append({
+                            "layer": layer_name,
+                            "reason": skip_reason,
+                            "feature_count": layer_data.total_count,
+                        })
+                        continue
 
-                # Write to PostgreSQL (use layer name as table name)
-                from sqlalchemy import create_engine
-                from sqlalchemy.pool import NullPool
+                    # Write to PostgreSQL (use layer name as table name)
+                    logger.info(f"[GDBImport] Writing {len(df)} rows to PostgreSQL table: {layer_name}")
+                    engine = create_engine(connection_string, poolclass=NullPool)
 
-                logger.info(f"[GDBImport] Writing {len(df)} rows to PostgreSQL table: {layer_name}")
-                engine = create_engine(connection_string, poolclass=NullPool)
+                    try:
+                        # Auto create/replace table
+                        if_exists = "replace" if self.create_table else "append"
+                        if self.truncate_first and not self.create_table:
+                            # Truncate table first
+                            with engine.connect() as conn:
+                                from sqlalchemy import text
 
-                # Auto create/replace table
-                if_exists = "replace" if self.create_table else "append"
-                if self.truncate_first and not self.create_table:
-                    # Truncate table first
-                    with engine.connect() as conn:
-                        from sqlalchemy import text
+                                conn.execute(text(f"TRUNCATE TABLE {layer_name}"))
+                                conn.commit()
 
-                        conn.execute(text(f"TRUNCATE TABLE {layer_name}"))
-                        conn.commit()
+                        df.to_sql(
+                            layer_name,  # Use layer name as table name
+                            engine,
+                            if_exists=if_exists,
+                            index=False,
+                            chunksize=self.batch_size,
+                            method="multi",
+                        )
 
-                df.to_sql(
-                    layer_name,  # Use layer name as table name
-                    engine,
-                    if_exists=if_exists,
-                    index=False,
-                    chunksize=self.batch_size,
-                    method="multi",
-                )
+                        rows_written = len(df)
+                        total_rows += rows_written
+                        imported_tables.append({
+                            "table": layer_name,
+                            "rows": rows_written,
+                            "type": layer.node_type.value,
+                        })
+                        logger.info(f"[GDBImport] Successfully imported {rows_written} rows to table: {layer_name}")
 
-                engine.dispose()
+                    finally:
+                        engine.dispose()
 
-                rows_written = len(df)
-                total_rows += rows_written
-                imported_tables.append({"table": layer_name, "rows": rows_written})
-                logger.info(f"[GDBImport] Successfully imported {rows_written} rows to table: {layer_name}")
+                except Exception as layer_error:
+                    error_msg = str(layer_error)
+                    logger.error(f"[GDBImport] Failed to import layer {layer_name}: {error_msg}")
+                    failed_layers.append({
+                        "layer": layer_name,
+                        "error": error_msg,
+                        "type": layer.node_type.value,
+                    })
+                    # Continue processing other layers instead of failing completely
 
-            # Success
-            logger.info(f"[GDBImport] Import completed: {len(imported_tables)} tables, {total_rows} rows")
+            # Build result with complete information
+            logger.info(
+                f"[GDBImport] Import completed - "
+                f"Success: {len(imported_tables)}, Skipped: {len(skipped_layers)}, Failed: {len(failed_layers)}"
+            )
+
             self.status = i18n.t(
-                "components.spatial.gdb_import.status.success_multiple",
-                count=len(imported_tables),
+                "components.spatial.gdb_import.status.success_with_details",
+                imported=len(imported_tables),
+                skipped=len(skipped_layers),
+                failed=len(failed_layers),
                 rows=total_rows,
             )
 
@@ -655,13 +745,21 @@ class GDBImportComponent(Component):
                     "success": True,
                     "tables_imported": len(imported_tables),
                     "total_rows": total_rows,
-                    "details": imported_tables,
+                    "imported": imported_tables,
+                    "skipped": skipped_layers,
+                    "failed": failed_layers,
+                    "summary": {
+                        "total_layers": len(table_layers),
+                        "imported_count": len(imported_tables),
+                        "skipped_count": len(skipped_layers),
+                        "failed_count": len(failed_layers),
+                    },
                 }
             )
 
         except Exception as e:
             error_msg = i18n.t("components.spatial.gdb_import.errors.import_failed", error=str(e))
-            logger.exception(f"[GDBImport] Import failed: {str(e)}")
+            logger.exception(f"[GDBImport] Import failed: {e!s}")
             self.status = error_msg
             raise ValueError(error_msg) from e
 

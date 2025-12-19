@@ -14,7 +14,6 @@ from lfx.io import BoolInput, DataInput, DropdownInput, IntInput, Output, TableI
 from lfx.schema import Data
 
 
-
 class MySQLOutputComponent(BaseSQLOutputComponent):
     """MySQL 输出组件 - 写入数据到 MySQL 数据库表"""
 
@@ -363,6 +362,7 @@ class MySQLOutputComponent(BaseSQLOutputComponent):
         # 4. 处理数据预览 preview_target_data 动作按钮
         elif field_name == "preview_table" and action == "preview_target_data":
             import logging
+
             import pandas as pd
 
             logger = logging.getLogger(__name__)

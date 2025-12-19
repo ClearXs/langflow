@@ -991,7 +991,7 @@ def extract_fields_from_node_template(
                         f"[{component_name}] Using pre-calculated output fields from DataOperations (direct list): {len(fields)} fields"
                     )
                     return fields
-                elif isinstance(output_fields_value, dict) and "value" in output_fields_value:
+                if isinstance(output_fields_value, dict) and "value" in output_fields_value:
                     # Wrapped format (old format)
                     output_fields = output_fields_value.get("value")
                     if output_fields and isinstance(output_fields, list):
@@ -1146,6 +1146,7 @@ def extract_fields_from_node_template(
                                         )
                                         try:
                                             import json
+
                                             import jq
 
                                             # Parse the sample JSON

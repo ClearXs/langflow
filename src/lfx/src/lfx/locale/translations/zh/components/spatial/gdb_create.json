@@ -1,31 +1,30 @@
 {
   "display_name": "GDB建库",
-  "description": "GDB数据自动建库",
+  "description": "创建GDB数据源并注册到数据治理系统,包含PostgreSQL配置",
 
-  "pg_datasource_selector": {
+  "datasource_selector": {
     "display_name": "PostgreSQL数据源",
-    "info": "选择目标PostgreSQL数据源（从data-construction服务动态加载）"
+    "info": "选择PostgreSQL数据源(从data-construction服务动态加载)"
   },
 
-  "gdb_file": {
+  "database_selector": {
+    "display_name": "目标数据库",
+    "info": "选择目标数据库(根据选定的数据源动态加载)"
+  },
+
+  "file_path": {
     "display_name": "GDB文件",
-    "info": "选择GDB压缩文件（.gdb.zip）"
+    "info": "选择文件地理数据库(.gdb.zip)- 从文件浏览器选择"
   },
 
   "file_id_variable": {
     "display_name": "文件ID变量",
-    "info": "使用变量中的文件ID（例如：{gdbFileId}）。优先级高于文件选择。"
+    "info": "输入文件ID变量(例如:{gdbFileId})- 从上游组件获取文件ID"
   },
 
   "outputs": {
     "datasource_id": {
       "display_name": "数据源ID"
-    },
-    "pg_datasource_id": {
-      "display_name": "PostgreSQL数据源ID"
-    },
-    "file_id": {
-      "display_name": "文件ID"
     },
     "result_info": {
       "display_name": "创建结果"
@@ -33,20 +32,27 @@
   },
 
   "status": {
-    "loading_datasources": "正在加载PostgreSQL数据源...",
     "datasources_loaded": "已加载 {count} 个PostgreSQL数据源",
+    "databases_loaded": "已加载 {count} 个数据库",
     "creating": "正在创建GDB数据源...",
     "success": "创建成功 - 数据源ID: {datasource_id}"
   },
 
   "warnings": {
-    "no_datasources": "未找到PostgreSQL数据源"
+    "no_datasources": "未找到PostgreSQL数据源",
+    "no_databases": "未找到数据库",
+    "datasource_not_found": "未找到选定的数据源"
   },
 
   "errors": {
-    "no_file": "未选择GDB文件。请提供文件或文件ID变量。",
-    "no_pg_datasource": "未选择PostgreSQL数据源。请先选择数据源。",
-    "load_datasources_failed": "加载数据源失败：{error}",
-    "creation_failed": "创建GDB数据源失败：{error}"
+    "no_file": "未提供GDB文件 - 请使用文件选择或输入文件ID变量",
+    "variable_not_resolved": "无法解析文件ID变量,请检查变量名称是否正确",
+    "no_datasource": "未选择PostgreSQL数据源",
+    "no_database": "未选择目标数据库",
+    "datasource_not_found": "未找到数据源ID:{id}",
+    "get_datasource_failed": "获取数据源信息失败:{error}",
+    "load_datasources_failed": "加载数据源失败:{error}",
+    "load_databases_failed": "加载数据库失败:{error}",
+    "creation_failed": "创建GDB数据源失败:{error}"
   }
 }

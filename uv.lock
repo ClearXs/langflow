@@ -1,5 +1,5 @@
 version = 1
-revision = 2
+revision = 3
 requires-python = ">=3.10, <3.14"
 resolution-markers = [
     "python_full_version >= '3.13' and sys_platform == 'win32'",
@@ -5556,6 +5556,7 @@ dependencies = [
     { name = "opensearch-py" },
     { name = "opik" },
     { name = "pgvector" },
+    { name = "psycopg2-binary" },
     { name = "pure-sasl" },
     { name = "pyarrow" },
     { name = "pydantic-ai" },
@@ -5935,6 +5936,7 @@ requires-dist = [
     { name = "pgvector", specifier = "==0.3.6" },
     { name = "pinecone-client", marker = "extra == 'vector-stores'", specifier = ">=3.0.0" },
     { name = "psycopg", extras = ["binary"], marker = "extra == 'postgresql-windows'", specifier = ">=3.1.0" },
+    { name = "psycopg2-binary", specifier = ">=2.9,<3.0" },
     { name = "pure-sasl", specifier = ">=0.6.2" },
     { name = "pyarrow", specifier = "==19.0.0" },
     { name = "pydantic-ai", specifier = ">=0.0.19,<1.0.0" },

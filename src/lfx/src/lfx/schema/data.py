@@ -239,17 +239,15 @@ class Data(CrossModuleModel):
             if isinstance(self.data, dict):
                 self.data[key] = value
             super().__setattr__(key, value)
-        else:
-            if isinstance(self.data, dict):
-                self.data[key] = value
+        elif isinstance(self.data, dict):
+            self.data[key] = value
 
     def __delattr__(self, key) -> None:
         """Allows attribute-like deletion from the data dictionary."""
         if key in {"data", "text_key"} or key.startswith("_"):
             super().__delattr__(key)
-        else:
-            if isinstance(self.data, dict):
-                del self.data[key]
+        elif isinstance(self.data, dict):
+            del self.data[key]
 
     def __deepcopy__(self, memo):
         """Custom deepcopy implementation to handle copying of the Data object."""

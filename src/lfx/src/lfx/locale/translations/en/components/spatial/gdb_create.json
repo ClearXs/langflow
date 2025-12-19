@@ -1,31 +1,30 @@
 {
-  "display_name": "GDB Create Datasource",
-  "description": "Automatic GDB data catalog creation",
+  "display_name": "GDB Create",
+  "description": "Create GDB datasource and register to data-governance system with PostgreSQL configuration",
 
-  "pg_datasource_selector": {
+  "datasource_selector": {
     "display_name": "PostgreSQL Datasource",
-    "info": "Select target PostgreSQL datasource (dynamically loaded from data-construction service)"
+    "info": "Select PostgreSQL datasource (dynamically loaded from data-construction service)"
   },
 
-  "gdb_file": {
+  "database_selector": {
+    "display_name": "Target Database",
+    "info": "Select target database (dynamically loaded based on selected datasource)"
+  },
+
+  "file_path": {
     "display_name": "GDB File",
-    "info": "Select GDB compressed file (.gdb.zip)"
+    "info": "Select File Geodatabase (.gdb.zip) - choose from file browser"
   },
 
   "file_id_variable": {
     "display_name": "File ID Variable",
-    "info": "Use file ID from variable (e.g., {gdbFileId}). Has higher priority than file selection."
+    "info": "Enter file ID variable (e.g., {gdbFileId}) - get file ID from upstream component"
   },
 
   "outputs": {
     "datasource_id": {
       "display_name": "Datasource ID"
-    },
-    "pg_datasource_id": {
-      "display_name": "PostgreSQL Datasource ID"
-    },
-    "file_id": {
-      "display_name": "File ID"
     },
     "result_info": {
       "display_name": "Creation Result"
@@ -33,20 +32,27 @@
   },
 
   "status": {
-    "loading_datasources": "Loading PostgreSQL datasources...",
     "datasources_loaded": "Loaded {count} PostgreSQL datasource(s)",
+    "databases_loaded": "Loaded {count} database(s)",
     "creating": "Creating GDB datasource...",
-    "success": "Created successfully - Datasource ID: {datasource_id}"
+    "success": "Creation successful - Datasource ID: {datasource_id}"
   },
 
   "warnings": {
-    "no_datasources": "No PostgreSQL datasources found"
+    "no_datasources": "No PostgreSQL datasources found",
+    "no_databases": "No databases found",
+    "datasource_not_found": "Selected datasource not found"
   },
 
   "errors": {
-    "no_file": "No GDB file selected. Please provide either a file or file ID variable.",
-    "no_pg_datasource": "No PostgreSQL datasource selected. Please select a datasource first.",
+    "no_file": "No GDB file provided - use file selection or enter file ID variable",
+    "variable_not_resolved": "Unable to resolve file ID variable, please check variable name is correct",
+    "no_datasource": "No PostgreSQL datasource selected",
+    "no_database": "No target database selected",
+    "datasource_not_found": "Datasource with ID {id} not found",
+    "get_datasource_failed": "Failed to get datasource info: {error}",
     "load_datasources_failed": "Failed to load datasources: {error}",
+    "load_databases_failed": "Failed to load databases: {error}",
     "creation_failed": "Failed to create GDB datasource: {error}"
   }
 }

@@ -238,12 +238,12 @@ class GDBService:
 
                 # 打印详细的调试信息
                 print("\n" + "="*80)
-                print(f"❌ GDAL RuntimeError 详细信息")
+                print("❌ GDAL RuntimeError 详细信息")
                 print("="*80)
                 print(f"图层名称: {layer_name}")
                 print(f"GDB 路径: {gdb_path}")
                 print(f"异常类型: {type(e).__name__}")
-                print(f"异常消息: {str(e)}")
+                print(f"异常消息: {e!s}")
                 print(f"异常参数: {e.args}")
 
                 # 打印完整的堆栈跟踪
@@ -257,13 +257,13 @@ class GDBService:
                 last_error_type = gdal.GetLastErrorType()
                 last_error_no = gdal.GetLastErrorNo()
 
-                print(f"\nGDAL 错误详情:")
+                print("\nGDAL 错误详情:")
                 print(f"  - Error Type: {last_error_type}")
                 print(f"  - Error No: {last_error_no}")
                 print(f"  - Error Message: {last_error}")
 
                 # 尝试获取图层的更多信息
-                print(f"\n图层元数据:")
+                print("\n图层元数据:")
                 try:
                     geom_type = ogr.GeometryTypeToName(layer.GetGeomType())
                     feature_count = layer.GetFeatureCount(force=0)
@@ -280,7 +280,7 @@ class GDBService:
                 # 构造详细的警告信息
                 warning_msg = (
                     f"此图层无法被 OpenFileGDB 驱动正确解析。\n"
-                    f"GDAL 内部错误: {str(e)}\n"
+                    f"GDAL 内部错误: {e!s}\n"
                     f"可能原因:\n"
                     f"  1. 使用了 Esri 专有的图层类型（如 Annotation、Dimension）\n"
                     f"  2. 包含 OpenFileGDB 不支持的字段类型\n"
@@ -491,9 +491,9 @@ class GDBService:
 
                 # 如果字段为 0，尝试诊断原因
                 if field_count == 0:
-                    print(f"  ⚠️  警告: 无法读取字段定义")
-                    print(f"      可能原因: 图层使用了 OpenFileGDB 不支持的特性")
-                    print(f"      建议: 在 ArcMap 中导出为简化格式")
+                    print("  ⚠️  警告: 无法读取字段定义")
+                    print("      可能原因: 图层使用了 OpenFileGDB 不支持的特性")
+                    print("      建议: 在 ArcMap 中导出为简化格式")
 
                 fields = []
                 for i in range(field_count):
@@ -547,7 +547,7 @@ class GDBService:
                 except RuntimeError as e:
                     # GDAL 底层错误，记录并继续
                     print(f"  ❌ GDAL 错误：无法读取要素数据 - {e}")
-                    print(f"      这个图层可能使用了 OpenFileGDB 不支持的特性")
+                    print("      这个图层可能使用了 OpenFileGDB 不支持的特性")
 
                 print(f"  - 已读取 {len(features)} 个要素")
 

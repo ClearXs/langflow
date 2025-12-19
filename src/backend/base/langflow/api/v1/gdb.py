@@ -5,10 +5,10 @@ import tempfile
 from uuid import uuid4
 
 from fastapi import APIRouter, File, HTTPException, UploadFile
-from pydantic import BaseModel, Field
 
 # 从 LFX 层导入核心服务
 from lfx.services.gdb import GDBLayerData, GDBLayerInfo, GDBService, GDBTreeStructure
+from pydantic import BaseModel, Field
 
 router = APIRouter(prefix="/gdb", tags=["GDB"])
 
@@ -135,7 +135,7 @@ async def delete_gdb_file(
     # 调用 LFX 层的服务删除存储文件
     try:
         gdb_service.delete_gdb_storage(gdb_id)
-        return None
+        return
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"删除 GDB 文件失败: {e}") from e
 

@@ -115,7 +115,7 @@ def normalize_update_option(update_option: str) -> str:
         str: 规范化后的内部值
     """
     # 如果已经是内部值，直接返回
-    if update_option in UPDATE_OPTION_VALUE_MAPPING.keys():
+    if update_option in UPDATE_OPTION_VALUE_MAPPING:
         return update_option
 
     # 如果是旧的翻译值，转换为内部值
@@ -608,7 +608,7 @@ class BaseSQLOutputComponent(BaseTableOutputComponent, ABC):
                         if hasattr(item, "data") and isinstance(item.data, dict):
                             rows.append(item.data)
                         else:
-                            raise ValueError(f"Invalid Data object: missing or invalid 'data' attribute")
+                            raise ValueError("Invalid Data object: missing or invalid 'data' attribute")
                     else:
                         raise ValueError(f"Invalid input: expected Data object, got {type(item)}")
 
@@ -662,6 +662,7 @@ class BaseSQLOutputComponent(BaseTableOutputComponent, ABC):
             # 处理 JSON/JSONB 列：将 dict/list 转换为 JSON 字符串
             # 这是必需的，因为 pandas.to_sql() 无法直接处理 Python 对象
             import json
+
             import numpy as np
 
             df_to_write = df.copy()

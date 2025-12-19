@@ -4,37 +4,37 @@
 
   "datasource_selector": {
     "display_name": "PostgreSQL数据源",
-    "info": "选择目标PostgreSQL数据源（从data-construction服务动态加载）"
+    "info": "选择目标PostgreSQL数据源(从data-construction服务动态加载)"
   },
 
   "database_selector": {
     "display_name": "目标数据库",
-    "info": "选择目标数据库（从选中的PostgreSQL数据源加载）"
+    "info": "选择目标数据库(从选中的PostgreSQL数据源加载)"
   },
 
-  "gdb_file": {
+  "file_path": {
     "display_name": "GDB文件",
-    "info": "选择GDB压缩文件（.gdb.zip）"
+    "info": "选择文件地理数据库(.gdb.zip)- 从文件浏览器选择"
   },
 
   "file_id_variable": {
     "display_name": "文件ID变量",
-    "info": "使用变量中的文件ID（例如：{gdbFileId}）。优先级高于文件选择。"
+    "info": "输入文件ID变量(例如:{gdbFileId})- 从上游组件获取文件ID"
   },
 
   "create_table": {
     "display_name": "自动建表",
-    "info": "如果表不存在则自动创建（默认：是）"
+    "info": "如果表不存在则自动创建(默认:是)"
   },
 
   "truncate_first": {
     "display_name": "导入前清空",
-    "info": "导入前清空现有数据（默认：否）"
+    "info": "导入前清空现有数据(默认:否)"
   },
 
   "batch_size": {
     "display_name": "批量大小",
-    "info": "每批写入的行数（默认：1000）"
+    "info": "每批写入的行数(默认:1000)"
   },
 
   "outputs": {
@@ -47,7 +47,9 @@
     "datasources_loaded": "已加载 {count} 个PostgreSQL数据源",
     "databases_loaded": "已加载 {count} 个数据库",
     "importing": "正在将GDB数据导入PostgreSQL...",
-    "success_multiple": "成功导入 {count} 个表，共 {rows} 行数据"
+    "success_multiple": "成功导入 {count} 个表,共 {rows} 行数据",
+    "success_with_details": "导入完成 - 成功: {imported}, 跳过: {skipped}, 失败: {failed}, 总行数: {rows}",
+    "layer_empty": "图层无数据"
   },
 
   "warnings": {
@@ -58,14 +60,15 @@
   },
 
   "errors": {
-    "no_file": "未选择GDB文件。请提供文件或文件ID变量。",
+    "no_file": "未提供GDB文件 - 请使用上游数据连接、文件选择或输入文件ID变量",
+    "variable_not_resolved": "无法解析文件ID变量,请检查变量名称是否正确",
     "no_datasource": "未选择PostgreSQL数据源。请选择数据源或连接GDB建库组件。",
-    "load_datasources_failed": "加载数据源失败：{error}",
-    "load_databases_failed": "加载数据库失败：{error}",
+    "load_datasources_failed": "加载数据源失败:{error}",
+    "load_databases_failed": "加载数据库失败:{error}",
     "no_minio_url": "文件ID {file_id} 未找到MinIO URL",
-    "get_url_failed": "获取文件 {file_id} 的URL失败：{error}",
+    "get_url_failed": "获取文件 {file_id} 的URL失败:{error}",
     "datasource_not_found": "未找到ID为 {id} 的数据源",
-    "get_connection_failed": "获取数据库连接失败：{error}",
-    "import_failed": "导入GDB数据失败：{error}"
+    "get_connection_failed": "获取数据库连接失败:{error}",
+    "import_failed": "导入GDB数据失败:{error}"
   }
 }

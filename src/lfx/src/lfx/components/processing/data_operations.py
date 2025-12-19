@@ -850,7 +850,7 @@ class DataOperationsComponent(Component):
         if operation == "Path Selection":
             # Path selection navigates through JSON structure
             # Try to get upstream data sample and apply JQ to infer output structure
-            logger.info(f"[DataOperations] _calculate_output_fields: Processing Path Selection operation")
+            logger.info("[DataOperations] _calculate_output_fields: Processing Path Selection operation")
             selected_key_value = build_config.get("selected_key", {}).get("value", "")
             logger.info(f"[DataOperations] Path Selection: selected_key from build_config = '{selected_key_value}'")
 
@@ -900,7 +900,7 @@ class DataOperationsComponent(Component):
                                     f"[DataOperations] Path Selection: inferred {len(fields)} fields from upstream data sample"
                                 )
                                 return fields
-                            elif isinstance(result, list) and len(result) > 0 and isinstance(result[0], dict):
+                            if isinstance(result, list) and len(result) > 0 and isinstance(result[0], dict):
                                 # Result is a list of dicts - use first item structure
                                 from lfx.components.helpers.field_extraction import _infer_type_from_value
 
@@ -912,11 +912,10 @@ class DataOperationsComponent(Component):
                                     f"[DataOperations] Path Selection: inferred {len(fields)} fields from list result"
                                 )
                                 return fields
-                            else:
-                                logger.info(
-                                    f"[DataOperations] Path Selection: result is not a dict or list of dicts (type: {type(result).__name__})"
-                                )
-                                return []
+                            logger.info(
+                                f"[DataOperations] Path Selection: result is not a dict or list of dicts (type: {type(result).__name__})"
+                            )
+                            return []
                     except Exception as e:
                         logger.debug(f"[DataOperations] Path Selection: could not get upstream data: {e}")
                         # Fall through to return empty
@@ -951,8 +950,9 @@ class DataOperationsComponent(Component):
                         )
 
                         if upstream_data and len(upstream_data) > 0:
-                            import jq
                             import json
+
+                            import jq
                             from json_repair import repair_json
 
                             first_item = upstream_data[0]
@@ -978,7 +978,7 @@ class DataOperationsComponent(Component):
                                         f"[DataOperations] JQ Expression: inferred {len(fields)} fields from upstream data sample"
                                     )
                                     return fields
-                                elif isinstance(result, list) and len(result) > 0 and isinstance(result[0], dict):
+                                if isinstance(result, list) and len(result) > 0 and isinstance(result[0], dict):
                                     from lfx.components.helpers.field_extraction import _infer_type_from_value
 
                                     fields = [

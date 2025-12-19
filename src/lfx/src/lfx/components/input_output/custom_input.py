@@ -855,13 +855,12 @@ class ETLCustomInputComponent(Component):
 
                     logger.info(f"[CustomInput] Successfully fetched {len(result_data)} records from upstream node")
                     return result_data
-                else:
-                    # Build dependency vertices without capturing results
-                    await temp_graph.build_vertex(
-                        vertex_id=vertex_id,
-                        fallback_to_env_vars=True,
-                        user_id=None,
-                    )
+                # Build dependency vertices without capturing results
+                await temp_graph.build_vertex(
+                    vertex_id=vertex_id,
+                    fallback_to_env_vars=True,
+                    user_id=None,
+                )
 
             logger.error("[CustomInput] Target vertex not found in dependency list")
             return []
