@@ -92,12 +92,14 @@ RUN apt-get update \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
+COPY --from=builder /app/.venv /app/.venv
+
 RUN useradd -r -m -d /app/data user \
     && mkdir -p /app/data/.cache/langflow \
     && mkdir -p /app/logs \
-    && chown -R user:0 /app/data /app/logs
+    && chown -R user:0 /app/data /app/logs \
+    && chown -R user:0 /app/.venv
 
-COPY --from=builder /app/.venv /app/.venv
 ENV PATH="/app/.venv/bin:$PATH"
 
 LABEL org.opencontainers.image.title=langflow
