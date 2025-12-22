@@ -92,12 +92,10 @@ RUN apt-get update \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-RUN useradd -r -m -d /app/data user \
-    && mkdir -p /app/data/.cache/langflow \
-    && mkdir -p /app/logs \
-    && chown -R user:0 /app/data /app/logs
+RUN mkdir -p /app/data/.cache/langflow \
+    && mkdir -p /app/logs
 
-COPY --from=builder --chown=0 /app/.venv /app/.venv
+COPY --from=builder /app/.venv /app/.venv
 
 ENV PATH="/app/.venv/bin:$PATH"
 
@@ -107,7 +105,6 @@ LABEL org.opencontainers.image.licenses=MIT
 LABEL org.opencontainers.image.url=https://github.com/langflow-ai/langflow
 LABEL org.opencontainers.image.source=https://github.com/langflow-ai/langflow
 
-USER user
 WORKDIR /app
 
 ENV LANGFLOW_HOST=0.0.0.0
