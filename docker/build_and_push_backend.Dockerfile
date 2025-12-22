@@ -92,7 +92,6 @@ RUN apt-get update \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-
 RUN useradd -r -m -d /app/data user \
     && mkdir -p /app/data/.cache/langflow \
     && mkdir -p /app/logs \
