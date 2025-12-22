@@ -229,6 +229,29 @@ class GDBService:
             layer_defn = layer.GetLayerDefn()
             fields = []
 
+            # 首先添加 OBJECTID 字段（用于下游创建表结构）
+            fields.append(
+                GDBFieldInfo(
+                    name="OBJECTID",
+                    alias="OID",
+                    type="Integer",
+                    width=0,
+                )
+            )
+
+            # 添加 SHAPE 字段（几何字段，用于下游创建表结构）
+            geom_type = layer.GetGeomType()
+            if geom_type != ogr.wkbNone:
+                geom_type_name = ogr.GeometryTypeToName(geom_type)
+                fields.append(
+                    GDBFieldInfo(
+                        name="SHAPE",
+                        alias="几何",
+                        type=geom_type_name,
+                        width=0,
+                    )
+                )
+
             # 尝试获取字段数量，这一步可能触发 GDAL RuntimeError
             try:
                 field_count = layer_defn.GetFieldCount()
@@ -495,7 +518,33 @@ class GDBService:
                     print("      可能原因: 图层使用了 OpenFileGDB 不支持的特性")
                     print("      建议: 在 ArcMap 中导出为简化格式")
 
+                # 初始化字段列表
                 fields = []
+
+                # 首先添加 OBJECTID 字段（用于下游创建表结构）
+                fields.append(
+                    GDBFieldInfo(
+                        name="OBJECTID",
+                        alias="OID",
+                        type="Integer",
+                        width=0,
+                    )
+                )
+
+                # 添加 SHAPE 字段（几何字段，用于下游创建表结构）
+                layer_geom_type = layer.GetGeomType()
+                if layer_geom_type != ogr.wkbNone:
+                    layer_geom_type_name = ogr.GeometryTypeToName(layer_geom_type)
+                    fields.append(
+                        GDBFieldInfo(
+                            name="SHAPE",
+                            alias="几何",
+                            type=layer_geom_type_name,
+                            width=0,
+                        )
+                    )
+
+                # 添加其他属性字段
                 for i in range(field_count):
                     field_defn = layer_defn.GetFieldDefn(i)
                     alias = field_defn.GetAlternativeName()
