@@ -458,10 +458,45 @@ async def simplified_run_flow(
     request_variables = extract_global_variables_from_headers(http_request.headers)
 
     # Extract runtime_variables from input_request (highest priority)
+    # Note: runtime_variables may already contain auto-wrapped extra fields from the request body
     runtime_variables = None
     if input_request and hasattr(input_request, "runtime_variables") and input_request.runtime_variables:
         runtime_variables = input_request.runtime_variables
-        await logger.adebug(f"Using runtime variables in run: {list(runtime_variables.keys())}")
+
+        # Handle nested JSON string in 'runtimeVariables' key
+        # Client may send: {"runtimeVariables": '{"resultId":123,"folderId":456,...}'}
+        if len(runtime_variables) == 1 and "runtimeVariables" in runtime_variables:
+            try:
+                import json
+
+                nested_json_str = runtime_variables["runtimeVariables"]
+                parsed_vars = json.loads(nested_json_str)
+                if isinstance(parsed_vars, dict):
+                    # Convert all values to strings for consistency
+                    runtime_variables = {}
+                    for key, value in parsed_vars.items():
+                        if value is None:
+                            runtime_variables[key] = ""
+                        elif isinstance(value, bool):
+                            runtime_variables[key] = "true" if value else "false"
+                        elif isinstance(value, int | float):
+                            runtime_variables[key] = str(value)
+                        elif isinstance(value, str):
+                            runtime_variables[key] = value
+                        else:
+                            runtime_variables[key] = json.dumps(value)
+                    await logger.adebug(
+                        f"Parsed nested JSON from runtimeVariables key: {list(runtime_variables.keys())}"
+                    )
+            except (json.JSONDecodeError, TypeError, KeyError) as e:
+                await logger.awarning(f"Failed to parse nested runtimeVariables JSON: {e}")
+
+        # Enhanced logging for debugging
+        variable_count = len(runtime_variables)
+        variable_keys = list(runtime_variables.keys())
+        await logger.adebug(
+            f"Runtime variables in request: {variable_count} variables - Keys: {', '.join(variable_keys)}"
+        )
 
     # Merge runtime variables and request variables with existing context
     if runtime_variables or request_variables:
@@ -474,9 +509,16 @@ async def simplified_run_flow(
         if runtime_variables:
             context["runtime_variables"] = runtime_variables
 
-        # Add request_variables (from headers, lower priority)
+            # Detailed logging for debugging variable sources (truncate long values for security)
+            truncated_vars = {k: (v[:30] + "..." if len(str(v)) > 30 else v) for k, v in runtime_variables.items()}
+            await logger.adebug(f"Context updated with runtime_variables: {truncated_vars}")
+
+        # Add request_variables (from headers, lower priority than runtime_variables)
         if request_variables:
             context["request_variables"] = request_variables
+            await logger.adebug(
+                f"Context updated with request_variables from headers: {list(request_variables.keys())}"
+            )
 
     start_time = time.perf_counter()
 

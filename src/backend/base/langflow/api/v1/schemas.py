@@ -15,6 +15,7 @@ from pydantic import (
     field_serializer,
     field_validator,
     model_serializer,
+    model_validator,
 )
 
 from langflow.schema.dotdict import dotdict
@@ -340,6 +341,9 @@ class VerticesBuiltResponse(BaseModel):
 
 
 class SimplifiedAPIRequest(BaseModel):
+    # Allow extra fields to be captured for auto-wrapping into runtime_variables
+    model_config = ConfigDict(extra="allow")
+
     input_value: str | None = Field(default=None, description="The input value")
     input_type: InputType | None = Field(default="chat", description="The input type")
     output_type: OutputType | None = Field(default="chat", description="The output type")
@@ -354,6 +358,125 @@ class SimplifiedAPIRequest(BaseModel):
         description="Runtime variables to use during this execution. "
         "These variables have the highest priority and will override system and global variables.",
     )
+    variables: dict[str, str] | None = Field(
+        default=None,
+        description="Alternative field for runtime variables. "
+        "Alias for 'runtime_variables'. If both are provided, 'runtime_variables' takes precedence.",
+    )
+
+    @model_validator(mode="after")
+    def merge_variables_and_auto_wrap(self) -> "SimplifiedAPIRequest":
+        """Merge variables and auto-wrap extra fields into runtime_variables.
+
+        Priority order (highest to lowest):
+        1. Explicit runtime_variables field
+        2. Explicit variables field
+        3. Auto-detected extra fields (unknown fields in request body)
+
+        This validator:
+        - Merges 'variables' into 'runtime_variables' if runtime_variables is None
+        - Auto-wraps unrecognized top-level fields into runtime_variables
+        - Converts all variable values to strings for consistency
+        - Prevents reserved field names from being treated as variables
+        """
+        # Define known schema fields (should not be auto-wrapped)
+        known_fields = {
+            "input_value",
+            "input_type",
+            "output_type",
+            "output_component",
+            "tweaks",
+            "session_id",
+            "runtime_variables",
+            "variables",
+        }
+
+        # Collect extra fields from Pydantic v2's __pydantic_extra__
+        extra_fields = {}
+        if hasattr(self, "__pydantic_extra__") and self.__pydantic_extra__:
+            for key, value in self.__pydantic_extra__.items():
+                # Skip if it's a known field (shouldn't happen, but defensive)
+                if key not in known_fields:
+                    extra_fields[key] = self._convert_to_string(value)
+
+        # Start with runtime_variables as base (highest priority)
+        if self.runtime_variables is not None:
+            merged = dict(self.runtime_variables)
+
+            # Handle edge case: client sent nested JSON string in runtimeVariables key
+            # e.g., {"runtimeVariables": "{\"folderId\":123,\"resultId\":456}"}
+            if len(merged) == 1 and "runtimeVariables" in merged:
+                try:
+                    import json
+                    # Try to parse the runtimeVariables value as JSON
+                    nested_vars = json.loads(merged["runtimeVariables"])
+                    if isinstance(nested_vars, dict):
+                        # Replace merged with the parsed nested variables
+                        merged = {k: self._convert_to_string(v) for k, v in nested_vars.items()}
+                except (json.JSONDecodeError, TypeError):
+                    # Not valid JSON, keep as-is
+                    pass
+        # Fallback to variables field
+        elif self.variables is not None:
+            merged = {k: self._convert_to_string(v) for k, v in self.variables.items()}
+        # Start with empty if neither exists
+        else:
+            merged = {}
+
+        # Merge variables field if runtime_variables wasn't set
+        if self.runtime_variables is None and self.variables is not None:
+            for key, value in self.variables.items():
+                if key not in merged:
+                    merged[key] = self._convert_to_string(value)
+
+        # Merge extra fields (lowest priority - don't overwrite)
+        for key, value in extra_fields.items():
+            if key not in merged:
+                merged[key] = value
+
+        # Set the merged result as runtime_variables
+        if merged:
+            self.runtime_variables = merged
+
+        # Clear the variables field to avoid confusion (it's been merged)
+        self.variables = None
+
+        return self
+
+    @staticmethod
+    def _convert_to_string(value: Any) -> str:
+        """Convert variable values to strings for consistency.
+
+        Variable service expects string values, so we convert all types:
+        - None → empty string
+        - Booleans → "true"/"false"
+        - Numbers → string representation
+        - Strings → as-is
+        - Objects → JSON string representation
+
+        Args:
+            value: The value to convert
+
+        Returns:
+            String representation of the value
+        """
+        if value is None:
+            return ""
+        if isinstance(value, bool):
+            # Must check bool before int (bool is subclass of int in Python)
+            return "true" if value else "false"
+        if isinstance(value, int | float):
+            return str(value)
+        if isinstance(value, str):
+            return value
+        # For complex objects (dict, list, etc.), convert to JSON
+        try:
+            import json
+
+            return json.dumps(value)
+        except (TypeError, ValueError):
+            # Fallback to string representation if JSON serialization fails
+            return str(value)
 
 
 # (alias) type ReactFlowJsonObject<NodeData = any, EdgeData = any> = {
