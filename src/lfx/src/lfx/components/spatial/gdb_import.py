@@ -515,38 +515,157 @@ class GDBImportComponent(Component):
             error_msg = i18n.t("components.spatial.gdb_import.errors.get_connection_failed", error=str(e))
             raise ValueError(error_msg) from e
 
-    def _convert_gdb_to_dataframe(self, layer_data: dict):
-        """Convert GDB layer data to DataFrame.
+    def _convert_gdb_to_geodataframe(self, layer_data: dict, layer_name: str):
+        """Convert GDB layer data to GeoDataFrame or DataFrame.
 
         Args:
             layer_data: Layer data from GDB API
+            layer_name: Name of the layer (for logging)
 
         Returns:
-            Pandas DataFrame
+            Tuple of (DataFrame/GeoDataFrame, field_comments_dict, has_geometry) where:
+            - DataFrame/GeoDataFrame: The converted data
+            - field_comments_dict: Maps original field names to their aliases/comments
+            - has_geometry: Boolean indicating if the data has valid geometries
+            Returns (None, None, False) if no valid data
         """
+        import geopandas as gpd
         import pandas as pd
+        from shapely import wkt
+        from shapely.geometry import shape
+        from lfx.log.logger import logger
 
         features = layer_data.get("features", [])
 
         if not features:
-            return pd.DataFrame()
+            logger.warning(f"[GDBImport] Layer {layer_name}: No features found")
+            return None, None, False
+
+        # Extract field metadata (name -> alias mapping)
+        fields = layer_data.get("fields", [])
+        field_comments = {}
+        for field in fields:
+            field_name = field.get("name", "")
+            field_alias = field.get("alias")
+            if field_name and field_alias:
+                # Keep original field name case (no lowercase conversion)
+                field_comments[field_name] = field_alias
+                logger.debug(f"[GDBImport] Field comment mapping: {field_name} -> {field_alias}")
 
         records = []
+        geometries = []
+        has_valid_geometry = False
+
         for feature in features:
+            # Get feature properties
+            properties = feature.get("properties", {})
+
+            # Map OBJECTID from feature.id
             record = {
-                "feature_id": feature.get("id"),
-                **feature.get("properties", {}),
+                "OBJECTID": feature.get("id"),  # Keep uppercase for PostgreSQL
             }
 
-            # Store geometry as WKT if present
-            if feature.get("geometry"):
-                import json
-
-                record["geometry_wkt"] = json.dumps(feature["geometry"])
+            # Add all other properties, excluding SHAPE and OBJECTID
+            # SHAPE will be handled as geometry column
+            for key, value in properties.items():
+                if key.upper() not in ("SHAPE", "OBJECTID"):
+                    record[key] = value  # Keep original case
 
             records.append(record)
 
-        return pd.DataFrame(records)
+            # Process geometry (from feature.geometry)
+            geom = None
+            geometry_data = feature.get("geometry")
+
+            if geometry_data:
+                try:
+                    # Handle GeoJSON-style geometry
+                    if isinstance(geometry_data, dict):
+                        geom = shape(geometry_data)
+                        has_valid_geometry = True
+                    # Handle WKT string
+                    elif isinstance(geometry_data, str):
+                        geom = wkt.loads(geometry_data)
+                        has_valid_geometry = True
+                    else:
+                        logger.warning(
+                            f"[GDBImport] Layer {layer_name}, feature {feature.get('id')}: "
+                            f"Unknown geometry format: {type(geometry_data)}"
+                        )
+                except Exception as geom_error:
+                    logger.error(
+                        f"[GDBImport] Layer {layer_name}, feature {feature.get('id')}: "
+                        f"Failed to parse geometry: {geom_error}"
+                    )
+
+            geometries.append(geom)
+
+        # Check if we have valid records
+        if not records:
+            logger.warning(f"[GDBImport] Layer {layer_name}: No valid records")
+            return None, None, False
+
+        df = pd.DataFrame(records)
+
+        # Add default comment for OBJECTID (from feature.id)
+        if "OBJECTID" not in field_comments:
+            field_comments["OBJECTID"] = "要素唯一标识"
+
+        # If no valid geometries, return as regular DataFrame (attribute table)
+        if not has_valid_geometry:
+            logger.info(
+                f"[GDBImport] Layer {layer_name}: No valid geometries found, "
+                f"creating attribute table with {len(df)} records, {len(df.columns)} columns"
+            )
+            return df, field_comments, False
+
+        # Create GeoDataFrame with geometries
+        # Use "SHAPE" as geometry column name to match GDB field name
+        gdf = gpd.GeoDataFrame(df, geometry=geometries, crs=None)
+        # Rename default 'geometry' column to 'SHAPE'
+        gdf = gdf.rename_geometry("SHAPE")
+
+        # Add comment for SHAPE column from fields metadata
+        # If SHAPE field has alias in fields, use it; otherwise use default
+        if "SHAPE" not in field_comments:
+            field_comments["SHAPE"] = "几何对象"
+
+        logger.info(
+            f"[GDBImport] Layer {layer_name}: Created GeoDataFrame with {len(gdf)} features, "
+            f"{len(gdf.columns)} columns, {len(field_comments)} field comments"
+        )
+
+        return gdf, field_comments, True
+
+    def _extract_srid_from_spatial_ref(self, spatial_ref: str | None) -> int | None:
+        """Extract EPSG SRID from spatial reference string.
+
+        Args:
+            spatial_ref: Spatial reference WKT string
+
+        Returns:
+            EPSG SRID code, or None if not found
+        """
+        if not spatial_ref:
+            return None
+
+        import re
+        from lfx.log.logger import logger
+
+        # Try to find EPSG code in AUTHORITY["EPSG","XXXX"] format
+        match = re.search(r'AUTHORITY\["EPSG","(\d+)"\]', spatial_ref)
+        if match:
+            srid = int(match.group(1))
+            logger.info(f"[GDBImport] Extracted SRID from spatial reference: EPSG:{srid}")
+            return srid
+
+        # Fallback: try to find common EPSG codes by name
+        if "CGCS2000" in spatial_ref and "87E" in spatial_ref:
+            logger.info("[GDBImport] Detected CGCS2000 3-degree GK CM 87E, using EPSG:4538")
+            return 4538
+
+        logger.warning(f"[GDBImport] Could not extract SRID from spatial reference: {spatial_ref[:100]}...")
+        return None
 
     async def import_gdb_data(self) -> Data:
         """Import all GDB table layers to PostgreSQL automatically.
@@ -667,10 +786,10 @@ class GDBImportComponent(Component):
                     )
                     logger.info(f"[GDBImport] Layer {layer_name}: {layer_data.total_count} features")
 
-                    # Convert to DataFrame
-                    df = self._convert_gdb_to_dataframe(layer_data.model_dump())
+                    # Convert to DataFrame/GeoDataFrame (PostGIS-compatible) with field comments
+                    df_or_gdf, field_comments, has_geometry = self._convert_gdb_to_geodataframe(layer_data.model_dump(), layer_name)
 
-                    if df.empty:
+                    if df_or_gdf is None or df_or_gdf.empty:
                         skip_reason = i18n.t("components.spatial.gdb_import.status.layer_empty")
                         logger.warning(f"[GDBImport] Layer {layer_name} has no data, skipping")
                         skipped_layers.append({
@@ -680,45 +799,135 @@ class GDBImportComponent(Component):
                         })
                         continue
 
-                    # Write to PostgreSQL (use layer name as table name)
-                    logger.info(f"[GDBImport] Writing {len(df)} rows to PostgreSQL table: {layer_name}")
+                    # Determine table type
+                    table_type = "spatial table" if has_geometry else "attribute table (no geometry)"
+                    logger.info(f"[GDBImport] Layer {layer_name}: Importing as {table_type}")
+
+                    # Keep original table name case (no lowercase conversion)
+                    table_name = layer_name
+
+                    # Write to PostgreSQL using PostGIS or regular SQL
+                    logger.info(f"[GDBImport] Writing {len(df_or_gdf)} rows to PostgreSQL table: {table_name}")
                     engine = create_engine(connection_string, poolclass=NullPool)
 
                     try:
-                        # Auto create/replace table
+                        # Determine if_exists strategy
                         if_exists = "replace" if self.create_table else "append"
+
+                        # Handle truncate_first option
                         if self.truncate_first and not self.create_table:
-                            # Truncate table first
                             with engine.connect() as conn:
                                 from sqlalchemy import text
 
-                                conn.execute(text(f"TRUNCATE TABLE {layer_name}"))
+                                conn.execute(text(f'TRUNCATE TABLE "{table_name}"'))
                                 conn.commit()
+                            logger.info(f"[GDBImport] Truncated table: {table_name}")
 
-                        df.to_sql(
-                            layer_name,  # Use layer name as table name
-                            engine,
-                            if_exists=if_exists,
-                            index=False,
-                            chunksize=self.batch_size,
-                            method="multi",
-                        )
+                        # Write to database (spatial or attribute table)
+                        if has_geometry:
+                            # Write to PostGIS (geometry column will be named 'SHAPE' to match GDB)
+                            df_or_gdf.to_postgis(
+                                name=table_name,
+                                con=engine,
+                                if_exists=if_exists,
+                                index=False,
+                                chunksize=self.batch_size,
+                            )
+                        else:
+                            # Write as regular table (no geometry)
+                            df_or_gdf.to_sql(
+                                name=table_name,
+                                con=engine,
+                                if_exists=if_exists,
+                                index=False,
+                                chunksize=self.batch_size,
+                            )
 
-                        rows_written = len(df)
+                        rows_written = len(df_or_gdf)
+
+                        # Add metadata (primary key, indexes, comments) if creating new table
+                        if if_exists == "replace":
+                            with engine.connect() as conn:
+                                from sqlalchemy import text
+
+                                # Add primary key on OBJECTID (keep uppercase)
+                                try:
+                                    conn.execute(
+                                        text(f'ALTER TABLE "{table_name}" ADD PRIMARY KEY ("OBJECTID")')
+                                    )
+                                    conn.commit()
+                                    logger.info(f"[GDBImport] Added primary key on OBJECTID for table: {table_name}")
+                                except Exception as pk_error:
+                                    logger.warning(
+                                        f"[GDBImport] Failed to add primary key for {table_name}: {pk_error}"
+                                    )
+
+                                # Create spatial index on SHAPE column (only for spatial tables)
+                                if has_geometry:
+                                    try:
+                                        conn.execute(
+                                            text(
+                                                f'CREATE INDEX "{table_name}_shape_idx" '
+                                                f'ON "{table_name}" USING GIST ("SHAPE")'
+                                            )
+                                        )
+                                        conn.commit()
+                                        logger.info(
+                                            f"[GDBImport] Created spatial index for table: {table_name}"
+                                        )
+                                    except Exception as idx_error:
+                                        logger.warning(
+                                            f"[GDBImport] Failed to create spatial index for {table_name}: "
+                                            f"{idx_error}"
+                                        )
+
+                                # Add column comments from field aliases
+                                # Execute each COMMENT statement separately
+                                if field_comments:
+                                    comment_count = 0
+                                    for column_name, comment_text in field_comments.items():
+                                        try:
+                                            # Escape single quotes in comment text
+                                            escaped_comment = comment_text.replace("'", "''")
+
+                                            # Execute COMMENT statement independently
+                                            conn.execute(
+                                                text(
+                                                    f"COMMENT ON COLUMN \"{table_name}\".\"{column_name}\" "
+                                                    f"IS '{escaped_comment}'"
+                                                )
+                                            )
+                                            conn.commit()  # Commit each COMMENT independently
+                                            comment_count += 1
+                                            logger.debug(
+                                                f"[GDBImport] Added comment for {table_name}.{column_name}: {comment_text}"
+                                            )
+                                        except Exception as comment_error:
+                                            logger.warning(
+                                                f"[GDBImport] Failed to add comment for {table_name}.{column_name}: "
+                                                f"{comment_error}"
+                                            )
+
+                                    logger.info(
+                                        f"[GDBImport] Added {comment_count} column comments for table: {table_name}"
+                                    )
+
                         total_rows += rows_written
                         imported_tables.append({
-                            "table": layer_name,
+                            "table": table_name,
                             "rows": rows_written,
                             "type": layer.node_type.value,
                         })
-                        logger.info(f"[GDBImport] Successfully imported {rows_written} rows to table: {layer_name}")
+                        logger.info(
+                            f"[GDBImport] Successfully imported {rows_written} rows to table: {table_name}"
+                        )
 
                     finally:
                         engine.dispose()
 
                 except Exception as layer_error:
                     error_msg = str(layer_error)
-                    logger.error(f"[GDBImport] Failed to import layer {layer_name}: {error_msg}")
+                    logger.exception(f"[GDBImport] Failed to import layer {layer_name}: {error_msg}")
                     failed_layers.append({
                         "layer": layer_name,
                         "error": error_msg,

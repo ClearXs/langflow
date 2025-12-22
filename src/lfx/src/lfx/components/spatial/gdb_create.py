@@ -59,11 +59,6 @@ class GDBCreateComponent(Component):
 
     outputs = [
         Output(
-            display_name=i18n.t("components.spatial.gdb_create.outputs.datasource_id.display_name"),
-            name="datasource_id",
-            method="create_gdb_datasource",
-        ),
-        Output(
             display_name=i18n.t("components.spatial.gdb_create.outputs.result_info.display_name"),
             name="result_info",
             method="create_gdb_datasource",

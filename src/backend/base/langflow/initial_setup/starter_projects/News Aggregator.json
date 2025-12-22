@@ -1752,7 +1752,7 @@
                   },
                   {
                     "name": "google",
-                    "version": "2.45.0"
+                    "version": "1.72.0"
                   },
                   {
                     "name": "googleapiclient",
