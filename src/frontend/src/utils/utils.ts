@@ -614,14 +614,21 @@ export function FormatColumns(columns: ColumnField[]): ColDef<any>[] {
         col.options_map
       ) {
         // Use dynamic cellEditorSelector for options_map to switch between dropdown and text input
-        if ((col.options || col.options_map) && col.formatter === FormatterType.text) {
+        if (
+          (col.options || col.options_map) &&
+          col.formatter === FormatterType.text
+        ) {
           // Use cellEditorSelector for dynamic editor choice based on row data
           newCol.cellEditorSelector = (params) => {
             // Check if using dynamic options_map
             if (col.options_map && col.depend_on) {
               const dependentValue = params.data?.[col.depend_on];
 
-              if (dependentValue && col.options_map[dependentValue] && col.options_map[dependentValue].length > 0) {
+              if (
+                dependentValue &&
+                col.options_map[dependentValue] &&
+                col.options_map[dependentValue].length > 0
+              ) {
                 // Has matching options - use dropdown
                 return {
                   component: TableDropdownCellEditor,
@@ -631,7 +638,7 @@ export function FormatColumns(columns: ColumnField[]): ColDef<any>[] {
                     optionsMetadata: col.options_metadata,
                     optionsMap: col.options_map,
                     dependOn: col.depend_on,
-                  }
+                  },
                 };
               }
               // No matching options - use default text editor
@@ -644,7 +651,7 @@ export function FormatColumns(columns: ColumnField[]): ColDef<any>[] {
                 params: {
                   values: col.options,
                   optionsMetadata: col.options_metadata,
-                }
+                },
               };
             }
             // No options - use default text editor

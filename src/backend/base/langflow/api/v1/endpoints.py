@@ -50,7 +50,13 @@ from langflow.services.cache.utils import save_uploaded_file
 from langflow.services.database.models.flow.model import Flow, FlowRead
 from langflow.services.database.models.flow.utils import get_all_webhook_components_in_flow
 from langflow.services.database.models.user.model import User, UserRead
-from langflow.services.deps import get_queue_service, get_session_service, get_settings_service, get_telemetry_service
+from langflow.services.deps import (
+    get_queue_service,
+    get_session_service,
+    get_settings_service,
+    get_telemetry_service,
+    session_scope,
+)
 from langflow.services.job_queue.service import JobQueueService
 from langflow.services.telemetry.schema import RunPayload
 from langflow.utils.compression import compress_response
@@ -221,6 +227,40 @@ async def simple_run_flow(
         if run_id is None:
             run_id = str(uuid4())
         graph.set_run_id(run_id)
+
+        # 为 API 跟踪创建执行任务
+        try:
+            async with session_scope() as task_session:
+                from langflow.services.execution_task.service import ExecutionTaskService
+
+                # 从请求元数据构建 execution_config
+                execution_config = None
+                if input_request:
+                    execution_config = {
+                        "session_id": input_request.session_id,
+                        "input_type": input_request.input_type,
+                        "output_type": input_request.output_type,
+                        "streaming": stream,
+                    }
+                    # 如果存在 runtime_variables 则包含进来
+                    if input_request.runtime_variables:
+                        execution_config["runtime_variables"] = input_request.runtime_variables
+
+                task_service = ExecutionTaskService(task_session)
+                await task_service.create_task(
+                    flow_id=UUID(flow_id_str),
+                    run_id=run_id,
+                    user_id=user_id,  # user_id 已经是 UUID 对象或 None
+                    trigger_type="api",
+                    execution_config=execution_config,
+                )
+                await logger.adebug(
+                    f"创建 API 执行任务: flow_id={flow_id_str}, run_id={run_id}, user_id={user_id}, stream={stream}"
+                )
+        except Exception as e:  # noqa: BLE001
+            # 不让任务创建失败中断流程执行
+            await logger.awarning(f"创建 API 执行任务失败 (flow_id={flow_id_str}, run_id={run_id}): {e}")
+
         inputs = None
         if input_request.input_value is not None:
             inputs = [
@@ -243,6 +283,20 @@ async def simple_run_flow(
                     and (input_request.output_type == "any" or input_request.output_type in vertex.id.lower())
                 )
             ]
+
+        # 调试日志：检查 outputs 列表
+        await logger.adebug(
+            f"API 执行 outputs 列表: {outputs}, "
+            f"output_type={input_request.output_type}, "
+            f"output_component={input_request.output_component}, "
+            f"总顶点数={len(graph.vertices)}"
+        )
+        if not outputs:
+            await logger.awarning(
+                f"API 执行 outputs 为空! flow_id={flow_id_str}, "
+                f"这将导致没有组件被执行。output_type={input_request.output_type}"
+            )
+
         task_result, session_id = await run_graph_internal(
             graph=graph,
             flow_id=flow_id_str,
@@ -601,6 +655,12 @@ async def simplified_run_flow(
             ),
         )
 
+        # 触发后台任务更新任务状态（对于空流程也会正确更新为 success）
+        from langflow.api.build import _update_task_statistics_async
+
+        task = asyncio.create_task(_update_task_statistics_async(run_id))
+        task.add_done_callback(lambda _: None)
+
     except ValueError as exc:
         background_tasks.add_task(
             telemetry_service.log_package_run,
@@ -612,6 +672,13 @@ async def simplified_run_flow(
                 run_id=run_id,
             ),
         )
+
+        # 触发后台任务更新任务状态（标记为失败）
+        from langflow.api.build import _update_task_statistics_async
+
+        task = asyncio.create_task(_update_task_statistics_async(run_id))
+        task.add_done_callback(lambda _: None)
+
         if "badly formed hexadecimal UUID string" in str(exc):
             # This means the Flow ID is not a valid UUID which means it can't find the flow
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
@@ -631,6 +698,13 @@ async def simplified_run_flow(
                 run_id=run_id,
             ),
         )
+
+        # 触发后台任务更新任务状态（标记为失败）
+        from langflow.api.build import _update_task_statistics_async
+
+        task = asyncio.create_task(_update_task_statistics_async(run_id))
+        task.add_done_callback(lambda _: None)
+
         raise APIException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, exception=exc, flow=flow) from exc
 
     return result

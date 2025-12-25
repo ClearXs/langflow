@@ -12,6 +12,7 @@ import {
   useEffect,
   useImperativeHandle,
   useMemo,
+  useRef,
   useState,
 } from "react";
 import { useTranslation } from "react-i18next";
@@ -25,13 +26,19 @@ import {
 } from "@/components/ui/tooltip";
 import { useFileManagement } from "@/controllers/DATA_API/useFileManagement";
 import { useSystemParams } from "@/controllers/DATA_API/useSystemParams";
+import ConfirmationModal from "@/modals/confirmationModal";
 import DeleteConfirmationModal from "@/modals/deleteConfirmationModal";
 import useAlertStore from "@/stores/alertStore";
+import { useUploadProgressStore } from "@/stores/uploadProgressStore";
 import { cn } from "@/utils/utils";
 import { CustomTable } from "./components/CustomTable";
 import { FileIcon } from "./components/FileIcon";
 import { NavBar } from "./components/NavBar";
+import { UploadProgressDrawer } from "./components/UploadProgressDrawer";
+import { useFileSystemAccess } from "./hooks/useFileSystemAccess";
 import { useFileTable } from "./hooks/useFileTable";
+import { type FolderTree, useFolderUpload } from "./hooks/useFolderUpload";
+import { useUploadQueue } from "./hooks/useUploadQueue";
 import type { FileItem, FileTableViewProps } from "./types";
 
 export interface FileTableViewHandle {
@@ -79,6 +86,36 @@ export const FileTableView = forwardRef<
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearching, setIsSearching] = useState(false);
   const [searchResults, setSearchResults] = useState<FileItem[]>([]);
+
+  // Folder upload state
+  const [isUploadDrawerOpen, setIsUploadDrawerOpen] = useState(false);
+  const [folderTree, setFolderTree] = useState<FolderTree | null>(null);
+  const [showCancelUploadDialog, setShowCancelUploadDialog] = useState(false);
+  const [showFolderUploadConfirmDialog, setShowFolderUploadConfirmDialog] =
+    useState(false);
+
+  // Folder upload hooks
+  const { parseFolderStructure, createFoldersSerially } =
+    useFolderUpload(fileOps);
+  const uploadQueue = useUploadQueue(5, fileOps);
+  const fileSystemAccess = useFileSystemAccess();
+
+  // Global upload progress store
+  const {
+    setFolders: setGlobalFolders,
+    setTasks: setGlobalTasks,
+    setActiveUploads,
+    setTotalCompleted,
+    setTotalFailed,
+    setIsRunning,
+    setDrawerOpen: setGlobalDrawerOpen,
+    setUploadControls,
+  } = useUploadProgressStore();
+
+  // Track upload start parent ID for batch refresh
+  const uploadStartParentIdRef = useRef<number | string | null>(null);
+  const lastRefreshCountRef = useRef(0);
+  const lastRefreshTimeRef = useRef(Date.now());
 
   const {
     fileList,
@@ -149,6 +186,119 @@ export const FileTableView = forwardRef<
     };
     fetchPreviewServer();
   }, [systemParams]);
+
+  // Batch refresh during upload
+  useEffect(() => {
+    const BATCH_SIZE = 10;
+    const MAX_INTERVAL = 5000; // 5 seconds
+
+    const completedCount = uploadQueue.state.totalCompleted;
+    const now = Date.now();
+
+    const batchSizeReached =
+      completedCount > 0 &&
+      completedCount - lastRefreshCountRef.current >= BATCH_SIZE;
+
+    const timeIntervalReached =
+      now - lastRefreshTimeRef.current >= MAX_INTERVAL &&
+      completedCount > lastRefreshCountRef.current;
+
+    if (batchSizeReached || timeIntervalReached) {
+      // Only refresh if user is still in the same folder
+      if (currentParentId === uploadStartParentIdRef.current) {
+        fetchFiles();
+      }
+      lastRefreshCountRef.current = completedCount;
+      lastRefreshTimeRef.current = now;
+    }
+  }, [uploadQueue.state.totalCompleted, currentParentId, fetchFiles]);
+
+  // Final refresh when upload completes
+  useEffect(() => {
+    if (!uploadQueue.state.isRunning && uploadQueue.state.totalCompleted > 0) {
+      if (currentParentId === uploadStartParentIdRef.current) {
+        fetchFiles();
+      }
+    }
+  }, [
+    uploadQueue.state.isRunning,
+    uploadQueue.state.totalCompleted,
+    currentParentId,
+    fetchFiles,
+  ]);
+
+  // Sync upload queue state to global store
+  // Only sync when there's actual upload activity to avoid overwriting global state with empty data
+  useEffect(() => {
+    const hasUploadActivity =
+      uploadQueue.state.tasks.length > 0 ||
+      folderTree !== null ||
+      uploadQueue.state.isRunning ||
+      uploadQueue.state.totalCompleted > 0 ||
+      uploadQueue.state.totalFailed > 0;
+
+    // Only update global store if there's actual upload activity
+    if (hasUploadActivity) {
+      setGlobalTasks(uploadQueue.state.tasks);
+      setActiveUploads(uploadQueue.state.activeUploads);
+      setTotalCompleted(uploadQueue.state.totalCompleted);
+      setTotalFailed(uploadQueue.state.totalFailed);
+      setIsRunning(uploadQueue.state.isRunning);
+
+      // Sync folder tree to global store
+      if (folderTree) {
+        setGlobalFolders(folderTree.folders);
+      }
+    }
+  }, [
+    uploadQueue.state.tasks,
+    uploadQueue.state.activeUploads,
+    uploadQueue.state.totalCompleted,
+    uploadQueue.state.totalFailed,
+    uploadQueue.state.isRunning,
+    folderTree,
+    setGlobalTasks,
+    setActiveUploads,
+    setTotalCompleted,
+    setTotalFailed,
+    setIsRunning,
+    setGlobalFolders,
+  ]);
+
+  // Sync local drawer state with global store
+  useEffect(() => {
+    setGlobalDrawerOpen(isUploadDrawerOpen);
+  }, [isUploadDrawerOpen, setGlobalDrawerOpen]);
+
+  // Set upload control methods in global store (only once on mount)
+  useEffect(() => {
+    setUploadControls({
+      pauseQueue: uploadQueue.pauseQueue,
+      startQueue: uploadQueue.startQueue,
+      cancelTask: uploadQueue.cancelTask,
+      retryTask: uploadQueue.retryTask,
+      clearCompleted: uploadQueue.clearCompleted,
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Empty dependency array - set only once
+
+  // Handle drawer close with confirmation
+  const handleCloseDrawer = () => {
+    if (uploadQueue.state.isRunning) {
+      setShowCancelUploadDialog(true);
+    } else {
+      setIsUploadDrawerOpen(false);
+    }
+  };
+
+  // Confirm cancel upload
+  const confirmCancelUpload = () => {
+    uploadQueue.pauseQueue();
+    uploadQueue.reset();
+    setIsUploadDrawerOpen(false);
+    setShowCancelUploadDialog(false);
+    setFolderTree(null);
+  };
 
   // Path segments for breadcrumb
   const pathSegments = useMemo(() => {
@@ -339,6 +489,121 @@ export const FileTableView = forwardRef<
     } finally {
       setIsUploading(false);
     }
+  };
+
+  // Handle folder upload - Show confirmation dialog first
+  const handleUploadFolder = () => {
+    if (fileSystemAccess.isSupported) {
+      // Modern browsers: directly call File System Access API (no browser dialog)
+      confirmFolderUploadModern();
+    } else {
+      // Legacy browsers: show warning and use webkitdirectory (browser dialog will appear)
+      setShowFolderUploadConfirmDialog(true);
+    }
+  };
+
+  // Legacy fallback: Use webkitdirectory (browser confirmation dialog will appear)
+  const confirmFolderUploadLegacy = async () => {
+    setShowFolderUploadConfirmDialog(false);
+
+    const input = document.createElement("input");
+    input.type = "file";
+    (input as any).webkitdirectory = true; // Enable folder selection
+    input.multiple = true;
+
+    input.onchange = async (e) => {
+      const files = (e.target as HTMLInputElement).files;
+      if (!files || files.length === 0) return;
+
+      await processFolderUpload(Array.from(files));
+    };
+
+    input.click();
+  };
+
+  // Modern API: Use File System Access API (no browser confirmation dialog)
+  const confirmFolderUploadModern = async () => {
+    try {
+      // Call File System Access API
+      const files = await fileSystemAccess.selectDirectory();
+
+      // User cancelled
+      if (files.length === 0) {
+        return;
+      }
+
+      // Process upload
+      await processFolderUpload(files);
+    } catch (error: any) {
+      console.error("Folder upload failed:", error);
+      setErrorData({
+        title: t("fileTableModal.folderUploadFailed"),
+        list: [error?.message || String(error)],
+      });
+    }
+  };
+
+  // Common folder upload processing logic
+  // Used by both modern API and legacy fallback
+  const processFolderUpload = async (files: File[]) => {
+    try {
+      setIsUploadDrawerOpen(true);
+      uploadStartParentIdRef.current = currentParentId;
+
+      // Parse folder structure
+      const tree = parseFolderStructure(files);
+      setFolderTree(tree);
+
+      // Create folders serially
+      const folderIdMap = await createFoldersSerially(
+        tree,
+        currentParentId,
+        (folder) => {
+          setFolderTree((prev) =>
+            prev
+              ? {
+                  ...prev,
+                  folders: prev.folders.map((f) =>
+                    f.path === folder.path ? folder : f,
+                  ),
+                }
+              : null,
+          );
+        },
+      );
+
+      // Assign folder IDs to files
+      tree.files.forEach((f) => {
+        // 如果文件在子文件夹，使用映射的文件夹ID；如果在根目录，使用当前父文件夹ID
+        f.targetFolderId = f.folderPath
+          ? folderIdMap.get(f.folderPath)
+          : currentParentId;
+      });
+
+      // Enqueue files
+      const filesToUpload = tree.files.filter((f) => f.targetFolderId);
+      uploadQueue.enqueueFiles(filesToUpload);
+
+      // Start uploads
+      uploadQueue.startQueue();
+
+      setSuccessData({
+        title: t("fileTableModal.uploadingNFiles", {
+          count: tree.files.length,
+        }),
+      });
+    } catch (error: any) {
+      console.error("Folder upload failed:", error);
+      setErrorData({
+        title: t("fileTableModal.folderCreationFailed"),
+        list: [error?.message || String(error)],
+      });
+    }
+  };
+
+  // Cancel folder upload confirmation
+  const cancelFolderUploadConfirm = () => {
+    setShowFolderUploadConfirmDialog(false);
   };
 
   // Handle batch delete
@@ -660,7 +925,7 @@ export const FileTableView = forwardRef<
         selectList={selectedItems}
         onCreate={handleCreateFolder}
         onUpload={handleUpload}
-        onUploadFolder={handleUpload}
+        onUploadFolder={handleUploadFolder}
         onSearch={handleSearch}
         onDownload={handleBatchDownload}
         onBatchDelete={handleBatchDelete}
@@ -810,6 +1075,55 @@ export const FileTableView = forwardRef<
       >
         <></>
       </DeleteConfirmationModal>
+
+      {/* Cancel upload confirmation dialog */}
+      <ConfirmationModal
+        title={t("fileTableModal.cancelUploadTitle")}
+        cancelText={t("fileTableModal.continueUpload")}
+        confirmationText={t("fileTableModal.cancelUpload")}
+        open={showCancelUploadDialog}
+        onClose={() => setShowCancelUploadDialog(false)}
+        onConfirm={confirmCancelUpload}
+      >
+        <ConfirmationModal.Content>
+          <span className="text-sm">
+            {t("fileTableModal.cancelUploadMessage")}
+          </span>
+        </ConfirmationModal.Content>
+      </ConfirmationModal>
+
+      {/* Folder upload confirmation dialog (legacy browsers only) */}
+      <ConfirmationModal
+        title={t("fileTableModal.uploadFolderConfirmTitle")}
+        cancelText={t("common.cancel")}
+        confirmationText={t("fileTableModal.uploadFolder")}
+        open={showFolderUploadConfirmDialog}
+        onClose={cancelFolderUploadConfirm}
+        onConfirm={confirmFolderUploadLegacy}
+      >
+        <ConfirmationModal.Content>
+          <span className="text-sm">
+            {t("fileTableModal.uploadFolderLegacyWarning")}
+          </span>
+        </ConfirmationModal.Content>
+      </ConfirmationModal>
+
+      {/* Upload progress drawer */}
+      <UploadProgressDrawer
+        isOpen={isUploadDrawerOpen}
+        onClose={handleCloseDrawer}
+        folders={folderTree?.folders || []}
+        tasks={uploadQueue.state.tasks}
+        activeUploads={uploadQueue.state.activeUploads}
+        totalCompleted={uploadQueue.state.totalCompleted}
+        totalFailed={uploadQueue.state.totalFailed}
+        isRunning={uploadQueue.state.isRunning}
+        onPause={uploadQueue.pauseQueue}
+        onResume={uploadQueue.startQueue}
+        onCancel={uploadQueue.cancelTask}
+        onRetry={uploadQueue.retryTask}
+        onClearCompleted={uploadQueue.clearCompleted}
+      />
     </div>
   );
 });

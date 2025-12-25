@@ -134,11 +134,29 @@ class ExecutionTaskService:
             )
 
         if not transactions:
-            logger.warning(
+            logger.info(
                 f"No transactions found for task {task.id}, run_id={run_id}. "
-                f"This might indicate run_id was not set on transactions."
+                f"This is normal for empty flows (flows with no components)."
             )
-            # Return without updating - keep task in "running" state to indicate problem
+            # 对于空流程，标记为成功并设置所有统计为 0
+            task.status = "success"
+            task.total_components = 0
+            task.success_components = 0
+            task.error_components = 0
+            task.total_data_rows = 0
+            task.total_data_size_mb = 0.0
+            task.total_exchanges = 0
+            task.total_duration_ms = 0
+            task.avg_memory_mb = 0.0
+
+            if not task.started_at:
+                task.started_at = task.created_at
+            task.completed_at = datetime.now(timezone.utc)
+
+            await self.session.commit()
+            await self.session.refresh(task)
+
+            logger.debug(f"Updated empty flow task {task.id} to success status")
             return task
 
         # Initialize statistics

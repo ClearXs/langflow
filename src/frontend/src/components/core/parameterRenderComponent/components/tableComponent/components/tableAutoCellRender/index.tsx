@@ -1,6 +1,6 @@
 import type { CustomCellRendererProps } from "ag-grid-react";
-import { BracesIcon } from "lucide-react";
 import { uniqueId } from "lodash";
+import { BracesIcon } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import NumberReader from "@/components/common/numberReader";
@@ -124,8 +124,7 @@ export default function TableAutoCellRender({
         return {
           raw: parsed,
           formatted: JSON.stringify(parsed, null, 2),
-          preview:
-            str.length > 100 ? str.substring(0, 100) + "..." : str,
+          preview: str.length > 100 ? str.substring(0, 100) + "..." : str,
         };
       } catch {
         return null;
