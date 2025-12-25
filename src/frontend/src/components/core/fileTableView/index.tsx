@@ -91,8 +91,6 @@ export const FileTableView = forwardRef<
   const [isUploadDrawerOpen, setIsUploadDrawerOpen] = useState(false);
   const [folderTree, setFolderTree] = useState<FolderTree | null>(null);
   const [showCancelUploadDialog, setShowCancelUploadDialog] = useState(false);
-  const [showFolderUploadConfirmDialog, setShowFolderUploadConfirmDialog] =
-    useState(false);
 
   // Folder upload hooks
   const { parseFolderStructure, createFoldersSerially } =
@@ -491,21 +489,19 @@ export const FileTableView = forwardRef<
     }
   };
 
-  // Handle folder upload - Show confirmation dialog first
+  // Handle folder upload - Directly call appropriate method based on browser support
   const handleUploadFolder = () => {
     if (fileSystemAccess.isSupported) {
       // Modern browsers: directly call File System Access API (no browser dialog)
       confirmFolderUploadModern();
     } else {
-      // Legacy browsers: show warning and use webkitdirectory (browser dialog will appear)
-      setShowFolderUploadConfirmDialog(true);
+      // Legacy browsers: use webkitdirectory (browser's native folder picker)
+      confirmFolderUploadLegacy();
     }
   };
 
-  // Legacy fallback: Use webkitdirectory (browser confirmation dialog will appear)
+  // Legacy fallback: Use webkitdirectory (browser's native folder picker)
   const confirmFolderUploadLegacy = async () => {
-    setShowFolderUploadConfirmDialog(false);
-
     const input = document.createElement("input");
     input.type = "file";
     (input as any).webkitdirectory = true; // Enable folder selection
@@ -599,11 +595,6 @@ export const FileTableView = forwardRef<
         list: [error?.message || String(error)],
       });
     }
-  };
-
-  // Cancel folder upload confirmation
-  const cancelFolderUploadConfirm = () => {
-    setShowFolderUploadConfirmDialog(false);
   };
 
   // Handle batch delete
@@ -791,6 +782,97 @@ export const FileTableView = forwardRef<
     e.stopPropagation();
     setIsDraggingOver(false);
 
+    // Try to get directory entries using DataTransferItemList API
+    const items = e.dataTransfer.items;
+    if (items && items.length > 0) {
+      const entries: any[] = [];
+
+      // Collect all entries
+      for (let i = 0; i < items.length; i++) {
+        const entry = items[i].webkitGetAsEntry?.();
+        if (entry) {
+          entries.push(entry);
+        }
+      }
+
+      // Check if any entry is a directory
+      const hasDirectory = entries.some((entry) => entry.isDirectory);
+
+      if (hasDirectory) {
+        // Process as folder upload
+        const allFiles: File[] = [];
+
+        // Recursively read all files from directories
+        const readDirectory = async (
+          dirEntry: any,
+          path = "",
+        ): Promise<void> => {
+          const dirReader = dirEntry.createReader();
+
+          return new Promise<void>((resolve, reject) => {
+            const readEntries = () => {
+              dirReader.readEntries(async (entries: any[]) => {
+                if (entries.length === 0) {
+                  resolve();
+                  return;
+                }
+
+                for (const entry of entries) {
+                  if (entry.isFile) {
+                    await new Promise<void>((fileResolve) => {
+                      entry.file((file: File) => {
+                        // Create a new File object with the full path
+                        const newFile = new File([file], file.name, {
+                          type: file.type,
+                          lastModified: file.lastModified,
+                        });
+                        // Store the path as webkitRelativePath
+                        Object.defineProperty(newFile, "webkitRelativePath", {
+                          value: path + "/" + file.name,
+                          writable: false,
+                        });
+                        allFiles.push(newFile);
+                        fileResolve();
+                      });
+                    });
+                  } else if (entry.isDirectory) {
+                    await readDirectory(entry, path + "/" + entry.name);
+                  }
+                }
+
+                // Continue reading (directories may have more entries)
+                readEntries();
+              }, reject);
+            };
+
+            readEntries();
+          });
+        };
+
+        // Read all directories
+        for (const entry of entries) {
+          if (entry.isDirectory) {
+            await readDirectory(entry, entry.name);
+          } else if (entry.isFile) {
+            // Also include files at root level
+            await new Promise<void>((resolve) => {
+              entry.file((file: File) => {
+                allFiles.push(file);
+                resolve();
+              });
+            });
+          }
+        }
+
+        // Process as folder upload
+        if (allFiles.length > 0) {
+          await processFolderUpload(allFiles);
+        }
+        return;
+      }
+    }
+
+    // Fallback: treat as regular file upload
     const files = Array.from(e.dataTransfer.files);
     if (files.length > 0) {
       await uploadFiles(files);
@@ -1088,22 +1170,6 @@ export const FileTableView = forwardRef<
         <ConfirmationModal.Content>
           <span className="text-sm">
             {t("fileTableModal.cancelUploadMessage")}
-          </span>
-        </ConfirmationModal.Content>
-      </ConfirmationModal>
-
-      {/* Folder upload confirmation dialog (legacy browsers only) */}
-      <ConfirmationModal
-        title={t("fileTableModal.uploadFolderConfirmTitle")}
-        cancelText={t("common.cancel")}
-        confirmationText={t("fileTableModal.uploadFolder")}
-        open={showFolderUploadConfirmDialog}
-        onClose={cancelFolderUploadConfirm}
-        onConfirm={confirmFolderUploadLegacy}
-      >
-        <ConfirmationModal.Content>
-          <span className="text-sm">
-            {t("fileTableModal.uploadFolderLegacyWarning")}
           </span>
         </ConfirmationModal.Content>
       </ConfirmationModal>
