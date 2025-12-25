@@ -68,8 +68,32 @@ function downloadBlob(blob: Blob, filename: string) {
 export async function copyToClipboard(data: any): Promise<boolean> {
   try {
     const jsonString = JSON.stringify(data, null, 2);
-    await navigator.clipboard.writeText(jsonString);
-    return true;
+
+    // 尝试使用现代 Clipboard API
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      await navigator.clipboard.writeText(jsonString);
+      return true;
+    }
+
+    // 回退方案：使用传统的 execCommand 方法
+    const textArea = document.createElement("textarea");
+    textArea.value = jsonString;
+    textArea.style.position = "fixed";
+    textArea.style.left = "-999999px";
+    textArea.style.top = "-999999px";
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+
+    try {
+      const successful = document.execCommand("copy");
+      document.body.removeChild(textArea);
+      return successful;
+    } catch (err) {
+      document.body.removeChild(textArea);
+      console.error("Fallback copy failed:", err);
+      return false;
+    }
   } catch (error) {
     console.error("Failed to copy to clipboard:", error);
     return false;
