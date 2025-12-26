@@ -1,5 +1,5 @@
 version = 1
-revision = 3
+revision = 2
 requires-python = ">=3.10, <3.14"
 resolution-markers = [
     "python_full_version >= '3.13' and sys_platform == 'win32'",
@@ -3238,7 +3238,7 @@ wheels = [
 
 [[package]]
 name = "gdal"
-version = "3.11.4"
+version = "3.11.3"
 source = { registry = "https://pypi.tuna.tsinghua.edu.cn/simple" }
 resolution-markers = [
     "python_full_version >= '3.13' and sys_platform == 'darwin'",
@@ -3259,7 +3259,7 @@ resolution-markers = [
     "python_full_version < '3.11' and platform_machine == 'aarch64' and sys_platform == 'linux'",
     "(python_full_version < '3.11' and platform_machine != 'aarch64' and sys_platform == 'linux') or (python_full_version < '3.11' and sys_platform != 'darwin' and sys_platform != 'linux' and sys_platform != 'win32')",
 ]
-sdist = { url = "https://pypi.tuna.tsinghua.edu.cn/packages/62/e0/1840d476bfd2d1e8c22dacb612027a16ad1dfba60d5d4379bdaaf6a1545f/gdal-3.11.4.tar.gz", hash = "sha256:c28cd5ffda3df98555e21083d922762b0a095d8f10292e2ec60ee0d55651d74a", size = 878351, upload-time = "2025-09-11T09:28:00.097Z" }
+sdist = { url = "https://pypi.tuna.tsinghua.edu.cn/packages/88/e8/f77e577b6d99ddf1fd69dfc6233b9deea0f94445bc979ef56652681caed1/gdal-3.11.3.tar.gz", hash = "sha256:4c3ad0fae393b5ddb093a7e4b890077839b2a6acdbd19202657fe4e881886efa", size = 878190, upload-time = "2025-07-12T11:07:16.975Z" }
 
 [[package]]
 name = "gdal"
@@ -5730,7 +5730,7 @@ postgresql-windows = [
 ]
 spatial = [
     { name = "fiona" },
-    { name = "gdal", version = "3.11.4", source = { registry = "https://pypi.tuna.tsinghua.edu.cn/simple" }, marker = "sys_platform != 'win32'" },
+    { name = "gdal", version = "3.11.3", source = { registry = "https://pypi.tuna.tsinghua.edu.cn/simple" }, marker = "sys_platform != 'win32'" },
     { name = "gdal", version = "3.11.4", source = { path = "lib/gdal-3.11.4-cp311-cp311-win_amd64.whl" }, marker = "sys_platform == 'win32'" },
     { name = "geoalchemy2" },
     { name = "geopandas" },
@@ -5851,7 +5851,7 @@ requires-dist = [
     { name = "fiona", marker = "extra == 'spatial'", specifier = ">=1.10.0,<2.0.0" },
     { name = "gassist", marker = "sys_platform == 'win32'", specifier = ">=0.0.1" },
     { name = "gdal", marker = "sys_platform == 'win32' and extra == 'spatial'", path = "lib/gdal-3.11.4-cp311-cp311-win_amd64.whl" },
-    { name = "gdal", marker = "sys_platform != 'win32' and extra == 'spatial'", specifier = ">=3.11.3" },
+    { name = "gdal", marker = "sys_platform != 'win32' and extra == 'spatial'", specifier = ">=3.11.2,<3.12.0" },
     { name = "geoalchemy2", marker = "extra == 'spatial'", specifier = ">=0.18.0,<1.0.0" },
     { name = "geopandas", marker = "extra == 'spatial'", specifier = ">=0.14.0,<2.0.0" },
     { name = "gitpython", specifier = "==3.1.43" },
