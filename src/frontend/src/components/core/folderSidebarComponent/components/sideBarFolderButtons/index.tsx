@@ -1,5 +1,5 @@
 import { useIsFetching, useIsMutating } from "@tanstack/react-query";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useLocation, useParams } from "react-router-dom";
 import ForwardedIconComponent from "@/components/common/genericIconComponent";
@@ -9,10 +9,12 @@ import {
   SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
+  SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarSeparator,
 } from "@/components/ui/sidebar";
 import { useUpdateUser } from "@/controllers/API/queries/auth";
 import {
@@ -37,6 +39,7 @@ import { getObjectsFromFilelist } from "@/helpers/get-objects-from-filelist";
 import useUploadFlow from "@/hooks/flows/use-upload-flow";
 import { useIsMobile } from "@/hooks/use-mobile";
 import useAuthStore from "@/stores/authStore";
+import { getRecentFolders, trackFolderVisit } from "@/utils/recentFolders";
 import type { FolderType } from "../../../../../pages/MainPage/entities";
 import useAlertStore from "../../../../../stores/alertStore";
 import useFlowsManagerStore from "../../../../../stores/flowsManagerStore";
@@ -45,6 +48,7 @@ import { useUtilityStore } from "../../../../../stores/utilityStore";
 import { handleKeyDown } from "../../../../../utils/reactflowUtils";
 import { cn } from "../../../../../utils/utils";
 import useFileDrop from "../../hooks/use-on-file-drop";
+import { SpacesSidebarSection } from "../SpacesSidebarSection";
 import { SidebarFolderSkeleton } from "../sidebarFolderSkeleton";
 import { HeaderButtons } from "./components/header-buttons";
 import { InputEditFolderName } from "./components/input-edit-folder-name";
@@ -336,6 +340,38 @@ const SideBarFoldersButtonsComponent = ({
   };
 
   const [hoveredFolderId, setHoveredFolderId] = useState<string | null>(null);
+  const [showAllProjects, setShowAllProjects] = useState(false);
+
+  // 获取要显示的项目列表 (Get list of projects to display)
+  const displayedFolders = useMemo(() => {
+    if (!folders || folders.length === 0) return [];
+
+    // 如果显示全部或项目数 <= 5，返回所有项目
+    // If showing all or total projects <= 5, return all projects
+    if (showAllProjects || folders.length <= 5) {
+      return folders;
+    }
+
+    // 获取最近访问的项目 ID
+    // Get recently visited project IDs
+    const recentIds = getRecentFolders(5);
+
+    // 确保当前激活的项目在列表中
+    // Ensure currently active project is in the list
+    const activeFolderId = folderId;
+    if (activeFolderId && !recentIds.includes(activeFolderId)) {
+      recentIds.push(activeFolderId);
+    }
+
+    // 根据最近访问的 ID 过滤项目，保持顺序
+    // Filter projects based on recent IDs, maintaining order
+    const displayedFolders = recentIds
+      .map((id) => folders.find((folder) => folder.id === id))
+      .filter(Boolean)
+      .slice(0, 5);
+
+    return displayedFolders;
+  }, [folders, showAllProjects, folderId]);
 
   const userData = useAuthStore((state) => state.userData);
   const { mutate: updateUser } = useUpdateUser();
@@ -366,6 +402,17 @@ const SideBarFoldersButtonsComponent = ({
     _navigate("/assets/knowledge-bases");
   };
 
+  const handleSpacesNavigation = () => {
+    _navigate("/spaces");
+  };
+
+  // 包装 handleChangeFolder 以追踪访问
+  // Wrap handleChangeFolder to track visits
+  const handleChangeFolderWithTracking = (id: string) => {
+    trackFolderVisit(id);
+    handleChangeFolder!(id);
+  };
+
   return (
     <Sidebar
       collapsible={isMobile ? "offcanvas" : "none"}
@@ -380,86 +427,114 @@ const SideBarFoldersButtonsComponent = ({
         />
       </SidebarHeader>
       <SidebarContent>
+        {/* 分组1: 我的项目 / Group 1: My Projects */}
         <SidebarGroup className="p-4 py-2">
+          <SidebarGroupLabel className="flex items-center gap-2 text-sm font-semibold">
+            <ForwardedIconComponent name="Folder" className="h-4 w-4" />
+            {t("navigation.myProjects")}
+          </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {!loading ? (
-                folders.map((item, index) => {
-                  const editFolderName = editFolders?.filter(
-                    (folder) => folder.name === item.name,
-                  )[0];
-                  return (
-                    <SidebarMenuItem
-                      key={index}
-                      className="group/menu-button"
-                      onMouseEnter={() => setHoveredFolderId(item.id!)}
-                      onMouseLeave={() => setHoveredFolderId(null)}
-                    >
-                      <div className="relative flex w-full">
-                        <SidebarMenuButton
-                          size="md"
-                          onDragOver={(e) => dragOver(e, item.id!)}
-                          onDragEnter={(e) => dragEnter(e, item.id!)}
-                          onDragLeave={dragLeave}
-                          onDrop={(e) => onDrop(e, item.id!)}
-                          key={item.id}
-                          data-testid={`sidebar-nav-${item.name}`}
-                          id={`sidebar-nav-${item.name}`}
-                          isActive={checkPathName(item.id!)}
-                          onClick={() => handleChangeFolder!(item.id!)}
-                          className={cn(
-                            "flex-grow pr-8",
-                            hoveredFolderId === item.id && "bg-accent",
-                            checkHoveringFolder(item.id!),
-                          )}
-                        >
-                          <div
-                            onDoubleClick={(event) => {
-                              handleDoubleClick(event, item);
-                            }}
-                            className="flex w-full items-center justify-between gap-2"
+                <>
+                  {displayedFolders.map((item, index) => {
+                    const editFolderName = editFolders?.filter(
+                      (folder) => folder.name === item.name,
+                    )[0];
+                    return (
+                      <SidebarMenuItem
+                        key={index}
+                        className="group/menu-button"
+                        onMouseEnter={() => setHoveredFolderId(item.id!)}
+                        onMouseLeave={() => setHoveredFolderId(null)}
+                      >
+                        <div className="relative flex w-full">
+                          <SidebarMenuButton
+                            size="md"
+                            onDragOver={(e) => dragOver(e, item.id!)}
+                            onDragEnter={(e) => dragEnter(e, item.id!)}
+                            onDragLeave={dragLeave}
+                            onDrop={(e) => onDrop(e, item.id!)}
+                            key={item.id}
+                            data-testid={`sidebar-nav-${item.name}`}
+                            id={`sidebar-nav-${item.name}`}
+                            isActive={checkPathName(item.id!)}
+                            onClick={() =>
+                              handleChangeFolderWithTracking(item.id!)
+                            }
+                            className={cn(
+                              "flex-grow pr-8",
+                              hoveredFolderId === item.id && "bg-accent",
+                              checkHoveringFolder(item.id!),
+                            )}
                           >
-                            <div className="flex flex-1 items-center gap-2">
-                              {editFolderName?.edit && !isUpdatingFolder ? (
-                                <InputEditFolderName
-                                  handleEditFolderName={handleEditFolderName}
-                                  item={item}
-                                  refInput={refInput}
-                                  handleKeyDownFn={handleKeyDownFn}
-                                  handleEditNameFolder={handleEditNameFolder}
-                                  editFolderName={editFolderName}
-                                  foldersNames={foldersNames}
-                                  handleKeyDown={handleKeyDown}
-                                />
-                              ) : (
-                                <span className="block w-0 grow truncate text-sm opacity-100">
-                                  {item.name}
-                                </span>
-                              )}
+                            <div
+                              onDoubleClick={(event) => {
+                                handleDoubleClick(event, item);
+                              }}
+                              className="flex w-full items-center justify-between gap-2"
+                            >
+                              <div className="flex flex-1 items-center gap-2">
+                                {editFolderName?.edit && !isUpdatingFolder ? (
+                                  <InputEditFolderName
+                                    handleEditFolderName={handleEditFolderName}
+                                    item={item}
+                                    refInput={refInput}
+                                    handleKeyDownFn={handleKeyDownFn}
+                                    handleEditNameFolder={handleEditNameFolder}
+                                    editFolderName={editFolderName}
+                                    foldersNames={foldersNames}
+                                    handleKeyDown={handleKeyDown}
+                                  />
+                                ) : (
+                                  <span className="block w-0 grow truncate text-sm opacity-100">
+                                    {item.name}
+                                  </span>
+                                )}
+                              </div>
                             </div>
+                          </SidebarMenuButton>
+                          <div
+                            className="absolute right-2 top-[0.45rem] flex items-center hover:text-foreground"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <SelectOptions
+                              item={item}
+                              index={index}
+                              handleDeleteFolder={handleDeleteFolder}
+                              handleDownloadFolder={() =>
+                                handleDownloadFolder(item.id!, item.name)
+                              }
+                              handleSelectFolderToRename={
+                                handleSelectFolderToRename
+                              }
+                              checkPathName={checkPathName}
+                            />
                           </div>
-                        </SidebarMenuButton>
-                        <div
-                          className="absolute right-2 top-[0.45rem] flex items-center hover:text-foreground"
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          <SelectOptions
-                            item={item}
-                            index={index}
-                            handleDeleteFolder={handleDeleteFolder}
-                            handleDownloadFolder={() =>
-                              handleDownloadFolder(item.id!, item.name)
-                            }
-                            handleSelectFolderToRename={
-                              handleSelectFolderToRename
-                            }
-                            checkPathName={checkPathName}
-                          />
                         </div>
-                      </div>
+                      </SidebarMenuItem>
+                    );
+                  })}
+
+                  {/* 如果超过5个项目，显示"查看全部"按钮 / Show "View All" if more than 5 projects */}
+                  {folders.length > 5 && (
+                    <SidebarMenuItem>
+                      <SidebarMenuButton
+                        size="md"
+                        onClick={() => setShowAllProjects(!showAllProjects)}
+                        className="text-muted-foreground hover:text-foreground"
+                      >
+                        <ForwardedIconComponent
+                          name={showAllProjects ? "ChevronUp" : "List"}
+                          className="h-4 w-4"
+                        />
+                        {showAllProjects
+                          ? t("navigation.collapse")
+                          : t("navigation.viewAll", { count: folders.length })}
+                      </SidebarMenuButton>
                     </SidebarMenuItem>
-                  );
-                })
+                  )}
+                </>
               ) : (
                 <>
                   <SidebarFolderSkeleton />
@@ -469,6 +544,53 @@ const SideBarFoldersButtonsComponent = ({
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+
+        <SidebarSeparator />
+
+        {/* 分组2: 空间 / Group 2: Spaces */}
+        <SpacesSidebarSection />
+
+        <SidebarSeparator />
+
+        {/* 分组3: 资源 / Group 3: Resources */}
+        {ENABLE_FILE_MANAGEMENT && (
+          <SidebarGroup className="px-4 py-2">
+            <SidebarGroupLabel className="flex items-center gap-2 text-sm font-semibold">
+              <ForwardedIconComponent name="Archive" className="h-4 w-4" />
+              {t("navigation.resources")}
+            </SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {ENABLE_KNOWLEDGE_BASES && (
+                  <SidebarMenuItem>
+                    <SidebarMenuButton
+                      size="md"
+                      onClick={handleKnowledgeNavigation}
+                      className="text-sm"
+                    >
+                      <ForwardedIconComponent
+                        name="Library"
+                        className="h-4 w-4"
+                      />
+                      {t("navigation.knowledge")}
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                )}
+                <SidebarMenuItem>
+                  <SidebarMenuButton
+                    size="md"
+                    onClick={handleFilesNavigation}
+                    className="text-sm"
+                  >
+                    <ForwardedIconComponent name="File" className="h-4 w-4" />
+                    {t("navigation.myFiles")}
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
+
         <div className="flex-1" />
 
         {ENABLE_MCP_NOTICE && !isDismissedMcpDialog && (
@@ -477,29 +599,10 @@ const SideBarFoldersButtonsComponent = ({
           </div>
         )}
       </SidebarContent>
-      {ENABLE_FILE_MANAGEMENT && (
+      {ENABLE_FILE_MANAGEMENT && ENABLE_DATASTAX_LANGFLOW && (
         <SidebarFooter className="border-t">
           <div className="grid w-full items-center gap-2 p-2">
-            {/* TODO: Remove this on cleanup */}
-            {ENABLE_DATASTAX_LANGFLOW && <CustomStoreButton />}
-            {ENABLE_KNOWLEDGE_BASES && (
-              <SidebarMenuButton
-                onClick={handleKnowledgeNavigation}
-                size="md"
-                className="text-sm"
-              >
-                <ForwardedIconComponent name="Library" className="h-4 w-4" />
-                {t("common.knowledge")}
-              </SidebarMenuButton>
-            )}
-            <SidebarMenuButton
-              onClick={handleFilesNavigation}
-              size="md"
-              className="text-sm"
-            >
-              <ForwardedIconComponent name="File" className="h-4 w-4" />
-              {t("common.myFiles")}
-            </SidebarMenuButton>
+            <CustomStoreButton />
           </div>
         </SidebarFooter>
       )}
