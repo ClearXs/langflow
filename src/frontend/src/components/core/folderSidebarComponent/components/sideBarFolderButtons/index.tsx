@@ -427,7 +427,7 @@ const SideBarFoldersButtonsComponent = ({
 
   return (
     <Sidebar
-      collapsible={isMobile ? "offcanvas" : "none"}
+      collapsible="icon"
       data-testid="project-sidebar"
     >
       <SidebarHeader className="px-4 py-1">

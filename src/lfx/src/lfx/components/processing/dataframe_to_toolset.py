@@ -12,7 +12,7 @@ import re
 from typing import TYPE_CHECKING
 
 import i18n
-from langchain.tools import StructuredTool
+from langchain_core.tools import StructuredTool
 from pydantic import BaseModel, create_model
 
 from lfx.base.langchain_utilities.model import LCToolComponent

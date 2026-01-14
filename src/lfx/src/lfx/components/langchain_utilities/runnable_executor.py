@@ -1,7 +1,7 @@
 import os
 
 import i18n
-from langchain.agents import AgentExecutor
+from langchain_classic.agents import AgentExecutor
 
 from lfx.custom.custom_component.component import Component
 from lfx.inputs.inputs import BoolInput, HandleInput, MessageTextInput

@@ -40,9 +40,9 @@ const AlertDropdown = forwardRef<HTMLDivElement, AlertDropdownType>(
         open={open}
         onOpenChange={(target) => {
           setOpen(target);
-          if (target) {
-            setNotificationCenter(false);
-          }
+          // if (target) {
+          //   setNotificationCenter(false);
+          // }
         }}
       >
         <PopoverTrigger asChild>{children}</PopoverTrigger>

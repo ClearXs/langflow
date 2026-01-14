@@ -5,10 +5,10 @@ import { useDarkStore } from "@/stores/darkStore";
 
 const useTheme = () => {
   const [systemTheme, setSystemTheme] = useState(false);
-  const { setDark, dark } = useDarkStore((state) => ({
-    setDark: state.setDark,
-    dark: state.dark,
-  }));
+
+  // ✅ 修复: 使用稳定的选择器
+  const setDark = useDarkStore((state) => state.setDark);
+  const dark = useDarkStore((state) => state.dark);
 
   const handleSystemTheme = () => {
     if (typeof window !== "undefined") {
@@ -19,6 +19,7 @@ const useTheme = () => {
     }
   };
 
+  // ✅ 修复: 添加 setDark 到依赖项
   useEffect(() => {
     const themePreference = localStorage.getItem("themePreference");
     if (themePreference === "light") {
@@ -32,8 +33,10 @@ const useTheme = () => {
       setSystemTheme(true);
       handleSystemTheme();
     }
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [setDark]);
 
+  // ✅ 修复: 添加 setDark 到依赖项
   useEffect(() => {
     if (systemTheme && typeof window !== "undefined") {
       const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
@@ -45,7 +48,7 @@ const useTheme = () => {
         mediaQuery.removeEventListener("change", handleChange);
       };
     }
-  }, [systemTheme]);
+  }, [systemTheme, setDark]);
 
   const setThemePreference = (theme) => {
     if (theme === "light") {

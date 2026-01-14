@@ -1,8 +1,8 @@
 import os
 
 import i18n
-from langchain.agents import AgentExecutor, create_vectorstore_router_agent
-from langchain.agents.agent_toolkits.vectorstore.toolkit import VectorStoreRouterToolkit
+from langchain_classic.agents import AgentExecutor, create_vectorstore_router_agent
+from langchain_classic.agents.agent_toolkits.vectorstore.toolkit import VectorStoreRouterToolkit
 
 from lfx.base.agents.agent import LCAgentComponent
 from lfx.inputs.inputs import HandleInput

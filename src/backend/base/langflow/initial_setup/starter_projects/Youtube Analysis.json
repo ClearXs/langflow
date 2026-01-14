@@ -302,7 +302,7 @@
                   },
                   {
                     "name": "langchain_core",
-                    "version": "0.3.80"
+                    "version": "1.2.6"
                   }
                 ],
                 "total_dependencies": 4
@@ -537,7 +537,7 @@
                   },
                   {
                     "name": "googleapiclient",
-                    "version": "2.154.0"
+                    "version": "2.187.0"
                   },
                   {
                     "name": "lfx",
@@ -776,11 +776,11 @@
                   },
                   {
                     "name": "langchain_core",
-                    "version": "0.3.80"
+                    "version": "1.2.6"
                   },
                   {
                     "name": "pydantic",
-                    "version": "2.10.6"
+                    "version": "2.11.10"
                   },
                   {
                     "name": "lfx",
@@ -903,24 +903,6 @@
                 "type": "str",
                 "value": "OpenAI"
               },
-              "api_key": {
-                "_input_type": "SecretStrInput",
-                "advanced": false,
-                "display_name": "OpenAI API密钥",
-                "dynamic": false,
-                "info": "用于OpenAI模型的API密钥。",
-                "input_types": [],
-                "load_from_db": true,
-                "name": "api_key",
-                "password": true,
-                "placeholder": "",
-                "real_time_refresh": true,
-                "required": false,
-                "show": true,
-                "title_case": false,
-                "type": "str",
-                "value": "OPENAI_API_KEY"
-              },
               "code": {
                 "advanced": false,
                 "dynamic": true,
@@ -1023,109 +1005,6 @@
                 "type": "int",
                 "value": 15
               },
-              "max_retries": {
-                "_input_type": "IntInput",
-                "advanced": true,
-                "display_name": "最大重试次数",
-                "dynamic": false,
-                "info": "生成时的最大重试次数。",
-                "list": false,
-                "list_add_label": "Add More",
-                "name": "max_retries",
-                "placeholder": "",
-                "required": false,
-                "show": true,
-                "title_case": false,
-                "tool_mode": false,
-                "trace_as_metadata": true,
-                "type": "int",
-                "value": 5
-              },
-              "max_tokens": {
-                "_input_type": "IntInput",
-                "advanced": true,
-                "display_name": "最大令牌数",
-                "dynamic": false,
-                "info": "要生成的最大令牌数。设置为0表示无限制令牌。",
-                "list": false,
-                "list_add_label": "Add More",
-                "name": "max_tokens",
-                "placeholder": "",
-                "range_spec": {
-                  "max": 128000,
-                  "min": 0,
-                  "step": 0.1,
-                  "step_type": "float"
-                },
-                "required": false,
-                "show": true,
-                "title_case": false,
-                "tool_mode": false,
-                "trace_as_metadata": true,
-                "type": "int",
-                "value": ""
-              },
-              "model_kwargs": {
-                "_input_type": "DictInput",
-                "advanced": true,
-                "display_name": "模型关键字参数",
-                "dynamic": false,
-                "info": "传递给模型的额外关键字参数。",
-                "list": false,
-                "list_add_label": "Add More",
-                "name": "model_kwargs",
-                "placeholder": "",
-                "required": false,
-                "show": true,
-                "title_case": false,
-                "tool_mode": false,
-                "trace_as_input": true,
-                "type": "dict",
-                "value": {}
-              },
-              "model_name": {
-                "_input_type": "DropdownInput",
-                "advanced": false,
-                "combobox": true,
-                "dialog_inputs": {},
-                "display_name": "模型名称",
-                "dynamic": false,
-                "info": "To see the model names, first choose a provider. Then, enter your API key and click the refresh button next to the model name.",
-                "load_from_db": false,
-                "name": "model_name",
-                "options": [
-                  "gpt-4o-mini",
-                  "gpt-4o",
-                  "gpt-4.1",
-                  "gpt-4.1-mini",
-                  "gpt-4.1-nano",
-                  "gpt-4-turbo",
-                  "gpt-4-turbo-preview",
-                  "gpt-4",
-                  "gpt-3.5-turbo",
-                  "gpt-5",
-                  "gpt-5-mini",
-                  "gpt-5-nano",
-                  "gpt-5-chat-latest",
-                  "o1",
-                  "o3-mini",
-                  "o3",
-                  "o3-pro",
-                  "o4-mini",
-                  "o4-mini-high"
-                ],
-                "options_metadata": [],
-                "placeholder": "",
-                "real_time_refresh": false,
-                "required": false,
-                "show": true,
-                "title_case": false,
-                "toggle": false,
-                "tool_mode": false,
-                "trace_as_metadata": true,
-                "type": "str",
-                "value": "gpt-4.1-mini"
-              },
               "n_messages": {
                 "_input_type": "IntInput",
                 "advanced": true,
@@ -1143,25 +1022,6 @@
                 "trace_as_metadata": true,
                 "type": "int",
                 "value": 100
-              },
-              "openai_api_base": {
-                "_input_type": "StrInput",
-                "advanced": true,
-                "display_name": "OpenAI API基础URL",
-                "dynamic": false,
-                "info": "OpenAI API的基础URL。默认为https://api.openai.com/v1。您可以更改此设置以使用其他API，如JinaChat、LocalAI和Prem。",
-                "list": false,
-                "list_add_label": "Add More",
-                "load_from_db": false,
-                "name": "openai_api_base",
-                "placeholder": "",
-                "required": false,
-                "show": true,
-                "title_case": false,
-                "tool_mode": false,
-                "trace_as_metadata": true,
-                "type": "str",
-                "value": ""
               },
               "output_schema": {
                 "_input_type": "TableInput",
@@ -1225,24 +1085,6 @@
                 "type": "table",
                 "value": []
               },
-              "seed": {
-                "_input_type": "IntInput",
-                "advanced": true,
-                "display_name": "随机种子",
-                "dynamic": false,
-                "info": "种子控制作业的可重现性。",
-                "list": false,
-                "list_add_label": "Add More",
-                "name": "seed",
-                "placeholder": "",
-                "required": false,
-                "show": true,
-                "title_case": false,
-                "tool_mode": false,
-                "trace_as_metadata": true,
-                "type": "int",
-                "value": 1
-              },
               "system_prompt": {
                 "_input_type": "MultilineInput",
                 "advanced": false,
@@ -1267,52 +1109,6 @@
                 "trace_as_metadata": true,
                 "type": "str",
                 "value": "You are a specialized assistant focused on comprehensive YouTube video analysis. Your main responsibilities are:\n\n1. Extract video transcripts using YouTubeTranscripts-get_message_output tool\n2. Process sentiment analysis from YouTube comments provided in XML format\n3. Create comprehensive analysis by combining:\n   - Video content (from transcript)\n   - Audience reception (from comment sentiment analysis)\n\nYour analysis should:\n- Identify main themes and topics from the video transcript\n- Evaluate audience sentiment patterns from provided comments\n- Highlight any disconnect between video content and audience reception\n- Provide actionable insights based on both content and reception\n\nInput received:\n- Video transcript (obtained through tool)\n- Sentiment analysis of comments in XML format containing:\n  <sentiment_analysis>\n    <concise_reasoning>: Detailed analysis of comment\n    <sentiment_type>: Positive/Neutral/Negative\n  </sentiment_analysis>\n\nOutput format:\n1. Content Summary: Key points from transcript\n2. Audience Reception: Pattern analysis from sentiment data\n3. Synthesis: Combined analysis of content and reception\n4. Recommendations: Based on analysis"
-              },
-              "temperature": {
-                "_input_type": "SliderInput",
-                "advanced": true,
-                "display_name": "温度",
-                "dynamic": false,
-                "info": "",
-                "max_label": "",
-                "max_label_icon": "",
-                "min_label": "",
-                "min_label_icon": "",
-                "name": "temperature",
-                "placeholder": "",
-                "range_spec": {
-                  "max": 1,
-                  "min": 0,
-                  "step": 0.01,
-                  "step_type": "float"
-                },
-                "required": false,
-                "show": true,
-                "slider_buttons": false,
-                "slider_buttons_options": [],
-                "slider_input": false,
-                "title_case": false,
-                "tool_mode": false,
-                "type": "slider",
-                "value": 0.1
-              },
-              "timeout": {
-                "_input_type": "IntInput",
-                "advanced": true,
-                "display_name": "超时",
-                "dynamic": false,
-                "info": "OpenAI completion API请求的超时时间。",
-                "list": false,
-                "list_add_label": "Add More",
-                "name": "timeout",
-                "placeholder": "",
-                "required": false,
-                "show": true,
-                "title_case": false,
-                "tool_mode": false,
-                "trace_as_metadata": true,
-                "type": "int",
-                "value": 700
               },
               "tools": {
                 "_input_type": "HandleInput",
@@ -1862,7 +1658,7 @@
                   },
                   {
                     "name": "langchain_community",
-                    "version": "0.3.21"
+                    "version": "0.4.1"
                   },
                   {
                     "name": "lfx",
@@ -2412,7 +2208,7 @@
                 "value": "OPENAI_API_KEY"
               },
               "code": {
-                "advanced": true,
+                "advanced": false,
                 "dynamic": true,
                 "fileTypes": [],
                 "file_path": "",
@@ -2423,11 +2219,11 @@
                 "name": "code",
                 "password": false,
                 "placeholder": "",
-                "required": true,
+                "required": false,
                 "show": true,
                 "title_case": false,
                 "type": "code",
-                "value": "from typing import Any\n\nfrom langchain_anthropic import ChatAnthropic\nfrom langchain_google_genai import ChatGoogleGenerativeAI\nfrom langchain_openai import ChatOpenAI\n\nfrom lfx.base.models.anthropic_constants import ANTHROPIC_MODELS\nfrom lfx.base.models.google_generative_ai_constants import GOOGLE_GENERATIVE_AI_MODELS\nfrom lfx.base.models.model import LCModelComponent\nfrom lfx.base.models.openai_constants import OPENAI_CHAT_MODEL_NAMES, OPENAI_REASONING_MODEL_NAMES\nfrom lfx.field_typing import LanguageModel\nfrom lfx.field_typing.range_spec import RangeSpec\nfrom lfx.inputs.inputs import BoolInput\nfrom lfx.io import DropdownInput, MessageInput, MultilineInput, SecretStrInput, SliderInput\nfrom lfx.schema.dotdict import dotdict\n\n\nclass LanguageModelComponent(LCModelComponent):\n    display_name = \"Language Model\"\n    description = \"Runs a language model given a specified provider.\"\n    documentation: str = \"https://docs.langflow.org/components-models\"\n    icon = \"brain-circuit\"\n    category = \"models\"\n    priority = 0  # Set priority to 0 to make it appear first\n\n    inputs = [\n        DropdownInput(\n            name=\"provider\",\n            display_name=\"Model Provider\",\n            options=[\"OpenAI\", \"Anthropic\", \"Google\"],\n            value=\"OpenAI\",\n            info=\"Select the model provider\",\n            real_time_refresh=True,\n            options_metadata=[{\"icon\": \"OpenAI\"}, {\"icon\": \"Anthropic\"}, {\"icon\": \"GoogleGenerativeAI\"}],\n        ),\n        DropdownInput(\n            name=\"model_name\",\n            display_name=\"Model Name\",\n            options=OPENAI_CHAT_MODEL_NAMES + OPENAI_REASONING_MODEL_NAMES,\n            value=OPENAI_CHAT_MODEL_NAMES[0],\n            info=\"Select the model to use\",\n            real_time_refresh=True,\n        ),\n        SecretStrInput(\n            name=\"api_key\",\n            display_name=\"OpenAI API Key\",\n            info=\"Model Provider API key\",\n            required=False,\n            show=True,\n            real_time_refresh=True,\n        ),\n        MessageInput(\n            name=\"input_value\",\n            display_name=\"Input\",\n            info=\"The input text to send to the model\",\n        ),\n        MultilineInput(\n            name=\"system_message\",\n            display_name=\"System Message\",\n            info=\"A system message that helps set the behavior of the assistant\",\n            advanced=False,\n        ),\n        BoolInput(\n            name=\"stream\",\n            display_name=\"Stream\",\n            info=\"Whether to stream the response\",\n            value=False,\n            advanced=True,\n        ),\n        SliderInput(\n            name=\"temperature\",\n            display_name=\"Temperature\",\n            value=0.1,\n            info=\"Controls randomness in responses\",\n            range_spec=RangeSpec(min=0, max=1, step=0.01),\n            advanced=True,\n        ),\n    ]\n\n    def build_model(self) -> LanguageModel:\n        provider = self.provider\n        model_name = self.model_name\n        temperature = self.temperature\n        stream = self.stream\n\n        if provider == \"OpenAI\":\n            if not self.api_key:\n                msg = \"OpenAI API key is required when using OpenAI provider\"\n                raise ValueError(msg)\n\n            if model_name in OPENAI_REASONING_MODEL_NAMES:\n                # reasoning models do not support temperature (yet)\n                temperature = None\n\n            return ChatOpenAI(\n                model_name=model_name,\n                temperature=temperature,\n                streaming=stream,\n                openai_api_key=self.api_key,\n            )\n        if provider == \"Anthropic\":\n            if not self.api_key:\n                msg = \"Anthropic API key is required when using Anthropic provider\"\n                raise ValueError(msg)\n            return ChatAnthropic(\n                model=model_name,\n                temperature=temperature,\n                streaming=stream,\n                anthropic_api_key=self.api_key,\n            )\n        if provider == \"Google\":\n            if not self.api_key:\n                msg = \"Google API key is required when using Google provider\"\n                raise ValueError(msg)\n            return ChatGoogleGenerativeAI(\n                model=model_name,\n                temperature=temperature,\n                streaming=stream,\n                google_api_key=self.api_key,\n            )\n        msg = f\"Unknown provider: {provider}\"\n        raise ValueError(msg)\n\n    def update_build_config(self, build_config: dotdict, field_value: Any, field_name: str | None = None) -> dotdict:\n        if field_name == \"provider\":\n            if field_value == \"OpenAI\":\n                build_config[\"model_name\"][\"options\"] = OPENAI_CHAT_MODEL_NAMES + OPENAI_REASONING_MODEL_NAMES\n                build_config[\"model_name\"][\"value\"] = OPENAI_CHAT_MODEL_NAMES[0]\n                build_config[\"api_key\"][\"display_name\"] = \"OpenAI API Key\"\n            elif field_value == \"Anthropic\":\n                build_config[\"model_name\"][\"options\"] = ANTHROPIC_MODELS\n                build_config[\"model_name\"][\"value\"] = ANTHROPIC_MODELS[0]\n                build_config[\"api_key\"][\"display_name\"] = \"Anthropic API Key\"\n            elif field_value == \"Google\":\n                build_config[\"model_name\"][\"options\"] = GOOGLE_GENERATIVE_AI_MODELS\n                build_config[\"model_name\"][\"value\"] = GOOGLE_GENERATIVE_AI_MODELS[0]\n                build_config[\"api_key\"][\"display_name\"] = \"Google API Key\"\n        elif field_name == \"model_name\" and field_value.startswith(\"o1\") and self.provider == \"OpenAI\":\n            # Hide system_message for o1 models - currently unsupported\n            if \"system_message\" in build_config:\n                build_config[\"system_message\"][\"show\"] = False\n        elif field_name == \"model_name\" and not field_value.startswith(\"o1\") and \"system_message\" in build_config:\n            build_config[\"system_message\"][\"show\"] = True\n        return build_config\n"
+                "value": "import os\nfrom typing import Any\n\nimport i18n\nfrom langchain_anthropic import ChatAnthropic\nfrom langchain_google_genai import ChatGoogleGenerativeAI\nfrom langchain_openai import ChatOpenAI\n\nfrom lfx.base.models.anthropic_constants import ANTHROPIC_MODELS\nfrom lfx.base.models.google_generative_ai_constants import GOOGLE_GENERATIVE_AI_MODELS\nfrom lfx.base.models.model import LCModelComponent\nfrom lfx.base.models.openai_constants import OPENAI_CHAT_MODEL_NAMES, OPENAI_REASONING_MODEL_NAMES\nfrom lfx.field_typing import LanguageModel\nfrom lfx.field_typing.range_spec import RangeSpec\nfrom lfx.inputs.inputs import BoolInput\nfrom lfx.io import DropdownInput, MessageInput, MultilineInput, SecretStrInput, SliderInput\nfrom lfx.schema.dotdict import dotdict\n\n\nclass LanguageModelComponent(LCModelComponent):\n    ignore: bool = os.getenv(\"LANGFLOW_IGNORE_COMPONENT\", \"false\") == \"true\"\n    display_name = i18n.t(\"components.models.language_model.display_name\")\n    description = i18n.t(\"components.models.language_model.description\")\n    documentation: str = \"https://docs.langflow.org/components-models\"\n    icon = \"brain-circuit\"\n    category = \"models\"\n    priority = 0  # Set priority to 0 to make it appear first\n\n    inputs = [\n        DropdownInput(\n            name=\"provider\",\n            display_name=i18n.t(\"components.models.language_model.provider.display_name\"),\n            options=[\"OpenAI\", \"Anthropic\", \"Google\"],\n            value=\"OpenAI\",\n            info=i18n.t(\"components.models.language_model.provider.info\"),\n            real_time_refresh=True,\n            options_metadata=[{\"icon\": \"OpenAI\"}, {\"icon\": \"Anthropic\"}, {\"icon\": \"GoogleGenerativeAI\"}],\n        ),\n        DropdownInput(\n            name=\"model_name\",\n            display_name=i18n.t(\"components.models.language_model.model_name.display_name\"),\n            options=OPENAI_CHAT_MODEL_NAMES + OPENAI_REASONING_MODEL_NAMES,\n            value=OPENAI_CHAT_MODEL_NAMES[0],\n            info=i18n.t(\"components.models.language_model.model_name.info\"),\n            real_time_refresh=True,\n        ),\n        SecretStrInput(\n            name=\"api_key\",\n            display_name=i18n.t(\"components.models.language_model.api_key.openai_display_name\"),\n            info=i18n.t(\"components.models.language_model.api_key.info\"),\n            required=False,\n            show=True,\n            real_time_refresh=True,\n        ),\n        MessageInput(\n            name=\"input_value\",\n            display_name=i18n.t(\"components.models.language_model.input_value.display_name\"),\n            info=i18n.t(\"components.models.language_model.input_value.info\"),\n        ),\n        MultilineInput(\n            name=\"system_message\",\n            display_name=i18n.t(\"components.models.language_model.system_message.display_name\"),\n            info=i18n.t(\"components.models.language_model.system_message.info\"),\n            advanced=False,\n        ),\n        BoolInput(\n            name=\"stream\",\n            display_name=i18n.t(\"components.models.language_model.stream.display_name\"),\n            info=i18n.t(\"components.models.language_model.stream.info\"),\n            value=False,\n            advanced=True,\n        ),\n        SliderInput(\n            name=\"temperature\",\n            display_name=i18n.t(\"components.models.language_model.temperature.display_name\"),\n            value=0.1,\n            info=i18n.t(\"components.models.language_model.temperature.info\"),\n            range_spec=RangeSpec(min=0, max=1, step=0.01),\n            advanced=True,\n        ),\n    ]\n\n    def build_model(self) -> LanguageModel:\n        provider = self.provider\n        model_name = self.model_name\n        temperature = self.temperature\n        stream = self.stream\n\n        try:\n            if provider == \"OpenAI\":\n                if not self.api_key:\n                    error_message = i18n.t(\"components.models.language_model.errors.openai_api_key_required\")\n                    self.status = error_message\n                    raise ValueError(error_message)\n\n                if model_name in OPENAI_REASONING_MODEL_NAMES:\n                    # reasoning models do not support temperature (yet)\n                    temperature = None\n                    info_message = i18n.t(\n                        \"components.models.language_model.info.reasoning_model_no_temperature\", model=model_name\n                    )\n                    self.status = info_message\n\n                success_message = i18n.t(\n                    \"components.models.language_model.success.openai_model_created\", model=model_name\n                )\n                self.status = success_message\n\n                return ChatOpenAI(\n                    model_name=model_name,\n                    temperature=temperature,\n                    streaming=stream,\n                    openai_api_key=self.api_key,\n                )\n\n            if provider == \"Anthropic\":\n                if not self.api_key:\n                    error_message = i18n.t(\"components.models.language_model.errors.anthropic_api_key_required\")\n                    self.status = error_message\n                    raise ValueError(error_message)\n\n                success_message = i18n.t(\n                    \"components.models.language_model.success.anthropic_model_created\", model=model_name\n                )\n                self.status = success_message\n\n                return ChatAnthropic(\n                    model=model_name,\n                    temperature=temperature,\n                    streaming=stream,\n                    anthropic_api_key=self.api_key,\n                )\n\n            if provider == \"Google\":\n                if not self.api_key:\n                    error_message = i18n.t(\"components.models.language_model.errors.google_api_key_required\")\n                    self.status = error_message\n                    raise ValueError(error_message)\n\n                success_message = i18n.t(\n                    \"components.models.language_model.success.google_model_created\", model=model_name\n                )\n                self.status = success_message\n\n                return ChatGoogleGenerativeAI(\n                    model=model_name,\n                    temperature=temperature,\n                    streaming=stream,\n                    google_api_key=self.api_key,\n                )\n            error_message = i18n.t(\"components.models.language_model.errors.unknown_provider\", provider=provider)\n            self.status = error_message\n            raise ValueError(error_message)\n\n        except Exception as e:\n            error_message = i18n.t(\n                \"components.models.language_model.errors.model_creation_failed\", provider=provider, error=str(e)\n            )\n            self.status = error_message\n            raise ValueError(error_message) from e\n\n    def update_build_config(\n        self, build_config: dotdict, field_value: Any, field_name: str | None = None, action: str | None = None\n    ) -> dotdict:\n        if field_name == \"provider\":\n            if field_value == \"OpenAI\":\n                build_config[\"model_name\"][\"options\"] = OPENAI_CHAT_MODEL_NAMES + OPENAI_REASONING_MODEL_NAMES\n                build_config[\"model_name\"][\"value\"] = OPENAI_CHAT_MODEL_NAMES[0]\n                build_config[\"api_key\"][\"display_name\"] = i18n.t(\n                    \"components.models.language_model.api_key.openai_display_name\"\n                )\n            elif field_value == \"Anthropic\":\n                build_config[\"model_name\"][\"options\"] = ANTHROPIC_MODELS\n                build_config[\"model_name\"][\"value\"] = ANTHROPIC_MODELS[0]\n                build_config[\"api_key\"][\"display_name\"] = i18n.t(\n                    \"components.models.language_model.api_key.anthropic_display_name\"\n                )\n            elif field_value == \"Google\":\n                build_config[\"model_name\"][\"options\"] = GOOGLE_GENERATIVE_AI_MODELS\n                build_config[\"model_name\"][\"value\"] = GOOGLE_GENERATIVE_AI_MODELS[0]\n                build_config[\"api_key\"][\"display_name\"] = i18n.t(\n                    \"components.models.language_model.api_key.google_display_name\"\n                )\n\n        elif field_name == \"model_name\" and field_value.startswith(\"o1\") and self.provider == \"OpenAI\":\n            # Hide system_message for o1 models - currently unsupported\n            if \"system_message\" in build_config:\n                build_config[\"system_message\"][\"show\"] = False\n                # Set info about o1 models not supporting system messages\n                build_config[\"system_message\"][\"info\"] = i18n.t(\n                    \"components.models.language_model.system_message.o1_not_supported\"\n                )\n\n        elif field_name == \"model_name\" and not field_value.startswith(\"o1\") and \"system_message\" in build_config:\n            build_config[\"system_message\"][\"show\"] = True\n            build_config[\"system_message\"][\"info\"] = i18n.t(\"components.models.language_model.system_message.info\")\n\n        return build_config\n"
               },
               "input_value": {
                 "_input_type": "MessageInput",

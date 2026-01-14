@@ -31,6 +31,15 @@ export const URLs = {
   MCP_SERVERS: `mcp/servers`,
   KNOWLEDGE_BASES: `knowledge_bases`,
   LOCALE: `locale`,
+  SPACES: `spaces`,
+  DOCUMENTS: `documents`,
+  CONNECTORS: `connectors`,
+  MEMBERS: `members`,
+  ROLES: `roles`,
+  INVITES: `invites`,
+  LLM_CONFIGS: `llm-configs`,
+  PERMISSIONS: `permissions`,
+  NOTES: `notes`,
 } as const;
 
 // IMPORTANT: FOLDERS endpoint now points to 'projects' for backward compatibility

@@ -1,3 +1,4 @@
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { lazy } from "react";
 import {
   createBrowserRouter,
@@ -10,6 +11,7 @@ import { ProtectedRoute } from "./components/authorization/authGuard";
 import { ProtectedLoginRoute } from "./components/authorization/authLoginGuard";
 import { AuthSettingsGuard } from "./components/authorization/authSettingsGuard";
 import ContextWrapper from "./contexts";
+import { AuthProvider } from "./contexts/authContext";
 import CustomDashboardWrapperPage from "./customization/components/custom-DashboardWrapperPage";
 import { CustomNavigate } from "./customization/components/custom-navigate";
 import { BASENAME } from "./customization/config-constants";
@@ -24,9 +26,11 @@ import { AppAuthenticatedPage } from "./pages/AppAuthenticatedPage";
 import { AppInitPage } from "./pages/AppInitPage";
 import { AppWrapperPage } from "./pages/AppWrapperPage";
 import FlowPage from "./pages/FlowPage";
+// Marketing Pages
+import MarketingHomePage from "./pages/HomePage"; // SurfSense marketing homepage
 import LoginPage from "./pages/LoginPage";
 import FilesPage from "./pages/MainPage/pages/filesPage";
-import HomePage from "./pages/MainPage/pages/homePage";
+import FlowsListPage from "./pages/MainPage/pages/homePage"; // Renamed from HomePage
 import KnowledgePage from "./pages/MainPage/pages/knowledgePage";
 import CollectionPage from "./pages/MainPage/pages/main-page";
 import SettingsPage from "./pages/SettingsPage";
@@ -37,6 +41,15 @@ import GlobalVariablesPage from "./pages/SettingsPage/pages/GlobalVariablesPage"
 import MCPServersPage from "./pages/SettingsPage/pages/MCPServersPage";
 import MessagesPage from "./pages/SettingsPage/pages/messagesPage";
 import ShortcutsPage from "./pages/SettingsPage/pages/ShortcutsPage";
+import ChatsPage from "./pages/SpaceDetailPage/ChatsPage";
+import ConnectorsPage from "./pages/SpaceDetailPage/ConnectorsPage";
+import DocumentsPage from "./pages/SpaceDetailPage/DocumentsPage";
+import NotesPage from "./pages/SpaceDetailPage/NotesPage";
+import SettingsPage_Space from "./pages/SpaceDetailPage/SettingsPage";
+import SpaceDetailLayout from "./pages/SpaceDetailPage/SpaceDetailLayout";
+import TeamPage from "./pages/SpaceDetailPage/TeamPage";
+// Dashboard Pages (SurfSense)
+import SpacesPage from "./pages/SpacesPage";
 import ViewPage from "./pages/ViewPage";
 
 const AdminPage = lazy(() => import("./pages/AdminPage"));
@@ -47,18 +60,43 @@ const PlaygroundPage = lazy(() => import("./pages/Playground"));
 
 const SignUp = lazy(() => import("./pages/SignUpPage"));
 
+// Lightweight query client for login/marketing pages
+const loginQueryClient = new QueryClient();
+
 const router = createBrowserRouter(
   createRoutesFromElements([
-    <Route path="/playground/:id/">
-      <Route
-        path=""
-        element={
-          <ContextWrapper key={1}>
-            <PlaygroundPage />
-          </ContextWrapper>
-        }
-      />
-    </Route>,
+    // <Route path='/' element={<MarketingHomePage />} />,
+    // <Route
+    //   path='/dashboard'
+    //   element={
+    //     <ContextWrapper key={1}>
+    //       <ProtectedRoute>
+    //         <Outlet />
+    //       </ProtectedRoute>
+    //     </ContextWrapper>
+    //   }
+    // >
+    //   <Route path='spaces' element={<SpacesPage />} />
+    //   <Route path='spaces/:spaceId' element={<SpaceDetailLayout />}>
+    //     <Route path='chats' element={<ChatsPage />} />
+    //     <Route path='notes' element={<NotesPage />} />
+    //     <Route path='documents' element={<DocumentsPage />} />
+    //     <Route path='connectors' element={<ConnectorsPage />} />
+    //     <Route path='team' element={<TeamPage />} />
+    //     <Route path='settings' element={<SettingsPage_Space />} />
+    //   </Route>
+    // </Route>,
+    // <Route path='/playground/:id/'>
+    //   <Route
+    //     path=''
+    //     element={
+    //       <ContextWrapper key={1}>
+    //         <PlaygroundPage />
+    //       </ContextWrapper>
+    //     }
+    //   />
+    // </Route>,
+
     <Route
       path={ENABLE_CUSTOM_PARAM ? "/:customParam?" : "/"}
       element={
@@ -79,10 +117,32 @@ const router = createBrowserRouter(
           >
             <Route path="" element={<AppAuthenticatedPage />}>
               <Route path="" element={<CustomDashboardWrapperPage />}>
-                <Route path="" element={<CollectionPage />}>
+                {/* 主页重定向到 /spaces / Main page redirects to /spaces */}
+                <Route
+                  index
+                  element={<CustomNavigate replace to={"spaces"} />}
+                />
+
+                {/* 空间页面 / Spaces Pages */}
+                <Route path="spaces" element={<SpacesPage />} />
+                <Route path="spaces/:spaceId" element={<SpaceDetailLayout />}>
                   <Route
                     index
-                    element={<CustomNavigate replace to={"flows"} />}
+                    element={<CustomNavigate replace to={"chats"} />}
+                  />
+                  <Route path="chats" element={<ChatsPage />} />
+                  <Route path="notes" element={<NotesPage />} />
+                  <Route path="documents" element={<DocumentsPage />} />
+                  <Route path="connectors" element={<ConnectorsPage />} />
+                  <Route path="team" element={<TeamPage />} />
+                  <Route path="settings" element={<SettingsPage_Space />} />
+                </Route>
+
+                {/* 项目/流程页面 / Projects/Flows Pages */}
+                <Route path="" element={<CollectionPage />}>
+                  <Route
+                    path="flows/"
+                    element={<FlowsListPage key="flows" type="flows" />}
                   />
                   {ENABLE_FILE_MANAGEMENT && (
                     <Route path="assets">
@@ -101,33 +161,37 @@ const router = createBrowserRouter(
                   )}
                   <Route
                     path="flows/"
-                    element={<HomePage key="flows" type="flows" />}
+                    element={<FlowsListPage key="flows" type="flows" />}
                   />
                   <Route
                     path="components/"
-                    element={<HomePage key="components" type="components" />}
+                    element={
+                      <FlowsListPage key="components" type="components" />
+                    }
                   >
                     <Route
                       path="folder/:folderId"
-                      element={<HomePage key="components" type="components" />}
+                      element={
+                        <FlowsListPage key="components" type="components" />
+                      }
                     />
                   </Route>
                   <Route
                     path="all/"
-                    element={<HomePage key="flows" type="flows" />}
+                    element={<FlowsListPage key="flows" type="flows" />}
                   >
                     <Route
                       path="folder/:folderId"
-                      element={<HomePage key="flows" type="flows" />}
+                      element={<FlowsListPage key="flows" type="flows" />}
                     />
                   </Route>
                   <Route
                     path="mcp/"
-                    element={<HomePage key="mcp" type="mcp" />}
+                    element={<FlowsListPage key="mcp" type="mcp" />}
                   >
                     <Route
                       path="folder/:folderId"
-                      element={<HomePage key="mcp" type="mcp" />}
+                      element={<FlowsListPage key="mcp" type="mcp" />}
                     />
                   </Route>
                 </Route>

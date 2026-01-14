@@ -53,9 +53,17 @@ class ServiceManager(BaseServiceManager):
 
         for name in service_names:
             try:
-                # Special handling for services that are in lfx module
-                base_module = "lfx.services" if name in ["settings", "mcp_composer"] else "langflow.services"
-                module_name = f"{base_module}.{name}.factory"
+                # Special handling for services not in langflow.services.*
+                if name in ["settings", "mcp_composer"]:
+                    base_module = "lfx.services"
+                    module_name = f"{base_module}.{name}.factory"
+                elif name == "connector":
+                    # Connector factory is in langflow.connectors.factory
+                    module_name = "langflow.connectors.factory"
+                else:
+                    base_module = "langflow.services"
+                    module_name = f"{base_module}.{name}.factory"
+
                 module = importlib.import_module(module_name)
 
                 # Find all classes in the module that are subclasses of ServiceFactory

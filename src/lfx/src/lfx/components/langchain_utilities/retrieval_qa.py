@@ -2,7 +2,7 @@ import os
 from typing import cast
 
 import i18n
-from langchain.chains import RetrievalQA
+from langchain_classic.chains import RetrievalQA
 
 from lfx.base.chains.model import LCChainComponent
 from lfx.inputs.inputs import BoolInput, DropdownInput, HandleInput, MultilineInput

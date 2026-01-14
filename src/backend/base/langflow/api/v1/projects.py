@@ -52,7 +52,7 @@ async def create_project(
     *,
     session: DbSession,
     project: FolderCreate,
-    current_user: CurrentActiveUser,
+    current_user: CurrentActiveUser = None,
 ):
     try:
         new_project = Folder.model_validate(project, from_attributes=True)
@@ -205,7 +205,7 @@ async def create_project(
 async def read_projects(
     *,
     session: DbSession,
-    current_user: CurrentActiveUser,
+    current_user: CurrentActiveUser = None,
 ):
     try:
         projects = (
@@ -226,7 +226,7 @@ async def read_project(
     *,
     session: DbSession,
     project_id: UUID,
-    current_user: CurrentActiveUser,
+    current_user: CurrentActiveUser = None,
     params: Annotated[Params | None, Depends(custom_params)],
     page: Annotated[int | None, Query()] = None,
     size: Annotated[int | None, Query()] = None,
@@ -289,7 +289,7 @@ async def update_project(
     session: DbSession,
     project_id: UUID,
     project: FolderUpdate,  # Assuming FolderUpdate is a Pydantic model defining updatable fields
-    current_user: CurrentActiveUser,
+    current_user: CurrentActiveUser = None,
     background_tasks: BackgroundTasks,
 ):
     try:
@@ -476,7 +476,7 @@ async def delete_project(
     *,
     session: DbSession,
     project_id: UUID,
-    current_user: CurrentActiveUser,
+    current_user: CurrentActiveUser = None,
 ):
     try:
         flows = (
@@ -564,7 +564,7 @@ async def download_file(
     *,
     session: DbSession,
     project_id: UUID,
-    current_user: CurrentActiveUser,
+    current_user: CurrentActiveUser = None,
 ):
     """Download all flows from project as a zip file."""
     try:
@@ -615,7 +615,7 @@ async def upload_file(
     *,
     session: DbSession,
     file: Annotated[UploadFile, File(...)],
-    current_user: CurrentActiveUser,
+    current_user: CurrentActiveUser = None,
 ):
     """Upload flows from a file."""
     contents = await file.read()

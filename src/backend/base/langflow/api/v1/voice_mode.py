@@ -411,11 +411,11 @@ async def handle_function_call(
     function_call: dict,
     function_call_args: str,
     flow_id: str,
-    background_tasks: BackgroundTasks,
-    current_user: CurrentActiveUser,
     conversation_id: str,
     session_id: str,
     msg_handler: SendQueues,
+    background_tasks: BackgroundTasks,
+    current_user: CurrentActiveUser = None,
 ):
     create_response = get_create_response(msg_handler, session_id)
     """Handle function calls from the OpenAI API."""
@@ -700,7 +700,7 @@ async def flow_as_tool_websocket_no_session(
     client_websocket: WebSocket,
     flow_id: str,
     background_tasks: BackgroundTasks,
-    session: DbSession,
+    session: DbSession = None,
 ):
     session_id = str(uuid4())
     await flow_as_tool_websocket(
@@ -716,9 +716,9 @@ async def flow_as_tool_websocket_no_session(
 async def flow_as_tool_websocket(
     client_websocket: WebSocket,
     flow_id: str,
-    background_tasks: BackgroundTasks,
-    session: DbSession,
     session_id: str,
+    background_tasks: BackgroundTasks,
+    session: DbSession = None,
 ):
     """WebSocket endpoint registering the flow as a tool for real-time interaction."""
     try:
@@ -1128,7 +1128,7 @@ async def flow_tts_websocket_no_session(
     client_websocket: WebSocket,
     flow_id: str,
     background_tasks: BackgroundTasks,
-    session: DbSession,
+    session: DbSession = None,
 ):
     session_id = str(uuid4())
     await flow_tts_websocket(
@@ -1144,9 +1144,9 @@ async def flow_tts_websocket_no_session(
 async def flow_tts_websocket(
     client_websocket: WebSocket,
     flow_id: str,
-    background_tasks: BackgroundTasks,
-    session: DbSession,
     session_id: str,
+    background_tasks: BackgroundTasks,
+    session: DbSession = None,
 ):
     """WebSocket endpoint for direct flow text-to-speech interaction."""
     try:
@@ -1341,8 +1341,8 @@ def extract_transcript(json_data):
 
 @router.get("/elevenlabs/voice_ids")
 async def get_elevenlabs_voice_ids(
-    current_user: CurrentActiveUser,
-    session: DbSession,
+    current_user: CurrentActiveUser = None,
+    session: DbSession = None,
 ):
     """Get available voice IDs from ElevenLabs API."""
     try:

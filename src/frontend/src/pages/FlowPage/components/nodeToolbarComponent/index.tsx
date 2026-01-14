@@ -71,11 +71,9 @@ const NodeToolbarComponent = memo(
     const updateFreezeStatus = useFlowStore(
       (state) => state.updateFreezeStatus,
     );
-    const { hasStore, hasApiKey, validApiKey } = useStoreStore((state) => ({
-      hasStore: state.hasStore,
-      hasApiKey: state.hasApiKey,
-      validApiKey: state.validApiKey,
-    }));
+    const hasStore = useStoreStore((state) => state.hasStore);
+    const hasApiKey = useStoreStore((state) => state.hasApiKey);
+    const validApiKey = useStoreStore((state) => state.validApiKey);
     const shortcuts = useShortcutsStore((state) => state.shortcuts);
     const currentFlowId = useFlowsManagerStore((state) => state.currentFlowId);
     const [openModal, setOpenModal] = useState(false);

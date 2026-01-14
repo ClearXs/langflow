@@ -16,8 +16,8 @@ router = APIRouter(tags=["APIKey"], prefix="/api_key")
 
 @router.get("/")
 async def get_api_keys_route(
-    db: DbSession,
-    current_user: CurrentActiveUser,
+    db: DbSession = None,
+    current_user: CurrentActiveUser = None,
 ) -> ApiKeysResponse:
     try:
         user_id = current_user.id
@@ -31,8 +31,8 @@ async def get_api_keys_route(
 @router.post("/")
 async def create_api_key_route(
     req: ApiKeyCreate,
-    current_user: CurrentActiveUser,
-    db: DbSession,
+    current_user: CurrentActiveUser = None,
+    db: DbSession = None,
 ) -> UnmaskedApiKeyRead:
     try:
         user_id = current_user.id
@@ -44,7 +44,7 @@ async def create_api_key_route(
 @router.delete("/{api_key_id}", dependencies=[Depends(auth_utils.get_current_active_user)])
 async def delete_api_key_route(
     api_key_id: UUID,
-    db: DbSession,
+    db: DbSession = None,
 ):
     try:
         await delete_api_key(db, api_key_id)
@@ -57,8 +57,8 @@ async def delete_api_key_route(
 async def save_store_api_key(
     api_key_request: ApiKeyCreateRequest,
     response: Response,
-    current_user: CurrentActiveUser,
-    db: DbSession,
+    current_user: CurrentActiveUser = None,
+    db: DbSession = None,
 ):
     settings_service = get_settings_service()
     auth_settings = settings_service.auth_settings

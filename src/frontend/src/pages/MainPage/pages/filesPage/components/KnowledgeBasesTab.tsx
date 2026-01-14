@@ -47,10 +47,8 @@ const KnowledgeBasesTab = ({
   onRowClick,
 }: KnowledgeBasesTabProps) => {
   const tableRef = useRef<AgGridReact<any>>(null);
-  const { setErrorData, setSuccessData } = useAlertStore((state) => ({
-    setErrorData: state.setErrorData,
-    setSuccessData: state.setSuccessData,
-  }));
+  const setErrorData = useAlertStore((state) => state.setErrorData);
+  const setSuccessData = useAlertStore((state) => state.setSuccessData);
 
   const examples = useFlowsManagerStore((state) => state.examples);
   const addFlow = useAddFlow();

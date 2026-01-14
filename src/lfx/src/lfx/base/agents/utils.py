@@ -2,13 +2,27 @@ import re
 from collections.abc import Callable, Sequence
 from typing import Any
 
-from langchain.agents import (
-    create_json_chat_agent,
-    create_openai_tools_agent,
-    create_tool_calling_agent,
-    create_xml_agent,
-)
-from langchain.agents.xml.base import render_text_description
+try:
+    from langchain_classic.agents import (
+        create_json_chat_agent,
+        create_openai_tools_agent,
+        create_tool_calling_agent,
+        create_xml_agent,
+    )
+except ImportError:
+    # Fallback for newer langchain versions
+    from langchain_classic.agents import create_agent as create_json_chat_agent
+    from langchain_classic.agents import create_agent as create_openai_tools_agent
+    from langchain_classic.agents import create_agent as create_tool_calling_agent
+    from langchain_classic.agents import create_agent as create_xml_agent
+
+try:
+    from langchain_classic.agents.xml.base import render_text_description
+except ImportError:
+    # Fallback if xml module is not available
+    def render_text_description(tools):
+        """Fallback implementation for render_text_description."""
+        return "\n".join([f"{tool.name}: {tool.description}" for tool in tools])
 from langchain_core.language_models import BaseLanguageModel
 from langchain_core.messages import BaseMessage
 from langchain_core.prompts import BasePromptTemplate, ChatPromptTemplate

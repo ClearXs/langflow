@@ -49,6 +49,8 @@ class User(SQLModel, table=True):  # type: ignore[call-arg]
     optins: dict[str, Any] | None = Field(
         sa_column=Column(JSON, default=lambda: UserOptin().model_dump(), nullable=True)
     )
+    pages_limit: int = Field(default=100, nullable=False, description="Maximum pages allowed for ETL processing")
+    pages_used: int = Field(default=0, nullable=False, description="Pages used in current period")
 
 
 class UserCreate(SQLModel):
@@ -57,6 +59,7 @@ class UserCreate(SQLModel):
     optins: dict[str, Any] | None = Field(
         default={"github_starred": False, "dialog_dismissed": False, "discord_clicked": False}
     )
+    pages_limit: int | None = Field(default=100, description="Maximum pages allowed for ETL processing")
 
 
 class UserRead(SQLModel):
@@ -70,6 +73,8 @@ class UserRead(SQLModel):
     updated_at: datetime = Field()
     last_login_at: datetime | None = Field(nullable=True)
     optins: dict[str, Any] | None = Field(default=None)
+    pages_limit: int = Field(default=100)
+    pages_used: int = Field(default=0)
 
 
 class UserUpdate(SQLModel):
@@ -80,3 +85,5 @@ class UserUpdate(SQLModel):
     is_superuser: bool | None = None
     last_login_at: datetime | None = None
     optins: dict[str, Any] | None = None
+    pages_limit: int | None = None
+    pages_used: int | None = None

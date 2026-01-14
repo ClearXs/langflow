@@ -51,6 +51,22 @@ To install multiple extras, use commas to separate each dependency group:
 uv pip install "langflow[local,postgresql]"
 ```
 
+### nv-ingest dependency note
+
+**Important:** The `nv-ingest` optional dependency is currently disabled due to version conflicts with `deepagents>=0.3.0`.
+
+- nv-ingest-client requires `openai<1.83`
+- deepagents requires `langchain-core>=1.1.0`, which needs `openai>=1.86.0`
+
+These conflicting version requirements prevent both packages from being installed simultaneously.
+
+**To use nv-ingest:**
+1. Uncomment the `nv-ingest` section in [`pyproject.toml`](https://github.com/langflow-ai/langflow/blob/main/pyproject.toml) (around line 334)
+2. Remove or comment out the `deepagents` dependency
+3. Run `uv sync`
+
+**Note:** nv-ingest requires Python 3.12 or later.
+
 ### Use a virtual environment to test custom dependencies
 
 When testing locally, use a virtual environment to isolate your dependencies and prevent conflicts with other Python projects.

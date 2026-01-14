@@ -3,7 +3,7 @@ from pathlib import Path
 
 import i18n
 import yaml
-from langchain.agents import AgentExecutor
+from langchain_classic.agents import AgentExecutor
 from langchain_community.agent_toolkits import create_openapi_agent
 from langchain_community.agent_toolkits.openapi.toolkit import OpenAPIToolkit
 from langchain_community.tools.json.tool import JsonSpec

@@ -68,31 +68,6 @@ export default function SpaceDetailLayout() {
     }
   }, [spaceId, setActiveSpaceId]);
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
-      </div>
-    );
-  }
-
-  if (!space) {
-    return (
-      <div className="flex flex-col items-center justify-center h-screen">
-        <h2 className="text-2xl font-bold mb-2">Space Not Found</h2>
-        <p className="text-muted-foreground mb-4">
-          The space you're looking for doesn't exist
-        </p>
-        <Link to="/spaces">
-          <Button>
-            <ChevronLeft className="mr-2 h-4 w-4" />
-            Back to Spaces
-          </Button>
-        </Link>
-      </div>
-    );
-  }
-
   return (
     <SidebarProvider width="280px">
       {/* 左侧分组导航侧边栏 / Left grouped navigation sidebar */}
@@ -107,7 +82,22 @@ export default function SpaceDetailLayout() {
       />
 
       {/* 主内容区域 / Main content area */}
-      <div className="flex h-full w-full">
+      {isLoading ? (
+        <div className="flex items-center justify-center h-screen w-full">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+        </div>
+      ) : !space ? (
+        <div className="flex flex-col items-center justify-center h-screen w-full">
+          <h2 className="text-2xl font-bold mb-2">Space Not Found</h2>
+          <p className="text-muted-foreground mb-4">
+            The space you're looking for doesn't exist
+          </p>
+          <Link to="/spaces">
+            <Button>Back to Spaces</Button>
+          </Link>
+        </div>
+      ) : (
+        <div className="flex h-full w-full">
         {/* 空间导航侧边栏 / Space navigation sidebar */}
         <aside className="w-64 border-r bg-muted/10 flex flex-col">
           {/* Space Header */}
@@ -150,7 +140,8 @@ export default function SpaceDetailLayout() {
         <main className="flex-1 overflow-auto">
           <Outlet />
         </main>
-      </div>
+        </div>
+      )}
     </SidebarProvider>
   );
 }

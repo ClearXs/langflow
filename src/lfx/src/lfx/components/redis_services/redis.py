@@ -2,7 +2,7 @@ import os
 from pathlib import Path
 
 import i18n
-from langchain.text_splitter import CharacterTextSplitter
+from langchain_text_splitters import CharacterTextSplitter
 from langchain_community.vectorstores.redis import Redis
 
 from lfx.base.vectorstores.model import LCVectorStoreComponent, check_cached_vector_store

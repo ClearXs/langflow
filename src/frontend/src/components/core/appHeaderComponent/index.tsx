@@ -97,12 +97,7 @@ export default function AppHeader(): JSX.Element {
         data-testid="header_right_section_wrapper"
       >
         <>
-          <Button
-            unstyled
-            className="hidden items-center whitespace-nowrap pr-2 lg:inline"
-          >
-            <CustomLangflowCounts />
-          </Button>
+          <CustomLangflowCounts />
         </>
         <AlertDropdown
           notificationRef={notificationContentRef}
@@ -114,32 +109,19 @@ export default function AppHeader(): JSX.Element {
             styleClasses="z-10"
           >
             <AlertDropdown onClose={() => setActiveState(null)}>
-              <Button
-                ref={notificationRef}
-                unstyled
-                onClick={() =>
-                  setActiveState((prev) =>
-                    prev === "notifications" ? null : "notifications",
-                  )
-                }
-                data-testid="notification_button"
-              >
-                <div className="hit-area-hover group relative items-center rounded-md px-2 py-2 text-muted-foreground">
-                  <span className={getNotificationBadge()} />
-                  <ForwardedIconComponent
-                    name="Bell"
-                    className={`side-bar-button-size h-4 w-4 ${
-                      activeState === "notifications"
-                        ? "text-primary"
-                        : "text-muted-foreground group-hover:text-primary"
-                    }`}
-                    strokeWidth={2}
-                  />
-                  <span className="hidden whitespace-nowrap">
-                    Notifications
-                  </span>
-                </div>
-              </Button>
+              <div className="hit-area-hover group relative items-center rounded-md px-2 py-2 text-muted-foreground">
+                <span className={getNotificationBadge()} />
+                <ForwardedIconComponent
+                  name="Bell"
+                  className={`side-bar-button-size h-4 w-4 ${
+                    activeState === "notifications"
+                      ? "text-primary"
+                      : "text-muted-foreground group-hover:text-primary"
+                  }`}
+                  strokeWidth={2}
+                />
+                <span className="hidden whitespace-nowrap">Notifications</span>
+              </div>
             </AlertDropdown>
           </ShadTooltip>
         </AlertDropdown>

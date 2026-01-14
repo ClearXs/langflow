@@ -2,7 +2,7 @@ import os
 from typing import TYPE_CHECKING
 
 import i18n
-from langchain.chains import create_sql_query_chain
+from langchain_classic.chains import create_sql_query_chain
 from langchain_core.prompts import PromptTemplate
 
 from lfx.base.chains.model import LCChainComponent

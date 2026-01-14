@@ -4,9 +4,10 @@ from logging.config import fileConfig
 from typing import Any
 
 from alembic import context
-from sqlalchemy import pool, text
+from sqlalchemy import pool, text, Uuid
 from sqlalchemy.event import listen
 from sqlalchemy.ext.asyncio import async_engine_from_config
+from sqlalchemy.types import VARCHAR
 
 from langflow.services.database.service import SQLModel
 
@@ -32,6 +33,26 @@ NAMING_CONVENTION = {
 # target_metadata = mymodel.Base.metadata
 target_metadata = SQLModel.metadata
 target_metadata.naming_convention = NAMING_CONVENTION
+
+
+def compare_type(context, inspected_column, metadata_column, inspected_type, metadata_type):
+    """
+    Custom type comparison function for Alembic autogenerate.
+
+    On SQLite, ignore differences between VARCHAR and UUID types since SQLite
+    stores UUID as VARCHAR but the models use UUID type.
+    """
+    if context.dialect.name == 'sqlite':
+        # Check if one is VARCHAR and the other is UUID
+        if isinstance(inspected_type, VARCHAR) and isinstance(metadata_type, Uuid):
+            return False  # No difference
+        if isinstance(inspected_type, Uuid) and isinstance(metadata_type, VARCHAR):
+            return False  # No difference
+
+    # For all other cases, use the default comparison
+    return None
+
+
 # other values from the config, defined by the needs of env.py,
 # can be acquired:
 # my_important_option = config.get_main_option("my_important_option")
@@ -57,6 +78,7 @@ def run_migrations_offline() -> None:
         "literal_binds": True,
         "dialect_opts": {"paramstyle": "named"},
         "render_as_batch": True,
+        "compare_type": compare_type,
     }
 
     # Only add prepare_threshold for PostgreSQL
@@ -89,6 +111,7 @@ def _do_run_migrations(connection):
         "connection": connection,
         "target_metadata": target_metadata,
         "render_as_batch": True,
+        "compare_type": compare_type,
     }
 
     # Only add prepare_threshold for PostgreSQL

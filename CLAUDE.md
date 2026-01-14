@@ -285,7 +285,9 @@ export const useMyStore = create<MyState>((set) => ({
 import { useMyStore } from '@/stores/myStore';
 
 export function MyComponent() {
-  const { value, setValue } = useMyStore();
+  // ✅ CORRECT: Use single-value selectors
+  const value = useMyStore((state) => state.value);
+  const setValue = useMyStore((state) => state.setValue);
 
   return (
     <input
@@ -295,6 +297,163 @@ export function MyComponent() {
   );
 }
 ```
+
+### ⚠️ CRITICAL: Zustand Selector Best Practices
+
+**NEVER use object literal selectors - they cause infinite render loops!**
+
+This is the **#1 most common bug** in Langflow frontend that has caused production crashes.
+
+#### ❌ WRONG - Unstable Object Selector (Causes Infinite Loop)
+
+```typescript
+// DO NOT DO THIS - Creates new object on every render!
+const { value, setValue } = useMyStore((state) => ({
+  value: state.value,
+  setValue: state.setValue,
+}));
+
+// Also WRONG - Destructuring without selector
+const { value, setValue } = useMyStore();
+```
+
+**Why this breaks:**
+1. Object literal `{ value, setValue }` creates **new reference** every render
+2. Zustand uses `Object.is()` for shallow comparison
+3. New reference → Zustand thinks state changed → triggers re-render
+4. Component re-renders → creates new object → infinite loop! 💥
+
+**Real-world impact:**
+- Application crashes with `Maximum update depth exceeded`
+- Error occurs in Radix UI components (Tooltip, Dropdown, etc.)
+- Affects entire component tree (parent + all children)
+- User sees white screen / error boundary
+
+#### ✅ CORRECT - Stable Single-Value Selectors
+
+```typescript
+// Option 1: Separate selectors (RECOMMENDED)
+const value = useMyStore((state) => state.value);
+const setValue = useMyStore((state) => state.setValue);
+
+// Option 2: Use shallow comparison (if you must use object)
+import { shallow } from 'zustand/shallow';
+const { value, setValue } = useMyStore(
+  (state) => ({ value: state.value, setValue: state.setValue }),
+  shallow  // MUST include this!
+);
+```
+
+**Why this works:**
+- Single values have stable references (primitives, stable functions)
+- Zustand's shallow comparison works correctly
+- Only re-renders when actual values change
+
+#### Real Example from Production Bug Fix (2025-01-13)
+
+**Files affected by this bug:**
+- `use-custom-theme.ts` - Caused entire AppHeader to infinite loop
+- `langflow-counts.tsx` - Triggered Tooltip infinite re-renders
+- `LanguageSwitcher.tsx` - Language switching broken
+- `genericIconComponent.tsx` - Icon rendering loops
+- `AccountMenu.tsx` - Menu state loops
+- Plus 5 more files...
+
+**Symptoms before fix:**
+```
+Uncaught Error: Maximum update depth exceeded
+  at setRef (Radix UI Tooltip)
+  at ShadTooltip
+  at CustomLangflowCounts
+  at AppHeader
+  → Infinite loop! Application crashed!
+```
+
+**The fix:**
+```diff
+// Before (BROKEN)
+- const { setDark, dark } = useDarkStore((state) => ({
+-   setDark: state.setDark,
+-   dark: state.dark,
+- }));
+
+// After (FIXED)
++ const setDark = useDarkStore((state) => state.setDark);
++ const dark = useDarkStore((state) => state.dark);
+```
+
+**Result:** Application works perfectly, no more infinite loops!
+
+#### Additional Rules for Zustand
+
+1. **Never mutate store state directly**
+   ```typescript
+   // ❌ WRONG
+   const state = useMyStore();
+   state.value = 'new value';
+
+   // ✅ CORRECT
+   const setValue = useMyStore((state) => state.setValue);
+   setValue('new value');
+   ```
+
+2. **Always include dependencies in useEffect**
+   ```typescript
+   const setDark = useDarkStore((state) => state.setDark);
+
+   // ❌ WRONG - missing setDark dependency
+   useEffect(() => {
+     setDark(true);
+   }, []);
+
+   // ✅ CORRECT - include all dependencies
+   useEffect(() => {
+     setDark(true);
+   }, [setDark]);
+   ```
+
+3. **Store actions are stable references**
+   ```typescript
+   // Store actions (functions in the store) are stable
+   // They won't cause re-renders even in dependency arrays
+   const setValue = useMyStore((state) => state.setValue);
+   // setValue reference never changes ✅
+   ```
+
+4. **Use ESLint to catch these bugs**
+   ```json
+   {
+     "rules": {
+       "react-hooks/exhaustive-deps": "warn"
+     }
+   }
+   ```
+
+#### How to Search for This Bug
+
+If you suspect unstable selectors:
+
+```bash
+# Find all object literal selectors (potential bugs)
+grep -rE "use\w+Store\(\(state\) => \(\{" src/frontend/src/
+
+# Find destructuring without selectors (also wrong)
+grep -rE "const \{ .+ \} = use\w+Store\(\)" src/frontend/src/
+```
+
+#### Prevention Checklist
+
+Before committing Zustand code:
+
+- [ ] Are you using single-value selectors?
+- [ ] If using object selector, did you add `shallow` comparison?
+- [ ] Are all useEffect dependencies included?
+- [ ] Did you test in browser (no infinite loops)?
+- [ ] Did you check React DevTools Profiler for excessive re-renders?
+
+**Bottom line:** Always use single-value selectors unless you have a very good reason and explicitly use `shallow` comparison. This prevents 99% of Zustand-related bugs!
+
+---
 
 ### API Integration
 

@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, Any
 from celery.result import AsyncResult
 
 from langflow.services.task.backends.base import TaskBackend
-from langflow.worker import celery_app
+from langflow.core.celery_app import celery_app
 
 if TYPE_CHECKING:
     from celery import Task

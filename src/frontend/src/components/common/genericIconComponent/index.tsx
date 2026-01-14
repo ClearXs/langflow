@@ -29,7 +29,7 @@ export const ForwardedIconComponent = memo(
     ) => {
       // Subscribe to dark store directly in memoized component
       // This forces re-render when theme changes, bypassing memo
-      const { dark: isDark } = useDarkStore();
+      const isDark = useDarkStore((state) => state.dark);
 
       const [showFallback, setShowFallback] = useState(false);
       const [iconError, setIconError] = useState(false);

@@ -1,6 +1,6 @@
 import secrets
 from pathlib import Path
-from typing import Literal
+from typing import Any, Literal
 
 from passlib.context import CryptContext
 from pydantic import Field, SecretStr, field_validator
@@ -81,9 +81,19 @@ class AuthSettings(BaseSettings):
     COOKIE_DOMAIN: str | None = None
     """The domain attribute of the cookies. If None, the domain is not set."""
 
-    pwd_context: CryptContext = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
     model_config = SettingsConfigDict(validate_assignment=True, extra="ignore", env_prefix="LANGFLOW_")
+
+    def __init__(self, **data: Any) -> None:
+        super().__init__(**data)
+        # Initialize pwd_context after model initialization to avoid JSON schema generation
+        self._pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+    @property
+    def pwd_context(self) -> CryptContext:
+        """Get the password context."""
+        if not hasattr(self, "_pwd_context"):
+            self._pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+        return self._pwd_context
 
     def reset_credentials(self) -> None:
         # Preserve the configured username but scrub the password from memory to avoid plaintext exposure.

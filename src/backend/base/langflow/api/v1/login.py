@@ -24,7 +24,7 @@ router = APIRouter(tags=["Login"])
 async def login_to_get_access_token(
     response: Response,
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
-    db: DbSession,
+    db: DbSession = None,
 ):
     auth_settings = get_settings_service().auth_settings
     try:
@@ -124,7 +124,7 @@ async def auto_login(response: Response, db: DbSession):
 async def refresh_token(
     request: Request,
     response: Response,
-    db: DbSession,
+    db: DbSession = None,
 ):
     auth_settings = get_settings_service().auth_settings
 

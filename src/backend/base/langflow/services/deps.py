@@ -249,3 +249,127 @@ def get_nacos_service() -> NacosService:
     from langflow.services.nacos.factory import NacosServiceFactory
 
     return get_service(ServiceType.NACOS_SERVICE, NacosServiceFactory())
+
+
+# ==================== Holo Knowledge System Services ====================
+
+
+def get_llm_service():
+    """Retrieves the LLMService instance from the service manager.
+
+    Returns:
+        LLMService: The LLMService instance for managing LLM configurations.
+    """
+    from langflow.services.llm.factory import LLMServiceFactory
+
+    return get_service(ServiceType.LLM_SERVICE, LLMServiceFactory())
+
+
+def get_task_logging_service():
+    """Retrieves the TaskLoggingService instance from the service manager.
+
+    Returns:
+        TaskLoggingService: The TaskLoggingService instance for task logging.
+    """
+    from langflow.services.task_logging.factory import TaskLoggingServiceFactory
+
+    return get_service(ServiceType.TASK_LOGGING_SERVICE, TaskLoggingServiceFactory())
+
+
+def get_query_service():
+    """Retrieves the QueryService instance from the service manager.
+
+    Returns:
+        QueryService: The QueryService instance for query reformulation.
+    """
+    from langflow.services.query.factory import QueryServiceFactory
+
+    return get_service(ServiceType.QUERY_SERVICE, QueryServiceFactory())
+
+
+def get_reranker_service():
+    """Retrieves the RerankerService instance from the service manager.
+
+    Returns:
+        RerankerService: The RerankerService instance for result reranking.
+    """
+    from langflow.services.reranker.factory import RerankerServiceFactory
+
+    return get_service(ServiceType.RERANKER_SERVICE, RerankerServiceFactory())
+
+
+def get_celery_app():
+    """Retrieves the Celery app instance.
+
+    Returns:
+        Celery: The Celery application instance for background task processing.
+    """
+    from langflow.core.celery_app import celery_app
+
+    return celery_app
+
+
+def get_connector_service():
+    """Retrieves the ConnectorService instance from the service manager.
+
+    Returns:
+        ConnectorService: The ConnectorService instance for multi-source search.
+    """
+    from langflow.connectors.factory import ConnectorServiceFactory
+
+    return get_service(ServiceType.CONNECTOR_SERVICE, ConnectorServiceFactory())
+
+
+def get_streaming_service():
+    """Retrieves the VercelStreamingService instance from the service manager.
+
+    Returns:
+        VercelStreamingService: The streaming service instance for Vercel AI protocol.
+    """
+    from langflow.services.streaming.factory import VercelStreamingServiceFactory
+
+    return get_service(ServiceType.STREAMING_SERVICE, VercelStreamingServiceFactory())
+
+
+def get_docling_service():
+    """Retrieves the DoclingService instance from the service manager.
+
+    Returns:
+        DoclingService: The DoclingService instance for document processing.
+    """
+    from langflow.services.docling.factory import DoclingServiceFactory
+
+    return get_service(ServiceType.DOCLING_SERVICE, DoclingServiceFactory())
+
+
+def get_page_limit_service():
+    """Retrieves the PageLimitService instance from the service manager.
+
+    Returns:
+        PageLimitService: The PageLimitService instance for page quota management.
+    """
+    from langflow.services.page_limit.factory import PageLimitServiceFactory
+
+    return get_service(ServiceType.PAGE_LIMIT_SERVICE, PageLimitServiceFactory())
+
+
+def get_stt_service():
+    """Retrieves the STTService instance from the service manager.
+
+    Returns:
+        STTService: The STTService instance for speech-to-text.
+    """
+    from langflow.services.stt.factory import STTServiceFactory
+
+    return get_service(ServiceType.STT_SERVICE, STTServiceFactory())
+
+
+def get_tts_service():
+    """Retrieves the TTSService instance from the service manager.
+
+    Returns:
+        TTSService: The TTSService instance for text-to-speech.
+    """
+    from langflow.services.tts.factory import TTSServiceFactory
+
+    return get_service(ServiceType.TTS_SERVICE, TTSServiceFactory())

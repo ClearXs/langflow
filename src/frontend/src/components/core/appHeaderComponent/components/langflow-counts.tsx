@@ -91,7 +91,7 @@ export const LangflowCounts = () => {
         </DropdownMenuContent>
       </DropdownMenu>
 
-      {/* <ShadTooltip
+      <ShadTooltip
         content="Go to GitHub repo"
         side="bottom"
         styleClasses="z-10"
@@ -119,7 +119,7 @@ export const LangflowCounts = () => {
             {formatNumber(discordCount)}
           </span>
         </div>
-      </ShadTooltip> */}
+      </ShadTooltip>
     </div>
   );
 };

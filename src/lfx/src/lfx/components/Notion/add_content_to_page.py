@@ -5,7 +5,7 @@ from typing import Any
 import i18n
 import requests
 from bs4 import BeautifulSoup
-from langchain.tools import StructuredTool
+from langchain_core.tools import StructuredTool
 from markdown import markdown
 from pydantic import BaseModel, Field
 

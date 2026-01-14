@@ -1,8 +1,8 @@
 import os
 
 import i18n
-from langchain.chains.query_constructor.base import AttributeInfo
-from langchain.retrievers.self_query.base import SelfQueryRetriever
+from langchain_classic.chains.query_constructor.base import AttributeInfo
+from langchain_classic.retrievers.self_query.base import SelfQueryRetriever
 
 from lfx.custom.custom_component.component import Component
 from lfx.inputs.inputs import HandleInput, MessageTextInput

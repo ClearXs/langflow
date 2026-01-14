@@ -18,10 +18,8 @@ const KnowledgeBaseSelectionOverlay = ({
   onDelete,
   onClearSelection,
 }: KnowledgeBaseSelectionOverlayProps) => {
-  const { setSuccessData, setErrorData } = useAlertStore((state) => ({
-    setSuccessData: state.setSuccessData,
-    setErrorData: state.setErrorData,
-  }));
+  const setSuccessData = useAlertStore((state) => state.setSuccessData);
+  const setErrorData = useAlertStore((state) => state.setErrorData);
 
   const deleteMutation = useDeleteKnowledgeBases({
     onSuccess: (data) => {

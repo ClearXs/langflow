@@ -1,7 +1,7 @@
 import os
 
 import i18n
-from langchain.agents import create_openai_tools_agent
+from langchain_classic.agents import create_openai_tools_agent
 from langchain_core.prompts import ChatPromptTemplate, HumanMessagePromptTemplate, PromptTemplate
 
 from lfx.base.agents.agent import LCToolsAgentComponent

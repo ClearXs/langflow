@@ -513,7 +513,7 @@
                   },
                   {
                     "name": "pydantic",
-                    "version": "2.10.6"
+                    "version": "2.11.10"
                   },
                   {
                     "name": "lfx",
@@ -521,7 +521,7 @@
                   },
                   {
                     "name": "langchain_openai",
-                    "version": "0.3.23"
+                    "version": "0.3.34"
                   },
                   {
                     "name": "langchain_huggingface",

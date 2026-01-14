@@ -4,7 +4,7 @@
  * Get recent space IDs from localStorage
  */
 export function getRecentSpaces(limit: number = 5): string[] {
-  const recent = localStorage.getItem('recentSpaces');
+  const recent = localStorage.getItem("recentSpaces");
   if (!recent) return [];
 
   try {
@@ -20,17 +20,17 @@ export function getRecentSpaces(limit: number = 5): string[] {
  */
 export function trackSpaceVisit(spaceId: string): void {
   const recent = getRecentSpaces(10);
-  const updated = [
-    spaceId,
-    ...recent.filter(id => id !== spaceId)
-  ].slice(0, 10); // Keep last 10
+  const updated = [spaceId, ...recent.filter((id) => id !== spaceId)].slice(
+    0,
+    10,
+  ); // Keep last 10
 
-  localStorage.setItem('recentSpaces', JSON.stringify(updated));
+  localStorage.setItem("recentSpaces", JSON.stringify(updated));
 }
 
 /**
  * Clear all recent spaces from localStorage
  */
 export function clearRecentSpaces(): void {
-  localStorage.removeItem('recentSpaces');
+  localStorage.removeItem("recentSpaces");
 }

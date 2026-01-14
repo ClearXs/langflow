@@ -1,7 +1,7 @@
 import os
 
 import i18n
-from langchain.embeddings.base import Embeddings
+from langchain_core.embeddings import Embeddings
 from langchain_community.vectorstores import Qdrant
 
 from lfx.base.vectorstores.model import LCVectorStoreComponent, check_cached_vector_store

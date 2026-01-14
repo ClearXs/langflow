@@ -19,8 +19,7 @@
       "type": "debugpy",
       "request": "launch",
       "module": "uvicorn",
-      "python": "${workspaceFolder}/.venv/Scripts/python.exe",
-       "args": [
+      "args": [
         "--factory",
         "langflow.main:create_app",
         "--port",

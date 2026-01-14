@@ -33,10 +33,8 @@ export const AccountMenu = () => {
 
   const { t } = useTranslation();
 
-  const { isAdmin, autoLogin } = useAuthStore((state) => ({
-    isAdmin: state.isAdmin,
-    autoLogin: state.autoLogin,
-  }));
+  const isAdmin = useAuthStore((state) => state.isAdmin);
+  const autoLogin = useAuthStore((state) => state.autoLogin);
 
   const handleLogout = () => {
     mutationLogout();
@@ -127,7 +125,7 @@ export const AccountMenu = () => {
             </HeaderMenuItemLink>
           </div>
 
-          {/* <div>
+          <div>
             <HeaderMenuItemLink newPage href={GITHUB_URL}>
               <span
                 data-testid="menu_github_button"
@@ -162,7 +160,7 @@ export const AccountMenu = () => {
                 X
               </span>
             </HeaderMenuItemLink>
-          </div> */}
+          </div>
 
           <div className="flex items-center justify-between px-4 py-[6.5px] text-sm">
             <span className="">Theme</span>

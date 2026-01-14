@@ -2,7 +2,7 @@ import os
 from typing import Any
 
 import i18n
-from langchain.tools import StructuredTool
+from langchain_core.tools import StructuredTool
 from langchain_community.utilities.serpapi import SerpAPIWrapper
 from langchain_core.tools import ToolException
 from pydantic import BaseModel, Field

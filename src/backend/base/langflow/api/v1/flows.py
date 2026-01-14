@@ -142,7 +142,7 @@ async def create_flow(
     *,
     session: DbSession,
     flow: FlowCreate,
-    current_user: CurrentActiveUser,
+    current_user: CurrentActiveUser = None,
 ):
     try:
         db_flow = await _new_flow(session=session, flow=flow, user_id=current_user.id)
@@ -172,7 +172,7 @@ async def create_flow(
 @router.get("/", response_model=list[FlowRead] | Page[FlowRead] | list[FlowHeader], status_code=200)
 async def read_flows(
     *,
-    current_user: CurrentActiveUser,
+    current_user: CurrentActiveUser = None,
     session: DbSession,
     remove_example_flows: bool = False,
     components_only: bool = False,
@@ -324,7 +324,7 @@ async def read_flow(
     *,
     session: DbSession,
     flow_id: UUID,
-    current_user: CurrentActiveUser,
+    current_user: CurrentActiveUser = None,
 ):
     """Read a flow."""
     if user_flow := await _read_flow(session, flow_id):
@@ -502,7 +502,7 @@ async def create_flows(
     *,
     session: DbSession,
     flow_list: FlowListCreate,
-    current_user: CurrentActiveUser,
+    current_user: CurrentActiveUser = None,
 ):
     """Create multiple new flows."""
     db_flows = []
@@ -523,7 +523,7 @@ async def upload_file(
     *,
     session: DbSession,
     file: Annotated[UploadFile, File(...)],
-    current_user: CurrentActiveUser,
+    current_user: CurrentActiveUser = None,
     folder_id: UUID | None = None,
 ):
     """Upload flows from a file."""
@@ -567,7 +567,7 @@ async def upload_file(
 @router.delete("/")
 async def delete_multiple_flows(
     flow_ids: list[UUID],
-    db: DbSession,
+    db: DbSession = None,
 ):
     """Delete multiple flows by their IDs.
 
@@ -595,7 +595,7 @@ async def delete_multiple_flows(
 async def download_multiple_file(
     flow_ids: list[UUID],
     user: CurrentActiveUser,
-    db: DbSession,
+    db: DbSession = None,
 ):
     """Download all flows as a zip file."""
     flows = (await db.exec(select(Flow).where(Flow.id.in_(flow_ids)))).all()  # type: ignore[attr-defined]
@@ -680,7 +680,7 @@ async def get_flow_logs(
     *,
     session: DbSession,
     flow_id: UUID,
-    current_user: CurrentActiveUser,
+    current_user: CurrentActiveUser = None,
     component_type: str | None = None,
     status: str | None = None,
     vertex_id: str | None = None,
@@ -766,7 +766,7 @@ async def get_flow_stats(
     *,
     session: DbSession,
     flow_id: UUID,
-    current_user: CurrentActiveUser,
+    current_user: CurrentActiveUser = None,
 ):
     """Get execution statistics summary for a specific flow.
 
@@ -875,7 +875,7 @@ async def get_transaction_log(
     session: DbSession,
     flow_id: UUID,
     transaction_id: UUID,
-    current_user: CurrentActiveUser,
+    current_user: CurrentActiveUser = None,
 ):
     """Get detailed execution log for a specific transaction.
 

@@ -141,7 +141,7 @@ async def build_flow(
     stop_component_id: str | None = None,
     start_component_id: str | None = None,
     log_builds: bool = True,
-    current_user: CurrentActiveUser,
+    current_user: CurrentActiveUser = None,
     queue_service: Annotated[JobQueueService, Depends(get_queue_service)],
     flow_name: str | None = None,
     event_delivery: EventDeliveryType = EventDeliveryType.POLLING,
@@ -252,7 +252,7 @@ async def build_vertex(
     background_tasks: BackgroundTasks,
     inputs: Annotated[InputValueRequest | None, Body(embed=True)] = None,
     files: list[str] | None = None,
-    current_user: CurrentActiveUser,
+    current_user: CurrentActiveUser = None,
 ) -> VertexBuildResponse:
     """Build a vertex instead of the entire graph.
 

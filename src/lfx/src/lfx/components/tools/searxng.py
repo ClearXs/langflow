@@ -5,7 +5,7 @@ from typing import Any
 
 import i18n
 import requests
-from langchain.agents import Tool
+from langchain_classic.agents import Tool
 from langchain_core.tools import StructuredTool
 from pydantic.v1 import Field, create_model
 

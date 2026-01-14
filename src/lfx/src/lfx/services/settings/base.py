@@ -325,6 +325,73 @@ class Settings(BaseSettings):
     update_starter_projects: bool = True
     """If set to True, Langflow will update starter projects."""
 
+    # ==================== HOLO KNOWLEDGE SYSTEM ====================
+    # OAuth - Google
+    google_oauth_client_id: str | None = None
+    """Google OAuth Client ID for Google Calendar and Gmail connectors."""
+    google_oauth_client_secret: str | None = None
+    """Google OAuth Client Secret for Google Calendar and Gmail connectors."""
+    google_calendar_redirect_uri: str | None = None
+    """Google Calendar OAuth redirect URI."""
+    google_gmail_redirect_uri: str | None = None
+    """Google Gmail OAuth redirect URI."""
+
+    # OAuth - Airtable
+    airtable_client_id: str | None = None
+    """Airtable Client ID for Airtable connector."""
+    airtable_client_secret: str | None = None
+    """Airtable Client Secret for Airtable connector."""
+    airtable_redirect_uri: str | None = None
+    """Airtable OAuth redirect URI."""
+
+    # Embedding Configuration
+    embedding_model: str = "text-embedding-3-small"
+    """Embedding model name for document and chunk embeddings."""
+    azure_openai_endpoint: str | None = None
+    """Azure OpenAI endpoint URL (if using Azure for embeddings)."""
+    azure_openai_api_key: str | None = None
+    """Azure OpenAI API key (if using Azure for embeddings)."""
+    chunk_size: int = 512
+    """Default chunk size for document chunking."""
+    chunk_overlap: int = 128
+    """Chunk overlap size for document chunking."""
+
+    # Reranking
+    rerankers_enabled: bool = False
+    """Enable reranking of search results."""
+    rerankers_model_name: str | None = None
+    """Reranker model name (e.g., 'flashrank', 'cohere')."""
+    rerankers_model_type: str | None = None
+    """Reranker model type (e.g., 'api', 'local')."""
+
+    # ETL Services
+    etl_service: str = "UNSTRUCTURED"
+    """ETL service type: 'UNSTRUCTURED' or 'LLAMACLOUD'."""
+    pages_limit: int = 999999999
+    """Default pages limit for new users."""
+    unstructured_api_key: str | None = None
+    """Unstructured API key for document processing."""
+    llama_cloud_api_key: str | None = None
+    """LlamaCloud API key for document processing."""
+
+    # TTS/STT Services
+    tts_service: str | None = None
+    """Text-to-Speech service type."""
+    tts_service_api_base: str | None = None
+    """TTS API base URL."""
+    tts_service_api_key: str | None = None
+    """TTS API key."""
+    stt_service: str | None = None
+    """Speech-to-Text service type."""
+    stt_service_api_base: str | None = None
+    """STT API base URL."""
+    stt_service_api_key: str | None = None
+    """STT API key."""
+
+    # Global LLM Configurations
+    global_llm_config_path: str | None = None
+    """Path to global LLM configuration YAML file."""
+
     @field_validator("cors_origins", mode="before")
     @classmethod
     def validate_cors_origins(cls, value):
@@ -579,6 +646,40 @@ class Settings(BaseSettings):
                 setattr(self, key, value)
                 logger.debug(f"Updated {key}")
             logger.debug(f"{key}: {getattr(self, key)}")
+
+    @property
+    def embedding_model_instance(self):
+        """Lazy-load embedding model instance."""
+        if not hasattr(self, "_embedding_model_instance") or self._embedding_model_instance is None:
+            # This will be initialized by the service layer when needed
+            return None
+        return self._embedding_model_instance
+
+    @property
+    def chunker_instance(self):
+        """Lazy-load chunker instance."""
+        if not hasattr(self, "_chunker_instance") or self._chunker_instance is None:
+            # This will be initialized by the service layer when needed
+            return None
+        return self._chunker_instance
+
+    @property
+    def code_chunker_instance(self):
+        """Lazy-load code chunker instance."""
+        if not hasattr(self, "_code_chunker_instance") or self._code_chunker_instance is None:
+            # This will be initialized by the service layer when needed
+            return None
+        return self._code_chunker_instance
+
+    @property
+    def reranker_instance(self):
+        """Lazy-load reranker instance."""
+        if not hasattr(self, "_reranker_instance") or self._reranker_instance is None:
+            # This will be initialized by the service layer when needed
+            if not self.rerankers_enabled:
+                return None
+            return None
+        return self._reranker_instance
 
     @property
     def voice_mode_available(self) -> bool:

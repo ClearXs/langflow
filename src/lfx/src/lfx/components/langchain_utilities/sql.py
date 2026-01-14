@@ -1,7 +1,7 @@
 import os
 
 import i18n
-from langchain.agents import AgentExecutor
+from langchain_classic.agents import AgentExecutor
 from langchain_community.agent_toolkits import SQLDatabaseToolkit
 from langchain_community.agent_toolkits.sql.base import create_sql_agent
 from langchain_community.utilities import SQLDatabase

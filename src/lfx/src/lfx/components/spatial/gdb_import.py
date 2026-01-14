@@ -533,6 +533,7 @@ class GDBImportComponent(Component):
         import pandas as pd
         from shapely import wkt
         from shapely.geometry import shape
+
         from lfx.log.logger import logger
 
         features = layer_data.get("features", [])
@@ -650,6 +651,7 @@ class GDBImportComponent(Component):
             return None
 
         import re
+
         from lfx.log.logger import logger
 
         # Try to find EPSG code in AUTHORITY["EPSG","XXXX"] format
@@ -893,7 +895,7 @@ class GDBImportComponent(Component):
                                             # Execute COMMENT statement independently
                                             conn.execute(
                                                 text(
-                                                    f"COMMENT ON COLUMN \"{table_name}\".\"{column_name}\" "
+                                                    f'COMMENT ON COLUMN "{table_name}"."{column_name}" '
                                                     f"IS '{escaped_comment}'"
                                                 )
                                             )

@@ -17,7 +17,7 @@ async def create_variable(
     *,
     session: DbSession,
     variable: VariableCreate,
-    current_user: CurrentActiveUser,
+    current_user: CurrentActiveUser = None,
 ):
     """Create a new variable."""
     variable_service = get_variable_service()
@@ -51,7 +51,7 @@ async def create_variable(
 async def read_variables(
     *,
     session: DbSession,
-    current_user: CurrentActiveUser,
+    current_user: CurrentActiveUser = None,
 ):
     """Read all variables."""
     variable_service = get_variable_service()
@@ -70,7 +70,7 @@ async def update_variable(
     session: DbSession,
     variable_id: UUID,
     variable: VariableUpdate,
-    current_user: CurrentActiveUser,
+    current_user: CurrentActiveUser = None,
 ):
     """Update a variable."""
     variable_service = get_variable_service()
@@ -96,7 +96,7 @@ async def delete_variable(
     *,
     session: DbSession,
     variable_id: UUID,
-    current_user: CurrentActiveUser,
+    current_user: CurrentActiveUser = None,
 ) -> None:
     """Delete a variable."""
     variable_service = get_variable_service()
@@ -109,7 +109,7 @@ async def delete_variable(
 @router.get("/system", response_model=list[dict], status_code=200)
 async def get_system_variables(
     *,
-    current_user: CurrentActiveUser,
+    current_user: CurrentActiveUser = None,
 ):
     """Get all available system variables.
 

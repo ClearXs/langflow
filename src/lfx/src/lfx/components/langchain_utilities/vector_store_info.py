@@ -1,7 +1,7 @@
 import os
 
 import i18n
-from langchain.agents.agent_toolkits.vectorstore.toolkit import VectorStoreInfo
+from langchain_classic.agents.agent_toolkits.vectorstore.toolkit import VectorStoreInfo
 
 from lfx.custom.custom_component.component import Component
 from lfx.inputs.inputs import HandleInput, MessageTextInput, MultilineInput

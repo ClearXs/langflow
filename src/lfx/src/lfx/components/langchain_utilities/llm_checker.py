@@ -1,7 +1,7 @@
 import os
 
 import i18n
-from langchain.chains import LLMCheckerChain
+from langchain_classic.chains import LLMCheckerChain
 
 from lfx.base.chains.model import LCChainComponent
 from lfx.inputs.inputs import HandleInput, MultilineInput

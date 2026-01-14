@@ -25,8 +25,8 @@ router = APIRouter(tags=["Files"], prefix="/files")
 # using the current user as the owner
 async def get_flow(
     flow_id: UUID,
-    current_user: CurrentActiveUser,
-    session: DbSession,
+    current_user: CurrentActiveUser = None,
+    session: DbSession = None,
 ):
     # AttributeError: 'SelectOfScalar' object has no attribute 'first'
     flow = await session.get(Flow, flow_id)
@@ -42,7 +42,7 @@ async def upload_file(
     *,
     file: UploadFile,
     flow: Annotated[Flow, Depends(get_flow)],
-    current_user: CurrentActiveUser,
+    current_user: CurrentActiveUser = None,
     storage_service: Annotated[StorageService, Depends(get_storage_service)],
     settings_service: Annotated[SettingsService, Depends(get_settings_service)],
 ) -> UploadFileResponse:

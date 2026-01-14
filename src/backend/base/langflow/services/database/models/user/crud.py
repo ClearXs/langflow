@@ -67,3 +67,64 @@ async def get_all_superusers(db: AsyncSession) -> list[User]:
     stmt = select(User).where(User.is_superuser == True)  # noqa: E712
     result = await db.exec(stmt)
     return list(result.all())
+
+
+async def increment_pages_used(db: AsyncSession, user_id: UUID, count: int) -> User:
+    """Increment user's page usage by count.
+
+    Args:
+        db: Database session
+        user_id: User UUID
+        count: Number of pages to add
+
+    Returns:
+        Updated User object
+
+    Raises:
+        HTTPException: If user not found
+    """
+    user = await get_user_by_id(db, user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    user.pages_used += count
+    flag_modified(user, "pages_used")
+
+    try:
+        await db.commit()
+        await db.refresh(user)
+    except IntegrityError as e:
+        await db.rollback()
+        raise HTTPException(status_code=400, detail=str(e)) from e
+
+    return user
+
+
+async def reset_pages_used(db: AsyncSession, user_id: UUID) -> User:
+    """Reset user's page usage to zero.
+
+    Args:
+        db: Database session
+        user_id: User UUID
+
+    Returns:
+        Updated User object
+
+    Raises:
+        HTTPException: If user not found
+    """
+    user = await get_user_by_id(db, user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    user.pages_used = 0
+    flag_modified(user, "pages_used")
+
+    try:
+        await db.commit()
+        await db.refresh(user)
+    except IntegrityError as e:
+        await db.rollback()
+        raise HTTPException(status_code=400, detail=str(e)) from e
+
+    return user
