@@ -1,4 +1,4 @@
-import { LayoutGrid, MoreVertical, Plus, Trash2, Users } from "lucide-react";
+import { MoreVertical, Plus, Trash2, Users } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useParams } from "react-router-dom";
@@ -24,7 +24,6 @@ import {
 } from "@/controllers/API/queries/spaces";
 import { CreateSpaceDialog } from "@/pages/SpacesPage/components/CreateSpaceDialog";
 import type { SpaceWithStats } from "@/types/api";
-import { getRecentSpaces, trackSpaceVisit } from "@/utils/recentSpaces";
 
 export function SpacesSidebarSection() {
   const { t } = useTranslation();
@@ -36,43 +35,16 @@ export function SpacesSidebarSection() {
   const { data: spaces = [], isLoading } = useGetSpacesQuery();
   const { mutateAsync: deleteSpace } = useDeleteSpace();
 
-  // Get spaces to display (max 5 recent + current active)
+  // Get spaces to display (max 5 or all)
   const getDisplayedSpaces = (): SpaceWithStats[] => {
     if (showAllSpaces || spaces.length <= 5) {
       return spaces;
     }
-
-    const recentSpaceIds = getRecentSpaces(5);
-    const activeSpaceId = spaceId;
-
-    // If no recent spaces, show first 5
-    if (recentSpaceIds.length === 0) {
-      return spaces.slice(0, 5);
-    }
-
-    // Map IDs to full SpaceWithStats objects
-    const recentSpaces = recentSpaceIds
-      .map((id) => spaces.find((s) => String(s.space.id) === id))
-      .filter((s): s is SpaceWithStats => s !== undefined);
-
-    // If current active space not in recent list, add it
-    if (
-      activeSpaceId &&
-      !recentSpaces.find((s) => String(s.space.id) === activeSpaceId)
-    ) {
-      const activeSpace = spaces.find(
-        (s) => String(s.space.id) === activeSpaceId,
-      );
-      if (activeSpace && recentSpaces.length < 5) {
-        recentSpaces.push(activeSpace);
-      }
-    }
-
-    return recentSpaces.slice(0, 5);
+    // Show first 5 spaces (no recent tracking for now)
+    return spaces.slice(0, 5);
   };
 
   const handleSpaceClick = (id: number) => {
-    trackSpaceVisit(String(id));
     navigate(`/spaces/${id}/chats`);
   };
 
@@ -86,15 +58,6 @@ export function SpacesSidebarSection() {
   };
 
   const displayedSpaces = getDisplayedSpaces();
-
-  console.log("[SpacesSidebarSection] FINAL RENDER:", {
-    spacesCount: spaces.length,
-    displayedSpacesCount: displayedSpaces.length,
-    isLoading,
-    showAllSpaces,
-    spaces: spaces.map(s => ({ id: s.space.id, name: s.space.name })),
-    displayedSpaces: displayedSpaces.map(s => ({ id: s.space.id, name: s.space.name })),
-  });
 
   return (
     <>
@@ -136,7 +99,6 @@ export function SpacesSidebarSection() {
                         className="flex items-center justify-between"
                       >
                         <div className="flex items-center gap-2 overflow-hidden">
-                          <LayoutGrid className="h-4 w-4 shrink-0" />
                           <span className="truncate">{space.name}</span>
                         </div>
 
@@ -175,7 +137,6 @@ export function SpacesSidebarSection() {
                       onClick={() => setShowAllSpaces(!showAllSpaces)}
                       className="text-muted-foreground"
                     >
-                      <LayoutGrid className="mr-2 h-4 w-4" />
                       {showAllSpaces
                         ? t("navigation.collapse")
                         : t("navigation.viewAll", {
