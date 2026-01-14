@@ -160,7 +160,21 @@
     "docs": "Docs",
     "github": "GitHub",
     "discord": "Discord",
-    "twitter": "Twitter"
+    "twitter": "Twitter",
+    "myProjects": "My Projects",
+    "viewAll": "View All ({{count}})",
+    "collapse": "Collapse",
+    "spaces": "Spaces",
+    "allSpaces": "All Spaces",
+    "resources": "Resources",
+    "knowledge": "Knowledge Base",
+    "myFiles": "My Files",
+    "chats": "Chats",
+    "notes": "Notes",
+    "documents": "Documents",
+    "connectors": "Connectors",
+    "team": "Team",
+    "backToSpaces": "Back to Spaces"
   },
   "settings": {
     "displayName": "Settings",
@@ -352,6 +366,20 @@
         "yahooFinance": "Yahoo! Finance",
         "youtube": "YouTube",
         "zep": "Zep"
+      },
+      "navigation": {
+        "myProjects": "My Projects",
+        "viewAll": "View All ({{count}})",
+        "collapse": "Collapse",
+        "spaces": "Spaces",
+        "allSpaces": "All Spaces",
+        "createSpace": "Create Space",
+        "renameSpace": "Rename Space",
+        "deleteSpace": "Delete Space",
+        "resources": "Resources",
+        "knowledge": "Knowledge Base",
+        "myFiles": "My Files",
+        "settings": "Settings"
       }
     },
     "panel": {
@@ -1787,5 +1815,116 @@
     "viewMode": "View Mode",
     "resultsOnly": "Results Only",
     "allData": "All Data"
+  },
+  "spaces": {
+    "title": "Spaces",
+    "subtitle": "Organize your knowledge, documents, and conversations in dedicated spaces",
+    "createSpace": "Create Space",
+    "createFirstSpace": "Create Your First Space",
+    "searchPlaceholder": "Search spaces...",
+    "noSpacesYet": "No spaces yet",
+    "noSpacesFound": "No spaces found",
+    "getStartedMessage": "Get started by creating your first space to organize your knowledge and documents",
+    "adjustSearchQuery": "Try adjusting your search query",
+    "shared": "Shared",
+    "members": "members",
+    "docs": "docs",
+    "updated": "Updated",
+    "createDialog": {
+      "title": "Create New Space",
+      "description": "Spaces help you organize your knowledge, documents, and conversations. Create a space for a project, team, or topic.",
+      "nameLabel": "Name",
+      "namePlaceholder": "e.g., Product Research",
+      "nameDescription": "Give your space a clear, descriptive name",
+      "nameRequired": "Name is required",
+      "nameTooLong": "Name is too long",
+      "descriptionLabel": "Description (optional)",
+      "descriptionPlaceholder": "What is this space for?",
+      "descriptionDescription": "Help others understand the purpose of this space",
+      "descriptionTooLong": "Description is too long",
+      "cancel": "Cancel",
+      "create": "Create Space",
+      "creating": "Creating...",
+      "successMessage": "Space created successfully",
+      "errorMessage": "Failed to create space"
+    },
+    "chats": {
+      "title": "Chat",
+      "subtitle": "AI-powered conversations with your knowledge base",
+      "newChat": "New Chat",
+      "startConversation": "Start a Conversation",
+      "startConversationDesc": "Begin a new chat to interact with AI using documents and connectors from this space.",
+      "placeholder": "Type your message...",
+      "placeholderDisabled": "Type your message... (placeholder)",
+      "send": "Send",
+      "you": "You",
+      "ai": "AI",
+      "placeholderMessage": "This is a placeholder chat interface. Full chat functionality will be implemented with assistant-ui Thread component integration.",
+      "featuresTitle": "The chat will support:",
+      "streaming": "Real-time streaming responses",
+      "mentions": "Document mentions and references",
+      "multiTurn": "Multi-turn conversations",
+      "connectors": "Connector integration for external data",
+      "persistence": "Thread persistence and history"
+    },
+    "notes": {
+      "title": "Notes",
+      "searchPlaceholder": "Search notes...",
+      "createNote": "Create Note",
+      "enterTitle": "Please enter a note title",
+      "createSuccess": "Note created successfully",
+      "createError": "Failed to create note",
+      "deleteSuccess": "Note deleted successfully",
+      "deleteError": "Failed to delete note",
+      "noNotes": "No notes yet",
+      "startCreating": "Start creating notes"
+    },
+    "documents": {
+      "title": "Documents",
+      "searchPlaceholder": "Search documents...",
+      "uploadDocument": "Upload Document",
+      "selectFiles": "Please select files to upload",
+      "uploadError": "Failed to upload documents",
+      "deleteSuccess": "Document deleted successfully",
+      "deleteError": "Failed to delete document",
+      "noDocuments": "No documents yet",
+      "dragDrop": "Drag and drop files or click to browse"
+    }
+  },
+  "holo": {
+    "spaces": {
+      "title": "Search Spaces",
+      "subtitle": "Manage your search spaces and knowledge bases",
+      "createSpace": "Create Search Space",
+      "yourSpaces": "Your Search Spaces",
+      "noSpaces": "No search spaces found",
+      "createFirstSpace": "Create your first search space to get started"
+    },
+    "documents": {
+      "title": "Documents",
+      "subtitle": "Manage your documents and files",
+      "uploadDocument": "Upload Documents",
+      "noDocuments": "No documents found",
+      "bulkDelete": "Delete Selected",
+      "uploadSuccess": "Document uploaded successfully",
+      "uploadFailed": "Failed to upload document"
+    },
+    "connectors": {
+      "title": "Connectors",
+      "subtitle": "Manage your connected services and data sources",
+      "addConnector": "Add Connector",
+      "yourConnectors": "Your Connectors",
+      "noConnectors": "No connectors found",
+      "deleteSuccess": "Connector deleted successfully",
+      "indexingStarted": "Connector content indexing started"
+    },
+    "settings": {
+      "title": "Settings",
+      "llmRoles": "LLM Roles",
+      "modelConfigs": "Model Configs",
+      "longContextLLM": "Long Context LLM",
+      "fastLLM": "Fast LLM",
+      "strategicLLM": "Strategic LLM"
+    }
   }
 }
