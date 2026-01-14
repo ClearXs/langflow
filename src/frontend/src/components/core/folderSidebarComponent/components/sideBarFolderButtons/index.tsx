@@ -15,7 +15,6 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarSeparator,
-  SidebarTrigger,
   useSidebar,
 } from "@/components/ui/sidebar";
 import { useUpdateUser } from "@/controllers/API/queries/auth";
@@ -432,15 +431,12 @@ const SideBarFoldersButtonsComponent = ({
       data-testid="project-sidebar"
     >
       <SidebarHeader className="px-4 py-1">
-        <div className="flex items-center justify-between">
-          <SidebarTrigger className="h-8 w-8" />
-          <HeaderButtons
-            handleUploadFlowsToFolder={handleUploadFlowsToFolder}
-            isUpdatingFolder={isUpdatingFolder}
-            isPending={isPending}
-            addNewFolder={addNewFolder}
-          />
-        </div>
+        <HeaderButtons
+          handleUploadFlowsToFolder={handleUploadFlowsToFolder}
+          isUpdatingFolder={isUpdatingFolder}
+          isPending={isPending}
+          addNewFolder={addNewFolder}
+        />
       </SidebarHeader>
       <SidebarContent>
         {/* 分组1: 我的项目 / Group 1: My Projects */}
