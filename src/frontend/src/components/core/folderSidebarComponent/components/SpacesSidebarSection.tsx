@@ -1,28 +1,30 @@
+import { LayoutGrid, MoreVertical, Plus, Trash2, Users } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useParams } from "react-router-dom";
-import { Users, LayoutGrid, Plus, MoreVertical, Trash2 } from "lucide-react";
-import {
-  SidebarGroup,
-  SidebarGroupLabel,
-  SidebarGroupContent,
-  SidebarMenu,
-  SidebarMenuItem,
-  SidebarMenuButton,
-} from "@/components/ui/sidebar";
+import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Button } from "@/components/ui/button";
-import { useGetSpacesQuery } from "@/controllers/API/queries/spaces";
-import { useDeleteSpace } from "@/controllers/API/queries/spaces";
+import {
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+} from "@/components/ui/sidebar";
+import {
+  useDeleteSpace,
+  useGetSpacesQuery,
+} from "@/controllers/API/queries/spaces";
 import { CreateSpaceDialog } from "@/pages/SpacesPage/components/CreateSpaceDialog";
-import { getRecentSpaces, trackSpaceVisit } from "@/utils/recentSpaces";
-import { toast } from "sonner";
 import type { SpaceWithStats } from "@/types/api";
+import { getRecentSpaces, trackSpaceVisit } from "@/utils/recentSpaces";
 
 export function SpacesSidebarSection() {
   const { t } = useTranslation();
@@ -85,7 +87,7 @@ export function SpacesSidebarSection() {
       <SidebarGroup>
         <SidebarGroupLabel>
           <Users className="mr-2 h-4 w-4" />
-          {t("sidebar.navigation.spaces")}
+          {t("navigation.spaces")}
           <Button
             variant="ghost"
             size="icon"
@@ -143,7 +145,7 @@ export function SpacesSidebarSection() {
                               className="text-destructive"
                             >
                               <Trash2 className="mr-2 h-4 w-4" />
-                              {t("sidebar.navigation.deleteSpace")}
+                              {t("navigation.deleteSpace")}
                             </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
@@ -161,8 +163,8 @@ export function SpacesSidebarSection() {
                     >
                       <LayoutGrid className="mr-2 h-4 w-4" />
                       {showAllSpaces
-                        ? t("sidebar.navigation.collapse")
-                        : t("sidebar.navigation.viewAll", {
+                        ? t("navigation.collapse")
+                        : t("navigation.viewAll", {
                             count: spaces.length,
                           })}
                     </SidebarMenuButton>
