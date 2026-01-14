@@ -45,6 +45,11 @@ export function SpacesSidebarSection() {
     const recentSpaceIds = getRecentSpaces(5);
     const activeSpaceId = spaceId;
 
+    // If no recent spaces, show first 5
+    if (recentSpaceIds.length === 0) {
+      return spaces.slice(0, 5);
+    }
+
     // Map IDs to full SpaceWithStats objects
     const recentSpaces = recentSpaceIds
       .map((id) => spaces.find((s) => String(s.space.id) === id))
@@ -81,6 +86,15 @@ export function SpacesSidebarSection() {
   };
 
   const displayedSpaces = getDisplayedSpaces();
+
+  console.log("[SpacesSidebarSection] FINAL RENDER:", {
+    spacesCount: spaces.length,
+    displayedSpacesCount: displayedSpaces.length,
+    isLoading,
+    showAllSpaces,
+    spaces: spaces.map(s => ({ id: s.space.id, name: s.space.name })),
+    displayedSpaces: displayedSpaces.map(s => ({ id: s.space.id, name: s.space.name })),
+  });
 
   return (
     <>
