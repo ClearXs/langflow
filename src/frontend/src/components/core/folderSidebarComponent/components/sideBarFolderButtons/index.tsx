@@ -15,6 +15,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarSeparator,
+  useSidebar,
 } from "@/components/ui/sidebar";
 import { useUpdateUser } from "@/controllers/API/queries/auth";
 import {
@@ -71,6 +72,7 @@ const SideBarFoldersButtonsComponent = ({
   const folders = useFolderStore((state) => state.folders);
   const loading = !folders;
   const refInput = useRef<HTMLInputElement>(null);
+  const { setOpen } = useSidebar();
 
   const _navigate = useCustomNavigate();
 
@@ -228,6 +230,16 @@ const SideBarFoldersButtonsComponent = ({
       );
     }
   }, [folders]);
+
+  // Auto-collapse sidebar when entering space details
+  useEffect(() => {
+    const isSpaceDetailPage = pathname.match(/^\/spaces\/\d+\//);
+    if (isSpaceDetailPage) {
+      setOpen(false);
+    } else {
+      setOpen(true);
+    }
+  }, [pathname, setOpen]);
 
   const handleEditNameFolder = async (item) => {
     const newEditFolders = editFolders.map((obj) => {
