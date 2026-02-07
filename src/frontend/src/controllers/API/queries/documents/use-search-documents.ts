@@ -19,9 +19,9 @@ export const useSearchDocumentsQuery: useQueryFunctionType<
   > => {
     const queryParams = new URLSearchParams({
       search_space_id: String(params.search_space_id),
-      title_query: params.title_query,
-      page: String(params.page ?? 1),
-      page_size: String(params.page_size ?? 10),
+      title: params.title,
+      page: String(params.page ?? 0),
+      page_size: String(params.page_size ?? 50),
     });
 
     const res = await api.get(`${getURL("DOCUMENTS")}/search?${queryParams}`);
@@ -29,7 +29,7 @@ export const useSearchDocumentsQuery: useQueryFunctionType<
   };
 
   const queryResult = query(["useSearchDocuments", params], searchDocumentsFn, {
-    enabled: !!params.search_space_id && !!params.title_query,
+    enabled: !!params.search_space_id && !!params.title,
     ...options,
   });
   return queryResult;

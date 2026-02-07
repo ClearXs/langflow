@@ -1,5 +1,4 @@
-"""
-LLM configuration utilities for SurfSense agents.
+"""LLM configuration utilities for SurfSense agents.
 
 This module provides functions for loading LLM configurations from:
 1. YAML files (global configs with negative IDs)
@@ -54,8 +53,7 @@ PROVIDER_MAP = {
 
 @dataclass
 class AgentConfig:
-    """
-    Complete configuration for the SurfSense agent.
+    """Complete configuration for the SurfSense agent.
 
     This combines LLM settings with prompt configuration from LLMConfig.
     """
@@ -79,8 +77,7 @@ class AgentConfig:
 
     @classmethod
     def from_llm_config(cls, config) -> "AgentConfig":
-        """
-        Create an AgentConfig from a LLMConfig database model.
+        """Create an AgentConfig from a LLMConfig database model.
 
         Args:
             config: LLMConfig database model instance
@@ -106,8 +103,7 @@ class AgentConfig:
 
     @classmethod
     def from_yaml_config(cls, yaml_config: dict) -> "AgentConfig":
-        """
-        Create an AgentConfig from a YAML configuration dictionary.
+        """Create an AgentConfig from a YAML configuration dictionary.
 
         YAML configs now support the same prompt configuration fields as LLMConfig:
         - system_instructions: Custom system instructions (empty string uses defaults)
@@ -142,8 +138,7 @@ class AgentConfig:
 
 
 def load_llm_config_from_yaml(llm_config_id: int = -1) -> dict | None:
-    """
-    Load a specific LLM config from global_llm_config.yaml.
+    """Load a specific LLM config from global_llm_config.yaml.
 
     Args:
         llm_config_id: The id of the config to load (default: -1)
@@ -181,8 +176,7 @@ async def load_llm_config_from_db(
     session: AsyncSession,
     config_id: int,
 ) -> "AgentConfig | None":
-    """
-    Load a LLMConfig from the database by ID.
+    """Load a LLMConfig from the database by ID.
 
     Args:
         session: AsyncSession for database access
@@ -214,8 +208,7 @@ async def load_agent_llm_config_for_space(
     session: AsyncSession,
     space_id: int,
 ) -> "AgentConfig | None":
-    """
-    Load the agent LLM configuration for a space.
+    """Load the agent LLM configuration for a space.
 
     This loads the LLM config based on the space's agent_llm_id setting:
     - Positive ID: Load from LLMConfig database table
@@ -260,8 +253,7 @@ async def load_agent_config(
     config_id: int,
     space_id: int | None = None,
 ) -> "AgentConfig | None":
-    """
-    Load an agent configuration, supporting both YAML (negative IDs) and database (positive IDs) configs.
+    """Load an agent configuration, supporting both YAML (negative IDs) and database (positive IDs) configs.
 
     This is the main entry point for loading configurations:
     - Negative IDs: Load from YAML file (global configs)
@@ -281,14 +273,12 @@ async def load_agent_config(
         if yaml_config:
             return AgentConfig.from_yaml_config(yaml_config)
         return None
-    else:
-        # Load from database (LLMConfig)
-        return await load_llm_config_from_db(session, config_id)
+    # Load from database (LLMConfig)
+    return await load_llm_config_from_db(session, config_id)
 
 
 def create_chat_litellm_from_config(llm_config: dict) -> ChatLiteLLM | None:
-    """
-    Create a ChatLiteLLM instance from a global LLM config dictionary.
+    """Create a ChatLiteLLM instance from a global LLM config dictionary.
 
     Args:
         llm_config: LLM configuration dictionary from YAML
@@ -325,8 +315,7 @@ def create_chat_litellm_from_config(llm_config: dict) -> ChatLiteLLM | None:
 def create_chat_litellm_from_agent_config(
     agent_config: AgentConfig,
 ) -> ChatLiteLLM | None:
-    """
-    Create a ChatLiteLLM instance from an AgentConfig.
+    """Create a ChatLiteLLM instance from an AgentConfig.
 
     Args:
         agent_config: AgentConfig instance

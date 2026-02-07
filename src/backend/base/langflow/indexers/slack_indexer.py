@@ -1,5 +1,4 @@
-"""
-Slack connector indexer.
+"""Slack connector indexer.
 """
 
 from datetime import datetime
@@ -38,8 +37,7 @@ async def index_slack_messages(
     end_date: str | None = None,
     update_last_indexed: bool = True,
 ) -> tuple[int, str | None]:
-    """
-    Index Slack messages from all accessible channels.
+    """Index Slack messages from all accessible channels.
 
     Args:
         session: Database session
@@ -289,44 +287,43 @@ async def index_slack_messages(
                             )
                             documents_skipped += 1
                             continue
-                        else:
-                            # Content has changed - update the existing document
-                            logger.info(
-                                f"Content changed for Slack message {msg_ts} in channel {channel_name}. Updating document."
-                            )
+                        # Content has changed - update the existing document
+                        logger.info(
+                            f"Content changed for Slack message {msg_ts} in channel {channel_name}. Updating document."
+                        )
 
-                            # Update chunks and embedding
-                            chunks = await create_document_chunks(
-                                combined_document_string
-                            )
-                            settings_service = get_settings_service()
-                            settings = settings_service.settings
-                            doc_embedding = settings.embedding_model_instance.embed(
-                                combined_document_string
-                            )
+                        # Update chunks and embedding
+                        chunks = await create_document_chunks(
+                            combined_document_string
+                        )
+                        settings_service = get_settings_service()
+                        settings = settings_service.settings
+                        doc_embedding = settings.embedding_model_instance.embed(
+                            combined_document_string
+                        )
 
-                            # Update existing document
-                            existing_document.content = combined_document_string
-                            existing_document.content_hash = content_hash
-                            existing_document.embedding = doc_embedding
-                            existing_document.document_metadata = {
-                                "channel_name": channel_name,
-                                "channel_id": channel_id,
-                                "start_date": start_date_str,
-                                "end_date": end_date_str,
-                                "message_count": len(formatted_messages),
-                                "indexed_at": datetime.now().strftime(
-                                    "%Y-%m-%d %H:%M:%S"
-                                ),
-                            }
+                        # Update existing document
+                        existing_document.content = combined_document_string
+                        existing_document.content_hash = content_hash
+                        existing_document.embedding = doc_embedding
+                        existing_document.document_metadata = {
+                            "channel_name": channel_name,
+                            "channel_id": channel_id,
+                            "start_date": start_date_str,
+                            "end_date": end_date_str,
+                            "message_count": len(formatted_messages),
+                            "indexed_at": datetime.now().strftime(
+                                "%Y-%m-%d %H:%M:%S"
+                            ),
+                        }
 
-                            # Delete old chunks and add new ones
-                            existing_document.chunks = chunks
-                            existing_document.updated_at = get_current_timestamp()
+                        # Delete old chunks and add new ones
+                        existing_document.chunks = chunks
+                        existing_document.updated_at = get_current_timestamp()
 
-                            documents_indexed += 1
-                            logger.info(f"Successfully updated Slack message {msg_ts}")
-                            continue
+                        documents_indexed += 1
+                        logger.info(f"Successfully updated Slack message {msg_ts}")
+                        continue
 
                     # Document doesn't exist - create new one
                     # Process chunks

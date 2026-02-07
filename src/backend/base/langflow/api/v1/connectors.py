@@ -1,5 +1,4 @@
-"""
-Connector routes for CRUD operations:
+"""Connector routes for CRUD operations:
 POST /connectors/ - Create a new connector
 GET /connectors/ - List all connectors for the current user (optionally filtered by search space)
 GET /connectors/{connector_id} - Get a specific connector
@@ -14,10 +13,9 @@ import logging
 from datetime import UTC, datetime, timedelta
 from typing import Any
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, HTTPException, Query
 from pydantic import BaseModel, Field, ValidationError
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 
 from langflow.api.utils import CurrentActiveUser, DbSession
@@ -30,8 +28,6 @@ from langflow.services.database.models.connector import (
     ConnectorType,
     ConnectorUpdate,
 )
-from langflow.services.database.models.user import User
-from langflow.services.deps import get_session_service
 from langflow.utils.periodic_scheduler import (
     create_periodic_schedule,
     delete_periodic_schedule,
@@ -73,8 +69,7 @@ async def list_github_repositories(
     pat_request: GitHubPATRequest,
     current_user: CurrentActiveUser = None,  # Ensure the user is logged in
 ):
-    """
-    Fetches a list of repositories accessible by the provided GitHub PAT.
+    """Fetches a list of repositories accessible by the provided GitHub PAT.
     The PAT is used for this request only and is not stored.
     """
     try:
@@ -97,25 +92,36 @@ async def list_github_repositories(
 @router.post("/", response_model=ConnectorRead)
 async def create_connector(
     connector: ConnectorCreate,
-    search_space_id: int = Query(
-        ..., description="ID of the search space to associate the connector with"
-    ),
     db: DbSession = None,
     current_user: CurrentActiveUser = None,
 ):
-    """
-    Create a new connector.
+    """Create a new connector.
     Requires CONNECTORS_CREATE permission.
 
-    Each search space can have only one connector of each type (based on search_space_id and connector_type).
+    Each search space can have only one connector of each type (based on space_id and connector_type).
     The config must contain the appropriate keys for the connector type.
     """
     try:
+        # Normalize space_id from search_space_id if needed
+        if connector.search_space_id is not None and connector.space_id is None:
+            connector.space_id = connector.search_space_id
+
+        # Validate that space_id is provided
+        if connector.space_id is None:
+            raise HTTPException(
+                status_code=422,
+                detail="Either space_id or search_space_id must be provided",
+            )
+
+        # Automatically set user_id from current_user if not provided
+        if connector.user_id is None:
+            connector.user_id = current_user.id
+
         # Check if user has permission to create connectors
         await check_permission(
             db,
             current_user,
-            search_space_id,
+            connector.space_id,
             "CONNECTORS_CREATE",
             "You don't have permission to create connectors in this search space",
         )
@@ -123,7 +129,7 @@ async def create_connector(
         # Check if a connector with the same type already exists for this search space
         result = await db.execute(
             select(Connector).filter(
-                Connector.search_space_id == search_space_id,
+                Connector.space_id == connector.space_id,
                 Connector.connector_type == connector.connector_type,
             )
         )
@@ -147,9 +153,7 @@ async def create_connector(
                 minutes=connector.indexing_frequency_minutes
             )
 
-        db_connector = Connector(
-            **connector_data, search_space_id=search_space_id, user_id=current_user.id
-        )
+        db_connector = Connector(**connector_data)
         db.add(db_connector)
         await db.commit()
         await db.refresh(db_connector)
@@ -161,7 +165,7 @@ async def create_connector(
         ):
             success = create_periodic_schedule(
                 connector_id=db_connector.id,
-                search_space_id=search_space_id,
+                search_space_id=db_connector.space_id,
                 user_id=str(current_user.id),
                 connector_type=db_connector.connector_type,
                 frequency_minutes=db_connector.indexing_frequency_minutes,
@@ -197,21 +201,14 @@ async def create_connector(
 async def read_connectors(
     skip: int = 0,
     limit: int = 100,
-    search_space_id: int | None = None,
+    search_space_id: int = Query(..., description="ID of the search space to filter connectors"),
     db: DbSession = None,
     current_user: CurrentActiveUser = None,
 ):
-    """
-    List all connectors for a search space.
+    """List all connectors for a search space.
     Requires CONNECTORS_READ permission.
     """
     try:
-        if search_space_id is None:
-            raise HTTPException(
-                status_code=400,
-                detail="search_space_id is required",
-            )
-
         # Check if user has permission to read connectors
         await check_permission(
             db,
@@ -222,7 +219,7 @@ async def read_connectors(
         )
 
         query = select(Connector).filter(
-            Connector.search_space_id == search_space_id
+            Connector.space_id == search_space_id
         )
 
         result = await db.execute(query.offset(skip).limit(limit))
@@ -244,8 +241,7 @@ async def read_connector(
     db: DbSession = None,
     current_user: CurrentActiveUser = None,
 ):
-    """
-    Get a specific connector by ID.
+    """Get a specific connector by ID.
     Requires CONNECTORS_READ permission.
     """
     try:
@@ -264,7 +260,7 @@ async def read_connector(
         await check_permission(
             db,
             current_user,
-            connector.search_space_id,
+            connector.space_id,
             "CONNECTORS_READ",
             "You don't have permission to view this connector",
         )
@@ -287,8 +283,7 @@ async def update_connector(
     db: DbSession = None,
     current_user: CurrentActiveUser = None,
 ):
-    """
-    Update a connector.
+    """Update a connector.
     Requires CONNECTORS_UPDATE permission.
     Handles partial updates, including merging changes into the 'config' field.
     """
@@ -305,7 +300,7 @@ async def update_connector(
     await check_permission(
         db,
         current_user,
-        db_connector.search_space_id,
+        db_connector.space_id,
         "CONNECTORS_UPDATE",
         "You don't have permission to update this connector",
     )
@@ -404,8 +399,7 @@ async def update_connector(
         if key == "connector_type" and value != db_connector.connector_type:
             check_result = await db.execute(
                 select(Connector).filter(
-                    Connector.search_space_id
-                    == db_connector.search_space_id,
+                    Connector.space_id == db_connector.space_id,
                     Connector.connector_type == value,
                     Connector.id != connector_id,
                 )
@@ -435,7 +429,7 @@ async def update_connector(
                 # Create or update the periodic schedule
                 success = update_periodic_schedule(
                     connector_id=db_connector.id,
-                    search_space_id=db_connector.search_space_id,
+                    search_space_id=db_connector.space_id,
                     user_id=str(current_user.id),
                     connector_type=db_connector.connector_type,
                     frequency_minutes=db_connector.indexing_frequency_minutes,
@@ -477,8 +471,7 @@ async def delete_connector(
     db: DbSession = None,
     current_user: CurrentActiveUser = None,
 ):
-    """
-    Delete a connector.
+    """Delete a connector.
     Requires CONNECTORS_DELETE permission.
     """
     try:
@@ -497,7 +490,7 @@ async def delete_connector(
         await check_permission(
             db,
             current_user,
-            db_connector.search_space_id,
+            db_connector.space_id,
             "CONNECTORS_DELETE",
             "You don't have permission to delete this connector",
         )
@@ -528,9 +521,6 @@ async def delete_connector(
 )
 async def index_connector_content(
     connector_id: int,
-    search_space_id: int = Query(
-        ..., description="ID of the search space to store indexed content"
-    ),
     start_date: str = Query(
         None,
         description="Start date for indexing (YYYY-MM-DD format). If not provided, uses last_indexed_at or defaults to 365 days ago",
@@ -542,8 +532,7 @@ async def index_connector_content(
     db: DbSession = None,
     current_user: CurrentActiveUser = None,
 ):
-    """
-    Index content from a connector to a search space.
+    """Index content from a connector to a search space.
     Requires CONNECTORS_UPDATE permission (to trigger indexing).
 
     Currently supports:
@@ -559,7 +548,6 @@ async def index_connector_content(
 
     Args:
         connector_id: ID of the connector to use
-        search_space_id: ID of the search space to store indexed content
 
     Returns:
         Dictionary with indexing status
@@ -575,6 +563,9 @@ async def index_connector_content(
 
         if not connector:
             raise HTTPException(status_code=404, detail="Connector not found")
+
+        # Get search_space_id from the connector
+        search_space_id = connector.space_id
 
         # Check if user has permission to update connectors (indexing is an update operation)
         await check_permission(
@@ -750,9 +741,11 @@ async def index_connector_content(
             response_message = "Web page indexing started in the background."
 
         else:
-            raise HTTPException(
-                status_code=400,
-                detail=f"Indexing not supported for connector type: {connector.connector_type}",
+            # For connector types without specific indexing implementation,
+            # return success but indicate no automatic indexing is available
+            response_message = f"Connector type '{connector.connector_type}' does not have automatic indexing implemented. Manual document upload or custom integration required."
+            logger.info(
+                f"Indexing endpoint called for unsupported connector type: {connector.connector_type} (connector_id={connector_id})"
             )
 
         return {

@@ -1,6 +1,7 @@
 import { formatDistanceToNow } from "date-fns";
 import {
   Calendar,
+  Edit,
   FileText,
   MoreVertical,
   Plus,
@@ -33,10 +34,12 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import {
   useDeleteNote,
   useGetNotesQuery,
   usePostCreateNote,
+  usePutUpdateNote,
 } from "@/controllers/API/queries/notes";
 
 export default function NotesPage() {
@@ -44,20 +47,30 @@ export default function NotesPage() {
   const { spaceId } = useParams<{ spaceId: string }>();
   const [searchQuery, setSearchQuery] = useState("");
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [newNoteTitle, setNewNoteTitle] = useState("");
+  const [newNoteContent, setNewNoteContent] = useState("");
+  const [editingNote, setEditingNote] = useState<{
+    id: number;
+    title: string;
+    content: string;
+  } | null>(null);
 
   const {
-    data: notes = [],
+    data: notesResponse,
     isLoading,
     refetch,
   } = useGetNotesQuery(
-    { search_space_id: Number(spaceId) },
     { enabled: !!spaceId },
+    { searchSpaceId: Number(spaceId) },
   );
+
+  const notes = notesResponse?.items || [];
 
   const { mutateAsync: createNote, isPending: isCreating } =
     usePostCreateNote();
-  const { mutateAsync: deleteNote, isPending: isDeleting } = useDeleteNote();
+  const { mutateAsync: updateNote, isPending: isUpdating } = usePutUpdateNote();
+  const { mutateAsync: deleteNote } = useDeleteNote();
 
   const filteredNotes = notes.filter((note) =>
     note.title.toLowerCase().includes(searchQuery.toLowerCase()),
@@ -71,24 +84,66 @@ export default function NotesPage() {
 
     try {
       await createNote({
-        title: newNoteTitle,
-        content: "",
-        search_space_id: Number(spaceId),
+        searchSpaceId: Number(spaceId),
+        data: {
+          title: newNoteTitle,
+          content: newNoteContent,
+          search_space_id: Number(spaceId),
+        },
       });
       toast.success(t("spaces.notes.createSuccess"));
       setNewNoteTitle("");
+      setNewNoteContent("");
       setIsCreateDialogOpen(false);
-      refetch();
+      // refetch() 已经在 mutation 的 onSettled 中自动调用，无需手动调用
     } catch (error) {
       toast.error(t("spaces.notes.createError"));
     }
   };
 
+  const handleEditNote = (note: any) => {
+    setEditingNote({
+      id: note.id,
+      title: note.title,
+      content: note.content || "",
+    });
+    setIsEditDialogOpen(true);
+  };
+
+  const handleUpdateNote = async () => {
+    if (!editingNote) return;
+
+    if (!editingNote.title.trim()) {
+      toast.error(t("spaces.notes.enterTitle"));
+      return;
+    }
+
+    try {
+      await updateNote({
+        searchSpaceId: Number(spaceId),
+        noteId: editingNote.id,
+        data: {
+          title: editingNote.title,
+          content: editingNote.content,
+        },
+      });
+      toast.success(t("spaces.notes.updateSuccess"));
+      setEditingNote(null);
+      setIsEditDialogOpen(false);
+      // refetch() 已经在 mutation 的 onSettled 中自动调用，无需手动调用
+    } catch (error) {
+      toast.error(t("spaces.notes.updateError"));
+    }
+  };
+
   const handleDeleteNote = async (noteId: number) => {
     try {
-      await deleteNote({ id: noteId });
+      await deleteNote({
+        searchSpaceId: Number(spaceId),
+        noteId: noteId,
+      });
       toast.success(t("spaces.notes.deleteSuccess"));
-      refetch();
+      // refetch() 已经在 mutation 的 onSettled 中自动调用，无需手动调用
     } catch (error) {
       toast.error(t("spaces.notes.deleteError"));
     }
@@ -141,30 +196,26 @@ export default function NotesPage() {
         )}
 
         {!isLoading && filteredNotes.length === 0 && (
-          <div className="h-full flex items-center justify-center">
-            <Card className="max-w-md border-dashed">
-              <CardContent className="flex flex-col items-center justify-center py-16">
-                <div className="rounded-full bg-muted p-4 mb-4">
-                  <FileText className="h-8 w-8 text-muted-foreground" />
-                </div>
-                <h3 className="text-lg font-semibold mb-2">
-                  {searchQuery
-                    ? t("spaces.notes.noNotesFound")
-                    : t("spaces.notes.noNotesYet")}
-                </h3>
-                <p className="text-muted-foreground text-center max-w-sm mb-6">
-                  {searchQuery
-                    ? t("spaces.notes.tryAdjusting")
-                    : t("spaces.notes.createFirstNote")}
-                </p>
-                {!searchQuery && (
-                  <Button onClick={() => setIsCreateDialogOpen(true)}>
-                    <Plus className="mr-2 h-4 w-4" />
-                    {t("spaces.notes.createYourFirstNote")}
-                  </Button>
-                )}
-              </CardContent>
-            </Card>
+          <div className="h-full flex flex-col items-center justify-center py-20 px-8">
+            <div className="rounded-full bg-muted p-6 mb-6">
+              <FileText className="h-12 w-12 text-muted-foreground" />
+            </div>
+            <h3 className="text-xl font-semibold mb-3">
+              {searchQuery
+                ? t("spaces.notes.noNotesFound")
+                : t("spaces.notes.noNotesYet")}
+            </h3>
+            <p className="text-muted-foreground text-center max-w-md mb-8 text-base">
+              {searchQuery
+                ? t("spaces.notes.tryAdjusting")
+                : t("spaces.notes.createFirstNote")}
+            </p>
+            {!searchQuery && (
+              <Button onClick={() => setIsCreateDialogOpen(true)} size="lg">
+                <Plus className="mr-2 h-5 w-5" />
+                {t("spaces.notes.createYourFirstNote")}
+              </Button>
+            )}
           </div>
         )}
 
@@ -190,6 +241,10 @@ export default function NotesPage() {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={() => handleEditNote(note)}>
+                          <Edit className="mr-2 h-4 w-4" />
+                          {t("spaces.notes.edit")}
+                        </DropdownMenuItem>
                         <DropdownMenuItem
                           onClick={() => handleDeleteNote(note.id)}
                           className="text-destructive"
@@ -231,24 +286,34 @@ export default function NotesPage() {
             </DialogDescription>
           </DialogHeader>
 
-          <div className="py-4">
-            <Input
-              placeholder={t("spaces.notes.noteTitlePlaceholder")}
-              value={newNoteTitle}
-              onChange={(e) => setNewNoteTitle(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && !isCreating) {
-                  handleCreateNote();
-                }
-              }}
-              autoFocus
-            />
+          <div className="py-4 space-y-4">
+            <div>
+              <Input
+                placeholder={t("spaces.notes.noteTitlePlaceholder")}
+                value={newNoteTitle}
+                onChange={(e) => setNewNoteTitle(e.target.value)}
+                autoFocus
+              />
+            </div>
+            <div>
+              <Textarea
+                placeholder={t("spaces.notes.noteContentPlaceholder")}
+                value={newNoteContent}
+                onChange={(e) => setNewNoteContent(e.target.value)}
+                rows={6}
+                className="resize-none"
+              />
+            </div>
           </div>
 
           <DialogFooter>
             <Button
               variant="outline"
-              onClick={() => setIsCreateDialogOpen(false)}
+              onClick={() => {
+                setIsCreateDialogOpen(false);
+                setNewNoteTitle("");
+                setNewNoteContent("");
+              }}
               disabled={isCreating}
             >
               {t("common.cancel")}
@@ -257,6 +322,60 @@ export default function NotesPage() {
               {isCreating
                 ? t("spaces.notes.creating")
                 : t("spaces.notes.createNote")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Note Dialog */}
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{t("spaces.notes.editDialogTitle")}</DialogTitle>
+            <DialogDescription>
+              {t("spaces.notes.editDialogDescription")}
+            </DialogDescription>
+          </DialogHeader>
+
+          {editingNote && (
+            <div className="py-4 space-y-4">
+              <div>
+                <Input
+                  placeholder={t("spaces.notes.noteTitlePlaceholder")}
+                  value={editingNote.title}
+                  onChange={(e) =>
+                    setEditingNote({ ...editingNote, title: e.target.value })
+                  }
+                  autoFocus
+                />
+              </div>
+              <div>
+                <Textarea
+                  placeholder={t("spaces.notes.noteContentPlaceholder")}
+                  value={editingNote.content}
+                  onChange={(e) =>
+                    setEditingNote({ ...editingNote, content: e.target.value })
+                  }
+                  rows={6}
+                  className="resize-none"
+                />
+              </div>
+            </div>
+          )}
+
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setIsEditDialogOpen(false);
+                setEditingNote(null);
+              }}
+              disabled={isUpdating}
+            >
+              {t("common.cancel")}
+            </Button>
+            <Button onClick={handleUpdateNote} disabled={isUpdating}>
+              {isUpdating ? t("spaces.notes.updating") : t("common.save")}
             </Button>
           </DialogFooter>
         </DialogContent>

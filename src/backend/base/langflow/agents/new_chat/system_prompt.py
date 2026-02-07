@@ -1,5 +1,4 @@
-"""
-System prompt building for SurfSense agents.
+"""System prompt building for SurfSense agents.
 
 This module provides functions and constants for building the SurfSense system prompt
 with configurable user instructions and citation support.
@@ -250,8 +249,7 @@ Your goal is to provide helpful, informative answers in a clean, readable format
 def build_surfsense_system_prompt(
     today: datetime | None = None,
 ) -> str:
-    """
-    Build the SurfSense system prompt with default settings.
+    """Build the SurfSense system prompt with default settings.
 
     This is a convenience function that builds the prompt with:
     - Default system instructions
@@ -279,8 +277,7 @@ def build_configurable_system_prompt(
     citations_enabled: bool = True,
     today: datetime | None = None,
 ) -> str:
-    """
-    Build a configurable SurfSense system prompt based on LLMConfig settings.
+    """Build a configurable SurfSense system prompt based on LLMConfig settings.
 
     The prompt is composed of three parts:
     1. System Instructions - either custom or default SURFSENSE_SYSTEM_INSTRUCTIONS
@@ -331,8 +328,7 @@ def build_configurable_system_prompt(
 
 
 def get_default_system_instructions() -> str:
-    """
-    Get the default system instructions template.
+    """Get the default system instructions template.
 
     This is useful for populating the UI with the default value when
     creating a new LLMConfig.

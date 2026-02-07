@@ -1,5 +1,4 @@
-"""
-Base functionality and shared imports for connector indexers.
+"""Base functionality and shared imports for connector indexers.
 """
 
 import logging
@@ -17,8 +16,7 @@ logger = logging.getLogger(__name__)
 
 
 def get_current_timestamp() -> datetime:
-    """
-    Get the current timestamp with timezone for updated_at field.
+    """Get the current timestamp with timezone for updated_at field.
 
     Returns:
         Current datetime with UTC timezone
@@ -29,8 +27,7 @@ def get_current_timestamp() -> datetime:
 async def check_duplicate_document_by_hash(
     session: AsyncSession, content_hash: str
 ) -> Document | None:
-    """
-    Check if a document with the given content hash already exists.
+    """Check if a document with the given content hash already exists.
 
     Args:
         session: Database session
@@ -48,8 +45,7 @@ async def check_duplicate_document_by_hash(
 async def check_document_by_unique_identifier(
     session: AsyncSession, unique_identifier_hash: str
 ) -> Document | None:
-    """
-    Check if a document with the given unique identifier hash already exists.
+    """Check if a document with the given unique identifier hash already exists.
     Eagerly loads chunks to avoid lazy loading issues during updates.
 
     Args:
@@ -72,8 +68,7 @@ async def check_document_by_unique_identifier(
 async def get_connector_by_id(
     session: AsyncSession, connector_id: int, connector_type: ConnectorType
 ) -> Connector | None:
-    """
-    Get a connector by ID and type from the database.
+    """Get a connector by ID and type from the database.
 
     Args:
         session: Database session
@@ -98,8 +93,7 @@ def calculate_date_range(
     end_date: str | None = None,
     default_days_back: int = 365,
 ) -> tuple[str, str]:
-    """
-    Calculate date range for indexing based on provided dates or connector's last indexed date.
+    """Calculate date range for indexing based on provided dates or connector's last indexed date.
 
     Args:
         connector: The connector object
@@ -158,8 +152,7 @@ async def update_connector_last_indexed(
     connector: Connector,
     update_last_indexed: bool = True,
 ) -> None:
-    """
-    Update the last_indexed_at timestamp for a connector.
+    """Update the last_indexed_at timestamp for a connector.
 
     Args:
         session: Database session
@@ -174,8 +167,7 @@ async def update_connector_last_indexed(
 def build_document_metadata_string(
     metadata_sections: list[tuple[str, list[str]]],
 ) -> str:
-    """
-    Build a document string from metadata sections.
+    """Build a document string from metadata sections.
 
     Args:
         metadata_sections: List of (section_title, section_content) tuples
@@ -197,8 +189,7 @@ def build_document_metadata_string(
 def build_document_metadata_markdown(
     metadata_sections: list[tuple[str, list[str]]],
 ) -> str:
-    """
-    Build a markdown document string from metadata sections.
+    """Build a markdown document string from metadata sections.
 
     Args:
         metadata_sections: List of (section_title, section_content) tuples
@@ -217,11 +208,10 @@ def build_document_metadata_markdown(
             # Handle special content formatting
             if content_line == "TEXT_START" or content_line == "TEXT_END":
                 continue  # Skip text delimiters in markdown
-            elif content_line.startswith("FORMAT: "):
+            if content_line.startswith("FORMAT: "):
                 # Skip format indicators in markdown
                 continue
-            else:
-                document_parts.append(content_line)
+            document_parts.append(content_line)
 
         document_parts.append("")  # Empty line after section
 

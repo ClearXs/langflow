@@ -1,5 +1,4 @@
-"""
-Streaming task for the new chat deep agent.
+"""Streaming task for the new chat deep agent.
 
 This module streams responses from the deep agent using the Vercel AI SDK
 Data Stream Protocol (SSE format).
@@ -25,10 +24,9 @@ from langflow.agents.new_chat.llm_config import (
     load_agent_config,
     load_llm_config_from_yaml,
 )
-from langflow.schema import ChatAttachment
 from langflow.connectors.service import ConnectorService
+from langflow.schema import ChatAttachment
 from langflow.services.database.models.document import Document
-from langflow.services.streaming.service import VercelStreamingService
 
 
 def format_attachments_as_context(attachments: list[ChatAttachment]) -> str:
@@ -78,8 +76,7 @@ async def stream_new_chat_response(
     attachments: list[ChatAttachment] | None = None,
     mentioned_document_ids: list[int] | None = None,
 ) -> AsyncGenerator[str, None]:
-    """
-    Stream chat responses from the new deep agent.
+    """Stream chat responses from the new deep agent.
 
     This uses the Vercel AI SDK Data Stream Protocol (SSE format) for streaming.
     The chat_id is used as LangGraph's thread_id for memory/checkpointing.
@@ -98,7 +95,10 @@ async def stream_new_chat_response(
     Yields:
         str: SSE formatted response strings
     """
-    streaming_service = VercelStreamingService()
+    from langflow.services.deps import get_settings_service, get_streaming_service
+
+    settings_service = get_settings_service()
+    streaming_service = get_streaming_service()
 
     # Track the current text block for streaming (defined early for exception handling)
     current_text_id: str | None = None

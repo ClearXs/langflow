@@ -1,5 +1,4 @@
-"""
-Tools module for SurfSense deep agent.
+"""Tools module for SurfSense deep agent.
 
 This module contains all the tools available to the SurfSense agent.
 To add a new tool, see the documentation in registry.py.

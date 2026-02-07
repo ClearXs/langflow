@@ -43,6 +43,7 @@ import {
   useState,
 } from "react";
 import { createPortal } from "react-dom";
+import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import {
   ComposerAddAttachment,
@@ -52,6 +53,10 @@ import {
 import { MarkdownText } from "@/components/assistant-ui/markdown-text";
 import { ToolFallback } from "@/components/assistant-ui/tool-fallback";
 import { TooltipIconButton } from "@/components/assistant-ui/tooltip-icon-button";
+import {
+  DocumentMentionBadge,
+  DocumentMentionPopover,
+} from "@/components/chat/document-mention";
 import {
   ChainOfThought,
   ChainOfThoughtContent,
@@ -82,12 +87,27 @@ interface ThreadProps {
   messageThinkingSteps?: Map<string, ThinkingStep[]>;
   /** Optional header component to render at the top of the viewport (sticky) */
   header?: React.ReactNode;
+  /** Document mention functionality */
+  mentionedDocuments?: any[];
+  onMentionedDocumentsChange?: (documents: any[]) => void;
+  spaceId?: number;
 }
 
 // Context to pass thinking steps to AssistantMessage
 const ThinkingStepsContext = createContext<Map<string, ThinkingStep[]>>(
   new Map(),
 );
+
+// Context to pass document mention functionality to Composer
+interface DocumentMentionContextValue {
+  mentionedDocuments: any[];
+  onMentionedDocumentsChange: (documents: any[]) => void;
+  spaceId?: number;
+}
+
+const DocumentMentionContext = createContext<
+  DocumentMentionContextValue | undefined
+>(undefined);
 
 /**
  * Get icon based on step status and title
@@ -293,53 +313,69 @@ const ThinkingStepsScrollHandler: FC = () => {
 export const Thread: FC<ThreadProps> = ({
   messageThinkingSteps = new Map(),
   header,
+  mentionedDocuments = [],
+  onMentionedDocumentsChange = () => {},
+  spaceId,
 }) => {
+  const documentMentionValue = useMemo(
+    () => ({
+      mentionedDocuments,
+      onMentionedDocumentsChange,
+      spaceId,
+    }),
+    [mentionedDocuments, onMentionedDocumentsChange, spaceId],
+  );
+
   return (
     <ThinkingStepsContext.Provider value={messageThinkingSteps}>
-      <ThreadPrimitive.Root
-        className="aui-root aui-thread-root @container flex h-full min-h-0 flex-col bg-background"
-        style={{
-          ["--thread-max-width" as string]: "44rem",
-        }}
-      >
-        <ThreadPrimitive.Viewport
-          turnAnchor="top"
-          className="aui-thread-viewport relative flex flex-1 min-h-0 flex-col overflow-x-auto overflow-y-scroll scroll-smooth px-4 pt-4"
+      <DocumentMentionContext.Provider value={documentMentionValue}>
+        <ThreadPrimitive.Root
+          className="aui-root aui-thread-root @container flex h-full min-h-0 flex-col bg-background"
+          style={{
+            ["--thread-max-width" as string]: "44rem",
+          }}
         >
-          {/* Optional sticky header for model selector etc. */}
-          {header && <div className="sticky top-0 z-10 mb-4">{header}</div>}
+          <ThreadPrimitive.Viewport
+            turnAnchor="top"
+            className="aui-thread-viewport relative flex flex-1 min-h-0 flex-col overflow-x-auto overflow-y-scroll scroll-smooth px-4 pt-4"
+          >
+            {/* Optional sticky header for model selector etc. */}
+            {header && <div className="sticky top-0 z-10 mb-4">{header}</div>}
 
-          <AssistantIf condition={({ thread }) => thread.isEmpty}>
-            <ThreadWelcome />
-          </AssistantIf>
-
-          <ThreadPrimitive.Messages
-            components={{
-              UserMessage,
-              EditComposer,
-              AssistantMessage,
-            }}
-          />
-
-          <ThreadPrimitive.ViewportFooter className="aui-thread-viewport-footer sticky bottom-0 mx-auto mt-auto flex w-full max-w-(--thread-max-width) flex-col gap-4 overflow-visible rounded-t-3xl bg-background pb-4 md:pb-6">
-            <ThreadScrollToBottom />
-            <AssistantIf condition={({ thread }) => !thread.isEmpty}>
-              <div className="fade-in slide-in-from-bottom-4 animate-in duration-500 ease-out fill-mode-both">
-                <Composer />
-              </div>
+            <AssistantIf condition={({ thread }) => thread.isEmpty}>
+              <ThreadWelcome />
             </AssistantIf>
-          </ThreadPrimitive.ViewportFooter>
-        </ThreadPrimitive.Viewport>
-      </ThreadPrimitive.Root>
+
+            <ThreadPrimitive.Messages
+              components={{
+                UserMessage,
+                EditComposer,
+                AssistantMessage,
+              }}
+            />
+
+            <ThreadPrimitive.ViewportFooter className="aui-thread-viewport-footer sticky bottom-0 mx-auto mt-auto flex w-full max-w-(--thread-max-width) flex-col gap-4 overflow-visible rounded-t-3xl bg-background pb-4 md:pb-6">
+              <ThreadScrollToBottom />
+              <AssistantIf condition={({ thread }) => !thread.isEmpty}>
+                <div className="fade-in slide-in-from-bottom-4 animate-in duration-500 ease-out fill-mode-both">
+                  <Composer />
+                </div>
+              </AssistantIf>
+            </ThreadPrimitive.ViewportFooter>
+          </ThreadPrimitive.Viewport>
+        </ThreadPrimitive.Root>
+      </DocumentMentionContext.Provider>
     </ThinkingStepsContext.Provider>
   );
 };
 
 const ThreadScrollToBottom: FC = () => {
+  const { t } = useTranslation();
+
   return (
     <ThreadPrimitive.ScrollToBottom asChild>
       <TooltipIconButton
-        tooltip="Scroll to bottom"
+        tooltip={t("spaces.chats.thread.scrollToBottom")}
         variant="outline"
         className="aui-thread-scroll-to-bottom -top-12 absolute z-10 self-center rounded-full p-4 disabled:invisible dark:bg-background dark:hover:bg-accent"
       >
@@ -438,26 +474,97 @@ const ThreadWelcome: FC = () => {
 };
 
 const Composer: FC = () => {
-  // TODO: Implement document mention functionality when documents store is available
-  // For now, simplified version without document mentions
-  const [mentionedDocuments, setMentionedDocuments] = useState<any[]>([]);
+  const documentMentionContext = useContext(DocumentMentionContext);
+  const mentionedDocuments = documentMentionContext?.mentionedDocuments || [];
+  const onMentionedDocumentsChange =
+    documentMentionContext?.onMentionedDocumentsChange;
+  const spaceId = documentMentionContext?.spaceId;
+
   const [showDocumentPopover, setShowDocumentPopover] = useState(false);
   const [mentionQuery, setMentionQuery] = useState("");
   const inputRef = useRef<HTMLTextAreaElement | null>(null);
+  const [cursorPosition, setCursorPosition] = useState(0);
 
   const handleKeyUp = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    // Document mention functionality disabled for now
-    // TODO: Re-enable when document management is integrated
+    if (!spaceId || !onMentionedDocumentsChange) return;
+
+    const target = e.currentTarget;
+    const cursorPos = target.selectionStart || 0;
+    const text = target.value;
+
+    // Find @ symbol before cursor
+    let atIndex = -1;
+    for (let i = cursorPos - 1; i >= 0; i--) {
+      if (text[i] === "@") {
+        atIndex = i;
+        break;
+      }
+      if (text[i] === " " || text[i] === "\n") {
+        break;
+      }
+    }
+
+    if (atIndex !== -1) {
+      const query = text.slice(atIndex + 1, cursorPos);
+      setMentionQuery(query);
+      setShowDocumentPopover(true);
+      setCursorPosition(atIndex);
+    } else {
+      setShowDocumentPopover(false);
+    }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    // Document mention functionality disabled for now
+    if (e.key === "Escape" && showDocumentPopover) {
+      setShowDocumentPopover(false);
+      e.preventDefault();
+    }
+  };
+
+  const handleSelectDocument = (document: any) => {
+    if (!inputRef.current || !onMentionedDocumentsChange) return;
+
+    // Add document to mentioned documents
+    if (!mentionedDocuments.find((d) => d.id === document.id)) {
+      onMentionedDocumentsChange([...mentionedDocuments, document]);
+    }
+
+    // Remove @ mention from input
+    const target = inputRef.current;
+    const text = target.value;
+    const beforeAt = text.slice(0, cursorPosition);
+    const afterCursor = text.slice(target.selectionStart || 0);
+    target.value = beforeAt + afterCursor;
+
+    setShowDocumentPopover(false);
+    setMentionQuery("");
+  };
+
+  const handleRemoveDocument = (documentId: number) => {
+    if (!onMentionedDocumentsChange) return;
+    onMentionedDocumentsChange(
+      mentionedDocuments.filter((d) => d.id !== documentId),
+    );
   };
 
   return (
     <ComposerPrimitive.Root className="aui-composer-root relative flex w-full flex-col">
       <ComposerPrimitive.AttachmentDropzone className="aui-composer-attachment-dropzone flex w-full flex-col rounded-2xl border-input bg-muted px-1 pt-2 outline-none transition-shadow data-[dragging=true]:border-ring data-[dragging=true]:border-dashed data-[dragging=true]:bg-accent/50">
         <ComposerAttachments />
+
+        {/* Document mention badges */}
+        {mentionedDocuments.length > 0 && (
+          <div className="flex flex-wrap gap-1.5 px-3 pt-2">
+            {mentionedDocuments.map((doc) => (
+              <DocumentMentionBadge
+                key={doc.id}
+                document={doc}
+                onRemove={() => handleRemoveDocument(doc.id)}
+              />
+            ))}
+          </div>
+        )}
+
         {/* Input field */}
         <div className="aui-composer-input-wrapper flex flex-wrap items-center gap-1.5 px-3 pt-2 pb-6">
           {/* Text input */}
@@ -472,6 +579,18 @@ const Composer: FC = () => {
             aria-label="Message input"
           />
         </div>
+
+        {/* Document mention popover */}
+        {spaceId && showDocumentPopover && (
+          <DocumentMentionPopover
+            spaceId={spaceId}
+            open={showDocumentPopover}
+            onOpenChange={setShowDocumentPopover}
+            onSelectDocument={handleSelectDocument}
+            query={mentionQuery}
+          />
+        )}
+
         <ComposerAction />
       </ComposerPrimitive.AttachmentDropzone>
     </ComposerPrimitive.Root>
@@ -640,6 +759,8 @@ const AssistantMessage: FC = () => {
 };
 
 const AssistantActionBar: FC = () => {
+  const { t } = useTranslation();
+
   return (
     <ActionBarPrimitive.Root
       hideWhenRunning
@@ -648,7 +769,7 @@ const AssistantActionBar: FC = () => {
       className="aui-assistant-action-bar-root -ml-1 col-start-3 row-start-2 flex gap-1 text-muted-foreground data-floating:absolute data-floating:rounded-md data-floating:border data-floating:bg-background data-floating:p-1 data-floating:shadow-sm"
     >
       <ActionBarPrimitive.Copy asChild>
-        <TooltipIconButton tooltip="Copy">
+        <TooltipIconButton tooltip={t("spaces.chats.thread.copy")}>
           <AssistantIf condition={({ message }) => message.isCopied}>
             <CheckIcon />
           </AssistantIf>
@@ -658,12 +779,12 @@ const AssistantActionBar: FC = () => {
         </TooltipIconButton>
       </ActionBarPrimitive.Copy>
       <ActionBarPrimitive.ExportMarkdown asChild>
-        <TooltipIconButton tooltip="Export as Markdown">
+        <TooltipIconButton tooltip={t("spaces.chats.thread.exportAsMarkdown")}>
           <DownloadIcon />
         </TooltipIconButton>
       </ActionBarPrimitive.ExportMarkdown>
       <ActionBarPrimitive.Reload asChild>
-        <TooltipIconButton tooltip="Refresh">
+        <TooltipIconButton tooltip={t("spaces.chats.thread.refresh")}>
           <RefreshCwIcon />
         </TooltipIconButton>
       </ActionBarPrimitive.Reload>
@@ -697,6 +818,8 @@ const UserMessage: FC = () => {
 };
 
 const UserActionBar: FC = () => {
+  const { t } = useTranslation();
+
   return (
     <ActionBarPrimitive.Root
       hideWhenRunning
@@ -704,7 +827,10 @@ const UserActionBar: FC = () => {
       className="aui-user-action-bar-root flex flex-col items-end"
     >
       <ActionBarPrimitive.Edit asChild>
-        <TooltipIconButton tooltip="Edit" className="aui-user-action-edit p-4">
+        <TooltipIconButton
+          tooltip={t("spaces.chats.thread.edit")}
+          className="aui-user-action-edit p-4"
+        >
           <PencilIcon />
         </TooltipIconButton>
       </ActionBarPrimitive.Edit>
@@ -713,6 +839,8 @@ const UserActionBar: FC = () => {
 };
 
 const EditComposer: FC = () => {
+  const { t } = useTranslation();
+
   return (
     <MessagePrimitive.Root className="aui-edit-composer-wrapper mx-auto flex w-full max-w-(--thread-max-width) flex-col px-2 py-3">
       <ComposerPrimitive.Root className="aui-edit-composer-root ml-auto flex w-full max-w-[85%] flex-col rounded-2xl bg-muted">
@@ -723,11 +851,11 @@ const EditComposer: FC = () => {
         <div className="aui-edit-composer-footer mx-3 mb-3 flex items-center gap-2 self-end">
           <ComposerPrimitive.Cancel asChild>
             <Button variant="ghost" size="sm">
-              Cancel
+              {t("spaces.chats.thread.cancel")}
             </Button>
           </ComposerPrimitive.Cancel>
           <ComposerPrimitive.Send asChild>
-            <Button size="sm">Update</Button>
+            <Button size="sm">{t("spaces.chats.thread.update")}</Button>
           </ComposerPrimitive.Send>
         </div>
       </ComposerPrimitive.Root>
@@ -739,6 +867,8 @@ const BranchPicker: FC<BranchPickerPrimitive.Root.Props> = ({
   className,
   ...rest
 }) => {
+  const { t } = useTranslation();
+
   return (
     <BranchPickerPrimitive.Root
       hideWhenSingleBranch
@@ -749,7 +879,7 @@ const BranchPicker: FC<BranchPickerPrimitive.Root.Props> = ({
       {...rest}
     >
       <BranchPickerPrimitive.Previous asChild>
-        <TooltipIconButton tooltip="Previous">
+        <TooltipIconButton tooltip={t("spaces.chats.thread.previous")}>
           <ChevronLeftIcon />
         </TooltipIconButton>
       </BranchPickerPrimitive.Previous>
@@ -757,7 +887,7 @@ const BranchPicker: FC<BranchPickerPrimitive.Root.Props> = ({
         <BranchPickerPrimitive.Number /> / <BranchPickerPrimitive.Count />
       </span>
       <BranchPickerPrimitive.Next asChild>
-        <TooltipIconButton tooltip="Next">
+        <TooltipIconButton tooltip={t("spaces.chats.thread.next")}>
           <ChevronRightIcon />
         </TooltipIconButton>
       </BranchPickerPrimitive.Next>

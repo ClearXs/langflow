@@ -1,5 +1,4 @@
-"""
-Podcast generation tool for the SurfSense agent.
+"""Podcast generation tool for the SurfSense agent.
 
 This module provides a factory function for creating the generate_podcast tool
 that submits a Celery task for background podcast generation. The frontend
@@ -70,8 +69,7 @@ def create_generate_podcast_tool(
     space_id: int,
     db_session: AsyncSession,
 ):
-    """
-    Factory function to create the generate_podcast tool with injected dependencies.
+    """Factory function to create the generate_podcast tool with injected dependencies.
 
     Args:
         space_id: The user's space ID
@@ -87,8 +85,7 @@ def create_generate_podcast_tool(
         podcast_title: str = "SurfSense Podcast",
         user_prompt: str | None = None,
     ) -> dict[str, Any]:
-        """
-        Generate a podcast from the provided content.
+        """Generate a podcast from the provided content.
 
         Use this tool when the user asks to create, generate, or make a podcast.
         Common triggers include phrases like:

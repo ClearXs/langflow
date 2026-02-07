@@ -3,7 +3,7 @@
 from datetime import datetime
 from typing import Any, Generic, TypeVar
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 # Import schemas from database models for type hints
 from langflow.services.database.models import ChunkRead, SpaceRead
@@ -11,17 +11,21 @@ from langflow.services.database.models import ChunkRead, SpaceRead
 
 # RBAC-related request/response schemas
 class LLMPreferencesRead(BaseModel):
-    """LLM preferences for a space."""
+    """Schema for reading LLM preferences (role assignments) for a space."""
 
-    document_summary_llm_id: int | None
-    chatbot_default_llm_id: int | None
+    agent_llm_id: int | None = Field(None, description="ID of the LLM config to use for agent/chat tasks")
+    document_summary_llm_id: int | None = Field(None, description="ID of the LLM config to use for document summarization")
+    agent_llm: dict[str, Any] | None = Field(None, description="Full config for agent LLM")
+    document_summary_llm: dict[str, Any] | None = Field(None, description="Full config for document summary LLM")
+
+    model_config = ConfigDict(from_attributes=True)
 
 
 class LLMPreferencesUpdate(BaseModel):
-    """Update LLM preferences."""
+    """Schema for updating LLM preferences."""
 
-    document_summary_llm_id: int | None = None
-    chatbot_default_llm_id: int | None = None
+    agent_llm_id: int | None = Field(None, description="ID of the LLM config to use for agent/chat tasks")
+    document_summary_llm_id: int | None = Field(None, description="ID of the LLM config to use for document summarization")
 
 
 class InviteAcceptRequest(BaseModel):
@@ -199,8 +203,8 @@ class UserSpaceAccess(BaseModel):
 
 __all__ = [
     "DefaultSystemInstructionsResponse",
-    "DocumentsCreate",
     "DocumentWithChunksRead",
+    "DocumentsCreate",
     "ExtensionDocument",
     "ExtensionDocumentMetadata",
     "GlobalLLMConfigRead",

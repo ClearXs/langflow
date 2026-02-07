@@ -4,7 +4,12 @@
  * 将后端 EntityRead 转换为 ReactFlow Node 格式
  */
 
-import type { EntityRead, GraphNode, RelationRead } from "@/types/api/graphs";
+import type {
+  EntityRead,
+  GraphApiNode,
+  GraphNode,
+  RelationRead,
+} from "@/types/api/graphs";
 
 /**
  * 计算实体的度数（连接的边数量）
@@ -49,9 +54,53 @@ export function transformEntitiesToNodes(
   entities: EntityRead[],
   relations: RelationRead[] = [],
 ): GraphNode[] {
-  return entities.map((entity) => {
+  return (entities || []).map((entity) => {
     const degree = calculateDegree(entity.id, relations);
     return transformEntityToNode(entity, degree);
+  });
+}
+
+export function transformGraphNodesToNodes(
+  nodes: GraphApiNode[],
+  edges: { source: string; target: string }[] = [],
+): GraphNode[] {
+  const degreeMap = new Map<string, number>();
+  edges.forEach((edge) => {
+    degreeMap.set(edge.source, (degreeMap.get(edge.source) || 0) + 1);
+    degreeMap.set(edge.target, (degreeMap.get(edge.target) || 0) + 1);
+  });
+
+  return (nodes || []).map((node) => {
+    const degree = degreeMap.get(node.id) || 0;
+
+    // Smart label extraction
+    // Priority: name > entity_id (from properties) > description (truncated) > id
+    let displayLabel = node.name || node.id;
+    if (!node.name && node.properties?.entity_id) {
+      // LightRAG stores entity name in entity_id field
+      displayLabel = node.properties.entity_id;
+    } else if (!node.name && !node.properties?.entity_id && node.description) {
+      // Fallback to truncated description
+      displayLabel =
+        node.description.length > 30
+          ? node.description.substring(0, 30) + "..."
+          : node.description;
+    }
+
+    return {
+      id: String(node.id),
+      type: "entityNode",
+      position: { x: 0, y: 0 },
+      data: {
+        label: displayLabel,
+        entityType: node.entity_type || "Other",
+        description: node.description,
+        degree,
+        properties: node.properties || {},
+        original: node,
+        documentTitle: node.document_title, // Add document title for navigation
+      },
+    };
   });
 }
 

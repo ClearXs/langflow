@@ -1,5 +1,4 @@
-"""
-Routes for the new chat feature with assistant-ui integration.
+"""Routes for the new chat feature with assistant-ui integration.
 
 These endpoints support the ThreadHistoryAdapter pattern from assistant-ui:
 - GET /threads - List threads for sidebar (ThreadListPrimitive)
@@ -21,14 +20,8 @@ from fastapi import APIRouter, File, HTTPException, Request, UploadFile
 from fastapi.responses import StreamingResponse
 from sqlalchemy.exc import IntegrityError, OperationalError
 from sqlalchemy.future import select
-from sqlalchemy.orm import selectinload
 
 from langflow.api.utils import CurrentActiveUser, DbSession
-from langflow.services.database.models.chat_message import ChatMessage, ChatMessageRole
-from langflow.services.database.models.chat_thread import ChatThread
-from langflow.services.database.models.role import Permission
-from langflow.services.database.models.space import Space
-from langflow.services.database.models.user import User
 from langflow.schema import (
     ChatMessageAppend,
     ChatMessageRead,
@@ -41,6 +34,10 @@ from langflow.schema import (
     ThreadListItem,
     ThreadListResponse,
 )
+from langflow.services.database.models.chat_message import ChatMessage, ChatMessageRole
+from langflow.services.database.models.chat_thread import ChatThread
+from langflow.services.database.models.role import Permission
+from langflow.services.database.models.space import Space
 from langflow.tasks.chat_streaming import stream_new_chat_response
 from langflow.utils.rbac import check_permission
 
@@ -54,17 +51,16 @@ router = APIRouter(prefix="/chats", tags=["Chats"])
 
 @router.get("/threads", response_model=ThreadListResponse)
 async def list_threads(
-    search_space_id: int,
+    space_id: int,
     limit: int | None = None,
     db: DbSession = None,
     current_user: CurrentActiveUser = None,
 ):
-    """
-    List all threads for the current user in a search space.
+    """List all threads for the current user in a space.
     Returns threads and archived_threads for ThreadListPrimitive.
 
     Args:
-        search_space_id: The search space to list threads for
+        space_id: The space to list threads for
         limit: Optional limit on number of threads to return (applies to active threads only)
 
     Requires CHATS_READ permission.
@@ -73,15 +69,15 @@ async def list_threads(
         await check_permission(
             db,
             current_user,
-            search_space_id,
+            space_id,
             Permission.CHATS_READ.value,
-            "You don't have permission to read chats in this search space",
+            "You don't have permission to read chats in this space",
         )
 
-        # Get all threads in this search space
+        # Get all threads in this space
         query = (
             select(ChatThread)
-            .filter(ChatThread.search_space_id == search_space_id)
+            .filter(ChatThread.space_id == space_id)
             .order_by(ChatThread.updated_at.desc())
         )
 
@@ -126,16 +122,15 @@ async def list_threads(
 
 @router.get("/threads/search", response_model=list[ThreadListItem])
 async def search_threads(
-    search_space_id: int,
+    space_id: int,
     title: str,
     db: DbSession = None,
     current_user: CurrentActiveUser = None,
 ):
-    """
-    Search threads by title in a search space.
+    """Search threads by title in a space.
 
     Args:
-        search_space_id: The search space to search in
+        space_id: The space to search in
         title: The search query (case-insensitive partial match)
 
     Requires CHATS_READ permission.
@@ -144,16 +139,16 @@ async def search_threads(
         await check_permission(
             db,
             current_user,
-            search_space_id,
+            space_id,
             Permission.CHATS_READ.value,
-            "You don't have permission to read chats in this search space",
+            "You don't have permission to read chats in this space",
         )
 
         # Search threads by title (case-insensitive)
         query = (
             select(ChatThread)
             .filter(
-                ChatThread.search_space_id == search_space_id,
+                ChatThread.space_id == space_id,
                 ChatThread.title.ilike(f"%{title}%"),
             )
             .order_by(ChatThread.updated_at.desc())
@@ -192,8 +187,7 @@ async def create_thread(
     db: DbSession = None,
     current_user: CurrentActiveUser = None,
 ):
-    """
-    Create a new chat thread.
+    """Create a new chat thread.
 
     Requires CHATS_CREATE permission.
     """
@@ -201,16 +195,16 @@ async def create_thread(
         await check_permission(
             db,
             current_user,
-            thread.search_space_id,
+            thread.space_id,
             Permission.CHATS_CREATE.value,
-            "You don't have permission to create chats in this search space",
+            "You don't have permission to create chats in this space",
         )
 
         now = datetime.now(UTC)
         db_thread = ChatThread(
             title=thread.title,
             archived=thread.archived,
-            search_space_id=thread.search_space_id,
+            space_id=thread.space_id,
             updated_at=now,
         )
         db.add(db_thread)
@@ -245,18 +239,15 @@ async def get_thread_messages(
     db: DbSession = None,
     current_user: CurrentActiveUser = None,
 ):
-    """
-    Get a thread with all its messages.
+    """Get a thread with all its messages.
     This is used by ThreadHistoryAdapter.load() to restore conversation.
 
     Requires CHATS_READ permission.
     """
     try:
-        # Get thread with messages
+        # Get thread first
         result = await db.execute(
-            select(ChatThread)
-            .options(selectinload(ChatThread.messages))
-            .filter(ChatThread.id == thread_id)
+            select(ChatThread).filter(ChatThread.id == thread_id)
         )
         thread = result.scalars().first()
 
@@ -267,10 +258,18 @@ async def get_thread_messages(
         await check_permission(
             db,
             current_user,
-            thread.search_space_id,
+            thread.space_id,
             Permission.CHATS_READ.value,
             "You don't have permission to read chats in this search space",
         )
+
+        # Get messages for this thread
+        messages_result = await db.execute(
+            select(ChatMessage)
+            .filter(ChatMessage.thread_id == thread_id)
+            .order_by(ChatMessage.created_at)
+        )
+        thread_messages = messages_result.scalars().all()
 
         # Return messages in the format expected by assistant-ui
         messages = [
@@ -281,7 +280,7 @@ async def get_thread_messages(
                 content=msg.content,
                 created_at=msg.created_at,
             )
-            for msg in thread.messages
+            for msg in thread_messages
         ]
 
         return ThreadHistoryLoadResponse(messages=messages)
@@ -305,16 +304,14 @@ async def get_thread_full(
     db: DbSession = None,
     current_user: CurrentActiveUser = None,
 ):
-    """
-    Get full thread details with all messages.
+    """Get full thread details with all messages.
 
     Requires CHATS_READ permission.
     """
     try:
+        # Get thread first
         result = await db.execute(
-            select(ChatThread)
-            .options(selectinload(ChatThread.messages))
-            .filter(ChatThread.id == thread_id)
+            select(ChatThread).filter(ChatThread.id == thread_id)
         )
         thread = result.scalars().first()
 
@@ -324,12 +321,38 @@ async def get_thread_full(
         await check_permission(
             db,
             current_user,
-            thread.search_space_id,
+            thread.space_id,
             Permission.CHATS_READ.value,
             "You don't have permission to read chats in this search space",
         )
 
-        return thread
+        # Get messages for this thread
+        messages_result = await db.execute(
+            select(ChatMessage)
+            .filter(ChatMessage.thread_id == thread_id)
+            .order_by(ChatMessage.created_at)
+        )
+        thread_messages = messages_result.scalars().all()
+
+        # Build response with thread and messages
+        return ChatThreadWithMessages(
+            id=thread.id,
+            space_id=thread.space_id,
+            title=thread.title,
+            archived=thread.archived,
+            created_at=thread.created_at,
+            updated_at=thread.updated_at,
+            messages=[
+                ChatMessageRead(
+                    id=msg.id,
+                    thread_id=msg.thread_id,
+                    role=msg.role,
+                    content=msg.content,
+                    created_at=msg.created_at,
+                )
+                for msg in thread_messages
+            ]
+        )
 
     except HTTPException:
         raise
@@ -351,8 +374,7 @@ async def update_thread(
     db: DbSession = None,
     current_user: CurrentActiveUser = None,
 ):
-    """
-    Update a thread (title, archived status).
+    """Update a thread (title, archived status).
     Used for renaming and archiving threads.
 
     Requires CHATS_UPDATE permission.
@@ -369,7 +391,7 @@ async def update_thread(
         await check_permission(
             db,
             current_user,
-            db_thread.search_space_id,
+            db_thread.space_id,
             Permission.CHATS_UPDATE.value,
             "You don't have permission to update chats in this search space",
         )
@@ -412,8 +434,7 @@ async def delete_thread(
     db: DbSession = None,
     current_user: CurrentActiveUser = None,
 ):
-    """
-    Delete a thread and all its messages.
+    """Delete a thread and all its messages.
 
     Requires CHATS_DELETE permission.
     """
@@ -429,7 +450,7 @@ async def delete_thread(
         await check_permission(
             db,
             current_user,
-            db_thread.search_space_id,
+            db_thread.space_id,
             Permission.CHATS_DELETE.value,
             "You don't have permission to delete chats in this search space",
         )
@@ -470,8 +491,7 @@ async def append_message(
     db: DbSession = None,
     current_user: CurrentActiveUser = None,
 ):
-    """
-    Append a message to a thread.
+    """Append a message to a thread.
     This is used by ThreadHistoryAdapter.append() to persist messages.
 
     Requires CHATS_UPDATE permission.
@@ -503,7 +523,7 @@ async def append_message(
         await check_permission(
             db,
             current_user,
-            thread.search_space_id,
+            thread.space_id,
             Permission.CHATS_UPDATE.value,
             "You don't have permission to update chats in this search space",
         )
@@ -544,7 +564,7 @@ async def append_message(
                     if isinstance(part, dict) and part.get("type") == "text":
                         title_text = part.get("text", "")
                         break
-                    elif isinstance(part, str):
+                    if isinstance(part, str):
                         title_text = part
                         break
             else:
@@ -589,8 +609,7 @@ async def list_messages(
     db: DbSession = None,
     current_user: CurrentActiveUser = None,
 ):
-    """
-    List messages in a thread with pagination.
+    """List messages in a thread with pagination.
 
     Requires CHATS_READ permission.
     """
@@ -607,7 +626,7 @@ async def list_messages(
         await check_permission(
             db,
             current_user,
-            thread.search_space_id,
+            thread.space_id,
             Permission.CHATS_READ.value,
             "You don't have permission to read chats in this search space",
         )
@@ -648,8 +667,7 @@ async def handle_new_chat(
     db: DbSession = None,
     current_user: CurrentActiveUser = None,
 ):
-    """
-    Stream chat responses from the deep agent.
+    """Stream chat responses from the deep agent.
 
     This endpoint handles the new chat functionality with streaming responses
     using Server-Sent Events (SSE) format compatible with Vercel AI SDK.
@@ -669,14 +687,14 @@ async def handle_new_chat(
         await check_permission(
             db,
             current_user,
-            thread.search_space_id,
+            thread.space_id,
             Permission.CHATS_CREATE.value,
             "You don't have permission to chat in this search space",
         )
 
         # Get search space to check LLM config preferences
         search_space_result = await db.execute(
-            select(Space).filter(Space.id == request.search_space_id)
+            select(Space).filter(Space.id == request.space_id)
         )
         search_space = search_space_result.scalars().first()
 
@@ -695,7 +713,7 @@ async def handle_new_chat(
         return StreamingResponse(
             stream_new_chat_response(
                 user_query=request.user_query,
-                search_space_id=request.search_space_id,
+                search_space_id=request.space_id,
                 chat_id=request.chat_id,
                 session=db,
                 llm_config_id=llm_config_id,
@@ -730,8 +748,7 @@ async def process_attachment(
     db: DbSession = None,
     current_user: CurrentActiveUser = None,
 ):
-    """
-    Process an attachment file and extract its content as markdown.
+    """Process an attachment file and extract its content as markdown.
 
     This endpoint uses the configured ETL service to parse files and return
     the extracted content that can be used as context in chat messages.
@@ -744,9 +761,9 @@ async def process_attachment(
     Returns:
         JSON with attachment id, name, type, and extracted content
     """
-    from langflow.services.settings.service import SettingsService
+    from langflow.services.deps import get_settings_service
 
-    settings_service = SettingsService.get_instance()
+    settings_service = get_settings_service()
     app_config = settings_service.settings
 
     if not file.filename:
@@ -812,58 +829,57 @@ async def process_attachment(
                     f"# Transcription of {filename}\n\n{extracted_content}"
                 )
 
+        # Document files - use configured ETL service
+        elif app_config.ETL_SERVICE == "UNSTRUCTURED":
+            from langchain_unstructured import UnstructuredLoader
+
+            from langflow.utils.document_converters import convert_document_to_markdown
+
+            loader = UnstructuredLoader(
+                temp_path,
+                mode="elements",
+                post_processors=[],
+                languages=["eng"],
+                include_orig_elements=False,
+                include_metadata=False,
+                strategy="auto",
+            )
+            docs = await loader.aload()
+            extracted_content = await convert_document_to_markdown(docs)
+
+        elif app_config.ETL_SERVICE == "LLAMACLOUD":
+            from llama_cloud_services import LlamaParse
+            from llama_cloud_services.parse.utils import ResultType
+
+            parser = LlamaParse(
+                api_key=app_config.LLAMA_CLOUD_API_KEY,
+                num_workers=1,
+                verbose=False,
+                language="en",
+                result_type=ResultType.MD,
+            )
+            result = await parser.aparse(temp_path)
+            markdown_documents = await result.aget_markdown_documents(
+                split_by_page=False
+            )
+
+            if markdown_documents:
+                extracted_content = "\n\n".join(
+                    doc.text for doc in markdown_documents
+                )
+
+        elif app_config.ETL_SERVICE == "DOCLING":
+            from langflow.services.docling import create_docling_service
+
+            docling_service = create_docling_service()
+            result = await docling_service.process_document(temp_path, filename)
+            extracted_content = result.get("content", "")
+
         else:
-            # Document files - use configured ETL service
-            if app_config.ETL_SERVICE == "UNSTRUCTURED":
-                from langchain_unstructured import UnstructuredLoader
-
-                from langflow.utils.document_converters import convert_document_to_markdown
-
-                loader = UnstructuredLoader(
-                    temp_path,
-                    mode="elements",
-                    post_processors=[],
-                    languages=["eng"],
-                    include_orig_elements=False,
-                    include_metadata=False,
-                    strategy="auto",
-                )
-                docs = await loader.aload()
-                extracted_content = await convert_document_to_markdown(docs)
-
-            elif app_config.ETL_SERVICE == "LLAMACLOUD":
-                from llama_cloud_services import LlamaParse
-                from llama_cloud_services.parse.utils import ResultType
-
-                parser = LlamaParse(
-                    api_key=app_config.LLAMA_CLOUD_API_KEY,
-                    num_workers=1,
-                    verbose=False,
-                    language="en",
-                    result_type=ResultType.MD,
-                )
-                result = await parser.aparse(temp_path)
-                markdown_documents = await result.aget_markdown_documents(
-                    split_by_page=False
-                )
-
-                if markdown_documents:
-                    extracted_content = "\n\n".join(
-                        doc.text for doc in markdown_documents
-                    )
-
-            elif app_config.ETL_SERVICE == "DOCLING":
-                from langflow.services.docling import create_docling_service
-
-                docling_service = create_docling_service()
-                result = await docling_service.process_document(temp_path, filename)
-                extracted_content = result.get("content", "")
-
-            else:
-                raise HTTPException(
-                    status_code=422,
-                    detail=f"ETL service not configured or unsupported file type: {file_ext}",
-                )
+            raise HTTPException(
+                status_code=422,
+                detail=f"ETL service not configured or unsupported file type: {file_ext}",
+            )
 
         # Clean up temp file
         with contextlib.suppress(Exception):

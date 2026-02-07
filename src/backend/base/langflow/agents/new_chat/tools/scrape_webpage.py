@@ -1,5 +1,4 @@
-"""
-Web scraping tool for the SurfSense agent.
+"""Web scraping tool for the SurfSense agent.
 
 This module provides a tool for scraping and extracting content from webpages
 using the existing WebCrawlerConnector. The scraped content can be used by
@@ -21,8 +20,7 @@ def extract_domain(url: str) -> str:
         parsed = urlparse(url)
         domain = parsed.netloc
         # Remove 'www.' prefix if present
-        if domain.startswith("www."):
-            domain = domain[4:]
+        domain = domain.removeprefix("www.")
         return domain
     except Exception:
         return ""
@@ -35,8 +33,7 @@ def generate_scrape_id(url: str) -> str:
 
 
 def truncate_content(content: str, max_length: int = 50000) -> tuple[str, bool]:
-    """
-    Truncate content to a maximum length.
+    """Truncate content to a maximum length.
 
     Returns:
         Tuple of (truncated_content, was_truncated)
@@ -58,8 +55,7 @@ def truncate_content(content: str, max_length: int = 50000) -> tuple[str, bool]:
 
 
 def create_scrape_webpage_tool(firecrawl_api_key: str | None = None):
-    """
-    Factory function to create the scrape_webpage tool.
+    """Factory function to create the scrape_webpage tool.
 
     Args:
         firecrawl_api_key: Optional Firecrawl API key for premium web scraping.
@@ -74,8 +70,7 @@ def create_scrape_webpage_tool(firecrawl_api_key: str | None = None):
         url: str,
         max_length: int = 50000,
     ) -> dict[str, Any]:
-        """
-        Scrape and extract the main content from a webpage.
+        """Scrape and extract the main content from a webpage.
 
         Use this tool when the user wants you to read, summarize, or answer
         questions about a specific webpage's content. This tool actually

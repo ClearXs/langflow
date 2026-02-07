@@ -23,11 +23,11 @@ except ImportError:
     GDB_AVAILABLE = False
 
 from langflow.api.v1.graphs import router as graphs_router
+from langflow.api.v1.i18n_api import router as locale_router
 from langflow.api.v1.knowledge_bases import router as knowledge_bases_router
 from langflow.api.v1.lineage import lineage_router as lineage_search_router
 from langflow.api.v1.lineage import router as lineage_router
 from langflow.api.v1.llm_configs import router as llm_configs_router
-from langflow.api.v1.i18n_api import router as locale_router
 from langflow.api.v1.login import router as login_router
 from langflow.api.v1.logs import router as logs_router
 from langflow.api.v1.mcp import router as mcp_router

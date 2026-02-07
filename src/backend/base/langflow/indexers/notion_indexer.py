@@ -1,5 +1,4 @@
-"""
-Notion connector indexer.
+"""Notion connector indexer.
 """
 
 from datetime import datetime, timedelta
@@ -37,8 +36,7 @@ async def index_notion_pages(
     end_date: str | None = None,
     update_last_indexed: bool = True,
 ) -> tuple[int, str | None]:
-    """
-    Index Notion pages from all accessible pages.
+    """Index Notion pages from all accessible pages.
 
     Args:
         session: Database session
@@ -250,10 +248,9 @@ async def index_notion_pages(
                             result += f"{indent}> **Note:** {block_content}\n\n"
                         elif block_type == "image":
                             result += f"{indent}![Image]({block_content})\n\n"
-                        else:
-                            # Default for other block types
-                            if block_content:
-                                result += f"{indent}{block_content}\n\n"
+                        # Default for other block types
+                        elif block_content:
+                            result += f"{indent}{block_content}\n\n"
 
                         # Process children recursively
                         if children:
@@ -308,65 +305,64 @@ async def index_notion_pages(
                         )
                         documents_skipped += 1
                         continue
-                    else:
-                        # Content has changed - update the existing document
-                        logger.info(
-                            f"Content changed for Notion page {page_title}. Updating document."
+                    # Content has changed - update the existing document
+                    logger.info(
+                        f"Content changed for Notion page {page_title}. Updating document."
+                    )
+
+                    # Get user's long context LLM
+                    user_llm = await get_user_long_context_llm(
+                        session, user_id, search_space_id
+                    )
+                    if not user_llm:
+                        logger.error(
+                            f"No long context LLM configured for user {user_id}"
                         )
-
-                        # Get user's long context LLM
-                        user_llm = await get_user_long_context_llm(
-                            session, user_id, search_space_id
-                        )
-                        if not user_llm:
-                            logger.error(
-                                f"No long context LLM configured for user {user_id}"
-                            )
-                            skipped_pages.append(f"{page_title} (no LLM configured)")
-                            documents_skipped += 1
-                            continue
-
-                        # Generate summary with metadata
-                        document_metadata = {
-                            "page_title": page_title,
-                            "page_id": page_id,
-                            "document_type": "Notion Page",
-                            "connector_type": "Notion",
-                        }
-                        (
-                            summary_content,
-                            summary_embedding,
-                        ) = await generate_document_summary(
-                            markdown_content, user_llm, document_metadata
-                        )
-
-                        # Process chunks
-                        chunks = await create_document_chunks(markdown_content)
-
-                        # Update existing document
-                        existing_document.title = f"Notion - {page_title}"
-                        existing_document.content = summary_content
-                        existing_document.content_hash = content_hash
-                        existing_document.embedding = summary_embedding
-                        existing_document.document_metadata = {
-                            "page_title": page_title,
-                            "page_id": page_id,
-                            "indexed_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                        }
-                        existing_document.chunks = chunks
-                        existing_document.updated_at = get_current_timestamp()
-
-                        documents_indexed += 1
-                        logger.info(f"Successfully updated Notion page: {page_title}")
-
-                        # Batch commit every 10 documents
-                        if documents_indexed % 10 == 0:
-                            logger.info(
-                                f"Committing batch: {documents_indexed} documents processed so far"
-                            )
-                            await session.commit()
-
+                        skipped_pages.append(f"{page_title} (no LLM configured)")
+                        documents_skipped += 1
                         continue
+
+                    # Generate summary with metadata
+                    document_metadata = {
+                        "page_title": page_title,
+                        "page_id": page_id,
+                        "document_type": "Notion Page",
+                        "connector_type": "Notion",
+                    }
+                    (
+                        summary_content,
+                        summary_embedding,
+                    ) = await generate_document_summary(
+                        markdown_content, user_llm, document_metadata
+                    )
+
+                    # Process chunks
+                    chunks = await create_document_chunks(markdown_content)
+
+                    # Update existing document
+                    existing_document.title = f"Notion - {page_title}"
+                    existing_document.content = summary_content
+                    existing_document.content_hash = content_hash
+                    existing_document.embedding = summary_embedding
+                    existing_document.document_metadata = {
+                        "page_title": page_title,
+                        "page_id": page_id,
+                        "indexed_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                    }
+                    existing_document.chunks = chunks
+                    existing_document.updated_at = get_current_timestamp()
+
+                    documents_indexed += 1
+                    logger.info(f"Successfully updated Notion page: {page_title}")
+
+                    # Batch commit every 10 documents
+                    if documents_indexed % 10 == 0:
+                        logger.info(
+                            f"Committing batch: {documents_indexed} documents processed so far"
+                        )
+                        await session.commit()
+
+                    continue
 
                 # Document doesn't exist - create new one
                 # Get user's long context LLM

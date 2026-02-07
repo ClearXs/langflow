@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from unittest.mock import patch
 from uuid import uuid4
 
@@ -24,7 +24,7 @@ def vertex_build_data():
     return VertexBuildBase(
         id=str(uuid4()),
         flow_id=uuid4(),
-        timestamp=datetime.now(timezone.utc),
+        timestamp=datetime.now(UTC),
         artifacts={},
         valid=True,
     )
@@ -44,7 +44,7 @@ def mock_settings():
 @pytest.fixture
 def timestamp_generator():
     """Generate deterministic timestamps for testing."""
-    base_time = datetime(2024, 1, 1, tzinfo=timezone.utc)
+    base_time = datetime(2024, 1, 1, tzinfo=UTC)
 
     def get_timestamp(offset_seconds: int) -> datetime:
         return base_time + timedelta(seconds=offset_seconds)
@@ -54,7 +54,7 @@ def timestamp_generator():
 
 async def create_test_builds(async_session: AsyncSession, count: int, flow_id, vertex_id, timestamp_generator=None):
     """Helper function to create test build entries."""
-    base_time = datetime.now(timezone.utc) if timestamp_generator is None else timestamp_generator(0)
+    base_time = datetime.now(UTC) if timestamp_generator is None else timestamp_generator(0)
 
     # Create all builds first
     builds = []
@@ -145,7 +145,7 @@ async def test_log_vertex_build_integrity_error(async_session: AsyncSession, ver
         duplicate_build = VertexBuildBase(
             id=str(uuid4()),
             flow_id=uuid4(),
-            timestamp=datetime.now(timezone.utc),
+            timestamp=datetime.now(UTC),
             artifacts={},
             valid=True,
         )

@@ -1,5 +1,4 @@
-"""
-Editor routes for BlockNote document editing.
+"""Editor routes for BlockNote document editing.
 """
 
 from datetime import UTC, datetime
@@ -12,7 +11,6 @@ from sqlalchemy.orm import selectinload
 from langflow.api.utils import CurrentActiveUser, DbSession
 from langflow.services.database.models.document import Document, DocumentType
 from langflow.services.database.models.role import Permission
-from langflow.services.database.models.user import User
 from langflow.utils.rbac import check_permission
 
 router = APIRouter(prefix="/editor", tags=["Editor"])
@@ -25,8 +23,7 @@ async def get_editor_content(
     db: DbSession = None,
     current_user: CurrentActiveUser = None,
 ):
-    """
-    Get document content for editing.
+    """Get document content for editing.
 
     Returns BlockNote JSON document. If blocknote_document is NULL,
     attempts to generate it from chunks (lazy migration).
@@ -142,8 +139,7 @@ async def save_document(
     db: DbSession = None,
     current_user: CurrentActiveUser = None,
 ):
-    """
-    Save BlockNote document and trigger reindexing.
+    """Save BlockNote document and trigger reindexing.
     Called when user clicks 'Save & Exit'.
 
     Requires DOCUMENTS_UPDATE permission.

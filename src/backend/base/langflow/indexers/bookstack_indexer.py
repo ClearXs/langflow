@@ -1,5 +1,4 @@
-"""
-BookStack connector indexer.
+"""BookStack connector indexer.
 """
 
 from datetime import datetime
@@ -40,8 +39,7 @@ async def index_bookstack_pages(
     end_date: str | None = None,
     update_last_indexed: bool = True,
 ) -> tuple[int, str | None]:
-    """
-    Index BookStack pages.
+    """Index BookStack pages.
 
     Args:
         session: Database session
@@ -162,14 +160,13 @@ async def index_bookstack_pages(
                         {"pages_found": 0},
                     )
                     return 0, None
-                else:
-                    await task_logger.log_task_failure(
-                        log_entry,
-                        f"Failed to get BookStack pages: {error}",
-                        "API Error",
-                        {"error_type": "APIError"},
-                    )
-                    return 0, f"Failed to get BookStack pages: {error}"
+                await task_logger.log_task_failure(
+                    log_entry,
+                    f"Failed to get BookStack pages: {error}",
+                    "API Error",
+                    {"error_type": "APIError"},
+                )
+                return 0, f"Failed to get BookStack pages: {error}"
 
             logger.info(f"Retrieved {len(pages)} pages from BookStack API")
 
@@ -256,61 +253,60 @@ async def index_bookstack_pages(
                         )
                         documents_skipped += 1
                         continue
+                    # Content has changed - update the existing document
+                    logger.info(
+                        f"Content changed for BookStack page {page_name}. Updating document."
+                    )
+
+                    # Generate summary with metadata
+                    user_llm = await get_user_long_context_llm(
+                        session, user_id, space_id
+                    )
+
+                    if user_llm:
+                        summary_metadata = {
+                            "page_name": page_name,
+                            "page_id": page_id,
+                            "book_id": book_id,
+                            "document_type": "BookStack Page",
+                            "connector_type": "BookStack",
+                        }
+                        (
+                            summary_content,
+                            summary_embedding,
+                        ) = await generate_document_summary(
+                            full_content, user_llm, summary_metadata
+                        )
                     else:
-                        # Content has changed - update the existing document
-                        logger.info(
-                            f"Content changed for BookStack page {page_name}. Updating document."
+                        summary_content = (
+                            f"BookStack Page: {page_name}\n\nBook ID: {book_id}\n\n"
+                        )
+                        if page_content:
+                            content_preview = page_content[:1000]
+                            if len(page_content) > 1000:
+                                content_preview += "..."
+                            summary_content += (
+                                f"Content Preview: {content_preview}\n\n"
+                            )
+                        summary_embedding = settings.embedding_model_instance.embed(
+                            summary_content
                         )
 
-                        # Generate summary with metadata
-                        user_llm = await get_user_long_context_llm(
-                            session, user_id, space_id
-                        )
+                    # Process chunks
+                    chunks = await create_document_chunks(full_content)
 
-                        if user_llm:
-                            summary_metadata = {
-                                "page_name": page_name,
-                                "page_id": page_id,
-                                "book_id": book_id,
-                                "document_type": "BookStack Page",
-                                "connector_type": "BookStack",
-                            }
-                            (
-                                summary_content,
-                                summary_embedding,
-                            ) = await generate_document_summary(
-                                full_content, user_llm, summary_metadata
-                            )
-                        else:
-                            summary_content = (
-                                f"BookStack Page: {page_name}\n\nBook ID: {book_id}\n\n"
-                            )
-                            if page_content:
-                                content_preview = page_content[:1000]
-                                if len(page_content) > 1000:
-                                    content_preview += "..."
-                                summary_content += (
-                                    f"Content Preview: {content_preview}\n\n"
-                                )
-                            summary_embedding = settings.embedding_model_instance.embed(
-                                summary_content
-                            )
+                    # Update existing document
+                    existing_document.title = f"BookStack - {page_name}"
+                    existing_document.content = summary_content
+                    existing_document.content_hash = content_hash
+                    existing_document.embedding = summary_embedding
+                    existing_document.document_metadata = doc_metadata
+                    existing_document.chunks = chunks
+                    existing_document.updated_at = get_current_timestamp()
 
-                        # Process chunks
-                        chunks = await create_document_chunks(full_content)
-
-                        # Update existing document
-                        existing_document.title = f"BookStack - {page_name}"
-                        existing_document.content = summary_content
-                        existing_document.content_hash = content_hash
-                        existing_document.embedding = summary_embedding
-                        existing_document.document_metadata = doc_metadata
-                        existing_document.chunks = chunks
-                        existing_document.updated_at = get_current_timestamp()
-
-                        documents_indexed += 1
-                        logger.info(f"Successfully updated BookStack page {page_name}")
-                        continue
+                    documents_indexed += 1
+                    logger.info(f"Successfully updated BookStack page {page_name}")
+                    continue
 
                 # Document doesn't exist - create new one
                 # Generate summary with metadata

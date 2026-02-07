@@ -1,5 +1,4 @@
-"""
-SurfSense New Chat Agent Module.
+"""SurfSense New Chat Agent Module.
 
 This module provides the SurfSense deep agent with configurable tools
 for knowledge base search, podcast generation, and more.

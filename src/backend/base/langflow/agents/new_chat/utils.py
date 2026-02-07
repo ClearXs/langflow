@@ -1,5 +1,4 @@
-"""
-Utility functions for SurfSense agents.
+"""Utility functions for SurfSense agents.
 
 This module provides shared utility functions used across the new_chat agent modules.
 """
@@ -8,8 +7,7 @@ from datetime import UTC, datetime, timedelta
 
 
 def parse_date_or_datetime(value: str) -> datetime:
-    """
-    Parse either an ISO date (YYYY-MM-DD) or ISO datetime into an aware UTC datetime.
+    """Parse either an ISO date (YYYY-MM-DD) or ISO datetime into an aware UTC datetime.
 
     - If `value` is a date, interpret it as start-of-day in UTC.
     - If `value` is a datetime without timezone, assume UTC.
@@ -43,8 +41,7 @@ def resolve_date_range(
     start_date: datetime | None,
     end_date: datetime | None,
 ) -> tuple[datetime, datetime]:
-    """
-    Resolve a date range, defaulting to the last 2 years if not provided.
+    """Resolve a date range, defaulting to the last 2 years if not provided.
     Ensures start_date <= end_date.
 
     Args:

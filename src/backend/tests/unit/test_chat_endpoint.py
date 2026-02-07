@@ -239,7 +239,7 @@ async def test_build_flow_polling(client, json_memory_chatbot_no_llm, logged_in_
                         # Add a small delay to prevent tight polling
                         await asyncio.sleep(0.1)
 
-                    except asyncio.TimeoutError:
+                    except TimeoutError:
                         logger.debug(f"WARNING: Polling request timed out after {self.poll_timeout}s")
                         empty_polls += 1
                         continue

@@ -1,26 +1,56 @@
 import { Plug, Plus } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import { useNavigate, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 
 export default function ConnectorsPage() {
+  const { t } = useTranslation();
+  const navigate = useNavigate();
+  const { spaceId } = useParams<{ spaceId: string }>();
+
+  const handleAddConnector = () => {
+    navigate(`/spaces/${spaceId}/sources/add?tab=connectors`);
+  };
+
   return (
-    <div className="h-full flex items-center justify-center p-8">
-      <Card className="max-w-md border-dashed">
-        <CardContent className="flex flex-col items-center justify-center py-16">
-          <div className="rounded-full bg-muted p-4 mb-4">
-            <Plug className="h-8 w-8 text-muted-foreground" />
+    <div className="flex flex-col h-full">
+      {/* Connectors Header */}
+      <div className="border-b px-6 py-4">
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h2 className="text-lg font-semibold">
+              {t("spaces.connectors.title")}
+            </h2>
+            <p className="text-sm text-muted-foreground">
+              {t("spaces.connectors.subtitle")}
+            </p>
           </div>
-          <h3 className="text-lg font-semibold mb-2">Connectors</h3>
-          <p className="text-muted-foreground text-center max-w-sm mb-6">
-            Connect external data sources to this space. Connectors
-            functionality coming soon.
-          </p>
-          <Button>
+          <Button onClick={handleAddConnector}>
             <Plus className="mr-2 h-4 w-4" />
-            Add Connector
+            {t("spaces.connectors.addConnector")}
           </Button>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
+
+      {/* Connectors Content */}
+      <div className="flex-1 overflow-auto p-6">
+        {/* Empty State */}
+        <div className="h-full flex flex-col items-center justify-center py-20 px-8">
+          <div className="rounded-full bg-muted p-6 mb-6">
+            <Plug className="h-12 w-12 text-muted-foreground" />
+          </div>
+          <h3 className="text-xl font-semibold mb-3">
+            {t("spaces.connectors.noConnectorsYet")}
+          </h3>
+          <p className="text-muted-foreground text-center max-w-md mb-8 text-base">
+            {t("spaces.connectors.emptyStateDescription")}
+          </p>
+          <Button onClick={handleAddConnector} size="lg">
+            <Plus className="mr-2 h-5 w-5" />
+            {t("spaces.connectors.addYourFirstConnector")}
+          </Button>
+        </div>
+      </div>
     </div>
   );
 }

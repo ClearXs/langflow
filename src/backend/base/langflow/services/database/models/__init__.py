@@ -8,13 +8,13 @@ from .datasource import DataSource
 from .document import Document, DocumentCreate, DocumentRead, DocumentType, DocumentUpdate
 from .entity import Entity
 from .file import File
-from .relation import Relation
 from .flow import Flow
 from .folder import Folder
 from .llm_config import LiteLLMProvider, LLMConfig, LLMConfigCreate, LLMConfigRead, LLMConfigUpdate
 from .log import Log, LogCreate, LogLevel, LogRead, LogStatus
 from .message import MessageTable
 from .podcast import Podcast, PodcastCreate, PodcastRead, PodcastUpdate
+from .relation import Relation
 from .role import DEFAULT_ROLE_PERMISSIONS, Permission, Role, RoleCreate, RoleRead, RoleUpdate, has_permission
 from .space import Space, SpaceCreate, SpaceRead, SpaceUpdate
 from .space_invite import SpaceInvite, SpaceInviteCreate, SpaceInviteRead

@@ -1,6 +1,5 @@
 def get_voice_for_provider(provider: str, speaker_id: int) -> dict | str:
-    """
-    Get the appropriate voice configuration based on the TTS provider and speaker ID.
+    """Get the appropriate voice configuration based on the TTS provider and speaker ID.
 
     Args:
         provider: The TTS provider (e.g., "openai/tts-1", "vertex_ai/test")
@@ -34,7 +33,7 @@ def get_voice_for_provider(provider: str, speaker_id: int) -> dict | str:
         }
         return openai_voices.get(speaker_id, "alloy")
 
-    elif provider_type == "vertex_ai":
+    if provider_type == "vertex_ai":
         # Vertex AI voice mapping - dict with languageCode and name
         vertex_voices = {
             0: {
@@ -63,7 +62,7 @@ def get_voice_for_provider(provider: str, speaker_id: int) -> dict | str:
             },
         }
         return vertex_voices.get(speaker_id, vertex_voices[0])
-    elif provider_type == "azure":
+    if provider_type == "azure":
         # OpenAI voice mapping - simple string values
         azure_voices = {
             0: "alloy",  # Default/intro voice
@@ -75,10 +74,9 @@ def get_voice_for_provider(provider: str, speaker_id: int) -> dict | str:
         }
         return azure_voices.get(speaker_id, "alloy")
 
-    else:
-        # Default fallback to OpenAI format for unknown providers
-        default_voices = {
-            0: {},
-            1: {},
-        }
-        return default_voices.get(speaker_id, default_voices[0])
+    # Default fallback to OpenAI format for unknown providers
+    default_voices = {
+        0: {},
+        1: {},
+    }
+    return default_voices.get(speaker_id, default_voices[0])

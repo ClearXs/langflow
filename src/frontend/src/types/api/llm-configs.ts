@@ -3,51 +3,63 @@
 export interface GlobalLLMConfigRead {
   id: number;
   name: string;
+  description?: string;
   provider: string;
-  model: string;
-  temperature: number;
+  custom_provider: string | null;
+  model_name: string;
+  api_base: string | null;
+  litellm_params: Record<string, any>;
+  system_instructions: string | null;
+  use_default_system_instructions: boolean;
+  citations_enabled: boolean;
+  is_global: boolean;
 }
 
 export interface LLMConfigRead {
   id: number;
+  search_space_id: number;
   name: string;
   provider: string;
-  model: string;
-  api_key: string | null;
+  model_name: string;
   api_base: string | null;
-  temperature: number;
-  max_tokens: number | null;
+  api_key: string | null;
+  config: Record<string, any>;
+  custom_provider: string | null;
   system_instructions: string | null;
-  enable_citations: boolean;
-  search_space_id: number;
-  created_by_user_id: number;
+  use_default_system_instructions: boolean;
+  citations_enabled: boolean;
+  litellm_params: Record<string, any>;
   created_at: string;
-  updated_at: string;
+  updated_at: string | null;
 }
 
 export interface LLMConfigCreate {
+  search_space_id: number;
   name: string;
   provider: string;
-  model: string;
-  api_key?: string | null;
+  model_name: string;
   api_base?: string | null;
-  temperature?: number;
-  max_tokens?: number | null;
+  api_key?: string | null;
+  config?: Record<string, any> | null;
+  custom_provider?: string | null;
   system_instructions?: string | null;
-  enable_citations?: boolean;
-  search_space_id: number;
+  use_default_system_instructions?: boolean | null;
+  citations_enabled?: boolean | null;
+  litellm_params?: Record<string, any> | null;
 }
 
 export interface LLMConfigUpdate {
-  name?: string;
-  provider?: string;
-  model?: string;
-  api_key?: string | null;
+  name?: string | null;
+  provider?: string | null;
+  model_name?: string | null;
   api_base?: string | null;
-  temperature?: number;
-  max_tokens?: number | null;
+  api_key?: string | null;
+  config?: Record<string, any> | null;
+  custom_provider?: string | null;
   system_instructions?: string | null;
-  enable_citations?: boolean;
+  use_default_system_instructions?: boolean | null;
+  citations_enabled?: boolean | null;
+  litellm_params?: Record<string, any> | null;
 }
 
 export interface DeleteLLMConfigResponse {
@@ -55,5 +67,5 @@ export interface DeleteLLMConfigResponse {
 }
 
 export interface DefaultSystemInstructionsResponse {
-  default_system_instructions: string;
+  instructions: string;
 }

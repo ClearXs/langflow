@@ -2244,3 +2244,82 @@ uv run pytest -v src/backend/tests/unit/                       # Verbose output
 **Last Updated:** 2025-10-17
 
 This guide consolidates all development guidelines into a comprehensive reference for Claude Code when developing Langflow. Follow these guidelines to maintain code quality, consistency, and best practices across the project.
+# Documentation Prefix Policy
+
+## Naming Rule
+- Format: `(Type) - Module - Document Title`
+- Example: `(R) - User Login - User Login Requirements`
+
+## Document Types
+- (E) Error / Bug
+- (R) Requirement
+- (A) Architecture (overall system)
+- (T) Test (test plan / unit tests)
+- (D) Developer Design (detailed design)
+- (I) Interface / API
+- (O) Operation / Ops
+- (M) Model / Data Model
+- (ADR) Architecture Decision Record
+- (S) Security
+- (U) User Guide
+- (P) Product
+- (Q) Quality / Compliance
+
+## Mandatory Metadata (All Docs)
+- Doc ID: `DOC-YYYYMMDD-SEQ`
+- Doc Type: E/R/A/T/D/I/O/M/ADR/S/U/P/Q
+- Module/System
+- Version + Status (Draft/Review/Approved/Deprecated)
+- Author/Reviewer
+- Created/Updated Date
+- Related Docs (upstream/downstream)
+- Scope (team/env)
+
+## Common Sections (All Docs)
+- Background & Purpose
+- Scope & Out of Scope
+- Constraints & Assumptions
+- Risks & Open Questions
+- Change Log
+
+## Type-Specific Sections + Example Titles
+- (E) Phenomenon, Repro Steps, Expected/Actual, Impact, Root Cause, Fix, Verification
+  - Example: `(E) - Payments - Callback Timeout Analysis`
+- (R) Business Goals, User Scenarios, Functional List, Non-Functional, Priority, Acceptance
+  - Example: `(R) - User Login - Login Requirements`
+- (A) System Boundary, Components, Data Flow, Tech Choices, Scalability/DR
+  - Example: `(A) - Orders - Layered Architecture`
+- (T) Scope, Strategy, Test Cases, Data Prep, Coverage, Risks
+  - Example: `(T) - User Login - Test Plan`
+- (D) Modules, Key Flows/Algorithms, Edge Handling, Complexity, Dependencies
+  - Example: `(D) - User Login - Detailed Design`
+- (I) API Contract, Request/Response, Errors, Auth, Idempotency/Rate Limits
+  - Example: `(I) - User Login - API Spec`
+- (O) Deployment, Monitoring/Alerting, Rollout/Rollback, Capacity
+  - Example: `(O) - Orders - Ops Runbook`
+- (M) ER/Table Design, Fields, Constraints, Indexes, Data Dictionary
+  - Example: `(M) - Orders - Data Model`
+- (ADR) Problem, Options, Decision, Trade-offs, Consequences
+  - Example: `(ADR) - Orders - MQ Selection`
+- (S) Threat Model, Access Control, Encryption, Audit, Mitigations
+  - Example: `(S) - User Login - Security Design`
+- (U) Audience, Steps, FAQs, Notes
+  - Example: `(U) - User Login - User Guide`
+- (P) Goals, Value Proposition, Target Users, Competitors, Roadmap
+  - Example: `(P) - User Login - Product Plan`
+- (Q) Quality Metrics, Compliance, Audits, Risk Controls
+  - Example: `(Q) - Orders - Quality & Compliance`
+
+## Mandatory Output Rule (AI)
+- Every AI design/delivery must generate the relevant doc type(s).
+- At least one primary doc (typically R/D/A).
+- Produce related docs together (e.g., if APIs exist, also generate I; if data schema exists, also generate M).
+- If a type is missing for the task, explicitly suggest adding it.
+
+## Document Location (AI Required)
+- All generated docs must be stored under `dev-docs/` at the project root.
+- If `dev-docs/` does not exist, create it before writing.
+
+## Language + Title Format (AI Required)
+- Generated documents must be written in Chinese.
+- The document title must include the type prefix, for example: `(D) - UI Avatar - 场景激活更新UI`.

@@ -36,11 +36,11 @@ export default function SpacesPage() {
       {/* 左侧分组导航侧边栏 / Left grouped navigation sidebar */}
       <SideBarFoldersButtonsComponent
         handleChangeFolder={(id: string) => {
-          navigate(`all/folder/${id}`);
+          navigate(`/all/folder/${id}`);
         }}
         handleDeleteFolder={() => {}}
         handleFilesClick={() => {
-          navigate("assets");
+          navigate("/assets");
         }}
       />
 

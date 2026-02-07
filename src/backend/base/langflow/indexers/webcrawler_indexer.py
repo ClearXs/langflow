@@ -1,5 +1,4 @@
-"""
-Webcrawler connector indexer.
+"""Webcrawler connector indexer.
 """
 
 from datetime import datetime
@@ -37,8 +36,7 @@ async def index_crawled_urls(
     end_date: str | None = None,
     update_last_indexed: bool = True,
 ) -> tuple[int, str | None]:
-    """
-    Index web page URLs.
+    """Index web page URLs.
 
     Args:
         session: Database session
@@ -213,75 +211,74 @@ async def index_crawled_urls(
                         logger.info(f"Document for URL {url} unchanged. Skipping.")
                         documents_skipped += 1
                         continue
-                    else:
-                        # Content has changed - update the existing document
-                        logger.info(
-                            f"Content changed for URL {url}. Updating document."
-                        )
+                    # Content has changed - update the existing document
+                    logger.info(
+                        f"Content changed for URL {url}. Updating document."
+                    )
 
-                        # Generate summary with metadata
-                        user_llm = await get_user_long_context_llm(
-                            session, user_id, search_space_id
-                        )
+                    # Generate summary with metadata
+                    user_llm = await get_user_long_context_llm(
+                        session, user_id, search_space_id
+                    )
 
-                        if user_llm:
-                            document_metadata = {
-                                "url": url,
-                                "title": title,
-                                "description": description,
-                                "language": language,
-                                "document_type": "Crawled URL",
-                                "crawler_type": crawler_type,
-                            }
-                            (
-                                summary_content,
-                                summary_embedding,
-                            ) = await generate_document_summary(
-                                structured_document, user_llm, document_metadata
-                            )
-                        else:
-                            # Fallback to simple summary if no LLM configured
-                            summary_content = f"Crawled URL: {title}\n\n"
-                            summary_content += f"URL: {url}\n"
-                            if description:
-                                summary_content += f"Description: {description}\n"
-                            if language:
-                                summary_content += f"Language: {language}\n"
-                            summary_content += f"Crawler: {crawler_type}\n\n"
-
-                            # Add content preview
-                            content_preview = content[:1000]
-                            if len(content) > 1000:
-                                content_preview += "..."
-                            summary_content += f"Content Preview:\n{content_preview}\n"
-
-                            settings_service = get_settings_service()
-                            settings = settings_service.settings
-                            summary_embedding = settings.embedding_model_instance.embed(
-                                summary_content
-                            )
-
-                        # Process chunks
-                        chunks = await create_document_chunks(content)
-
-                        # Update existing document
-                        existing_document.title = title
-                        existing_document.content = summary_content
-                        existing_document.content_hash = content_hash
-                        existing_document.embedding = summary_embedding
-                        existing_document.document_metadata = {
-                            **metadata,
+                    if user_llm:
+                        document_metadata = {
+                            "url": url,
+                            "title": title,
+                            "description": description,
+                            "language": language,
+                            "document_type": "Crawled URL",
                             "crawler_type": crawler_type,
-                            "last_crawled_at": datetime.now().strftime(
-                                "%Y-%m-%d %H:%M:%S"
-                            ),
                         }
-                        existing_document.chunks = chunks
-                        existing_document.updated_at = get_current_timestamp()
+                        (
+                            summary_content,
+                            summary_embedding,
+                        ) = await generate_document_summary(
+                            structured_document, user_llm, document_metadata
+                        )
+                    else:
+                        # Fallback to simple summary if no LLM configured
+                        summary_content = f"Crawled URL: {title}\n\n"
+                        summary_content += f"URL: {url}\n"
+                        if description:
+                            summary_content += f"Description: {description}\n"
+                        if language:
+                            summary_content += f"Language: {language}\n"
+                        summary_content += f"Crawler: {crawler_type}\n\n"
 
-                        documents_updated += 1
-                        logger.info(f"Successfully updated URL {url}")
-                        continue
+                        # Add content preview
+                        content_preview = content[:1000]
+                        if len(content) > 1000:
+                            content_preview += "..."
+                        summary_content += f"Content Preview:\n{content_preview}\n"
+
+                        settings_service = get_settings_service()
+                        settings = settings_service.settings
+                        summary_embedding = settings.embedding_model_instance.embed(
+                            summary_content
+                        )
+
+                    # Process chunks
+                    chunks = await create_document_chunks(content)
+
+                    # Update existing document
+                    existing_document.title = title
+                    existing_document.content = summary_content
+                    existing_document.content_hash = content_hash
+                    existing_document.embedding = summary_embedding
+                    existing_document.document_metadata = {
+                        **metadata,
+                        "crawler_type": crawler_type,
+                        "last_crawled_at": datetime.now().strftime(
+                            "%Y-%m-%d %H:%M:%S"
+                        ),
+                    }
+                    existing_document.chunks = chunks
+                    existing_document.updated_at = get_current_timestamp()
+
+                    documents_updated += 1
+                    logger.info(f"Successfully updated URL {url}")
+                    continue
 
                 # Document doesn't exist - create new one
                 # Generate summary with metadata
@@ -433,8 +430,7 @@ async def get_crawled_url_documents(
     search_space_id: int,
     connector_id: int | None = None,
 ) -> list[Document]:
-    """
-    Get all crawled URL documents for a search space.
+    """Get all crawled URL documents for a search space.
 
     Args:
         session: Database session

@@ -1,6 +1,5 @@
 """CRUD operations for chat messages."""
 
-from fastapi import HTTPException
 from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
 

@@ -1,5 +1,4 @@
-"""
-Tools registry for SurfSense deep agent.
+"""Tools registry for SurfSense deep agent.
 
 This module provides a registry pattern for managing tools in the SurfSense agent.
 It makes it easy for OSS contributors to add new tools by:
@@ -56,8 +55,7 @@ from .scrape_webpage import create_scrape_webpage_tool
 
 @dataclass
 class ToolDefinition:
-    """
-    Definition of a tool that can be added to the agent.
+    """Definition of a tool that can be added to the agent.
 
     Attributes:
         name: Unique identifier for the tool
@@ -167,8 +165,7 @@ def build_tools(
     disabled_tools: list[str] | None = None,
     additional_tools: list[BaseTool] | None = None,
 ) -> list[BaseTool]:
-    """
-    Build the list of tools for the agent.
+    """Build the list of tools for the agent.
 
     Args:
         dependencies: Dict containing all possible dependencies:

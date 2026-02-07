@@ -109,7 +109,7 @@ async def consume_and_assert_stream(response, job_id, timeout=30.0):
                     logger.debug(f"Processed {count} events so far")
 
         await asyncio.wait_for(process_events(), timeout=timeout)
-    except asyncio.TimeoutError as e:
+    except TimeoutError as e:
         # If we timed out, logger.debug what we have so far and fail the test
         events_summary = "\n".join(
             f"{i}: {line[:80]}..." if len(line) > 80 else f"{i}: {line}" for i, line in enumerate(lines)

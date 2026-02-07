@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 import pytest
 from httpx import AsyncClient
@@ -58,7 +58,7 @@ async def deactivated_user(client):  # noqa: ARG001
             password=get_password_hash("testpassword"),
             is_active=False,
             is_superuser=False,
-            last_login_at=datetime.now(tz=timezone.utc),
+            last_login_at=datetime.now(tz=UTC),
         )
         session.add(user)
         await session.commit()
@@ -155,7 +155,7 @@ async def test_inactive_user(client: AsyncClient):
             username="inactiveuser",
             password=get_password_hash("testpassword"),
             is_active=False,
-            last_login_at=datetime(2023, 1, 1, 0, 0, 0, tzinfo=timezone.utc),
+            last_login_at=datetime(2023, 1, 1, 0, 0, 0, tzinfo=UTC),
         )
         session.add(user)
         await session.commit()

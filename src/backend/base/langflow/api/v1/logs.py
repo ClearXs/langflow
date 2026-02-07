@@ -9,7 +9,6 @@ from langflow.services.database.models.log import Log, LogCreate, LogLevel, LogR
 from langflow.services.database.models.role import Permission
 from langflow.services.database.models.space import Space
 from langflow.services.database.models.space_membership import SpaceMembership
-from langflow.services.database.models.user import User
 from langflow.utils.rbac import check_permission
 
 router = APIRouter(prefix="/logs", tags=["Logs"])
@@ -21,8 +20,7 @@ async def create_log(
     db: DbSession = None,
     current_user: CurrentActiveUser = None,
 ):
-    """
-    Create a new log entry.
+    """Create a new log entry.
     Note: This is typically called internally. Requires LOGS_READ permission (since logs are usually system-generated).
     """
     try:
@@ -62,8 +60,7 @@ async def read_logs(
     db: DbSession = None,
     current_user: CurrentActiveUser = None,
 ):
-    """
-    Get logs with optional filtering.
+    """Get logs with optional filtering.
     Requires LOGS_READ permission for the search space(s).
     """
     try:
@@ -131,8 +128,7 @@ async def read_log(
     db: DbSession = None,
     current_user: CurrentActiveUser = None,
 ):
-    """
-    Get a specific log by ID.
+    """Get a specific log by ID.
     Requires LOGS_READ permission for the search space.
     """
     try:
@@ -167,8 +163,7 @@ async def update_log(
     db: DbSession = None,
     current_user: CurrentActiveUser = None,
 ):
-    """
-    Update a log entry.
+    """Update a log entry.
     Requires LOGS_READ permission (logs are typically updated by system).
     """
     try:
@@ -210,8 +205,7 @@ async def delete_log(
     db: DbSession = None,
     current_user: CurrentActiveUser = None,
 ):
-    """
-    Delete a log entry.
+    """Delete a log entry.
     Requires LOGS_DELETE permission for the search space.
     """
     try:
@@ -249,8 +243,7 @@ async def get_logs_summary(
     db: DbSession = None,
     current_user: CurrentActiveUser = None,
 ):
-    """
-    Get a summary of logs for a search space in the last X hours.
+    """Get a summary of logs for a search space in the last X hours.
     Requires LOGS_READ permission for the search space.
     """
     try:

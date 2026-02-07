@@ -691,6 +691,38 @@ class Settings(BaseSettings):
         else:
             return True
 
+    @property
+    def GLOBAL_LLM_CONFIGS(self) -> list[dict]:
+        """Load global LLM configurations from YAML file."""
+        if not hasattr(self, "_global_llm_configs_cache"):
+            self._global_llm_configs_cache = self._load_global_llm_configs()
+        return self._global_llm_configs_cache
+
+    def _load_global_llm_configs(self) -> list[dict]:
+        """Load global LLM configurations from YAML file.
+        Falls back to empty list if file doesn't exist or can't be loaded.
+
+        Returns:
+            list: List of global LLM config dictionaries, or empty list if file doesn't exist
+        """
+        if not self.global_llm_config_path:
+            return []
+
+        try:
+            config_path = Path(self.global_llm_config_path).expanduser()
+            if not config_path.exists():
+                logger.debug(f"Global LLM config file not found: {config_path}")
+                return []
+
+            with config_path.open(encoding="utf-8") as f:
+                data = yaml.safe_load(f)
+                configs = data.get("global_llm_configs", []) if data else []
+                logger.debug(f"Loaded {len(configs)} global LLM configs from {config_path}")
+                return configs
+        except Exception as e:
+            logger.warning(f"Failed to load global LLM configs: {e}")
+            return []
+
     @classmethod
     @override
     def settings_customise_sources(  # type: ignore[misc]

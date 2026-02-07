@@ -1,22 +1,22 @@
 import logging
+from typing import Any
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, HTTPException
 from sqlalchemy import func
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 
 from langflow.api.utils import CurrentActiveUser, DbSession
-from langflow.services.database.models.llm_config import LLMConfig
-from langflow.services.database.models.role import DEFAULT_ROLE_PERMISSIONS, Permission, Role
-from langflow.services.database.models.space import Space, SpaceCreate, SpaceRead, SpaceUpdate
-from langflow.services.database.models.space_membership import SpaceMembership
-from langflow.services.database.models.user import User
 from langflow.schema import (
     LLMPreferencesRead,
     LLMPreferencesUpdate,
     SpaceWithStats,
 )
-from langflow.services.settings.service import SettingsService
+from langflow.services.database.models.llm_config import LLMConfig
+from langflow.services.database.models.role import DEFAULT_ROLE_PERMISSIONS, Permission, Role
+from langflow.services.database.models.space import Space, SpaceCreate, SpaceRead, SpaceUpdate
+from langflow.services.database.models.space_membership import SpaceMembership
+from langflow.services.deps import get_settings_service
 from langflow.utils.rbac import check_permission, check_search_space_access
 
 logger = logging.getLogger(__name__)
@@ -29,8 +29,7 @@ async def create_default_roles_and_membership(
     search_space_id: int,
     owner_user_id,
 ) -> None:
-    """
-    Create default system roles for a search space and add the owner as a member.
+    """Create default system roles for a search space and add the owner as a member.
 
     Args:
         session: Database session
@@ -109,8 +108,7 @@ async def read_search_spaces(
     db: DbSession = None,
     current_user: CurrentActiveUser = None,
 ):
-    """
-    Get all search spaces the user has access to, with member count and ownership info.
+    """Get all search spaces the user has access to, with member count and ownership info.
 
     Args:
         skip: Number of items to skip
@@ -202,8 +200,7 @@ async def read_search_space(
     db: DbSession = None,
     current_user: CurrentActiveUser = None,
 ):
-    """
-    Get a specific search space by ID.
+    """Get a specific search space by ID.
     Requires SETTINGS_VIEW permission or membership.
     """
     try:
@@ -239,9 +236,8 @@ async def update_search_space(
     db: DbSession = None,
     current_user: CurrentActiveUser = None,
 ):
-    """
-    Update a search space.
-    Requires SETTINGS_UPDATE permission.
+    """Update a search space.
+    Requires SPACES_UPDATE permission.
     """
     try:
         # Check permission
@@ -249,7 +245,7 @@ async def update_search_space(
             db,
             current_user,
             search_space_id,
-            Permission.SETTINGS_UPDATE.value,
+            Permission.SPACES_UPDATE.value,
             "You don't have permission to update this search space",
         )
 
@@ -287,8 +283,7 @@ async def delete_search_space(
     db: DbSession = None,
     current_user: CurrentActiveUser = None,
 ):
-    """
-    Delete a search space.
+    """Delete a search space.
     Requires SETTINGS_DELETE permission (only owners have this by default).
     """
     try:
@@ -327,10 +322,9 @@ async def delete_search_space(
 
 
 async def _get_llm_config_by_id(
-    session: AsyncSession, config_id: int | None, settings_service: SettingsService
+    session: AsyncSession, config_id: int | None, settings_service: Any
 ) -> dict | None:
-    """
-    Get an LLM config by ID as a dictionary. Returns database config for positive IDs,
+    """Get an LLM config by ID as a dictionary. Returns database config for positive IDs,
     global config for negative IDs, or None if ID is None.
     """
     if config_id is None:
@@ -358,32 +352,31 @@ async def _get_llm_config_by_id(
                     "is_global": True,
                 }
         return None
-    else:
-        # Database config - convert to dict
-        result = await session.execute(
-            select(LLMConfig).filter(LLMConfig.id == config_id)
-        )
-        db_config = result.scalars().first()
-        if db_config:
-            return {
-                "id": db_config.id,
-                "name": db_config.name,
-                "description": db_config.description,
-                "provider": db_config.provider.value if db_config.provider else None,
-                "custom_provider": db_config.custom_provider,
-                "model_name": db_config.model_name,
-                "api_key": db_config.api_key,
-                "api_base": db_config.api_base,
-                "litellm_params": db_config.litellm_params or {},
-                "system_instructions": db_config.system_instructions or "",
-                "use_default_system_instructions": db_config.use_default_system_instructions,
-                "citations_enabled": db_config.citations_enabled,
-                "created_at": db_config.created_at.isoformat()
-                if db_config.created_at
-                else None,
-                "search_space_id": db_config.search_space_id,
-            }
-        return None
+    # Database config - convert to dict
+    result = await session.execute(
+        select(LLMConfig).filter(LLMConfig.id == config_id)
+    )
+    db_config = result.scalars().first()
+    if db_config:
+        return {
+            "id": db_config.id,
+            "name": db_config.name,
+            "description": db_config.description,
+            "provider": db_config.provider.value if db_config.provider else None,
+            "custom_provider": db_config.custom_provider,
+            "model_name": db_config.model_name,
+            "api_key": db_config.api_key,
+            "api_base": db_config.api_base,
+            "litellm_params": db_config.litellm_params or {},
+            "system_instructions": db_config.system_instructions or "",
+            "use_default_system_instructions": db_config.use_default_system_instructions,
+            "citations_enabled": db_config.citations_enabled,
+            "created_at": db_config.created_at.isoformat()
+            if db_config.created_at
+            else None,
+            "search_space_id": db_config.search_space_id,
+        }
+    return None
 
 
 @router.get(
@@ -394,10 +387,8 @@ async def get_llm_preferences(
     search_space_id: int,
     db: DbSession = None,
     current_user: CurrentActiveUser = None,
-    settings_service: SettingsService = Depends(),
 ):
-    """
-    Get LLM preferences (role assignments) for a search space.
+    """Get LLM preferences (role assignments) for a search space.
     Requires LLM_CONFIGS_READ permission.
     """
     try:
@@ -417,6 +408,9 @@ async def get_llm_preferences(
 
         if not search_space:
             raise HTTPException(status_code=404, detail="Search space not found")
+
+        # Get settings service
+        settings_service = get_settings_service()
 
         # Get full config objects for each role
         agent_llm = await _get_llm_config_by_id(db, search_space.agent_llm_id, settings_service)
@@ -449,10 +443,8 @@ async def update_llm_preferences(
     preferences: LLMPreferencesUpdate,
     db: DbSession = None,
     current_user: CurrentActiveUser = None,
-    settings_service: SettingsService = Depends(),
 ):
-    """
-    Update LLM preferences (role assignments) for a search space.
+    """Update LLM preferences (role assignments) for a search space.
     Requires LLM_CONFIGS_UPDATE permission.
     """
     try:
@@ -481,6 +473,9 @@ async def update_llm_preferences(
         await db.commit()
         await db.refresh(search_space)
 
+        # Get settings service
+        settings_service = get_settings_service()
+
         # Get full config objects for response
         agent_llm = await _get_llm_config_by_id(db, search_space.agent_llm_id, settings_service)
         document_summary_llm = await _get_llm_config_by_id(
@@ -502,4 +497,3 @@ async def update_llm_preferences(
         raise HTTPException(
             status_code=500, detail=f"Failed to update LLM preferences: {e!s}"
         ) from e
-

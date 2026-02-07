@@ -139,7 +139,7 @@ class TestEventManager:
         try:
             event_id_1, _, _ = await queue.get()
             event_id_2, _, _ = await queue.get()
-        except asyncio.TimeoutError:
+        except TimeoutError:
             pytest.fail("Test timed out while waiting for queue items")
 
         assert event_id_1 != event_id_2

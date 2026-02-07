@@ -1,5 +1,4 @@
-"""
-RBAC (Role-Based Access Control) routes for managing roles, memberships, and invites.
+"""RBAC (Role-Based Access Control) routes for managing roles, memberships, and invites.
 
 Endpoints:
 - /spaces/{search_space_id}/roles - CRUD for roles
@@ -13,17 +12,11 @@ Endpoints:
 import logging
 from datetime import UTC, datetime
 
-from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.ext.asyncio import AsyncSession
+from fastapi import APIRouter, HTTPException
 from sqlalchemy.future import select
 from sqlalchemy.orm import selectinload
 
 from langflow.api.utils import CurrentActiveUser, DbSession
-from langflow.services.database.models.role import Permission, Role, RoleCreate, RoleRead, RoleUpdate
-from langflow.services.database.models.space import Space
-from langflow.services.database.models.space_invite import SpaceInvite, SpaceInviteCreate, SpaceInviteRead
-from langflow.services.database.models.space_membership import SpaceMembership, SpaceMembershipCreate, SpaceMembershipRead
-from langflow.services.database.models.user import User
 from langflow.schema import (
     InviteAcceptRequest,
     InviteAcceptResponse,
@@ -34,6 +27,14 @@ from langflow.schema import (
     PermissionsListResponse,
     UserSpaceAccess,
 )
+from langflow.services.database.models.role import Permission, Role, RoleCreate, RoleRead, RoleUpdate
+from langflow.services.database.models.space import Space
+from langflow.services.database.models.space_invite import SpaceInvite, SpaceInviteCreate, SpaceInviteRead
+from langflow.services.database.models.space_membership import (
+    SpaceMembership,
+    SpaceMembershipRead,
+)
+from langflow.services.database.models.user import User
 from langflow.utils.rbac import (
     check_permission,
     check_search_space_access,
@@ -54,8 +55,7 @@ router = APIRouter(prefix="/rbac", tags=["rbac"])
 async def list_all_permissions(
     current_user: CurrentActiveUser = None,
 ):
-    """
-    List all available permissions that can be assigned to roles.
+    """List all available permissions that can be assigned to roles.
     """
     permissions = []
     for perm in Permission:
@@ -86,8 +86,7 @@ async def create_role(
     db: DbSession = None,
     current_user: CurrentActiveUser = None,
 ):
-    """
-    Create a new custom role in a search space.
+    """Create a new custom role in a search space.
     Requires ROLES_CREATE permission.
     """
     try:
@@ -167,8 +166,7 @@ async def list_roles(
     db: DbSession = None,
     current_user: CurrentActiveUser = None,
 ):
-    """
-    List all roles in a search space.
+    """List all roles in a search space.
     Requires ROLES_READ permission.
     """
     try:
@@ -205,8 +203,7 @@ async def get_role(
     db: DbSession = None,
     current_user: CurrentActiveUser = None,
 ):
-    """
-    Get a specific role by ID.
+    """Get a specific role by ID.
     Requires ROLES_READ permission.
     """
     try:
@@ -250,8 +247,7 @@ async def update_role(
     db: DbSession = None,
     current_user: CurrentActiveUser = None,
 ):
-    """
-    Update a role.
+    """Update a role.
     Requires ROLES_UPDATE permission.
     System roles can only have their permissions updated, not name/description.
     """
@@ -347,8 +343,7 @@ async def delete_role(
     db: DbSession = None,
     current_user: CurrentActiveUser = None,
 ):
-    """
-    Delete a custom role.
+    """Delete a custom role.
     Requires ROLES_DELETE permission.
     System roles cannot be deleted.
     """
@@ -404,8 +399,7 @@ async def list_members(
     db: DbSession = None,
     current_user: CurrentActiveUser = None,
 ):
-    """
-    List all members of a search space.
+    """List all members of a search space.
     Requires MEMBERS_VIEW permission.
     """
     try:
@@ -466,8 +460,7 @@ async def update_member_role(
     db: DbSession = None,
     current_user: CurrentActiveUser = None,
 ):
-    """
-    Update a member's role.
+    """Update a member's role.
     Requires MEMBERS_MANAGE_ROLES permission.
     Cannot change owner's role.
     """
@@ -553,8 +546,7 @@ async def remove_member(
     db: DbSession = None,
     current_user: CurrentActiveUser = None,
 ):
-    """
-    Remove a member from a search space.
+    """Remove a member from a search space.
     Requires MEMBERS_REMOVE permission.
     Cannot remove the owner.
     """
@@ -604,8 +596,7 @@ async def leave_search_space(
     db: DbSession = None,
     current_user: CurrentActiveUser = None,
 ):
-    """
-    Leave a search space (remove own membership).
+    """Leave a search space (remove own membership).
     Owners cannot leave their search space.
     """
     try:
@@ -656,8 +647,7 @@ async def create_invite(
     db: DbSession = None,
     current_user: CurrentActiveUser = None,
 ):
-    """
-    Create a new invite link for a search space.
+    """Create a new invite link for a search space.
     Requires MEMBERS_INVITE permission.
     """
     try:
@@ -721,8 +711,7 @@ async def list_invites(
     db: DbSession = None,
     current_user: CurrentActiveUser = None,
 ):
-    """
-    List all invites for a search space.
+    """List all invites for a search space.
     Requires MEMBERS_INVITE permission.
     """
     try:
@@ -760,8 +749,7 @@ async def update_invite(
     db: DbSession = None,
     current_user: CurrentActiveUser = None,
 ):
-    """
-    Update an invite.
+    """Update an invite.
     Requires MEMBERS_INVITE permission.
     """
     try:
@@ -826,8 +814,7 @@ async def revoke_invite(
     db: DbSession = None,
     current_user: CurrentActiveUser = None,
 ):
-    """
-    Revoke (delete) an invite.
+    """Revoke (delete) an invite.
     Requires MEMBERS_INVITE permission.
     """
     try:
@@ -872,8 +859,7 @@ async def get_invite_info(
     invite_code: str,
     db: DbSession = None,
 ):
-    """
-    Get information about an invite (public endpoint, no auth required).
+    """Get information about an invite (public endpoint, no auth required).
     Returns minimal info for displaying on invite acceptance page.
     """
     try:
@@ -945,8 +931,7 @@ async def accept_invite(
     db: DbSession = None,
     current_user: CurrentActiveUser = None,
 ):
-    """
-    Accept an invite and join a search space.
+    """Accept an invite and join a search space.
     """
     try:
         result = await db.execute(
@@ -1043,8 +1028,7 @@ async def get_my_access(
     db: DbSession = None,
     current_user: CurrentActiveUser = None,
 ):
-    """
-    Get the current user's access info for a search space.
+    """Get the current user's access info for a search space.
     """
     try:
         membership = await check_search_space_access(db, current_user, search_space_id)

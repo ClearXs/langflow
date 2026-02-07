@@ -1,5 +1,4 @@
-"""
-Google Gmail connector indexer.
+"""Google Gmail connector indexer.
 """
 
 from datetime import datetime
@@ -39,8 +38,7 @@ async def index_google_gmail_messages(
     update_last_indexed: bool = True,
     max_messages: int = 1000,
 ) -> tuple[int, str]:
-    """
-    Index Gmail messages for a specific connector.
+    """Index Gmail messages for a specific connector.
 
     Args:
         session: Database session
@@ -206,65 +204,64 @@ async def index_google_gmail_messages(
                         )
                         documents_skipped += 1
                         continue
-                    else:
-                        # Content has changed - update the existing document
-                        logger.info(
-                            f"Content changed for Gmail message {subject}. Updating document."
-                        )
+                    # Content has changed - update the existing document
+                    logger.info(
+                        f"Content changed for Gmail message {subject}. Updating document."
+                    )
 
-                        # Generate summary with metadata
-                        user_llm = await get_user_long_context_llm(
-                            session, user_id, search_space_id
-                        )
+                    # Generate summary with metadata
+                    user_llm = await get_user_long_context_llm(
+                        session, user_id, search_space_id
+                    )
 
-                        if user_llm:
-                            document_metadata = {
-                                "message_id": message_id,
-                                "thread_id": thread_id,
-                                "subject": subject,
-                                "sender": sender,
-                                "date": date_str,
-                                "document_type": "Gmail Message",
-                                "connector_type": "Google Gmail",
-                            }
-                            (
-                                summary_content,
-                                summary_embedding,
-                            ) = await generate_document_summary(
-                                markdown_content, user_llm, document_metadata
-                            )
-                        else:
-                            summary_content = f"Google Gmail Message: {subject}\n\n"
-                            summary_content += f"Sender: {sender}\n"
-                            summary_content += f"Date: {date_str}\n"
-                            settings_service = get_settings_service()
-                            settings = settings_service.settings
-                            summary_embedding = settings.embedding_model_instance.embed(
-                                summary_content
-                            )
-
-                        # Process chunks
-                        chunks = await create_document_chunks(markdown_content)
-
-                        # Update existing document
-                        existing_document.title = f"Gmail: {subject}"
-                        existing_document.content = summary_content
-                        existing_document.content_hash = content_hash
-                        existing_document.embedding = summary_embedding
-                        existing_document.document_metadata = {
+                    if user_llm:
+                        document_metadata = {
                             "message_id": message_id,
                             "thread_id": thread_id,
                             "subject": subject,
                             "sender": sender,
                             "date": date_str,
-                            "connector_id": connector_id,
+                            "document_type": "Gmail Message",
+                            "connector_type": "Google Gmail",
                         }
-                        existing_document.chunks = chunks
-                        existing_document.updated_at = get_current_timestamp()
+                        (
+                            summary_content,
+                            summary_embedding,
+                        ) = await generate_document_summary(
+                            markdown_content, user_llm, document_metadata
+                        )
+                    else:
+                        summary_content = f"Google Gmail Message: {subject}\n\n"
+                        summary_content += f"Sender: {sender}\n"
+                        summary_content += f"Date: {date_str}\n"
+                        settings_service = get_settings_service()
+                        settings = settings_service.settings
+                        summary_embedding = settings.embedding_model_instance.embed(
+                            summary_content
+                        )
 
-                        documents_indexed += 1
-                        logger.info(f"Successfully updated Gmail message {subject}")
-                        continue
+                    # Process chunks
+                    chunks = await create_document_chunks(markdown_content)
+
+                    # Update existing document
+                    existing_document.title = f"Gmail: {subject}"
+                    existing_document.content = summary_content
+                    existing_document.content_hash = content_hash
+                    existing_document.embedding = summary_embedding
+                    existing_document.document_metadata = {
+                        "message_id": message_id,
+                        "thread_id": thread_id,
+                        "subject": subject,
+                        "sender": sender,
+                        "date": date_str,
+                        "connector_id": connector_id,
+                    }
+                    existing_document.chunks = chunks
+                    existing_document.updated_at = get_current_timestamp()
+
+                    documents_indexed += 1
+                    logger.info(f"Successfully updated Gmail message {subject}")
+                    continue
 
                 # Document doesn't exist - create new one
                 # Generate summary with metadata

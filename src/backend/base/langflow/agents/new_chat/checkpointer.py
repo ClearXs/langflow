@@ -1,5 +1,4 @@
-"""
-PostgreSQL-based checkpointer for LangGraph agents.
+"""PostgreSQL-based checkpointer for LangGraph agents.
 
 This module provides a persistent checkpointer using AsyncPostgresSaver
 that stores conversation state in the PostgreSQL database.
@@ -16,8 +15,7 @@ _checkpointer_initialized: bool = False
 
 
 def get_postgres_connection_string() -> str:
-    """
-    Convert the async DATABASE_URL to a sync postgres connection string for psycopg3.
+    """Convert the async DATABASE_URL to a sync postgres connection string for psycopg3.
 
     The DATABASE_URL is typically in format:
     postgresql+asyncpg://user:pass@host:port/dbname
@@ -40,8 +38,7 @@ def get_postgres_connection_string() -> str:
 
 
 async def get_checkpointer() -> AsyncPostgresSaver:
-    """
-    Get or create the global AsyncPostgresSaver instance.
+    """Get or create the global AsyncPostgresSaver instance.
 
     This function:
     1. Creates the checkpointer if it doesn't exist
@@ -69,8 +66,7 @@ async def get_checkpointer() -> AsyncPostgresSaver:
 
 
 async def setup_checkpointer_tables() -> None:
-    """
-    Explicitly setup the checkpointer tables.
+    """Explicitly setup the checkpointer tables.
 
     This can be called during application startup to ensure
     tables exist before any agent calls.
@@ -80,8 +76,7 @@ async def setup_checkpointer_tables() -> None:
 
 
 async def close_checkpointer() -> None:
-    """
-    Close the checkpointer connection.
+    """Close the checkpointer connection.
 
     This should be called during application shutdown.
     """

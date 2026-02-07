@@ -3,7 +3,7 @@
 from datetime import datetime, timezone
 
 from sqlalchemy import Column
-from sqlmodel import DateTime, Field, SQLModel, String, func
+from sqlmodel import DateTime, Field, SQLModel, func
 
 
 def utc_now():
@@ -18,8 +18,7 @@ class ChatThreadBase(SQLModel):
 
 
 class ChatThread(ChatThreadBase, table=True):  # type: ignore[call-arg]
-    """
-    Thread model for the new chat feature using assistant-ui.
+    """Thread model for the new chat feature using assistant-ui.
     Each thread represents a conversation with message history.
     LangGraph checkpointer uses thread_id for state persistence.
     """

@@ -1,5 +1,4 @@
-"""
-Airtable connector indexer.
+"""Airtable connector indexer.
 """
 
 from sqlalchemy.exc import SQLAlchemyError
@@ -40,8 +39,7 @@ async def index_airtable_records(
     max_records: int = 2500,
     update_last_indexed: bool = True,
 ) -> tuple[int, str | None]:
-    """
-    Index Airtable records for a given connector.
+    """Index Airtable records for a given connector.
 
     Args:
         session: Database session
@@ -274,72 +272,71 @@ async def index_airtable_records(
                                     )
                                     documents_skipped += 1
                                     continue
-                                else:
-                                    # Content has changed - update the existing document
-                                    logger.info(
-                                        f"Content changed for Airtable record {record_id}. Updating document."
-                                    )
+                                # Content has changed - update the existing document
+                                logger.info(
+                                    f"Content changed for Airtable record {record_id}. Updating document."
+                                )
 
-                                    # Generate document summary
-                                    user_llm = await get_user_long_context_llm(
-                                        session, user_id, space_id
-                                    )
+                                # Generate document summary
+                                user_llm = await get_user_long_context_llm(
+                                    session, user_id, space_id
+                                )
 
-                                    if user_llm:
-                                        document_metadata = {
-                                            "record_id": record_id,
-                                            "created_time": record.get(
-                                                "CREATED_TIME()", ""
-                                            ),
-                                            "document_type": "Airtable Record",
-                                            "connector_type": "Airtable",
-                                        }
-                                        (
-                                            summary_content,
-                                            summary_embedding,
-                                        ) = await generate_document_summary(
-                                            markdown_content,
-                                            user_llm,
-                                            document_metadata,
-                                        )
-                                    else:
-                                        summary_content = (
-                                            f"Airtable Record: {record_id}\n\n"
-                                        )
-                                        summary_embedding = (
-                                            settings.embedding_model_instance.embed(
-                                                summary_content
-                                            )
-                                        )
-
-                                    # Process chunks
-                                    chunks = await create_document_chunks(
-                                        markdown_content
-                                    )
-
-                                    # Update existing document
-                                    existing_document.title = (
-                                        f"Airtable Record: {record_id}"
-                                    )
-                                    existing_document.content = summary_content
-                                    existing_document.content_hash = content_hash
-                                    existing_document.embedding = summary_embedding
-                                    existing_document.document_metadata = {
+                                if user_llm:
+                                    document_metadata = {
                                         "record_id": record_id,
                                         "created_time": record.get(
                                             "CREATED_TIME()", ""
                                         ),
+                                        "document_type": "Airtable Record",
+                                        "connector_type": "Airtable",
                                     }
-                                    existing_document.chunks = chunks
-                                    existing_document.updated_at = (
-                                        get_current_timestamp()
+                                    (
+                                        summary_content,
+                                        summary_embedding,
+                                    ) = await generate_document_summary(
+                                        markdown_content,
+                                        user_llm,
+                                        document_metadata,
+                                    )
+                                else:
+                                    summary_content = (
+                                        f"Airtable Record: {record_id}\n\n"
+                                    )
+                                    summary_embedding = (
+                                        settings.embedding_model_instance.embed(
+                                            summary_content
+                                        )
                                     )
 
-                                    documents_indexed += 1
-                                    logger.info(
-                                        f"Successfully updated Airtable record {record_id}"
-                                    )
-                                    continue
+                                # Process chunks
+                                chunks = await create_document_chunks(
+                                    markdown_content
+                                )
+
+                                # Update existing document
+                                existing_document.title = (
+                                    f"Airtable Record: {record_id}"
+                                )
+                                existing_document.content = summary_content
+                                existing_document.content_hash = content_hash
+                                existing_document.embedding = summary_embedding
+                                existing_document.document_metadata = {
+                                    "record_id": record_id,
+                                    "created_time": record.get(
+                                        "CREATED_TIME()", ""
+                                    ),
+                                }
+                                existing_document.chunks = chunks
+                                existing_document.updated_at = (
+                                    get_current_timestamp()
+                                )
+
+                                documents_indexed += 1
+                                logger.info(
+                                    f"Successfully updated Airtable record {record_id}"
+                                )
+                                continue
 
                             # Document doesn't exist - create new one
                             # Generate document summary

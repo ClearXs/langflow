@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from uuid import UUID, uuid4
 
 import pytest
@@ -243,7 +243,7 @@ async def test_aupdate_mixed_messages(created_messages):
 @pytest.mark.usefixtures("client")
 async def test_aupdate_message_with_timestamp(created_message):
     # Set a specific timestamp
-    new_timestamp = datetime(2024, 1, 1, 12, 0, 0, tzinfo=timezone.utc)
+    new_timestamp = datetime(2024, 1, 1, 12, 0, 0, tzinfo=UTC)
     created_message.timestamp = new_timestamp
     created_message.text = "Updated message with timestamp"
 
@@ -262,7 +262,7 @@ async def test_aupdate_multiple_messages_with_timestamps(created_messages):
     # Modify messages with different timestamps
     for i, message in enumerate(created_messages):
         message.text = f"Updated message {i}"
-        message.timestamp = datetime(2024, 1, 1, i, 0, 0, tzinfo=timezone.utc)
+        message.timestamp = datetime(2024, 1, 1, i, 0, 0, tzinfo=UTC)
 
     updated = await aupdate_messages(created_messages)
 
@@ -270,7 +270,7 @@ async def test_aupdate_multiple_messages_with_timestamps(created_messages):
     for i, message in enumerate(updated):
         assert message.text == f"Updated message {i}"
         # Compare timestamps without timezone info
-        expected_timestamp = datetime(2024, 1, 1, i, 0, 0, tzinfo=timezone.utc)
+        expected_timestamp = datetime(2024, 1, 1, i, 0, 0, tzinfo=UTC)
         assert message.timestamp.replace(tzinfo=None) == expected_timestamp.replace(tzinfo=None)
         assert message.id == created_messages[i].id
 

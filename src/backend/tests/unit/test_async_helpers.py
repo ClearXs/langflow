@@ -170,7 +170,7 @@ class TestRunUntilComplete:
         async def timeout_coro():
             try:
                 await asyncio.wait_for(slow_coro(), timeout=0.01)
-            except asyncio.TimeoutError:
+            except TimeoutError:
                 return "timeout_occurred"
             return "no_timeout"
 

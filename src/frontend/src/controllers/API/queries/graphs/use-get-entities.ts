@@ -3,7 +3,7 @@
  *
  * 获取实体列表（支持分页、过滤、搜索）
  *
- * 后端端点：GET /api/v1/entities/
+ * 后端端点：GET /api/v1/graph/entities/
  */
 
 import { useQuery } from "@tanstack/react-query";
@@ -17,7 +17,7 @@ export function useGetEntitiesQuery(params: GetEntitiesParams) {
 
     queryFn: async () => {
       const response = await api.get<PaginatedResponse<EntityRead>>(
-        "/api/v1/entities/",
+        "/api/v1/graph/entities/",
         {
           params: {
             space_id: params.space_id,
@@ -51,7 +51,7 @@ export function useGetEntitiesQuery(params: GetEntitiesParams) {
  *
  * 获取单个实体详情
  *
- * 后端端点：GET /api/v1/entities/{entity_id}
+ * 后端端点：GET /api/v1/graph/entities/{entity_id}
  */
 export function useGetEntityByIdQuery(entityId: number | null) {
   return useQuery({
@@ -61,7 +61,7 @@ export function useGetEntityByIdQuery(entityId: number | null) {
       if (!entityId) throw new Error("Entity ID is required");
 
       const response = await api.get<EntityRead>(
-        `/api/v1/entities/${entityId}`,
+        `/api/v1/graph/entities/${entityId}`,
       );
       return response.data;
     },

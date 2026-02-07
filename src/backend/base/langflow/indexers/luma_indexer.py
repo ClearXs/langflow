@@ -1,5 +1,4 @@
-"""
-Luma connector indexer.
+"""Luma connector indexer.
 """
 
 from datetime import datetime, timedelta
@@ -37,8 +36,7 @@ async def index_luma_events(
     end_date: str | None = None,
     update_last_indexed: bool = True,
 ) -> tuple[int, str | None]:
-    """
-    Index Luma events.
+    """Index Luma events.
 
     Args:
         session: Database session
@@ -197,14 +195,13 @@ async def index_luma_events(
                         {"events_found": 0},
                     )
                     return 0, None
-                else:
-                    await task_logger.log_task_failure(
-                        log_entry,
-                        f"Failed to get Luma events: {error}",
-                        "API Error",
-                        {"error_type": "APIError"},
-                    )
-                    return 0, f"Failed to get Luma events: {error}"
+                await task_logger.log_task_failure(
+                    log_entry,
+                    f"Failed to get Luma events: {error}",
+                    "API Error",
+                    {"error_type": "APIError"},
+                )
+                return 0, f"Failed to get Luma events: {error}"
 
             logger.info(f"Retrieved {len(events)} events from Luma API")
 
@@ -278,88 +275,87 @@ async def index_luma_events(
                         )
                         documents_skipped += 1
                         continue
-                    else:
-                        # Content has changed - update the existing document
-                        logger.info(
-                            f"Content changed for Luma event {event_name}. Updating document."
-                        )
+                    # Content has changed - update the existing document
+                    logger.info(
+                        f"Content changed for Luma event {event_name}. Updating document."
+                    )
 
-                        # Generate summary with metadata
-                        user_llm = await get_user_long_context_llm(
-                            session, user_id, search_space_id
-                        )
+                    # Generate summary with metadata
+                    user_llm = await get_user_long_context_llm(
+                        session, user_id, search_space_id
+                    )
 
-                        if user_llm:
-                            document_metadata = {
-                                "event_id": event_id,
-                                "event_name": event_name,
-                                "event_url": event_url,
-                                "start_at": start_at,
-                                "end_at": end_at,
-                                "timezone": timezone,
-                                "location": location or "No location",
-                                "city": city,
-                                "hosts": host_names,
-                                "document_type": "Luma Event",
-                                "connector_type": "Luma",
-                            }
-                            (
-                                summary_content,
-                                summary_embedding,
-                            ) = await generate_document_summary(
-                                event_markdown, user_llm, document_metadata
-                            )
-                        else:
-                            summary_content = f"Luma Event: {event_name}\n\n"
-                            if event_url:
-                                summary_content += f"URL: {event_url}\n"
-                            summary_content += f"Start: {start_at}\n"
-                            summary_content += f"End: {end_at}\n"
-                            if timezone:
-                                summary_content += f"Timezone: {timezone}\n"
-                            if location:
-                                summary_content += f"Location: {location}\n"
-                            if city:
-                                summary_content += f"City: {city}\n"
-                            if host_names:
-                                summary_content += f"Hosts: {host_names}\n"
-                            if description:
-                                desc_preview = description[:1000]
-                                if len(description) > 1000:
-                                    desc_preview += "..."
-                                summary_content += f"Description: {desc_preview}\n"
-                            settings_service = get_settings_service()
-                            settings = settings_service.settings
-                            summary_embedding = settings.embedding_model_instance.embed(
-                                summary_content
-                            )
-
-                        # Process chunks
-                        chunks = await create_document_chunks(event_markdown)
-
-                        # Update existing document
-                        existing_document.title = f"Luma Event - {event_name}"
-                        existing_document.content = summary_content
-                        existing_document.content_hash = content_hash
-                        existing_document.embedding = summary_embedding
-                        existing_document.document_metadata = {
+                    if user_llm:
+                        document_metadata = {
                             "event_id": event_id,
                             "event_name": event_name,
                             "event_url": event_url,
                             "start_at": start_at,
                             "end_at": end_at,
                             "timezone": timezone,
-                            "location": location,
+                            "location": location or "No location",
                             "city": city,
                             "hosts": host_names,
-                            "indexed_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                            "document_type": "Luma Event",
+                            "connector_type": "Luma",
                         }
-                        existing_document.chunks = chunks
-                        existing_document.updated_at = get_current_timestamp()
+                        (
+                            summary_content,
+                            summary_embedding,
+                        ) = await generate_document_summary(
+                            event_markdown, user_llm, document_metadata
+                        )
+                    else:
+                        summary_content = f"Luma Event: {event_name}\n\n"
+                        if event_url:
+                            summary_content += f"URL: {event_url}\n"
+                        summary_content += f"Start: {start_at}\n"
+                        summary_content += f"End: {end_at}\n"
+                        if timezone:
+                            summary_content += f"Timezone: {timezone}\n"
+                        if location:
+                            summary_content += f"Location: {location}\n"
+                        if city:
+                            summary_content += f"City: {city}\n"
+                        if host_names:
+                            summary_content += f"Hosts: {host_names}\n"
+                        if description:
+                            desc_preview = description[:1000]
+                            if len(description) > 1000:
+                                desc_preview += "..."
+                            summary_content += f"Description: {desc_preview}\n"
+                        settings_service = get_settings_service()
+                        settings = settings_service.settings
+                        summary_embedding = settings.embedding_model_instance.embed(
+                            summary_content
+                        )
 
-                        documents_indexed += 1
-                        logger.info(f"Successfully updated Luma event {event_name}")
-                        continue
+                    # Process chunks
+                    chunks = await create_document_chunks(event_markdown)
+
+                    # Update existing document
+                    existing_document.title = f"Luma Event - {event_name}"
+                    existing_document.content = summary_content
+                    existing_document.content_hash = content_hash
+                    existing_document.embedding = summary_embedding
+                    existing_document.document_metadata = {
+                        "event_id": event_id,
+                        "event_name": event_name,
+                        "event_url": event_url,
+                        "start_at": start_at,
+                        "end_at": end_at,
+                        "timezone": timezone,
+                        "location": location,
+                        "city": city,
+                        "hosts": host_names,
+                        "indexed_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                    }
+                    existing_document.chunks = chunks
+                    existing_document.updated_at = get_current_timestamp()
+
+                    documents_indexed += 1
+                    logger.info(f"Successfully updated Luma event {event_name}")
+                    continue
 
                 # Document doesn't exist - create new one
                 # Generate summary with metadata

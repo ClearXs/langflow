@@ -4,7 +4,7 @@
  * 将后端 RelationRead 转换为 ReactFlow Edge 格式
  */
 
-import type { GraphEdge, RelationRead } from "@/types/api/graphs";
+import type { GraphApiEdge, GraphEdge, RelationRead } from "@/types/api/graphs";
 
 /**
  * 转换单个关系为边
@@ -36,7 +36,46 @@ export function transformRelationToEdge(relation: RelationRead): GraphEdge {
 export function transformRelationsToEdges(
   relations: RelationRead[],
 ): GraphEdge[] {
-  return relations.map(transformRelationToEdge);
+  return (relations || []).map(transformRelationToEdge);
+}
+
+export function transformGraphEdgesToEdges(edges: GraphApiEdge[]): GraphEdge[] {
+  return (edges || []).map((edge) => {
+    // Smart edge label extraction
+    // Priority: first keyword from keywords field > description (truncated) > relation_type > "DIRECTED"
+    let edgeLabel = edge.relation_type || "DIRECTED";
+
+    if (edge.properties?.keywords) {
+      // Extract first keyword (LightRAG stores as comma-separated string)
+      const keywords = edge.properties.keywords.split(",");
+      if (keywords.length > 0 && keywords[0].trim()) {
+        edgeLabel = keywords[0].trim();
+      }
+    } else if (edge.description && edge.description.length > 0) {
+      // Fallback to truncated description
+      edgeLabel =
+        edge.description.length > 30
+          ? edge.description.substring(0, 30) + "..."
+          : edge.description;
+    }
+
+    return {
+      id: `e-${edge.id}`,
+      source: String(edge.source),
+      target: String(edge.target),
+      type: "relationEdge",
+      label: edgeLabel, // Use smart label
+      animated: (edge.weight || 0) > 0.8,
+      data: {
+        relationType: edge.relation_type || "DIRECTED",
+        weight: edge.weight || 1.0,
+        description: edge.description,
+        properties: edge.properties || {},
+        original: edge as unknown as RelationRead,
+        keywords: edge.properties?.keywords, // Preserve keywords for display
+      },
+    };
+  });
 }
 
 /**

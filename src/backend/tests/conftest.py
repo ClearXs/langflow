@@ -28,7 +28,10 @@ from langflow.services.database.models.user.model import User, UserCreate, UserR
 from langflow.services.database.models.vertex_builds.crud import delete_vertex_builds_by_flow_id
 from langflow.services.database.utils import session_getter
 from langflow.services.deps import get_db_service, session_scope
-from lfx.components.input_output import ChatInput
+try:
+    from lfx.components.input_output import ChatInput
+except ImportError:
+    from lfx.components.input_output.chat import ChatComponent as ChatInput
 from lfx.graph import Graph
 from lfx.log.logger import logger
 from sqlalchemy.ext.asyncio import create_async_engine

@@ -26,9 +26,9 @@ export default function App() {
 
   useEffect(() => {
     if (lang) {
-      // i18n.changeLanguage(lang);
+      i18n.changeLanguage(lang);
     }
-  }, [lang]);
+  }, [lang, i18n]);
 
   // Global postMessage handler for debugging/logging (optional)
   const handleGlobalMessage = (message: StoredMessage) => {

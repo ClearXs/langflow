@@ -1,5 +1,5 @@
 import math
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 
 import numpy as np
@@ -18,7 +18,7 @@ bytes_strategy = st.binary(min_size=0, max_size=MAX_TEXT_LENGTH * 3)
 datetime_strategy = st.datetimes(
     min_value=datetime.min,  # noqa: DTZ901 - Hypothesis requires naive datetime bounds
     max_value=datetime.max,  # noqa: DTZ901 - Hypothesis requires naive datetime bounds
-    timezones=st.sampled_from([timezone.utc, None]),
+    timezones=st.sampled_from([UTC, None]),
 )
 decimal_strategy = st.decimals(min_value=-1e6, max_value=1e6, allow_nan=False, allow_infinity=False, places=10)
 uuid_strategy = st.uuids()
@@ -77,7 +77,7 @@ class TestSerializationHypothesis:
     @given(dt=datetime_strategy)
     def test_datetime_serialization(self, dt: datetime) -> None:
         result: str = serialize(dt)
-        assert result == dt.replace(tzinfo=timezone.utc).isoformat()
+        assert result == dt.replace(tzinfo=UTC).isoformat()
 
     @settings(max_examples=100)
     @given(dec=decimal_strategy)

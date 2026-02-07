@@ -1,5 +1,6 @@
 """Celery workers for background task processing."""
 
+from langflow.workers.connector_sync import sync_all_connectors_task, sync_connector_task
 from langflow.workers.connector_tasks import (
     index_airtable_records_task,
     index_bookstack_pages_task,
@@ -24,6 +25,9 @@ from langflow.workers.document_tasks import (
 )
 
 __all__ = [
+    # Connector sync tasks
+    "sync_connector_task",
+    "sync_all_connectors_task",
     # Connector tasks
     "index_airtable_records_task",
     "index_bookstack_pages_task",

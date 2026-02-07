@@ -354,7 +354,7 @@ class TabMixin(BaseModel):
     def validate_options(cls, v):
         """Validate that there are at most 3 tab values and each value has at most 20 characters."""
         max_tab_options = 3
-        max_tab_option_length = 20
+        max_tab_option_length = 64
 
         if len(v) > max_tab_options:
             msg = f"Maximum of {max_tab_options} tab values allowed. Got {len(v)} values."

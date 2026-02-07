@@ -25,8 +25,7 @@ if sys.platform.startswith("win"):
 
 
 def get_celery_session_maker():
-    """
-    Create a new async session maker for Celery tasks.
+    """Create a new async session maker for Celery tasks.
     This is necessary because Celery tasks run in a new event loop,
     and the default session maker is bound to the main app's event loop.
     """
@@ -71,8 +70,7 @@ def generate_content_podcast_task(
     podcast_title: str = "SurfSense Podcast",
     user_prompt: str | None = None,
 ) -> dict:
-    """
-    Celery task to generate podcast from source content (for new-chat).
+    """Celery task to generate podcast from source content (for new-chat).
 
     This task generates a podcast directly from provided content.
 

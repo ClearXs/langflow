@@ -5,9 +5,12 @@ import {
   ChevronUpIcon,
   XCircleIcon,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { parseGraphToolResult } from "@/components/assistant-ui/graph-tool";
+import useSpacesStore from "@/stores/spacesStore";
 
 export const ToolFallback: ToolCallMessagePartComponent = ({
   toolName,
@@ -15,7 +18,18 @@ export const ToolFallback: ToolCallMessagePartComponent = ({
   result,
   status,
 }) => {
-  const [isCollapsed, setIsCollapsed] = useState(true);
+  const graphInfo = useMemo(
+    () => parseGraphToolResult(toolName, result),
+    [toolName, result],
+  );
+  const activeSpaceId = useSpacesStore((state) => state.activeSpaceId);
+  const [isCollapsed, setIsCollapsed] = useState(() => !graphInfo);
+
+  useEffect(() => {
+    if (graphInfo) {
+      setIsCollapsed(false);
+    }
+  }, [graphInfo]);
 
   const isCancelled =
     status?.type === "incomplete" && status.reason === "cancelled";
@@ -54,6 +68,56 @@ export const ToolFallback: ToolCallMessagePartComponent = ({
       </div>
       {!isCollapsed && (
         <div className="aui-tool-fallback-content flex flex-col gap-2 border-t pt-2">
+          {graphInfo && (
+            <div className="aui-tool-fallback-graph-root px-4">
+              <div className="rounded-md border bg-muted/30 p-3">
+                <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                  Knowledge Graph
+                </div>
+                <p className="mt-2 text-sm">{graphInfo.answer}</p>
+                {activeSpaceId && graphInfo.sources?.entity_ids?.length ? (
+                  <div className="mt-3">
+                    <Button asChild size="sm" variant="secondary">
+                      <Link
+                        to={`/spaces/${activeSpaceId}/graph?entity_ids=${graphInfo.sources.entity_ids.join(",")}`}
+                      >
+                        Open in Graph
+                      </Link>
+                    </Button>
+                  </div>
+                ) : null}
+                {graphInfo.sources && (
+                  <div className="mt-3 flex flex-wrap gap-2 text-xs text-muted-foreground">
+                    {graphInfo.sources.entity_ids?.length ? (
+                      <span className="rounded-full border px-2 py-0.5">
+                        Entities: {graphInfo.sources.entity_ids.join(", ")}
+                      </span>
+                    ) : null}
+                    {graphInfo.sources.document_ids?.length ? (
+                      <span className="rounded-full border px-2 py-0.5">
+                        Documents: {graphInfo.sources.document_ids.join(", ")}
+                      </span>
+                    ) : null}
+                    {graphInfo.sources.chunk_ids?.length ? (
+                      <span className="rounded-full border px-2 py-0.5">
+                        Chunks: {graphInfo.sources.chunk_ids.join(", ")}
+                      </span>
+                    ) : null}
+                  </div>
+                )}
+                {graphInfo.validation && (
+                  <div className="mt-2 text-xs text-muted-foreground">
+                    Validation: {graphInfo.validation.status || "unknown"}
+                  </div>
+                )}
+                {graphInfo.sources?.paths?.length ? (
+                  <div className="mt-3 text-xs text-muted-foreground">
+                    Paths: {graphInfo.sources.paths.length}
+                  </div>
+                ) : null}
+              </div>
+            </div>
+          )}
           {cancelledReason && (
             <div className="aui-tool-fallback-cancelled-root px-4">
               <p className="aui-tool-fallback-cancelled-header font-semibold text-muted-foreground">

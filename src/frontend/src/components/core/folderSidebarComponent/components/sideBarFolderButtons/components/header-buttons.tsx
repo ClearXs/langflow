@@ -8,14 +8,10 @@
  */
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import IconComponent from "@/components/common/genericIconComponent";
-import { SidebarTrigger } from "@/components/ui/sidebar";
 import { useUpdateUser } from "@/controllers/API/queries/auth";
 import CustomGetStartedProgress from "@/customization/components/custom-get-started-progress";
 import useAuthStore from "@/stores/authStore";
 import { useUtilityStore } from "@/stores/utilityStore";
-import { AddFolderButton } from "./add-folder-button";
-import { UploadFolderButton } from "./upload-folder-button";
 
 export const HeaderButtons = ({
   handleUploadFlowsToFolder,
@@ -83,26 +79,6 @@ export const HeaderButtons = ({
           </div>
         </>
       )}
-
-      <div className="flex shrink-0 items-center justify-between gap-2 pt-2">
-        <div className="flex items-center gap-2">
-          <SidebarTrigger>
-            <IconComponent name="PanelLeftClose" className="h-4 w-4" />
-          </SidebarTrigger>
-          <div className="text-sm font-medium">{t("common.projects")}</div>
-        </div>
-        <div className="flex items-center gap-1">
-          <UploadFolderButton
-            onClick={handleUploadFlowsToFolder}
-            disabled={isUpdatingFolder}
-          />
-          <AddFolderButton
-            onClick={addNewFolder}
-            disabled={isUpdatingFolder}
-            loading={isPending}
-          />
-        </div>
-      </div>
     </>
   );
 };

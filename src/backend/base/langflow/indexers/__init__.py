@@ -1,5 +1,4 @@
-"""
-Connector indexers module for background tasks.
+"""Connector indexers module for background tasks.
 
 This module provides a collection of connector indexers for different platforms
 and services. Each indexer is responsible for handling the indexing of content

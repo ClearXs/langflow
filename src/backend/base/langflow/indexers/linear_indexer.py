@@ -1,5 +1,4 @@
-"""
-Linear connector indexer.
+"""Linear connector indexer.
 """
 
 from datetime import datetime
@@ -38,8 +37,7 @@ async def index_linear_issues(
     end_date: str | None = None,
     update_last_indexed: bool = True,
 ) -> tuple[int, str | None]:
-    """
-    Index Linear issues and comments.
+    """Index Linear issues and comments.
 
     Args:
         session: Database session
@@ -152,8 +150,7 @@ async def index_linear_issues(
                             f"Updated last_indexed_at to {connector.last_indexed_at} despite no issues found"
                         )
                     return 0, None
-                else:
-                    return 0, f"Failed to get Linear issues: {error}"
+                return 0, f"Failed to get Linear issues: {error}"
 
             logger.info(f"Retrieved {len(issues)} issues from Linear API")
 
@@ -240,73 +237,72 @@ async def index_linear_issues(
                         )
                         documents_skipped += 1
                         continue
-                    else:
-                        # Content has changed - update the existing document
-                        logger.info(
-                            f"Content changed for Linear issue {issue_identifier}. Updating document."
-                        )
+                    # Content has changed - update the existing document
+                    logger.info(
+                        f"Content changed for Linear issue {issue_identifier}. Updating document."
+                    )
 
-                        # Generate summary with metadata
-                        user_llm = await get_user_long_context_llm(
-                            session, user_id, search_space_id
-                        )
+                    # Generate summary with metadata
+                    user_llm = await get_user_long_context_llm(
+                        session, user_id, search_space_id
+                    )
 
-                        if user_llm:
-                            document_metadata = {
-                                "issue_id": issue_identifier,
-                                "issue_title": issue_title,
-                                "state": state,
-                                "priority": formatted_issue.get("priority", "Unknown"),
-                                "comment_count": comment_count,
-                                "document_type": "Linear Issue",
-                                "connector_type": "Linear",
-                            }
-                            (
-                                summary_content,
-                                summary_embedding,
-                            ) = await generate_document_summary(
-                                issue_content, user_llm, document_metadata
-                            )
-                        else:
-                            # Fallback to simple summary if no LLM configured
-                            if description and len(description) > 1000:
-                                description = description[:997] + "..."
-                            summary_content = f"Linear Issue {issue_identifier}: {issue_title}\n\nStatus: {state}\n\n"
-                            if description:
-                                summary_content += f"Description: {description}\n\n"
-                            summary_content += f"Comments: {comment_count}"
-                            settings_service = get_settings_service()
-                            settings = settings_service.settings
-                            summary_embedding = settings.embedding_model_instance.embed(
-                                summary_content
-                            )
-
-                        # Process chunks
-                        chunks = await create_document_chunks(issue_content)
-
-                        # Update existing document
-                        existing_document.title = (
-                            f"Linear - {issue_identifier}: {issue_title}"
-                        )
-                        existing_document.content = summary_content
-                        existing_document.content_hash = content_hash
-                        existing_document.embedding = summary_embedding
-                        existing_document.document_metadata = {
-                            "issue_id": issue_id,
-                            "issue_identifier": issue_identifier,
+                    if user_llm:
+                        document_metadata = {
+                            "issue_id": issue_identifier,
                             "issue_title": issue_title,
                             "state": state,
+                            "priority": formatted_issue.get("priority", "Unknown"),
                             "comment_count": comment_count,
-                            "indexed_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                            "document_type": "Linear Issue",
+                            "connector_type": "Linear",
                         }
-                        existing_document.chunks = chunks
-                        existing_document.updated_at = get_current_timestamp()
-
-                        documents_indexed += 1
-                        logger.info(
-                            f"Successfully updated Linear issue {issue_identifier}"
+                        (
+                            summary_content,
+                            summary_embedding,
+                        ) = await generate_document_summary(
+                            issue_content, user_llm, document_metadata
                         )
-                        continue
+                    else:
+                        # Fallback to simple summary if no LLM configured
+                        if description and len(description) > 1000:
+                            description = description[:997] + "..."
+                        summary_content = f"Linear Issue {issue_identifier}: {issue_title}\n\nStatus: {state}\n\n"
+                        if description:
+                            summary_content += f"Description: {description}\n\n"
+                        summary_content += f"Comments: {comment_count}"
+                        settings_service = get_settings_service()
+                        settings = settings_service.settings
+                        summary_embedding = settings.embedding_model_instance.embed(
+                            summary_content
+                        )
+
+                    # Process chunks
+                    chunks = await create_document_chunks(issue_content)
+
+                    # Update existing document
+                    existing_document.title = (
+                        f"Linear - {issue_identifier}: {issue_title}"
+                    )
+                    existing_document.content = summary_content
+                    existing_document.content_hash = content_hash
+                    existing_document.embedding = summary_embedding
+                    existing_document.document_metadata = {
+                        "issue_id": issue_id,
+                        "issue_identifier": issue_identifier,
+                        "issue_title": issue_title,
+                        "state": state,
+                        "comment_count": comment_count,
+                        "indexed_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                    }
+                    existing_document.chunks = chunks
+                    existing_document.updated_at = get_current_timestamp()
+
+                    documents_indexed += 1
+                    logger.info(
+                        f"Successfully updated Linear issue {issue_identifier}"
+                    )
+                    continue
 
                 # Document doesn't exist - create new one
                 # Generate summary with metadata

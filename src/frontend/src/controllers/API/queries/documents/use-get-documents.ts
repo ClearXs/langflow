@@ -20,8 +20,8 @@ export const useGetDocumentsQuery: useQueryFunctionType<
       ...(params.document_types && {
         document_types: params.document_types.join(","),
       }),
-      page: String(params.page ?? 1),
-      page_size: String(params.page_size ?? 10),
+      page: String(params.page ?? 0),
+      page_size: String(params.page_size ?? 50),
     });
 
     const res = await api.get(`${getURL("DOCUMENTS")}?${queryParams}`);

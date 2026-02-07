@@ -1,5 +1,4 @@
-"""
-Display image tool for the SurfSense agent.
+"""Display image tool for the SurfSense agent.
 
 This module provides a tool for displaying images in the chat UI
 with metadata like title, description, and source attribution.
@@ -18,8 +17,7 @@ def extract_domain(url: str) -> str:
         parsed = urlparse(url)
         domain = parsed.netloc
         # Remove 'www.' prefix if present
-        if domain.startswith("www."):
-            domain = domain[4:]
+        domain = domain.removeprefix("www.")
         return domain
     except Exception:
         return ""
@@ -32,8 +30,7 @@ def generate_image_id(src: str) -> str:
 
 
 def create_display_image_tool():
-    """
-    Factory function to create the display_image tool.
+    """Factory function to create the display_image tool.
 
     Returns:
         A configured tool function for displaying images.
@@ -46,8 +43,7 @@ def create_display_image_tool():
         title: str | None = None,
         description: str | None = None,
     ) -> dict[str, Any]:
-        """
-        Display an image in the chat with metadata.
+        """Display an image in the chat with metadata.
 
         Use this tool when you want to show an image to the user.
         This displays the image with an optional title, description,

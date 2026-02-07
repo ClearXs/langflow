@@ -1,6 +1,7 @@
 """Entity Pydantic schemas for API validation."""
 
 from datetime import datetime
+
 from pydantic import BaseModel, Field
 
 
@@ -14,8 +15,8 @@ class EntityCreate(BaseModel):
     entity_type: str = Field(..., max_length=100)
     description: str | None = Field(None, max_length=2000)
     aliases: list[str] = Field(default_factory=list)
-    embedding: list[float] | None = None
     properties: dict = Field(default_factory=dict)
+    graph_node_id: str | None = Field(default=None, max_length=255)
 
 
 class EntityRead(BaseModel):
@@ -29,8 +30,8 @@ class EntityRead(BaseModel):
     entity_type: str
     description: str | None
     aliases: list[str]
-    embedding: list[float] | None
     properties: dict
+    graph_node_id: str | None
     created_at: datetime
     updated_at: datetime | None
 
@@ -45,5 +46,5 @@ class EntityUpdate(BaseModel):
     entity_type: str | None = Field(None, max_length=100)
     description: str | None = Field(None, max_length=2000)
     aliases: list[str] | None = None
-    embedding: list[float] | None = None
     properties: dict | None = None
+    graph_node_id: str | None = Field(default=None, max_length=255)

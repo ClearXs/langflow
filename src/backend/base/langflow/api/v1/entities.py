@@ -1,13 +1,11 @@
 """Entities API endpoints."""
 
-from fastapi import APIRouter, Depends, HTTPException
-from sqlmodel.ext.asyncio.session import AsyncSession
+from fastapi import APIRouter, HTTPException
+from pydantic import BaseModel, Field
 
 from langflow.api.utils import CurrentActiveUser, DbSession
 from langflow.schema import PaginatedResponse
-from langflow.services.database.models import Space
 from langflow.services.database.models.entity import (
-    Entity,
     EntityCreate,
     EntityRead,
     EntityUpdate,
@@ -16,14 +14,27 @@ from langflow.services.database.models.entity import (
     get_entities_by_document,
     get_entities_by_space,
     get_entity_by_id,
-    merge_entities as merge_entities_crud,
     search_entities_by_name,
     update_entity,
 )
+from langflow.services.database.models.entity import (
+    merge_entities as merge_entities_crud,
+)
 from langflow.services.database.models.role import Permission
+from langflow.services.etl.embeddings import get_embedding_service
+from langflow.services.vector.entity_vector_store import EntityVectorStore
 from langflow.utils.rbac import check_permission
 
 router = APIRouter(prefix="/entities", tags=["entities"])
+
+
+class EntitySearchRequest(BaseModel):
+    """Vector search request for entities."""
+
+    space_id: int
+    query: str = Field(..., min_length=1)
+    top_k: int = Field(default=10, ge=1, le=100)
+    entity_type: str | None = None
 
 
 @router.post("/", response_model=EntityRead)
@@ -118,13 +129,63 @@ async def list_entities(
             items=entities,
             page=page,
             page_size=page_size,
-            total_count=total_count,
+            total=total_count,
         )
 
     except HTTPException:
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to get entity list: {e!s}") from e
+
+
+@router.post("/search", response_model=list[EntityRead])
+async def search_entities(
+    request: EntitySearchRequest,
+    db: DbSession = None,
+    current_user: CurrentActiveUser = None,
+):
+    """Search entities by semantic similarity (vector search).
+
+    Requires DOCUMENTS_READ permission.
+    """
+    try:
+        await check_permission(
+            db,
+            current_user,
+            request.space_id,
+            Permission.DOCUMENTS_READ.value,
+            "You do not have permission to search entities in this space",
+        )
+
+        embedding_service = get_embedding_service()
+        query_vector = await embedding_service.embed_text(request.query)
+
+        vector_store = EntityVectorStore()
+        filter_dict = {"entity_type": request.entity_type} if request.entity_type else None
+        results = await vector_store.search_entity_vectors(
+            space_id=request.space_id,
+            query_vector=query_vector,
+            top_k=request.top_k,
+            filter_dict=filter_dict,
+        )
+
+        entity_ids = []
+        for result in results:
+            entity_id = result.metadata.get("entity_id") if result.metadata else None
+            entity_ids.append(entity_id or result.chunk_id)
+
+        entities: list[EntityRead] = []
+        for entity_id in entity_ids:
+            entity = await get_entity_by_id(db, int(entity_id))
+            if entity and entity.space_id == request.space_id:
+                entities.append(entity)
+
+        return entities
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to search entities: {e!s}") from e
 
 
 @router.get("/{entity_id}", response_model=EntityRead)

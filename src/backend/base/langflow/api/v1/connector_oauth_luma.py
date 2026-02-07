@@ -1,14 +1,12 @@
 import logging
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 
 from langflow.api.utils import CurrentActiveUser, DbSession
 from langflow.services.database.models.connector import Connector, ConnectorType
-from langflow.services.database.models.user import User
 
 logger = logging.getLogger(__name__)
 
@@ -28,8 +26,7 @@ async def add_luma_connector(
     current_user: CurrentActiveUser = None,
     db: DbSession = None,
 ):
-    """
-    Add a new Luma connector for the authenticated user.
+    """Add a new Luma connector for the authenticated user.
 
     Args:
         request: The request containing Luma API key and space_id
@@ -117,8 +114,7 @@ async def delete_luma_connector(
     current_user: CurrentActiveUser = None,
     db: DbSession = None,
 ):
-    """
-    Delete the Luma connector for the authenticated user in a specific search space.
+    """Delete the Luma connector for the authenticated user in a specific search space.
 
     Args:
         space_id: Search space ID
@@ -172,8 +168,7 @@ async def test_luma_connector(
     current_user: CurrentActiveUser = None,
     db: DbSession = None,
 ):
-    """
-    Test the Luma connector for the authenticated user in a specific search space.
+    """Test the Luma connector for the authenticated user in a specific search space.
 
     Args:
         space_id: Search space ID

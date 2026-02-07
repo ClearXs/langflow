@@ -1,3 +1,5 @@
+from datetime import UTC
+
 import pytest
 from langflow.services.auth.utils import verify_password
 from langflow.services.database.models.user.model import User
@@ -65,7 +67,7 @@ async def test_teardown_superuser_removes_default_if_never_logged(client):  # no
 @pytest.mark.asyncio
 async def test_teardown_superuser_preserves_logged_in_default(client):  # noqa: ARG001
     """Test that teardown preserves default superuser if they have logged in."""
-    from datetime import datetime, timezone
+    from datetime import datetime
 
     from langflow.services.deps import session_scope
 
@@ -91,7 +93,7 @@ async def test_teardown_superuser_preserves_logged_in_default(client):  # noqa: 
             await session.refresh(user)
 
         # Mark user as having logged in
-        user.last_login_at = datetime.now(timezone.utc)
+        user.last_login_at = datetime.now(UTC)
         user.is_superuser = True
         await session.commit()
 

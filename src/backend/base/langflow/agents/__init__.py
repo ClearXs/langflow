@@ -1,5 +1,4 @@
-"""
-Langflow Agents Module.
+"""Langflow Agents Module.
 
 This module contains AI agents for various tasks:
 - new_chat: SurfSense deep agent with configurable tools for knowledge base search,

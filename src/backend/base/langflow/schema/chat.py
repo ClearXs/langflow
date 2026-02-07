@@ -1,5 +1,4 @@
-"""
-Pydantic schemas for the chat feature with assistant-ui integration.
+"""Pydantic schemas for the chat feature with assistant-ui integration.
 
 These schemas follow the assistant-ui ThreadHistoryAdapter pattern:
 - ThreadRecord: id, title, archived, createdAt, updatedAt
@@ -42,8 +41,7 @@ class ChatMessageRead(ChatMessageBase):
 
 
 class ChatMessageAppend(BaseModel):
-    """
-    Schema for appending a message via the history adapter.
+    """Schema for appending a message via the history adapter.
     This is the format assistant-ui sends when calling append().
     """
 
@@ -66,7 +64,7 @@ class ChatThreadBase(BaseModel):
 class ChatThreadCreate(ChatThreadBase):
     """Schema for creating a new thread."""
 
-    search_space_id: int
+    space_id: int
 
 
 class ChatThreadUpdate(BaseModel):
@@ -77,12 +75,11 @@ class ChatThreadUpdate(BaseModel):
 
 
 class ChatThreadRead(ChatThreadBase):
-    """
-    Schema for reading a thread (matches assistant-ui ThreadRecord).
+    """Schema for reading a thread (matches assistant-ui ThreadRecord).
     """
 
     id: int
-    search_space_id: int
+    space_id: int
     created_at: datetime
     updated_at: datetime
 
@@ -101,8 +98,7 @@ class ChatThreadWithMessages(ChatThreadRead):
 
 
 class ThreadHistoryLoadResponse(BaseModel):
-    """
-    Response format for the ThreadHistoryAdapter.load() method.
+    """Response format for the ThreadHistoryAdapter.load() method.
     Returns messages array for the current thread.
     """
 
@@ -110,8 +106,7 @@ class ThreadHistoryLoadResponse(BaseModel):
 
 
 class ThreadListItem(BaseModel):
-    """
-    Thread list item for sidebar display.
+    """Thread list item for sidebar display.
     Matches assistant-ui ThreadListPrimitive expected format.
     """
 
@@ -157,7 +152,7 @@ class ChatRequest(BaseModel):
 
     chat_id: int
     user_query: str
-    search_space_id: int
+    space_id: int
     messages: list[ChatMessage] | None = None  # Optional chat history from frontend
     attachments: list[ChatAttachment] | None = (
         None  # Optional attachments with extracted content

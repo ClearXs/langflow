@@ -160,6 +160,8 @@ def get_lifespan(*, fix_migration=False, version=None):
     async def lifespan(_app: FastAPI):
         from lfx.interface.components import get_and_cache_all_types_dict
 
+        from langflow.services.celery import get_celery_manager
+
         configure()
 
         # Startup message
@@ -171,6 +173,7 @@ def get_lifespan(*, fix_migration=False, version=None):
         temp_dirs: list[TemporaryDirectory] = []
         sync_flows_from_fs_task = None
         mcp_init_task = None
+        celery_manager = None
 
         try:
             start_time = asyncio.get_event_loop().time()
@@ -178,6 +181,20 @@ def get_lifespan(*, fix_migration=False, version=None):
             await logger.adebug("Initializing services")
             await initialize_services(fix_migration=fix_migration)
             await logger.adebug(f"Services initialized in {asyncio.get_event_loop().time() - start_time:.2f}s")
+
+            # Start Celery worker
+            current_time = asyncio.get_event_loop().time()
+            await logger.adebug("Starting Celery worker")
+            celery_manager = get_celery_manager()
+            stopped_count = celery_manager.stop_existing_celery_workers()
+            if stopped_count > 0:
+                await logger.adebug(f"Stopped {stopped_count} existing Celery worker(s)")
+
+            celery_started = celery_manager.start_celery_worker()
+            if celery_started:
+                await logger.adebug(f"Celery worker started in {asyncio.get_event_loop().time() - current_time:.2f}s")
+            else:
+                await logger.awarning("Failed to start Celery worker - background tasks may not work")
 
             current_time = asyncio.get_event_loop().time()
             await logger.adebug("Setting up LLM caching")
@@ -348,6 +365,11 @@ def get_lifespan(*, fix_migration=False, version=None):
                         await asyncio.wait_for(teardown_services(), timeout=30)
                     except asyncio.TimeoutError:
                         await logger.awarning("Teardown services timed out after 30s.")
+
+                    # Stop Celery worker
+                    if celery_manager:
+                        await logger.adebug("Stopping Celery worker")
+                        await asyncio.to_thread(celery_manager.stop_celery_worker)
 
                 # Step 3: Clearing Temporary Files
                 with shutdown_progress.step(3):

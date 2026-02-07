@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from hypothesis import HealthCheck, example, given, settings
 from hypothesis import strategies as st
@@ -34,7 +34,7 @@ def test_result_data_response_truncation(long_string):
 
 @given(
     st.uuids(),
-    st.datetimes(timezones=st.just(timezone.utc)),
+    st.datetimes(timezones=st.just(UTC)),
     st.decimals(min_value=-1000, max_value=1000, places=2),
     st.text(min_size=1, max_size=10),
     st.integers(min_value=-1000, max_value=1000),
@@ -56,7 +56,7 @@ def test_result_data_response_special_types(uuid, dt, decimal, name, value):
     serialized = response.serialize_model()
     assert serialized["results"]["uuid"] == str(uuid)
     # Compare timezone-aware datetimes
-    assert datetime.fromisoformat(serialized["results"]["datetime"]).astimezone(timezone.utc) == dt
+    assert datetime.fromisoformat(serialized["results"]["datetime"]).astimezone(UTC) == dt
     assert isinstance(serialized["results"]["decimal"], float)
     assert serialized["results"]["model"] == {"name": name, "value": value}
 

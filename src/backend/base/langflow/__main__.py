@@ -4,6 +4,7 @@ import os
 import platform
 import signal
 import socket
+import subprocess
 import sys
 import time
 import warnings
@@ -59,15 +60,106 @@ except ImportError:
 
 
 class ProcessManager:
-    """Manages the lifecycle of the backend process."""
+    """Manages the lifecycle of the backend and Celery worker processes."""
 
     def __init__(self):
         self.webapp_process = None
+        self.celery_process = None
         self.shutdown_in_progress = False
         if platform.system() == "Windows":
             self._farewell_emoji = ":)"  # ASCII smiley
         else:
             self._farewell_emoji = "👋"  # Unicode wave
+
+    def stop_existing_celery_workers(self):
+        """Stop any existing Celery worker processes."""
+        import psutil
+
+        stopped_count = 0
+        for proc in psutil.process_iter(["pid", "name", "cmdline"]):
+            try:
+                cmdline = proc.info.get("cmdline")
+                if cmdline and any("celery" in str(arg) and "langflow.core.celery_app" in str(arg) for arg in cmdline):
+                    logger.info(f"Stopping existing Celery worker (PID: {proc.info['pid']})")
+                    proc.terminate()
+                    try:
+                        proc.wait(timeout=5)
+                        stopped_count += 1
+                    except psutil.TimeoutExpired:
+                        logger.warning(f"Celery worker (PID: {proc.info['pid']}) didn't stop gracefully, killing it")
+                        proc.kill()
+                        stopped_count += 1
+            except (psutil.NoSuchProcess, psutil.AccessDenied):
+                pass
+
+        if stopped_count > 0:
+            logger.info(f"Stopped {stopped_count} existing Celery worker(s)")
+        return stopped_count
+
+    def start_celery_worker(self):
+        """Start Celery worker process."""
+        # Get Redis configuration from environment or use defaults
+        redis_host = os.environ.get("LANGFLOW_REDIS_HOST", "192.168.110.185")
+        redis_port = os.environ.get("LANGFLOW_REDIS_PORT", "6379")
+        redis_password = os.environ.get("LANGFLOW_REDIS_PASSWORD", "ImagDev@123")
+
+        # Set environment variables for Celery
+        env = os.environ.copy()
+        env["LANGFLOW_REDIS_HOST"] = redis_host
+        env["LANGFLOW_REDIS_PORT"] = redis_port
+        env["LANGFLOW_REDIS_PASSWORD"] = redis_password
+
+        # Determine the correct Python executable (use uv run or direct python)
+        python_exe = (
+            str(Path(".venv/bin/python").absolute()) if Path(".venv/bin/python").exists() else sys.executable
+        )
+
+        # Prepare log file path
+        log_file_path = Path("celery_worker.log").absolute()
+
+        # Start Celery worker as subprocess with explicit log file
+        celery_cmd = [
+            python_exe,
+            "-m",
+            "celery",
+            "-A",
+            "langflow.core.celery_app",
+            "worker",
+            "--loglevel=info",
+            f"--logfile={log_file_path}",  # Explicit log file
+            "--pidfile=",  # Disable pidfile
+        ]
+
+        logger.info(f"Starting Celery worker with Redis at {redis_host}:{redis_port}")
+        logger.info(f"Celery logs will be written to: {log_file_path}")
+
+        try:
+            self.celery_process = subprocess.Popen(  # noqa: S603
+                celery_cmd,
+                env=env,
+                cwd=Path.cwd(),
+            )
+            logger.info(f"Celery worker started (PID: {self.celery_process.pid})")
+        except Exception as e:  # noqa: BLE001
+            logger.error(f"Failed to start Celery worker: {e}")
+            return False
+        else:
+            return True
+
+    def stop_celery_worker(self):
+        """Stop the Celery worker process."""
+        if self.celery_process:
+            logger.info("Stopping Celery worker...")
+            try:
+                self.celery_process.terminate()
+                self.celery_process.wait(timeout=10)
+                logger.info("Celery worker stopped gracefully")
+            except subprocess.TimeoutExpired:
+                logger.warning("Celery worker didn't stop gracefully, killing it")
+                self.celery_process.kill()
+                self.celery_process.wait()
+            finally:
+                self.celery_process = None
 
     # params are required for signal handlers, even if they are not used
     def handle_sigterm(self, _signum: int, _frame) -> None:
@@ -86,7 +178,11 @@ class ProcessManager:
         self.shutdown()
 
     def shutdown(self):
-        """Gracefully shutdown the webapp process."""
+        """Gracefully shutdown both webapp and Celery worker processes."""
+        # Stop Celery worker first
+        self.stop_celery_worker()
+
+        # Then stop webapp process
         if self.webapp_process and self.webapp_process.is_alive():
             # Just terminate the process - the actual shutdown progress is handled
             # by the FastAPI lifespan context in main.py
@@ -340,6 +436,19 @@ def run(
 
         protocol = "https" if ssl_cert_file_path and ssl_key_file_path else "http"
 
+        # Stop existing Celery workers and start new one
+        logger.info("Managing Celery worker...")
+        stopped_count = process_manager.stop_existing_celery_workers()
+        if stopped_count > 0:
+            logger.info(f"Stopped {stopped_count} existing Celery worker(s)")
+
+        # Start Celery worker
+        celery_started = process_manager.start_celery_worker()
+        if celery_started:
+            logger.info("Celery worker started successfully")
+        else:
+            logger.warning("Failed to start Celery worker - background tasks may not work")
+
     # Step 4: Loading Components (placeholder for components loading)
     with progress.step(4):
         pass  # Components are loaded during app startup
@@ -361,15 +470,21 @@ def run(
             print_banner(str(host), int(port or 7860), protocol)
 
         # Blocking call, so must be outside of the progress step
-        uvicorn.run(
-            app,
-            host=host,
-            port=port,
-            log_level=log_level,
-            reload=False,
-            workers=get_number_of_workers(workers),
-            loop="asyncio",
-        )
+        try:
+            uvicorn.run(
+                app,
+                host=host,
+                port=port,
+                log_level=log_level,
+                reload=False,
+                workers=get_number_of_workers(workers),
+                loop="asyncio",
+            )
+        except KeyboardInterrupt:
+            logger.info("Received shutdown signal")
+        finally:
+            # Ensure Celery worker is stopped on Windows
+            process_manager.stop_celery_worker()
     else:
         with progress.step(6):
             # Use Gunicorn with LangflowUvicornWorker for non-Windows systems

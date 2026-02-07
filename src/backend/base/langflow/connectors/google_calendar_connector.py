@@ -8,10 +8,6 @@ from datetime import datetime
 from typing import Any
 
 import pytz
-from langflow.services.database.models.connector.model import (
-    Connector,
-    ConnectorType,
-)
 from dateutil.parser import isoparse
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
@@ -19,6 +15,11 @@ from googleapiclient.discovery import build
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy.orm.attributes import flag_modified
+
+from langflow.services.database.models.connector.model import (
+    Connector,
+    ConnectorType,
+)
 
 
 class GoogleCalendarConnector:

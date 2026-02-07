@@ -287,3 +287,11 @@ member_servers.json
 
 
 ./claude/**
+
+/dev-docs/**
+
+/chroma_db/**
+
+/etl-docs/**
+
+.claude/**

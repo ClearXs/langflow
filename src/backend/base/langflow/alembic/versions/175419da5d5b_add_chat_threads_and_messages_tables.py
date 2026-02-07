@@ -134,25 +134,18 @@ def upgrade() -> None:
     # Fix index changes (these work on SQLite)
     with op.batch_alter_table('documents', schema=None) as batch_op:
         try:
-            batch_op.drop_constraint(batch_op.f('uq_documents_unique_identifier_hash'), type_='unique')
-        except Exception:
-            pass  # Constraint might not exist
-        try:
-            batch_op.drop_index(batch_op.f('ix_documents_unique_identifier_hash'))
+            # For SQLite, just drop and recreate the index without constraint operations
+            batch_op.drop_index('ix_documents_unique_identifier_hash')
         except Exception:
             pass  # Index might not exist
-        batch_op.create_index(batch_op.f('ix_documents_unique_identifier_hash'), ['unique_identifier_hash'], unique=True)
+        batch_op.create_index('ix_documents_unique_identifier_hash', ['unique_identifier_hash'], unique=True)
 
     with op.batch_alter_table('space_invites', schema=None) as batch_op:
         try:
-            batch_op.drop_constraint(batch_op.f('uq_space_invites_token'), type_='unique')
-        except Exception:
-            pass  # Constraint might not exist
-        try:
-            batch_op.drop_index(batch_op.f('ix_space_invites_token'))
+            batch_op.drop_index('ix_space_invites_token')
         except Exception:
             pass  # Index might not exist
-        batch_op.create_index(batch_op.f('ix_space_invites_token'), ['token'], unique=True)
+        batch_op.create_index('ix_space_invites_token', ['token'], unique=True)
 
     # ### end Alembic commands ###
 
@@ -202,9 +195,9 @@ def downgrade() -> None:
                existing_nullable=False)
 
     with op.batch_alter_table('documents', schema=None) as batch_op:
-        batch_op.drop_index(batch_op.f('ix_documents_unique_identifier_hash'))
-        batch_op.create_index(batch_op.f('ix_documents_unique_identifier_hash'), ['unique_identifier_hash'], unique=False)
-        batch_op.create_unique_constraint(batch_op.f('uq_documents_unique_identifier_hash'), ['unique_identifier_hash'])
+        batch_op.drop_index('ix_documents_unique_identifier_hash')
+        batch_op.create_index('ix_documents_unique_identifier_hash', ['unique_identifier_hash'], unique=False)
+        # For SQLite, recreating unique index is sufficient (no need for separate constraint)
         batch_op.alter_column('user_id',
                existing_type=sa.Uuid(),
                type_=sa.VARCHAR(),

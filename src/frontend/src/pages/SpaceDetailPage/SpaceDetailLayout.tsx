@@ -1,10 +1,4 @@
-import {
-  FileText,
-  MessageSquare,
-  Plug,
-  Settings,
-  Users,
-} from "lucide-react";
+import { FileText, MessageSquare, Network, Plug, Settings, Users } from "lucide-react";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, Outlet, useParams } from "react-router-dom";
@@ -35,6 +29,11 @@ const navigationItemsConfig = [
     icon: FileText,
   },
   {
+    i18nKey: "navigation.graph",
+    href: "graph",
+    icon: Network,
+  },
+  {
     i18nKey: "navigation.connectors",
     href: "connectors",
     icon: Plug,
@@ -60,52 +59,48 @@ function SpaceContent({
   spaceId: string | undefined;
 }) {
   const { t } = useTranslation();
-  const { state } = useSidebar();
 
   return (
     <div className="flex h-full w-full">
       {/* 空间导航侧边栏 / Space navigation sidebar */}
-      {/* Only show when main sidebar is expanded */}
-      {state === "expanded" && (
-        <aside className="w-64 border-r bg-muted/10 flex flex-col">
-          {/* Space Header */}
-          <div className="p-6 border-b">
-            <h2 className="text-lg font-semibold line-clamp-2">{space.name}</h2>
-            {space.description && (
-              <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
-                {space.description}
-              </p>
-            )}
-          </div>
+      <aside className="w-64 border-r bg-muted/10 flex flex-col">
+        {/* Space Header */}
+        <div className="p-6 border-b">
+          <h2 className="text-lg font-semibold line-clamp-2">{space.name}</h2>
+          {space.description && (
+            <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
+              {space.description}
+            </p>
+          )}
+        </div>
 
-          {/* Navigation */}
-          <nav className="flex-1 p-4">
-            <ul className="space-y-1">
-              {navigationItemsConfig.map((item) => {
-                const isActive = window.location.pathname.includes(item.href);
-                return (
-                  <li key={item.href}>
-                    <Link
-                      to={`/spaces/${spaceId}/${item.href}`}
-                      className={cn(
-                        "flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors",
-                        isActive
-                          ? "bg-primary text-primary-foreground"
-                          : "hover:bg-muted text-muted-foreground hover:text-foreground",
-                      )}
-                    >
-                      <item.icon className="h-4 w-4" />
-                      {t(item.i18nKey)}
-                    </Link>
-                  </li>
-                );
-              })}
-            </ul>
-          </nav>
+        {/* Navigation */}
+        <nav className="flex-1 p-4">
+          <ul className="space-y-1">
+            {navigationItemsConfig.map((item) => {
+              const isActive = window.location.pathname.includes(item.href);
+              return (
+                <li key={item.href}>
+                  <Link
+                    to={`/spaces/${spaceId}/${item.href}`}
+                    className={cn(
+                      "flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors",
+                      isActive
+                        ? "bg-primary text-primary-foreground"
+                        : "hover:bg-muted text-muted-foreground hover:text-foreground",
+                    )}
+                  >
+                    <item.icon className="h-4 w-4" />
+                    {t(item.i18nKey)}
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        </nav>
 
-          <Separator />
-        </aside>
-      )}
+        <Separator />
+      </aside>
 
       {/* Main Content */}
       <main className="flex-1 overflow-auto">
@@ -152,12 +147,14 @@ export default function SpaceDetailLayout() {
         </div>
       ) : !space ? (
         <div className="flex flex-col items-center justify-center h-screen w-full">
-          <h2 className="text-2xl font-bold mb-2">Space Not Found</h2>
+          <h2 className="text-2xl font-bold mb-2">
+            {t("spaces.error.notFound")}
+          </h2>
           <p className="text-muted-foreground mb-4">
-            The space you're looking for doesn't exist
+            {t("spaces.error.doesNotExist")}
           </p>
           <Link to="/spaces">
-            <Button>Back to Spaces</Button>
+            <Button>{t("spaces.error.backToSpaces")}</Button>
           </Link>
         </div>
       ) : (

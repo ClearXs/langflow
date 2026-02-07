@@ -1,5 +1,4 @@
-"""
-API routes for LLMConfig CRUD operations.
+"""API routes for LLMConfig CRUD operations.
 
 LLMConfig combines LLM model settings with prompt configuration:
 - LLM provider, model, API key, etc.
@@ -10,20 +9,19 @@ LLMConfig combines LLM model settings with prompt configuration:
 import logging
 
 from fastapi import APIRouter, HTTPException
+from sqlalchemy.future import select
 
 from langflow.agents.new_chat.system_prompt import get_default_system_instructions
 from langflow.api.utils import CurrentActiveUser, DbSession
-from langflow.services.database.models.llm_config import LLMConfig, LLMConfigCreate, LLMConfigRead, LLMConfigUpdate
-from langflow.services.database.models.role import Permission
-from langflow.services.database.models.user import User
 from langflow.schema import (
     DefaultSystemInstructionsResponse,
     GlobalLLMConfigRead,
 )
+from langflow.services.database.models.llm_config import LLMConfig, LLMConfigCreate, LLMConfigRead, LLMConfigUpdate
+from langflow.services.database.models.role import Permission
+from langflow.services.deps import get_settings_service
 from langflow.services.llm import validate_llm_config
-from langflow.services.settings.service import SettingsService
 from langflow.utils.rbac import check_permission
-from sqlalchemy.future import select
 
 router = APIRouter(prefix="/llm-configs", tags=["LLM Configs"])
 logger = logging.getLogger(__name__)
@@ -35,18 +33,18 @@ logger = logging.getLogger(__name__)
 
 
 @router.get("/global-llm-configs", response_model=list[GlobalLLMConfigRead])
+@router.get("/global", response_model=list[GlobalLLMConfigRead])  # Alias for frontend compatibility
 async def get_global_llm_configs(
     current_user: CurrentActiveUser = None,
 ):
-    """
-    Get all available global LLMConfig configurations.
+    """Get all available global LLMConfig configurations.
     These are pre-configured by the system administrator and available to all users.
     API keys are not exposed through this endpoint.
 
     Global configs have negative IDs to distinguish from user-created configs.
     """
     try:
-        settings_service = SettingsService.get_instance()
+        settings_service = get_settings_service()
         config = settings_service.settings
         global_configs = config.GLOBAL_LLM_CONFIGS
 
@@ -85,14 +83,13 @@ async def get_global_llm_configs(
 # =============================================================================
 
 
-@router.post("/llm-configs", response_model=LLMConfigRead)
+@router.post("/", response_model=LLMConfigRead)
 async def create_llm_config(
     config_data: LLMConfigCreate,
     db: DbSession = None,
     current_user: CurrentActiveUser = None,
 ):
-    """
-    Create a new LLMConfig for a search space.
+    """Create a new LLMConfig for a search space.
     Requires LLM_CONFIGS_CREATE permission.
     """
     try:
@@ -107,7 +104,7 @@ async def create_llm_config(
 
         # Validate the LLM configuration by making a test API call
         is_valid, error_message = await validate_llm_config(
-            provider=config_data.provider.value,
+            provider=config_data.provider,
             model_name=config_data.model_name,
             api_key=config_data.api_key,
             api_base=config_data.api_base,
@@ -139,7 +136,7 @@ async def create_llm_config(
         ) from e
 
 
-@router.get("/llm-configs", response_model=list[LLMConfigRead])
+@router.get("/", response_model=list[LLMConfigRead])
 async def list_llm_configs(
     search_space_id: int,
     skip: int = 0,
@@ -147,8 +144,7 @@ async def list_llm_configs(
     db: DbSession = None,
     current_user: CurrentActiveUser = None,
 ):
-    """
-    Get all LLMConfigs for a search space.
+    """Get all LLMConfigs for a search space.
     Requires LLM_CONFIGS_READ permission.
     """
     try:
@@ -181,14 +177,13 @@ async def list_llm_configs(
 
 
 @router.get(
-    "/llm-configs/default-system-instructions",
+    "/default-system-instructions",
     response_model=DefaultSystemInstructionsResponse,
 )
 async def get_default_system_instructions_endpoint(
     current_user: CurrentActiveUser = None,
 ):
-    """
-    Get the default SURFSENSE_SYSTEM_INSTRUCTIONS template.
+    """Get the default SURFSENSE_SYSTEM_INSTRUCTIONS template.
     Useful for pre-populating the UI when creating a new configuration.
     """
     return DefaultSystemInstructionsResponse(
@@ -196,14 +191,13 @@ async def get_default_system_instructions_endpoint(
     )
 
 
-@router.get("/llm-configs/{config_id}", response_model=LLMConfigRead)
+@router.get("/{config_id}", response_model=LLMConfigRead)
 async def get_llm_config(
     config_id: int,
     db: DbSession = None,
     current_user: CurrentActiveUser = None,
 ):
-    """
-    Get a specific LLMConfig by ID.
+    """Get a specific LLMConfig by ID.
     Requires LLM_CONFIGS_READ permission.
     """
     try:
@@ -235,15 +229,14 @@ async def get_llm_config(
         ) from e
 
 
-@router.put("/llm-configs/{config_id}", response_model=LLMConfigRead)
+@router.put("/{config_id}", response_model=LLMConfigRead)
 async def update_llm_config(
     config_id: int,
     update_data: LLMConfigUpdate,
     db: DbSession = None,
     current_user: CurrentActiveUser = None,
 ):
-    """
-    Update an existing LLMConfig.
+    """Update an existing LLMConfig.
     Requires LLM_CONFIGS_UPDATE permission.
     """
     try:
@@ -280,9 +273,9 @@ async def update_llm_config(
         ):
             # Build the validation config from existing + updates
             validation_config = {
-                "provider": update_dict.get("provider", config.provider).value
-                if hasattr(update_dict.get("provider", config.provider), "value")
-                else update_dict.get("provider", config.provider.value),
+                "provider": update_dict.get("provider", config.provider)
+                if isinstance(update_dict.get("provider", config.provider), str)
+                else config.provider.value,
                 "model_name": update_dict.get("model_name", config.model_name),
                 "api_key": update_dict.get("api_key", config.api_key),
                 "api_base": update_dict.get("api_base", config.api_base),
@@ -328,14 +321,13 @@ async def update_llm_config(
         ) from e
 
 
-@router.delete("/llm-configs/{config_id}", response_model=dict)
+@router.delete("/{config_id}", response_model=dict)
 async def delete_llm_config(
     config_id: int,
     db: DbSession = None,
     current_user: CurrentActiveUser = None,
 ):
-    """
-    Delete a LLMConfig.
+    """Delete a LLMConfig.
     Requires LLM_CONFIGS_DELETE permission.
     """
     try:

@@ -1,5 +1,4 @@
-"""
-Elasticsearch indexer for SurfSense
+"""Elasticsearch indexer for SurfSense
 """
 
 import json
@@ -39,8 +38,7 @@ async def index_elasticsearch_documents(
     end_date: str,
     update_last_indexed: bool = True,
 ) -> tuple[int, str | None]:
-    """
-    Index documents from Elasticsearch into SurfSense
+    """Index documents from Elasticsearch into SurfSense
 
     Args:
         session: Database session
@@ -244,23 +242,22 @@ async def index_elasticsearch_documents(
                                 f"Skipping ES doc {doc_id} — already indexed (doc id {existing_doc.id})"
                             )
                             continue
-                        else:
-                            logger.info(
-                                f"Updating existing document {existing_doc.id} for ES doc {doc_id}"
-                            )
-                            existing_doc.title = title
-                            existing_doc.content = content
-                            existing_doc.content_hash = content_hash
-                            existing_doc.document_metadata = metadata
-                            existing_doc.unique_identifier_hash = unique_identifier_hash
-                            chunks = await create_document_chunks(content)
-                            existing_doc.chunks = chunks
-                            existing_doc.updated_at = get_current_timestamp()
-                            await session.flush()
-                            documents_processed += 1
-                            if documents_processed % 10 == 0:
-                                await session.commit()
-                            continue
+                        logger.info(
+                            f"Updating existing document {existing_doc.id} for ES doc {doc_id}"
+                        )
+                        existing_doc.title = title
+                        existing_doc.content = content
+                        existing_doc.content_hash = content_hash
+                        existing_doc.document_metadata = metadata
+                        existing_doc.unique_identifier_hash = unique_identifier_hash
+                        chunks = await create_document_chunks(content)
+                        existing_doc.chunks = chunks
+                        existing_doc.updated_at = get_current_timestamp()
+                        await session.flush()
+                        documents_processed += 1
+                        if documents_processed % 10 == 0:
+                            await session.commit()
+                        continue
 
                     # Create document
                     document = Document(
@@ -347,8 +344,7 @@ async def index_elasticsearch_documents(
 
 
 def _build_elasticsearch_query(config: dict[str, Any]) -> dict[str, Any]:
-    """
-    Build Elasticsearch query from connector configuration
+    """Build Elasticsearch query from connector configuration
 
     Args:
         config: Connector configuration
@@ -361,8 +357,7 @@ def _build_elasticsearch_query(config: dict[str, Any]) -> dict[str, Any]:
         try:
             if isinstance(config["ELASTICSEARCH_QUERY"], str):
                 return json.loads(config["ELASTICSEARCH_QUERY"])
-            else:
-                return config["ELASTICSEARCH_QUERY"]
+            return config["ELASTICSEARCH_QUERY"]
         except (json.JSONDecodeError, TypeError) as e:
             logger.warning(f"Invalid custom query, using match_all: {e}")
 
@@ -371,8 +366,7 @@ def _build_elasticsearch_query(config: dict[str, Any]) -> dict[str, Any]:
 
 
 def _build_document_content(source: dict[str, Any], config: dict[str, Any]) -> str:
-    """
-    Build document content from Elasticsearch document source
+    """Build document content from Elasticsearch document source
 
     Args:
         source: Elasticsearch document source

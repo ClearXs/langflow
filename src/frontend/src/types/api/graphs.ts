@@ -110,9 +110,33 @@ export interface SubgraphRequest {
  * 子图响应类型
  * 对应后端：SubgraphResponse
  */
+export interface GraphApiNode {
+  id: string;
+  name: string | null;
+  entity_type: string | null;
+  description: string | null;
+  aliases: string[];
+  properties: Record<string, any>;
+  space_id: number | null;
+  document_id: number | null;
+  chunk_id: number | null;
+  document_title?: string | null; // Title of the source document
+}
+
+export interface GraphApiEdge {
+  id: string;
+  source: string;
+  target: string;
+  relation_type: string;
+  description: string | null;
+  weight: number;
+  properties: Record<string, any>;
+}
+
 export interface SubgraphResponse {
-  entities: EntityRead[];
-  relations: RelationRead[];
+  nodes: GraphApiNode[];
+  edges: GraphApiEdge[];
+  raw_paths: any[];
 }
 
 /**
@@ -168,7 +192,8 @@ export interface GraphNode extends Node {
     description?: string | null;
     degree: number; // 节点度数
     properties: Record<string, any>;
-    original: EntityRead; // 原始实体数据
+    original: EntityRead | GraphApiNode; // 原始实体数据
+    documentTitle?: string | null; // Document title for navigation
   };
 }
 
@@ -185,6 +210,7 @@ export interface GraphEdge extends Edge {
     description?: string | null;
     properties: Record<string, any>;
     original: RelationRead; // 原始关系数据
+    keywords?: string; // LightRAG semantic keywords
   };
 }
 

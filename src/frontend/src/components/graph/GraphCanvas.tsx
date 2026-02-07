@@ -4,12 +4,13 @@
  * 集成 ReactFlow 和所有交互功能
  */
 
-import ReactFlow, {
+import {
   Background,
   Controls,
   type Edge,
   MiniMap,
   type Node,
+  ReactFlow,
   useEdgesState,
   useNodesState,
 } from "@xyflow/react";

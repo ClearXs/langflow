@@ -1,19 +1,13 @@
 """Graphs API endpoints - For knowledge graph querying and visualization."""
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
-from sqlmodel.ext.asyncio.session import AsyncSession
 
 from langflow.api.utils import CurrentActiveUser, DbSession
-from langflow.services.database.models.entity import EntityRead
-from langflow.services.database.models.relation import (
-    Relation,
-    RelationRead,
-    get_relation_by_id,
-    get_relations_by_entity,
-    get_subgraph,
-)
+from langflow.services.database.models.entity import get_entity_by_id
 from langflow.services.database.models.role import Permission
+from langflow.services.graph.neo4j_service import get_neo4j_graph_service
+from langflow.services.graph.schema import GraphQueryResponse
 from langflow.utils.rbac import check_permission
 
 router = APIRouter(prefix="/graphs", tags=["graphs"])
@@ -27,21 +21,14 @@ class SubgraphRequest(BaseModel):
     max_nodes: int = 100
 
 
-class SubgraphResponse(BaseModel):
-    """Subgraph query response."""
-
-    entities: list[EntityRead]
-    relations: list[RelationRead]
-
-
 class EntityRelationsResponse(BaseModel):
     """Entity relations response."""
 
     entity_id: int
-    relations: list[RelationRead]
+    graph: GraphQueryResponse
 
 
-@router.post("/{space_id}/subgraph", response_model=SubgraphResponse)
+@router.post("/{space_id}/subgraph", response_model=GraphQueryResponse)
 async def get_subgraph_endpoint(
     space_id: int,
     request: SubgraphRequest,
@@ -68,17 +55,30 @@ async def get_subgraph_endpoint(
             "You do not have permission to read graphs in this space",
         )
 
-        # Get subgraph
-        subgraph_data = await get_subgraph(
-            db,
-            entity_ids=request.entity_ids,
-            max_depth=request.max_depth,
-            max_nodes=request.max_nodes,
+        graph_node_ids: list[str] = []
+        for entity_id in request.entity_ids:
+            entity = await get_entity_by_id(db, entity_id)
+            if not entity or entity.space_id != space_id:
+                raise HTTPException(status_code=404, detail="Entity not found")
+            if entity.graph_node_id:
+                graph_node_ids.append(entity.graph_node_id)
+
+        if not graph_node_ids:
+            return GraphQueryResponse(nodes=[], edges=[], raw_paths=[])
+
+        graph_service = get_neo4j_graph_service()
+        result = await graph_service.fetch_subgraph(
+            space_id=space_id,
+            graph_node_ids=graph_node_ids,
+            depth=request.max_depth,
+            limit=request.max_nodes,
+            session=db,  # Pass DB session for document title lookup
         )
 
-        return SubgraphResponse(
-            entities=subgraph_data["entities"],
-            relations=subgraph_data["relations"],
+        return GraphQueryResponse(
+            nodes=[node.__dict__ for node in result.nodes],
+            edges=[edge.__dict__ for edge in result.edges],
+            raw_paths=result.raw_paths,
         )
 
     except HTTPException:
@@ -114,12 +114,28 @@ async def get_entity_relations(
             "You do not have permission to read graphs in this space",
         )
 
-        # Get relations
-        relations = await get_relations_by_entity(db, entity_id, direction=direction)
+        entity = await get_entity_by_id(db, entity_id)
+        if not entity or entity.space_id != space_id:
+            raise HTTPException(status_code=404, detail="Entity not found")
+
+        if not entity.graph_node_id:
+            raise HTTPException(status_code=404, detail="Entity graph node not found")
+
+        graph_service = get_neo4j_graph_service()
+        result = await graph_service.fetch_entity_relations(
+            space_id=space_id,
+            graph_node_id=entity.graph_node_id,
+            direction=direction,
+            session=db,  # Pass DB session for document title lookup
+        )
 
         return EntityRelationsResponse(
             entity_id=entity_id,
-            relations=relations,
+            graph=GraphQueryResponse(
+                nodes=[node.__dict__ for node in result.nodes],
+                edges=[edge.__dict__ for edge in result.edges],
+                raw_paths=result.raw_paths,
+            ),
         )
 
     except HTTPException:
@@ -130,19 +146,17 @@ async def get_entity_relations(
         ) from e
 
 
-@router.get("/{space_id}/relation/{relation_id}", response_model=RelationRead)
-async def get_relation(
+@router.get("/", response_model=GraphQueryResponse)
+async def get_graph(
     space_id: int,
-    relation_id: int,
+    entity_id: int,
+    depth: int = 1,
+    limit: int = 200,
     db: DbSession = None,
     current_user: CurrentActiveUser = None,
 ):
-    """Get relation details.
-
-    Requires DOCUMENTS_READ permission.
-    """
+    """Get subgraph by single entity ID."""
     try:
-        # Check permission
         await check_permission(
             db,
             current_user,
@@ -151,20 +165,31 @@ async def get_relation(
             "You do not have permission to read graphs in this space",
         )
 
-        relation = await get_relation_by_id(db, relation_id)
-        if not relation:
-            raise HTTPException(status_code=404, detail="Relation not found")
+        entity = await get_entity_by_id(db, entity_id)
+        if not entity or entity.space_id != space_id:
+            raise HTTPException(status_code=404, detail="Entity not found")
 
-        # Verify relation belongs to specified space
-        if relation.space_id != space_id:
-            raise HTTPException(status_code=404, detail="Relation not found")
+        if not entity.graph_node_id:
+            raise HTTPException(status_code=404, detail="Entity graph node not found")
 
-        return relation
+        graph_service = get_neo4j_graph_service()
+        result = await graph_service.fetch_subgraph(
+            space_id=space_id,
+            graph_node_ids=[entity.graph_node_id],
+            depth=depth,
+            limit=limit,
+            session=db,  # Pass DB session for document title lookup
+        )
 
+        return GraphQueryResponse(
+            nodes=[node.__dict__ for node in result.nodes],
+            edges=[edge.__dict__ for edge in result.edges],
+            raw_paths=result.raw_paths,
+        )
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to get relation: {e!s}") from e
+        raise HTTPException(status_code=500, detail=f"Failed to get graph: {e!s}") from e
 
 
 @router.get("/{space_id}/stats")

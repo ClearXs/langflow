@@ -26,9 +26,8 @@ def get_latest_published_version(*, is_nightly: bool) -> Version:
 
 def create_lfx_tag():
     # Since LFX has never been released, we'll use the version from pyproject.toml as base
-    from pathlib import Path
-
     import tomllib
+    from pathlib import Path
 
     # Read version from pyproject.toml
     lfx_pyproject_path = Path(__file__).parent.parent.parent / "src" / "lfx" / "pyproject.toml"

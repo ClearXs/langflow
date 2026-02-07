@@ -9,8 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 
 class PodcastTranscriptEntry(BaseModel):
-    """
-    Represents a single entry in a podcast transcript.
+    """Represents a single entry in a podcast transcript.
     """
 
     speaker_id: int = Field(..., description="The ID of the speaker (0 or 1)")
@@ -18,8 +17,7 @@ class PodcastTranscriptEntry(BaseModel):
 
 
 class PodcastTranscripts(BaseModel):
-    """
-    Represents the full podcast transcript structure.
+    """Represents the full podcast transcript structure.
     """
 
     podcast_transcripts: list[PodcastTranscriptEntry] = Field(

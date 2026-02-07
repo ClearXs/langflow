@@ -4,10 +4,17 @@ from logging.config import fileConfig
 from typing import Any
 
 from alembic import context
-from sqlalchemy import pool, text, Uuid
+from sqlalchemy import Uuid, pool, text
+from sqlalchemy.dialects import postgresql, sqlite
 from sqlalchemy.event import listen
 from sqlalchemy.ext.asyncio import async_engine_from_config
 from sqlalchemy.types import VARCHAR
+
+try:
+    import pgvector.sqlalchemy
+    PGVECTOR_AVAILABLE = True
+except ImportError:
+    PGVECTOR_AVAILABLE = False
 
 from langflow.services.database.service import SQLModel
 
@@ -36,21 +43,57 @@ target_metadata.naming_convention = NAMING_CONVENTION
 
 
 def compare_type(context, inspected_column, metadata_column, inspected_type, metadata_type):
-    """
-    Custom type comparison function for Alembic autogenerate.
+    """Custom type comparison function for Alembic autogenerate.
 
-    On SQLite, ignore differences between VARCHAR and UUID types since SQLite
-    stores UUID as VARCHAR but the models use UUID type.
+    On SQLite, ignore differences between:
+    - VARCHAR and UUID types (SQLite stores UUID as VARCHAR)
+    - JSON and VECTOR types (SQLite doesn't support VECTOR, stores as JSON)
+    - Missing TSVECTOR columns (SQLite doesn't support PostgreSQL TSVECTOR)
     """
-    if context.dialect.name == 'sqlite':
+    if context.dialect.name == "sqlite":
         # Check if one is VARCHAR and the other is UUID
         if isinstance(inspected_type, VARCHAR) and isinstance(metadata_type, Uuid):
             return False  # No difference
         if isinstance(inspected_type, Uuid) and isinstance(metadata_type, VARCHAR):
             return False  # No difference
 
+        # Check if one is JSON and the other is VECTOR (pgvector)
+        if PGVECTOR_AVAILABLE:
+            if isinstance(inspected_type, sqlite.JSON) and isinstance(metadata_type, pgvector.sqlalchemy.Vector):
+                return False  # No difference on SQLite - both stored as JSON
+            if isinstance(metadata_type, sqlite.JSON) and isinstance(inspected_type, pgvector.sqlalchemy.Vector):
+                return False  # No difference on SQLite
+
+        # Ignore TSVECTOR differences on SQLite (PostgreSQL-specific type)
+        if isinstance(metadata_type, postgresql.TSVECTOR):
+            return False  # No difference - TSVECTOR doesn't exist on SQLite
+
     # For all other cases, use the default comparison
     return None
+
+
+def include_object(object, name, type_, reflected, compare_to):
+    """Filter objects during autogenerate.
+
+    On SQLite, exclude columns with PostgreSQL-specific types that don't exist.
+    """
+    # Get the current context's dialect
+    try:
+        dialect_name = context.get_context().dialect.name
+    except:
+        return True
+
+    if dialect_name == "sqlite":
+        # If this is a column
+        if type_ == "column":
+            # Check the object itself (the column being compared)
+            if hasattr(object, "type") and isinstance(object.type, postgresql.TSVECTOR):
+                return False  # Exclude tsvector columns on SQLite
+            # Also check compare_to (the model column)
+            if compare_to is not None and hasattr(compare_to, "type"):
+                if isinstance(compare_to.type, postgresql.TSVECTOR):
+                    return False  # Exclude from comparison
+    return True
 
 
 # other values from the config, defined by the needs of env.py,
@@ -79,6 +122,7 @@ def run_migrations_offline() -> None:
         "dialect_opts": {"paramstyle": "named"},
         "render_as_batch": True,
         "compare_type": compare_type,
+        "include_object": include_object,
     }
 
     # Only add prepare_threshold for PostgreSQL
@@ -112,6 +156,7 @@ def _do_run_migrations(connection):
         "target_metadata": target_metadata,
         "render_as_batch": True,
         "compare_type": compare_type,
+        "include_object": include_object,
     }
 
     # Only add prepare_threshold for PostgreSQL

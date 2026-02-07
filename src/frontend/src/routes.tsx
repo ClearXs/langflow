@@ -42,11 +42,15 @@ import MCPServersPage from "./pages/SettingsPage/pages/MCPServersPage";
 import MessagesPage from "./pages/SettingsPage/pages/messagesPage";
 import ShortcutsPage from "./pages/SettingsPage/pages/ShortcutsPage";
 import ChatsPage from "./pages/SpaceDetailPage/ChatsPage";
-import ConnectorsPage from "./pages/SpaceDetailPage/ConnectorsPage";
+import ConnectorConfigPage from "./pages/SpaceDetailPage/ConnectorConfigPage";
+import ConnectorsManagePage from "./pages/SpaceDetailPage/ConnectorsManagePage";
+import DocumentEditorPage from "./pages/SpaceDetailPage/DocumentEditorPage";
 import DocumentsPage from "./pages/SpaceDetailPage/DocumentsPage";
 import NotesPage from "./pages/SpaceDetailPage/NotesPage";
 import SettingsPage_Space from "./pages/SpaceDetailPage/SettingsPage";
+import SourcesAddPage from "./pages/SpaceDetailPage/SourcesAddPage";
 import SpaceDetailLayout from "./pages/SpaceDetailPage/SpaceDetailLayout";
+import GraphPage from "./pages/SpaceDetailPage/GraphPage";
 import TeamPage from "./pages/SpaceDetailPage/TeamPage";
 // Dashboard Pages (SurfSense)
 import SpacesPage from "./pages/SpacesPage";
@@ -117,10 +121,10 @@ const router = createBrowserRouter(
           >
             <Route path="" element={<AppAuthenticatedPage />}>
               <Route path="" element={<CustomDashboardWrapperPage />}>
-                {/* 主页重定向到 /spaces / Main page redirects to /spaces */}
+                {/* 主页重定向到 /flows / Main page redirects to /flows */}
                 <Route
                   index
-                  element={<CustomNavigate replace to={"spaces"} />}
+                  element={<CustomNavigate replace to={"flows"} />}
                 />
 
                 {/* 空间页面 / Spaces Pages */}
@@ -133,7 +137,17 @@ const router = createBrowserRouter(
                   <Route path="chats" element={<ChatsPage />} />
                   <Route path="notes" element={<NotesPage />} />
                   <Route path="documents" element={<DocumentsPage />} />
-                  <Route path="connectors" element={<ConnectorsPage />} />
+                  <Route
+                    path="documents/:documentId"
+                    element={<DocumentEditorPage />}
+                  />
+                  <Route path="graph" element={<GraphPage />} />
+                  <Route path="connectors" element={<ConnectorsManagePage />} />
+                  <Route
+                    path="connectors/add/:connectorId"
+                    element={<ConnectorConfigPage />}
+                  />
+                  <Route path="sources/add" element={<SourcesAddPage />} />
                   <Route path="team" element={<TeamPage />} />
                   <Route path="settings" element={<SettingsPage_Space />} />
                 </Route>

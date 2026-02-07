@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from urllib.parse import quote
 from uuid import UUID
 
@@ -119,7 +119,7 @@ async def test_successfully_update_session_id(client, logged_in_headers, created
     for message in messages:
         assert message["session_id"] == new_session_id
         response_timestamp = message["timestamp"]
-        timestamp = datetime.strptime(response_timestamp, "%Y-%m-%d %H:%M:%S %Z").replace(tzinfo=timezone.utc)
+        timestamp = datetime.strptime(response_timestamp, "%Y-%m-%d %H:%M:%S %Z").replace(tzinfo=UTC)
         timestamp_str = timestamp.strftime("%Y-%m-%d %H:%M:%S %Z")
         assert timestamp_str == response_timestamp
 

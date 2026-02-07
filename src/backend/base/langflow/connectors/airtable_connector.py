@@ -7,8 +7,9 @@ import time
 from typing import Any
 
 import httpx
-from langflow.schema.airtable_auth_credentials import AirtableAuthCredentialsBase
 from dateutil.parser import isoparse
+
+from langflow.schema.airtable_auth_credentials import AirtableAuthCredentialsBase
 
 logger = logging.getLogger(__name__)
 

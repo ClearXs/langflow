@@ -1,5 +1,4 @@
-"""
-SurfSense deep agent implementation.
+"""SurfSense deep agent implementation.
 
 This module provides the factory function for creating SurfSense deep agents
 with configurable tools via the tools registry and configurable prompts
@@ -40,8 +39,7 @@ def create_surfsense_deep_agent(
     additional_tools: Sequence[BaseTool] | None = None,
     firecrawl_api_key: str | None = None,
 ):
-    """
-    Create a SurfSense deep agent with configurable tools and prompts.
+    """Create a SurfSense deep agent with configurable tools and prompts.
 
     The agent comes with built-in tools that can be configured:
     - search_knowledge_base: Search the user's personal knowledge base

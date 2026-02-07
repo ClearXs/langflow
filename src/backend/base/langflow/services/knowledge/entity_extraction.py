@@ -12,7 +12,6 @@ if TYPE_CHECKING:
     from langchain_litellm import ChatLiteLLM
 
     from langflow.services.database.models.entity.schema import EntityCreate
-    from langflow.services.database.models.relation.schema import RelationCreate
 
 logger = logging.getLogger(__name__)
 
@@ -204,7 +203,6 @@ Return only JSON, do not include any other text."""
                     entity_type=entity_dict["type"],
                     description=entity_dict.get("description"),
                     aliases=entity_dict.get("aliases", []),
-                    embedding=None,  # Will be generated in subsequent steps
                     properties={},
                 )
                 entity_creates.append(entity_create)

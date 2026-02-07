@@ -374,6 +374,8 @@ export * from "./documents";
 export * from "./invites";
 // LLM Configs API types
 export * from "./llm-configs";
+// LLM Preferences API types
+export * from "./llm-preferences";
 // Logs API types
 export * from "./logs";
 // Members API types

@@ -23,7 +23,6 @@ async def create_podcast_transcript(
     state: State, config: RunnableConfig
 ) -> dict[str, Any]:
     """Each node does work."""
-
     # Get configuration from runnable config
     configuration = Configuration.from_runnable_config(config)
     space_id = configuration.space_id
@@ -98,7 +97,6 @@ async def create_merged_podcast_audio(
     state: State, config: RunnableConfig
 ) -> dict[str, Any]:
     """Generate audio for each transcript and merge them into a single podcast file."""
-
     # configuration = Configuration.from_runnable_config(config)
     settings = get_settings_service().settings
 
@@ -239,7 +237,6 @@ async def create_merged_podcast_audio(
                 os.remove(audio_file)
             except Exception as e:
                 print(f"Error removing audio file {audio_file}: {e!s}")
-                pass
 
     return {
         "podcast_transcript": merged_transcript,

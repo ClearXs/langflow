@@ -1,5 +1,4 @@
-"""
-Knowledge base search tool for the SurfSense agent.
+"""Knowledge base search tool for the SurfSense agent.
 
 This module provides:
 - Connector constants and normalization
@@ -50,8 +49,7 @@ _ALL_CONNECTORS: list[str] = [
 
 
 def _normalize_connectors(connectors_to_search: list[str] | None) -> list[str]:
-    """
-    Normalize connectors provided by the model.
+    """Normalize connectors provided by the model.
 
     - Accepts user-facing enums like WEBCRAWLER_CONNECTOR and maps them to canonical
       ConnectorService types.
@@ -89,8 +87,7 @@ def _normalize_connectors(connectors_to_search: list[str] | None) -> list[str]:
 
 
 def format_documents_for_context(documents: list[dict[str, Any]]) -> str:
-    """
-    Format retrieved documents into a readable context string for the LLM.
+    """Format retrieved documents into a readable context string for the LLM.
 
     Args:
         documents: List of document dictionaries from connector search
@@ -230,8 +227,7 @@ async def search_knowledge_base_async(
     start_date: datetime | None = None,
     end_date: datetime | None = None,
 ) -> str:
-    """
-    Search the user's knowledge base for relevant documents.
+    """Search the user's knowledge base for relevant documents.
 
     This is the async implementation that searches across multiple connectors.
 
@@ -293,14 +289,66 @@ async def search_knowledge_base_async(
                 all_documents.extend(chunks)
 
             elif connector == "FILE":
-                _, chunks = await connector_service.search_files(
-                    user_query=query,
+                # Use hybrid retrieval service for FILE connector (vector + full-text + graph)
+                from langflow.services.retrieval import get_retrieval_service
+
+                retrieval_service = get_retrieval_service()
+                retrieval_results = await retrieval_service.search(
+                    query=query,
                     space_id=space_id,
+                    session=db_session,
                     top_k=top_k,
-                    start_date=resolved_start_date,
-                    end_date=resolved_end_date,
+                    enable_vector=True,
+                    enable_fts=True,
+                    enable_graph=True,  # Enable knowledge graph search
+                    mentioned_document_ids=None,  # Not filtering by specific documents
                 )
-                all_documents.extend(chunks)
+
+                # Convert hybrid retrieval results to connector format
+                chunks = retrieval_results.get("chunks", [])
+                for chunk in chunks:
+                    # Format chunk for knowledge base context
+                    doc_dict = {
+                        "document": {
+                            "id": chunk.document_id,
+                            "title": chunk.document.title if hasattr(chunk, "document") else "Document",
+                            "metadata": {
+                                "document_type": "FILE",
+                                "file_type": chunk.document.file_type if hasattr(chunk, "document") else None,
+                            }
+                        },
+                        "chunks": [{
+                            "chunk_id": chunk.id,
+                            "content": chunk.content,
+                        }],
+                        "source": "FILE",
+                    }
+                    all_documents.append(doc_dict)
+
+                # Add graph answer if available
+                graph_answer = retrieval_results.get("graph_answer")
+                graph_sources = retrieval_results.get("graph_sources")
+                graph_validation = retrieval_results.get("graph_validation")
+                if graph_answer:
+                    # Include graph-derived knowledge as a special document
+                    graph_doc = {
+                        "document": {
+                            "id": "knowledge_graph",
+                            "title": "Knowledge Graph Insights",
+                            "metadata": {
+                                "document_type": "KNOWLEDGE_GRAPH",
+                                "graph_sources": graph_sources,
+                                "graph_validation": graph_validation,
+                            }
+                        },
+                        "chunks": [{
+                            "chunk_id": None,
+                            "content": graph_answer,
+                        }],
+                        "content": graph_answer,
+                        "source": "KNOWLEDGE_GRAPH",
+                    }
+                    all_documents.append(graph_doc)
 
             elif connector == "SLACK_CONNECTOR":
                 _, chunks = await connector_service.search_slack(
@@ -514,8 +562,7 @@ def create_search_knowledge_base_tool(
     db_session: AsyncSession,
     connector_service: ConnectorService,
 ):
-    """
-    Factory function to create the search_knowledge_base tool with injected dependencies.
+    """Factory function to create the search_knowledge_base tool with injected dependencies.
 
     Args:
         space_id: The user's space ID
@@ -534,13 +581,12 @@ def create_search_knowledge_base_tool(
         end_date: str | None = None,
         connectors_to_search: list[str] | None = None,
     ) -> str:
-        """
-        Search the user's personal knowledge base for relevant information.
+        """Search the user's personal knowledge base for relevant information.
 
         Use this tool to find documents, notes, files, web pages, and other content
         that may help answer the user's question.
 
-        IMPORTANT:
+        Important:
         - If the user requests a specific source type (e.g. "my notes", "Slack messages"),
           pass `connectors_to_search=[...]` using the enums below.
         - If `connectors_to_search` is omitted/empty, the system will search broadly.

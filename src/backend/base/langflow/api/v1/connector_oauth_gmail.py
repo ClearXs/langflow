@@ -7,17 +7,15 @@ import json
 import logging
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import RedirectResponse
 from google_auth_oauthlib.flow import Flow
 from pydantic import ValidationError
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 
 from langflow.api.utils import CurrentActiveUser, DbSession
 from langflow.services.database.models.connector import Connector, ConnectorType
-from langflow.services.database.models.user import User
 from langflow.services.settings import settings
 
 logger = logging.getLogger(__name__)

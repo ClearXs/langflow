@@ -1,6 +1,7 @@
 """Relation Pydantic schemas for API validation."""
 
 from datetime import datetime
+
 from pydantic import BaseModel, Field
 
 
@@ -16,6 +17,7 @@ class RelationCreate(BaseModel):
     description: str | None = Field(None, max_length=2000)
     weight: float = Field(default=1.0, ge=0.0, le=1.0)
     properties: dict = Field(default_factory=dict)
+    graph_edge_id: str | None = Field(default=None, max_length=255)
 
 
 class RelationRead(BaseModel):
@@ -31,6 +33,7 @@ class RelationRead(BaseModel):
     description: str | None
     weight: float
     properties: dict
+    graph_edge_id: str | None
     created_at: datetime
     updated_at: datetime | None
 
@@ -45,3 +48,4 @@ class RelationUpdate(BaseModel):
     description: str | None = Field(None, max_length=2000)
     weight: float | None = Field(None, ge=0.0, le=1.0)
     properties: dict | None = None
+    graph_edge_id: str | None = Field(default=None, max_length=255)

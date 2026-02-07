@@ -6,9 +6,10 @@
 
 import { ReactFlowProvider } from "@xyflow/react";
 import { AlertCircle, FileText, Network } from "lucide-react";
-import { useMemo } from "react";
-import { useParams } from "react-router-dom";
+import { useEffect, useMemo } from "react";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { GraphCanvas } from "@/components/graph/GraphCanvas";
+import { NodeDetailsPanel } from "@/components/graph/NodeDetailsPanel";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -19,14 +20,36 @@ import {
 import { useGraphStore } from "@/stores/graphStore";
 import {
   transformEntitiesToNodes,
+  transformGraphNodesToNodes,
   transformRelationsToEdges,
+  transformGraphEdgesToEdges,
 } from "@/utils/graph";
 import { applyDagreLayout } from "@/utils/graph/layout-dagre";
 import { applyForceLayout } from "@/utils/graph/layout-force";
 
 export default function GraphPage() {
   const { spaceId } = useParams();
-  const { layoutType, selectedEntityIds } = useGraphStore();
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+
+  // ✅ CORRECT: Use single-value selectors (stable references)
+  const layoutType = useGraphStore((state) => state.layoutType);
+  const selectedEntityIds = useGraphStore((state) => state.selectedEntityIds);
+  const setSelectedEntityIds = useGraphStore((state) => state.setSelectedEntityIds);
+  const selectedNode = useGraphStore((state) => state.selectedNode);
+  const selectNode = useGraphStore((state) => state.selectNode);
+
+  useEffect(() => {
+    const rawIds = searchParams.get("entity_ids");
+    if (!rawIds) return;
+    const parsed = rawIds
+      .split(",")
+      .map((value) => parseInt(value.trim(), 10))
+      .filter((value) => !Number.isNaN(value));
+    if (parsed.length > 0) {
+      setSelectedEntityIds(parsed);
+    }
+  }, [searchParams, setSelectedEntityIds]);
 
   // Step 1: 获取前 20 个实体作为候选
   const { data: entitiesData, isLoading: entitiesLoading } =
@@ -62,11 +85,13 @@ export default function GraphPage() {
   const { nodes, edges } = useMemo(() => {
     if (!subgraphData) return { nodes: [], edges: [] };
 
-    const transformedNodes = transformEntitiesToNodes(
-      subgraphData.entities,
-      subgraphData.relations,
-    );
-    const transformedEdges = transformRelationsToEdges(subgraphData.relations);
+    const hasGraphApiShape = "nodes" in subgraphData && "edges" in subgraphData;
+    const transformedNodes = hasGraphApiShape
+      ? transformGraphNodesToNodes(subgraphData.nodes, subgraphData.edges)
+      : transformEntitiesToNodes(subgraphData.entities, subgraphData.relations);
+    const transformedEdges = hasGraphApiShape
+      ? transformGraphEdgesToEdges(subgraphData.edges)
+      : transformRelationsToEdges(subgraphData.relations);
 
     // 根据布局类型应用布局算法
     const layoutedNodes =
@@ -108,8 +133,14 @@ export default function GraphPage() {
     );
   }
 
-  // 空状态
-  if (!subgraphData || subgraphData.entities.length === 0) {
+  // 空状态（兼容旧结构 entities/relations 与新结构 nodes/edges）
+  const isEmptyGraph =
+    !subgraphData ||
+    ((subgraphData as { nodes?: unknown[] }).nodes?.length ??
+      (subgraphData as { entities?: unknown[] }).entities?.length ??
+      0) === 0;
+
+  if (isEmptyGraph) {
     return (
       <div className="h-full flex items-center justify-center">
         <Card className="p-8 text-center max-w-md">
@@ -122,11 +153,7 @@ export default function GraphPage() {
                 graph.
               </p>
             </div>
-            <Button
-              onClick={() =>
-                (window.location.href = `/spaces/${spaceId}/documents`)
-              }
-            >
+            <Button onClick={() => navigate(`/spaces/${spaceId}/documents`)}>
               <FileText className="h-4 w-4 mr-2" />
               Go to Documents
             </Button>
@@ -142,6 +169,12 @@ export default function GraphPage() {
         {/* 主画布 */}
         <div className="flex-1 relative">
           <GraphCanvas nodes={nodes} edges={edges} />
+
+          {/* 节点详情面板 */}
+          <NodeDetailsPanel
+            node={selectedNode}
+            onClose={() => selectNode(null)}
+          />
         </div>
       </div>
     </ReactFlowProvider>

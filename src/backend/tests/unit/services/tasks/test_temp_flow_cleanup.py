@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import datetime
-from datetime import timezone
 from uuid import uuid4
 
 import pytest
@@ -26,14 +25,14 @@ async def test_cleanup_orphaned_records_no_orphans():
             id=flow_id,
             name="Test Flow",
             data="null",
-            updated_at=datetime.datetime.now(timezone.utc),
+            updated_at=datetime.datetime.now(datetime.UTC),
         )
         message = MessageTable(
             id=uuid4(),
             flow_id=flow_id,
             sender="test_user",
             sender_name="Test User",
-            timestamp=datetime.datetime.now(timezone.utc),
+            timestamp=datetime.datetime.now(datetime.UTC),
             session_id=str(uuid4()),
         )
         session.add(flow)
@@ -65,7 +64,7 @@ async def test_cleanup_orphaned_records_with_orphans():
             flow_id=orphaned_flow_id,
             sender="test_user",
             sender_name="Test User",
-            timestamp=datetime.datetime.now(timezone.utc),
+            timestamp=datetime.datetime.now(datetime.UTC),
             session_id=str(uuid4()),
         )
         session.add(message)

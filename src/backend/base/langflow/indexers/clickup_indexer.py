@@ -1,5 +1,4 @@
-"""
-ClickUp connector indexer.
+"""ClickUp connector indexer.
 """
 
 from datetime import datetime
@@ -39,8 +38,7 @@ async def index_clickup_tasks(
     end_date: str | None = None,
     update_last_indexed: bool = True,
 ) -> tuple[int, str | None]:
-    """
-    Index tasks from ClickUp workspace.
+    """Index tasks from ClickUp workspace.
 
     Args:
         session: Database session
@@ -236,70 +234,69 @@ async def index_clickup_tasks(
                             )
                             documents_skipped += 1
                             continue
-                        else:
-                            # Content has changed - update the existing document
-                            logger.info(
-                                f"Content changed for ClickUp task {task_name}. Updating document."
-                            )
+                        # Content has changed - update the existing document
+                        logger.info(
+                            f"Content changed for ClickUp task {task_name}. Updating document."
+                        )
 
-                            # Generate summary with metadata
-                            user_llm = await get_user_long_context_llm(
-                                session, user_id, space_id
-                            )
+                        # Generate summary with metadata
+                        user_llm = await get_user_long_context_llm(
+                            session, user_id, space_id
+                        )
 
-                            if user_llm:
-                                document_metadata = {
-                                    "task_id": task_id,
-                                    "task_name": task_name,
-                                    "task_status": task_status,
-                                    "task_priority": task_priority,
-                                    "task_list": task_list_name,
-                                    "task_space": task_space_name,
-                                    "assignees": len(task_assignees),
-                                    "document_type": "ClickUp Task",
-                                    "connector_type": "ClickUp",
-                                }
-                                (
-                                    summary_content,
-                                    summary_embedding,
-                                ) = await generate_document_summary(
-                                    task_content, user_llm, document_metadata
-                                )
-                            else:
-                                summary_content = task_content
-                                summary_embedding = (
-                                    settings.embedding_model_instance.embed(task_content)
-                                )
-
-                            # Process chunks
-                            chunks = await create_document_chunks(task_content)
-
-                            # Update existing document
-                            existing_document.title = f"Task - {task_name}"
-                            existing_document.content = summary_content
-                            existing_document.content_hash = content_hash
-                            existing_document.embedding = summary_embedding
-                            existing_document.document_metadata = {
+                        if user_llm:
+                            document_metadata = {
                                 "task_id": task_id,
                                 "task_name": task_name,
                                 "task_status": task_status,
                                 "task_priority": task_priority,
-                                "task_assignees": task_assignees,
-                                "task_due_date": task_due_date,
-                                "task_created": task_created,
-                                "task_updated": task_updated,
-                                "indexed_at": datetime.now().strftime(
-                                    "%Y-%m-%d %H:%M:%S"
-                                ),
+                                "task_list": task_list_name,
+                                "task_space": task_space_name,
+                                "assignees": len(task_assignees),
+                                "document_type": "ClickUp Task",
+                                "connector_type": "ClickUp",
                             }
-                            existing_document.chunks = chunks
-                            existing_document.updated_at = get_current_timestamp()
-
-                            documents_indexed += 1
-                            logger.info(
-                                f"Successfully updated ClickUp task {task_name}"
+                            (
+                                summary_content,
+                                summary_embedding,
+                            ) = await generate_document_summary(
+                                task_content, user_llm, document_metadata
                             )
-                            continue
+                        else:
+                            summary_content = task_content
+                            summary_embedding = (
+                                settings.embedding_model_instance.embed(task_content)
+                            )
+
+                        # Process chunks
+                        chunks = await create_document_chunks(task_content)
+
+                        # Update existing document
+                        existing_document.title = f"Task - {task_name}"
+                        existing_document.content = summary_content
+                        existing_document.content_hash = content_hash
+                        existing_document.embedding = summary_embedding
+                        existing_document.document_metadata = {
+                            "task_id": task_id,
+                            "task_name": task_name,
+                            "task_status": task_status,
+                            "task_priority": task_priority,
+                            "task_assignees": task_assignees,
+                            "task_due_date": task_due_date,
+                            "task_created": task_created,
+                            "task_updated": task_updated,
+                            "indexed_at": datetime.now().strftime(
+                                "%Y-%m-%d %H:%M:%S"
+                            ),
+                        }
+                        existing_document.chunks = chunks
+                        existing_document.updated_at = get_current_timestamp()
+
+                        documents_indexed += 1
+                        logger.info(
+                            f"Successfully updated ClickUp task {task_name}"
+                        )
+                        continue
 
                     # Document doesn't exist - create new one
                     # Generate summary with metadata

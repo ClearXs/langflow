@@ -29,8 +29,7 @@ class ChatMessageBase(SQLModel):
 
 
 class ChatMessage(ChatMessageBase, table=True):  # type: ignore[call-arg]
-    """
-    Message model for the new chat feature.
+    """Message model for the new chat feature.
     Stores individual messages in assistant-ui format.
     """
 

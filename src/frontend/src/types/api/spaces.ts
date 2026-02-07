@@ -9,6 +9,9 @@ export interface SpaceRead {
   updated_at: string;
   user_id: number;
   is_shared: boolean;
+  enable_knowledge_graph: boolean;
+  auto_entity_extraction: boolean;
+  graph_llm_id: number | null;
 }
 
 export interface SpaceWithStats {
@@ -27,6 +30,9 @@ export interface SpaceUpdate {
   name?: string;
   description?: string | null;
   is_shared?: boolean;
+  enable_knowledge_graph?: boolean | null;
+  auto_entity_extraction?: boolean | null;
+  graph_llm_id?: number | null;
 }
 
 export interface LLMPreferencesRead {

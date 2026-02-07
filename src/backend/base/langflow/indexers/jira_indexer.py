@@ -1,5 +1,4 @@
-"""
-Jira connector indexer.
+"""Jira connector indexer.
 """
 
 from datetime import datetime
@@ -38,8 +37,7 @@ async def index_jira_issues(
     end_date: str | None = None,
     update_last_indexed: bool = True,
 ) -> tuple[int, str | None]:
-    """
-    Index Jira issues and comments.
+    """Index Jira issues and comments.
 
     Args:
         session: Database session
@@ -152,14 +150,13 @@ async def index_jira_issues(
                         {"issues_found": 0},
                     )
                     return 0, None
-                else:
-                    await task_logger.log_task_failure(
-                        log_entry,
-                        f"Failed to get Jira issues: {error}",
-                        "API Error",
-                        {"error_type": "APIError"},
-                    )
-                    return 0, f"Failed to get Jira issues: {error}"
+                await task_logger.log_task_failure(
+                    log_entry,
+                    f"Failed to get Jira issues: {error}",
+                    "API Error",
+                    {"error_type": "APIError"},
+                )
+                return 0, f"Failed to get Jira issues: {error}"
 
             logger.info(f"Retrieved {len(issues)} issues from Jira API")
 
@@ -225,70 +222,69 @@ async def index_jira_issues(
                         )
                         documents_skipped += 1
                         continue
-                    else:
-                        # Content has changed - update the existing document
-                        logger.info(
-                            f"Content changed for Jira issue {issue_identifier}. Updating document."
-                        )
+                    # Content has changed - update the existing document
+                    logger.info(
+                        f"Content changed for Jira issue {issue_identifier}. Updating document."
+                    )
 
-                        # Generate summary with metadata
-                        user_llm = await get_user_long_context_llm(
-                            session, user_id, search_space_id
-                        )
+                    # Generate summary with metadata
+                    user_llm = await get_user_long_context_llm(
+                        session, user_id, search_space_id
+                    )
 
-                        if user_llm:
-                            document_metadata = {
-                                "issue_key": issue_identifier,
-                                "issue_title": issue_title,
-                                "status": formatted_issue.get("status", "Unknown"),
-                                "priority": formatted_issue.get("priority", "Unknown"),
-                                "comment_count": comment_count,
-                                "document_type": "Jira Issue",
-                                "connector_type": "Jira",
-                            }
-                            (
-                                summary_content,
-                                summary_embedding,
-                            ) = await generate_document_summary(
-                                issue_content, user_llm, document_metadata
-                            )
-                        else:
-                            summary_content = f"Jira Issue {issue_identifier}: {issue_title}\n\nStatus: {formatted_issue.get('status', 'Unknown')}\n\n"
-                            if formatted_issue.get("description"):
-                                summary_content += f"Description: {formatted_issue.get('description')}\n\n"
-                            summary_content += f"Comments: {comment_count}"
-                            settings_service = get_settings_service()
-                            settings = settings_service.settings
-                            summary_embedding = settings.embedding_model_instance.embed(
-                                summary_content
-                            )
-
-                        # Process chunks
-                        chunks = await create_document_chunks(issue_content)
-
-                        # Update existing document
-                        existing_document.title = (
-                            f"Jira - {issue_identifier}: {issue_title}"
-                        )
-                        existing_document.content = summary_content
-                        existing_document.content_hash = content_hash
-                        existing_document.embedding = summary_embedding
-                        existing_document.document_metadata = {
-                            "issue_id": issue_id,
-                            "issue_identifier": issue_identifier,
+                    if user_llm:
+                        document_metadata = {
+                            "issue_key": issue_identifier,
                             "issue_title": issue_title,
-                            "state": formatted_issue.get("status", "Unknown"),
+                            "status": formatted_issue.get("status", "Unknown"),
+                            "priority": formatted_issue.get("priority", "Unknown"),
                             "comment_count": comment_count,
-                            "indexed_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                            "document_type": "Jira Issue",
+                            "connector_type": "Jira",
                         }
-                        existing_document.chunks = chunks
-                        existing_document.updated_at = get_current_timestamp()
-
-                        documents_indexed += 1
-                        logger.info(
-                            f"Successfully updated Jira issue {issue_identifier}"
+                        (
+                            summary_content,
+                            summary_embedding,
+                        ) = await generate_document_summary(
+                            issue_content, user_llm, document_metadata
                         )
-                        continue
+                    else:
+                        summary_content = f"Jira Issue {issue_identifier}: {issue_title}\n\nStatus: {formatted_issue.get('status', 'Unknown')}\n\n"
+                        if formatted_issue.get("description"):
+                            summary_content += f"Description: {formatted_issue.get('description')}\n\n"
+                        summary_content += f"Comments: {comment_count}"
+                        settings_service = get_settings_service()
+                        settings = settings_service.settings
+                        summary_embedding = settings.embedding_model_instance.embed(
+                            summary_content
+                        )
+
+                    # Process chunks
+                    chunks = await create_document_chunks(issue_content)
+
+                    # Update existing document
+                    existing_document.title = (
+                        f"Jira - {issue_identifier}: {issue_title}"
+                    )
+                    existing_document.content = summary_content
+                    existing_document.content_hash = content_hash
+                    existing_document.embedding = summary_embedding
+                    existing_document.document_metadata = {
+                        "issue_id": issue_id,
+                        "issue_identifier": issue_identifier,
+                        "issue_title": issue_title,
+                        "state": formatted_issue.get("status", "Unknown"),
+                        "comment_count": comment_count,
+                        "indexed_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                    }
+                    existing_document.chunks = chunks
+                    existing_document.updated_at = get_current_timestamp()
+
+                    documents_indexed += 1
+                    logger.info(
+                        f"Successfully updated Jira issue {issue_identifier}"
+                    )
+                    continue
 
                 # Document doesn't exist - create new one
                 # Generate summary with metadata

@@ -1,5 +1,4 @@
-"""
-Discord connector indexer.
+"""Discord connector indexer.
 """
 
 import asyncio
@@ -40,8 +39,7 @@ async def index_discord_messages(
     end_date: str | None = None,
     update_last_indexed: bool = True,
 ) -> tuple[int, str | None]:
-    """
-    Index Discord messages from all accessible channels.
+    """Index Discord messages from all accessible channels.
 
     Args:
         session: Database session
@@ -335,73 +333,72 @@ async def index_discord_messages(
                                 )
                                 documents_skipped += 1
                                 continue
-                            else:
-                                # Content has changed - update the existing document
-                                logger.info(
-                                    f"Content changed for Discord channel {guild_name}#{channel_name}. Updating document."
-                                )
+                            # Content has changed - update the existing document
+                            logger.info(
+                                f"Content changed for Discord channel {guild_name}#{channel_name}. Updating document."
+                            )
 
-                                # Get user's long context LLM
-                                user_llm = await get_user_long_context_llm(
-                                    session, user_id, space_id
+                            # Get user's long context LLM
+                            user_llm = await get_user_long_context_llm(
+                                session, user_id, space_id
+                            )
+                            if not user_llm:
+                                logger.error(
+                                    f"No long context LLM configured for user {user_id}"
                                 )
-                                if not user_llm:
-                                    logger.error(
-                                        f"No long context LLM configured for user {user_id}"
-                                    )
-                                    skipped_channels.append(
-                                        f"{guild_name}#{channel_name} (no LLM configured)"
-                                    )
-                                    documents_skipped += 1
-                                    continue
-
-                                # Generate summary with metadata
-                                document_metadata = {
-                                    "guild_name": guild_name,
-                                    "channel_name": channel_name,
-                                    "message_count": len(formatted_messages),
-                                    "document_type": "Discord Channel Messages",
-                                    "connector_type": "Discord",
-                                }
-                                (
-                                    summary_content,
-                                    summary_embedding,
-                                ) = await generate_document_summary(
-                                    combined_document_string,
-                                    user_llm,
-                                    document_metadata,
+                                skipped_channels.append(
+                                    f"{guild_name}#{channel_name} (no LLM configured)"
                                 )
-
-                                # Chunks from channel content
-                                chunks = await create_document_chunks(channel_content)
-
-                                # Update existing document
-                                existing_document.title = (
-                                    f"Discord - {guild_name}#{channel_name}"
-                                )
-                                existing_document.content = summary_content
-                                existing_document.content_hash = content_hash
-                                existing_document.embedding = summary_embedding
-                                existing_document.document_metadata = {
-                                    "guild_name": guild_name,
-                                    "guild_id": guild_id,
-                                    "channel_name": channel_name,
-                                    "channel_id": channel_id,
-                                    "message_count": len(formatted_messages),
-                                    "start_date": start_date_iso,
-                                    "end_date": end_date_iso,
-                                    "indexed_at": datetime.now(UTC).strftime(
-                                        "%Y-%m-%d %H:%M:%S"
-                                    ),
-                                }
-                                existing_document.chunks = chunks
-                                existing_document.updated_at = get_current_timestamp()
-
-                                documents_indexed += 1
-                                logger.info(
-                                    f"Successfully updated Discord channel {guild_name}#{channel_name}"
-                                )
+                                documents_skipped += 1
                                 continue
+
+                            # Generate summary with metadata
+                            document_metadata = {
+                                "guild_name": guild_name,
+                                "channel_name": channel_name,
+                                "message_count": len(formatted_messages),
+                                "document_type": "Discord Channel Messages",
+                                "connector_type": "Discord",
+                            }
+                            (
+                                summary_content,
+                                summary_embedding,
+                            ) = await generate_document_summary(
+                                combined_document_string,
+                                user_llm,
+                                document_metadata,
+                            )
+
+                            # Chunks from channel content
+                            chunks = await create_document_chunks(channel_content)
+
+                            # Update existing document
+                            existing_document.title = (
+                                f"Discord - {guild_name}#{channel_name}"
+                            )
+                            existing_document.content = summary_content
+                            existing_document.content_hash = content_hash
+                            existing_document.embedding = summary_embedding
+                            existing_document.document_metadata = {
+                                "guild_name": guild_name,
+                                "guild_id": guild_id,
+                                "channel_name": channel_name,
+                                "channel_id": channel_id,
+                                "message_count": len(formatted_messages),
+                                "start_date": start_date_iso,
+                                "end_date": end_date_iso,
+                                "indexed_at": datetime.now(UTC).strftime(
+                                    "%Y-%m-%d %H:%M:%S"
+                                ),
+                            }
+                            existing_document.chunks = chunks
+                            existing_document.updated_at = get_current_timestamp()
+
+                            documents_indexed += 1
+                            logger.info(
+                                f"Successfully updated Discord channel {guild_name}#{channel_name}"
+                            )
+                            continue
 
                         # Document doesn't exist - create new one
                         # Get user's long context LLM

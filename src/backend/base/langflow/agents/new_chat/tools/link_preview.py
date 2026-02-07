@@ -1,5 +1,4 @@
-"""
-Link preview tool for the SurfSense agent.
+"""Link preview tool for the SurfSense agent.
 
 This module provides a tool for fetching URL metadata (title, description,
 Open Graph image, etc.) to display rich link previews in the chat UI.
@@ -20,8 +19,7 @@ def extract_domain(url: str) -> str:
         parsed = urlparse(url)
         domain = parsed.netloc
         # Remove 'www.' prefix if present
-        if domain.startswith("www."):
-            domain = domain[4:]
+        domain = domain.removeprefix("www.")
         return domain
     except Exception:
         return ""
@@ -139,8 +137,7 @@ def generate_preview_id(url: str) -> str:
 
 
 def create_link_preview_tool():
-    """
-    Factory function to create the link_preview tool.
+    """Factory function to create the link_preview tool.
 
     Returns:
         A configured tool function for fetching link previews.
@@ -148,8 +145,7 @@ def create_link_preview_tool():
 
     @tool
     async def link_preview(url: str) -> dict[str, Any]:
-        """
-        Fetch metadata for a URL to display a rich link preview.
+        """Fetch metadata for a URL to display a rich link preview.
 
         Use this tool when the user shares a URL or asks about a specific webpage.
         This tool fetches the page's Open Graph metadata (title, description, image)

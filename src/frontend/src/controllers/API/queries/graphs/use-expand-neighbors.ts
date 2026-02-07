@@ -58,7 +58,7 @@ export function useExpandNeighbors() {
 
       // Step 3: 并行获取所有新实体的详情
       const entityPromises = Array.from(newEntityIds).map((id) =>
-        api.get<EntityRead>(`/api/v1/entities/${id}`),
+        api.get<EntityRead>(`/api/v1/graph/entities/${id}`),
       );
 
       const entityResponses = await Promise.all(entityPromises);

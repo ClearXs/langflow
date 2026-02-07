@@ -1,5 +1,4 @@
-"""
-Podcast routes for task status polling and audio retrieval.
+"""Podcast routes for task status polling and audio retrieval.
 
 These routes support the podcast generation feature in new-chat.
 Note: The old Chat-based podcast generation has been removed.
@@ -15,15 +14,14 @@ from sqlalchemy import select
 from sqlalchemy.exc import SQLAlchemyError
 
 from langflow.api.utils import CurrentActiveUser, DbSession
+
+# Import celery app
+from langflow.core.celery_app import celery_app
 from langflow.services.database.models.podcast import Podcast, PodcastRead
 from langflow.services.database.models.role import Permission
 from langflow.services.database.models.space import Space
 from langflow.services.database.models.space_membership import SpaceMembership
-from langflow.services.database.models.user import User
 from langflow.utils.rbac import check_permission
-
-# Import celery app
-from langflow.core.celery_app import celery_app
 
 router = APIRouter(prefix="/podcasts", tags=["Podcasts"])
 
@@ -36,8 +34,7 @@ async def read_podcasts(
     db: DbSession = None,
     current_user: CurrentActiveUser = None,
 ):
-    """
-    List podcasts the user has access to.
+    """List podcasts the user has access to.
     Requires PODCASTS_READ permission for the search space(s).
     """
     if skip < 0 or limit < 1:
@@ -83,8 +80,7 @@ async def read_podcast(
     db: DbSession = None,
     current_user: CurrentActiveUser = None,
 ):
-    """
-    Get a specific podcast by ID.
+    """Get a specific podcast by ID.
     Requires PODCASTS_READ permission for the search space.
     """
     try:
@@ -121,8 +117,7 @@ async def delete_podcast(
     db: DbSession = None,
     current_user: CurrentActiveUser = None,
 ):
-    """
-    Delete a podcast.
+    """Delete a podcast.
     Requires PODCASTS_DELETE permission for the search space.
     """
     try:
@@ -160,8 +155,7 @@ async def stream_podcast(
     db: DbSession = None,
     current_user: CurrentActiveUser = None,
 ):
-    """
-    Stream a podcast audio file.
+    """Stream a podcast audio file.
     Requires PODCASTS_READ permission for the search space.
 
     Note: Both /stream and /audio endpoints are supported for compatibility.
@@ -220,8 +214,7 @@ async def get_podcast_task_status(
     task_id: str,
     current_user: CurrentActiveUser = None,
 ):
-    """
-    Get the status of a podcast generation task.
+    """Get the status of a podcast generation task.
     Used by new-chat frontend to poll for completion.
 
     Returns:
@@ -251,28 +244,24 @@ async def get_podcast_task_status(
                             "title": task_result.get("title"),
                             "transcript_entries": task_result.get("transcript_entries"),
                         }
-                    else:
-                        return {
-                            "status": "error",
-                            "error": task_result.get("error", "Unknown error"),
-                        }
-                else:
                     return {
                         "status": "error",
-                        "error": "Unexpected task result format",
+                        "error": task_result.get("error", "Unknown error"),
                     }
-            else:
-                # Task failed
                 return {
                     "status": "error",
-                    "error": str(result.result) if result.result else "Task failed",
+                    "error": "Unexpected task result format",
                 }
-        else:
-            # Task still processing
+            # Task failed
             return {
-                "status": "processing",
-                "state": result.state,
+                "status": "error",
+                "error": str(result.result) if result.result else "Task failed",
             }
+        # Task still processing
+        return {
+            "status": "processing",
+            "state": result.state,
+        }
 
     except Exception as e:
         raise HTTPException(

@@ -1,5 +1,4 @@
-"""
-Context schema definitions for SurfSense agents.
+"""Context schema definitions for SurfSense agents.
 
 This module defines the custom state schema used by the SurfSense deep agent.
 """
@@ -8,8 +7,7 @@ from typing import TypedDict
 
 
 class SurfSenseContextSchema(TypedDict):
-    """
-    Custom state schema for the SurfSense deep agent.
+    """Custom state schema for the SurfSense deep agent.
 
     This extends the default agent state with custom fields.
     The default state already includes:

@@ -11,8 +11,7 @@ logger = logging.getLogger(__name__)
 
 
 def get_celery_session_maker():
-    """
-    Create a new async session maker for Celery tasks.
+    """Create a new async session maker for Celery tasks.
     This is necessary because Celery tasks run in a new event loop,
     and the default session maker is bound to the main app's event loop.
     """

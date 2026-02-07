@@ -22,16 +22,35 @@ export enum DocumentType {
 
 export interface DocumentRead {
   id: number;
+  connector_id: number | null;
+  space_id: number;
+  user_id: string;
   title: string;
-  document_type: DocumentType;
   content: string;
-  search_space_id: number;
+  url: string | null;
+  doc_type: string;
+  blocknote_document: any | null;
+  embedding: number[] | null;
+  content_hash: string;
+  unique_identifier_hash: string | null;
+  content_needs_reindexing: boolean;
+  document_metadata: any | null;
+  file_name: string | null;
+  file_type: string | null;
+  file_size: number | null;
+  data_construction_file_id: number | null;
+  data_construction_folder_id: number | null;
+  etl_service: string | null;
+  chunk_count: number;
+  token_count: number;
+  processing_status: string;
+  processing_error: string | null;
+  graph_extracted: boolean;
+  entity_count: number;
+  relation_count: number;
   created_at: string;
-  updated_at: string;
-  chunk_count?: number;
-  total_tokens?: number;
-  url?: string | null;
-  connector_id?: number | null;
+  updated_at: string | null;
+  indexed_at: string | null;
 }
 
 export interface DocumentCreate {
@@ -52,7 +71,7 @@ export interface PaginatedResponse<T> {
   total: number;
   page: number;
   page_size: number;
-  has_more: boolean;
+  total_pages: number;
 }
 
 export interface GetDocumentsParams {
@@ -64,7 +83,7 @@ export interface GetDocumentsParams {
 
 export interface SearchDocumentsParams {
   search_space_id: number;
-  title_query: string;
+  title: string;
   page?: number;
   page_size?: number;
 }

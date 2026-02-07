@@ -440,7 +440,7 @@ class TestValidateFlowExecution:
     async def test_execution_timeout(self):
         """Test validation fails when execution times out."""
         mock_client = AsyncMock()
-        mock_client.post.side_effect = asyncio.TimeoutError()
+        mock_client.post.side_effect = TimeoutError()
 
         template_data = {"nodes": [], "edges": []}
         headers = {"Authorization": "Bearer token"}

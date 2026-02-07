@@ -1,5 +1,4 @@
-"""
-GitHub connector indexer.
+"""GitHub connector indexer.
 """
 
 from datetime import UTC, datetime
@@ -37,8 +36,7 @@ async def index_github_repos(
     end_date: str | None = None,
     update_last_indexed: bool = True,
 ) -> tuple[int, str | None]:
-    """
-    Index code and documentation files from accessible GitHub repositories.
+    """Index code and documentation files from accessible GitHub repositories.
 
     Args:
         session: Database session
@@ -225,80 +223,79 @@ async def index_github_repos(
                                 f"Document for GitHub file {full_path_key} unchanged. Skipping."
                             )
                             continue
-                        else:
-                            # Content has changed - update the existing document
-                            logger.info(
-                                f"Content changed for GitHub file {full_path_key}. Updating document."
+                        # Content has changed - update the existing document
+                        logger.info(
+                            f"Content changed for GitHub file {full_path_key}. Updating document."
+                        )
+
+                        # Generate summary with metadata
+                        user_llm = await get_user_long_context_llm(
+                            session, user_id, space_id
+                        )
+                        if user_llm:
+                            file_extension = (
+                                file_path.split(".")[-1]
+                                if "." in file_path
+                                else None
                             )
-
-                            # Generate summary with metadata
-                            user_llm = await get_user_long_context_llm(
-                                session, user_id, space_id
-                            )
-                            if user_llm:
-                                file_extension = (
-                                    file_path.split(".")[-1]
-                                    if "." in file_path
-                                    else None
-                                )
-                                document_metadata = {
-                                    "file_path": full_path_key,
-                                    "repository": repo_full_name,
-                                    "file_type": file_extension or "unknown",
-                                    "document_type": "GitHub Repository File",
-                                    "connector_type": "GitHub",
-                                }
-                                (
-                                    summary_content,
-                                    summary_embedding,
-                                ) = await generate_document_summary(
-                                    file_content, user_llm, document_metadata
-                                )
-                            else:
-                                summary_content = f"GitHub file: {full_path_key}\n\n{file_content[:1000]}..."
-                                summary_embedding = (
-                                    settings.embedding_model_instance.embed(
-                                        summary_content
-                                    )
-                                )
-
-                            # Chunk the content
-                            try:
-                                if hasattr(config, "code_chunker_instance"):
-                                    chunks_data = [
-                                        await create_document_chunks(file_content)
-                                    ][0]
-                                else:
-                                    chunks_data = await create_document_chunks(
-                                        file_content
-                                    )
-                            except Exception as chunk_err:
-                                logger.error(
-                                    f"Failed to chunk file {full_path_key}: {chunk_err}"
-                                )
-                                continue
-
-                            # Update existing document
-                            existing_document.title = f"GitHub - {full_path_key}"
-                            existing_document.content = summary_content
-                            existing_document.content_hash = content_hash
-                            existing_document.embedding = summary_embedding
-                            existing_document.document_metadata = {
-                                "file_path": file_path,
-                                "file_sha": file_sha,
-                                "file_url": file_url,
+                            document_metadata = {
+                                "file_path": full_path_key,
                                 "repository": repo_full_name,
-                                "indexed_at": datetime.now(UTC).strftime(
-                                    "%Y-%m-%d %H:%M:%S"
-                                ),
+                                "file_type": file_extension or "unknown",
+                                "document_type": "GitHub Repository File",
+                                "connector_type": "GitHub",
                             }
-                            existing_document.chunks = chunks_data
-                            existing_document.updated_at = get_current_timestamp()
+                            (
+                                summary_content,
+                                summary_embedding,
+                            ) = await generate_document_summary(
+                                file_content, user_llm, document_metadata
+                            )
+                        else:
+                            summary_content = f"GitHub file: {full_path_key}\n\n{file_content[:1000]}..."
+                            summary_embedding = (
+                                settings.embedding_model_instance.embed(
+                                    summary_content
+                                )
+                            )
 
-                            logger.info(
-                                f"Successfully updated GitHub file {full_path_key}"
+                        # Chunk the content
+                        try:
+                            if hasattr(config, "code_chunker_instance"):
+                                chunks_data = [
+                                    await create_document_chunks(file_content)
+                                ][0]
+                            else:
+                                chunks_data = await create_document_chunks(
+                                    file_content
+                                )
+                        except Exception as chunk_err:
+                            logger.error(
+                                f"Failed to chunk file {full_path_key}: {chunk_err}"
                             )
                             continue
+
+                        # Update existing document
+                        existing_document.title = f"GitHub - {full_path_key}"
+                        existing_document.content = summary_content
+                        existing_document.content_hash = content_hash
+                        existing_document.embedding = summary_embedding
+                        existing_document.document_metadata = {
+                            "file_path": file_path,
+                            "file_sha": file_sha,
+                            "file_url": file_url,
+                            "repository": repo_full_name,
+                            "indexed_at": datetime.now(UTC).strftime(
+                                "%Y-%m-%d %H:%M:%S"
+                            ),
+                        }
+                        existing_document.chunks = chunks_data
+                        existing_document.updated_at = get_current_timestamp()
+
+                        logger.info(
+                            f"Successfully updated GitHub file {full_path_key}"
+                        )
+                        continue
 
                     # Document doesn't exist - create new one
                     # Generate summary with metadata

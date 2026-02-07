@@ -4,6 +4,21 @@ import { useTranslation } from "react-i18next";
 import { useLocation, useParams } from "react-router-dom";
 import ForwardedIconComponent from "@/components/common/genericIconComponent";
 import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "@/components/ui/hover-card";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
@@ -15,6 +30,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarSeparator,
+  SidebarTrigger,
   useSidebar,
 } from "@/components/ui/sidebar";
 import { useUpdateUser } from "@/controllers/API/queries/auth";
@@ -51,10 +67,12 @@ import { cn } from "../../../../../utils/utils";
 import useFileDrop from "../../hooks/use-on-file-drop";
 import { SpacesSidebarSection } from "../SpacesSidebarSection";
 import { SidebarFolderSkeleton } from "../sidebarFolderSkeleton";
+import { AddFolderButton } from "./components/add-folder-button";
 import { HeaderButtons } from "./components/header-buttons";
 import { InputEditFolderName } from "./components/input-edit-folder-name";
 import { MCPServerNotice } from "./components/mcp-server-notice";
 import { SelectOptions } from "./components/select-options";
+import { UploadFolderButton } from "./components/upload-folder-button";
 
 type SideBarFoldersButtonsComponentProps = {
   handleChangeFolder?: (id: string) => void;
@@ -72,6 +90,7 @@ const SideBarFoldersButtonsComponent = ({
   const folders = useFolderStore((state) => state.folders);
   const loading = !folders;
   const refInput = useRef<HTMLInputElement>(null);
+  const hasAutoCollapsed = useRef<Set<string>>(new Set()); // Track which space IDs have been auto-collapsed
   const { setOpen } = useSidebar();
 
   const _navigate = useCustomNavigate();
@@ -231,13 +250,16 @@ const SideBarFoldersButtonsComponent = ({
     }
   }, [folders]);
 
-  // Auto-collapse sidebar when entering space details
+  // Auto-collapse sidebar when entering space details (only once per space)
   useEffect(() => {
-    const isSpaceDetailPage = pathname.match(/^\/spaces\/\d+\//);
-    if (isSpaceDetailPage) {
-      setOpen(false);
-    } else {
-      setOpen(true);
+    const spaceMatch = pathname.match(/^\/spaces\/(\d+)\//);
+    if (spaceMatch) {
+      const spaceId = spaceMatch[1];
+      // Only auto-collapse if this space hasn't been auto-collapsed before
+      if (!hasAutoCollapsed.current.has(spaceId)) {
+        setOpen(false);
+        hasAutoCollapsed.current.add(spaceId);
+      }
     }
   }, [pathname, setOpen]);
 
@@ -406,18 +428,6 @@ const SideBarFoldersButtonsComponent = ({
     });
   };
 
-  const handleFilesNavigation = () => {
-    _navigate("/assets/files");
-  };
-
-  const handleKnowledgeNavigation = () => {
-    _navigate("/assets/knowledge-bases");
-  };
-
-  const handleSpacesNavigation = () => {
-    _navigate("/spaces");
-  };
-
   // 包装 handleChangeFolder 以追踪访问
   // Wrap handleChangeFolder to track visits
   const handleChangeFolderWithTracking = (id: string) => {
@@ -426,10 +436,7 @@ const SideBarFoldersButtonsComponent = ({
   };
 
   return (
-    <Sidebar
-      collapsible="icon"
-      data-testid="project-sidebar"
-    >
+    <Sidebar collapsible="icon" data-testid="project-sidebar">
       <SidebarHeader className="px-4 py-1">
         <HeaderButtons
           handleUploadFlowsToFolder={handleUploadFlowsToFolder}
@@ -441,167 +448,226 @@ const SideBarFoldersButtonsComponent = ({
       <SidebarContent>
         {/* 分组1: 我的项目 / Group 1: My Projects */}
         <SidebarGroup className="p-4 py-2">
-          <SidebarGroupLabel className="flex items-center gap-2 text-sm font-semibold">
-            <ForwardedIconComponent name="Folder" className="h-4 w-4" />
-            {t("navigation.myProjects")}
-          </SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {!loading ? (
-                <>
-                  {displayedFolders.map((item, index) => {
-                    const editFolderName = editFolders?.filter(
-                      (folder) => folder.name === item.name,
-                    )[0];
-                    return (
-                      <SidebarMenuItem
-                        key={index}
-                        className="group/menu-button"
-                        onMouseEnter={() => setHoveredFolderId(item.id!)}
-                        onMouseLeave={() => setHoveredFolderId(null)}
-                      >
-                        <div className="relative flex w-full">
-                          <SidebarMenuButton
-                            size="md"
-                            onDragOver={(e) => dragOver(e, item.id!)}
-                            onDragEnter={(e) => dragEnter(e, item.id!)}
-                            onDragLeave={dragLeave}
-                            onDrop={(e) => onDrop(e, item.id!)}
-                            key={item.id}
-                            data-testid={`sidebar-nav-${item.name}`}
-                            id={`sidebar-nav-${item.name}`}
-                            isActive={checkPathName(item.id!)}
-                            onClick={() =>
-                              handleChangeFolderWithTracking(item.id!)
-                            }
-                            className={cn(
-                              "flex-grow pr-8",
-                              hoveredFolderId === item.id && "bg-accent",
-                              checkHoveringFolder(item.id!),
-                            )}
-                          >
-                            <div
-                              onDoubleClick={(event) => {
-                                handleDoubleClick(event, item);
-                              }}
-                              className="flex w-full items-center justify-between gap-2"
-                            >
-                              <div className="flex flex-1 items-center gap-2">
-                                {editFolderName?.edit && !isUpdatingFolder ? (
-                                  <InputEditFolderName
-                                    handleEditFolderName={handleEditFolderName}
-                                    item={item}
-                                    refInput={refInput}
-                                    handleKeyDownFn={handleKeyDownFn}
-                                    handleEditNameFolder={handleEditNameFolder}
-                                    editFolderName={editFolderName}
-                                    foldersNames={foldersNames}
-                                    handleKeyDown={handleKeyDown}
-                                  />
-                                ) : (
-                                  <span className="block w-0 grow truncate text-sm opacity-100">
-                                    {item.name}
-                                  </span>
-                                )}
-                              </div>
-                            </div>
-                          </SidebarMenuButton>
-                          <div
-                            className="absolute right-2 top-[0.45rem] flex items-center hover:text-foreground"
-                            onClick={(e) => e.stopPropagation()}
-                          >
-                            <SelectOptions
-                              item={item}
-                              index={index}
-                              handleDeleteFolder={handleDeleteFolder}
-                              handleDownloadFolder={() =>
-                                handleDownloadFolder(item.id!, item.name)
-                              }
-                              handleSelectFolderToRename={
-                                handleSelectFolderToRename
-                              }
-                              checkPathName={checkPathName}
-                            />
-                          </div>
-                        </div>
-                      </SidebarMenuItem>
-                    );
-                  })}
+          <SidebarMenu>
+            <Collapsible defaultOpen className="group/collapsible">
+              <SidebarMenuItem>
+                <div className="flex items-center justify-between w-full">
+                  {/* 展开状态：显示可折叠触发器 */}
+                  <CollapsibleTrigger
+                    asChild
+                    className="group-data-[collapsible=icon]:hidden"
+                  >
+                    <SidebarMenuButton
+                      tooltip={t("navigation.myProjects")}
+                      className="flex-1"
+                    >
+                      <ForwardedIconComponent
+                        name="Folder"
+                        className="h-4 w-4"
+                      />
+                      <span>{t("navigation.myProjects")}</span>
+                    </SidebarMenuButton>
+                  </CollapsibleTrigger>
 
-                  {/* 如果超过5个项目，显示"查看全部"按钮 / Show "View All" if more than 5 projects */}
-                  {folders.length > 5 && (
-                    <SidebarMenuItem>
-                      <SidebarMenuButton
-                        size="md"
-                        onClick={() => setShowAllProjects(!showAllProjects)}
-                        className="text-muted-foreground hover:text-foreground"
+                  {/* 收缩状态：显示带 HoverCard 的图标 */}
+                  <div className="hidden group-data-[collapsible=icon]:flex flex-1 justify-center">
+                    <HoverCard openDelay={200} closeDelay={100}>
+                      <HoverCardTrigger asChild>
+                        <SidebarMenuButton
+                          tooltip={t("navigation.myProjects")}
+                          className="w-auto"
+                        >
+                          <ForwardedIconComponent
+                            name="Folder"
+                            className="h-4 w-4"
+                          />
+                        </SidebarMenuButton>
+                      </HoverCardTrigger>
+                      <HoverCardContent
+                        side="right"
+                        align="start"
+                        className="w-64 p-2"
                       >
-                        <ForwardedIconComponent
-                          name={showAllProjects ? "ChevronUp" : "List"}
-                          className="h-4 w-4"
-                        />
-                        {showAllProjects
-                          ? t("navigation.collapse")
-                          : t("navigation.viewAll", { count: folders.length })}
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                  )}
-                </>
-              ) : (
-                <>
-                  <SidebarFolderSkeleton />
-                  <SidebarFolderSkeleton />
-                </>
-              )}
-            </SidebarMenu>
-          </SidebarGroupContent>
+                        <div className="font-semibold mb-2 px-2">
+                          {t("navigation.myProjects")}
+                        </div>
+                        <div className="space-y-1">
+                          {displayedFolders.map((item) => (
+                            <button
+                              key={item.id}
+                              onClick={() => {
+                                handleChangeFolderWithTracking(item.id!);
+                              }}
+                              className={cn(
+                                "w-full text-left px-2 py-1.5 rounded-md text-sm hover:bg-accent transition-colors",
+                                checkPathName(item.id!) &&
+                                  "bg-accent font-medium",
+                              )}
+                            >
+                              {item.name}
+                            </button>
+                          ))}
+                          {folders.length > 5 && (
+                            <button
+                              onClick={() =>
+                                setShowAllProjects(!showAllProjects)
+                              }
+                              className="w-full text-left px-2 py-1.5 rounded-md text-sm text-muted-foreground hover:bg-accent transition-colors"
+                            >
+                              {showAllProjects
+                                ? t("navigation.collapse")
+                                : t("navigation.viewAll", {
+                                    count: folders.length,
+                                  })}
+                            </button>
+                          )}
+                        </div>
+                      </HoverCardContent>
+                    </HoverCard>
+                  </div>
+
+                  <div className="flex items-center gap-1 group-data-[collapsible=icon]:hidden">
+                    <UploadFolderButton
+                      onClick={handleUploadFlowsToFolder}
+                      disabled={isUpdatingFolder}
+                    />
+                    <AddFolderButton
+                      onClick={addNewFolder}
+                      disabled={isUpdatingFolder}
+                      loading={isPending}
+                    />
+                  </div>
+                </div>
+                <CollapsibleContent className="group-data-[collapsible=icon]:hidden">
+                  <SidebarMenu>
+                    {!loading ? (
+                      <>
+                        {displayedFolders.map((item, index) => {
+                          const editFolderName = editFolders?.filter(
+                            (folder) => folder.name === item.name,
+                          )[0];
+                          return (
+                            <SidebarMenuItem
+                              key={index}
+                              className="group/menu-button"
+                              onMouseEnter={() => setHoveredFolderId(item.id!)}
+                              onMouseLeave={() => setHoveredFolderId(null)}
+                            >
+                              <div className="relative flex w-full">
+                                <SidebarMenuButton
+                                  size="md"
+                                  onDragOver={(e) => dragOver(e, item.id!)}
+                                  onDragEnter={(e) => dragEnter(e, item.id!)}
+                                  onDragLeave={dragLeave}
+                                  onDrop={(e) => onDrop(e, item.id!)}
+                                  key={item.id}
+                                  data-testid={`sidebar-nav-${item.name}`}
+                                  id={`sidebar-nav-${item.name}`}
+                                  isActive={checkPathName(item.id!)}
+                                  onClick={() =>
+                                    handleChangeFolderWithTracking(item.id!)
+                                  }
+                                  className={cn(
+                                    "flex-grow pr-8",
+                                    hoveredFolderId === item.id && "bg-accent",
+                                    checkHoveringFolder(item.id!),
+                                  )}
+                                >
+                                  <div
+                                    onDoubleClick={(event) => {
+                                      handleDoubleClick(event, item);
+                                    }}
+                                    className="flex w-full items-center justify-between gap-2"
+                                  >
+                                    <div className="flex flex-1 items-center gap-2">
+                                      {editFolderName?.edit &&
+                                      !isUpdatingFolder ? (
+                                        <InputEditFolderName
+                                          handleEditFolderName={
+                                            handleEditFolderName
+                                          }
+                                          item={item}
+                                          refInput={refInput}
+                                          handleKeyDownFn={handleKeyDownFn}
+                                          handleEditNameFolder={
+                                            handleEditNameFolder
+                                          }
+                                          editFolderName={editFolderName}
+                                          foldersNames={foldersNames}
+                                          handleKeyDown={handleKeyDown}
+                                        />
+                                      ) : (
+                                        <span className="block w-0 grow truncate text-sm group-data-[collapsible=icon]:hidden">
+                                          {item.name}
+                                        </span>
+                                      )}
+                                    </div>
+                                  </div>
+                                </SidebarMenuButton>
+                                <div
+                                  className="absolute right-2 top-[0.45rem] flex items-center hover:text-foreground"
+                                  onClick={(e) => e.stopPropagation()}
+                                >
+                                  <SelectOptions
+                                    item={item}
+                                    index={index}
+                                    handleDeleteFolder={handleDeleteFolder}
+                                    handleDownloadFolder={() =>
+                                      handleDownloadFolder(item.id!, item.name)
+                                    }
+                                    handleSelectFolderToRename={
+                                      handleSelectFolderToRename
+                                    }
+                                    checkPathName={checkPathName}
+                                  />
+                                </div>
+                              </div>
+                            </SidebarMenuItem>
+                          );
+                        })}
+
+                        {/* 如果超过5个项目，显示"查看全部"按钮 / Show "View All" if more than 5 projects */}
+                        {folders.length > 5 && (
+                          <SidebarMenuItem>
+                            <SidebarMenuButton
+                              size="md"
+                              onClick={() =>
+                                setShowAllProjects(!showAllProjects)
+                              }
+                              className="text-muted-foreground hover:text-foreground"
+                            >
+                              <ForwardedIconComponent
+                                name={showAllProjects ? "ChevronUp" : "List"}
+                                className="h-4 w-4"
+                              />
+                              <span className="group-data-[collapsible=icon]:hidden">
+                                {showAllProjects
+                                  ? t("navigation.collapse")
+                                  : t("navigation.viewAll", {
+                                      count: folders.length,
+                                    })}
+                              </span>
+                            </SidebarMenuButton>
+                          </SidebarMenuItem>
+                        )}
+                      </>
+                    ) : (
+                      <>
+                        <SidebarFolderSkeleton />
+                        <SidebarFolderSkeleton />
+                      </>
+                    )}
+                  </SidebarMenu>
+                </CollapsibleContent>
+              </SidebarMenuItem>
+            </Collapsible>
+          </SidebarMenu>
         </SidebarGroup>
 
-        <SidebarSeparator />
+        <SidebarSeparator className="group-data-[collapsible=icon]:hidden" />
 
         {/* 分组2: 空间 / Group 2: Spaces */}
         <SpacesSidebarSection />
-
-        <SidebarSeparator />
-
-        {/* 分组3: 资源 / Group 3: Resources */}
-        {ENABLE_FILE_MANAGEMENT && (
-          <SidebarGroup className="px-4 py-2">
-            <SidebarGroupLabel className="flex items-center gap-2 text-sm font-semibold">
-              <ForwardedIconComponent name="Archive" className="h-4 w-4" />
-              {t("navigation.resources")}
-            </SidebarGroupLabel>
-            <SidebarGroupContent>
-              <SidebarMenu>
-                {ENABLE_KNOWLEDGE_BASES && (
-                  <SidebarMenuItem>
-                    <SidebarMenuButton
-                      size="md"
-                      onClick={handleKnowledgeNavigation}
-                      className="text-sm"
-                    >
-                      <ForwardedIconComponent
-                        name="Library"
-                        className="h-4 w-4"
-                      />
-                      {t("navigation.knowledge")}
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                )}
-                <SidebarMenuItem>
-                  <SidebarMenuButton
-                    size="md"
-                    onClick={handleFilesNavigation}
-                    className="text-sm"
-                  >
-                    <ForwardedIconComponent name="File" className="h-4 w-4" />
-                    {t("navigation.myFiles")}
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        )}
 
         <div className="flex-1" />
 
@@ -611,13 +677,17 @@ const SideBarFoldersButtonsComponent = ({
           </div>
         )}
       </SidebarContent>
-      {ENABLE_FILE_MANAGEMENT && ENABLE_DATASTAX_LANGFLOW && (
-        <SidebarFooter className="border-t">
-          <div className="grid w-full items-center gap-2 p-2">
+
+      <SidebarFooter className="border-t p-2">
+        {ENABLE_FILE_MANAGEMENT && ENABLE_DATASTAX_LANGFLOW && (
+          <div className="mb-2">
             <CustomStoreButton />
           </div>
-        </SidebarFooter>
-      )}
+        )}
+        <SidebarTrigger className="w-full">
+          <ForwardedIconComponent name="PanelLeftClose" className="h-4 w-4" />
+        </SidebarTrigger>
+      </SidebarFooter>
     </Sidebar>
   );
 };

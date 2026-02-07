@@ -9,7 +9,9 @@ import {
   TrashIcon,
 } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+import { useNavigate, useParams } from "react-router-dom";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -19,30 +21,40 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
-
-// TODO: Implement thread persistence using Langflow's storage system
-// This is a placeholder interface
-interface ThreadListItem {
-  id: number;
-  title: string;
-  updatedAt: string;
-  isArchived: boolean;
-}
+import {
+  type ChatThread,
+  createThread,
+  deleteThread,
+  listThreads,
+  updateThread,
+} from "@/services/chatService";
+import useChatStore from "@/stores/chatStore";
 
 interface ThreadListState {
-  threads: ThreadListItem[];
-  archivedThreads: ThreadListItem[];
+  threads: ChatThread[];
+  archivedThreads: ChatThread[];
   isLoading: boolean;
   error: string | null;
 }
 
 interface ThreadListProps {
   currentThreadId?: number;
+  spaceId: number;
   className?: string;
+  onThreadCreated?: (threadId: number) => void;
 }
 
-export function ThreadList({ currentThreadId, className }: ThreadListProps) {
+export function ThreadList({
+  currentThreadId,
+  spaceId,
+  className,
+  onThreadCreated,
+}: ThreadListProps) {
+  const { t } = useTranslation();
   const navigate = useNavigate();
+  const { spaceId: urlSpaceId } = useParams<{ spaceId: string }>();
+  const setCurrentChatId = useChatStore((state) => state.setCurrentChatId);
+
   const [state, setState] = useState<ThreadListState>({
     threads: [],
     archivedThreads: [],
@@ -51,20 +63,27 @@ export function ThreadList({ currentThreadId, className }: ThreadListProps) {
   });
   const [showArchived, setShowArchived] = useState(false);
 
-  // TODO: Implement thread loading from Langflow storage
+  // Load threads from API
   const loadThreads = useCallback(async () => {
-    setState((prev) => ({ ...prev, isLoading: true }));
+    setState((prev) => ({ ...prev, isLoading: true, error: null }));
 
-    // Placeholder - replace with actual thread loading logic
-    setTimeout(() => {
+    try {
+      const response = await listThreads(spaceId);
       setState({
-        threads: [],
-        archivedThreads: [],
+        threads: response.threads,
+        archivedThreads: response.archived_threads,
         isLoading: false,
         error: null,
       });
-    }, 100);
-  }, []);
+    } catch (error) {
+      console.error("[ThreadList] Failed to load threads:", error);
+      setState((prev) => ({
+        ...prev,
+        isLoading: false,
+        error: t("spaces.chats.threadList.failedToLoad"),
+      }));
+    }
+  }, [spaceId]);
 
   useEffect(() => {
     loadThreads();
@@ -72,33 +91,76 @@ export function ThreadList({ currentThreadId, className }: ThreadListProps) {
 
   // Handle new thread creation
   const handleNewThread = async () => {
-    // TODO: Create new thread and navigate to it
-    console.log("Create new thread");
-  };
+    try {
+      const newThread = await createThread(spaceId, t("spaces.chats.newChat"));
+      setCurrentChatId(newThread.id.toString());
 
-  // Handle thread actions
-  const handleArchive = async (threadId: number) => {
-    // TODO: Archive thread
-    console.log("Archive thread:", threadId);
-  };
+      // Reload threads to update the list
+      await loadThreads();
 
-  const handleUnarchive = async (threadId: number) => {
-    // TODO: Unarchive thread
-    console.log("Unarchive thread:", threadId);
-  };
+      // Navigate to the new thread
+      navigate(`/spaces/${urlSpaceId}/chats`);
 
-  const handleDelete = async (threadId: number) => {
-    // TODO: Delete thread
-    console.log("Delete thread:", threadId);
-    if (threadId === currentThreadId) {
-      // Navigate to new chat if current thread is deleted
-      navigate("/");
+      // Notify parent component
+      onThreadCreated?.(newThread.id);
+
+      toast.success(t("spaces.chats.chatCreated"));
+    } catch (error) {
+      console.error("[ThreadList] Failed to create thread:", error);
+      toast.error(t("spaces.chats.threadList.failedToCreateChat"));
     }
   };
 
+  // Handle thread archive
+  const handleArchive = async (threadId: number) => {
+    try {
+      await updateThread(threadId, { archived: true });
+      await loadThreads();
+      toast.success(t("spaces.chats.threadList.archived"));
+    } catch (error) {
+      console.error("[ThreadList] Failed to archive thread:", error);
+      toast.error(t("spaces.chats.threadList.failedToArchive"));
+    }
+  };
+
+  // Handle thread unarchive
+  const handleUnarchive = async (threadId: number) => {
+    try {
+      await updateThread(threadId, { archived: false });
+      await loadThreads();
+      toast.success(t("spaces.chats.threadList.restored"));
+    } catch (error) {
+      console.error("[ThreadList] Failed to unarchive thread:", error);
+      toast.error(t("spaces.chats.threadList.failedToRestore"));
+    }
+  };
+
+  // Handle thread delete
+  const handleDelete = async (threadId: number) => {
+    if (!confirm(t("spaces.chats.threadList.confirmDelete"))) {
+      return;
+    }
+
+    try {
+      await deleteThread(threadId);
+      await loadThreads();
+
+      // If current thread is deleted, clear it
+      if (threadId === currentThreadId) {
+        setCurrentChatId(null);
+      }
+
+      toast.success(t("spaces.chats.threadList.deleted"));
+    } catch (error) {
+      console.error("[ThreadList] Failed to delete thread:", error);
+      toast.error(t("spaces.chats.threadList.failedToDelete"));
+    }
+  };
+
+  // Handle thread switch
   const handleSwitchToThread = (threadId: number) => {
-    // TODO: Navigate to thread
-    console.log("Switch to thread:", threadId);
+    setCurrentChatId(threadId.toString());
+    navigate(`/spaces/${urlSpaceId}/chats`);
   };
 
   const displayedThreads = showArchived ? state.archivedThreads : state.threads;
@@ -108,7 +170,7 @@ export function ThreadList({ currentThreadId, className }: ThreadListProps) {
       <div className={cn("flex h-full flex-col", className)}>
         <div className="flex items-center justify-center p-4">
           <span className="text-muted-foreground text-sm">
-            Loading threads...
+            {t("spaces.chats.threadList.loading")}
           </span>
         </div>
       </div>
@@ -126,7 +188,7 @@ export function ThreadList({ currentThreadId, className }: ThreadListProps) {
             className="mt-2"
             onClick={loadThreads}
           >
-            Retry
+            {t("spaces.chats.threadList.retry")}
           </Button>
         </div>
       </div>
@@ -137,13 +199,15 @@ export function ThreadList({ currentThreadId, className }: ThreadListProps) {
     <div className={cn("flex h-full flex-col", className)}>
       {/* Header with New Chat button */}
       <div className="flex items-center justify-between border-b p-3">
-        <h2 className="font-semibold text-sm">Conversations</h2>
+        <h2 className="font-semibold text-sm">
+          {t("spaces.chats.threadList.conversations")}
+        </h2>
         <Button
           variant="ghost"
           size="icon"
           className="size-8"
           onClick={handleNewThread}
-          title="New Chat"
+          title={t("spaces.chats.newChat")}
         >
           <PlusIcon className="size-4" />
         </Button>
@@ -161,7 +225,7 @@ export function ThreadList({ currentThreadId, className }: ThreadListProps) {
               : "text-muted-foreground hover:text-foreground",
           )}
         >
-          Active ({state.threads.length})
+          {t("spaces.chats.threadList.active")} ({state.threads.length})
         </button>
         <button
           type="button"
@@ -173,7 +237,8 @@ export function ThreadList({ currentThreadId, className }: ThreadListProps) {
               : "text-muted-foreground hover:text-foreground",
           )}
         >
-          Archived ({state.archivedThreads.length})
+          {t("spaces.chats.threadList.archivedTab")} (
+          {state.archivedThreads.length})
         </button>
       </div>
 
@@ -184,8 +249,8 @@ export function ThreadList({ currentThreadId, className }: ThreadListProps) {
             <MessageSquareIcon className="mb-2 size-8 text-muted-foreground/50" />
             <p className="text-muted-foreground text-sm">
               {showArchived
-                ? "No archived conversations"
-                : "No conversations yet"}
+                ? t("spaces.chats.threadList.noArchivedConversations")
+                : t("spaces.chats.threadList.noConversations")}
             </p>
             {!showArchived && (
               <Button
@@ -195,7 +260,7 @@ export function ThreadList({ currentThreadId, className }: ThreadListProps) {
                 onClick={handleNewThread}
               >
                 <PlusIcon className="mr-1 size-3" />
-                Start a conversation
+                {t("spaces.chats.threadList.startConversation")}
               </Button>
             )}
           </div>
@@ -221,7 +286,7 @@ export function ThreadList({ currentThreadId, className }: ThreadListProps) {
 }
 
 interface ThreadListItemComponentProps {
-  thread: ThreadListItem;
+  thread: ChatThread;
   isActive: boolean;
   isArchived: boolean;
   onClick: () => void;
@@ -239,6 +304,8 @@ function ThreadListItemComponent({
   onUnarchive,
   onDelete,
 }: ThreadListItemComponentProps) {
+  const { t } = useTranslation();
+
   return (
     <div
       className={cn(
@@ -255,10 +322,13 @@ function ThreadListItemComponent({
       <MessageSquareIcon className="size-4 shrink-0 text-muted-foreground" />
       <div className="flex-1 min-w-0">
         <p className="truncate text-sm font-medium">
-          {thread.title || "New Chat"}
+          {thread.title || t("spaces.chats.newChat")}
         </p>
         <p className="truncate text-xs text-muted-foreground">
-          {formatRelativeTime(new Date(thread.updatedAt))}
+          {formatRelativeTime(
+            new Date(thread.updated_at || thread.created_at),
+            t,
+          )}
         </p>
       </div>
       <DropdownMenu>
@@ -276,12 +346,12 @@ function ThreadListItemComponent({
           {isArchived ? (
             <DropdownMenuItem onClick={onUnarchive}>
               <RotateCcwIcon className="mr-2 size-4" />
-              Unarchive
+              {t("spaces.chats.threadList.unarchive")}
             </DropdownMenuItem>
           ) : (
             <DropdownMenuItem onClick={onArchive}>
               <ArchiveIcon className="mr-2 size-4" />
-              Archive
+              {t("spaces.chats.threadList.archive")}
             </DropdownMenuItem>
           )}
           <DropdownMenuSeparator />
@@ -290,7 +360,7 @@ function ThreadListItemComponent({
             className="text-destructive focus:text-destructive"
           >
             <TrashIcon className="mr-2 size-4" />
-            Delete
+            {t("spaces.chats.threadList.delete")}
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
@@ -301,7 +371,10 @@ function ThreadListItemComponent({
 /**
  * Format a date as relative time (e.g., "2 hours ago", "Yesterday")
  */
-function formatRelativeTime(date: Date): string {
+function formatRelativeTime(
+  date: Date,
+  t: (key: string, options?: any) => string,
+): string {
   const now = new Date();
   const diffMs = now.getTime() - date.getTime();
   const diffSecs = Math.floor(diffMs / 1000);
@@ -309,12 +382,14 @@ function formatRelativeTime(date: Date): string {
   const diffHours = Math.floor(diffMins / 60);
   const diffDays = Math.floor(diffHours / 24);
 
-  if (diffSecs < 60) return "Just now";
-  if (diffMins < 60) return `${diffMins} min${diffMins === 1 ? "" : "s"} ago`;
+  if (diffSecs < 60) return t("spaces.chats.threadList.time.justNow");
+  if (diffMins < 60)
+    return t("spaces.chats.threadList.time.minsAgo", { count: diffMins });
   if (diffHours < 24)
-    return `${diffHours} hour${diffHours === 1 ? "" : "s"} ago`;
-  if (diffDays === 1) return "Yesterday";
-  if (diffDays < 7) return `${diffDays} days ago`;
+    return t("spaces.chats.threadList.time.hoursAgo", { count: diffHours });
+  if (diffDays === 1) return t("spaces.chats.threadList.time.yesterday");
+  if (diffDays < 7)
+    return t("spaces.chats.threadList.time.daysAgo", { count: diffDays });
 
   return date.toLocaleDateString();
 }

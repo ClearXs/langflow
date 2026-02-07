@@ -7,17 +7,15 @@ from datetime import UTC, datetime, timedelta
 from uuid import UUID
 
 import httpx
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import RedirectResponse
 from pydantic import ValidationError
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 
 from langflow.api.utils import CurrentActiveUser, DbSession
 from langflow.schema.airtable_auth_credentials import AirtableAuthCredentialsBase
 from langflow.services.database.models.connector import Connector, ConnectorType
-from langflow.services.database.models.user import User
 from langflow.services.settings import settings
 
 logger = logging.getLogger(__name__)
@@ -44,8 +42,7 @@ def make_basic_auth_header(client_id: str, client_secret: str) -> str:
 
 
 def generate_pkce_pair() -> tuple[str, str]:
-    """
-    Generate PKCE code verifier and code challenge.
+    """Generate PKCE code verifier and code challenge.
 
     Returns:
         Tuple of (code_verifier, code_challenge)
@@ -67,8 +64,7 @@ def generate_pkce_pair() -> tuple[str, str]:
 
 @router.get("/auth/airtable/connector/add")
 async def connect_airtable(space_id: int, current_user: CurrentActiveUser):
-    """
-    Initiate Airtable OAuth flow.
+    """Initiate Airtable OAuth flow.
 
     Args:
         space_id: The search space ID
@@ -134,8 +130,7 @@ async def airtable_callback(
     state: str,
     db: DbSession = None,
 ):
-    """
-    Handle Airtable OAuth callback.
+    """Handle Airtable OAuth callback.
 
     Args:
         request: FastAPI request object
@@ -288,8 +283,7 @@ async def refresh_airtable_token(
     connector: Connector,
     db: DbSession = None,
 ):
-    """
-    Refresh the Airtable access token for a connector.
+    """Refresh the Airtable access token for a connector.
 
     Args:
         db: Database session

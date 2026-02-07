@@ -8,6 +8,8 @@ from sqlmodel import select
 from langflow.api.utils import DbSession
 from langflow.services.database.models.flow.model import Flow
 from langflow.services.deps import get_chat_service
+from langflow.services.graph.config import kg_config
+from langflow.services.vector import initialize_vector_store
 
 health_check_router = APIRouter(tags=["Health Check"])
 
@@ -16,6 +18,8 @@ class HealthResponse(BaseModel):
     status: str = "nok"
     chat: str = "error check the server logs"
     db: str = "error check the server logs"
+    graph: str = "error check the server logs"
+    vector_store: str = "error check the server logs"
     """
     Do not send exceptions and detailed error messages to the client because it might contain credentials and other
     sensitive server information.
@@ -58,6 +62,32 @@ async def health_check(
         response.chat = "ok"
     except Exception:  # noqa: BLE001
         await logger.aexception("Error checking chat service")
+
+    if not kg_config.enabled:
+        response.graph = "skipped"
+    else:
+        if not kg_config.neo4j_enabled:
+            response.graph = "ok"
+        else:
+            try:
+                from neo4j import AsyncGraphDatabase
+
+                driver = AsyncGraphDatabase.driver(
+                    kg_config.neo4j_uri,
+                    auth=(kg_config.neo4j_username, kg_config.neo4j_password or ""),
+                )
+                async with driver.session(database=kg_config.neo4j_database) as neo_session:
+                    await neo_session.run("RETURN 1")
+                await driver.close()
+                response.graph = "ok"
+            except Exception:  # noqa: BLE001
+                await logger.aexception("Error checking graph service")
+
+    try:
+        await initialize_vector_store()
+        response.vector_store = "ok"
+    except Exception:  # noqa: BLE001
+        await logger.aexception("Error checking vector store")
 
     if response.has_error():
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=response.model_dump())

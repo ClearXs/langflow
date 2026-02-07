@@ -1,14 +1,18 @@
-"""LLM service for Holo knowledge system."""
+"""LLM services and shared configuration helpers."""
 
-from .factory import LLMServiceFactory
-from .service import LLMService
-
-# Import wrapper functions for backward compatibility
-from .llm_service import get_user_long_context_llm, validate_llm_config
+from langflow.services.llm.config import LLMConfig, llm_config
+from langflow.services.llm.llm_service import (
+    LLMRole,
+    LLMService,
+    get_user_long_context_llm,
+    validate_llm_config,
+)
 
 __all__ = [
+    "LLMConfig",
+    "llm_config",
+    "LLMRole",
     "LLMService",
-    "LLMServiceFactory",
     "get_user_long_context_llm",
     "validate_llm_config",
 ]

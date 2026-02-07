@@ -1,5 +1,4 @@
-"""
-Notes routes for creating and managing BlockNote documents.
+"""Notes routes for creating and managing BlockNote documents.
 """
 
 from datetime import UTC, datetime
@@ -10,10 +9,9 @@ from pydantic import BaseModel
 from sqlalchemy import select
 
 from langflow.api.utils import CurrentActiveUser, DbSession
+from langflow.schema import PaginatedResponse
 from langflow.services.database.models.document import Document, DocumentRead, DocumentType
 from langflow.services.database.models.role import Permission
-from langflow.services.database.models.user import User
-from langflow.schema import PaginatedResponse
 from langflow.utils.rbac import check_permission
 
 router = APIRouter(prefix="/notes", tags=["Notes"])
@@ -24,6 +22,12 @@ class CreateNoteRequest(BaseModel):
     blocknote_document: list[dict[str, Any]] | None = None
 
 
+class UpdateNoteRequest(BaseModel):
+    title: str | None = None
+    content: str | None = None
+    blocknote_document: list[dict[str, Any]] | None = None
+
+
 @router.post("/search-spaces/{search_space_id}/notes", response_model=DocumentRead)
 async def create_note(
     search_space_id: int,
@@ -31,8 +35,7 @@ async def create_note(
     db: DbSession = None,
     current_user: CurrentActiveUser = None,
 ):
-    """
-    Create a new note (BlockNote document).
+    """Create a new note (BlockNote document).
 
     Requires DOCUMENTS_CREATE permission.
     """
@@ -67,11 +70,14 @@ async def create_note(
     # Create document with NOTE type
 
     document = Document(
-        search_space_id=search_space_id,
+        space_id=search_space_id,
+        connector_id=1,  # Default connector ID for notes
+        user_id=current_user.id,
         title=request.title.strip(),
-        document_type=DocumentType.NOTE,
+        doc_type=DocumentType.NOTE,
         content="",  # Empty initially, will be populated on first save/reindex
         content_hash=content_hash,
+        unique_identifier_hash=content_hash,  # Use content_hash as unique identifier
         blocknote_document=blocknote_document,
         content_needs_reindexing=False,  # Will be set to True on first save
         document_metadata={"NOTE": True},
@@ -83,18 +89,7 @@ async def create_note(
     await db.commit()
     await db.refresh(document)
 
-    return DocumentRead(
-        id=document.id,
-        title=document.title,
-        document_type=document.document_type,
-        content=document.content,
-        content_hash=document.content_hash,
-        unique_identifier_hash=document.unique_identifier_hash,
-        document_metadata=document.document_metadata,
-        search_space_id=document.search_space_id,
-        created_at=document.created_at,
-        updated_at=document.updated_at,
-    )
+    return DocumentRead.model_validate(document)
 
 
 @router.get(
@@ -109,8 +104,7 @@ async def list_notes(
     db: DbSession = None,
     current_user: CurrentActiveUser = None,
 ):
-    """
-    List all notes in a search space.
+    """List all notes in a search space.
 
     Requires DOCUMENTS_READ permission.
     """
@@ -127,16 +121,16 @@ async def list_notes(
 
     # Build query
     query = select(Document).where(
-        Document.search_space_id == search_space_id,
-        Document.document_type == DocumentType.NOTE,
+        Document.space_id == search_space_id,
+        Document.doc_type == DocumentType.NOTE,
     )
 
     # Get total count
     count_query = select(func.count()).select_from(
         select(Document)
         .where(
-            Document.search_space_id == search_space_id,
-            Document.document_type == DocumentType.NOTE,
+            Document.space_id == search_space_id,
+            Document.doc_type == DocumentType.NOTE,
         )
         .subquery()
     )
@@ -161,22 +155,8 @@ async def list_notes(
     result = await db.execute(query)
     documents = result.scalars().all()
 
-    # Convert to response models
-    items = [
-        DocumentRead(
-            id=doc.id,
-            title=doc.title,
-            document_type=doc.document_type,
-            content=doc.content,
-            content_hash=doc.content_hash,
-            unique_identifier_hash=doc.unique_identifier_hash,
-            document_metadata=doc.document_metadata,
-            search_space_id=doc.search_space_id,
-            created_at=doc.created_at,
-            updated_at=doc.updated_at,
-        )
-        for doc in documents
-    ]
+    # Convert to response models using from_attributes
+    items = [DocumentRead.model_validate(doc) for doc in documents]
 
     # Calculate pagination info
     actual_skip = (
@@ -202,8 +182,7 @@ async def delete_note(
     db: DbSession = None,
     current_user: CurrentActiveUser = None,
 ):
-    """
-    Delete a note.
+    """Delete a note.
 
     Requires DOCUMENTS_DELETE permission.
     """
@@ -220,8 +199,8 @@ async def delete_note(
     result = await db.execute(
         select(Document).where(
             Document.id == note_id,
-            Document.search_space_id == search_space_id,
-            Document.document_type == DocumentType.NOTE,
+            Document.space_id == search_space_id,
+            Document.doc_type == DocumentType.NOTE,
         )
     )
     document = result.scalars().first()
@@ -234,3 +213,61 @@ async def delete_note(
     await db.commit()
 
     return {"message": "Note deleted successfully", "note_id": note_id}
+
+
+@router.put("/search-spaces/{search_space_id}/notes/{note_id}", response_model=DocumentRead)
+async def update_note(
+    search_space_id: int,
+    note_id: int,
+    request: UpdateNoteRequest,
+    db: DbSession = None,
+    current_user: CurrentActiveUser = None,
+):
+    """Update a note.
+
+    Requires DOCUMENTS_UPDATE permission.
+    """
+    # Check RBAC permission
+    await check_permission(
+        db,
+        current_user,
+        search_space_id,
+        Permission.DOCUMENTS_UPDATE.value,
+        "You don't have permission to update notes in this search space",
+    )
+
+    # Get document
+    result = await db.execute(
+        select(Document).where(
+            Document.id == note_id,
+            Document.space_id == search_space_id,
+            Document.doc_type == DocumentType.NOTE,
+        )
+    )
+    document = result.scalars().first()
+
+    if not document:
+        raise HTTPException(status_code=404, detail="Note not found")
+
+    # Update fields
+    if request.title is not None:
+        if not request.title.strip():
+            raise HTTPException(status_code=400, detail="Title cannot be empty")
+        document.title = request.title.strip()
+
+    if request.content is not None:
+        document.content = request.content
+        # Update content hash
+        import hashlib
+        document.content_hash = hashlib.sha256(request.content.encode()).hexdigest()
+        document.content_needs_reindexing = True
+
+    if request.blocknote_document is not None:
+        document.blocknote_document = request.blocknote_document
+
+    document.updated_at = datetime.now(UTC)
+
+    await db.commit()
+    await db.refresh(document)
+
+    return DocumentRead.model_validate(document)

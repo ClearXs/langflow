@@ -27,6 +27,8 @@ export async function getRepoStars(owner: string, repo: string) {
   }
 }
 
+export { api };
+
 export async function getDiscordCount() {
   try {
     const response = await api.get(DISCORD_API_URL);

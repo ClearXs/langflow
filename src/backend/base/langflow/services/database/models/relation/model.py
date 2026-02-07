@@ -1,16 +1,9 @@
 """Relation model for knowledge graph."""
 
 from datetime import datetime, timezone
-from typing import TYPE_CHECKING
 
-from sqlalchemy import Column, JSON
-from sqlmodel import Field, Relationship, SQLModel
-
-if TYPE_CHECKING:
-    from langflow.services.database.models.entity.model import Entity
-    from langflow.services.database.models.space.model import Space
-    from langflow.services.database.models.document.model import Document
-    from langflow.services.database.models.chunk.model import Chunk
+from sqlalchemy import JSON, Column
+from sqlmodel import Field, SQLModel
 
 
 class Relation(SQLModel, table=True):
@@ -50,6 +43,14 @@ class Relation(SQLModel, table=True):
         default_factory=dict,
         sa_column=Column(JSON),
         description="Additional custom properties",
+    )
+
+    # Graph binding (Neo4j)
+    graph_edge_id: str | None = Field(
+        default=None,
+        index=True,
+        max_length=255,
+        description="Neo4j graph edge ID",
     )
 
     # Timestamps
